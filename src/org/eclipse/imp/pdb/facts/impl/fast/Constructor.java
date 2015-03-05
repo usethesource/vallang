@@ -26,6 +26,7 @@ import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -176,28 +177,62 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public boolean equals(Object o){
-		if(o == this) return true;
-		if(o == null) return false;
+	public boolean equals(Object o) {
+		if (IShareable.isSharingEnabled)
+			return o == this;
 		
-		if(o.getClass() == getClass()){
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			Constructor otherTree = (Constructor) o;
-			
-			if(constructorType != otherTree.constructorType) return false;
-			
+
+			if (constructorType != otherTree.constructorType)
+				return false;
+
 			IValue[] otherChildren = otherTree.children;
 			int nrOfChildren = children.length;
-			if(otherChildren.length == nrOfChildren){
-				for(int i = nrOfChildren - 1; i >= 0; i--){
-					if(!otherChildren[i].equals(children[i])) return false;
+			if (otherChildren.length == nrOfChildren) {
+				for (int i = nrOfChildren - 1; i >= 0; i--) {
+					if (!otherChildren[i].equals(children[i]))
+						return false;
 				}
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 	
+	@Override
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			Constructor otherTree = (Constructor) o;
+
+			if (constructorType != otherTree.constructorType)
+				return false;
+
+			IValue[] otherChildren = otherTree.children;
+			int nrOfChildren = children.length;
+			if (otherChildren.length == nrOfChildren) {
+				for (int i = nrOfChildren - 1; i >= 0; i--) {
+					if (otherChildren[i] != children[i])
+						return false;
+				}
+				return true;
+			}
+		}
+
+		return false;
+	}
+		
 	@Override
 	public boolean isEqual(IValue value){
 		if(value == this) return true;

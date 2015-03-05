@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -254,31 +255,61 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return data.hashCode();
 	}
 	
-	public boolean equals(Object o){
-		if(o == this) return true;
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
+	public boolean equals(Object o) {
+		if (IShareable.isSharingEnabled)
+			return o == this;
+			
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			Map otherMap = (Map) o;
-			
-			if (getType() != otherMap.getType()) return false;
-			
+
+			if (getType() != otherMap.getType())
+				return false;
+
 			return data.equals(otherMap.data);
 		}
-		
+
 		return false;
 	}
 	
-	public boolean isEqual(IValue value){
-		if(value == this) return true;
-		if(value == null) return false;
-		
-		if(value instanceof Map){
-			Map otherMap = (Map) value;
-			
-			return data.isEqual(otherMap.data);
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			Map otherMap = (Map) o;
+
+			if (getType() != otherMap.getType())
+				return false;
+
+			// NOTE: we call equivalent() instead of == because
+			// ShareableValuesHashMap gets not shared, only its content.
+			return data.equivalent(otherMap.data);
 		}
-		
+
 		return false;
 	}
+	
+	
+	public boolean isEqual(IValue value) {
+		if (value == this)
+			return true;
+		if (value == null)
+			return false;
+
+		if (value instanceof Map) {
+			Map otherMap = (Map) value;
+
+			return data.isEqual(otherMap.data);
+		}
+
+		return false;
+	}
+	
 }

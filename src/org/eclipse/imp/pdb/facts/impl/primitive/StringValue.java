@@ -17,6 +17,7 @@ import java.nio.CharBuffer;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -102,17 +103,41 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return value.hashCode();
 		}
 		
-		public boolean equals(Object o){
-			if(o == null) return false;
-			if(this == o) return true;
-			if(o.getClass() == getClass()){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if (this == o)
+				return true;
+			if (o == null)
+				return false;
+
+			if (o.getClass() == getClass()) {
 				FullUnicodeString otherString = (FullUnicodeString) o;
 				return value.equals(otherString.value);
 			}
-			
+
 			return false;
 		}
 		
+		public boolean equivalent(IShareable o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if (this == o)
+				return true;
+			if (o == null)
+				return false;
+
+			if (o.getClass() == getClass()) {
+				FullUnicodeString otherString = (FullUnicodeString) o;
+				// TODO: ensure that at construction String.intern() is called.
+				return value == otherString.value;
+			}
+
+			return false;
+		}
+			
 		@Override
 		public boolean isEqual(IValue value){
 			return equals(value);

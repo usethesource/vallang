@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.impl.primitive;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -45,5 +46,10 @@ public abstract class ExternalValue extends AbstractValue implements IExternalVa
 	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
+	}
+	
+	@Override
+	public boolean equivalent(IShareable o) {
+		throw new UnsupportedOperationException("Sharing is only enabled within the library.");
 	}
 }

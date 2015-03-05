@@ -30,6 +30,19 @@ public class EqualityUtils {
 			}
 		};
 	}
+
+	/**
+	 * Temporary function in order to support different equality checks.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static Comparator getReferenceEqualityComparator() {
+		return new Comparator() {
+			@Override
+			public int compare(Object a, Object b) {
+				return a == b ? 0 : -1;
+			}
+		};
+	}	
 	
 	/**
 	 * Temporary function in order to support equivalence. Note, this

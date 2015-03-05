@@ -13,6 +13,8 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
+
 /**
  * This list implementation is shareable and guarantees that the following operations can be done
  * in constant time:
@@ -32,7 +34,7 @@ import java.util.NoSuchElementException;
  * @param <E>
  *            The element type.
  */
-public class ShareableList<E> implements Iterable<E>{
+public class ShareableList<E> implements Iterable<E>, IShareable {
 	private final static int INITIAL_LOG_SIZE = 2;
 
 	private int frontCapacity;
@@ -500,26 +502,60 @@ public class ShareableList<E> implements Iterable<E>{
 	 * 
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(Object o){
-		if(o == null) return false;
+	public boolean equals(Object o) {
+		// if (IShareable.isSharingEnabled)
+		// return o == this;
 		
-		if(o.getClass() == getClass()){
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			ShareableList<?> other = (ShareableList<?>) o;
-			
-			if(other.size() == size()){
-				if(isEmpty()) return true; // No need to check if the lists are empty.
-				
+
+			if (other.size() == size()) {
+				if (isEmpty())
+					return true; // No need to check if the lists are empty.
+
 				Iterator<E> thisIterator = iterator();
 				Iterator<?> otherIterator = other.iterator();
-				while(thisIterator.hasNext()){
-					if(!thisIterator.next().equals(otherIterator.next())) return false;
+				while (thisIterator.hasNext()) {
+					if (!thisIterator.next().equals(otherIterator.next()))
+						return false;
 				}
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
+	
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			ShareableList<?> other = (ShareableList<?>) o;
+
+			if (other.size() == size()) {
+				if (isEmpty())
+					return true; // No need to check if the lists are empty.
+
+				Iterator<E> thisIterator = iterator();
+				Iterator<?> otherIterator = other.iterator();
+				while (thisIterator.hasNext()) {
+					if (thisIterator.next() != otherIterator.next())
+						return false;
+				}
+				return true;
+			}
+		}
+
+		return false;
+	}	
 	
 	/**
 	 * Prints the internal representation of this list to a string.

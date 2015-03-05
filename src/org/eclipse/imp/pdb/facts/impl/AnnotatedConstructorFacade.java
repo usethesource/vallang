@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -110,19 +111,42 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	}
 
 	public boolean equals(Object o) {
-		if(o == this) return true;
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
+		if (IShareable.isSharingEnabled)
+			return o == this;
+
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			AnnotatedConstructorFacade other = (AnnotatedConstructorFacade) o;
-		
-			return content.equals(other.content) &&
-					annotations.equals(other.annotations);
+
+			return content.equals(other.content)
+					&& annotations.equals(other.annotations);
 		}
-		
+
 		return false;
 	}
 
+	@Override
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			AnnotatedConstructorFacade other = (AnnotatedConstructorFacade) o;
+
+			// TODO: equivalent on annotations?
+			return content == other.content
+					&& annotations.equals(other.annotations);
+		}
+
+		return false;
+	}
+	
 	public boolean isEqual(IValue other) {
 		return content.isEqual(other);
 	}
@@ -151,11 +175,13 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	
 	@Override
 	public boolean mayHaveKeywordParameters() {
-	  return false;
+		return false;
 	}
 
 	@Override
 	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-	  throw new UnsupportedOperationException("can not add keyword parameters to a node which already has annotations");
+		throw new UnsupportedOperationException(
+				"can not add keyword parameters to a node which already has annotations");
 	}
+
 }

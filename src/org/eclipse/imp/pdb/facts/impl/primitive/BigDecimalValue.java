@@ -27,6 +27,7 @@ import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.BigDecimalCalculations;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -308,14 +309,34 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return (int) (bits ^ (bits >>> 32));
 	}
 	
-	public boolean equals(Object o){
-		if(o == null) return false;
+	public boolean equals(Object o) {
+		if (IShareable.isSharingEnabled)
+			return o == this;
 		
-		if(o.getClass() == getClass()){
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			BigDecimalValue otherDouble = (BigDecimalValue) o;
 			return (value.equals(otherDouble.value));
 		}
-		
+
+		return false;
+	}
+
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			BigDecimalValue otherDouble = (BigDecimalValue) o;
+			return (value.equals(otherDouble.value));
+		}
+
 		return false;
 	}
 	

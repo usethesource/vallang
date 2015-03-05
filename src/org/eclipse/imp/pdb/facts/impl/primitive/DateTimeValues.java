@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -226,6 +227,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 		@Override
 		public boolean equals(Object obj) {
+			if (IShareable.isSharingEnabled)
+				return obj == this;
+			
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -241,7 +245,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				return false;
 			return true;
 		}
-
+		
+		@Override
+		public boolean equivalent(IShareable obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			DateValue other = (DateValue) obj;
+			if (day != other.day)
+				return false;
+			if (month != other.month)
+				return false;
+			if (year != other.year)
+				return false;
+			return true;
+		}
+	
 		@Override
 		public boolean isEqual(IValue other) {
 			return equals(other);
@@ -516,6 +538,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 		@Override
 		public boolean equals(Object obj) {
+			if (IShareable.isSharingEnabled)
+				return obj == this;
+			
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -538,6 +563,30 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return true;
 		}
 
+		@Override
+		public boolean equivalent(IShareable obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			TimeValue other = (TimeValue) obj;
+			if (hour != other.hour)
+				return false;
+			if (millisecond != other.millisecond)
+				return false;
+			if (minute != other.minute)
+				return false;
+			if (second != other.second)
+				return false;
+			if (timezoneHours != other.timezoneHours)
+				return false;
+			if (timezoneMinutes != other.timezoneMinutes)
+				return false;
+			return true;
+		}
+			
 		@Override
 		public boolean isEqual(IValue other) {
 			return equals(other);
@@ -841,6 +890,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 		@Override
 		public boolean equals(Object obj) {
+			if (IShareable.isSharingEnabled)
+				return obj == this;
+			
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -868,7 +920,37 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				return false;
 			return true;
 		}
-
+		
+		@Override
+		public boolean equivalent(IShareable obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			DateTimeValue other = (DateTimeValue) obj;
+			if (day != other.day)
+				return false;
+			if (hour != other.hour)
+				return false;
+			if (millisecond != other.millisecond)
+				return false;
+			if (minute != other.minute)
+				return false;
+			if (month != other.month)
+				return false;
+			if (second != other.second)
+				return false;
+			if (timezoneHours != other.timezoneHours)
+				return false;
+			if (timezoneMinutes != other.timezoneMinutes)
+				return false;
+			if (year != other.year)
+				return false;
+			return true;
+		}
+	
 		@Override
 		public boolean isEqual(IValue other) {
 			return equals(other);

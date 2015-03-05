@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.impl.primitive;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -106,6 +107,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return this == o;
 	}
 
+	public boolean equivalent(IShareable o) {
+		return this == o;
+	}
+	
 	@Override
 	public Type getType() {
 		return BOOL_TYPE;

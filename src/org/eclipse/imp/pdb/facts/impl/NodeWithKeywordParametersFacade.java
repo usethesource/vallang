@@ -19,9 +19,9 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -78,18 +78,41 @@ public class NodeWithKeywordParametersFacade implements INode {
 	}
 
 	public boolean equals(Object o) {
-		if(o == this) return true;
-		if(o == null) return false;
+		if (IShareable.isSharingEnabled)
+			return o == this;
 		
-		if(o.getClass() == getClass()){
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+		
+		if (o.getClass() == getClass()) {
 			NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;
-		
-			return content.equals(other.content) &&
-					parameters.equals(other.parameters);
+
+			return content.equals(other.content)
+					&& parameters.equals(other.parameters);
 		}
-		
+
 		return false;
 	}
+	
+	@Override
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+		
+		if (o.getClass() == getClass()) {
+			NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;
+
+			// TODO: equivalent on parameters?
+			return content == other.content
+					&& parameters.equals(other.parameters);
+		}
+
+		return false;
+	}	
 
 	@Override
 	public boolean isEqual(IValue other) {

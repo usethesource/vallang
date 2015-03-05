@@ -16,13 +16,14 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 
 /**
  * A specialized version of the ShareableSet, specifically meant for storing values.
  * 
  * @author Arnold Lankamp
  */
-public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValue>{
+public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValue>, IShareable {
 	private final static int INITIAL_LOG_SIZE = 4;
 
 	private int modSize;
@@ -345,38 +346,92 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		return true;
 	}
 	
-	private boolean containsTruelyEqual(IValue value){
+	private boolean containsTruelyEqual(IValue value) {
 		int hash = value.hashCode();
 		int position = hash & hashMask;
-		
+
 		Entry<IValue> entry = data[position];
-		while(entry != null){
-			if(hash == entry.hash && value.equals(entry.value)) return true;
-			
+		while (entry != null) {
+			if (hash == entry.hash && value.equals(entry.value))
+				return true;
+
 			entry = entry.next;
 		}
-		
+
 		return false;
 	}
 	
-	public boolean equals(Object o){
-		if(o == null) return false;
+	private boolean containsReferenceEqual(IValue value) {
+		int hash = value.hashCode();
+		int position = hash & hashMask;
+
+		Entry<IValue> entry = data[position];
+		while (entry != null) {
+			if (hash == entry.hash && value == entry.value)
+				return true;
+
+			entry = entry.next;
+		}
+
+		return false;
+	}
+	
+	public boolean equals(Object o) {
+		// if (IShareable.isSharingEnabled)
+		// return o == this;
 		
-		if(o.getClass() == getClass()){
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			ShareableValuesHashSet other = (ShareableValuesHashSet) o;
-			
-			if(other.currentHashCode != currentHashCode) return false;
-			if(other.size() != size()) return false;
-			
-			if(isEmpty()) return true; // No need to check if the sets are empty.
-			
+
+			if (other.currentHashCode != currentHashCode)
+				return false;
+			if (other.size() != size())
+				return false;
+
+			if (isEmpty())
+				return true; // No need to check if the sets are empty.
+
 			Iterator<IValue> otherIterator = other.iterator();
-			while(otherIterator.hasNext()){
-				if(!containsTruelyEqual(otherIterator.next())) return false;
+			while (otherIterator.hasNext()) {
+				if (!containsTruelyEqual(otherIterator.next()))
+					return false;
 			}
 			return true;
 		}
-		
+
+		return false;
+	}
+
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			ShareableValuesHashSet other = (ShareableValuesHashSet) o;
+
+			if (other.currentHashCode != currentHashCode)
+				return false;
+			if (other.size() != size())
+				return false;
+
+			if (isEmpty())
+				return true; // No need to check if the sets are empty.
+
+			Iterator<IValue> otherIterator = other.iterator();
+			while (otherIterator.hasNext()) {
+				if (!containsReferenceEqual(otherIterator.next()))
+					return false;
+			}
+			return true;
+		}
+
 		return false;
 	}
 	

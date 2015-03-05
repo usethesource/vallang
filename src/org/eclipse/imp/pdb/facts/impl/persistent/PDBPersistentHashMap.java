@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractMap;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
@@ -30,6 +31,8 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
+	@SuppressWarnings("unchecked")
+	private static final Comparator<Object> referenceEqualityComparator = EqualityUtils.getReferenceEqualityComparator();
 	
 	private Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag; 
@@ -128,11 +131,14 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	
 	@Override
 	public boolean equals(Object other) {
+		if (IShareable.isSharingEnabled)
+			return other == this;
+		
 		if (other == this)
 			return true;
 		if (other == null)
 			return false;
-		
+
 		if (other instanceof PDBPersistentHashMap) {
 			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
 
@@ -141,30 +147,74 @@ public final class PDBPersistentHashMap extends AbstractMap {
 
 			return content.equals(that.content);
 		}
-		
+
 		if (other instanceof IMap) {
 			IMap that = (IMap) other;
 
 			if (this.getType() != that.getType())
 				return false;
-			
+
 			if (this.size() != that.size())
 				return false;
-			
+
 			for (IValue e : that) {
-	            if (!content.containsKey(e)) {
-	                return false;
-	            } else if (!content.get(e).equals(that.get(e))) {
-	            	return false;
-	            }
+				if (!content.containsKey(e)) {
+					return false;
+				} else if (!content.get(e).equals(that.get(e))) {
+					return false;
+				}
 			}
-			
-	        return true;			
+
+			return true;
 		}
-		
+
 		return false;
 	}
-	
+
+	@Override
+	public boolean equivalent(IShareable other) {
+		if (other == this)
+			return true;
+		if (other == null)
+			return false;
+
+		if (other instanceof PDBPersistentHashMap) {
+			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			// TODO: support equivalent on ImmutableMap
+			return content.equivalent(that.content);
+		}
+
+		if (other instanceof IMap) {
+			IMap that = (IMap) other;
+
+			if (this.getType() != that.getType())
+				return false;
+
+			if (this.size() != that.size())
+				return false;
+
+			for (IValue e : that) {
+				if (!content.containsKeyEquivalent(e, referenceEqualityComparator)) {
+					return false;
+				} else if (content
+						.getEquivalent(e, referenceEqualityComparator) != that
+						.get(e)) {
+					// NOTE: it is not possible to call get with reference
+					// equality semantics on 'that'.
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+		
 	@Override
 	public boolean isEqual(IValue other) {
 		if (other == this)

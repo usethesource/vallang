@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -211,31 +212,60 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public boolean equals(Object o){
-		if(o == this) return true;
-		if(o == null) return false;
+		if (IShareable.isSharingEnabled)
+			return o == this;
 		
-		if(o.getClass() == getClass()){
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			Set otherSet = (Set) o;
-			
+
 			if (getType() != otherSet.getType()) {
-			  return false;
+				return false;
 			}
+			
 			return data.equals(otherSet.data);
 		}
-		
+
 		return false;
 	}
-	
-	public boolean isEqual(IValue value){
-		if(value == this) return true;
-		if(value == null) return false;
-		
-		if(value instanceof Set){
-			Set otherSet = (Set) value;
+
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			Set otherSet = (Set) o;
+
+			if (getType() != otherSet.getType()) {
+				return false;
+			}
 			
+			// NOTE: we call equivalent() instead of == because
+			// ShareableValuesHashSet gets not shared, only its content.
+			return data.equivalent(otherSet.data);
+		}
+
+		return false;
+	}
+		
+	public boolean isEqual(IValue value) {
+		if (value == this)
+			return true;
+		if (value == null)
+			return false;
+
+		if (value instanceof Set) {
+			Set otherSet = (Set) value;
+
 			return data.isEqual(otherSet.data);
 		}
-		
+
 		return false;
 	}
 

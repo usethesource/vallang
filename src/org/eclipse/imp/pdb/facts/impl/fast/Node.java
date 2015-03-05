@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractNode;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ArrayIterator;
@@ -138,47 +139,87 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public boolean equals(Object o){
+	public boolean equals(Object o) {
+		if (IShareable.isSharingEnabled)
+			return o == this;
+		
 		if (o == this) {
-		  return true;
+			return true;
 		}
 		if (o == null) {
-		  return false;
+			return false;
 		}
-		
+
 		if (o.getClass() != getClass()) {
-		  return false;
+			return false;
 		}
-		
+
 		Node other = (Node) o;
 
 		// Yes '!=' works here, since it has been interned.
 		if (name != other.name) {
-		  return false; 
+			return false;
 		}
 
 		IValue[] otherChildren = other.children;
 		int nrOfChildren = children.length;
 
 		if (otherChildren.length != nrOfChildren) {
-		  return false;
+			return false;
 		}
 
 		for (int i = nrOfChildren - 1; i >= 0; i--) {
-		  if (!otherChildren[i].equals(children[i])) {
-		    return false;
-		  }
+			if (!otherChildren[i].equals(children[i])) {
+				return false;
+			}
 		}
 
 		return true;
 	}
+
+	@Override
+	public boolean equivalent(IShareable o) {
+		if (o == this) {
+			return true;
+		}
+		if (o == null) {
+			return false;
+		}
+
+		if (o.getClass() != getClass()) {
+			return false;
+		}
+
+		Node other = (Node) o;
+
+		// Yes '!=' works here, since it has been interned.
+		if (name != other.name) {
+			return false;
+		}
+
+		IValue[] otherChildren = other.children;
+		int nrOfChildren = children.length;
+
+		if (otherChildren.length != nrOfChildren) {
+			return false;
+		}
+
+		for (int i = nrOfChildren - 1; i >= 0; i--) {
+			if (otherChildren[i] != children[i]) {
+				return false;
+			}
+		}
+
+		return true;
+	}	
 	
 	/**
 	 * TODO: Check if it is easily possible to cast annotatable's content to
 	 * List and to reuse old isEqual.
 	 */
 	@Override
-	public boolean isEqual(IValue value){
+	public boolean isEqual(IValue value) {
 		return NodeFunctions.isEqual(getValueFactory(), this, value);
 	}
+
 }

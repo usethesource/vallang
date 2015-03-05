@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.util.ShareableHashSet;
 
 /**
@@ -23,7 +24,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashSet;
  * 
  * @author Arnold Lankamp
  */
-public final class ShareableValuesHashMap implements Map<IValue, IValue>{
+public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShareable {
 	private final static int INITIAL_LOG_SIZE = 4;
 
 	private int modSize;
@@ -356,6 +357,9 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	}
 	
 	public boolean isEqual(ShareableValuesHashMap other){
+		if(other == this) {
+			return true;
+		}
 		if(other == null) {
 			return false;
 		}
@@ -403,30 +407,89 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return null;
 	}
 	
-	public boolean equals(Object o){
-		if(o == null) return false;
+	private IValue getReferenceEqual(IValue key){
+		int hash = key.hashCode();
+		int position = hash & hashMask;
 		
-		if(o.getClass() == getClass()){
+		Entry<IValue, IValue> entry = data[position];
+		while(entry != null){
+			if(hash == entry.hash && key == entry.key) return entry.value;
+			
+			entry = entry.next;
+		}
+		
+		return null;
+	}	
+	
+	public boolean equals(Object o) {
+		// if (IShareable.isSharingEnabled)
+		// return o == this;
+		
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			ShareableValuesHashMap other = (ShareableValuesHashMap) o;
-			
-			if(other.currentHashCode != currentHashCode) return false;
-			if(other.size() != size()) return false;
-		
-			if(isEmpty()) return true; // No need to check if the maps are empty.
-			
-			Iterator<Map.Entry<IValue, IValue>> otherIterator = other.entryIterator();
-			while(otherIterator.hasNext()){
+
+			if (other.currentHashCode != currentHashCode)
+				return false;
+			if (other.size() != size())
+				return false;
+
+			if (isEmpty())
+				return true; // No need to check if the maps are empty.
+
+			Iterator<Map.Entry<IValue, IValue>> otherIterator = other
+					.entryIterator();
+			while (otherIterator.hasNext()) {
 				Map.Entry<IValue, IValue> entry = otherIterator.next();
 				IValue otherValue = entry.getValue();
 				IValue thisValue = getTruelyEqual(entry.getKey());
-				
-				if(otherValue != thisValue && (thisValue == null || !thisValue.equals(otherValue))) return false;
+
+				if (otherValue != thisValue
+						&& (thisValue == null || !thisValue.equals(otherValue)))
+					return false;
 			}
 			return true;
 		}
-		
+
 		return false;
 	}
+	
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			ShareableValuesHashMap other = (ShareableValuesHashMap) o;
+
+			if (other.currentHashCode != currentHashCode)
+				return false;
+			if (other.size() != size())
+				return false;
+
+			if (isEmpty())
+				return true; // No need to check if the maps are empty.
+
+			Iterator<Map.Entry<IValue, IValue>> otherIterator = other
+					.entryIterator();
+			while (otherIterator.hasNext()) {
+				Map.Entry<IValue, IValue> entry = otherIterator.next();
+				IValue otherValue = entry.getValue();
+				IValue thisValue = getReferenceEqual(entry.getKey());
+
+				if (thisValue == null || thisValue != otherValue)
+					return false;
+			}
+			return true;
+		}
+
+		return false;
+	}	
 	
 	private static class Entry<K, V> implements Map.Entry<K, V>{
 		public final int hash;

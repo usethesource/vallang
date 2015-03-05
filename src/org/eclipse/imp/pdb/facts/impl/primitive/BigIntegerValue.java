@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -325,18 +326,37 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return value.hashCode();
 	}
 	
-	public boolean equals(Object o){
-		if(o == null) return false;
-		else if(o == this) return true;
-		
-		if(o.getClass() == getClass()){
+	public boolean equals(Object o) {
+		if (IShareable.isSharingEnabled)
+			return o == this;
+
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			BigIntegerValue otherInteger = (BigIntegerValue) o;
 			return value.equals(otherInteger.value);
 		}
-		
+
 		return false;
 	}
-	
+
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			BigIntegerValue otherInteger = (BigIntegerValue) o;
+			return value.equals(otherInteger.value);
+		}
+
+		return false;
+	}
+
 	@Override
 	public boolean isEqual(IValue other){
 		return equals(other);

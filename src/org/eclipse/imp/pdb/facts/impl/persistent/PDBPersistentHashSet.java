@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
@@ -32,7 +33,9 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
-
+	@SuppressWarnings("unchecked")
+	private static final Comparator<Object> referenceEqualityComparator = EqualityUtils.getReferenceEqualityComparator();
+	
 	private Type cachedSetType;
 	private final AbstractTypeBag elementTypeBag;
 	private final ImmutableSet<IValue> content;
@@ -122,42 +125,84 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	
 	@Override
 	public boolean equals(Object other) {
+		if (IShareable.isSharingEnabled)
+			return other == this;
+		
 		if (other == this)
 			return true;
 		if (other == null)
 			return false;
-		
+
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
 			if (this.getType() != that.getType())
 				return false;
-			
+
 			if (this.size() != that.size())
 				return false;
 
 			return content.equals(that.content);
 		}
-		
+
 		if (other instanceof ISet) {
 			ISet that = (ISet) other;
 
 			if (this.getType() != that.getType())
 				return false;
-			
+
 			if (this.size() != that.size())
 				return false;
-			
-			for (IValue e : that)
-	            if (!content.contains(e))
-	                return false;
 
-	        return true;			
+			for (IValue e : that)
+				if (!content.contains(e))
+					return false;
+
+			return true;
 		}
-		
+
 		return false;
 	}
-	
+
+	@Override
+	public boolean equivalent(IShareable other) {
+		if (other == this)
+			return true;
+		if (other == null)
+			return false;
+
+		if (other instanceof PDBPersistentHashSet) {
+			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+
+			if (this.getType() != that.getType())
+				return false;
+
+			if (this.size() != that.size())
+				return false;
+
+			// TODO: support equivalent on ImmutableSet
+			return content.equivalent(that.content);
+		}
+
+		if (other instanceof ISet) {
+			ISet that = (ISet) other;
+
+			if (this.getType() != that.getType())
+				return false;
+
+			if (this.size() != that.size())
+				return false;
+
+			for (IValue e : that)
+				if (!content.containsEquivalent(e, referenceEqualityComparator))
+					return false;
+
+			return true;
+		}
+
+		return false;
+	}
+		
 	@Override
 	public boolean isEqual(IValue other) {
 		if (other == this)

@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -119,6 +120,11 @@ class Tuple extends AbstractValue implements ITuple {
 		return false;
 	}
 
+	@Override
+	public boolean equivalent(IShareable that) {
+		throw new UnsupportedOperationException("Not supported on reference implementation.");
+	}	
+	
 	@Override
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		try {

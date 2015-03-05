@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractList;
 import org.eclipse.imp.pdb.facts.impl.func.ListFunctions;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 /*package*/ class List extends AbstractList {
@@ -69,6 +70,11 @@ import org.eclipse.imp.pdb.facts.type.Type;
 	public boolean equals(Object that) {
 		return ListFunctions.equals(getValueFactory(), this, that);
 	}
+	
+	@Override
+	public boolean equivalent(IShareable that) {
+		throw new UnsupportedOperationException("Not supported on reference implementation.");
+	}	
 
 	@Override
 	public boolean isEqual(IValue that) {

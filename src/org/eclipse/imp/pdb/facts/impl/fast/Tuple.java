@@ -16,6 +16,7 @@ import java.util.NoSuchElementException;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -150,45 +151,78 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return hash - (hash << 7);
 	}
 
-	public boolean equals(Object o){
-		if(o == this) return true;
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
+	public boolean equals(Object o) {
+		if (IShareable.isSharingEnabled)
+			return o == this;
+
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			Tuple otherTuple = (Tuple) o;
-			
+
 			IValue[] otherElements = otherTuple.elements;
 			int nrOfElements = elements.length;
-			if(otherElements.length == nrOfElements){
-				for(int i = nrOfElements - 1; i >= 0; i--){
-					if(!otherElements[i].equals(elements[i])) return false;
+			if (otherElements.length == nrOfElements) {
+				for (int i = nrOfElements - 1; i >= 0; i--) {
+					if (!otherElements[i].equals(elements[i]))
+						return false;
 				}
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
-	public boolean isEqual(IValue value){
-		if(value == this) return true;
-		if(value == null) return false;
-		
-		if(value instanceof Tuple){
-			Tuple otherTuple = (Tuple) value;
-			
-			if(!tupleType.comparable(otherTuple.tupleType)) return false;
-			
+
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			Tuple otherTuple = (Tuple) o;
+
 			IValue[] otherElements = otherTuple.elements;
 			int nrOfElements = elements.length;
-			if(otherElements.length == nrOfElements){
-				for(int i = nrOfElements - 1; i >= 0; i--){
-					if(!otherElements[i].isEqual(elements[i])) return false;
+			if (otherElements.length == nrOfElements) {
+				for (int i = nrOfElements - 1; i >= 0; i--) {
+					if (otherElements[i] != elements[i])
+						return false;
 				}
 				return true;
 			}
 		}
-		
+
+		return false;
+	}
+
+	public boolean isEqual(IValue value) {
+		if (value == this)
+			return true;
+		if (value == null)
+			return false;
+
+		if (value instanceof Tuple) {
+			Tuple otherTuple = (Tuple) value;
+
+			if (!tupleType.comparable(otherTuple.tupleType))
+				return false;
+
+			IValue[] otherElements = otherTuple.elements;
+			int nrOfElements = elements.length;
+			if (otherElements.length == nrOfElements) {
+				for (int i = nrOfElements - 1; i >= 0; i--) {
+					if (!otherElements[i].isEqual(elements[i]))
+						return false;
+				}
+				return true;
+			}
+		}
+
 		return false;
 	}
 	

@@ -35,6 +35,7 @@ public class ShareableValuesList extends ShareableList<IValue>{
 	}
 	
 	public boolean isEqual(ShareableValuesList otherShareableValuesList){
+		if(otherShareableValuesList == this) return true;
 		if(otherShareableValuesList == null) return false;
 		if(otherShareableValuesList.size() != size()) return false;
 		

@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -80,16 +81,39 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	}
 
 	public boolean equals(Object o) {
-		if(o == this) return true;
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
+		if (IShareable.isSharingEnabled)
+			return o == this;
+
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			ConstructorWithKeywordParametersFacade other = (ConstructorWithKeywordParametersFacade) o;
-		
-			return content.equals(other.content) &&
-					parameters.equals(other.parameters);
+
+			return content.equals(other.content)
+					&& parameters.equals(other.parameters);
 		}
-		
+
+		return false;
+	}
+	
+	@Override
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			ConstructorWithKeywordParametersFacade other = (ConstructorWithKeywordParametersFacade) o;
+
+			// TODO: equivalent on parameters?
+			return content == other.content
+					&& parameters.equals(other.parameters);
+		}
+
 		return false;
 	}
 

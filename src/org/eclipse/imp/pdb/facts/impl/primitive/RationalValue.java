@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -225,10 +226,15 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public boolean equals(Object o) {
-		if(o == null) return false;
-		if(o == this) return true;
+		if (IShareable.isSharingEnabled)
+			return o == this;
 
-		if(o.getClass() == getClass()){
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			RationalValue other = (RationalValue) o;
 			return num.equals(other.num) && denom.equals(other.denom);
 		}
@@ -236,6 +242,20 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			RationalValue other = (RationalValue) o;
+			return num.equals(other.num) && denom.equals(other.denom);
+		}
+
+		return false;
+	}	
+	
 	@Override
 	public int compare(INumber other) {
 		if(isIntegerType(other)) {

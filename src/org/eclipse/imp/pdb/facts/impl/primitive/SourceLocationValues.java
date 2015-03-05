@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -367,6 +368,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		@Override
 		public boolean equals(Object o){
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -382,6 +387,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equivalent(IShareable o){
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntIntIntIntIntInt otherSourceLocation = (IntIntIntIntIntInt) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 	}
 	
 	private static class CharCharByteByteByteByte extends Complete {
@@ -451,7 +475,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -467,6 +495,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equivalent(IShareable o) {
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				CharCharByteByteByteByte otherSourceLocation = (CharCharByteByteByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 	}
 	
 	private static class CharCharCharCharCharChar extends Complete {
@@ -536,7 +583,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -552,6 +603,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equivalent(IShareable o) {
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				CharCharCharCharCharChar otherSourceLocation = (CharCharCharCharCharChar) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 	}
 
 	private static class OnlyURI extends Incomplete {
@@ -566,7 +636,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -576,6 +650,19 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equivalent(IShareable o) {
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				OnlyURI otherSourceLocation = (OnlyURI) o;
+				return uri.equals(otherSourceLocation.uri);
+			}
+			
+			return false;
+		}		
 	}
 
 	private static class IntIntIntIntByteByte extends Complete {
@@ -641,7 +728,30 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntIntIntIntByteByte otherSourceLocation = (IntIntIntIntByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public boolean equivalent(IShareable o) {
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -722,7 +832,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -738,6 +852,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equivalent(IShareable o) {
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntIntCharCharByteByte otherSourceLocation = (IntIntCharCharByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (beginLine == otherSourceLocation.beginLine)
+						&& (endLine == otherSourceLocation.endLine)
+						&& (beginCol == otherSourceLocation.beginCol)
+						&& (endCol == otherSourceLocation.endCol)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 	}
 
 	private static class ByteByte extends Incomplete {
@@ -776,7 +909,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -788,6 +925,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equivalent(IShareable o) {
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				ByteByte otherSourceLocation = (ByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 	}
 
 	private static class CharChar extends Incomplete {
@@ -826,7 +978,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -838,6 +994,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equivalent(IShareable o) {
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				CharChar otherSourceLocation = (CharChar) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 	}
 	
 	private static class IntInt extends Incomplete {
@@ -881,7 +1052,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(Object o) {
+			if (IShareable.isSharingEnabled)
+				return o == this;
+			
+			if(o == this) return true;
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -893,6 +1068,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			return false;
 		}
+		
+		@Override
+		public boolean equivalent(IShareable o) {
+			if(o == this) return true;
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntInt otherSourceLocation = (IntInt) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}		
 	}
 
 

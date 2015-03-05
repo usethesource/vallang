@@ -18,6 +18,13 @@ package org.eclipse.imp.pdb.facts.impl.util.sharing;
 public interface IShareable{
 	
 	/**
+	 * Global property to enable maximal sharing for all IShareable
+	 * implementations.
+	 */
+	public final static boolean isSharingEnabled = System.getProperties()
+			.containsKey("sharingEnabled");
+	
+	/**
 	 * Computes the hashcode for 'this' object.
 	 * 
 	 * @return The hashcode

@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -247,7 +248,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		return new ListWriter(newElementType, newData).done();
 	}
-	
+
+	@Override
 	public int hashCode(){
 		if (hashCode == 0) {
 			hashCode = data.hashCode();
@@ -255,35 +257,73 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return hashCode;
 	}
 
-	public boolean equals(Object o){
-		if(o == this) return true;
-		if(o == null) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (IShareable.isSharingEnabled)
+			return o == this;
 		
-		if(o instanceof List) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
 			List otherList = (List) o;
-			
-			if (getType() != otherList.getType()) return false;
-			
-			if (hashCode() != otherList.hashCode()) return false;
-			
-			if (listType != otherList.listType) return false;
-			
+
+			if (getType() != otherList.getType())
+				return false;
+
+			if (hashCode() != otherList.hashCode())
+				return false;
+
+			if (listType != otherList.listType)
+				return false;
+
 			return data.equals(otherList.data);
 		}
-		
+
 		return false;
 	}
+	
+	@Override
+	public boolean equivalent(IShareable o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
 
-	public boolean isEqual(IValue value){
-		if(value == this) return true;
-		if(value == null) return false;
-		
-		if(value instanceof List){
+		if (o.getClass() == getClass()) {
+			List otherList = (List) o;
+
+			if (getType() != otherList.getType())
+				return false;
+
+			if (hashCode() != otherList.hashCode())
+				return false;
+
+			if (listType != otherList.listType)
+				return false;
+
+			// NOTE: we call equivalent() instead of == because
+			// ShareableValuesList gets not shared, only its content.
+			return data.equivalent(otherList.data);
+		}
+
+		return false;
+	}
+	
+	public boolean isEqual(IValue value) {
+		if (value == this)
+			return true;
+		if (value == null)
+			return false;
+
+		if (value instanceof List) {
 			List otherList = (List) value;
-			
+
 			return data.isEqual(otherList.data);
 		}
-		
+
 		return false;
 	}
 	
