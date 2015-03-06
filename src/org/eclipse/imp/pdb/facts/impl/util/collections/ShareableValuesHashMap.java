@@ -368,6 +368,11 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShare
 		return currentHashCode;
 	}
 	
+	@Override
+	public int equivalentHashCode() {
+		return hashCode();
+	}
+	
 	public boolean isEqual(ShareableValuesHashMap other){
 		if(other == this) {
 			return true;

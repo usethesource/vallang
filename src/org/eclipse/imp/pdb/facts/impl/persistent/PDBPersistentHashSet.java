@@ -133,6 +133,11 @@ public final class PDBPersistentHashSet extends AbstractSet implements IShareabl
 	}
 	
 	@Override
+	public int equivalentHashCode() {
+		return hashCode();
+	}	
+	
+	@Override
 	public boolean equals(Object other) {
 		if (IShareable.isSharingEnabled)
 			return other == this;

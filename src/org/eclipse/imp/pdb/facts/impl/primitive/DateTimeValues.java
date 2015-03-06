@@ -229,6 +229,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 
 		@Override
+		public int equivalentHashCode() {
+			return hashCode();
+		}	
+		
+		@Override
 		public boolean equals(Object obj) {
 			if (IShareable.isSharingEnabled)
 				return obj == this;
@@ -543,6 +548,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return result;
 		}
 
+		@Override
+		public int equivalentHashCode() {
+			return hashCode();
+		}
+		
 		@Override
 		public boolean equals(Object obj) {
 			if (IShareable.isSharingEnabled)
@@ -899,6 +909,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return result;
 		}
 
+		@Override
+		public int equivalentHashCode() {
+			return hashCode();
+		}
+		
 		@Override
 		public boolean equals(Object obj) {
 			if (IShareable.isSharingEnabled)

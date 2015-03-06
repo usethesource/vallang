@@ -139,6 +139,11 @@ public final class PDBPersistentHashMap extends AbstractMap implements IShareabl
 	}
 	
 	@Override
+	public int equivalentHashCode() {
+		return hashCode();
+	}	
+	
+	@Override
 	public boolean equals(Object other) {
 		if (IShareable.isSharingEnabled)
 			return other == this;

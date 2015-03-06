@@ -365,6 +365,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
+	public int equivalentHashCode() {
+		return hashCode();
+	}
+	
+	@Override
 	public IInteger numerator() {
 		return num;
 	}

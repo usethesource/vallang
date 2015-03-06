@@ -35,13 +35,13 @@ public interface IShareable{
 	}
 	
 	/**
-	 * Computes the hashcode for 'this' object.
+	 * Computes the hashcode for 'this' object, based on structural equality
+	 * (that is used in cache lookups).
 	 * 
 	 * @return The hashcode
-	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
-	int hashCode();
+	int equivalentHashCode();
 	
 	/**
 	 * Checks if the given object is 'truely' equal to 'this' object.

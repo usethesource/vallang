@@ -374,6 +374,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
+		public int equivalentHashCode() {
+			return hashCode();
+		}
+		
+		@Override
 		public boolean equals(Object o){
 			if (IShareable.isSharingEnabled)
 				return o == this;
@@ -479,6 +484,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			hash ^= (length << 29);
 			
 			return hash;
+		}
+		
+		@Override
+		public int equivalentHashCode() {
+			return hashCode();
 		}
 		
 		@Override
@@ -590,6 +600,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
+		public int equivalentHashCode() {
+			return hashCode();
+		}
+		
+		@Override
 		public boolean equals(Object o) {
 			if (IShareable.isSharingEnabled)
 				return o == this;
@@ -644,6 +659,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		@Override
 		public int hashCode(){
 			return uri.hashCode();
+		}
+		
+		@Override
+		public int equivalentHashCode() {
+			return hashCode();
 		}
 		
 		@Override
@@ -736,6 +756,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			hash ^= (length << 29);
 			
 			return hash;
+		}
+		
+		@Override
+		public int equivalentHashCode() {
+			return hashCode();
 		}
 		
 		@Override
@@ -843,6 +868,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
+		public int equivalentHashCode() {
+			return hashCode();
+		}
+		
+		@Override
 		public boolean equals(Object o) {
 			if (IShareable.isSharingEnabled)
 				return o == this;
@@ -924,6 +954,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
+		public int equivalentHashCode() {
+			return hashCode();
+		}
+		
+		@Override
 		public boolean equals(Object o) {
 			if (IShareable.isSharingEnabled)
 				return o == this;
@@ -994,6 +1029,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			hash ^= (length << 29);
 			
 			return hash;
+		}
+		
+		@Override
+		public int equivalentHashCode() {
+			return hashCode();
 		}
 		
 		@Override
@@ -1072,6 +1112,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			hash ^= (length << 29);
 			
 			return hash;
+		}
+		
+		@Override
+		public int equivalentHashCode() {
+			return hashCode();
 		}
 		
 		@Override

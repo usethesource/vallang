@@ -261,6 +261,11 @@ import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHas
 		return data.hashCode();
 	}
 	
+	@Override
+	public int equivalentHashCode() {
+		return hashCode();
+	}	
+	
 	public boolean equals(Object o) {
 		if (IShareable.isSharingEnabled)
 			return o == this;

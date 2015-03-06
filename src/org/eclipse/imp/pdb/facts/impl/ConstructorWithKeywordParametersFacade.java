@@ -154,6 +154,11 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor, ISh
 	}
 	
 	@Override
+	public int equivalentHashCode() {
+		return content.hashCode() ^ (31 * parameters.hashCode());
+	}			
+	
+	@Override
 	public boolean isAnnotatable() {
 		return false;
 	}

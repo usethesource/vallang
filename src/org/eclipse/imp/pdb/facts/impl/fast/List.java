@@ -262,6 +262,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		return hashCode;
 	}
+	
+	@Override
+	public int equivalentHashCode() {
+		return hashCode();
+	}	
 
 	@Override
 	public boolean equals(Object o) {

@@ -115,6 +115,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return value.hashCode();
 		}
 		
+		@Override
+		public int equivalentHashCode() {
+			return hashCode();
+		}
+		
 		public boolean equals(Object o) {
 			if (IShareable.isSharingEnabled)
 				return o == this;

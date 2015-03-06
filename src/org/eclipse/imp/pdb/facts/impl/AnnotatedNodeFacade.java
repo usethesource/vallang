@@ -133,6 +133,11 @@ public class AnnotatedNodeFacade implements INode, IShareable {
 	}
 	
 	@Override
+	public int equivalentHashCode() {
+		return content.hashCode() ^ (31 * annotations.hashCode());
+	}	
+		
+	@Override
 	public boolean isAnnotatable() {
 		return true;
 	}

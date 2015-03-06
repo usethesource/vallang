@@ -500,6 +500,11 @@ public class ShareableList<E> implements Iterable<E>, IShareable {
 		return hash;
 	}
 	
+	@Override
+	public int equivalentHashCode() {
+		return hashCode();
+	}
+	
 	/**
 	 * Check whether or not the current content of this list is equal to that of the given object / list. 
 	 * 

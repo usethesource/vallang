@@ -116,7 +116,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 	 * @return The reference to the unique version of the given shareable.
 	 */
 	public E build(E shareable){
-		int hash = shareable.hashCode();
+		int hash = shareable.equivalentHashCode();
 		int segmentNr = hash >>> (32 - DEFAULT_LOG_NR_OF_SEGMENTS);
 		
 		return segments[segmentNr].get(shareable, hash);

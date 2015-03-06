@@ -342,6 +342,11 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	public int hashCode(){
 		return currentHashCode;
 	}
+
+	@Override
+	public int equivalentHashCode() {
+		return hashCode();
+	}	
 	
 	public boolean isEqual(ShareableValuesHashSet other){
 		if(other == null) return false;
