@@ -30,7 +30,7 @@ import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHas
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Map extends AbstractValue implements IMap{
+/*package*/ class Map extends AbstractValue implements IMap, IShareable {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type mapType;

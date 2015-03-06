@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractNode;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
-import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ArrayIterator;
@@ -186,11 +185,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		return false;
 	}
-	
-	@Override
-	public boolean equivalent(IShareable that) {
-		throw new UnsupportedOperationException("Not supported on reference implementation.");
-	}	
 		
 	@Override
 	public boolean isEqual(IValue value){

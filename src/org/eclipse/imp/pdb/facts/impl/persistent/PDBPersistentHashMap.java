@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.util.TransientMap;
 
-public final class PDBPersistentHashMap extends AbstractMap {
+public final class PDBPersistentHashMap extends AbstractMap implements IShareable {
 		
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();

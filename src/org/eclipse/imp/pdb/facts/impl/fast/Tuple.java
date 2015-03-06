@@ -26,7 +26,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Tuple extends AbstractValue implements ITuple{
+/*package*/ class Tuple extends AbstractValue implements ITuple, IShareable {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type tupleType;

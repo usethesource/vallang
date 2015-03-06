@@ -24,7 +24,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractMap;
 import org.eclipse.imp.pdb.facts.impl.func.MapFunctions;
-import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 /*package*/ class Map extends AbstractMap {
@@ -83,11 +82,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 		return MapFunctions.equals(getValueFactory(), this, other);
 	}
 
-	@Override
-	public boolean equivalent(IShareable that) {
-		throw new UnsupportedOperationException("Not supported on reference implementation.");
-	}	
-		
 	@Override
 	public boolean isEqual(IValue other) {
 		return MapFunctions.isEqual(getValueFactory(), this, other);

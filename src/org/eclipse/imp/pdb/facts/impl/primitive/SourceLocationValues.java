@@ -144,7 +144,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	
-	private abstract static class Complete extends Incomplete {
+	private abstract static class Complete extends Incomplete implements IShareable {
 		private Complete(IURI uri) {
 			super(uri);
 		}
@@ -165,7 +165,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	
-	private abstract static class Incomplete extends AbstractValue implements ISourceLocation {
+	private abstract static class Incomplete extends AbstractValue implements ISourceLocation, IShareable {
 		protected IURI uri;
 
 		public Incomplete(IURI uri) {

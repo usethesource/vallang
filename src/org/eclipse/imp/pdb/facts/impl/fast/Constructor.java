@@ -42,7 +42,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Constructor extends AbstractValue implements IConstructor {
+/*package*/ class Constructor extends AbstractValue implements IConstructor, IShareable {
 	protected final Type constructorType;
 	protected final IValue[] children;
 	private int hashCode = 0;

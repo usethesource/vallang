@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.util.ImmutableSet;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
 
-public final class PDBPersistentHashSet extends AbstractSet {
+public final class PDBPersistentHashSet extends AbstractSet implements IShareable {
 	
 	private static final PDBPersistentHashSet EMPTY = (PDBPersistentHashSet) newPersistentHashSet(
 			AbstractTypeBag.of(), TrieSet.of());

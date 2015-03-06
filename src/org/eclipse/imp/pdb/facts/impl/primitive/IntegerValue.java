@@ -33,7 +33,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class IntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
+/*package*/ class IntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger, IShareable {
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 
 	private final static String INTEGER_MAX_STRING = "2147483647";

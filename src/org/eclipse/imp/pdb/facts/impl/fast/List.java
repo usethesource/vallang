@@ -34,7 +34,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class List extends AbstractValue implements IList{
+/*package*/ class List extends AbstractValue implements IList, IShareable {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	

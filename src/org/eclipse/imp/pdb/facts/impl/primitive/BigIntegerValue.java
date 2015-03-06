@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class BigIntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
+/*package*/ class BigIntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger, IShareable {
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 	
 	protected final BigInteger value;

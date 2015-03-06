@@ -41,7 +41,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new DateTimeValues.DateValue(year, month, day).intern();
 	}
 	
-	private static class DateValue extends AbstractValue implements IDateTime {
+	private static class DateValue extends AbstractValue implements IDateTime, IShareable {
 
 		private int year;
 		private int month;
@@ -282,7 +282,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset).intern();
 	}
 	
-	private static class TimeValue extends AbstractValue implements IDateTime {
+	private static class TimeValue extends AbstractValue implements IDateTime, IShareable {
 
 		private int hour;
 		private int minute;
@@ -619,7 +619,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new DateTimeValues.DateTimeValue(instant, timezoneHours, timezoneMinutes).intern();
 	}
 	
-	private static class DateTimeValue extends AbstractValue implements IDateTime {
+	private static class DateTimeValue extends AbstractValue implements IDateTime, IShareable {
 
 		private int year;
 		private int month;

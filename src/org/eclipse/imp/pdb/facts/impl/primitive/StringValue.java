@@ -64,7 +64,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 
-	private static class FullUnicodeString  extends AbstractValue implements IString {
+	private static class FullUnicodeString extends AbstractValue implements IString, IShareable {
 		protected final String value;
 		
 		private FullUnicodeString(String value){

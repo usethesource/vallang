@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Node extends AbstractNode implements INode {
+/*package*/ class Node extends AbstractNode implements INode, IShareable {
 	protected final static Type NODE_TYPE = TypeFactory.getInstance().nodeType();
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 	

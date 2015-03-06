@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
-/*package*/ class RationalValue extends AbstractNumberValue implements IRational {
+/*package*/ class RationalValue extends AbstractNumberValue implements IRational, IShareable {
 	public static final Type RATIONAL_TYPE = TypeFactory.getInstance().rationalType();
 
 	protected final IInteger num;

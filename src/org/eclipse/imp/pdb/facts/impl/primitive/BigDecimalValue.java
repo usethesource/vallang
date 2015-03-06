@@ -35,7 +35,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 /*
  * TODO: provide specializations for smaller values, similar to IntegerValue / BigIntegerValue.
  */
-/*package*/ class BigDecimalValue extends AbstractNumberValue implements IReal {
+/*package*/ class BigDecimalValue extends AbstractNumberValue implements IReal, IShareable {
 	private final static Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
 	
 	protected final BigDecimal value;

@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Set extends AbstractValue implements ISet {
+/*package*/ class Set extends AbstractValue implements ISet, IShareable {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	
