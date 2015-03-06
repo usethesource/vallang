@@ -139,6 +139,8 @@ public class NodeWithKeywordParametersFacade implements INode {
 	@Override
 	public int hashCode() {
 		return content.hashCode();
+		// TODO: should include parameters in hashCode calcuation
+		// return content.hashCode() ^ (31 * parameters.hashCode());
 	}
 	
 	@Override

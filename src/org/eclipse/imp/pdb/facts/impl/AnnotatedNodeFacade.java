@@ -128,6 +128,8 @@ public class AnnotatedNodeFacade implements INode {
 	@Override
 	public int hashCode() {
 		return content.hashCode();
+		// not allowed due to annotations/isEqual semantic
+		// return content.hashCode() ^ (31 * annotations.hashCode());
 	}
 	
 	@Override
