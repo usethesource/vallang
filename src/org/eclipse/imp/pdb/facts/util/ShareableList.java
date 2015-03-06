@@ -491,10 +491,12 @@ public class ShareableList<E> implements Iterable<E>, IShareable {
 	public int hashCode(){
 		int hash = 0;
 		
-		Iterator<E> iterator = iterator();
-		while (iterator.hasNext()) {
-			E element = iterator.next();
-			hash = (hash << 1) ^ element.hashCode();
+		if (!isEmpty()) {
+			Iterator<E> iterator = iterator();
+			while (iterator.hasNext()) {
+				E element = iterator.next();
+				hash = (hash << 1) ^ element.hashCode();
+			}
 		}
 		
 		return hash;
