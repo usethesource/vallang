@@ -287,9 +287,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			if (hashCode() != otherList.hashCode())
 				return false;
 
-			if (listType != otherList.listType)
-				return false;
-
 			return data.equals(otherList.data);
 		}
 
@@ -310,9 +307,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				return false;
 
 			if (hashCode() != otherList.hashCode())
-				return false;
-
-			if (listType != otherList.listType)
 				return false;
 
 			return data == otherList.data;
