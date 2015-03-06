@@ -46,7 +46,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected int hashCode = 0;
 
 	/*package*/ static IList newList(Type elementType, ShareableValuesList data) {
-		return new List(elementType, data.intern()).intern();
+		return new List(elementType, data).intern();
 	}
 	
 	private List(Type elementType, ShareableValuesList data){
@@ -309,8 +309,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			if (hashCode() != otherList.hashCode())
 				return false;
 
-			return data == otherList.data;
-			// return data.equals(otherList.data);
+			// return data == otherList.data;
+			return data.equals(otherList.data);
 		}
 
 		return false;
