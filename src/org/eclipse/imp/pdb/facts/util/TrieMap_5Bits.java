@@ -453,8 +453,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			return false;
 		}
 
-		if (other instanceof TransientTrieMap_5Bits) {
-			TransientTrieMap_5Bits<?, ?> that = (TransientTrieMap_5Bits<?, ?>) other;
+		if (other instanceof TrieMap_5Bits) {
+			TrieMap_5Bits<?, ?> that = (TrieMap_5Bits<?, ?>) other;
 
 			if (this.size() != that.size()) {
 				return false;

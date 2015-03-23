@@ -336,8 +336,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			return false;
 		}
 
-		if (other instanceof TransientTrieSet_5Bits) {
-			TransientTrieSet_5Bits<?> that = (TransientTrieSet_5Bits<?>) other;
+		if (other instanceof TrieSet_5Bits) {
+			TrieSet_5Bits<?> that = (TrieSet_5Bits<?>) other;
 
 			if (this.size() != that.size()) {
 				return false;
