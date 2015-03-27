@@ -35,12 +35,12 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	private static final boolean DEBUG = false;
 
 	private final AbstractSetNode<K> rootNode;
-	private final int hashCode;
+	private int hashCode = -1;
 	private final int cachedSize;
 
 	TrieSet_5Bits(AbstractSetNode<K> rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
-		this.hashCode = hashCode;
+//		this.hashCode = hashCode; // ignore hashCode (to enforce lazy calculation)
 		this.cachedSize = cachedSize;
 		if (DEBUG) {
 			assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -358,6 +358,15 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@Override
 	public int hashCode() {
+		if (hashCode == -1) {
+			int hash = 0;
+			for (Iterator<K> it = keyIterator(); it.hasNext();) {
+				final K key = it.next();
+				hash += key.hashCode();
+			}
+			hashCode = hash;
+		}
+
 		return hashCode;
 	}
 
@@ -1881,13 +1890,13 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	static final class TransientTrieSet_5Bits<K> implements TransientSet<K> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractSetNode<K> rootNode;
-		private int hashCode;
+		private int hashCode = -1;
 		private int cachedSize;
 
 		TransientTrieSet_5Bits(TrieSet_5Bits<K> trieSet_5Bits) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieSet_5Bits.rootNode;
-			this.hashCode = trieSet_5Bits.hashCode;
+			// this.hashCode = trieSet_5Bits.hashCode; // ignore hashCode (to enforce lazy calculation)
 			this.cachedSize = trieSet_5Bits.cachedSize;
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2000,7 +2009,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			if (details.isModified()) {
 
 				rootNode = newRootNode;
-				hashCode += keyHash;
+//				hashCode += keyHash;
 				cachedSize += 1;
 
 				if (DEBUG) {
@@ -2030,7 +2039,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			if (details.isModified()) {
 
 				rootNode = newRootNode;
-				hashCode += keyHash;
+//				hashCode += keyHash;
 				cachedSize += 1;
 
 				if (DEBUG) {
@@ -2080,7 +2089,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
-				hashCode = hashCode - keyHash;
+//				hashCode = hashCode - keyHash;
 				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
@@ -2109,7 +2118,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
-				hashCode = hashCode - keyHash;
+//				hashCode = hashCode - keyHash;
 				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
@@ -2284,6 +2293,15 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		public int hashCode() {
+			if (hashCode == -1) {
+				int hash = 0;
+				for (Iterator<K> it = keyIterator(); it.hasNext();) {
+					final K key = it.next();
+					hash += key.hashCode();
+				}
+				hashCode = hash;
+			}
+
 			return hashCode;
 		}
 

@@ -38,12 +38,12 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 	private static final boolean DEBUG = false;
 
 	private final AbstractMapNode<K, V> rootNode;
-	private final int hashCode;
+	private int hashCode = -1;
 	private final int cachedSize;
 
 	TrieMap_5Bits(AbstractMapNode<K, V> rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
-		this.hashCode = hashCode;
+//		this.hashCode = hashCode; // ignore hashCode (to enforce lazy calculation)
 		this.cachedSize = cachedSize;
 		if (DEBUG) {
 			assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -499,6 +499,18 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 	@Override
 	public int hashCode() {
+		if (hashCode == -1) {
+			int hash = 0;
+			for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
+				final Map.Entry<K, V> entry = it.next();
+				final K key = entry.getKey();
+				final V val = entry.getValue();
+
+				hash += key.hashCode() ^ val.hashCode();
+			}
+			hashCode = hash;
+		}
+		
 		return hashCode;
 	}
 
@@ -2230,13 +2242,13 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 	static final class TransientTrieMap_5Bits<K, V> implements TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
-		private int hashCode;
+		private int hashCode = -1;
 		private int cachedSize;
 
 		TransientTrieMap_5Bits(TrieMap_5Bits<K, V> trieMap_5Bits) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap_5Bits.rootNode;
-			this.hashCode = trieMap_5Bits.hashCode;
+//			this.hashCode = trieMap_5Bits.hashCode; // ignore hashCode (to enforce lazy calculation)
 			this.cachedSize = trieMap_5Bits.cachedSize;
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2366,7 +2378,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 					final int valHashNew = val.hashCode();
 
 					rootNode = newRootNode;
-					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
+//					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
 
 					if (DEBUG) {
 						assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2375,7 +2387,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final int valHashNew = val.hashCode();
 					rootNode = newRootNode;
-					hashCode += (keyHash ^ valHashNew);
+//					hashCode += (keyHash ^ valHashNew);
 					cachedSize += 1;
 
 					if (DEBUG) {
@@ -2410,7 +2422,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 					final int valHashNew = val.hashCode();
 
 					rootNode = newRootNode;
-					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
+//					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
 
 					if (DEBUG) {
 						assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2419,7 +2431,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final int valHashNew = val.hashCode();
 					rootNode = newRootNode;
-					hashCode += (keyHash ^ valHashNew);
+//					hashCode += (keyHash ^ valHashNew);
 					cachedSize += 1;
 
 					if (DEBUG) {
@@ -2482,7 +2494,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				final int valHash = details.getReplacedValue().hashCode();
 
 				rootNode = newRootNode;
-				hashCode = hashCode - (keyHash ^ valHash);
+//				hashCode = hashCode - (keyHash ^ valHash);
 				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
@@ -2514,7 +2526,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				final int valHash = details.getReplacedValue().hashCode();
 
 				rootNode = newRootNode;
-				hashCode = hashCode - (keyHash ^ valHash);
+//				hashCode = hashCode - (keyHash ^ valHash);
 				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
@@ -2784,6 +2796,18 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		public int hashCode() {
+			if (hashCode == -1) {
+				int hash = 0;
+				for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
+					final Map.Entry<K, V> entry = it.next();
+					final K key = entry.getKey();
+					final V val = entry.getValue();
+
+					hash += key.hashCode() ^ val.hashCode();
+				}
+				hashCode = hash;
+			}
+			
 			return hashCode;
 		}
 
