@@ -456,7 +456,11 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		if (other instanceof TrieMap_5Bits) {
 			TrieMap_5Bits<?, ?> that = (TrieMap_5Bits<?, ?>) other;
 
-			if (this.size() != that.size()) {
+			if (this.cachedSize != that.cachedSize) {
+				return false;
+			}
+			
+			if (this.hashCode != that.hashCode) {
 				return false;
 			}
 

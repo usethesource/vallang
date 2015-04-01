@@ -339,9 +339,13 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		if (other instanceof TrieSet_5Bits) {
 			TrieSet_5Bits<?> that = (TrieSet_5Bits<?>) other;
 
-			if (this.size() != that.size()) {
+			if (this.cachedSize != that.cachedSize) {
 				return false;
 			}
+			
+			if (this.hashCode != that.hashCode) {
+				return false;
+			}			
 
 			return rootNode.equals(that.rootNode);
 		} else if (other instanceof Set) {
