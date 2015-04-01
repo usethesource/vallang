@@ -564,4 +564,8 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     return fAliased.glbWithDateTime(type);
   }
 
+  @Override
+  public Type getAbstractDataType() {
+    return fAliased.getAbstractDataType();
+  }
 }
