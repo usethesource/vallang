@@ -93,15 +93,11 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		return hash == targetHash && size == targetSize;
 	}
 
-	private static int improve(final int hash) {
-		return hash; // return idendity
-	}
-
 	public boolean contains(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.contains(key, improve(key.hashCode()), 0);
+			return rootNode.contains(key, key.hashCode(), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -111,7 +107,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.contains(key, improve(key.hashCode()), 0, cmp);
+			return rootNode.contains(key, key.hashCode(), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -121,7 +117,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
+			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -137,7 +133,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
+			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -153,7 +149,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final SetResult<K> details = SetResult.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0,
 						details);
 
 		if (details.isModified()) {
@@ -167,7 +163,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final SetResult<K> details = SetResult.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0,
 						details, cmp);
 
 		if (details.isModified()) {
@@ -194,7 +190,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final SetResult<K> details = SetResult.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0,
 						details);
 
 		if (details.isModified()) {
@@ -208,7 +204,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final SetResult<K> details = SetResult.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0,
 						details, cmp);
 
 		if (details.isModified()) {
@@ -906,7 +902,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 					return this;
 				} else {
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									improve(currentKey.hashCode()), key, keyHash, shift
+									currentKey.hashCode(), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -943,7 +939,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 					return this;
 				} else {
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									improve(currentKey.hashCode()), key, keyHash, shift
+									currentKey.hashCode(), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -1940,7 +1936,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.contains(key, improve(key.hashCode()), 0);
+				return rootNode.contains(key, key.hashCode(), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -1950,7 +1946,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.contains(key, improve(key.hashCode()), 0, cmp);
+				return rootNode.contains(key, key.hashCode(), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -1961,7 +1957,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
+				final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -1978,7 +1974,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
+				final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -1998,7 +1994,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final SetResult<K> details = SetResult.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
+			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, keyHash,
 							0, details);
 
 			if (details.isModified()) {
@@ -2028,7 +2024,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final SetResult<K> details = SetResult.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
+			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, keyHash,
 							0, details, cmp);
 
 			if (details.isModified()) {
@@ -2079,7 +2075,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final SetResult<K> details = SetResult.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
+			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, keyHash,
 							0, details);
 
 			if (details.isModified()) {
@@ -2108,7 +2104,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final SetResult<K> details = SetResult.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
+			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, keyHash,
 							0, details, cmp);
 
 			if (details.isModified()) {
