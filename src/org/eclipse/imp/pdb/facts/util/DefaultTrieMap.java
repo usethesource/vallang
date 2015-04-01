@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 
 public class DefaultTrieMap {
 
-	private static Class<?> target = TrieMap_5Bits.class;
+	private static Class<?> target = TrieMap_5Bits_LazyHashCode.class;
 
 	private static Method persistentMapOfEmpty;
 	private static Method persistentMapOfKeyValuePairs;

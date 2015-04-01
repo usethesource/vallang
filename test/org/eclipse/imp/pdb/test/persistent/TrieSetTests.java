@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
-import org.eclipse.imp.pdb.facts.util.TrieSet_5Bits;
+import org.eclipse.imp.pdb.facts.util.TrieSet_5Bits_LazyHashCode;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -86,7 +86,7 @@ public class TrieSetTests {
 		input.put(7, 7);
 		input.put(8, 7);
 		
-		ImmutableSet<DummyValue> set = TrieSet_5Bits.of();
+		ImmutableSet<DummyValue> set = TrieSet_5Bits_LazyHashCode.of();
 		
 		for (Entry<Integer, Integer> entry : input.entrySet()) {
 			set = set.__insert(new DummyValue(entry.getKey(), entry.getValue()));	
@@ -109,7 +109,7 @@ public class TrieSetTests {
 		input.put(6, 5);
 		input.put(7, 7);
 		
-		ImmutableSet<DummyValue> set = TrieSet_5Bits.of();
+		ImmutableSet<DummyValue> set = TrieSet_5Bits_LazyHashCode.of();
 		
 		for (Entry<Integer, Integer> entry : input.entrySet()) {
 			set = set.__insert(new DummyValue(entry.getKey(), entry.getValue()));	
@@ -132,7 +132,7 @@ public class TrieSetTests {
 		input.put(6, 5);
 		input.put(7, 7);
 		
-		ImmutableSet<DummyValue> set = TrieSet_5Bits.of();
+		ImmutableSet<DummyValue> set = TrieSet_5Bits_LazyHashCode.of();
 		
 		for (Entry<Integer, Integer> entry : input.entrySet()) {
 			set = set.__insert(new DummyValue(entry.getKey(), entry.getValue()));	
@@ -210,7 +210,7 @@ public class TrieSetTests {
 		todo.add(hash_n2147483648_obj1);
 		todo.add(hash_p1073741824_obj2);
 		
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash_n2147483648_obj1, hash_p1073741824_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash_n2147483648_obj1, hash_p1073741824_obj2);
 	
 		for (DummyValue x : xs) {
 			todo.remove(x);
@@ -224,8 +224,8 @@ public class TrieSetTests {
 		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
 		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj2, hash98304_obj1);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj2, hash98304_obj1);
 			
 		assertEquals(xs, ys);
 	}
@@ -236,8 +236,8 @@ public class TrieSetTests {
 		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
 		DummyValue hash98304_obj3 = new DummyValue(3, 98304);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash98304_obj3);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj3, hash98304_obj2, hash98304_obj1);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2, hash98304_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj3, hash98304_obj2, hash98304_obj1);
 			
 		assertEquals(xs, ys);
 	}
@@ -247,8 +247,8 @@ public class TrieSetTests {
 		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
 		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2).__remove(hash98304_obj2);
 
 		assertEquals(xs, ys);
 	}	
@@ -262,7 +262,7 @@ public class TrieSetTests {
 		todo.add(hash98304_obj1);
 		todo.add(hash98304_obj2);
 		
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2);
 	
 		for (DummyValue x : xs) {
 			todo.remove(x);
@@ -278,8 +278,8 @@ public class TrieSetTests {
 		
 		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash268435456_obj3).__remove(hash268435456_obj3);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2, hash268435456_obj3).__remove(hash268435456_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2);
 		
 		assertEquals(xs, ys);
 	}
@@ -291,8 +291,8 @@ public class TrieSetTests {
 		
 		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash8_obj1, hash8_obj2, hash268435456_obj3).__remove(hash268435456_obj3);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash8_obj1, hash8_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash8_obj1, hash8_obj2, hash268435456_obj3).__remove(hash268435456_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash8_obj1, hash8_obj2);
 
 		assertEquals(xs, ys);
 	}	
@@ -304,8 +304,8 @@ public class TrieSetTests {
 		
 		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash268435456_obj3, hash98304_obj2).__remove(hash268435456_obj3);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash268435456_obj3, hash98304_obj2).__remove(hash268435456_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2);
 		
 		assertEquals(xs, ys);
 	}
@@ -317,8 +317,8 @@ public class TrieSetTests {
 		
 		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash8_obj1, hash268435456_obj3, hash8_obj2).__remove(hash268435456_obj3);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash8_obj1, hash8_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash8_obj1, hash268435456_obj3, hash8_obj2).__remove(hash268435456_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash8_obj1, hash8_obj2);
 		
 		assertEquals(xs, ys);
 	}	
@@ -330,8 +330,8 @@ public class TrieSetTests {
 		
 		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash268435456_obj3).__remove(hash98304_obj2);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash268435456_obj3);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2, hash268435456_obj3).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash268435456_obj3);
 
 		assertEquals(xs, ys);
 	}	
@@ -343,8 +343,8 @@ public class TrieSetTests {
 		
 		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash268435456_obj3, hash98304_obj2).__remove(hash98304_obj2);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash268435456_obj3);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash268435456_obj3, hash98304_obj2).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash268435456_obj3);
 
 		assertEquals(xs, ys);
 	}		
@@ -356,8 +356,8 @@ public class TrieSetTests {
 		
 		DummyValue hash8_obj3 = new DummyValue(3, 8);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash8_obj3).__remove(hash8_obj3);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2, hash8_obj3).__remove(hash8_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2);
 
 		assertEquals(xs, ys);
 	}	
@@ -369,8 +369,8 @@ public class TrieSetTests {
 		
 		DummyValue hash8_obj3 = new DummyValue(3, 8);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash8_obj3, hash98304_obj2).__remove(hash8_obj3);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash8_obj3, hash98304_obj2).__remove(hash8_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2);
 
 		assertEquals(xs, ys);
 	}
@@ -382,8 +382,8 @@ public class TrieSetTests {
 		
 		DummyValue hash8_obj3 = new DummyValue(3, 8);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash8_obj3).__remove(hash98304_obj2);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash8_obj3);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash98304_obj2, hash8_obj3).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash8_obj3);
 
 		assertEquals(xs, ys);
 	}
@@ -395,8 +395,8 @@ public class TrieSetTests {
 		
 		DummyValue hash8_obj3 = new DummyValue(3, 8);
 
-		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash8_obj3, hash98304_obj2).__remove(hash98304_obj2);
-		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash8_obj3);
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash8_obj3, hash98304_obj2).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits_LazyHashCode.of(hash98304_obj1, hash8_obj3);
 
 		assertEquals(xs, ys);
 	}	

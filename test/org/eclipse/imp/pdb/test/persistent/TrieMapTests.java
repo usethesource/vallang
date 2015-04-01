@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
 
-import org.eclipse.imp.pdb.facts.util.TrieMap_5Bits;
+import org.eclipse.imp.pdb.facts.util.TrieMap_5Bits_LazyHashCode;
 import org.junit.Test;
 
 public class TrieMapTests {
@@ -26,10 +26,10 @@ public class TrieMapTests {
 	public void testPrintStatsSequential() {
 //		int size = 128;
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> map = (TrieMap_5Bits_LazyHashCode) TrieMap_5Bits_LazyHashCode.of();
 		
 		for (int i = size; i > 0; i--) {
-			TrieMap_5Bits<Integer, Integer> res = (TrieMap_5Bits) map.__put(i, i);
+			TrieMap_5Bits_LazyHashCode<Integer, Integer> res = (TrieMap_5Bits_LazyHashCode) map.__put(i, i);
 			assert res.containsKey(i);			
 			map = res;
 		}
@@ -41,14 +41,14 @@ public class TrieMapTests {
 	public void testPrintStatsRandom() {
 //		int size = 128;
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> map = (TrieMap_5Bits_LazyHashCode) TrieMap_5Bits_LazyHashCode.of();
 		
 		Random rand = new Random(13);
 		
 		for (int i = size; i > 0; i--) {
 			final int j = rand.nextInt(); 
 			
-			TrieMap_5Bits<Integer, Integer> res = (TrieMap_5Bits) map.__put(j, j);
+			TrieMap_5Bits_LazyHashCode<Integer, Integer> res = (TrieMap_5Bits_LazyHashCode) map.__put(j, j);
 			assert res.containsKey(j);			
 			map = res;
 		}
@@ -60,9 +60,9 @@ public class TrieMapTests {
 	public void testCheckPrefixConstruction() {
 //		int size = 128;
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> map = (TrieMap_5Bits_LazyHashCode) TrieMap_5Bits_LazyHashCode.of();
 		
-		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> res1 = (TrieMap_5Bits_LazyHashCode) map
 						.__put(63, 63)
 						.__put(64, 64)					
 						.__put(32768, 32768)
@@ -75,7 +75,7 @@ public class TrieMapTests {
 		assert res1.containsKey(65536);
 		assert res1.containsKey(2147483647);
 
-		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) map
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> res2 = (TrieMap_5Bits_LazyHashCode) map
 						.__put(2147483647, 2147483647)
 						.__put(32768, 32768)
 						.__put(63, 63)
@@ -97,13 +97,13 @@ public class TrieMapTests {
 	@Test
 	public void testCheckCompactionFromBeginUponDelete() {
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> map = (TrieMap_5Bits_LazyHashCode) TrieMap_5Bits_LazyHashCode.of();
 		
-		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> res1 = (TrieMap_5Bits_LazyHashCode) map
 						.__put(1, 1)
 						.__put(2, 2);					
 
-		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) res1
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> res2 = (TrieMap_5Bits_LazyHashCode) res1
 						.__put(32769, 32769)
 						.__remove(2);		
 
@@ -115,15 +115,15 @@ public class TrieMapTests {
 	@Test
 	public void testCheckCompactionFromMiddleUponDelete() {
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> map = (TrieMap_5Bits_LazyHashCode) TrieMap_5Bits_LazyHashCode.of();
 		
-		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> res1 = (TrieMap_5Bits_LazyHashCode) map
 						.__put(1, 1)
 						.__put(2, 2)
 						.__put(65, 65)
 						.__put(66, 66);					
 
-		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) res1
+		TrieMap_5Bits_LazyHashCode<Integer, Integer> res2 = (TrieMap_5Bits_LazyHashCode) res1
 						.__put(32769, 32769)
 						.__remove(66);		
 

@@ -29,11 +29,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
+public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
-	private static final TrieMap_5Bits EMPTY_MAP = new TrieMap_5Bits(CompactMapNode.EMPTY_NODE, 0,
-					0);
+	private static final TrieMap_5Bits_LazyHashCode EMPTY_MAP = new TrieMap_5Bits_LazyHashCode(CompactMapNode.EMPTY_NODE, 0);
 
 	private static final boolean DEBUG = false;
 
@@ -41,9 +40,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 	private int hashCode = -1;
 	private final int cachedSize;
 
-	TrieMap_5Bits(AbstractMapNode<K, V> rootNode, int hashCode, int cachedSize) {
+	TrieMap_5Bits_LazyHashCode(AbstractMapNode<K, V> rootNode, int cachedSize) {
 		this.rootNode = rootNode;
-//		this.hashCode = hashCode; // ignore hashCode (to enforce lazy calculation)
 		this.cachedSize = cachedSize;
 		if (DEBUG) {
 			assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -52,7 +50,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> ImmutableMap<K, V> of() {
-		return TrieMap_5Bits.EMPTY_MAP;
+		return TrieMap_5Bits_LazyHashCode.EMPTY_MAP;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -62,7 +60,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 							"Length of argument list is uneven: no key/value pairs.");
 		}
 
-		ImmutableMap<K, V> result = TrieMap_5Bits.EMPTY_MAP;
+		ImmutableMap<K, V> result = TrieMap_5Bits_LazyHashCode.EMPTY_MAP;
 
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final K key = (K) keyValuePairs[i];
@@ -76,7 +74,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> TransientMap<K, V> transientOf() {
-		return TrieMap_5Bits.EMPTY_MAP.asTransient();
+		return TrieMap_5Bits_LazyHashCode.EMPTY_MAP.asTransient();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -86,7 +84,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 							"Length of argument list is uneven: no key/value pairs.");
 		}
 
-		final TransientMap<K, V> result = TrieMap_5Bits.EMPTY_MAP.asTransient();
+		final TransientMap<K, V> result = TrieMap_5Bits_LazyHashCode.EMPTY_MAP.asTransient();
 
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final K key = (K) keyValuePairs[i];
@@ -114,15 +112,11 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		return hash == targetHash && size == targetSize;
 	}
 
-	private static int improve(final int hash) {
-		return hash; // return idendity
-	}
-
 	public boolean containsKey(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0);
+			return rootNode.containsKey(key, key.hashCode(), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -132,7 +126,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+			return rootNode.containsKey(key, key.hashCode(), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -160,7 +154,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
+			final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -176,7 +170,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
+			final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -192,7 +186,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		final int keyHash = key.hashCode();
 		final MapResult<K, V> details = MapResult.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, improve(keyHash),
+		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, keyHash,
 						0, details);
 
 		if (details.isModified()) {
@@ -200,13 +194,11 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				final int valHashOld = details.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMap_5Bits<K, V>(newRootNode, hashCode + ((keyHash ^ valHashNew))
-								- ((keyHash ^ valHashOld)), cachedSize);
+				return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMap_5Bits<K, V>(newRootNode, hashCode + ((keyHash ^ valHash)),
-							cachedSize + 1);
+			return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize + 1);
 		}
 
 		return this;
@@ -216,7 +208,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		final int keyHash = key.hashCode();
 		final MapResult<K, V> details = MapResult.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, improve(keyHash),
+		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, keyHash,
 						0, details, cmp);
 
 		if (details.isModified()) {
@@ -224,13 +216,11 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				final int valHashOld = details.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMap_5Bits<K, V>(newRootNode, hashCode + ((keyHash ^ valHashNew))
-								- ((keyHash ^ valHashOld)), cachedSize);
+				return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMap_5Bits<K, V>(newRootNode, hashCode + ((keyHash ^ valHash)),
-							cachedSize + 1);
+			return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize + 1);
 		}
 
 		return this;
@@ -253,14 +243,13 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		final int keyHash = key.hashCode();
 		final MapResult<K, V> details = MapResult.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, keyHash, 0,
 						details);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
 			final int valHash = details.getReplacedValue().hashCode();
-			return new TrieMap_5Bits<K, V>(newRootNode, hashCode - ((keyHash ^ valHash)),
-							cachedSize - 1);
+			return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize - 1);
 		}
 
 		return this;
@@ -270,14 +259,13 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		final int keyHash = key.hashCode();
 		final MapResult<K, V> details = MapResult.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, keyHash, 0,
 						details, cmp);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
 			final int valHash = details.getReplacedValue().hashCode();
-			return new TrieMap_5Bits<K, V>(newRootNode, hashCode - ((keyHash ^ valHash)),
-							cachedSize - 1);
+			return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize - 1);
 		}
 
 		return this;
@@ -327,27 +315,27 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			keySet = new AbstractSet<K>() {
 				@Override
 				public Iterator<K> iterator() {
-					return TrieMap_5Bits.this.keyIterator();
+					return TrieMap_5Bits_LazyHashCode.this.keyIterator();
 				}
 
 				@Override
 				public int size() {
-					return TrieMap_5Bits.this.size();
+					return TrieMap_5Bits_LazyHashCode.this.size();
 				}
 
 				@Override
 				public boolean isEmpty() {
-					return TrieMap_5Bits.this.isEmpty();
+					return TrieMap_5Bits_LazyHashCode.this.isEmpty();
 				}
 
 				@Override
 				public void clear() {
-					TrieMap_5Bits.this.clear();
+					TrieMap_5Bits_LazyHashCode.this.clear();
 				}
 
 				@Override
 				public boolean contains(Object k) {
-					return TrieMap_5Bits.this.containsKey(k);
+					return TrieMap_5Bits_LazyHashCode.this.containsKey(k);
 				}
 			};
 		}
@@ -363,27 +351,27 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			values = new AbstractCollection<V>() {
 				@Override
 				public Iterator<V> iterator() {
-					return TrieMap_5Bits.this.valueIterator();
+					return TrieMap_5Bits_LazyHashCode.this.valueIterator();
 				}
 
 				@Override
 				public int size() {
-					return TrieMap_5Bits.this.size();
+					return TrieMap_5Bits_LazyHashCode.this.size();
 				}
 
 				@Override
 				public boolean isEmpty() {
-					return TrieMap_5Bits.this.isEmpty();
+					return TrieMap_5Bits_LazyHashCode.this.isEmpty();
 				}
 
 				@Override
 				public void clear() {
-					TrieMap_5Bits.this.clear();
+					TrieMap_5Bits_LazyHashCode.this.clear();
 				}
 
 				@Override
 				public boolean contains(Object v) {
-					return TrieMap_5Bits.this.containsValue(v);
+					return TrieMap_5Bits_LazyHashCode.this.containsValue(v);
 				}
 			};
 		}
@@ -421,22 +409,22 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 				@Override
 				public int size() {
-					return TrieMap_5Bits.this.size();
+					return TrieMap_5Bits_LazyHashCode.this.size();
 				}
 
 				@Override
 				public boolean isEmpty() {
-					return TrieMap_5Bits.this.isEmpty();
+					return TrieMap_5Bits_LazyHashCode.this.isEmpty();
 				}
 
 				@Override
 				public void clear() {
-					TrieMap_5Bits.this.clear();
+					TrieMap_5Bits_LazyHashCode.this.clear();
 				}
 
 				@Override
 				public boolean contains(Object k) {
-					return TrieMap_5Bits.this.containsKey(k);
+					return TrieMap_5Bits_LazyHashCode.this.containsKey(k);
 				}
 			};
 		}
@@ -453,8 +441,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			return false;
 		}
 
-		if (other instanceof TrieMap_5Bits) {
-			TrieMap_5Bits<?, ?> that = (TrieMap_5Bits<?, ?>) other;
+		if (other instanceof TrieMap_5Bits_LazyHashCode) {
+			TrieMap_5Bits_LazyHashCode<?, ?> that = (TrieMap_5Bits_LazyHashCode<?, ?>) other;
 
 			if (this.size() != that.size()) {
 				return false;
@@ -474,7 +462,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				try {
 					@SuppressWarnings("unchecked")
 					final K key = (K) entry.getKey();
-					final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
+					final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0);
 
 					if (!result.isPresent()) {
 						return false;
@@ -1080,7 +1068,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
+									currentVal, currentKey.hashCode(), key, val, keyHash,
 									shift + BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -1126,7 +1114,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
+									currentVal, currentKey.hashCode(), key, val, keyHash,
 									shift + BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -2245,10 +2233,9 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		private int hashCode = -1;
 		private int cachedSize;
 
-		TransientTrieMap_5Bits(TrieMap_5Bits<K, V> trieMap_5Bits) {
+		TransientTrieMap_5Bits(TrieMap_5Bits_LazyHashCode<K, V> trieMap_5Bits) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap_5Bits.rootNode;
-//			this.hashCode = trieMap_5Bits.hashCode; // ignore hashCode (to enforce lazy calculation)
 			this.cachedSize = trieMap_5Bits.cachedSize;
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2291,7 +2278,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0);
+				return rootNode.containsKey(key, key.hashCode(), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -2301,7 +2288,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+				return rootNode.containsKey(key, key.hashCode(), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -2330,7 +2317,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
+				final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -2347,7 +2334,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
+				final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -2368,7 +2355,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			final MapResult<K, V> details = MapResult.unchanged();
 
 			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details);
+							keyHash, 0, details);
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
@@ -2378,7 +2365,6 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 					final int valHashNew = val.hashCode();
 
 					rootNode = newRootNode;
-//					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
 
 					if (DEBUG) {
 						assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2387,7 +2373,6 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final int valHashNew = val.hashCode();
 					rootNode = newRootNode;
-//					hashCode += (keyHash ^ valHashNew);
 					cachedSize += 1;
 
 					if (DEBUG) {
@@ -2412,7 +2397,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			final MapResult<K, V> details = MapResult.unchanged();
 
 			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details, cmp);
+							keyHash, 0, details, cmp);
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
@@ -2422,7 +2407,6 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 					final int valHashNew = val.hashCode();
 
 					rootNode = newRootNode;
-//					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
 
 					if (DEBUG) {
 						assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2431,7 +2415,6 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final int valHashNew = val.hashCode();
 					rootNode = newRootNode;
-//					hashCode += (keyHash ^ valHashNew);
 					cachedSize += 1;
 
 					if (DEBUG) {
@@ -2487,14 +2470,13 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			final MapResult<K, V> details = MapResult.unchanged();
 
 			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key,
-							improve(keyHash), 0, details);
+							keyHash, 0, details);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
 				final int valHash = details.getReplacedValue().hashCode();
 
 				rootNode = newRootNode;
-//				hashCode = hashCode - (keyHash ^ valHash);
 				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
@@ -2519,14 +2501,13 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			final MapResult<K, V> details = MapResult.unchanged();
 
 			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key,
-							improve(keyHash), 0, details, cmp);
+							keyHash, 0, details, cmp);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
 				final int valHash = details.getReplacedValue().hashCode();
 
 				rootNode = newRootNode;
-//				hashCode = hashCode - (keyHash ^ valHash);
 				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
@@ -2770,7 +2751,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 					try {
 						@SuppressWarnings("unchecked")
 						final K key = (K) entry.getKey();
-						final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()),
+						final Optional<V> result = rootNode.findByKey(key, key.hashCode(),
 										0);
 
 						if (!result.isPresent()) {
@@ -2818,7 +2799,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			}
 
 			mutator.set(null);
-			return new TrieMap_5Bits<K, V>(rootNode, hashCode, cachedSize);
+			return new TrieMap_5Bits_LazyHashCode<K, V>(rootNode, cachedSize);
 		}
 	}
 
