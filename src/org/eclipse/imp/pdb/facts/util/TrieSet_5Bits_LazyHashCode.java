@@ -74,23 +74,6 @@ public class TrieSet_5Bits_LazyHashCode<K> implements ImmutableSet<K> {
 		return result;
 	}
 
-<<<<<<< HEAD:src/org/eclipse/imp/pdb/facts/util/TrieSet_5Bits.java
-	private boolean checkHashCodeAndSize(final int targetHash, final int targetSize) {
-		int hash = 0;
-		int size = 0;
-
-		for (Iterator<K> it = keyIterator(); it.hasNext();) {
-			final K key = it.next();
-
-			hash += key.hashCode();
-			size += 1;
-		}
-
-		return hash == targetHash && size == targetSize;
-	}
-
-=======
->>>>>>> new-specialized-trie-layout-lazy-hashcodes:src/org/eclipse/imp/pdb/facts/util/TrieSet_5Bits_LazyHashCode.java
 	public boolean contains(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
