@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
@@ -237,6 +238,19 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		return new ListWriter(elementType, newData).done();
 	}
+	
+	@Override
+	public IList shuffle(Random rand) {
+		ShareableValuesList newData = new ShareableValuesList(data);
+		// we use Fisher–Yates shuffle (or Knuth shuffle)
+		// unbiased and linear time, since set and get are O(1)
+		for (int i= newData.size() - 1; i >= 1; i--) {
+			// we use the stack as tmp variable :)
+			newData.set(i, newData.set(rand.nextInt(i + 1), newData.get(i)));
+		}
+		return new ListWriter(elementType, newData).done();
+	}
+	
 	
 	public  IList sublist(int offset, int length){
 		ShareableValuesList newData = data.subList(offset, length);

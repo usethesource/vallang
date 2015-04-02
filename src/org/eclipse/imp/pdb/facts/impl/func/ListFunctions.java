@@ -18,6 +18,7 @@
 package org.eclipse.imp.pdb.facts.impl.func;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -212,6 +213,16 @@ public final class ListFunctions {
 		IListWriter w = vf.listWriter();
 		for (IValue e : list1) {
 			w.insert(e);
+		}
+		return w.done();
+	}
+	public static IList shuffle(IValueFactory vf, IList list1, Random rand) {
+		IListWriter w = vf.listWriter();
+		w.appendAll(list1); // add everything
+		// we use Fisher–Yates shuffle (or Knuth shuffle)
+		// unbiased and linear time (incase of random access)
+		for (int i = list1.length() - 1; i >= 1; i--) {
+			w.replaceAt(i, w.replaceAt(rand.nextInt(i + 1), w.get(i)));
 		}
 		return w.done();
 	}

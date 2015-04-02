@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import java.util.Random;
+
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
@@ -30,6 +32,12 @@ public interface IList extends IListAlgebra<IList>, Iterable<IValue>, IValue {
      * @return a new list with all elements in reverse order
      */
     public IList reverse();
+    
+    /**
+     * @param rand the random generator to use for the shuffling. If the same seed is set, the same shuffling should happen.
+     * @return a new list with all the elements randomly shuffled.
+     */
+    public IList shuffle(Random rand);
     
     /**
      * Appends an element to the end of the list
