@@ -149,11 +149,21 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
-	public void replaceAt(int index, IValue element){
+	public IValue replaceAt(int index, IValue element){
 		checkMutation();
 		
 		updateType(element);
-		data.set(index, element);
+		return data.set(index, element);
+	}
+
+	@Override
+	public IValue get(int i) throws IndexOutOfBoundsException {
+		return data.get(i);
+	}
+	
+	@Override
+	public int length() {
+		return data.size();
 	}
 	
 	protected void checkMutation(){

@@ -97,11 +97,11 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
     }
 
     @Override
-	public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
+	public IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
         checkMutation();
         updateType(elem);
         checkInsert(elem, eltType);
-        listContent.set(index, elem);
+        return listContent.set(index, elem);
     }
 
     @Override
@@ -176,6 +176,16 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
     private void checkBounds(IValue[] elems, int start, int length) {
         if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
         if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
+    }
+    
+    @Override
+    public IValue get(int i) throws IndexOutOfBoundsException {
+        return listContent.get(i);
+    }
+    
+    @Override
+    public int length() {
+    	return listContent.size();
     }
 
 }

@@ -73,8 +73,9 @@ public interface IListWriter extends IWriter {
      * @param elem the new element
      * @throws FactTypeUseException when the type of the new element is not a subtype of the element type
      * @throws IndexOutOfBoundsException
+     * @returns the replaced element
      */
-    void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException;
+    IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException;
     /**
      * Append elements at the end.
      * 
@@ -96,4 +97,18 @@ public interface IListWriter extends IWriter {
      * @return an immutable IList
      */
     IList done();
+
+    /**
+     * Return the ith element of the list.
+     * 
+     * @param i
+     * @return the ith element of the list
+     * @throws IndexOutOfBoundsException when i < 0 or i >= IList.length
+     */
+    IValue get(int i) throws IndexOutOfBoundsException;
+
+    /**
+     * @return the number of elements in the list
+     */
+    int length();
 }
