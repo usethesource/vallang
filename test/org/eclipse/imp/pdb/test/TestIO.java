@@ -12,7 +12,12 @@
 
 package org.eclipse.imp.pdb.test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -22,6 +27,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.io.SerializableValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.io.XMLReader;
@@ -69,6 +75,23 @@ public class TestIO extends TestCase {
 	    "<couples><name>A</name><name>B</name><name>C</name><name>D</name></couples>"
 	    };
 
+	public void testSerializable() {
+		for (IValue t : testValues) {
+			SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
+			ByteArrayOutputStream buf = new ByteArrayOutputStream();
+			try {
+				v.write(buf);
+				SerializableValue<IValue> w = SerializableValue.<IValue>read(new ByteArrayInputStream(buf.toByteArray()));
+
+				if (!v.getValue().isEqual(w.getValue())) {
+					fail();
+				}
+			} catch (IOException e) {
+				fail(e.getMessage());
+			}
+		}
+	}
+	
 	public void testXMLWriter() {
 		XMLWriter testWriter = new XMLWriter();
 		int i = 0;

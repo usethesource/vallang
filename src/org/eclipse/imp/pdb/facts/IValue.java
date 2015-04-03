@@ -12,12 +12,14 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import java.io.Serializable;
+
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 
-public interface IValue  {
+public interface IValue {
 	/** 
 	 * @return the {@link Type} of a value
 	 */
