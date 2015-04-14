@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	private final Type fParameters;
 	
 	protected AbstractDataType(String name, Type parameters) {
-		fName = name;
+		fName = name.intern();
 		fParameters = parameters;
 	}
 	
