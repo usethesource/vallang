@@ -27,12 +27,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	private final Type fBound;
 	
 	/* package */ ParameterType(String name, Type bound) {
-		fName = name;
+		fName = name.intern();
 		fBound = bound;
 	}
 	
 	/* package */ ParameterType(String name) {
-		fName = name;
+		fName = name.intern();
 		fBound = TypeFactory.getInstance().valueType();
 	}
 	

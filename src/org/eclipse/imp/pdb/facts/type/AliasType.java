@@ -35,13 +35,13 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	private final Type fParameters;
 	
 	/* package */ AliasType(String name, Type aliased) {
-		fName = name;
+		fName = name.intern();
 		fAliased = aliased;
 		fParameters = TypeFactory.getInstance().voidType();
 	}
 	
 	/* package */ AliasType(String name, Type aliased, Type parameters) {
-		fName = name;
+		fName = name.intern();
 		fAliased = aliased;
 		fParameters = parameters;
 	}
