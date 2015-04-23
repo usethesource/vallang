@@ -34,13 +34,16 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * interfaces but do need to integrate with them.
  * <br>
  * Note that implementations of IExternalValues are obliged to have a type that subclasses
- * ExternalType and that they all model IConstructor behavior via the default methods below, which
- * you should override for more useful behavior. If you do not do this, serialization will be lossy.
+ * ExternalType and that they all implement encodeAsConstructor. 
+ * If you do not do this, (de)serialization will not work.
  * <br>
  * Note that NORMAL USE OF THE PDB DOES NOT REQUIRE IMPLEMENTING THIS INTERFACE
  */
 public interface IExternalValue extends IValue {
 	@Override
+	/**
+	 * @return an ExternalType
+	 */
 	Type getType();
 
 	@Override
