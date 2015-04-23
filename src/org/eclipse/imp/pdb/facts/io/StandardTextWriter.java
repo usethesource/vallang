@@ -581,7 +581,7 @@ public class StandardTextWriter implements IValueTextWriter {
 		}
 
 		public IValue visitExternal(IExternalValue externalValue) throws IOException {
-			return visitConstructor(externalValue.asConstructor());
+			return visitConstructor(externalValue.encodeAsConstructor());
 		}
 
 		public IValue visitDateTime(IDateTime o) throws IOException {

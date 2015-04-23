@@ -48,7 +48,7 @@ public interface IExternalValue extends IValue {
 		return equals(other);
 	}
 
-	default IConstructor asConstructor() {
+	default IConstructor encodeAsConstructor() {
 		return new IConstructor() {
 			@Override
 			public Type getConstructorType() {
