@@ -27,6 +27,16 @@ package org.eclipse.imp.pdb.facts.type;
 public abstract class ExternalType extends DefaultSubtypeOfValue {
 
 	@Override
+	public String getName() {
+		return getClass().getSimpleName();
+	}
+	
+	@Override
+	public Type getTypeParameters() {
+		return TypeFactory.getInstance().voidType();
+	}
+	
+	@Override
 	public boolean isExternalType() {
 		return true;
 	}
