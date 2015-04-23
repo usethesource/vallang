@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 /**
  * IExternalValue, together with {@link ExternalType} offer a limited form of extensibility
@@ -39,12 +40,34 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
  * Note that NORMAL USE OF THE PDB DOES NOT REQUIRE IMPLEMENTING THIS INTERFACE
  */
 public interface IExternalValue extends IConstructor {
+	static final TypeStore store = new TypeStore();
+	
+	/**
+	 * The default type of an external value is the class name of its implementation as an ADT.
+	 */
 	@Override
-	abstract ExternalType getType();
+	default Type getType() {
+		synchronized (store) {
+			return TypeFactory.getInstance().abstractDataType(store, getName());
+		}
+	}
 
+	/**
+	 * The default constructor of an external value again the class name of its implementation.
+	 * A default serialization of a class named, for example, `class Function implements IExternalValue { }` 
+	 * would be the nullary constructor `Function()` of the ADT type `Function`. If you want to store more
+	 * data there, then you override this method and the other methods below for getting data out of your representation.
+	 */
 	@Override
 	default Type getConstructorType() {
-		throw new UnsupportedOperationException("add implementation to support features such as (de)serialization and pattern matching");
+		synchronized (store) {
+			return TypeFactory.getInstance().constructor(store, getType(), getName());
+		}
+	}
+	
+	@Override
+	default String getName() {
+		return getConstructorType().getName();
 	}
 	
 	@Override
@@ -83,6 +106,11 @@ public interface IExternalValue extends IConstructor {
 	}
 	
 	@Override
+	default boolean isAnnotatable() {
+		return true;
+	}
+	
+	@Override
 	default IAnnotatable<? extends IConstructor> asAnnotatable() {
 		return new AbstractDefaultAnnotatable<IConstructor>(this) {
 			@Override
@@ -91,6 +119,11 @@ public interface IExternalValue extends IConstructor {
 				return new AnnotatedConstructorFacade(content, annotations);
 			}
 		};
+	}
+	
+	@Override
+	default boolean mayHaveKeywordParameters() {
+		return true;
 	}
 	
 	@Override
@@ -114,10 +147,6 @@ public interface IExternalValue extends IConstructor {
 		return Collections.emptyList();
 	}
 	
-	@Override
-	default String getName() {
-		return getClass().getName().replaceAll("\\.", "_");
-	}
 	
 	@Override
 	default Iterator<IValue> iterator() {
@@ -147,5 +176,10 @@ public interface IExternalValue extends IConstructor {
 			    	return Collections.unmodifiableMap(parameters);
 			    }
 			  }; 
+	}
+	
+	@Override
+	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+		return v.visitExternal(this);
 	}
 }

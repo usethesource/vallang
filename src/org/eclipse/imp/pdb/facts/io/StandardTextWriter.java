@@ -580,13 +580,7 @@ public class StandardTextWriter implements IValueTextWriter {
 		}
 
 		public IValue visitExternal(IExternalValue externalValue) throws IOException {
-			if (externalValue instanceof IConstructor) {
-				return visitConstructor((IConstructor) externalValue);
-			}
-			else {
-				append(externalValue.toString());
-				return externalValue;
-			}
+			return visitConstructor((IConstructor) externalValue);
 		}
 
 		public IValue visitDateTime(IDateTime o) throws IOException {
