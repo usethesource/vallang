@@ -55,7 +55,7 @@ public interface IExternalValue extends IValue {
 		return new IConstructor() {
 			@Override
 			public Type getConstructorType() {
-				return TypeFactory.getInstance().constructor(new TypeStore(), getType(), getName());
+				return TypeFactory.getInstance().constructor(new TypeStore(), getType(), getName(), new Type[0]);
 			}
 			
 			@Override
