@@ -179,7 +179,7 @@ public class BinaryWriter{
 			if (constructor.mayHaveKeywordParameters() && constructor.asWithKeywordParameters().hasParameters()) {
 				writeKeywordedConstructor(constructor);
 			}
-			else if (!constructor.mayHaveKeywordParameters() && constructor.asAnnotatable().hasAnnotations()) {
+			else if (!constructor.mayHaveKeywordParameters() && constructor.isAnnotatable() && constructor.asAnnotatable().hasAnnotations()) {
 				writeAnnotatedConstructor(constructor);
 			}
 			else {
@@ -323,7 +323,7 @@ public class BinaryWriter{
 
       @Override
       public Type visitExternal(Type type) throws IOException {
-    	  return visitAbstractData(((ExternalType) type).getAbstractDataType());
+    	  return visitAbstractData(((ExternalType) type).asAbstractDataType());
       }
 
       @Override
