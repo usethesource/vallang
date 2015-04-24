@@ -287,7 +287,7 @@ public class TypeStore {
 	        Type oldAdt = lookupAbstractDataType(name);
 
 	        if (oldAdt != null) {
-	          if (adt.comparable(oldAdt)) {
+	          if (adt.comparable(oldAdt) || oldAdt.isExternalType()) {
 	            return; // paramaterized ADT got instantiated, don't store.
 	          }
 
