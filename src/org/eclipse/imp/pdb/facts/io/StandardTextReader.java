@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.OverloadingNotSupportedException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
+import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -368,6 +369,9 @@ public class StandardTextReader extends AbstractTextReader {
 	  ArrayList<IValue> arr = new ArrayList<IValue>();
 	  Type args = expected;
 	  Type constr = null;
+	  if (expected.isExternalType()) {
+		  expected = ((ExternalType) expected).asAbstractDataType();
+	  }
 	  if (expected.isAbstractData() ) {
 	    Set<Type> alternatives = store.lookupConstructor(expected, id);
 	    if (alternatives.size() > 1) {

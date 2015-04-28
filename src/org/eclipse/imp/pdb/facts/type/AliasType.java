@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be
@@ -35,13 +34,13 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	private final Type fParameters;
 	
 	/* package */ AliasType(String name, Type aliased) {
-		fName = name;
+		fName = name.intern();
 		fAliased = aliased;
 		fParameters = TypeFactory.getInstance().voidType();
 	}
 	
 	/* package */ AliasType(String name, Type aliased, Type parameters) {
-		fName = name;
+		fName = name.intern();
 		fAliased = aliased;
 		fParameters = parameters;
 	}
@@ -564,4 +563,8 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     return fAliased.glbWithDateTime(type);
   }
 
+  @Override
+  public Type getAbstractDataType() {
+    return fAliased.getAbstractDataType();
+  }
 }

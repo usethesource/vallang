@@ -16,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.binary.BinaryWriter;
 import org.eclipse.imp.pdb.facts.type.TypeStore;

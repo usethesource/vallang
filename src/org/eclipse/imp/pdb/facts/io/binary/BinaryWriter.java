@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009-2015 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *    Anya Helene Bagge - labeled map types
+*    Jurgen Vinju - externa; types
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.io.binary;
 
@@ -32,6 +33,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -177,7 +179,7 @@ public class BinaryWriter{
 			if (constructor.mayHaveKeywordParameters() && constructor.asWithKeywordParameters().hasParameters()) {
 				writeKeywordedConstructor(constructor);
 			}
-			else if (!constructor.mayHaveKeywordParameters() && constructor.asAnnotatable().hasAnnotations()) {
+			else if (!constructor.mayHaveKeywordParameters() && constructor.isAnnotatable() && constructor.asAnnotatable().hasAnnotations()) {
 				writeAnnotatedConstructor(constructor);
 			}
 			else {
@@ -320,8 +322,8 @@ public class BinaryWriter{
       }
 
       @Override
-      public Type visitExternal(Type type) {
-        throw new RuntimeException("Cannot serialize values defined using external (PDB extension) types: " + type.toString());
+      public Type visitExternal(Type type) throws IOException {
+    	  return visitAbstractData(((ExternalType) type).asAbstractDataType());
       }
 
       @Override

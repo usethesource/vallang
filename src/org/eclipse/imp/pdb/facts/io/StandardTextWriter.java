@@ -182,7 +182,8 @@ public class StandardTextWriter implements IValueTextWriter {
 
 		public IValue visitConstructor(IConstructor o) throws IOException {
 			String name = o.getName();
-			
+			if (name == null) 
+				System.err.println("hello");
 			if (name.equals("loc")) {
 				append('\\');
 			}
@@ -580,8 +581,7 @@ public class StandardTextWriter implements IValueTextWriter {
 		}
 
 		public IValue visitExternal(IExternalValue externalValue) throws IOException {
-			append(externalValue.toString());
-			return externalValue;
+			return visitConstructor(externalValue.encodeAsConstructor());
 		}
 
 		public IValue visitDateTime(IDateTime o) throws IOException {

@@ -12,7 +12,10 @@
 
 package org.eclipse.imp.pdb.test;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -141,6 +144,37 @@ public abstract class BaseTestList extends TestCase {
 		for (int i = 0; i < integers.length; i++) {
 			if (!reverse.get(i).isEqual(integers[integers.length - i - 1])) {
 				fail("reverse did something funny: " + reverse + " is not reverse of " + integerList);
+			}
+		}
+	}
+	
+	public void testShuffle() {
+		IList shuffle = integerList.shuffle(new Random());
+		
+		if (shuffle.getType() != integerList.getType()) {
+			fail("shuffle should keep type");
+		}
+		
+		if (shuffle.length() != integerList.length()) {
+			fail("length after shuffle is different");
+		}
+	}
+	// doesn't completly test distribution, but at least protects against some cases
+	public void testShuffleFirstLast() {
+		Set<IValue> first = new HashSet<>();
+		Set<IValue> last = new HashSet<>();
+		Random r = new Random();
+		for (int i=0; i < 20 * integerList.length(); i++) {
+			IList shuffled = integerList.shuffle(r);
+			first.add(shuffled.get(0));
+			last.add(shuffled.get(shuffled.length() - 1));
+		}
+		for (IValue v: integerList) {
+			if (!first.contains(v)) {
+				fail("The shuffle doesn't shuffle the first index correctly");
+			}
+			if (!last.contains(v)) {
+				fail("The shuffle doesn't shuffle the last index correctly");
 			}
 		}
 	}

@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 
 
+
 /**
  * ExternalType facilitates a limited form of extensibility to the PDB's type system.
  * It can be used for example to add 'function types' to the PDB. Any such extension
@@ -25,7 +26,25 @@ package org.eclipse.imp.pdb.facts.type;
  * Note that NORMAL USE OF THE PDB DOES NOT REQUIRE EXTENDING THIS CLASS
  */
 public abstract class ExternalType extends DefaultSubtypeOfValue {
-
+	static private final TypeStore store = new TypeStore();
+	
+	/** 
+	 * For encoding an external value as an ADT we need a representative type
+	 */
+	public Type asAbstractDataType() {
+		return TypeFactory.getInstance().abstractDataType(store, getName());
+	}
+	
+	@Override
+	public String getName() {
+		return getClass().getSimpleName();
+	}
+	
+	@Override
+	public Type getTypeParameters() {
+		return TypeFactory.getInstance().voidType();
+	}
+	
 	@Override
 	public boolean isExternalType() {
 		return true;

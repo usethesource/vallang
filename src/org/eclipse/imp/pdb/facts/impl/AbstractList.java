@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.util.Random;
+
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -69,6 +71,11 @@ public abstract class AbstractList extends AbstractValue implements IList {
     @Override
     public IList reverse() {
         return ListFunctions.reverse(getValueFactory(), this);
+    }
+    
+    @Override
+    public IList shuffle(Random rand) {
+        return ListFunctions.shuffle(getValueFactory(), this, rand);
     }
 
     @Override

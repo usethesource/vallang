@@ -52,10 +52,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	/*package*/ static IReal newReal(double value) {
+		checkNanAndInfinity(value);
 		return new BigDecimalValue(BigDecimal.valueOf(value));
 	}
 
+	public static void checkNanAndInfinity(double value) {
+		if (Double.isNaN(value)) {
+			throw new NumberFormatException("no support for NaN");
+		}
+		if (Double.isInfinite(value)) {
+			throw new NumberFormatException("no support for infinity");
+		}
+	}
+
 	/*package*/ static IReal newReal(double value, int precision) {
+		checkNanAndInfinity(value);
 		return new BigDecimalValue(new BigDecimal(value, new MathContext(precision)));
 	}
 

@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -109,7 +108,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 	
 	@Override
 	public int hashCode() {
-		return content.hashCode();
+		return 15551 + 7 * content.hashCode() + 11 * parameters.hashCode();
 	}
 	
 	@Override

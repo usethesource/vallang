@@ -120,7 +120,7 @@ import java.util.regex.Pattern;
 
 		@Override
 		public String getAuthority() {
-			throw new UnsupportedOperationException();
+			return "";
 		}
 
 		@Override
@@ -227,10 +227,7 @@ import java.util.regex.Pattern;
 		public Boolean hasPath() {
 			return false;
 		}
-		@Override
-		public String getPath() {
-			throw new UnsupportedOperationException();
-		}
+
 		@Override
 		public Boolean hasAuthority() {
 			return true;

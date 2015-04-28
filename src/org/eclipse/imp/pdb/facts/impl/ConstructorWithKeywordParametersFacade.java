@@ -119,7 +119,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	
 	@Override
 	public int hashCode() {
-		return content.hashCode();
+		return 131 + 3 * content.hashCode() + 101 * parameters.hashCode();
 	}
 	
 	@Override

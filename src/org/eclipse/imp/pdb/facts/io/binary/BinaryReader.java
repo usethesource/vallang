@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2015 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -223,7 +223,7 @@ public class BinaryReader{
 		
 		if (value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
-			if (!(consValue.mayHaveKeywordParameters() && consValue.asWithKeywordParameters().hasParameters()) &&  consValue.asAnnotatable().hasAnnotations()) {
+			if (!(consValue.mayHaveKeywordParameters() && consValue.asWithKeywordParameters().hasParameters()) &&  (consValue.isAnnotatable() && consValue.asAnnotatable().hasAnnotations())) {
 				Map<String,IValue> amap = consValue.asAnnotatable().getAnnotations();
 				for (Entry<String, IValue> aEntry : amap.entrySet()) {
 					Type aType = aEntry.getValue().getType();
@@ -1013,5 +1013,8 @@ public class BinaryReader{
 	static class UnexpectedEOF extends IOException {
 		private static final long serialVersionUID = -907629554395808678L;
 
+		public UnexpectedEOF() {
+			super("unexpected end of file");
+		}
 	}
 }
