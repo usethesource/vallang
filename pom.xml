@@ -11,7 +11,7 @@
 
 	<artifactId>org.eclipse.imp.pdb.values</artifactId>
 	<version>0.4.2.qualifier</version>
-	<packaging>eclipse-plugin</packaging>
+	<packaging>jar</packaging>
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/cwi-swat/pdb.values.git</developerConnection>
