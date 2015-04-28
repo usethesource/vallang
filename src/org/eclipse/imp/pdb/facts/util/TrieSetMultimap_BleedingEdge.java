@@ -119,15 +119,15 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 		return hash == targetHash && size == targetSize;
 	}
 
-	private static int improve(final int hash) {
-		return hash; // return idendity
+	public static final int transformHashCode(final int hash) {
+		return hash;
 	}
 
 	public boolean containsKey(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0);
+			return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -137,7 +137,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+			return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -168,7 +168,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			@SuppressWarnings("unchecked")
 			final V val = (V) o1;
 			final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-							improve(key.hashCode()), 0);
+							transformHashCode(key.hashCode()), 0);
 
 			if (result.isPresent()) {
 				return result.get().contains(val);
@@ -188,7 +188,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			@SuppressWarnings("unchecked")
 			final V val = (V) o1;
 			final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-							improve(key.hashCode()), 0, cmp);
+							transformHashCode(key.hashCode()), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get().containsEquivalent(val, cmp);
@@ -205,7 +205,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-							improve(key.hashCode()), 0);
+							transformHashCode(key.hashCode()), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -222,7 +222,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-							improve(key.hashCode()), 0, cmp);
+							transformHashCode(key.hashCode()), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -239,7 +239,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 		final SetMultimapResult<K, V> details = SetMultimapResult.unchanged();
 
 		final CompactSetMultimapNode<K, V> newRootNode = rootNode.updated(null, key, val,
-						improve(keyHash), 0, details);
+						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
 			final int valHash = val.hashCode();
@@ -256,7 +256,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 		final SetMultimapResult<K, V> details = SetMultimapResult.unchanged();
 
 		final CompactSetMultimapNode<K, V> newRootNode = rootNode.updated(null, key, val,
-						improve(keyHash), 0, details, cmp);
+						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
 			final int valHash = val.hashCode();
@@ -287,7 +287,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 		final SetMultimapResult<K, V> details = SetMultimapResult.unchanged();
 
 		final CompactSetMultimapNode<K, V> newRootNode = rootNode.removed(null, key, val,
-						improve(keyHash), 0, details);
+						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
@@ -305,7 +305,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 		final SetMultimapResult<K, V> details = SetMultimapResult.unchanged();
 
 		final CompactSetMultimapNode<K, V> newRootNode = rootNode.removed(null, key, val,
-						improve(keyHash), 0, details, cmp);
+						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
@@ -506,10 +506,14 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			return false;
 		}
 
-		if (other instanceof TransientTrieSetMultimap_BleedingEdge) {
-			TransientTrieSetMultimap_BleedingEdge<?, ?> that = (TransientTrieSetMultimap_BleedingEdge<?, ?>) other;
+		if (other instanceof TrieSetMultimap_BleedingEdge) {
+			TrieSetMultimap_BleedingEdge<?, ?> that = (TrieSetMultimap_BleedingEdge<?, ?>) other;
 
-			if (this.size() != that.size()) {
+			if (this.cachedSize != that.cachedSize) {
+				return false;
+			}
+
+			if (this.hashCode != that.hashCode) {
 				return false;
 			}
 
@@ -528,7 +532,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 					@SuppressWarnings("unchecked")
 					final K key = (K) entry.getKey();
 					final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-									improve(key.hashCode()), 0);
+									transformHashCode(key.hashCode()), 0);
 
 					if (!result.isPresent()) {
 						return false;
@@ -1120,14 +1124,15 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 					final ImmutableSet<V> valColl = getValue(dataIndex);
 
 					final int valHash = val.hashCode();
-					// if(valColl.contains(val, improve(valHash), 0)) {
+					// if(valColl.contains(val, transformHashCode(valHash), 0))
+					// {
 					if (valColl.contains(val)) {
 						return this;
 					} else {
 						// add new mapping
 						// final ImmutableSet<V> valCollNew =
-						// valColl.updated(null, val, improve(valHash), 0,
-						// details);
+						// valColl.updated(null, val,
+						// transformHashCode(valHash), 0, details);
 						final ImmutableSet<V> valCollNew = valColl.__insert(val);
 
 						details.modified();
@@ -1137,13 +1142,13 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 					final int valHash = val.hashCode();
 					// final ImmutableSet<V> valColl =
 					// CompactSetNode.EMPTY_NODE.updated(null, val,
-					// improve(valHash), 0, details);
+					// transformHashCode(valHash), 0, details);
 					final ImmutableSet<V> valColl = AbstractSpecialisedImmutableSet.setOf(val);
 
 					final ImmutableSet<V> currentValNode = getValue(dataIndex);
 					final CompactSetMultimapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentValNode, improve(currentKey.hashCode()), key, valColl,
-									keyHash, shift + BIT_PARTITION_SIZE);
+									currentValNode, transformHashCode(currentKey.hashCode()), key,
+									valColl, keyHash, shift + BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -1163,7 +1168,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 				final int valHash = val.hashCode();
 				// final ImmutableSet<V> valColl =
 				// CompactSetNode.EMPTY_NODE.updated(null, val,
-				// improve(valHash), 0, details);
+				// transformHashCode(valHash), 0, details);
 				final ImmutableSet<V> valColl = AbstractSpecialisedImmutableSet.setOf(val);
 
 				details.modified();
@@ -1185,14 +1190,15 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 					final ImmutableSet<V> valColl = getValue(dataIndex);
 
 					final int valHash = val.hashCode();
-					// if(valColl.contains(val, improve(valHash), 0)) {
+					// if(valColl.contains(val, transformHashCode(valHash), 0))
+					// {
 					if (valColl.contains(val)) {
 						return this;
 					} else {
 						// add new mapping
 						// final ImmutableSet<V> valCollNew =
-						// valColl.updated(null, val, improve(valHash), 0,
-						// details);
+						// valColl.updated(null, val,
+						// transformHashCode(valHash), 0, details);
 						final ImmutableSet<V> valCollNew = valColl.__insert(val);
 
 						details.modified();
@@ -1202,13 +1208,13 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 					final int valHash = val.hashCode();
 					// final ImmutableSet<V> valColl =
 					// CompactSetNode.EMPTY_NODE.updated(null, val,
-					// improve(valHash), 0, details);
+					// transformHashCode(valHash), 0, details);
 					final ImmutableSet<V> valColl = AbstractSpecialisedImmutableSet.setOf(val);
 
 					final ImmutableSet<V> currentValNode = getValue(dataIndex);
 					final CompactSetMultimapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentValNode, improve(currentKey.hashCode()), key, valColl,
-									keyHash, shift + BIT_PARTITION_SIZE);
+									currentValNode, transformHashCode(currentKey.hashCode()), key,
+									valColl, keyHash, shift + BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -1228,7 +1234,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 				final int valHash = val.hashCode();
 				// final ImmutableSet<V> valColl =
 				// CompactSetNode.EMPTY_NODE.updated(null, val,
-				// improve(valHash), 0, details);
+				// transformHashCode(valHash), 0, details);
 				final ImmutableSet<V> valColl = AbstractSpecialisedImmutableSet.setOf(val);
 
 				details.modified();
@@ -1249,14 +1255,15 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 					final ImmutableSet<V> valColl = getValue(dataIndex);
 
 					final int valHash = val.hashCode();
-					// if(valColl.contains(val, improve(valHash), 0)) {
+					// if(valColl.contains(val, transformHashCode(valHash), 0))
+					// {
 					if (valColl.contains(val)) {
 						details.updated(val);
 
 						// remove mapping
 						// final ImmutableSet<V> valCollNew =
-						// valColl.removed(null, val, improve(valHash), 0,
-						// details);
+						// valColl.removed(null, val,
+						// transformHashCode(valHash), 0, details);
 						final ImmutableSet<V> valCollNew = valColl.__remove(val);
 
 						if (valCollNew.size() == 0) { // earlier: arity() == 0
@@ -1334,14 +1341,15 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 					final ImmutableSet<V> valColl = getValue(dataIndex);
 
 					final int valHash = val.hashCode();
-					// if(valColl.contains(val, improve(valHash), 0)) {
+					// if(valColl.contains(val, transformHashCode(valHash), 0))
+					// {
 					if (valColl.contains(val)) {
 						details.updated(val);
 
 						// remove mapping
 						// final ImmutableSet<V> valCollNew =
-						// valColl.removed(null, val, improve(valHash), 0,
-						// details);
+						// valColl.removed(null, val,
+						// transformHashCode(valHash), 0, details);
 						final ImmutableSet<V> valCollNew = valColl.__remove(val);
 
 						if (valCollNew.size() == 0) { // earlier: arity() == 0
@@ -2507,7 +2515,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0);
+				return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -2517,7 +2525,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+				return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -2548,7 +2556,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 				@SuppressWarnings("unchecked")
 				final V val = (V) o1;
 				final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-								improve(key.hashCode()), 0);
+								transformHashCode(key.hashCode()), 0);
 
 				if (result.isPresent()) {
 					return result.get().contains(val);
@@ -2568,7 +2576,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 				@SuppressWarnings("unchecked")
 				final V val = (V) o1;
 				final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-								improve(key.hashCode()), 0, cmp);
+								transformHashCode(key.hashCode()), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get().containsEquivalent(val, cmp);
@@ -2580,13 +2588,12 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			}
 		}
 
-		@Override
-		public ImmutableSet<V> get(Object o) {
+		public ImmutableSet<V> get(final Object o) {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-								improve(key.hashCode()), 0);
+								transformHashCode(key.hashCode()), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -2598,13 +2605,12 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			}
 		}
 
-		@Override
-		public ImmutableSet<V> getEquivalent(Object o, Comparator<Object> cmp) {
+		public ImmutableSet<V> getEquivalent(final Object o, final Comparator<Object> cmp) {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-								improve(key.hashCode()), 0, cmp);
+								transformHashCode(key.hashCode()), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -2625,7 +2631,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			final SetMultimapResult<K, V> details = SetMultimapResult.unchanged();
 
 			final CompactSetMultimapNode<K, V> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details);
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 
@@ -2656,7 +2662,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			final SetMultimapResult<K, V> details = SetMultimapResult.unchanged();
 
 			final CompactSetMultimapNode<K, V> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details, cmp);
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 
@@ -2708,7 +2714,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			final SetMultimapResult<K, V> details = SetMultimapResult.unchanged();
 
 			final CompactSetMultimapNode<K, V> newRootNode = rootNode.removed(mutator, key, val,
-							improve(keyHash), 0, details);
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
@@ -2740,7 +2746,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			final SetMultimapResult<K, V> details = SetMultimapResult.unchanged();
 
 			final CompactSetMultimapNode<K, V> newRootNode = rootNode.removed(mutator, key, val,
-							improve(keyHash), 0, details, cmp);
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
@@ -3000,7 +3006,11 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 			if (other instanceof TransientTrieSetMultimap_BleedingEdge) {
 				TransientTrieSetMultimap_BleedingEdge<?, ?> that = (TransientTrieSetMultimap_BleedingEdge<?, ?>) other;
 
-				if (this.size() != that.size()) {
+				if (this.cachedSize != that.cachedSize) {
+					return false;
+				}
+
+				if (this.hashCode != that.hashCode) {
 					return false;
 				}
 
@@ -3019,7 +3029,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 						@SuppressWarnings("unchecked")
 						final K key = (K) entry.getKey();
 						final Optional<ImmutableSet<V>> result = rootNode.findByKey(key,
-										improve(key.hashCode()), 0);
+										transformHashCode(key.hashCode()), 0);
 
 						if (!result.isPresent()) {
 							return false;
