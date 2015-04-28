@@ -115,15 +115,15 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		return hash == targetHash && size == targetSize;
 	}
 
-	private static int improve(final int hash) {
-		return hash; // return idendity
+	public static final int transformHashCode(final int hash) {
+		return hash;
 	}
 
 	public boolean containsKey(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0);
+			return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -133,7 +133,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+			return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -162,7 +162,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-							improve(key.hashCode()), 0);
+							transformHashCode(key.hashCode()), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -179,7 +179,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-							improve(key.hashCode()), 0, cmp);
+							transformHashCode(key.hashCode()), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -195,8 +195,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		final int keyHash = key.hashCode();
 		final MapResult<K> details = MapResult.unchanged();
 
-		final CompactMapNode<K> newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
-						details);
+		final CompactMapNode<K> newRootNode = rootNode.updated(null, key, val,
+						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
@@ -220,8 +220,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		final int keyHash = key.hashCode();
 		final MapResult<K> details = MapResult.unchanged();
 
-		final CompactMapNode<K> newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
-						details, cmp);
+		final CompactMapNode<K> newRootNode = rootNode.updated(null, key, val,
+						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
@@ -259,8 +259,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		final int keyHash = key.hashCode();
 		final MapResult<K> details = MapResult.unchanged();
 
-		final CompactMapNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details);
+		final CompactMapNode<K> newRootNode = rootNode.removed(null, key,
+						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
@@ -277,8 +277,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		final int keyHash = key.hashCode();
 		final MapResult<K> details = MapResult.unchanged();
 
-		final CompactMapNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
+		final CompactMapNode<K> newRootNode = rootNode.removed(null, key,
+						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
@@ -460,10 +460,14 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return false;
 		}
 
-		if (other instanceof TransientTrieMap_5Bits_Spec0To8_IntValue) {
-			TransientTrieMap_5Bits_Spec0To8_IntValue<?> that = (TransientTrieMap_5Bits_Spec0To8_IntValue<?>) other;
+		if (other instanceof TrieMap_5Bits_Spec0To8_IntValue) {
+			TrieMap_5Bits_Spec0To8_IntValue<?> that = (TrieMap_5Bits_Spec0To8_IntValue<?>) other;
 
-			if (this.size() != that.size()) {
+			if (this.cachedSize != that.cachedSize) {
+				return false;
+			}
+
+			if (this.hashCode != that.hashCode) {
 				return false;
 			}
 
@@ -482,7 +486,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 					@SuppressWarnings("unchecked")
 					final K key = (K) entry.getKey();
 					final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-									improve(key.hashCode()), 0);
+									transformHashCode(key.hashCode()), 0);
 
 					if (!result.isPresent()) {
 						return false;
@@ -1551,8 +1555,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				} else {
 					final int currentVal = getValue(dataIndex);
 					final CompactMapNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
-									shift + BIT_PARTITION_SIZE);
+									currentVal, transformHashCode(currentKey.hashCode()), key, val,
+									keyHash, shift + BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -1597,8 +1601,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				} else {
 					final int currentVal = getValue(dataIndex);
 					final CompactMapNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
-									shift + BIT_PARTITION_SIZE);
+									currentVal, transformHashCode(currentKey.hashCode()), key, val,
+									keyHash, shift + BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -3699,7 +3703,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0);
+				return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -3709,7 +3713,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+				return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -3733,13 +3737,12 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return false;
 		}
 
-		@Override
-		public java.lang.Integer get(Object o) {
+		public java.lang.Integer get(final Object o) {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve(key.hashCode()), 0);
+								transformHashCode(key.hashCode()), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3751,13 +3754,12 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			}
 		}
 
-		@Override
-		public java.lang.Integer getEquivalent(Object o, Comparator<Object> cmp) {
+		public java.lang.Integer getEquivalent(final Object o, final Comparator<Object> cmp) {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve(key.hashCode()), 0, cmp);
+								transformHashCode(key.hashCode()), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3778,7 +3780,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			final MapResult<K> details = MapResult.unchanged();
 
 			final CompactMapNode<K> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details);
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
@@ -3823,7 +3825,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			final MapResult<K> details = MapResult.unchanged();
 
 			final CompactMapNode<K> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details, cmp);
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
@@ -3898,8 +3900,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			final int keyHash = key.hashCode();
 			final MapResult<K> details = MapResult.unchanged();
 
-			final CompactMapNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
-							0, details);
+			final CompactMapNode<K> newRootNode = rootNode.removed(mutator, key,
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
@@ -3930,8 +3932,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			final int keyHash = key.hashCode();
 			final MapResult<K> details = MapResult.unchanged();
 
-			final CompactMapNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
-							0, details, cmp);
+			final CompactMapNode<K> newRootNode = rootNode.removed(mutator, key,
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
@@ -4167,7 +4169,11 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			if (other instanceof TransientTrieMap_5Bits_Spec0To8_IntValue) {
 				TransientTrieMap_5Bits_Spec0To8_IntValue<?> that = (TransientTrieMap_5Bits_Spec0To8_IntValue<?>) other;
 
-				if (this.size() != that.size()) {
+				if (this.cachedSize != that.cachedSize) {
+					return false;
+				}
+
+				if (this.hashCode != that.hashCode) {
 					return false;
 				}
 
@@ -4186,7 +4192,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 						@SuppressWarnings("unchecked")
 						final K key = (K) entry.getKey();
 						final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-										improve(key.hashCode()), 0);
+										transformHashCode(key.hashCode()), 0);
 
 						if (!result.isPresent()) {
 							return false;

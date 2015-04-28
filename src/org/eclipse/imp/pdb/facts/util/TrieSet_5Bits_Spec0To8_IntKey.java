@@ -94,15 +94,15 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		return hash == targetHash && size == targetSize;
 	}
 
-	private static int improve(final int hash) {
-		return hash; // return idendity
+	public static final int transformHashCode(final int hash) {
+		return hash;
 	}
 
 	public boolean contains(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
-			return rootNode.contains(key, improve((int) key), 0);
+			return rootNode.contains(key, transformHashCode(key), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -112,7 +112,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		try {
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
-			return rootNode.contains(key, improve((int) key), 0, cmp);
+			return rootNode.contains(key, transformHashCode(key), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -122,8 +122,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		try {
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
-			final Optional<java.lang.Integer> result = rootNode.findByKey(key, improve((int) key),
-							0);
+			final Optional<java.lang.Integer> result = rootNode.findByKey(key,
+							transformHashCode(key), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -139,8 +139,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		try {
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
-			final Optional<java.lang.Integer> result = rootNode.findByKey(key, improve((int) key),
-							0, cmp);
+			final Optional<java.lang.Integer> result = rootNode.findByKey(key,
+							transformHashCode(key), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -156,8 +156,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		final int keyHash = key.hashCode();
 		final SetResult details = SetResult.unchanged();
 
-		final CompactSetNode newRootNode = rootNode
-						.updated(null, key, improve(keyHash), 0, details);
+		final CompactSetNode newRootNode = rootNode.updated(null, key, transformHashCode(keyHash),
+						0, details);
 
 		if (details.isModified()) {
 			return new TrieSet_5Bits_Spec0To8_IntKey(newRootNode, hashCode + keyHash,
@@ -172,8 +172,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		final int keyHash = key.hashCode();
 		final SetResult details = SetResult.unchanged();
 
-		final CompactSetNode newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
-						details, cmp);
+		final CompactSetNode newRootNode = rootNode.updated(null, key, transformHashCode(keyHash),
+						0, details, cmp);
 
 		if (details.isModified()) {
 			return new TrieSet_5Bits_Spec0To8_IntKey(newRootNode, hashCode + keyHash,
@@ -200,8 +200,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		final int keyHash = key.hashCode();
 		final SetResult details = SetResult.unchanged();
 
-		final CompactSetNode newRootNode = rootNode
-						.removed(null, key, improve(keyHash), 0, details);
+		final CompactSetNode newRootNode = rootNode.removed(null, key, transformHashCode(keyHash),
+						0, details);
 
 		if (details.isModified()) {
 			return new TrieSet_5Bits_Spec0To8_IntKey(newRootNode, hashCode - keyHash,
@@ -216,8 +216,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		final int keyHash = key.hashCode();
 		final SetResult details = SetResult.unchanged();
 
-		final CompactSetNode newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
+		final CompactSetNode newRootNode = rootNode.removed(null, key, transformHashCode(keyHash),
+						0, details, cmp);
 
 		if (details.isModified()) {
 			return new TrieSet_5Bits_Spec0To8_IntKey(newRootNode, hashCode - keyHash,
@@ -346,10 +346,14 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			return false;
 		}
 
-		if (other instanceof TransientTrieSet_5Bits_Spec0To8_IntKey) {
-			TransientTrieSet_5Bits_Spec0To8_IntKey that = (TransientTrieSet_5Bits_Spec0To8_IntKey) other;
+		if (other instanceof TrieSet_5Bits_Spec0To8_IntKey) {
+			TrieSet_5Bits_Spec0To8_IntKey that = (TrieSet_5Bits_Spec0To8_IntKey) other;
 
-			if (this.size() != that.size()) {
+			if (this.cachedSize != that.cachedSize) {
+				return false;
+			}
+
+			if (this.hashCode != that.hashCode) {
 				return false;
 			}
 
@@ -1348,7 +1352,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 					return this;
 				} else {
 					final CompactSetNode subNodeNew = mergeTwoKeyValPairs(currentKey,
-									improve((int) currentKey), key, keyHash, shift
+									transformHashCode(currentKey), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -1385,7 +1389,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 					return this;
 				} else {
 					final CompactSetNode subNodeNew = mergeTwoKeyValPairs(currentKey,
-									improve((int) currentKey), key, keyHash, shift
+									transformHashCode(currentKey), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -3280,7 +3284,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			try {
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
-				return rootNode.contains(key, improve((int) key), 0);
+				return rootNode.contains(key, transformHashCode(key), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -3290,19 +3294,18 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			try {
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
-				return rootNode.contains(key, improve((int) key), 0, cmp);
+				return rootNode.contains(key, transformHashCode(key), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
 		}
 
-		@Override
-		public java.lang.Integer get(Object o) {
+		public java.lang.Integer get(final Object o) {
 			try {
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve((int) key), 0);
+								transformHashCode(key), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3314,13 +3317,12 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			}
 		}
 
-		@Override
-		public java.lang.Integer getEquivalent(Object o, Comparator<Object> cmp) {
+		public java.lang.Integer getEquivalent(final Object o, final Comparator<Object> cmp) {
 			try {
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve((int) key), 0, cmp);
+								transformHashCode(key), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3340,8 +3342,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final int keyHash = key.hashCode();
 			final SetResult details = SetResult.unchanged();
 
-			final CompactSetNode newRootNode = rootNode.updated(mutator, key, improve(keyHash), 0,
-							details);
+			final CompactSetNode newRootNode = rootNode.updated(mutator, key,
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 
@@ -3370,8 +3372,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final int keyHash = key.hashCode();
 			final SetResult details = SetResult.unchanged();
 
-			final CompactSetNode newRootNode = rootNode.updated(mutator, key, improve(keyHash), 0,
-							details, cmp);
+			final CompactSetNode newRootNode = rootNode.updated(mutator, key,
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 
@@ -3421,8 +3423,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final int keyHash = key.hashCode();
 			final SetResult details = SetResult.unchanged();
 
-			final CompactSetNode newRootNode = rootNode.removed(mutator, key, improve(keyHash), 0,
-							details);
+			final CompactSetNode newRootNode = rootNode.removed(mutator, key,
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3450,8 +3452,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final int keyHash = key.hashCode();
 			final SetResult details = SetResult.unchanged();
 
-			final CompactSetNode newRootNode = rootNode.removed(mutator, key, improve(keyHash), 0,
-							details, cmp);
+			final CompactSetNode newRootNode = rootNode.removed(mutator, key,
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3612,7 +3614,11 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			if (other instanceof TransientTrieSet_5Bits_Spec0To8_IntKey) {
 				TransientTrieSet_5Bits_Spec0To8_IntKey that = (TransientTrieSet_5Bits_Spec0To8_IntKey) other;
 
-				if (this.size() != that.size()) {
+				if (this.cachedSize != that.cachedSize) {
+					return false;
+				}
+
+				if (this.hashCode != that.hashCode) {
 					return false;
 				}
 

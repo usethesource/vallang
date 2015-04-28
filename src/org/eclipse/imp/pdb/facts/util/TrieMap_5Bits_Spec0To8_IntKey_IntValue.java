@@ -119,15 +119,15 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		return hash == targetHash && size == targetSize;
 	}
 
-	private static int improve(final int hash) {
-		return hash; // return idendity
+	public static final int transformHashCode(final int hash) {
+		return hash;
 	}
 
 	public boolean containsKey(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
-			return rootNode.containsKey(key, improve((int) key), 0);
+			return rootNode.containsKey(key, transformHashCode(key), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -137,7 +137,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		try {
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
-			return rootNode.containsKey(key, improve((int) key), 0, cmp);
+			return rootNode.containsKey(key, transformHashCode(key), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -165,8 +165,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		try {
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
-			final Optional<java.lang.Integer> result = rootNode.findByKey(key, improve((int) key),
-							0);
+			final Optional<java.lang.Integer> result = rootNode.findByKey(key,
+							transformHashCode(key), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -182,8 +182,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		try {
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
-			final Optional<java.lang.Integer> result = rootNode.findByKey(key, improve((int) key),
-							0, cmp);
+			final Optional<java.lang.Integer> result = rootNode.findByKey(key,
+							transformHashCode(key), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -200,8 +200,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		final int keyHash = key.hashCode();
 		final MapResult details = MapResult.unchanged();
 
-		final CompactMapNode newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
-						details);
+		final CompactMapNode newRootNode = rootNode.updated(null, key, val,
+						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
@@ -226,8 +226,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		final int keyHash = key.hashCode();
 		final MapResult details = MapResult.unchanged();
 
-		final CompactMapNode newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
-						details, cmp);
+		final CompactMapNode newRootNode = rootNode.updated(null, key, val,
+						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
@@ -265,8 +265,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		final int keyHash = key.hashCode();
 		final MapResult details = MapResult.unchanged();
 
-		final CompactMapNode newRootNode = rootNode
-						.removed(null, key, improve(keyHash), 0, details);
+		final CompactMapNode newRootNode = rootNode.removed(null, key, transformHashCode(keyHash),
+						0, details);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
@@ -283,8 +283,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		final int keyHash = key.hashCode();
 		final MapResult details = MapResult.unchanged();
 
-		final CompactMapNode newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
+		final CompactMapNode newRootNode = rootNode.removed(null, key, transformHashCode(keyHash),
+						0, details, cmp);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
@@ -466,10 +466,14 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			return false;
 		}
 
-		if (other instanceof TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue) {
-			TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue that = (TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue) other;
+		if (other instanceof TrieMap_5Bits_Spec0To8_IntKey_IntValue) {
+			TrieMap_5Bits_Spec0To8_IntKey_IntValue that = (TrieMap_5Bits_Spec0To8_IntKey_IntValue) other;
 
-			if (this.size() != that.size()) {
+			if (this.cachedSize != that.cachedSize) {
+				return false;
+			}
+
+			if (this.hashCode != that.hashCode) {
 				return false;
 			}
 
@@ -488,7 +492,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 					@SuppressWarnings("unchecked")
 					final int key = (java.lang.Integer) entry.getKey();
 					final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-									improve((int) key), 0);
+									transformHashCode(key), 0);
 
 					if (!result.isPresent()) {
 						return false;
@@ -1565,7 +1569,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				} else {
 					final int currentVal = getValue(dataIndex);
 					final CompactMapNode subNodeNew = mergeTwoKeyValPairs(currentKey, currentVal,
-									improve((int) currentKey), key, val, keyHash, shift
+									transformHashCode(currentKey), key, val, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -1611,7 +1615,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				} else {
 					final int currentVal = getValue(dataIndex);
 					final CompactMapNode subNodeNew = mergeTwoKeyValPairs(currentKey, currentVal,
-									improve((int) currentKey), key, val, keyHash, shift
+									transformHashCode(currentKey), key, val, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -3710,7 +3714,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			try {
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
-				return rootNode.containsKey(key, improve((int) key), 0);
+				return rootNode.containsKey(key, transformHashCode(key), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -3720,7 +3724,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			try {
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
-				return rootNode.containsKey(key, improve((int) key), 0, cmp);
+				return rootNode.containsKey(key, transformHashCode(key), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -3744,13 +3748,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			return false;
 		}
 
-		@Override
-		public java.lang.Integer get(Object o) {
+		public java.lang.Integer get(final Object o) {
 			try {
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve((int) key), 0);
+								transformHashCode(key), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3762,13 +3765,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			}
 		}
 
-		@Override
-		public java.lang.Integer getEquivalent(Object o, Comparator<Object> cmp) {
+		public java.lang.Integer getEquivalent(final Object o, final Comparator<Object> cmp) {
 			try {
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve((int) key), 0, cmp);
+								transformHashCode(key), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3789,7 +3791,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final MapResult details = MapResult.unchanged();
 
 			final CompactMapNode newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details);
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
@@ -3834,7 +3836,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final MapResult details = MapResult.unchanged();
 
 			final CompactMapNode newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details, cmp);
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
@@ -3913,8 +3915,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final int keyHash = key.hashCode();
 			final MapResult details = MapResult.unchanged();
 
-			final CompactMapNode newRootNode = rootNode.removed(mutator, key, improve(keyHash), 0,
-							details);
+			final CompactMapNode newRootNode = rootNode.removed(mutator, key,
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
@@ -3946,8 +3948,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final int keyHash = key.hashCode();
 			final MapResult details = MapResult.unchanged();
 
-			final CompactMapNode newRootNode = rootNode.removed(mutator, key, improve(keyHash), 0,
-							details, cmp);
+			final CompactMapNode newRootNode = rootNode.removed(mutator, key,
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
@@ -4184,7 +4186,11 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			if (other instanceof TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue) {
 				TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue that = (TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue) other;
 
-				if (this.size() != that.size()) {
+				if (this.cachedSize != that.cachedSize) {
+					return false;
+				}
+
+				if (this.hashCode != that.hashCode) {
 					return false;
 				}
 
@@ -4203,7 +4209,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						@SuppressWarnings("unchecked")
 						final int key = (java.lang.Integer) entry.getKey();
 						final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-										improve((int) key), 0);
+										transformHashCode(key), 0);
 
 						if (!result.isPresent()) {
 							return false;
