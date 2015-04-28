@@ -47,6 +47,16 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		Objects.requireNonNull(content);
 		this.elementTypeBag = elementTypeBag;
 		this.content = content;
+
+		/*
+		 * EXPERIMENTAL: Enforce that binary relations always are backed by
+		 * multi-maps (instead of being represented as a set of tuples).
+		 */
+		if ((elementTypeBag.lub().isTuple() && elementTypeBag.lub().getArity() == 2) == true) {
+			assert content.getClass() == org.eclipse.imp.pdb.facts.util.ImmutableSetMultimapAsImmutableSetView.class;
+		} else {
+			assert content.getClass() == org.eclipse.imp.pdb.facts.util.TrieSet_5Bits.class;
+		}
 	}
 
 	@Override
