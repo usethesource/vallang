@@ -35,7 +35,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 	private static final TrieMap_5Bits EMPTY_MAP = new TrieMap_5Bits(CompactMapNode.EMPTY_NODE, 0,
 					0);
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private final AbstractMapNode<K, V> rootNode;
 	private final int hashCode;

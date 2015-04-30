@@ -14,8 +14,10 @@ package org.eclipse.imp.pdb.facts.impl.persistent;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
@@ -23,8 +25,11 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
+import org.eclipse.imp.pdb.facts.util.ImmutableSetMultimap;
+import org.eclipse.imp.pdb.facts.util.ImmutableSetMultimapAsImmutableSetView;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.DefaultTrieSet;
+import org.eclipse.imp.pdb.facts.util.TrieSetMultimap_BleedingEdge;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 	
@@ -45,17 +50,27 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	public PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
 		Objects.requireNonNull(elementTypeBag);
 		Objects.requireNonNull(content);
-		this.elementTypeBag = elementTypeBag;
-		this.content = content;
 
+		/*
+		 * EXPERIMENTAL: Enforce that empty sets are always represented as a
+		 * TrieSet.
+		 */		
+		if (content.isEmpty()) {
+			this.elementTypeBag = elementTypeBag;
+			this.content = DefaultTrieSet.of();
+		} else {
+			this.elementTypeBag = elementTypeBag;
+			this.content = content;			
+		}
+		
 		/*
 		 * EXPERIMENTAL: Enforce that binary relations always are backed by
 		 * multi-maps (instead of being represented as a set of tuples).
 		 */
 		if ((elementTypeBag.lub().isTuple() && elementTypeBag.lub().getArity() == 2) == true) {
-			assert content.getClass() == org.eclipse.imp.pdb.facts.util.ImmutableSetMultimapAsImmutableSetView.class;
+			assert this.content.getClass() == org.eclipse.imp.pdb.facts.util.ImmutableSetMultimapAsImmutableSetView.class;
 		} else {
-			assert content.getClass() == org.eclipse.imp.pdb.facts.util.TrieSet_5Bits.class;
+			assert this.content.getClass() == org.eclipse.imp.pdb.facts.util.TrieSet_5Bits.class;
 		}
 	}
 
@@ -86,15 +101,54 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	@Override
 	public ISet insert(IValue value) {
-		final ImmutableSet<IValue> contentNew = 
-				content.__insertEquivalent(value, equivalenceComparator);
+		/*
+		 * EXPERIMENTAL: Enforce that binary relations always are backed by
+		 * multi-maps (instead of being represented as a set of tuples).
+		 */
+		if (content.isEmpty()) {
+			final ImmutableSet<IValue> contentNew;
+			
+			if ((value.getType().isTuple() && value.getType().getArity() == 2) == true) {
+				final ImmutableSetMultimap<IValue, IValue> multimap = TrieSetMultimap_BleedingEdge.<IValue, IValue>of();
+				
+				final BiFunction<IValue, IValue, IValue> tupleOf = (first, second) -> org.eclipse.imp.pdb.facts.impl.fast.Tuple
+								.newTuple(first, second);
+	
+				final BiFunction<IValue, Integer, Object> tupleElementAt = (tuple, position) -> {
+					switch (position) {
+					case 0:
+						return ((ITuple) tuple).get(0);
+					case 1:
+						return ((ITuple) tuple).get(1);
+					default:
+						throw new IllegalStateException();
+					}
+				};
+	
+				contentNew = new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, IValue>(
+								multimap, tupleOf, tupleElementAt).__insertEquivalent(value,
+								equivalenceComparator);
+			} else {
+				contentNew = DefaultTrieSet.<IValue>of().__insertEquivalent(value, equivalenceComparator);
+			}
+			
+			if (content == contentNew)
+				return this;
 
-		if (content == contentNew)
-			return this;
+			final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
+			
+			return new PDBPersistentHashSet(bagNew, contentNew);			
+		} else {
+			final ImmutableSet<IValue> contentNew = content.__insertEquivalent(value,
+							equivalenceComparator);
 
-		final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
-		
-		return new PDBPersistentHashSet(bagNew, contentNew);
+			if (content == contentNew)
+				return this;
+
+			final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
+
+			return new PDBPersistentHashSet(bagNew, contentNew);
+		}
 	}
 
 	@Override
@@ -218,13 +272,28 @@ public final class PDBPersistentHashSet extends AbstractSet {
 				two = that.content;
 			}
 
-			final TransientSet<IValue> tmp = one.asTransient();
+			TransientSet<IValue> tmp = one.asTransient(); // non-final due to conversion
 			boolean modified = false;
 
 			for (IValue key : two) {
-				if (tmp.__insertEquivalent(key, equivalenceComparator)) {
-					modified = true;
-					bag = bag.increase(key.getType());
+				try {
+					if (tmp.__insertEquivalent(key, equivalenceComparator)) {
+						modified = true;
+						bag = bag.increase(key.getType());
+					}
+				} catch(ClassCastException | ArrayIndexOutOfBoundsException e) {
+					// Conversion from ImmutableSetMultimapAsImmutableSetView to DefaultTrieSet
+					// TODO: use elementTypeBag for deciding upon conversion and not exception
+					
+					TransientSet<IValue> convertedSetContent = DefaultTrieSet.transientOf();
+					convertedSetContent.__insertAll(tmp);			
+					tmp = convertedSetContent;
+
+					// retry
+					if (tmp.__insertEquivalent(key, equivalenceComparator)) {
+						modified = true;
+						bag = bag.increase(key.getType());
+					}
 				}
 			}
 			

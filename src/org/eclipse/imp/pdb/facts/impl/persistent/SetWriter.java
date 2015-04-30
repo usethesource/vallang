@@ -12,17 +12,23 @@
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
 import java.util.Comparator;
+import java.util.function.BiFunction;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
+import org.eclipse.imp.pdb.facts.util.ImmutableSet;
+import org.eclipse.imp.pdb.facts.util.ImmutableSetMultimap;
+import org.eclipse.imp.pdb.facts.util.ImmutableSetMultimapAsImmutableSetView;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.DefaultTrieSet;
+import org.eclipse.imp.pdb.facts.util.TrieSetMultimap_BleedingEdge;
 
 class SetWriter implements ISetWriter {
 
@@ -31,7 +37,7 @@ class SetWriter implements ISetWriter {
 					.getEquivalenceComparator();
 
 	protected AbstractTypeBag elementTypeBag;
-	protected final TransientSet<IValue> setContent;
+	protected TransientSet<IValue> setContent;
 
 	protected final boolean checkUpperBound;
 	protected final Type upperBoundType;
@@ -44,7 +50,7 @@ class SetWriter implements ISetWriter {
 		this.upperBoundType = upperBoundType;
 
 		elementTypeBag = AbstractTypeBag.of();
-		setContent = DefaultTrieSet.transientOf();
+//		setContent = DefaultTrieSet.transientOf();
 		constructedSet = null;
 	}
 
@@ -55,7 +61,7 @@ class SetWriter implements ISetWriter {
 		this.upperBoundType = null;
 
 		elementTypeBag = AbstractTypeBag.of();
-		setContent = DefaultTrieSet.transientOf();
+//		setContent = DefaultTrieSet.transientOf();
 		constructedSet = null;
 	}
 
@@ -65,10 +71,54 @@ class SetWriter implements ISetWriter {
 		if (checkUpperBound && !elementType.isSubtypeOf(upperBoundType)) {
 			throw new UnexpectedElementTypeException(upperBoundType, elementType);
 		}
-
-		boolean result = setContent.__insertEquivalent(element, equivalenceComparator);		
-		if (result) {
-			elementTypeBag = elementTypeBag.increase(elementType);
+		
+		/*
+		 * EXPERIMENTAL: Enforce that binary relations always are backed by
+		 * multi-maps (instead of being represented as a set of tuples).
+		 */
+		if (setContent == null) {
+			if ((elementType.isTuple() && elementType.getArity() == 2) == true) {
+				final ImmutableSetMultimap<IValue, IValue> multimap = TrieSetMultimap_BleedingEdge.<IValue, IValue>of();
+	
+				final BiFunction<IValue, IValue, ITuple> tupleOf = (first, second) -> org.eclipse.imp.pdb.facts.impl.fast.Tuple
+								.newTuple(first, second);
+	
+				final BiFunction<ITuple, Integer, Object> tupleElementAt = (tuple, position) -> {
+					switch (position) {
+					case 0:
+						return ((ITuple) tuple).get(0);
+					case 1:
+						return ((ITuple) tuple).get(1);
+					default:
+						throw new IllegalStateException();
+					}
+				};
+	
+				setContent = (TransientSet) new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, ITuple>(
+								multimap, tupleOf, tupleElementAt).asTransient();
+			} else {
+				setContent = org.eclipse.imp.pdb.facts.util.DefaultTrieSet.transientOf();
+			}
+		}
+		
+		try {
+			boolean result = setContent.__insertEquivalent(element, equivalenceComparator);
+			if (result) {
+				elementTypeBag = elementTypeBag.increase(elementType);
+			}
+		} catch(ClassCastException | ArrayIndexOutOfBoundsException e) {
+			// Conversion from ImmutableSetMultimapAsImmutableSetView to DefaultTrieSet
+			// TODO: use elementTypeBag for deciding upon conversion and not exception
+			
+			TransientSet<IValue> convertedSetContent = DefaultTrieSet.transientOf();
+			convertedSetContent.__insertAll(setContent);			
+			setContent = convertedSetContent;
+			
+			// repeat try-block
+			boolean result = setContent.__insertEquivalent(element, equivalenceComparator);
+			if (result) {
+				elementTypeBag = elementTypeBag.increase(elementType);
+			}			
 		}
 	}
 
@@ -92,6 +142,10 @@ class SetWriter implements ISetWriter {
 
 	@Override
 	public ISet done() {
+		if (setContent == null) {
+			setContent = DefaultTrieSet.transientOf();
+		}
+		
 		if (constructedSet == null) {
 			constructedSet = new PDBPersistentHashSet(elementTypeBag, setContent.freeze());
 		}

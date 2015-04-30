@@ -32,7 +32,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	private static final TrieSet_5Bits EMPTY_SET = new TrieSet_5Bits(CompactSetNode.EMPTY_NODE, 0,
 					0);
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private final AbstractSetNode<K> rootNode;
 	private final int hashCode;
@@ -1512,6 +1512,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						final int keyHash, final int shift, final SetResult<K> details) {
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
+					details.modified();
 
 					if (this.arity() == 1) {
 						return nodeOf(mutator);
@@ -1547,6 +1548,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						final Comparator<Object> cmp) {
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
+					details.modified();
 
 					if (this.arity() == 1) {
 						return nodeOf(mutator);

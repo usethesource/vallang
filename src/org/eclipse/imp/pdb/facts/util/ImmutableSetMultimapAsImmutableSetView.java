@@ -71,14 +71,12 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 	@Override
 	public Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
@@ -113,50 +111,56 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 	@Override
 	public boolean contains(Object o) {
-		T tuple = (T) o;
+		try {
+			T tuple = (T) o;
 
-		@SuppressWarnings("unchecked")
-		final K key = (K) tupleElementAt.apply(tuple, 0);
-		@SuppressWarnings("unchecked")
-		final V val = (V) tupleElementAt.apply(tuple, 1);
+			@SuppressWarnings("unchecked")
+			final K key = (K) tupleElementAt.apply(tuple, 0);
+			@SuppressWarnings("unchecked")
+			final V val = (V) tupleElementAt.apply(tuple, 1);
 
-		return multimap.containsEntry(key, val);
+			return multimap.containsEntry(key, val);
+		} catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+			// not a tuple or not at least two elements
+			return false;
+		}
 	}
 
 	@Override
 	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-		T tuple = (T) o;
+		try {
+			T tuple = (T) o;
 
-		@SuppressWarnings("unchecked")
-		final K key = (K) tupleElementAt.apply(tuple, 0);
-		@SuppressWarnings("unchecked")
-		final V val = (V) tupleElementAt.apply(tuple, 1);
+			@SuppressWarnings("unchecked")
+			final K key = (K) tupleElementAt.apply(tuple, 0);
+			@SuppressWarnings("unchecked")
+			final V val = (V) tupleElementAt.apply(tuple, 1);
 
-		return multimap.containsEntryEquivalent(key, val, cmp);
+			return multimap.containsEntryEquivalent(key, val, cmp);
+		} catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+			// not a tuple or not at least two elements
+			return false;
+		}
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
 	public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
 	public T get(Object o) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
 	public T getEquivalent(Object o, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
@@ -195,14 +199,12 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 	@Override
 	public ImmutableSet<T> __insertAll(Set<? extends T> set) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
 	public ImmutableSet<T> __insertAllEquivalent(Set<? extends T> set, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
@@ -218,34 +220,36 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 	}
 
 	@Override
-	public ImmutableSet<T> __removeEquivalent(T key, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		return null;
+	public ImmutableSet<T> __removeEquivalent(T tuple, Comparator<Object> cmp) {
+		@SuppressWarnings("unchecked")
+		final K key = (K) tupleElementAt.apply(tuple, 0);
+		@SuppressWarnings("unchecked")
+		final V val = (V) tupleElementAt.apply(tuple, 1);
+
+		final ImmutableSetMultimap<K, V> multimapNew = multimap.__removeEquivalent(key, val, cmp);
+
+		return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf, tupleElementAt);				
 	}
 
 	@Override
 	public ImmutableSet<T> __removeAll(Set<? extends T> set) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
 	public ImmutableSet<T> __removeAllEquivalent(Set<? extends T> set, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
 	public ImmutableSet<T> __retainAll(Set<? extends T> set) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
 	public ImmutableSet<T> __retainAllEquivalent(TransientSet<? extends T> set,
 					Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 	}
 
 	@Override
@@ -296,98 +300,96 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 		@Override
 		public Object[] toArray() {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public <T> T[] toArray(T[] a) {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean add(T e) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean remove(Object o) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean addAll(Collection<? extends T> c) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean retainAll(Collection<?> c) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean removeAll(Collection<?> c) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public void clear() {
-			// TODO Auto-generated method stub
-
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean contains(Object o) {
-			T tuple = (T) o;
+			try {
+				T tuple = (T) o;
 
-			@SuppressWarnings("unchecked")
-			final K key = (K) tupleElementAt.apply(tuple, 0);
-			@SuppressWarnings("unchecked")
-			final V val = (V) tupleElementAt.apply(tuple, 1);
+				@SuppressWarnings("unchecked")
+				final K key = (K) tupleElementAt.apply(tuple, 0);
+				@SuppressWarnings("unchecked")
+				final V val = (V) tupleElementAt.apply(tuple, 1);
 
-			return multimap.containsEntry(key, val);
+				return multimap.containsEntry(key, val);
+			} catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+				// not a tuple or not at least two elements
+				return false;
+			}
 		}
 
 		@Override
 		public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-			T tuple = (T) o;
+			try {
+				T tuple = (T) o;
 
-			@SuppressWarnings("unchecked")
-			final K key = (K) tupleElementAt.apply(tuple, 0);
-			@SuppressWarnings("unchecked")
-			final V val = (V) tupleElementAt.apply(tuple, 1);
+				@SuppressWarnings("unchecked")
+				final K key = (K) tupleElementAt.apply(tuple, 0);
+				@SuppressWarnings("unchecked")
+				final V val = (V) tupleElementAt.apply(tuple, 1);
 
-			return multimap.containsEntryEquivalent(key, val, cmp);
+				return multimap.containsEntryEquivalent(key, val, cmp);
+			} catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+				// not a tuple or not at least two elements
+				return false;
+			}
 		}
 
 		@Override
 		public boolean containsAll(Collection<?> c) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public T get(Object o) {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public T getEquivalent(Object o, Comparator<Object> cmp) {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
@@ -412,50 +414,52 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 		@Override
 		public boolean __insertAll(Set<? extends T> set) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean __insertAllEquivalent(Set<? extends T> set, Comparator<Object> cmp) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
-		public boolean __remove(T key) {
-			// TODO Auto-generated method stub
-			return false;
+		public boolean __remove(T tuple) {
+			@SuppressWarnings("unchecked")
+			final K key = (K) tupleElementAt.apply(tuple, 0);
+			@SuppressWarnings("unchecked")
+			final V val = (V) tupleElementAt.apply(tuple, 1);
+
+			return multimap.__remove(key, val);			
 		}
 
 		@Override
-		public boolean __removeEquivalent(T key, Comparator<Object> cmp) {
-			// TODO Auto-generated method stub
-			return false;
+		public boolean __removeEquivalent(T tuple, Comparator<Object> cmp) {
+			@SuppressWarnings("unchecked")
+			final K key = (K) tupleElementAt.apply(tuple, 0);
+			@SuppressWarnings("unchecked")
+			final V val = (V) tupleElementAt.apply(tuple, 1);
+
+			return multimap.__removeEquivalent(key, val, cmp);			
 		}
 
 		@Override
 		public boolean __removeAll(Set<? extends T> set) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean __removeAllEquivalent(Set<? extends T> set, Comparator<Object> cmp) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean __retainAll(Set<? extends T> set) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override
 		public boolean __retainAllEquivalent(TransientSet<? extends T> set, Comparator<Object> cmp) {
-			// TODO Auto-generated method stub
-			return false;
+			throw new UnsupportedOperationException("Auto-generated method stub; not implemented yet.");
 		}
 
 		@Override

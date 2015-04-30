@@ -44,6 +44,8 @@ public abstract class AbstractTypeBag implements Cloneable {
 		return new TypeBag(label, ts);
 	}
 
+	public abstract int size();
+	
 	/**
 	 * Implementation of <@link AbstractTypeBag/> that cached the current least
 	 * upper bound.
@@ -147,6 +149,11 @@ public abstract class AbstractTypeBag implements Cloneable {
 		@Override
 		public String toString() {
 			return countMap.toString();
+		}
+
+		@Override
+		public int size() {
+			return countMap.size();
 		}
 	}
 	
