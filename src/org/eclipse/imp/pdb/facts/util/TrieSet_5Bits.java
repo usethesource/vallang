@@ -1132,7 +1132,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 			for (byte i = 0; i < payloadArity(); i++) {
 				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
-				bldr.append(String.format("@%d: ", pos, getKey(i)));
+				bldr.append(String.format("@%d: %s", pos, getKey(i)));
 
 				if (!((i + 1) == payloadArity())) {
 					bldr.append(", ");
