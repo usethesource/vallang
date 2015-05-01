@@ -282,36 +282,36 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
-	@Override
-	public IMap removeKey(IValue key) {
-		ShareableValuesHashMap newData = new ShareableValuesHashMap(data);
-		IValue replaced = newData.remove(key);
-
-		if (replaced != null) {
-			/*
-			 * we might have to narrow dynamic type of value range
-			 */
-			Type voidType = TypeFactory.getInstance().voidType();
-
-			Type newMapType = mapType;
-			Type newKeyType = voidType;
-			Type newValueType = voidType;
-
-			for (Iterator<Entry<IValue, IValue>> it = newData.entryIterator(); it.hasNext();) {
-				final Entry<IValue, IValue> currentEntry = it.next();
-
-				newKeyType = newKeyType.lub(currentEntry.getKey().getType());
-				newValueType = newValueType.lub(currentEntry.getValue().getType());
-
-				if (newKeyType != mapType.getKeyType() || newValueType != mapType.getValueType()) {
-					newMapType = TypeFactory.getInstance().mapType(newKeyType,
-									mapType.getKeyLabel(), newValueType, mapType.getValueLabel());
-				}
-			}
-
-			return new MapWriter(newMapType, newData).done();
-		} else {
-			return this;
-		}
-	}	
+//	@Override
+//	public IMap removeKey(IValue key) {
+//		ShareableValuesHashMap newData = new ShareableValuesHashMap(data);
+//		IValue replaced = newData.remove(key);
+//
+//		if (replaced != null) {
+//			/*
+//			 * we might have to narrow dynamic type of value range
+//			 */
+//			Type voidType = TypeFactory.getInstance().voidType();
+//
+//			Type newMapType = mapType;
+//			Type newKeyType = voidType;
+//			Type newValueType = voidType;
+//
+//			for (Iterator<Entry<IValue, IValue>> it = newData.entryIterator(); it.hasNext();) {
+//				final Entry<IValue, IValue> currentEntry = it.next();
+//
+//				newKeyType = newKeyType.lub(currentEntry.getKey().getType());
+//				newValueType = newValueType.lub(currentEntry.getValue().getType());
+//
+//				if (newKeyType != mapType.getKeyType() || newValueType != mapType.getValueType()) {
+//					newMapType = TypeFactory.getInstance().mapType(newKeyType,
+//									mapType.getKeyLabel(), newValueType, mapType.getValueLabel());
+//				}
+//			}
+//
+//			return new MapWriter(newMapType, newData).done();
+//		} else {
+//			return this;
+//		}
+//	}	
 }

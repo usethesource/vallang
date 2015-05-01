@@ -37,7 +37,7 @@ public interface IMap extends Iterable<IValue>, IValue {
      */
     public IMap put(IValue key, IValue value);
     
-    public IMap removeKey(IValue key);  
+//    public IMap removeKey(IValue key);  
     
     /**
      * @param key
