@@ -25,6 +25,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,7 +36,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 	private static final TrieMap_5Bits EMPTY_MAP = new TrieMap_5Bits(CompactMapNode.EMPTY_NODE, 0,
 					0);
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	private final AbstractMapNode<K, V> rootNode;
 	private final int hashCode;
@@ -1310,7 +1311,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 			for (byte i = 0; i < payloadArity(); i++) {
 				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
-				bldr.append(String.format("@%d: %s=%s", pos, getKey(i), getValue(i)));
+				bldr.append(String.format("@%d<#%d,#%d>", pos, Objects.hashCode(getKey(i)),
+								Objects.hashCode(getValue(i))));
 
 				if (!((i + 1) == payloadArity())) {
 					bldr.append(", ");

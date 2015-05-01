@@ -25,6 +25,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -1800,7 +1801,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 			for (byte i = 0; i < payloadArity(); i++) {
 				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
-				bldr.append(String.format("@%d: %s", pos, getKey(i), getValue(i)));
+				bldr.append(String.format("@%d<#%d,#%d>", pos, Objects.hashCode(getKey(i)),
+								Objects.hashCode(getValue(i))));
 
 				if (!((i + 1) == payloadArity())) {
 					bldr.append(", ");

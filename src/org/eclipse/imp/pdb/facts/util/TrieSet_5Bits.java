@@ -22,6 +22,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,7 +33,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	private static final TrieSet_5Bits EMPTY_SET = new TrieSet_5Bits(CompactSetNode.EMPTY_NODE, 0,
 					0);
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	private final AbstractSetNode<K> rootNode;
 	private final int hashCode;
@@ -1132,7 +1133,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 			for (byte i = 0; i < payloadArity(); i++) {
 				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
-				bldr.append(String.format("@%d: %s", pos, getKey(i)));
+				bldr.append(String.format("@%d<#%d>", pos, Objects.hashCode(getKey(i))));
 
 				if (!((i + 1) == payloadArity())) {
 					bldr.append(", ");

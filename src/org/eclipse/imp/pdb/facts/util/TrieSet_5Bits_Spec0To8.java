@@ -22,6 +22,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -1557,7 +1558,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 
 			for (byte i = 0; i < payloadArity(); i++) {
 				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
-				bldr.append(String.format("@%d: ", pos, getKey(i)));
+				bldr.append(String.format("@%d<#%d>", pos, Objects.hashCode(getKey(i))));
 
 				if (!((i + 1) == payloadArity())) {
 					bldr.append(", ");
@@ -2839,6 +2840,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 						final int keyHash, final int shift, final SetResult<K> details) {
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
+					details.modified();
 
 					if (this.arity() == 1) {
 						return nodeOf(mutator);
@@ -2874,6 +2876,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 						final Comparator<Object> cmp) {
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
+					details.modified();
 
 					if (this.arity() == 1) {
 						return nodeOf(mutator);

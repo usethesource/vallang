@@ -23,6 +23,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -38,7 +39,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 	private static final TrieSetMultimap_BleedingEdge EMPTY_SETMULTIMAP = new TrieSetMultimap_BleedingEdge(
 					CompactSetMultimapNode.EMPTY_NODE, 0, 0);
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	private final AbstractSetMultimapNode<K, V> rootNode;
 	private final int hashCode;
@@ -948,7 +949,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 				// IllegalStateException("Hash collision not yet fixed.");
 				return new HashCollisionSetMultimapNode_BleedingEdge<>(keyHash0,
 								(K[]) new Object[] { key0, key1 },
-								(ImmutableSet<V>[]) new ImmutableSet[] { valColl0, valColl1 });
+								(ImmutableSet<V>[]) new Object[] { valColl0, valColl1 });
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -1447,7 +1448,8 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 
 			for (byte i = 0; i < payloadArity(); i++) {
 				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
-				bldr.append(String.format("@%d: %s", pos, getKey(i), getValue(i)));
+				bldr.append(String.format("@%d<#%d,#%d>", pos, Objects.hashCode(getKey(i)),
+								Objects.hashCode(getValue(i))));
 
 				if (!((i + 1) == payloadArity())) {
 					bldr.append(", ");
@@ -1829,7 +1831,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 
 						final ImmutableSet<V>[] src = this.vals;
 						@SuppressWarnings("unchecked")
-						final ImmutableSet<V>[] dst = (ImmutableSet<V>[]) new ImmutableSet[src.length];
+						final ImmutableSet<V>[] dst = (ImmutableSet<V>[]) new Object[src.length];
 
 						// copy 'src' and set 1 element(s) at position 'idx'
 						System.arraycopy(src, 0, dst, 0, src.length);
@@ -1858,7 +1860,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 							- keys.length);
 
 			@SuppressWarnings("unchecked")
-			final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length + 1];
+			final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length + 1];
 
 			// copy 'this.vals' and insert 1 element(s) at position
 			// 'vals.length'
@@ -1888,7 +1890,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 
 						final ImmutableSet<V>[] src = this.vals;
 						@SuppressWarnings("unchecked")
-						final ImmutableSet<V>[] dst = (ImmutableSet<V>[]) new ImmutableSet[src.length];
+						final ImmutableSet<V>[] dst = (ImmutableSet<V>[]) new Object[src.length];
 
 						// copy 'src' and set 1 element(s) at position 'idx'
 						System.arraycopy(src, 0, dst, 0, src.length);
@@ -1917,7 +1919,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 							- keys.length);
 
 			@SuppressWarnings("unchecked")
-			final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length + 1];
+			final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length + 1];
 
 			// copy 'this.vals' and insert 1 element(s) at position
 			// 'vals.length'
@@ -1946,7 +1948,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 						if (valCollNew.size() != 0) {
 							// update mapping
 							@SuppressWarnings("unchecked")
-							final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length];
+							final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length];
 
 							// copy 'this.vals' and set 1 element(s) at position
 							// 'idx'
@@ -1982,7 +1984,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 												- idx - 1);
 
 								@SuppressWarnings("unchecked")
-								final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length - 1];
+								final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length - 1];
 
 								// copy 'this.vals' and remove 1 element(s) at
 								// position 'idx'
@@ -2019,7 +2021,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 						if (valCollNew.size() != 0) {
 							// update mapping
 							@SuppressWarnings("unchecked")
-							final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length];
+							final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length];
 
 							// copy 'this.vals' and set 1 element(s) at position
 							// 'idx'
@@ -2055,7 +2057,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 												- idx - 1);
 
 								@SuppressWarnings("unchecked")
-								final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length - 1];
+								final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length - 1];
 
 								// copy 'this.vals' and remove 1 element(s) at
 								// position 'idx'
