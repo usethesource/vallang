@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -114,7 +115,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 				final BiFunction<IValue, IValue, IValue> tupleOf = (first, second) -> org.eclipse.imp.pdb.facts.impl.fast.Tuple
 								.newTuple(first, second);
 	
-				final BiFunction<IValue, Integer, Object> tupleElementAt = (tuple, position) -> {
+				final BiFunction<IValue, Integer, Object> tupleElementAt = (tuple, position) -> {		
 					switch (position) {
 					case 0:
 						return ((ITuple) tuple).get(0);
@@ -125,8 +126,11 @@ public final class PDBPersistentHashSet extends AbstractSet {
 					}
 				};
 	
+				final Function<IValue, Boolean> tupleChecker = (argument) -> argument instanceof ITuple
+								&& ((ITuple) argument).arity() == 2;
+				
 				contentNew = new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, IValue>(
-								multimap, tupleOf, tupleElementAt).__insertEquivalent(value,
+								multimap, tupleOf, tupleElementAt, tupleChecker).__insertEquivalent(value,
 								equivalenceComparator);
 			} else {
 				contentNew = DefaultTrieSet.<IValue>of().__insertEquivalent(value, equivalenceComparator);

@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.impl.persistent;
 
 import java.util.Comparator;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -65,10 +66,12 @@ class BinaryRelationWriter implements ISetWriter {
 				throw new IllegalStateException();
 			}
 		};
+		
+		final Function<ITuple, Boolean> tupleChecker = (tuple) -> tuple.arity() == 2;
 
 		elementTypeBag = AbstractTypeBag.of();
 		setContent = new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, ITuple>(multimap,
-						tupleOf, tupleElementAt);
+						tupleOf, tupleElementAt, tupleChecker);
 		constructedSet = null;
 	}
 

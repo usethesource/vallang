@@ -34,11 +34,12 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.ValueFacto
 	}
 
 	public ISetWriter setWriter(Type upperBoundType) {
-		if ((upperBoundType.isTuple() && upperBoundType.getArity() == 2) == true) {
-			return new BinaryRelationWriter(upperBoundType);
-		} else {
-			return new SetWriter(upperBoundType);	
-		}
+//		if ((upperBoundType.isTuple() && upperBoundType.getArity() == 2) == true) {
+//			return new BinaryRelationWriter(upperBoundType);
+//		} else {
+//			return new SetWriter(upperBoundType);	
+//		}
+		return new SetWriter(upperBoundType);
 	}
 
 	public ISetWriter setWriter() {

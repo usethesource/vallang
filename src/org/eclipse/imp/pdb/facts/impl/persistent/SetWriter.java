@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.impl.persistent;
 
 import java.util.Comparator;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -94,8 +95,10 @@ class SetWriter implements ISetWriter {
 					}
 				};
 	
+				final Function<ITuple, Boolean> tupleChecker = (tuple) -> tuple.arity() == 2;
+				
 				setContent = (TransientSet) new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, ITuple>(
-								multimap, tupleOf, tupleElementAt).asTransient();
+								multimap, tupleOf, tupleElementAt, tupleChecker).asTransient();
 			} else {
 				setContent = org.eclipse.imp.pdb.facts.util.DefaultTrieSet.transientOf();
 			}

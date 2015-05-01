@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /*
  * (K, V) -> T
@@ -29,6 +30,11 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 	final BiFunction<K, V, T> tupleOf;
 
 	final BiFunction<T, Integer, Object> tupleElementAt;
+	
+	/*
+	 * Verifies the arity of a tuple (in our case arity should be 2).
+	 */
+	final Function<T, Boolean> tupleChecker;
 
 	// protected ImmutableSetMultimapAsImmutableSetView() {
 	// multimap = TrieSetMultimap_BleedingEdge.<K, V> of();
@@ -48,10 +54,11 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 	// }
 
 	public ImmutableSetMultimapAsImmutableSetView(ImmutableSetMultimap<K, V> multimap,
-					BiFunction<K, V, T> tupleOf, BiFunction<T, Integer, Object> tupleElementAt) {
+					BiFunction<K, V, T> tupleOf, BiFunction<T, Integer, Object> tupleElementAt, Function<T, Boolean> tupleChecker) {
 		this.multimap = multimap;
 		this.tupleOf = tupleOf;
 		this.tupleElementAt = tupleElementAt;
+		this.tupleChecker = tupleChecker;
 	}
 
 	@Override
@@ -111,9 +118,12 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 	@Override
 	public boolean contains(Object o) {
-		try {
+		try {			
 			T tuple = (T) o;
 
+			if (!tupleChecker.apply(tuple))
+				throw new ClassCastException("Type validation failed.");
+			
 			@SuppressWarnings("unchecked")
 			final K key = (K) tupleElementAt.apply(tuple, 0);
 			@SuppressWarnings("unchecked")
@@ -131,6 +141,9 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 		try {
 			T tuple = (T) o;
 
+			if (!tupleChecker.apply(tuple))
+				throw new ClassCastException("Type validation failed.");
+			
 			@SuppressWarnings("unchecked")
 			final K key = (K) tupleElementAt.apply(tuple, 0);
 			@SuppressWarnings("unchecked")
@@ -165,6 +178,9 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 	@Override
 	public ImmutableSet<T> __insert(T tuple) {
+		if (!tupleChecker.apply(tuple))
+			throw new ClassCastException("Type validation failed.");
+		
 		@SuppressWarnings("unchecked")
 		final K key = (K) tupleElementAt.apply(tuple, 0);
 		@SuppressWarnings("unchecked")
@@ -176,12 +192,15 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 			return this;
 		} else {
 			return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf,
-							tupleElementAt);
+							tupleElementAt, tupleChecker);
 		}
 	}
 
 	@Override
 	public ImmutableSet<T> __insertEquivalent(T tuple, Comparator<Object> cmp) {
+		if (!tupleChecker.apply(tuple))
+			throw new ClassCastException("Type validation failed.");
+		
 		@SuppressWarnings("unchecked")
 		final K key = (K) tupleElementAt.apply(tuple, 0);
 		@SuppressWarnings("unchecked")
@@ -193,7 +212,7 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 			return this;
 		} else {
 			return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf,
-							tupleElementAt);
+							tupleElementAt, tupleChecker);
 		}
 	}
 
@@ -216,7 +235,7 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 		final ImmutableSetMultimap<K, V> multimapNew = multimap.__remove(key, val);
 
-		return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf, tupleElementAt);
+		return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf, tupleElementAt, tupleChecker);
 	}
 
 	@Override
@@ -228,7 +247,7 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 		final ImmutableSetMultimap<K, V> multimapNew = multimap.__removeEquivalent(key, val, cmp);
 
-		return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf, tupleElementAt);				
+		return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf, tupleElementAt, tupleChecker);				
 	}
 
 	@Override
@@ -265,7 +284,7 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 	@Override
 	public TransientSet<T> asTransient() {
 		return new TransientSetMultimapAsTransientSetView<>(multimap.asTransient(), tupleOf,
-						tupleElementAt);
+						tupleElementAt, tupleChecker);
 	}
 
 	static final class TransientSetMultimapAsTransientSetView<K, V, T> implements TransientSet<T> {
@@ -275,12 +294,18 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 		final BiFunction<K, V, T> tupleOf;
 
 		final BiFunction<T, Integer, Object> tupleElementAt;
+		
+		/*
+		 * Verifies the arity of a tuple (in our case arity should be 2).
+		 */
+		final Function<T, Boolean> tupleChecker;
 
 		public TransientSetMultimapAsTransientSetView(TransientSetMultimap<K, V> multimap,
-						BiFunction<K, V, T> tupleOf, BiFunction<T, Integer, Object> tupleElementAt) {
+						BiFunction<K, V, T> tupleOf, BiFunction<T, Integer, Object> tupleElementAt, Function<T, Boolean> tupleChecker) {
 			this.multimap = multimap;
 			this.tupleOf = tupleOf;
 			this.tupleElementAt = tupleElementAt;
+			this.tupleChecker = tupleChecker;
 		}
 
 		@Override
@@ -343,6 +368,9 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 			try {
 				T tuple = (T) o;
 
+				if (!tupleChecker.apply(tuple))
+					throw new ClassCastException("Type validation failed.");
+				
 				@SuppressWarnings("unchecked")
 				final K key = (K) tupleElementAt.apply(tuple, 0);
 				@SuppressWarnings("unchecked")
@@ -360,6 +388,9 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 			try {
 				T tuple = (T) o;
 
+				if (!tupleChecker.apply(tuple))
+					throw new ClassCastException("Type validation failed.");
+				
 				@SuppressWarnings("unchecked")
 				final K key = (K) tupleElementAt.apply(tuple, 0);
 				@SuppressWarnings("unchecked")
@@ -394,6 +425,9 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 		@Override
 		public boolean __insert(T tuple) {
+			if (!tupleChecker.apply(tuple))
+				throw new ClassCastException("Type validation failed.");
+			
 			@SuppressWarnings("unchecked")
 			final K key = (K) tupleElementAt.apply(tuple, 0);
 			@SuppressWarnings("unchecked")
@@ -404,6 +438,9 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 
 		@Override
 		public boolean __insertEquivalent(T tuple, Comparator<Object> cmp) {
+			if (!tupleChecker.apply(tuple))
+				throw new ClassCastException("Type validation failed.");
+			
 			@SuppressWarnings("unchecked")
 			final K key = (K) tupleElementAt.apply(tuple, 0);
 			@SuppressWarnings("unchecked")
@@ -468,11 +505,85 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements Immutabl
 		}
 
 		@Override
-		public ImmutableSet<T> freeze() {
-			return new ImmutableSetMultimapAsImmutableSetView<>(multimap.freeze(), tupleOf,
-							tupleElementAt);
+		public int hashCode() {
+			int hash = 0;
+			
+			for (Iterator<T> it = iterator(); it.hasNext();) {
+				final T tuple = it.next();
+				hash += tuple.hashCode();
+			}
+
+			return hash;
 		}
 
+		@Override
+		public boolean equals(Object other) {
+			if (other == this) {
+				return true;
+			}
+			if (other == null) {
+				return false;
+			}
+
+			if (other instanceof TransientSetMultimapAsTransientSetView) {
+				TransientSetMultimapAsTransientSetView<?, ?, ?> that = (TransientSetMultimapAsTransientSetView<?, ?, ?>) other;
+
+				return multimap.equals(that.multimap);
+			} else if (other instanceof Set) {
+				Set<?> that = (Set<?>) other;
+
+				if (this.size() != that.size())
+					return false;
+
+				return containsAll(that);
+			}
+
+			return false;
+		}
+		
+		@Override
+		public ImmutableSet<T> freeze() {
+			return new ImmutableSetMultimapAsImmutableSetView<>(multimap.freeze(), tupleOf,
+							tupleElementAt, tupleChecker);
+		}
+
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		
+		for (Iterator<T> it = iterator(); it.hasNext();) {
+			final T tuple = it.next();
+			hash += tuple.hashCode();
+		}
+
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other == this) {
+			return true;
+		}
+		if (other == null) {
+			return false;
+		}
+
+		if (other instanceof ImmutableSetMultimapAsImmutableSetView) {
+			ImmutableSetMultimapAsImmutableSetView<?, ?, ?> that = (ImmutableSetMultimapAsImmutableSetView<?, ?, ?>) other;
+
+			return multimap.equals(that.multimap);
+		} else if (other instanceof Set) {
+			Set<?> that = (Set<?>) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return containsAll(that);
+		}
+
+		return false;
 	}
 
 }
