@@ -949,7 +949,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 				// IllegalStateException("Hash collision not yet fixed.");
 				return new HashCollisionSetMultimapNode_BleedingEdge<>(keyHash0,
 								(K[]) new Object[] { key0, key1 },
-								(ImmutableSet<V>[]) new Object[] { valColl0, valColl1 });
+								(ImmutableSet<V>[]) new ImmutableSet[] { valColl0, valColl1 });
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -1831,7 +1831,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 
 						final ImmutableSet<V>[] src = this.vals;
 						@SuppressWarnings("unchecked")
-						final ImmutableSet<V>[] dst = (ImmutableSet<V>[]) new Object[src.length];
+						final ImmutableSet<V>[] dst = (ImmutableSet<V>[]) new ImmutableSet[src.length];
 
 						// copy 'src' and set 1 element(s) at position 'idx'
 						System.arraycopy(src, 0, dst, 0, src.length);
@@ -1860,7 +1860,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 							- keys.length);
 
 			@SuppressWarnings("unchecked")
-			final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length + 1];
+			final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length + 1];
 
 			// copy 'this.vals' and insert 1 element(s) at position
 			// 'vals.length'
@@ -1890,7 +1890,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 
 						final ImmutableSet<V>[] src = this.vals;
 						@SuppressWarnings("unchecked")
-						final ImmutableSet<V>[] dst = (ImmutableSet<V>[]) new Object[src.length];
+						final ImmutableSet<V>[] dst = (ImmutableSet<V>[]) new ImmutableSet[src.length];
 
 						// copy 'src' and set 1 element(s) at position 'idx'
 						System.arraycopy(src, 0, dst, 0, src.length);
@@ -1919,7 +1919,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 							- keys.length);
 
 			@SuppressWarnings("unchecked")
-			final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length + 1];
+			final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length + 1];
 
 			// copy 'this.vals' and insert 1 element(s) at position
 			// 'vals.length'
@@ -1948,7 +1948,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 						if (valCollNew.size() != 0) {
 							// update mapping
 							@SuppressWarnings("unchecked")
-							final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length];
+							final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length];
 
 							// copy 'this.vals' and set 1 element(s) at position
 							// 'idx'
@@ -1984,7 +1984,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 												- idx - 1);
 
 								@SuppressWarnings("unchecked")
-								final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length - 1];
+								final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length - 1];
 
 								// copy 'this.vals' and remove 1 element(s) at
 								// position 'idx'
@@ -2021,7 +2021,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 						if (valCollNew.size() != 0) {
 							// update mapping
 							@SuppressWarnings("unchecked")
-							final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length];
+							final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length];
 
 							// copy 'this.vals' and set 1 element(s) at position
 							// 'idx'
@@ -2057,7 +2057,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 												- idx - 1);
 
 								@SuppressWarnings("unchecked")
-								final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new Object[this.vals.length - 1];
+								final ImmutableSet<V>[] valsNew = (ImmutableSet<V>[]) new ImmutableSet[this.vals.length - 1];
 
 								// copy 'this.vals' and remove 1 element(s) at
 								// position 'idx'
