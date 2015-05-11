@@ -1385,7 +1385,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						final int bitpos, final CompactSetNode<K> node) {
 
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
-			final int idxNew = dataIndex(bitpos);
+			final int idxNew = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length - 1 + 1];

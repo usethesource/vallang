@@ -1597,7 +1597,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 						final int bitpos, final CompactMapNode<K, V> node) {
 
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
-			final int idxNew = dataIndex(bitpos);
+			final int idxNew = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length - 1 + 2];

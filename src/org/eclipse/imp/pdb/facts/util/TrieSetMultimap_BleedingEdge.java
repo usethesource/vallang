@@ -1523,6 +1523,10 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 				for (int i = TUPLE_LENGTH * payloadArity(); i < nodes.length; i++) {
 					assert ((nodes[i] instanceof CompactSetMultimapNode) == true);
 				}
+				
+				for (int i = 1; i < TUPLE_LENGTH * payloadArity(); i += 2) {
+					assert ((nodes[i] instanceof ImmutableSet) == true);
+				}
 			}
 
 			assert nodeInvariant();
@@ -1734,7 +1738,7 @@ public class TrieSetMultimap_BleedingEdge<K, V> implements ImmutableSetMultimap<
 						final CompactSetMultimapNode<K, V> node) {
 
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
-			final int idxNew = dataIndex(bitpos);
+			final int idxNew = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length - 1 + 2];
