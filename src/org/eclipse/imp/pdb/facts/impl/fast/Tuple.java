@@ -29,7 +29,7 @@ public class Tuple extends AbstractValue implements ITuple {
 	
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 
-	protected final Type tupleType;
+	private Type cachedTupleType;
 	protected final IValue[] elements;
 
 	public static ITuple newTuple(Type tupleType, IValue[] elements) {
@@ -39,8 +39,7 @@ public class Tuple extends AbstractValue implements ITuple {
 	private Tuple(Type tupleType, IValue[] elements) {
 		super();
 
-		this.tupleType = tupleType;
-
+		this.cachedTupleType = tupleType;
 		this.elements = elements;
 	}
 
@@ -50,12 +49,16 @@ public class Tuple extends AbstractValue implements ITuple {
 
 	private Tuple(IValue... elements) {
 		super();
-		this.tupleType = TypeFactory.getInstance().tupleType(elements);
+		
 		this.elements = elements;
 	}
 
 	public Type getType() {
-		return tupleType;
+		if (cachedTupleType == null) {
+			cachedTupleType = TypeFactory.getInstance().tupleType(elements);
+		}
+		
+		return cachedTupleType;
 	}
 
 	public int arity() {
@@ -67,7 +70,7 @@ public class Tuple extends AbstractValue implements ITuple {
 	}
 
 	public IValue get(String label) {
-		return elements[tupleType.getFieldIndex(label)];
+		return elements[getType().getFieldIndex(label)];
 	}
 
 	public Iterator<IValue> iterator() {
@@ -104,8 +107,8 @@ public class Tuple extends AbstractValue implements ITuple {
 			elementTypes[i] = element.getType();
 		}
 
-		newElements[tupleType.getFieldIndex(label)] = arg;
-		elementTypes[tupleType.getFieldIndex(label)] = arg.getType();
+		newElements[getType().getFieldIndex(label)] = arg;
+		elementTypes[getType().getFieldIndex(label)] = arg.getType();
 
 		return new Tuple(typeFactory.tupleType(elementTypes), newElements);
 	}
@@ -185,7 +188,7 @@ public class Tuple extends AbstractValue implements ITuple {
 		if (value instanceof Tuple) {
 			Tuple otherTuple = (Tuple) value;
 
-			if (!tupleType.comparable(otherTuple.tupleType))
+			if (!getType().comparable(otherTuple.getType()))
 				return false;
 
 			IValue[] otherElements = otherTuple.elements;
