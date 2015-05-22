@@ -494,6 +494,22 @@ public abstract class BaseTestMap extends TestCase {
 		assertEquals(vf.integer(1), m1.get(n));
 		assertEquals(vf.integer(1), m1.get(na));
 	}
+
+	public void testPutReplaceWithAnnotationsValue_Map() { 
+		final Type E = tf.abstractDataType(ts, "E");
+		final Type N = tf.constructor(ts, E, "n", tf.integerType());
+		ts.declareAnnotation(E, "x", tf.integerType());
+		
+		final IConstructor n = vf.constructor(N, vf.integer(1));
+		final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
+		
+		final IMap m1 = vf.mapWriter().done()
+				.put(vf.integer(1), n)
+				.put(vf.integer(1), na);
+	
+		assertEquals(1, m1.size());
+		assertEquals(na, m1.get(vf.integer(1)));
+	}
 	
 	public void testPutReplaceWithAnnotations_MapWriter() { 
 		final Type E = tf.abstractDataType(ts, "E");
@@ -512,6 +528,24 @@ public abstract class BaseTestMap extends TestCase {
 		assertEquals(1, m1.size());
 		assertEquals(vf.integer(1), m1.get(n));
 		assertEquals(vf.integer(1), m1.get(na));
+	}
+
+	public void testPutReplaceWithAnnotationsValue_MapWriter() { 
+		final Type E = tf.abstractDataType(ts, "E");
+		final Type N = tf.constructor(ts, E, "n", tf.integerType());
+		ts.declareAnnotation(E, "x", tf.integerType());
+		
+		final IConstructor n = vf.constructor(N, vf.integer(1));
+		final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
+		
+		final IMapWriter w1 = vf.mapWriter();
+		w1.put(vf.integer(1), n);
+		w1.put(vf.integer(1), na);
+	
+		final IMap m1 = w1.done();
+		
+		assertEquals(1, m1.size());
+		assertEquals(na, m1.get(vf.integer(1)));
 	}
 		
 }
