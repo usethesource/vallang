@@ -106,5 +106,5 @@ public interface IConstructor extends INode {
    * (non-Javadoc)
    * @see org.eclipse.imp.pdb.facts.IValue#asWithKeywordParameters()
    */
-  public IWithKeywordParameters<IConstructor> asWithKeywordParameters();
+  public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters();
 }
