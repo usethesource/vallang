@@ -1,11 +1,16 @@
 package org.eclipse.imp.pdb.test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import jdk.nashorn.internal.runtime.URIUtils;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -175,5 +180,13 @@ abstract public class BaseTestBasicValues extends TestCase {
 	public void testDateTimeLongConversionWithTimezone() {
 		IDateTime dt = vf.datetime(2014, 10, 13, 10, 7, 50, 1, 7, 0);
 		assertEqual(dt, vf.datetime(dt.getInstant(), dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
+	}
+	
+	public void testLocationTop() throws URISyntaxException {
+		ISourceLocation l = vf.sourceLocation("tmp","","/file.txt");
+		assertTrue(l.top() == l);
+		
+		ISourceLocation m = vf.sourceLocation(l, 10, 20);
+		assertEquals(m.top(), l);
 	}
 }
