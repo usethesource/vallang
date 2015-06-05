@@ -26,6 +26,7 @@ import java.net.URI;
  */
 public interface ISourceLocation extends IValue {
 	/**
+	 * The {@link #top() top} method is preferred.
 	 * @return exact url where the source is located. The particular encoding of
 	 * the URL is not specified.
 	 */
