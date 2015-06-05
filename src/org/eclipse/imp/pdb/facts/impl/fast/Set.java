@@ -237,7 +237,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return data.isEqual(otherSet.data);
 		}
 		else if (value instanceof ISet) {
-			return SetFunctions.equals(ValueFactory.getInstance(), this, (ISet) value);
+			return SetFunctions.isEqual(ValueFactory.getInstance(), this, (ISet) value);
 		}
 		
 		return false;

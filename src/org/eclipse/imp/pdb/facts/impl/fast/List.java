@@ -299,7 +299,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return data.isEqual(otherList.data);
 		}
 		else if (value instanceof IList) {
-			return ListFunctions.equals(ValueFactory.getInstance(), this, value);
+			return ListFunctions.isEqual(ValueFactory.getInstance(), this, value);
 		}
 		
 		return false;
