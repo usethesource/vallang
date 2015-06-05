@@ -210,7 +210,7 @@ public interface IValueFactory {
 	 * Create an exact reference to a source location.
 	 * 
 	 * @param loc
-	 *            where the source is located.
+	 *            where the source is located. (only the location part of the source location is used)
 	 * @param offset
 	 *            the character offset starting from the beginning of the file
 	 *            located at the given url. Offsets start at 0 (zero).
@@ -254,7 +254,7 @@ public interface IValueFactory {
 	 * Create an exact reference to a source location.
 	 * 
 	 * @param loc
-	 *            where the source is located.
+	 *            where the source is located. (only the location part of the source location is used)
 	 * @param offset
 	 *            the character offset starting from the beginning of the file
 	 *            located at the given url. Offsets start at 0 (zero).
