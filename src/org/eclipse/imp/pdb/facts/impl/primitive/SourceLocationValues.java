@@ -209,6 +209,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return uri.getScheme();
 		}
 		
+		@Override
+		public ISourceLocation top() {
+			return new OnlyURI(uri);
+		}
 		
 		@Override
 		public URI getURI() {
@@ -554,7 +558,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	private static class OnlyURI extends Incomplete {
+	private final static class OnlyURI extends Incomplete {
 		
 		private OnlyURI(IURI uri){
 			super(uri);
@@ -575,6 +579,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			}
 			
 			return false;
+		}
+		
+		@Override
+		public ISourceLocation top() {
+			// this is why the class is final
+			return this;
 		}
 	}
 

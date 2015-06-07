@@ -255,12 +255,18 @@ public final class ListFunctions {
 		if (other instanceof IList) {
 			IList list2 = (IList) other;
 
+			if (list1.isEmpty() && list2.isEmpty()) {
+				return true;
+			}
+			
 			if (list1.getType() != list2.getType())
 				return false;
 
 			if (hashCode(vf, list1) != hashCode(vf, list2))
 				return false;
 
+			
+			
 			if (list1.length() == list2.length()) {
 
 				final Iterator<IValue> it1 = list1.iterator();

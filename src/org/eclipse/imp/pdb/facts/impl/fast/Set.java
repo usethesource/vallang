@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.func.SetFunctions;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -234,6 +235,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			Set otherSet = (Set) value;
 			
 			return data.isEqual(otherSet.data);
+		}
+		else if (value instanceof ISet) {
+			return SetFunctions.isEqual(ValueFactory.getInstance(), this, (ISet) value);
 		}
 		
 		return false;

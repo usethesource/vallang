@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -99,7 +99,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 		  if (other instanceof IConstructor) {
 			  IConstructor oc = ((IConstructor)other);
 			  if (content.isEqual(oc) && oc.mayHaveKeywordParameters()) {
-				  IWithKeywordParameters<IConstructor> ocw = oc.asWithKeywordParameters();
+				  IWithKeywordParameters<? extends IConstructor> ocw = oc.asWithKeywordParameters();
 				  return ocw.getParameters().equals(parameters);
 			  }
 			  else {
@@ -138,7 +138,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	}
 	
 	@Override
-	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
 	  return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
       @Override
       protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {

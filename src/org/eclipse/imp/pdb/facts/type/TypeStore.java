@@ -11,6 +11,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -330,7 +331,12 @@ public class TypeStore {
 	      if (signature == null) {
 	        throw new UndeclaredAbstractDataTypeException(adt);
 	      }
-
+	      
+		  Type constructor1 = expandAliases(constructor);
+		  if(!constructor.equals(constructor1)){
+			  constructor = constructor1;
+		  }
+	      
 	      checkOverloading(signature, constructor.getName(), constructor.getFieldTypes());
 	      try {
 	        checkFieldNames(signature, constructor.getFieldTypes());
@@ -694,6 +700,143 @@ public class TypeStore {
 	    }
 	    // otherwise its a safe re-declaration and we do nothing
 	  }
+	}
+	
+	// TODO: aliases are right now only expanded in declareConstructor, but this should also be done
+	// in at least declareAlias, declareAnnotation and declareKeywordParameters.
+	
+	private Type expandAliases(Type type) {
+		return expandAliases1(type, new HashSet<String>());
+	}
+	
+	private Type expandAliases1 (Type type, Set<String> seen){
+		 return type.accept(new ITypeVisitor<Type,RuntimeException>() {
+
+			@Override
+			public Type visitReal(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitInteger(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitRational(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitList(Type type) throws RuntimeException {
+				return factory.listType(expandAliases1(type.getElementType(), seen));
+			}
+
+			@Override
+			public Type visitMap(Type type) throws RuntimeException {
+				return factory.mapType(expandAliases1(type.getKeyType(), seen), expandAliases1(type.getValueType(), seen));
+			}
+
+			@Override
+			public Type visitNumber(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitAlias(Type type) throws RuntimeException {
+				String aliasName = type.getName();
+				if(seen.contains(aliasName)){
+					throw new IllegalIdentifierException("Circular alias definition for: " + aliasName);
+				}
+				seen.add(aliasName);
+				return expandAliases1 (type.getAliased(), seen);
+			}
+
+			@Override
+			public Type visitSet(Type type) throws RuntimeException {
+				return factory.setType(expandAliases1 (type.getElementType(), seen));
+			}
+
+			@Override
+			public Type visitSourceLocation(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitString(Type type) throws RuntimeException {
+				return type;
+			}
+		
+			@Override
+			public Type visitNode(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitConstructor(Type type) throws RuntimeException {
+				return new ConstructorType(type.getName(), expandAliases1(type.getFieldTypes(), seen), type.getAbstractDataType());
+			}
+
+			@Override
+			public Type visitAbstractData(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitTuple(Type type) throws RuntimeException {
+				int arity = type.getArity();
+				Type fieldTypes[] = new Type[arity];
+				String fieldNames[] = type.getFieldNames();
+				boolean aliasFound = false;
+				for(int i = 0; i < arity; i++){
+					Type fieldType = type.getFieldType(i);
+
+					if(fieldType.isAliased()){
+						aliasFound = true;
+						AliasType alias = (AliasType) fieldType;
+						fieldType = alias.getAliased();
+					}
+					fieldTypes[i] = fieldType;
+				}
+				if(aliasFound){
+					return fieldNames == null ? factory.tupleType(fieldTypes) : factory.tupleType(fieldTypes, fieldNames);
+				}
+				return type;
+			}
+
+			@Override
+			public Type visitValue(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitVoid(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitBool(Type type) throws RuntimeException {
+				return type;
+			}
+
+			@Override
+			public Type visitParameter(Type type) throws RuntimeException {
+				return factory.parameterType(type.getName(), expandAliases1(type.getBound(), seen));
+			}
+
+			@Override
+			public Type visitExternal(Type type) throws RuntimeException {
+				// TODO: it is unclear how aliases in externalTypes can be expanded in an extensible fashion
+				// (rather than listing all cases here).
+				return type;
+			}
+
+			@Override
+			public Type visitDateTime(Type type) throws RuntimeException {
+				return type;
+			}
+			 
+		 });
 	}
 	
 	/**

@@ -26,6 +26,7 @@ import java.net.URI;
  */
 public interface ISourceLocation extends IValue {
 	/**
+	 * The {@link #top() top} method is preferred.
 	 * @return exact url where the source is located. The particular encoding of
 	 * the URL is not specified.
 	 */
@@ -84,5 +85,10 @@ public interface ISourceLocation extends IValue {
     /**
      * @return the (exclusive) column number where the location ends.
      */
-    int getEndColumn() throws UnsupportedOperationException;;
+    int getEndColumn() throws UnsupportedOperationException;
+
+    /**
+     * @return the source location without any offset & length information.
+     */
+	ISourceLocation top();
 }

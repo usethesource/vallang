@@ -256,6 +256,7 @@ import java.util.regex.Pattern;
 	
 	private static class PathURI extends BaseURI {
 		protected final String path;
+		private int hash = 0; // we can cache the hash code since the 8-byte alignment leaves room for one
 		
 		public PathURI(String scheme, String path)  {
 			super(scheme);
@@ -281,7 +282,10 @@ import java.util.regex.Pattern;
 		}
 		@Override
 		public int hashCode() {
-			return scheme.hashCode() + path.hashCode();
+		  if (hash == 0) {
+		    hash = scheme.hashCode() + path.hashCode();
+		  }
+			return hash;
 		}
 		@Override
 		public boolean equals(Object obj) {
@@ -289,6 +293,8 @@ import java.util.regex.Pattern;
 				return true;
 			if(obj.getClass() == getClass()){
 				PathURI u = (PathURI)obj;
+				if (hash != 0 && u.hash != 0 && hash != u.hash)
+				  return false;
 				return scheme == u.scheme
 					&& path.equals(u.path);
 			}
