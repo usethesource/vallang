@@ -1,9 +1,7 @@
 package org.eclipse.imp.pdb.test;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
-import jdk.nashorn.internal.runtime.URIUtils;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IDateTime;
