@@ -872,6 +872,8 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 
 		abstract int dataMap();
 
+		abstract int rareMap();
+
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
 		static final byte SIZE_MORE_THAN_ONE = 0b10;
@@ -1410,23 +1412,28 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 	protected static abstract class CompactMixedMapNode<K, V> extends
 			CompactMapNode<K, V> {
 
-		private final int nodeMap;
 		private final int dataMap;
+		private final int eitherMap;
 
 		CompactMixedMapNode(final AtomicReference<Thread> mutator,
-				final int nodeMap, final int dataMap) {
-			this.nodeMap = nodeMap;
+				final int maybeMap, final int dataMap) {
+			this.eitherMap = maybeMap;
 			this.dataMap = dataMap;
-		}
-
-		@Override
-		public int nodeMap() {
-			return nodeMap;
 		}
 
 		@Override
 		public int dataMap() {
 			return dataMap;
+		}
+		
+		@Override
+		public int nodeMap() {
+			return eitherMap ^ rareMap();
+		}
+
+		@Override
+		public int rareMap() {
+			return dataMap & eitherMap;
 		}
 
 	}
@@ -2146,6 +2153,12 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 		@Override
 		int dataMap() {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int rareMap() {
+			// TODO Auto-generated method stub
+			return 0;
 		}
 
 	}
