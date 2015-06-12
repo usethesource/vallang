@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieMap_Heterogeneous<K extends java.lang.Number, V> implements ImmutableMap<K, V> {
+public class TrieMap_Heterogeneous<K extends Number, V extends Number> implements ImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieMap_Heterogeneous EMPTY_MAP = new TrieMap_Heterogeneous(
@@ -2257,7 +2257,7 @@ public class TrieMap_Heterogeneous<K extends java.lang.Number, V> implements Imm
 		}
 	}
 
-	static final class TransientTrieMap_BleedingEdge<K extends Number, V> implements
+	static final class TransientTrieMap_BleedingEdge<K extends Number, V extends Number> implements
 			TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
@@ -2593,7 +2593,7 @@ public class TrieMap_Heterogeneous<K extends java.lang.Number, V> implements Imm
 			return new TransientMapEntryIterator<>(this);
 		}
 
-		public static class TransientMapKeyIterator<K extends Number, V> extends
+		public static class TransientMapKeyIterator<K extends Number, V extends Number> extends
 				MapKeyIterator<K, V> {
 			final TransientTrieMap_BleedingEdge<K, V> collection;
 			K lastKey;
@@ -2614,7 +2614,7 @@ public class TrieMap_Heterogeneous<K extends java.lang.Number, V> implements Imm
 			}
 		}
 
-		public static class TransientMapValueIterator<K extends Number, V> extends
+		public static class TransientMapValueIterator<K extends Number, V extends Number> extends
 				MapValueIterator<K, V> {
 			final TransientTrieMap_BleedingEdge<K, V> collection;
 
@@ -2633,7 +2633,7 @@ public class TrieMap_Heterogeneous<K extends java.lang.Number, V> implements Imm
 			}
 		}
 
-		public static class TransientMapEntryIterator<K extends Number, V> extends
+		public static class TransientMapEntryIterator<K extends Number, V extends Number> extends
 				MapEntryIterator<K, V> {
 			final TransientTrieMap_BleedingEdge<K, V> collection;
 
