@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
@@ -29,21 +29,19 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SuppressWarnings("rawtypes")
-public class TrieMap_Heterogeneous<K extends Number, V extends Number> implements ImmutableMap<K, V> {
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
-	@SuppressWarnings("unchecked")
 	private static final TrieMap_Heterogeneous EMPTY_MAP = new TrieMap_Heterogeneous(
-			CompactMapNode.emptyTrieNodeConstant(), 0, 0);
+					CompactMapNode.emptyTrieNodeConstant(), 0, 0);
 
 	private static final boolean DEBUG = false;
 
-	private final AbstractMapNode<K, V> rootNode;
+	private final AbstractMapNode rootNode;
 	private final int hashCode;
 	private final int cachedSize;
 
-	TrieMap_Heterogeneous(AbstractMapNode<K, V> rootNode, int hashCode,
-			int cachedSize) {
+	TrieMap_Heterogeneous(AbstractMapNode rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
@@ -52,23 +50,21 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static final <K, V> ImmutableMap<K, V> of() {
+	public static final ImmutableMap of() {
 		return TrieMap_Heterogeneous.EMPTY_MAP;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static final <K, V> ImmutableMap<K, V> of(Object... keyValuePairs) {
+	public static final ImmutableMap of(Object... keyValuePairs) {
 		if (keyValuePairs.length % 2 != 0) {
 			throw new IllegalArgumentException(
-					"Length of argument list is uneven: no key/value pairs.");
+							"Length of argument list is uneven: no key/value pairs.");
 		}
 
-		ImmutableMap<K, V> result = TrieMap_Heterogeneous.EMPTY_MAP;
+		ImmutableMap result = TrieMap_Heterogeneous.EMPTY_MAP;
 
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
-			final K key = (K) keyValuePairs[i];
-			final V val = (V) keyValuePairs[i + 1];
+			final Object key = keyValuePairs[i];
+			final Object val = keyValuePairs[i + 1];
 
 			result = result.__put(key, val);
 		}
@@ -76,25 +72,21 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static final <K, V> TransientMap<K, V> transientOf() {
+	public static final TransientMap transientOf() {
 		return TrieMap_Heterogeneous.EMPTY_MAP.asTransient();
 	}
 
-	@SuppressWarnings("unchecked")
-	public static final <K, V> TransientMap<K, V> transientOf(
-			Object... keyValuePairs) {
+	public static final TransientMap transientOf(Object... keyValuePairs) {
 		if (keyValuePairs.length % 2 != 0) {
 			throw new IllegalArgumentException(
-					"Length of argument list is uneven: no key/value pairs.");
+							"Length of argument list is uneven: no key/value pairs.");
 		}
 
-		final TransientMap<K, V> result = TrieMap_Heterogeneous.EMPTY_MAP
-				.asTransient();
+		final TransientMap result = TrieMap_Heterogeneous.EMPTY_MAP.asTransient();
 
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
-			final K key = (K) keyValuePairs[i];
-			final V val = (V) keyValuePairs[i + 1];
+			final Object key = keyValuePairs[i];
+			final Object val = keyValuePairs[i + 1];
 
 			result.__put(key, val);
 		}
@@ -102,15 +94,14 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		return result;
 	}
 
-	private boolean checkHashCodeAndSize(final int targetHash,
-			final int targetSize) {
+	private boolean checkHashCodeAndSize(final int targetHash, final int targetSize) {
 		int hash = 0;
 		int size = 0;
 
-		for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
-			final Map.Entry<K, V> entry = it.next();
-			final K key = entry.getKey();
-			final V val = entry.getValue();
+		for (Iterator<Map.Entry<Object, Object>> it = entryIterator(); it.hasNext();) {
+			final Map.Entry<Object, Object> entry = it.next();
+			final Object key = entry.getKey();
+			final Object val = entry.getValue();
 
 			hash += key.hashCode() ^ val.hashCode();
 			size += 1;
@@ -123,31 +114,31 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		return hash;
 	}
 
+	@Override
 	public boolean containsKey(final Object o) {
 		try {
-			@SuppressWarnings("unchecked")
-			final K key = (K) o;
-			return rootNode.containsKey(key, transformHashCode(key.hashCode()),
-					0);
+
+			final Object key = o;
+			return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
 	}
 
-	public boolean containsKeyEquivalent(final Object o,
-			final Comparator<Object> cmp) {
+	@Override
+	public boolean containsKeyEquivalent(final Object o, final Comparator<Object> cmp) {
 		try {
-			@SuppressWarnings("unchecked")
-			final K key = (K) o;
-			return rootNode.containsKey(key, transformHashCode(key.hashCode()),
-					0, cmp);
+
+			final Object key = o;
+			return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
 	}
 
+	@Override
 	public boolean containsValue(final Object o) {
-		for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
+		for (Iterator iterator = valueIterator(); iterator.hasNext();) {
 			if (iterator.next().equals(o)) {
 				return true;
 			}
@@ -155,9 +146,9 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		return false;
 	}
 
-	public boolean containsValueEquivalent(final Object o,
-			final Comparator<Object> cmp) {
-		for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
+	@Override
+	public boolean containsValueEquivalent(final Object o, final Comparator<Object> cmp) {
+		for (Iterator iterator = valueIterator(); iterator.hasNext();) {
 			if (cmp.compare(iterator.next(), o) == 0) {
 				return true;
 			}
@@ -165,12 +156,12 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		return false;
 	}
 
-	public V get(final Object o) {
+	@Override
+	public Object get(final Object o) {
 		try {
-			@SuppressWarnings("unchecked")
-			final K key = (K) o;
-			final Optional<V> result = rootNode.findByKey(key,
-					transformHashCode(key.hashCode()), 0);
+
+			final Object key = o;
+			final Optional result = rootNode.findByKey(key, transformHashCode(key.hashCode()), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -182,12 +173,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 	}
 
-	public V getEquivalent(final Object o, final Comparator<Object> cmp) {
+	@Override
+	public Object getEquivalent(final Object o, final Comparator<Object> cmp) {
 		try {
-			@SuppressWarnings("unchecked")
-			final K key = (K) o;
-			final Optional<V> result = rootNode.findByKey(key,
-					transformHashCode(key.hashCode()), 0, cmp);
+
+			final Object key = o;
+			final Optional result = rootNode.findByKey(key, transformHashCode(key.hashCode()), 0,
+							cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -199,150 +191,161 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 	}
 
-	public ImmutableMap<K, V> __put(final K key, final V val) {
+	@Override
+	public ImmutableMap __put(final Object key, final Object val) {
 		final int keyHash = key.hashCode();
-		final MapResult<K, V> details = MapResult.unchanged();
+		final MapResult details = MapResult.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key,
-				val, transformHashCode(keyHash), 0, details);
+		final CompactMapNode newRootNode = rootNode.updated(null, key, val,
+						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
 				final int valHashOld = details.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMap_Heterogeneous<K, V>(newRootNode, hashCode
-						+ ((keyHash ^ valHashNew)) - ((keyHash ^ valHashOld)),
-						cachedSize);
+				return new TrieMap_Heterogeneous(newRootNode, hashCode + ((keyHash ^ valHashNew))
+								- ((keyHash ^ valHashOld)), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMap_Heterogeneous<K, V>(newRootNode, hashCode
-					+ ((keyHash ^ valHash)), cachedSize + 1);
+			return new TrieMap_Heterogeneous(newRootNode, hashCode + ((keyHash ^ valHash)),
+							cachedSize + 1);
 		}
 
 		return this;
 	}
 
-	public ImmutableMap<K, V> __putEquivalent(final K key, final V val,
-			final Comparator<Object> cmp) {
+	@Override
+	public ImmutableMap __putEquivalent(final Object key, final Object val,
+					final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final MapResult<K, V> details = MapResult.unchanged();
+		final MapResult details = MapResult.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key,
-				val, transformHashCode(keyHash), 0, details, cmp);
+		final CompactMapNode newRootNode = rootNode.updated(null, key, val,
+						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
 				final int valHashOld = details.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMap_Heterogeneous<K, V>(newRootNode, hashCode
-						+ ((keyHash ^ valHashNew)) - ((keyHash ^ valHashOld)),
-						cachedSize);
+				return new TrieMap_Heterogeneous(newRootNode, hashCode + ((keyHash ^ valHashNew))
+								- ((keyHash ^ valHashOld)), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMap_Heterogeneous<K, V>(newRootNode, hashCode
-					+ ((keyHash ^ valHash)), cachedSize + 1);
+			return new TrieMap_Heterogeneous(newRootNode, hashCode + ((keyHash ^ valHash)),
+							cachedSize + 1);
 		}
 
 		return this;
 	}
 
-	public ImmutableMap<K, V> __putAll(final Map<? extends K, ? extends V> map) {
-		final TransientMap<K, V> tmpTransient = this.asTransient();
+	@Override
+	public ImmutableMap __putAll(final Map<? extends Object, ? extends Object> map) {
+		final TransientMap tmpTransient = this.asTransient();
 		tmpTransient.__putAll(map);
 		return tmpTransient.freeze();
 	}
 
-	public ImmutableMap<K, V> __putAllEquivalent(
-			final Map<? extends K, ? extends V> map,
-			final Comparator<Object> cmp) {
-		final TransientMap<K, V> tmpTransient = this.asTransient();
+	@Override
+	public ImmutableMap __putAllEquivalent(final Map<? extends Object, ? extends Object> map,
+					final Comparator<Object> cmp) {
+		final TransientMap tmpTransient = this.asTransient();
 		tmpTransient.__putAllEquivalent(map, cmp);
 		return tmpTransient.freeze();
 	}
 
-	public ImmutableMap<K, V> __remove(final K key) {
+	@Override
+	public ImmutableMap __remove(final Object key) {
 		final int keyHash = key.hashCode();
-		final MapResult<K, V> details = MapResult.unchanged();
+		final MapResult details = MapResult.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key,
-				transformHashCode(keyHash), 0, details);
+		final CompactMapNode newRootNode = rootNode.removed(null, key, transformHashCode(keyHash),
+						0, details);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
 			final int valHash = details.getReplacedValue().hashCode();
-			return new TrieMap_Heterogeneous<K, V>(newRootNode, hashCode
-					- ((keyHash ^ valHash)), cachedSize - 1);
+			return new TrieMap_Heterogeneous(newRootNode, hashCode - ((keyHash ^ valHash)),
+							cachedSize - 1);
 		}
 
 		return this;
 	}
 
-	public ImmutableMap<K, V> __removeEquivalent(final K key,
-			final Comparator<Object> cmp) {
+	@Override
+	public ImmutableMap __removeEquivalent(final Object key, final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final MapResult<K, V> details = MapResult.unchanged();
+		final MapResult details = MapResult.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key,
-				transformHashCode(keyHash), 0, details, cmp);
+		final CompactMapNode newRootNode = rootNode.removed(null, key, transformHashCode(keyHash),
+						0, details, cmp);
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
 			final int valHash = details.getReplacedValue().hashCode();
-			return new TrieMap_Heterogeneous<K, V>(newRootNode, hashCode
-					- ((keyHash ^ valHash)), cachedSize - 1);
+			return new TrieMap_Heterogeneous(newRootNode, hashCode - ((keyHash ^ valHash)),
+							cachedSize - 1);
 		}
 
 		return this;
 	}
 
-	public V put(final K key, final V val) {
+	@Override
+	public Object put(final Object key, final Object val) {
 		throw new UnsupportedOperationException();
 	}
 
-	public void putAll(final Map<? extends K, ? extends V> m) {
+	@Override
+	public void putAll(final Map<? extends Object, ? extends Object> m) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void clear() {
 		throw new UnsupportedOperationException();
 	}
 
-	public V remove(final Object key) {
+	@Override
+	public Object remove(final Object key) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public int size() {
 		return cachedSize;
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return cachedSize == 0;
 	}
 
-	public Iterator<K> keyIterator() {
-		return new MapKeyIterator<>(rootNode);
-	}
-
-	public Iterator<V> valueIterator() {
-		return new MapValueIterator<>(rootNode);
-	}
-
-	public Iterator<Map.Entry<K, V>> entryIterator() {
-		return new MapEntryIterator<>(rootNode);
+	@Override
+	public Iterator keyIterator() {
+		return new MapKeyIterator(rootNode);
 	}
 
 	@Override
-	public Set<K> keySet() {
-		Set<K> keySet = null;
+	public Iterator valueIterator() {
+		return new MapValueIterator(rootNode);
+	}
+
+	@Override
+	public Iterator<Map.Entry<Object, Object>> entryIterator() {
+		return new MapEntryIterator(rootNode);
+	}
+
+	@Override
+	public Set keySet() {
+		Set keySet = null;
 
 		if (keySet == null) {
-			keySet = new AbstractSet<K>() {
+			keySet = new AbstractSet() {
 				@Override
-				public Iterator<K> iterator() {
+				public Iterator iterator() {
 					return TrieMap_Heterogeneous.this.keyIterator();
 				}
 
@@ -372,13 +375,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 	}
 
 	@Override
-	public Collection<V> values() {
-		Collection<V> values = null;
+	public Collection values() {
+		Collection values = null;
 
 		if (values == null) {
-			values = new AbstractCollection<V>() {
+			values = new AbstractCollection() {
 				@Override
-				public Iterator<V> iterator() {
+				public Iterator iterator() {
 					return TrieMap_Heterogeneous.this.valueIterator();
 				}
 
@@ -408,15 +411,15 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 	}
 
 	@Override
-	public Set<java.util.Map.Entry<K, V>> entrySet() {
-		Set<java.util.Map.Entry<K, V>> entrySet = null;
+	public Set<java.util.Map.Entry<Object, Object>> entrySet() {
+		Set<java.util.Map.Entry<Object, Object>> entrySet = null;
 
 		if (entrySet == null) {
-			entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
+			entrySet = new AbstractSet<java.util.Map.Entry<Object, Object>>() {
 				@Override
-				public Iterator<java.util.Map.Entry<K, V>> iterator() {
-					return new Iterator<Map.Entry<K, V>>() {
-						private final Iterator<Map.Entry<K, V>> i = entryIterator();
+				public Iterator<java.util.Map.Entry<Object, Object>> iterator() {
+					return new Iterator<Map.Entry<Object, Object>>() {
+						private final Iterator<Map.Entry<Object, Object>> i = entryIterator();
 
 						@Override
 						public boolean hasNext() {
@@ -424,7 +427,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 						}
 
 						@Override
-						public Map.Entry<K, V> next() {
+						public Map.Entry<Object, Object> next() {
 							return i.next();
 						}
 
@@ -470,7 +473,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		if (other instanceof TrieMap_Heterogeneous) {
-			TrieMap_Heterogeneous<?, ?> that = (TrieMap_Heterogeneous<?, ?>) other;
+			TrieMap_Heterogeneous that = (TrieMap_Heterogeneous) other;
 
 			if (this.cachedSize != that.cachedSize) {
 				return false;
@@ -487,21 +490,20 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			if (this.size() != that.size())
 				return false;
 
-			for (@SuppressWarnings("unchecked")
-			Iterator<Map.Entry> it = that.entrySet().iterator(); it.hasNext();) {
-				Map.Entry entry = it.next();
+			for (Iterator<Map.Entry<Object, Object>> it = that.entrySet().iterator(); it.hasNext();) {
+				Map.Entry<Object, Object> entry = it.next();
 
 				try {
-					@SuppressWarnings("unchecked")
-					final K key = (K) entry.getKey();
-					final Optional<V> result = rootNode.findByKey(key,
-							transformHashCode(key.hashCode()), 0);
+
+					final Object key = entry.getKey();
+					final Optional result = rootNode.findByKey(key,
+									transformHashCode(key.hashCode()), 0);
 
 					if (!result.isPresent()) {
 						return false;
 					} else {
-						@SuppressWarnings("unchecked")
-						final V val = (V) entry.getValue();
+
+						final Object val = entry.getValue();
 
 						if (!result.get().equals(val)) {
 							return false;
@@ -529,29 +531,29 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 	}
 
 	@Override
-	public TransientMap<K, V> asTransient() {
-		return new TransientTrieMap_BleedingEdge<K, V>(this);
+	public TransientMap asTransient() {
+		return new TransientTrieMap_BleedingEdge(this);
 	}
 
 	/*
 	 * For analysis purposes only.
 	 */
-	protected AbstractMapNode<K, V> getRootNode() {
+	protected AbstractMapNode getRootNode() {
 		return rootNode;
 	}
 
 	/*
 	 * For analysis purposes only.
 	 */
-	protected Iterator<AbstractMapNode<K, V>> nodeIterator() {
-		return new TrieMap_BleedingEdgeNodeIterator<>(rootNode);
+	protected Iterator<AbstractMapNode> nodeIterator() {
+		return new TrieMap_BleedingEdgeNodeIterator(rootNode);
 	}
 
 	/*
 	 * For analysis purposes only.
 	 */
 	protected int getNodeCount() {
-		final Iterator<AbstractMapNode<K, V>> it = nodeIterator();
+		final Iterator<AbstractMapNode> it = nodeIterator();
 		int sumNodes = 0;
 
 		for (; it.hasNext(); it.next()) {
@@ -565,11 +567,11 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 	 * For analysis purposes only. Payload X Node
 	 */
 	protected int[][] arityCombinationsHistogram() {
-		final Iterator<AbstractMapNode<K, V>> it = nodeIterator();
+		final Iterator<AbstractMapNode> it = nodeIterator();
 		final int[][] sumArityCombinations = new int[33][33];
 
 		while (it.hasNext()) {
-			final AbstractMapNode<K, V> node = it.next();
+			final AbstractMapNode node = it.next();
 			sumArityCombinations[node.payloadArity()][node.nodeArity()] += 1;
 		}
 
@@ -620,27 +622,22 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				for (int j = 0; j <= max; j++) {
 					for (int k = max - j; k <= max - j; k++) {
 						float arityCombinationsPercentage = (float) (sumArityCombinations[j][k])
-								/ sumNodes;
+										/ sumNodes;
 
 						if (arityCombinationsPercentage != 0
-								&& arityCombinationsPercentage >= threshhold) {
-							bldr.append(String
-									.format("%d/%d: %s, ",
-											j,
-											k,
-											new DecimalFormat("0.00%")
-													.format(arityCombinationsPercentage)));
+										&& arityCombinationsPercentage >= threshhold) {
+							bldr.append(String.format("%d/%d: %s, ", j, k, new DecimalFormat(
+											"0.00%").format(arityCombinationsPercentage)));
 						}
 					}
 				}
 				final String detailPercentages = bldr.toString();
 
 				// overview
-				System.out.println(String.format("%2d: %s\t[cumsum = %s]\t%s",
-						i, new DecimalFormat("0.00%").format(arityPercentage),
-						new DecimalFormat("0.00%")
-								.format(cumsumArityPercentage),
-						detailPercentages));
+				System.out.println(String.format("%2d: %s\t[cumsum = %s]\t%s", i,
+								new DecimalFormat("0.00%").format(arityPercentage),
+								new DecimalFormat("0.00%").format(cumsumArityPercentage),
+								detailPercentages));
 			}
 		}
 	}
@@ -658,7 +655,6 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			}
 		};
 
-		@SuppressWarnings("unchecked")
 		static <T> Optional<T> empty() {
 			return EMPTY;
 		}
@@ -690,8 +686,8 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 	}
 
-	static final class MapResult<K, V> {
-		private V replacedValue;
+	static final class MapResult {
+		private Object replacedValue;
 		private boolean isModified;
 		private boolean isReplaced;
 
@@ -700,15 +696,15 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			this.isModified = true;
 		}
 
-		public void updated(V replacedValue) {
+		public void updated(Object replacedValue) {
 			this.replacedValue = replacedValue;
 			this.isModified = true;
 			this.isReplaced = true;
 		}
 
 		// update: neither element, nor element count changed
-		public static <K, V> MapResult<K, V> unchanged() {
-			return new MapResult<>();
+		public static MapResult unchanged() {
+			return new MapResult();
 		}
 
 		private MapResult() {
@@ -722,53 +718,44 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return isReplaced;
 		}
 
-		public V getReplacedValue() {
+		public Object getReplacedValue() {
 			return replacedValue;
 		}
 	}
 
-	protected static interface INode<K, V> {
+	protected static interface INode {
 	}
 
-	protected static abstract class AbstractMapNode<K, V> implements
-			INode<K, V> {
+	protected static abstract class AbstractMapNode implements INode {
 
 		static final int TUPLE_LENGTH = 2;
 
-		abstract boolean containsKey(final K key, final int keyHash,
-				final int shift);
+		abstract boolean containsKey(final Object key, final int keyHash, final int shift);
 
-		abstract boolean containsKey(final K key, final int keyHash,
-				final int shift, final Comparator<Object> cmp);
+		abstract boolean containsKey(final Object key, final int keyHash, final int shift,
+						final Comparator<Object> cmp);
 
-		abstract Optional<V> findByKey(final K key, final int keyHash,
-				final int shift);
+		abstract Optional findByKey(final Object key, final int keyHash, final int shift);
 
-		abstract Optional<V> findByKey(final K key, final int keyHash,
-				final int shift, final Comparator<Object> cmp);
+		abstract Optional findByKey(final Object key, final int keyHash, final int shift,
+						final Comparator<Object> cmp);
 
-		abstract CompactMapNode<K, V> updated(
-				final AtomicReference<Thread> mutator, final K key,
-				final V val, final int keyHash, final int shift,
-				final MapResult<K, V> details);
+		abstract CompactMapNode updated(final AtomicReference<Thread> mutator, final Object key,
+						final Object val, final int keyHash, final int shift,
+						final MapResult details);
 
-		abstract CompactMapNode<K, V> updated(
-				final AtomicReference<Thread> mutator, final K key,
-				final V val, final int keyHash, final int shift,
-				final MapResult<K, V> details, final Comparator<Object> cmp);
+		abstract CompactMapNode updated(final AtomicReference<Thread> mutator, final Object key,
+						final Object val, final int keyHash, final int shift,
+						final MapResult details, final Comparator<Object> cmp);
 
-		abstract CompactMapNode<K, V> removed(
-				final AtomicReference<Thread> mutator, final K key,
-				final int keyHash, final int shift,
-				final MapResult<K, V> details);
+		abstract CompactMapNode removed(final AtomicReference<Thread> mutator, final Object key,
+						final int keyHash, final int shift, final MapResult details);
 
-		abstract CompactMapNode<K, V> removed(
-				final AtomicReference<Thread> mutator, final K key,
-				final int keyHash, final int shift,
-				final MapResult<K, V> details, final Comparator<Object> cmp);
+		abstract CompactMapNode removed(final AtomicReference<Thread> mutator, final Object key,
+						final int keyHash, final int shift, final MapResult details,
+						final Comparator<Object> cmp);
 
-		static final boolean isAllowedToEdit(AtomicReference<Thread> x,
-				AtomicReference<Thread> y) {
+		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
 		}
 
@@ -776,11 +763,11 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 		abstract int nodeArity();
 
-		abstract AbstractMapNode<K, V> getNode(final int index);
+		abstract AbstractMapNode getNode(final int index);
 
 		@Deprecated
-		Iterator<? extends AbstractMapNode<K, V>> nodeIterator() {
-			return new Iterator<AbstractMapNode<K, V>>() {
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			return new Iterator<AbstractMapNode>() {
 
 				int nextIndex = 0;
 				final int nodeArity = AbstractMapNode.this.nodeArity();
@@ -791,7 +778,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				}
 
 				@Override
-				public AbstractMapNode<K, V> next() {
+				public AbstractMapNode next() {
 					if (!hasNext())
 						throw new NoSuchElementException();
 					return AbstractMapNode.this.getNode(nextIndex++);
@@ -808,11 +795,11 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 		abstract int payloadArity();
 
-		abstract K getKey(final int index);
+		abstract Object getKey(final int index);
 
-		abstract V getValue(final int index);
+		abstract Object getValue(final int index);
 
-		abstract Map.Entry<K, V> getKeyValueEntry(final int index);
+		abstract Map.Entry<Object, Object> getKeyValueEntry(final int index);
 
 		@Deprecated
 		abstract boolean hasSlots();
@@ -824,7 +811,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
-		 * 
+		 *
 		 * @return sum of nodes and values stored within
 		 */
 
@@ -833,7 +820,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		int size() {
-			final Iterator<K> it = new MapKeyIterator<>(this);
+			final Iterator it = new MapKeyIterator(this);
 
 			int size = 0;
 			while (it.hasNext()) {
@@ -845,8 +832,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 	}
 
-	protected static abstract class CompactMapNode<K, V> extends
-			AbstractMapNode<K, V> {
+	protected static abstract class CompactMapNode extends AbstractMapNode {
 
 		static final int hashCodeLength() {
 			return 32;
@@ -865,7 +851,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		static final int bitpos(final int mask) {
-			return (int) (1 << mask);
+			return 1 << mask;
 		}
 
 		abstract int nodeMap();
@@ -882,65 +868,57 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		 * Abstract predicate over a node's size. Value can be either
 		 * {@value #SIZE_EMPTY}, {@value #SIZE_ONE}, or
 		 * {@value #SIZE_MORE_THAN_ONE}.
-		 * 
+		 *
 		 * @return size predicate
 		 */
 		abstract byte sizePredicate();
 
 		@Override
-		abstract CompactMapNode<K, V> getNode(final int index);
+		abstract CompactMapNode getNode(final int index);
 
 		boolean nodeInvariant() {
 			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
-			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY
-					: true;
+			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
 			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
-					: true;
-			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE
-					: true;
+							: true;
+			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
 
-			boolean inv5 = (this.nodeArity() >= 0)
-					&& (this.payloadArity() >= 0)
-					&& ((this.payloadArity() + this.nodeArity()) == this
-							.arity());
+			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
+							&& ((this.payloadArity() + this.nodeArity()) == this.arity());
 
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		abstract CompactMapNode<K, V> copyAndSetValue(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final V val);
+		abstract CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final Object val);
 
-		abstract CompactMapNode<K, V> copyAndInsertValue(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final K key, final V val);
+		abstract CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final Object key, final Object val);
 
-		abstract CompactMapNode<K, V> copyAndRemoveValue(
-				final AtomicReference<Thread> mutator, final int bitpos);
+		abstract CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator,
+						final int bitpos);
 
-		abstract CompactMapNode<K, V> copyAndSetNode(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node);
+		abstract CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode node);
 
-		abstract CompactMapNode<K, V> copyAndMigrateFromInlineToNode(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node);
+		abstract CompactMapNode copyAndMigrateFromInlineToNode(
+						final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactMapNode node);
 
-		abstract CompactMapNode<K, V> copyAndMigrateFromNodeToInline(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node);
+		abstract CompactMapNode copyAndMigrateFromNodeToInline(
+						final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactMapNode node);
 
-		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(
-				final K key0, final V val0, final int keyHash0, final K key1,
-				final V val1, final int keyHash1, final int shift) {
+		static final CompactMapNode mergeTwoKeyValPairs(final Object key0, final Object val0,
+						final int keyHash0, final Object key1, final Object val1,
+						final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
 			if (shift >= hashCodeLength()) {
 				// throw new
 				// IllegalStateException("Hash collision not yet fixed.");
-				return new HashCollisionMapNode_BleedingEdge<>(keyHash0,
-						(K[]) new Object[] { key0, key1 }, (V[]) new Object[] {
-								val0, val1 });
+				return new HashCollisionMapNode_BleedingEdge(keyHash0, new Object[] { key0, key1 },
+								new Object[] { val0, val1 });
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -948,27 +926,24 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int dataMap = (int) (bitpos(mask0) | bitpos(mask1));
+				final int dataMap = bitpos(mask0) | bitpos(mask1);
 
 				if (mask0 < mask1) {
-					return nodeOf(null, (int) (0), dataMap, new Object[] {
-							key0, val0, key1, val1 });
+					return nodeOf(null, (0), dataMap, new Object[] { key0, val0, key1, val1 });
 				} else {
-					return nodeOf(null, (int) (0), dataMap, new Object[] {
-							key1, val1, key0, val0 });
+					return nodeOf(null, (0), dataMap, new Object[] { key1, val1, key0, val0 });
 				}
 			} else {
-				final CompactMapNode<K, V> node = mergeTwoKeyValPairs(key0,
-						val0, keyHash0, key1, val1, keyHash1, shift
-								+ bitPartitionSize());
+				final CompactMapNode node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1, val1,
+								keyHash1, shift + bitPartitionSize());
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
-				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
+				return nodeOf(null, nodeMap, (0), new Object[] { node });
 			}
 		}
 
-		static final <K, V> CompactMapNode<K, V> emptyTrieNodeConstant() {
+		static final CompactMapNode emptyTrieNodeConstant() {
 			return EMPTY_NODE;
 		}
 
@@ -976,37 +951,30 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 		static {
 
-			EMPTY_NODE = new BitmapIndexedMapNode<>(null, (int) (0), (int) (0),
-					new Object[] {});
+			EMPTY_NODE = new BitmapIndexedMapNode(null, (0), (0), new Object[] {});
 
 		};
 
-		static final <K, V> CompactMapNode<K, V> nodeOf(
-				final AtomicReference<Thread> mutator, final int nodeMap,
-				final int dataMap, final Object[] nodes) {
-			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes);
+		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
+						final int nodeMap, final int dataMap, final Object[] nodes) {
+			return new BitmapIndexedMapNode(mutator, nodeMap, dataMap, nodes);
 		}
 
-		@SuppressWarnings("unchecked")
-		static final <K, V> CompactMapNode<K, V> nodeOf(
-				AtomicReference<Thread> mutator) {
+		static final CompactMapNode nodeOf(AtomicReference<Thread> mutator) {
 			return EMPTY_NODE;
 		}
 
-		static final <K, V> CompactMapNode<K, V> nodeOf(
-				AtomicReference<Thread> mutator, final int nodeMap,
-				final int dataMap, final K key, final V val) {
+		static final CompactMapNode nodeOf(AtomicReference<Thread> mutator, final int nodeMap,
+						final int dataMap, final Object key, final Object val) {
 			assert nodeMap == 0;
-			return nodeOf(mutator, (int) (0), dataMap,
-					new Object[] { key, val });
+			return nodeOf(mutator, (0), dataMap, new Object[] { key, val });
 		}
 
 		static final int index(final int bitmap, final int bitpos) {
 			return java.lang.Integer.bitCount(bitmap & (bitpos - 1));
 		}
 
-		static final int index(final int bitmap, final int mask,
-				final int bitpos) {
+		static final int index(final int bitmap, final int mask, final int bitpos) {
 			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
@@ -1018,11 +986,12 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
-		CompactMapNode<K, V> nodeAt(final int bitpos) {
+		CompactMapNode nodeAt(final int bitpos) {
 			return getNode(nodeIndex(bitpos));
 		}
 
-		boolean containsKey(final K key, final int keyHash, final int shift) {
+		@Override
+		boolean containsKey(final Object key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1035,15 +1004,15 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			final int nodeMap = nodeMap();
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).containsKey(key, keyHash,
-						shift + bitPartitionSize());
+				return getNode(index).containsKey(key, keyHash, shift + bitPartitionSize());
 			}
 
 			return false;
 		}
 
-		boolean containsKey(final K key, final int keyHash, final int shift,
-				final Comparator<Object> cmp) {
+		@Override
+		boolean containsKey(final Object key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1056,21 +1025,21 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			final int nodeMap = nodeMap();
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).containsKey(key, keyHash,
-						shift + bitPartitionSize(), cmp);
+				return getNode(index).containsKey(key, keyHash, shift + bitPartitionSize(), cmp);
 			}
 
 			return false;
 		}
 
-		Optional<V> findByKey(final K key, final int keyHash, final int shift) {
+		@Override
+		Optional findByKey(final Object key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int index = dataIndex(bitpos);
 				if (getKey(index).equals(key)) {
-					final V result = getValue(index);
+					final Object result = getValue(index);
 
 					return Optional.of(result);
 				}
@@ -1079,24 +1048,24 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			}
 
 			if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final AbstractMapNode<K, V> subNode = nodeAt(bitpos);
+				final AbstractMapNode subNode = nodeAt(bitpos);
 
-				return subNode.findByKey(key, keyHash, shift
-						+ bitPartitionSize());
+				return subNode.findByKey(key, keyHash, shift + bitPartitionSize());
 			}
 
 			return Optional.empty();
 		}
 
-		Optional<V> findByKey(final K key, final int keyHash, final int shift,
-				final Comparator<Object> cmp) {
+		@Override
+		Optional findByKey(final Object key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int index = dataIndex(bitpos);
 				if (cmp.compare(getKey(index), key) == 0) {
-					final V result = getValue(index);
+					final Object result = getValue(index);
 
 					return Optional.of(result);
 				}
@@ -1105,47 +1074,44 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			}
 
 			if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final AbstractMapNode<K, V> subNode = nodeAt(bitpos);
+				final AbstractMapNode subNode = nodeAt(bitpos);
 
-				return subNode.findByKey(key, keyHash, shift
-						+ bitPartitionSize(), cmp);
+				return subNode.findByKey(key, keyHash, shift + bitPartitionSize(), cmp);
 			}
 
 			return Optional.empty();
 		}
 
-		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator,
-				final K key, final V val, final int keyHash, final int shift,
-				final MapResult<K, V> details) {
+		@Override
+		CompactMapNode updated(final AtomicReference<Thread> mutator, final Object key,
+						final Object val, final int keyHash, final int shift,
+						final MapResult details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
-				final K currentKey = getKey(dataIndex);
+				final Object currentKey = getKey(dataIndex);
 
 				if (currentKey.equals(key)) {
-					final V currentVal = getValue(dataIndex);
+					final Object currentVal = getValue(dataIndex);
 
 					// update mapping
 					details.updated(currentVal);
 					return copyAndSetValue(mutator, bitpos, val);
 				} else {
-					final V currentVal = getValue(dataIndex);
-					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(
-							currentKey, currentVal,
-							transformHashCode(currentKey.hashCode()), key, val,
-							keyHash, shift + bitPartitionSize());
+					final Object currentVal = getValue(dataIndex);
+					final CompactMapNode subNodeNew = mergeTwoKeyValPairs(currentKey, currentVal,
+									transformHashCode(currentKey.hashCode()), key, val, keyHash,
+									shift + bitPartitionSize());
 
 					details.modified();
-					return copyAndMigrateFromInlineToNode(mutator, bitpos,
-							subNodeNew);
+					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final CompactMapNode<K, V> subNodeNew = subNode.updated(
-						mutator, key, val, keyHash, shift + bitPartitionSize(),
-						details);
+				final CompactMapNode subNode = nodeAt(bitpos);
+				final CompactMapNode subNodeNew = subNode.updated(mutator, key, val, keyHash, shift
+								+ bitPartitionSize(), details);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1159,15 +1125,16 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			}
 		}
 
-		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator,
-				final K key, final V val, final int keyHash, final int shift,
-				final MapResult<K, V> details, final Comparator<Object> cmp) {
+		@Override
+		CompactMapNode updated(final AtomicReference<Thread> mutator, final Object key,
+						final Object val, final int keyHash, final int shift,
+						final MapResult details, final Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
-		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator,
-				final K key, final int keyHash, final int shift,
-				final MapResult<K, V> details) {
+		@Override
+		CompactMapNode removed(final AtomicReference<Thread> mutator, final Object key,
+						final int keyHash, final int shift, final MapResult details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1175,7 +1142,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				final int dataIndex = dataIndex(bitpos);
 
 				if (getKey(dataIndex).equals(key)) {
-					final V currentVal = getValue(dataIndex);
+					final Object currentVal = getValue(dataIndex);
 					details.updated(currentVal);
 
 					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
@@ -1185,16 +1152,14 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-								: bitpos(mask(keyHash, 0));
+										: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
-							return CompactMapNode
-									.<K, V> nodeOf(mutator, (int) 0,
-											newDataMap, getKey(1), getValue(1));
+							return CompactMapNode.nodeOf(mutator, 0, newDataMap, getKey(1),
+											getValue(1));
 						} else {
-							return CompactMapNode
-									.<K, V> nodeOf(mutator, (int) 0,
-											newDataMap, getKey(0), getValue(0));
+							return CompactMapNode.nodeOf(mutator, 0, newDataMap, getKey(0),
+											getValue(0));
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
@@ -1203,10 +1168,9 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 					return this;
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final CompactMapNode<K, V> subNodeNew = subNode.removed(
-						mutator, key, keyHash, shift + bitPartitionSize(),
-						details);
+				final CompactMapNode subNode = nodeAt(bitpos);
+				final CompactMapNode subNodeNew = subNode.removed(mutator, key, keyHash, shift
+								+ bitPartitionSize(), details);
 
 				if (!details.isModified()) {
 					return this;
@@ -1214,8 +1178,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 				switch (subNodeNew.sizePredicate()) {
 				case 0: {
-					throw new IllegalStateException(
-							"Sub-node must have at least one element.");
+					throw new IllegalStateException("Sub-node must have at least one element.");
 				}
 				case 1: {
 					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
@@ -1223,8 +1186,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 						return subNodeNew;
 					} else {
 						// inline value (move to front)
-						return copyAndMigrateFromNodeToInline(mutator, bitpos,
-								subNodeNew);
+						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
 					}
 				}
 				default: {
@@ -1237,9 +1199,10 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return this;
 		}
 
-		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator,
-				final K key, final int keyHash, final int shift,
-				final MapResult<K, V> details, final Comparator<Object> cmp) {
+		@Override
+		CompactMapNode removed(final AtomicReference<Thread> mutator, final Object key,
+						final int keyHash, final int shift, final MapResult details,
+						final Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -1261,7 +1224,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 					}
 				}
 
-				map = (int) (map >> 1);
+				map = map >> 1;
 				mask += 1;
 			}
 
@@ -1276,9 +1239,8 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 			for (byte i = 0; i < payloadArity(); i++) {
 				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
-				bldr.append(String.format("@%d<#%d,#%d>", pos,
-						Objects.hashCode(getKey(i)),
-						Objects.hashCode(getValue(i))));
+				bldr.append(String.format("@%d<#%d,#%d>", pos, Objects.hashCode(getKey(i)),
+								Objects.hashCode(getValue(i))));
 
 				if (!((i + 1) == payloadArity())) {
 					bldr.append(", ");
@@ -1304,14 +1266,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 	}
 
-	protected static abstract class CompactMixedMapNode<K, V> extends
-			CompactMapNode<K, V> {
+	protected static abstract class CompactMixedMapNode extends CompactMapNode {
 
 		private final int dataMap;
 		private final int eitherMap;
 
-		CompactMixedMapNode(final AtomicReference<Thread> mutator,
-				final int maybeMap, final int dataMap) {
+		CompactMixedMapNode(final AtomicReference<Thread> mutator, final int maybeMap,
+						final int dataMap) {
 			this.eitherMap = maybeMap;
 			this.dataMap = dataMap;
 		}
@@ -1320,7 +1281,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		public int dataMap() {
 			return dataMap;
 		}
-		
+
 		@Override
 		public int nodeMap() {
 			return eitherMap ^ rareMap();
@@ -1333,14 +1294,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 	}
 
-	private static final class BitmapIndexedMapNode<K, V> extends
-			CompactMixedMapNode<K, V> {
+	private static final class BitmapIndexedMapNode extends CompactMixedMapNode {
 
 		final AtomicReference<Thread> mutator;
 		final Object[] nodes;
 
-		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator,
-				final int nodeMap, final int dataMap, final Object[] nodes) {
+		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
+						final int dataMap, final Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
@@ -1349,7 +1309,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			if (DEBUG) {
 
 				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
-						+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
+								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
 				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
 					assert ((nodes[i] instanceof CompactMapNode) == false);
@@ -1362,32 +1322,28 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		K getKey(final int index) {
-			return (K) nodes[TUPLE_LENGTH * index];
+		Object getKey(final int index) {
+			return nodes[TUPLE_LENGTH * index];
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		V getValue(final int index) {
-			return (V) nodes[TUPLE_LENGTH * index + 1];
+		Object getValue(final int index) {
+			return nodes[TUPLE_LENGTH * index + 1];
 		}
 
-		Map.Entry<K, V> getKeyValueEntry(final int index) {
-			return entryOf((K) nodes[TUPLE_LENGTH * index],
-					(V) nodes[TUPLE_LENGTH * index + 1]);
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			return entryOf(nodes[TUPLE_LENGTH * index], nodes[TUPLE_LENGTH * index + 1]);
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		CompactMapNode<K, V> getNode(final int index) {
-			return (CompactMapNode<K, V>) nodes[nodes.length - 1 - index];
+		CompactMapNode getNode(final int index) {
+			return (CompactMapNode) nodes[nodes.length - 1 - index];
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<? extends AbstractMapNode<K, V>> nodeIterator() {
+		Iterator<? extends AbstractMapNode> nodeIterator() {
 			final int length = nodeArity();
 			final int offset = nodes.length - length;
 
@@ -1439,8 +1395,8 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
-			result = prime * result + ((int) dataMap());
-			result = prime * result + ((int) dataMap());
+			result = prime * result + (dataMap());
+			result = prime * result + (dataMap());
 			result = prime * result + Arrays.hashCode(nodes);
 			return result;
 		}
@@ -1456,7 +1412,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			BitmapIndexedMapNode<?, ?> that = (BitmapIndexedMapNode<?, ?>) other;
+			BitmapIndexedMapNode that = (BitmapIndexedMapNode) other;
 			if (nodeMap() != that.nodeMap()) {
 				return false;
 			}
@@ -1486,9 +1442,8 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final V val) {
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+						final Object val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos) + 1;
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
@@ -1497,7 +1452,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				return this;
 			} else {
 				final Object[] src = this.nodes;
-				final Object[] dst = (Object[]) new Object[src.length];
+				final Object[] dst = new Object[src.length];
 
 				// copy 'src' and set 1 element(s) at position 'idx'
 				System.arraycopy(src, 0, dst, 0, src.length);
@@ -1508,9 +1463,8 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node) {
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactMapNode node) {
 
 			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
@@ -1520,7 +1474,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				return this;
 			} else {
 				final Object[] src = this.nodes;
-				final Object[] dst = (Object[]) new Object[src.length];
+				final Object[] dst = new Object[src.length];
 
 				// copy 'src' and set 1 element(s) at position 'idx'
 				System.arraycopy(src, 0, dst, 0, src.length);
@@ -1531,13 +1485,12 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final K key, final V val) {
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+						final Object key, final Object val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
-			final Object[] dst = (Object[]) new Object[src.length + 2];
+			final Object[] dst = new Object[src.length + 2];
 
 			// copy 'src' and insert 2 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
@@ -1545,32 +1498,29 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			dst[idx + 1] = val;
 			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst);
+			return nodeOf(mutator, nodeMap(), dataMap() | bitpos, dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(
-				final AtomicReference<Thread> mutator, final int bitpos) {
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
-			final Object[] dst = (Object[]) new Object[src.length - 2];
+			final Object[] dst = new Object[src.length - 2];
 
 			// copy 'src' and remove 2 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 2, dst, idx, src.length - idx - 2);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst);
+			return nodeOf(mutator, nodeMap(), dataMap() ^ bitpos, dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node) {
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode node) {
 
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = this.nodes.length - TUPLE_LENGTH
-					- nodeIndex(bitpos);
+			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length - 2 + 1];
@@ -1581,17 +1531,14 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			System.arraycopy(src, 0, dst, 0, idxOld);
 			System.arraycopy(src, idxOld + 2, dst, idxOld, idxNew - idxOld);
 			dst[idxNew + 0] = node;
-			System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length
-					- idxNew - 2);
+			System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
 
-			return nodeOf(mutator, (int) (nodeMap() | bitpos),
-					(int) (dataMap() ^ bitpos), dst);
+			return nodeOf(mutator, nodeMap() | bitpos, dataMap() ^ bitpos, dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node) {
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode node) {
 
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = TUPLE_LENGTH * dataIndex(bitpos);
@@ -1606,23 +1553,19 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			dst[idxNew + 0] = node.getKey(0);
 			dst[idxNew + 1] = node.getValue(0);
 			System.arraycopy(src, idxNew, dst, idxNew + 2, idxOld - idxNew);
-			System.arraycopy(src, idxOld + 1, dst, idxOld + 2, src.length
-					- idxOld - 1);
+			System.arraycopy(src, idxOld + 1, dst, idxOld + 2, src.length - idxOld - 1);
 
-			return nodeOf(mutator, (int) (nodeMap() ^ bitpos),
-					(int) (dataMap() | bitpos), dst);
+			return nodeOf(mutator, nodeMap() ^ bitpos, dataMap() | bitpos, dst);
 		}
 
 	}
 
-	private static final class HashCollisionMapNode_BleedingEdge<K, V> extends
-			CompactMapNode<K, V> {
-		private final K[] keys;
-		private final V[] vals;
+	private static final class HashCollisionMapNode_BleedingEdge extends CompactMapNode {
+		private final Object[] keys;
+		private final Object[] vals;
 		private final int hash;
 
-		HashCollisionMapNode_BleedingEdge(final int hash, final K[] keys,
-				final V[] vals) {
+		HashCollisionMapNode_BleedingEdge(final int hash, final Object[] keys, final Object[] vals) {
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
@@ -1630,9 +1573,10 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			assert payloadArity() >= 2;
 		}
 
-		boolean containsKey(final K key, final int keyHash, final int shift) {
+		@Override
+		boolean containsKey(final Object key, final int keyHash, final int shift) {
 			if (this.hash == keyHash) {
-				for (K k : keys) {
+				for (Object k : keys) {
 					if (k.equals(key)) {
 						return true;
 					}
@@ -1641,10 +1585,11 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return false;
 		}
 
-		boolean containsKey(final K key, final int keyHash, final int shift,
-				final Comparator<Object> cmp) {
+		@Override
+		boolean containsKey(final Object key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 			if (this.hash == keyHash) {
-				for (K k : keys) {
+				for (Object k : keys) {
 					if (cmp.compare(k, key) == 0) {
 						return true;
 					}
@@ -1653,52 +1598,55 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return false;
 		}
 
-		Optional<V> findByKey(final K key, final int keyHash, final int shift) {
+		@Override
+		Optional findByKey(final Object key, final int keyHash, final int shift) {
 			for (int i = 0; i < keys.length; i++) {
-				final K _key = keys[i];
+				final Object _key = keys[i];
 				if (key.equals(_key)) {
-					final V val = vals[i];
+					final Object val = vals[i];
 					return Optional.of(val);
 				}
 			}
 			return Optional.empty();
 		}
 
-		Optional<V> findByKey(final K key, final int keyHash, final int shift,
-				final Comparator<Object> cmp) {
+		@Override
+		Optional findByKey(final Object key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
-				final K _key = keys[i];
+				final Object _key = keys[i];
 				if (cmp.compare(key, _key) == 0) {
-					final V val = vals[i];
+					final Object val = vals[i];
 					return Optional.of(val);
 				}
 			}
 			return Optional.empty();
 		}
 
-		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator,
-				final K key, final V val, final int keyHash, final int shift,
-				final MapResult<K, V> details) {
+		@Override
+		CompactMapNode updated(final AtomicReference<Thread> mutator, final Object key,
+						final Object val, final int keyHash, final int shift,
+						final MapResult details) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
-					final V currentVal = vals[idx];
+					final Object currentVal = vals[idx];
 
 					if (currentVal.equals(val)) {
 						return this;
 					} else {
 						// add new mapping
-						final V[] src = this.vals;
-						@SuppressWarnings("unchecked")
-						final V[] dst = (V[]) new Object[src.length];
+						final Object[] src = this.vals;
+
+						final Object[] dst = new Object[src.length];
 
 						// copy 'src' and set 1 element(s) at position 'idx'
 						System.arraycopy(src, 0, dst, 0, src.length);
 						dst[idx + 0] = val;
 
-						final CompactMapNode<K, V> thisNew = new HashCollisionMapNode_BleedingEdge<>(
-								this.hash, this.keys, dst);
+						final CompactMapNode thisNew = new HashCollisionMapNode_BleedingEdge(
+										this.hash, this.keys, dst);
 
 						details.updated(currentVal);
 						return thisNew;
@@ -1706,54 +1654,52 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				}
 			}
 
-			@SuppressWarnings("unchecked")
-			final K[] keysNew = (K[]) new Object[this.keys.length + 1];
+			final Object[] keysNew = new Object[this.keys.length + 1];
 
 			// copy 'this.keys' and insert 1 element(s) at position
 			// 'keys.length'
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
-			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1,
-					this.keys.length - keys.length);
+			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
+							- keys.length);
 
-			@SuppressWarnings("unchecked")
-			final V[] valsNew = (V[]) new Object[this.vals.length + 1];
+			final Object[] valsNew = new Object[this.vals.length + 1];
 
 			// copy 'this.vals' and insert 1 element(s) at position
 			// 'vals.length'
 			System.arraycopy(this.vals, 0, valsNew, 0, vals.length);
 			valsNew[vals.length + 0] = val;
-			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1,
-					this.vals.length - vals.length);
+			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1, this.vals.length
+							- vals.length);
 
 			details.modified();
-			return new HashCollisionMapNode_BleedingEdge<>(keyHash, keysNew,
-					valsNew);
+			return new HashCollisionMapNode_BleedingEdge(keyHash, keysNew, valsNew);
 		}
 
-		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator,
-				final K key, final V val, final int keyHash, final int shift,
-				final MapResult<K, V> details, final Comparator<Object> cmp) {
+		@Override
+		CompactMapNode updated(final AtomicReference<Thread> mutator, final Object key,
+						final Object val, final int keyHash, final int shift,
+						final MapResult details, final Comparator<Object> cmp) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
-					final V currentVal = vals[idx];
+					final Object currentVal = vals[idx];
 
 					if (cmp.compare(currentVal, val) == 0) {
 						return this;
 					} else {
 						// add new mapping
-						final V[] src = this.vals;
-						@SuppressWarnings("unchecked")
-						final V[] dst = (V[]) new Object[src.length];
+						final Object[] src = this.vals;
+
+						final Object[] dst = new Object[src.length];
 
 						// copy 'src' and set 1 element(s) at position 'idx'
 						System.arraycopy(src, 0, dst, 0, src.length);
 						dst[idx + 0] = val;
 
-						final CompactMapNode<K, V> thisNew = new HashCollisionMapNode_BleedingEdge<>(
-								this.hash, this.keys, dst);
+						final CompactMapNode thisNew = new HashCollisionMapNode_BleedingEdge(
+										this.hash, this.keys, dst);
 
 						details.updated(currentVal);
 						return thisNew;
@@ -1761,37 +1707,34 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				}
 			}
 
-			@SuppressWarnings("unchecked")
-			final K[] keysNew = (K[]) new Object[this.keys.length + 1];
+			final Object[] keysNew = new Object[this.keys.length + 1];
 
 			// copy 'this.keys' and insert 1 element(s) at position
 			// 'keys.length'
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
-			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1,
-					this.keys.length - keys.length);
+			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
+							- keys.length);
 
-			@SuppressWarnings("unchecked")
-			final V[] valsNew = (V[]) new Object[this.vals.length + 1];
+			final Object[] valsNew = new Object[this.vals.length + 1];
 
 			// copy 'this.vals' and insert 1 element(s) at position
 			// 'vals.length'
 			System.arraycopy(this.vals, 0, valsNew, 0, vals.length);
 			valsNew[vals.length + 0] = val;
-			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1,
-					this.vals.length - vals.length);
+			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1, this.vals.length
+							- vals.length);
 
 			details.modified();
-			return new HashCollisionMapNode_BleedingEdge<>(keyHash, keysNew,
-					valsNew);
+			return new HashCollisionMapNode_BleedingEdge(keyHash, keysNew, valsNew);
 		}
 
-		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator,
-				final K key, final int keyHash, final int shift,
-				final MapResult<K, V> details) {
+		@Override
+		CompactMapNode removed(final AtomicReference<Thread> mutator, final Object key,
+						final int keyHash, final int shift, final MapResult details) {
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
-					final V currentVal = vals[idx];
+					final Object currentVal = vals[idx];
 					details.updated(currentVal);
 
 					if (this.arity() == 1) {
@@ -1802,44 +1745,42 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 						 * will be a) either be the new root returned, or b)
 						 * unwrapped and inlined.
 						 */
-						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
-						final V theOtherVal = (idx == 0) ? vals[1] : vals[0];
-						return CompactMapNode.<K, V> nodeOf(mutator).updated(
-								mutator, theOtherKey, theOtherVal, keyHash, 0,
-								details);
+						final Object theOtherKey = (idx == 0) ? keys[1] : keys[0];
+						final Object theOtherVal = (idx == 0) ? vals[1] : vals[0];
+						return CompactMapNode.nodeOf(mutator).updated(mutator, theOtherKey,
+										theOtherVal, keyHash, 0, details);
 					} else {
-						@SuppressWarnings("unchecked")
-						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
+
+						final Object[] keysNew = new Object[this.keys.length - 1];
 
 						// copy 'this.keys' and remove 1 element(s) at position
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
-						System.arraycopy(this.keys, idx + 1, keysNew, idx,
-								this.keys.length - idx - 1);
+						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
+										- 1);
 
-						@SuppressWarnings("unchecked")
-						final V[] valsNew = (V[]) new Object[this.vals.length - 1];
+						final Object[] valsNew = new Object[this.vals.length - 1];
 
 						// copy 'this.vals' and remove 1 element(s) at position
 						// 'idx'
 						System.arraycopy(this.vals, 0, valsNew, 0, idx);
-						System.arraycopy(this.vals, idx + 1, valsNew, idx,
-								this.vals.length - idx - 1);
+						System.arraycopy(this.vals, idx + 1, valsNew, idx, this.vals.length - idx
+										- 1);
 
-						return new HashCollisionMapNode_BleedingEdge<>(keyHash,
-								keysNew, valsNew);
+						return new HashCollisionMapNode_BleedingEdge(keyHash, keysNew, valsNew);
 					}
 				}
 			}
 			return this;
 		}
 
-		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator,
-				final K key, final int keyHash, final int shift,
-				final MapResult<K, V> details, final Comparator<Object> cmp) {
+		@Override
+		CompactMapNode removed(final AtomicReference<Thread> mutator, final Object key,
+						final int keyHash, final int shift, final MapResult details,
+						final Comparator<Object> cmp) {
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
-					final V currentVal = vals[idx];
+					final Object currentVal = vals[idx];
 					details.updated(currentVal);
 
 					if (this.arity() == 1) {
@@ -1850,32 +1791,29 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 						 * will be a) either be the new root returned, or b)
 						 * unwrapped and inlined.
 						 */
-						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
-						final V theOtherVal = (idx == 0) ? vals[1] : vals[0];
-						return CompactMapNode.<K, V> nodeOf(mutator).updated(
-								mutator, theOtherKey, theOtherVal, keyHash, 0,
-								details, cmp);
+						final Object theOtherKey = (idx == 0) ? keys[1] : keys[0];
+						final Object theOtherVal = (idx == 0) ? vals[1] : vals[0];
+						return CompactMapNode.nodeOf(mutator).updated(mutator, theOtherKey,
+										theOtherVal, keyHash, 0, details, cmp);
 					} else {
-						@SuppressWarnings("unchecked")
-						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
+
+						final Object[] keysNew = new Object[this.keys.length - 1];
 
 						// copy 'this.keys' and remove 1 element(s) at position
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
-						System.arraycopy(this.keys, idx + 1, keysNew, idx,
-								this.keys.length - idx - 1);
+						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
+										- 1);
 
-						@SuppressWarnings("unchecked")
-						final V[] valsNew = (V[]) new Object[this.vals.length - 1];
+						final Object[] valsNew = new Object[this.vals.length - 1];
 
 						// copy 'this.vals' and remove 1 element(s) at position
 						// 'idx'
 						System.arraycopy(this.vals, 0, valsNew, 0, idx);
-						System.arraycopy(this.vals, idx + 1, valsNew, idx,
-								this.vals.length - idx - 1);
+						System.arraycopy(this.vals, idx + 1, valsNew, idx, this.vals.length - idx
+										- 1);
 
-						return new HashCollisionMapNode_BleedingEdge<>(keyHash,
-								keysNew, valsNew);
+						return new HashCollisionMapNode_BleedingEdge(keyHash, keysNew, valsNew);
 					}
 				}
 			}
@@ -1913,21 +1851,22 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		K getKey(final int index) {
+		Object getKey(final int index) {
 			return keys[index];
 		}
 
 		@Override
-		V getValue(final int index) {
+		Object getValue(final int index) {
 			return vals[index];
 		}
 
-		Map.Entry<K, V> getKeyValueEntry(final int index) {
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
 			return entryOf(keys[index], vals[index]);
 		}
 
 		@Override
-		public CompactMapNode<K, V> getNode(int index) {
+		public CompactMapNode getNode(int index) {
 			throw new IllegalStateException("Is leaf node.");
 		}
 
@@ -1968,7 +1907,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				return false;
 			}
 
-			HashCollisionMapNode_BleedingEdge<?, ?> that = (HashCollisionMapNode_BleedingEdge<?, ?>) other;
+			HashCollisionMapNode_BleedingEdge that = (HashCollisionMapNode_BleedingEdge) other;
 
 			if (hash != that.hash) {
 				return false;
@@ -1986,8 +1925,8 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				final Object otherVal = that.getValue(i);
 
 				for (int j = 0; j < keys.length; j++) {
-					final K key = keys[j];
-					final V val = vals[j];
+					final Object key = keys[j];
+					final Object val = vals[j];
 
 					if (key.equals(otherKey) && val.equals(otherVal)) {
 						continue outerLoop;
@@ -2000,43 +1939,37 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final V val) {
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+						final Object val) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final K key, final V val) {
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+						final Object key, final Object val) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(
-				final AtomicReference<Thread> mutator, final int bitpos) {
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node) {
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactMapNode node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node) {
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(
-				final AtomicReference<Thread> mutator, final int bitpos,
-				final CompactMapNode<K, V> node) {
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode node) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -2052,8 +1985,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 		@Override
 		int rareMap() {
-			// TODO Auto-generated method stub
-			return 0;
+			throw new UnsupportedOperationException();
 		}
 
 	}
@@ -2061,21 +1993,20 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 	/**
 	 * Iterator skeleton that uses a fixed stack in depth.
 	 */
-	private static abstract class AbstractMapIterator<K, V> {
+	private static abstract class AbstractMapIterator {
 
 		private static final int MAX_DEPTH = 7;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
-		protected AbstractMapNode<K, V> currentValueNode;
+		protected AbstractMapNode currentValueNode;
 
 		private int currentStackLevel = -1;
 		private final int[] nodeCursorsAndLengths = new int[MAX_DEPTH * 2];
 
-		@SuppressWarnings("unchecked")
-		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[MAX_DEPTH];
+		AbstractMapNode[] nodes = new AbstractMapNode[MAX_DEPTH];
 
-		AbstractMapIterator(AbstractMapNode<K, V> rootNode) {
+		AbstractMapIterator(AbstractMapNode rootNode) {
 			if (rootNode.hasNodes()) {
 				currentStackLevel = 0;
 
@@ -2103,8 +2034,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
 
 				if (nodeCursor < nodeLength) {
-					final AbstractMapNode<K, V> nextNode = nodes[currentStackLevel]
-							.getNode(nodeCursor);
+					final AbstractMapNode nextNode = nodes[currentStackLevel].getNode(nodeCursor);
 					nodeCursorsAndLengths[currentCursorIndex]++;
 
 					if (nextNode.hasNodes()) {
@@ -2118,8 +2048,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 						nodes[nextStackLevel] = nextNode;
 						nodeCursorsAndLengths[nextCursorIndex] = 0;
-						nodeCursorsAndLengths[nextLengthIndex] = nextNode
-								.nodeArity();
+						nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
 					}
 
 					if (nextNode.hasPayload()) {
@@ -2152,15 +2081,14 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 	}
 
-	protected static class MapKeyIterator<K, V> extends
-			AbstractMapIterator<K, V> implements Iterator<K> {
+	protected static class MapKeyIterator extends AbstractMapIterator implements Iterator {
 
-		MapKeyIterator(AbstractMapNode<K, V> rootNode) {
+		MapKeyIterator(AbstractMapNode rootNode) {
 			super(rootNode);
 		}
 
 		@Override
-		public K next() {
+		public Object next() {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
@@ -2170,15 +2098,14 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 	}
 
-	protected static class MapValueIterator<K, V> extends
-			AbstractMapIterator<K, V> implements Iterator<V> {
+	protected static class MapValueIterator extends AbstractMapIterator implements Iterator {
 
-		MapValueIterator(AbstractMapNode<K, V> rootNode) {
+		MapValueIterator(AbstractMapNode rootNode) {
 			super(rootNode);
 		}
 
 		@Override
-		public V next() {
+		public Object next() {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
@@ -2188,15 +2115,15 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 	}
 
-	protected static class MapEntryIterator<K, V> extends
-			AbstractMapIterator<K, V> implements Iterator<Map.Entry<K, V>> {
+	protected static class MapEntryIterator extends AbstractMapIterator implements
+					Iterator<Map.Entry<Object, Object>> {
 
-		MapEntryIterator(AbstractMapNode<K, V> rootNode) {
+		MapEntryIterator(AbstractMapNode rootNode) {
 			super(rootNode);
 		}
 
 		@Override
-		public Map.Entry<K, V> next() {
+		public Map.Entry<Object, Object> next() {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
@@ -2210,13 +2137,12 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieMap_BleedingEdgeNodeIterator<K, V> implements
-			Iterator<AbstractMapNode<K, V>> {
+	private static class TrieMap_BleedingEdgeNodeIterator implements Iterator<AbstractMapNode> {
 
-		final Deque<Iterator<? extends AbstractMapNode<K, V>>> nodeIteratorStack;
+		final Deque<Iterator<? extends AbstractMapNode>> nodeIteratorStack;
 
-		TrieMap_BleedingEdgeNodeIterator(AbstractMapNode<K, V> rootNode) {
-			nodeIteratorStack = new ArrayDeque<>();
+		TrieMap_BleedingEdgeNodeIterator(AbstractMapNode rootNode) {
+			nodeIteratorStack = new ArrayDeque();
 			nodeIteratorStack.push(Collections.singleton(rootNode).iterator());
 		}
 
@@ -2237,12 +2163,12 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		public AbstractMapNode<K, V> next() {
+		public AbstractMapNode next() {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			}
 
-			AbstractMapNode<K, V> innerNode = nodeIteratorStack.peek().next();
+			AbstractMapNode innerNode = nodeIteratorStack.peek().next();
 
 			if (innerNode.hasNodes()) {
 				nodeIteratorStack.push(innerNode.nodeIterator());
@@ -2257,15 +2183,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 	}
 
-	static final class TransientTrieMap_BleedingEdge<K extends Number, V extends Number> implements
-			TransientMap<K, V> {
+	static final class TransientTrieMap_BleedingEdge implements TransientMap<Object, Object> {
 		final private AtomicReference<Thread> mutator;
-		private AbstractMapNode<K, V> rootNode;
+		private AbstractMapNode rootNode;
 		private int hashCode;
 		private int cachedSize;
 
-		TransientTrieMap_BleedingEdge(
-				TrieMap_Heterogeneous<K, V> trieMap_BleedingEdge) {
+		TransientTrieMap_BleedingEdge(TrieMap_Heterogeneous trieMap_BleedingEdge) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap_BleedingEdge.rootNode;
 			this.hashCode = trieMap_BleedingEdge.hashCode;
@@ -2275,15 +2199,14 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			}
 		}
 
-		private boolean checkHashCodeAndSize(final int targetHash,
-				final int targetSize) {
+		private boolean checkHashCodeAndSize(final int targetHash, final int targetSize) {
 			int hash = 0;
 			int size = 0;
 
-			for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
-				final Map.Entry<K, V> entry = it.next();
-				final K key = entry.getKey();
-				final V val = entry.getValue();
+			for (Iterator<Map.Entry<Object, Object>> it = entryIterator(); it.hasNext();) {
+				final Map.Entry<Object, Object> entry = it.next();
+				final Object key = entry.getKey();
+				final Object val = entry.getValue();
 
 				hash += key.hashCode() ^ val.hashCode();
 				size += 1;
@@ -2292,47 +2215,51 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return hash == targetHash && size == targetSize;
 		}
 
-		public V put(final K key, final V val) {
+		@Override
+		public Object put(final Object key, final Object val) {
 			throw new UnsupportedOperationException();
 		}
 
-		public void putAll(final Map<? extends K, ? extends V> m) {
+		@Override
+		public void putAll(final Map<? extends Object, ? extends Object> m) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public void clear() {
 			throw new UnsupportedOperationException();
 		}
 
-		public V remove(final Object key) {
+		@Override
+		public Object remove(final Object key) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public boolean containsKey(final Object o) {
 			try {
-				@SuppressWarnings("unchecked")
-				final K key = (K) o;
-				return rootNode.containsKey(key,
-						transformHashCode(key.hashCode()), 0);
+
+				final Object key = o;
+				return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
 		}
 
-		public boolean containsKeyEquivalent(final Object o,
-				final Comparator<Object> cmp) {
+		@Override
+		public boolean containsKeyEquivalent(final Object o, final Comparator<Object> cmp) {
 			try {
-				@SuppressWarnings("unchecked")
-				final K key = (K) o;
-				return rootNode.containsKey(key,
-						transformHashCode(key.hashCode()), 0, cmp);
+
+				final Object key = o;
+				return rootNode.containsKey(key, transformHashCode(key.hashCode()), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
 		}
 
+		@Override
 		public boolean containsValue(final Object o) {
-			for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
+			for (Iterator iterator = valueIterator(); iterator.hasNext();) {
 				if (iterator.next().equals(o)) {
 					return true;
 				}
@@ -2340,9 +2267,9 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return false;
 		}
 
-		public boolean containsValueEquivalent(final Object o,
-				final Comparator<Object> cmp) {
-			for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
+		@Override
+		public boolean containsValueEquivalent(final Object o, final Comparator<Object> cmp) {
+			for (Iterator iterator = valueIterator(); iterator.hasNext();) {
 				if (cmp.compare(iterator.next(), o) == 0) {
 					return true;
 				}
@@ -2350,12 +2277,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return false;
 		}
 
-		public V get(final Object o) {
+		@Override
+		public Object get(final Object o) {
 			try {
-				@SuppressWarnings("unchecked")
-				final K key = (K) o;
-				final Optional<V> result = rootNode.findByKey(key,
-						transformHashCode(key.hashCode()), 0);
+
+				final Object key = o;
+				final Optional result = rootNode.findByKey(key, transformHashCode(key.hashCode()),
+								0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -2367,12 +2295,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			}
 		}
 
-		public V getEquivalent(final Object o, final Comparator<Object> cmp) {
+		@Override
+		public Object getEquivalent(final Object o, final Comparator<Object> cmp) {
 			try {
-				@SuppressWarnings("unchecked")
-				final K key = (K) o;
-				final Optional<V> result = rootNode.findByKey(key,
-						transformHashCode(key.hashCode()), 0, cmp);
+
+				final Object key = o;
+				final Optional result = rootNode.findByKey(key, transformHashCode(key.hashCode()),
+								0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -2384,27 +2313,27 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			}
 		}
 
-		public V __put(final K key, final V val) {
+		@Override
+		public Object __put(final Object key, final Object val) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final MapResult<K, V> details = MapResult.unchanged();
+			final MapResult details = MapResult.unchanged();
 
-			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator,
-					key, val, transformHashCode(keyHash), 0, details);
+			final CompactMapNode newRootNode = rootNode.updated(mutator, key, val,
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
-					final V old = details.getReplacedValue();
+					final Object old = details.getReplacedValue();
 
 					final int valHashOld = old.hashCode();
 					final int valHashNew = val.hashCode();
 
 					rootNode = newRootNode;
-					hashCode = hashCode + (keyHash ^ valHashNew)
-							- (keyHash ^ valHashOld);
+					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
 
 					if (DEBUG) {
 						assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2429,28 +2358,28 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return null;
 		}
 
-		public V __putEquivalent(final K key, final V val,
-				final Comparator<Object> cmp) {
+		@Override
+		public Object __putEquivalent(final Object key, final Object val,
+						final Comparator<Object> cmp) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final MapResult<K, V> details = MapResult.unchanged();
+			final MapResult details = MapResult.unchanged();
 
-			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator,
-					key, val, transformHashCode(keyHash), 0, details, cmp);
+			final CompactMapNode newRootNode = rootNode.updated(mutator, key, val,
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
-					final V old = details.getReplacedValue();
+					final Object old = details.getReplacedValue();
 
 					final int valHashOld = old.hashCode();
 					final int valHashNew = val.hashCode();
 
 					rootNode = newRootNode;
-					hashCode = hashCode + (keyHash ^ valHashNew)
-							- (keyHash ^ valHashOld);
+					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
 
 					if (DEBUG) {
 						assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -2475,12 +2404,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return null;
 		}
 
-		public boolean __putAll(final Map<? extends K, ? extends V> map) {
+		@Override
+		public boolean __putAll(final Map<? extends Object, ? extends Object> map) {
 			boolean modified = false;
 
-			for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
+			for (Map.Entry<? extends Object, ? extends Object> entry : map.entrySet()) {
 				final boolean isPresent = this.containsKey(entry.getKey());
-				final V replaced = this.__put(entry.getKey(), entry.getValue());
+				final Object replaced = this.__put(entry.getKey(), entry.getValue());
 
 				if (!isPresent || replaced != null) {
 					modified = true;
@@ -2490,16 +2420,14 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return modified;
 		}
 
-		public boolean __putAllEquivalent(
-				final Map<? extends K, ? extends V> map,
-				final Comparator<Object> cmp) {
+		@Override
+		public boolean __putAllEquivalent(final Map<? extends Object, ? extends Object> map,
+						final Comparator<Object> cmp) {
 			boolean modified = false;
 
-			for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
-				final boolean isPresent = this.containsKeyEquivalent(
-						entry.getKey(), cmp);
-				final V replaced = this.__putEquivalent(entry.getKey(),
-						entry.getValue(), cmp);
+			for (Map.Entry<? extends Object, ? extends Object> entry : map.entrySet()) {
+				final boolean isPresent = this.containsKeyEquivalent(entry.getKey(), cmp);
+				final Object replaced = this.__putEquivalent(entry.getKey(), entry.getValue(), cmp);
 
 				if (!isPresent || replaced != null) {
 					modified = true;
@@ -2509,16 +2437,17 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return modified;
 		}
 
-		public V __remove(final K key) {
+		@Override
+		public Object __remove(final Object key) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final MapResult<K, V> details = MapResult.unchanged();
+			final MapResult details = MapResult.unchanged();
 
-			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator,
-					key, transformHashCode(keyHash), 0, details);
+			final CompactMapNode newRootNode = rootNode.removed(mutator, key,
+							transformHashCode(keyHash), 0, details);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
@@ -2541,16 +2470,17 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return null;
 		}
 
-		public V __removeEquivalent(final K key, final Comparator<Object> cmp) {
+		@Override
+		public Object __removeEquivalent(final Object key, final Comparator<Object> cmp) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final MapResult<K, V> details = MapResult.unchanged();
+			final MapResult details = MapResult.unchanged();
 
-			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator,
-					key, transformHashCode(keyHash), 0, details, cmp);
+			final CompactMapNode newRootNode = rootNode.removed(mutator, key,
+							transformHashCode(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
@@ -2573,93 +2503,98 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			return null;
 		}
 
+		@Override
 		public int size() {
 			return cachedSize;
 		}
 
+		@Override
 		public boolean isEmpty() {
 			return cachedSize == 0;
 		}
 
-		public Iterator<K> keyIterator() {
-			return new TransientMapKeyIterator<>(this);
+		@Override
+		public Iterator keyIterator() {
+			return new TransientMapKeyIterator(this);
 		}
 
-		public Iterator<V> valueIterator() {
-			return new TransientMapValueIterator<>(this);
+		@Override
+		public Iterator valueIterator() {
+			return new TransientMapValueIterator(this);
 		}
 
-		public Iterator<Map.Entry<K, V>> entryIterator() {
-			return new TransientMapEntryIterator<>(this);
+		@Override
+		public Iterator<Map.Entry<Object, Object>> entryIterator() {
+			return new TransientMapEntryIterator(this);
 		}
 
-		public static class TransientMapKeyIterator<K extends Number, V extends Number> extends
-				MapKeyIterator<K, V> {
-			final TransientTrieMap_BleedingEdge<K, V> collection;
-			K lastKey;
+		public static class TransientMapKeyIterator extends MapKeyIterator {
+			final TransientTrieMap_BleedingEdge collection;
+			Object lastKey;
 
-			public TransientMapKeyIterator(
-					final TransientTrieMap_BleedingEdge<K, V> collection) {
+			public TransientMapKeyIterator(final TransientTrieMap_BleedingEdge collection) {
 				super(collection.rootNode);
 				this.collection = collection;
 			}
 
-			public K next() {
+			@Override
+			public Object next() {
 				return lastKey = super.next();
 			}
 
+			@Override
 			public void remove() {
 				// TODO: test removal at iteration rigorously
 				collection.__remove(lastKey);
 			}
 		}
 
-		public static class TransientMapValueIterator<K extends Number, V extends Number> extends
-				MapValueIterator<K, V> {
-			final TransientTrieMap_BleedingEdge<K, V> collection;
+		public static class TransientMapValueIterator extends MapValueIterator {
+			final TransientTrieMap_BleedingEdge collection;
 
-			public TransientMapValueIterator(
-					final TransientTrieMap_BleedingEdge<K, V> collection) {
+			public TransientMapValueIterator(final TransientTrieMap_BleedingEdge collection) {
 				super(collection.rootNode);
 				this.collection = collection;
 			}
 
-			public V next() {
+			@Override
+			public Object next() {
 				return super.next();
 			}
 
+			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
 		}
 
-		public static class TransientMapEntryIterator<K extends Number, V extends Number> extends
-				MapEntryIterator<K, V> {
-			final TransientTrieMap_BleedingEdge<K, V> collection;
+		public static class TransientMapEntryIterator extends MapEntryIterator {
+			final TransientTrieMap_BleedingEdge collection;
 
-			public TransientMapEntryIterator(
-					final TransientTrieMap_BleedingEdge<K, V> collection) {
+			public TransientMapEntryIterator(final TransientTrieMap_BleedingEdge collection) {
 				super(collection.rootNode);
 				this.collection = collection;
 			}
 
-			public Map.Entry<K, V> next() {
+			@Override
+			public Map.Entry<Object, Object> next() {
 				return super.next();
 			}
 
+			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
 		}
 
 		@Override
-		public Set<K> keySet() {
-			Set<K> keySet = null;
+		public Set keySet() {
+			Set keySet = null;
 
 			if (keySet == null) {
-				keySet = new AbstractSet<K>() {
+				keySet = new AbstractSet() {
 					@Override
-					public Iterator<K> iterator() {
+					public Iterator iterator() {
 						return TransientTrieMap_BleedingEdge.this.keyIterator();
 					}
 
@@ -2680,8 +2615,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 					@Override
 					public boolean contains(Object k) {
-						return TransientTrieMap_BleedingEdge.this
-								.containsKey(k);
+						return TransientTrieMap_BleedingEdge.this.containsKey(k);
 					}
 				};
 			}
@@ -2690,15 +2624,14 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		public Collection<V> values() {
-			Collection<V> values = null;
+		public Collection values() {
+			Collection values = null;
 
 			if (values == null) {
-				values = new AbstractCollection<V>() {
+				values = new AbstractCollection() {
 					@Override
-					public Iterator<V> iterator() {
-						return TransientTrieMap_BleedingEdge.this
-								.valueIterator();
+					public Iterator iterator() {
+						return TransientTrieMap_BleedingEdge.this.valueIterator();
 					}
 
 					@Override
@@ -2718,8 +2651,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 					@Override
 					public boolean contains(Object v) {
-						return TransientTrieMap_BleedingEdge.this
-								.containsValue(v);
+						return TransientTrieMap_BleedingEdge.this.containsValue(v);
 					}
 				};
 			}
@@ -2728,15 +2660,15 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		public Set<java.util.Map.Entry<K, V>> entrySet() {
-			Set<java.util.Map.Entry<K, V>> entrySet = null;
+		public Set<java.util.Map.Entry<Object, Object>> entrySet() {
+			Set<java.util.Map.Entry<Object, Object>> entrySet = null;
 
 			if (entrySet == null) {
-				entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
+				entrySet = new AbstractSet<java.util.Map.Entry<Object, Object>>() {
 					@Override
-					public Iterator<java.util.Map.Entry<K, V>> iterator() {
-						return new Iterator<Map.Entry<K, V>>() {
-							private final Iterator<Map.Entry<K, V>> i = entryIterator();
+					public Iterator<java.util.Map.Entry<Object, Object>> iterator() {
+						return new Iterator<Map.Entry<Object, Object>>() {
+							private final Iterator<Map.Entry<Object, Object>> i = entryIterator();
 
 							@Override
 							public boolean hasNext() {
@@ -2744,7 +2676,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 							}
 
 							@Override
-							public Map.Entry<K, V> next() {
+							public Map.Entry<Object, Object> next() {
 								return i.next();
 							}
 
@@ -2772,8 +2704,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 
 					@Override
 					public boolean contains(Object k) {
-						return TransientTrieMap_BleedingEdge.this
-								.containsKey(k);
+						return TransientTrieMap_BleedingEdge.this.containsKey(k);
 					}
 				};
 			}
@@ -2791,7 +2722,7 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 			}
 
 			if (other instanceof TransientTrieMap_BleedingEdge) {
-				TransientTrieMap_BleedingEdge<?, ?> that = (TransientTrieMap_BleedingEdge<?, ?>) other;
+				TransientTrieMap_BleedingEdge that = (TransientTrieMap_BleedingEdge) other;
 
 				if (this.cachedSize != that.cachedSize) {
 					return false;
@@ -2808,22 +2739,21 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 				if (this.size() != that.size())
 					return false;
 
-				for (@SuppressWarnings("unchecked")
-				Iterator<Map.Entry> it = that.entrySet().iterator(); it
-						.hasNext();) {
-					Map.Entry entry = it.next();
+				for (Iterator<Map.Entry<Object, Object>> it = that.entrySet().iterator(); it
+								.hasNext();) {
+					Map.Entry<Object, Object> entry = it.next();
 
 					try {
-						@SuppressWarnings("unchecked")
-						final K key = (K) entry.getKey();
-						final Optional<V> result = rootNode.findByKey(key,
-								transformHashCode(key.hashCode()), 0);
+
+						final Object key = entry.getKey();
+						final Optional result = rootNode.findByKey(key,
+										transformHashCode(key.hashCode()), 0);
 
 						if (!result.isPresent()) {
 							return false;
 						} else {
-							@SuppressWarnings("unchecked")
-							final V val = (V) entry.getValue();
+
+							final Object val = entry.getValue();
 
 							if (!result.get().equals(val)) {
 								return false;
@@ -2846,14 +2776,13 @@ public class TrieMap_Heterogeneous<K extends Number, V extends Number> implement
 		}
 
 		@Override
-		public ImmutableMap<K, V> freeze() {
+		public ImmutableMap freeze() {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			mutator.set(null);
-			return new TrieMap_Heterogeneous<K, V>(rootNode, hashCode,
-					cachedSize);
+			return new TrieMap_Heterogeneous(rootNode, hashCode, cachedSize);
 		}
 	}
 
