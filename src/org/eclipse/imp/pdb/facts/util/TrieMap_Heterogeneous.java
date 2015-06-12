@@ -1289,7 +1289,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		public int rareMap() {
-			return dataMap & eitherMap;
+			return eitherMap & dataMap;
 		}
 
 	}
