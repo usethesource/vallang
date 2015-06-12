@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
+public class TrieMap_Heterogeneous<K extends java.lang.Number, V> implements ImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieMap_Heterogeneous EMPTY_MAP = new TrieMap_Heterogeneous(
@@ -1162,46 +1162,7 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator,
 				final K key, final V val, final int keyHash, final int shift,
 				final MapResult<K, V> details, final Comparator<Object> cmp) {
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int dataIndex = dataIndex(bitpos);
-				final K currentKey = getKey(dataIndex);
-
-				if (cmp.compare(currentKey, key) == 0) {
-					final V currentVal = getValue(dataIndex);
-
-					// update mapping
-					details.updated(currentVal);
-					return copyAndSetValue(mutator, bitpos, val);
-				} else {
-					final V currentVal = getValue(dataIndex);
-					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(
-							currentKey, currentVal,
-							transformHashCode(currentKey.hashCode()), key, val,
-							keyHash, shift + bitPartitionSize());
-
-					details.modified();
-					return copyAndMigrateFromInlineToNode(mutator, bitpos,
-							subNodeNew);
-				}
-			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final CompactMapNode<K, V> subNodeNew = subNode.updated(
-						mutator, key, val, keyHash, shift + bitPartitionSize(),
-						details, cmp);
-
-				if (details.isModified()) {
-					return copyAndSetNode(mutator, bitpos, subNodeNew);
-				} else {
-					return this;
-				}
-			} else {
-				// no value
-				details.modified();
-				return copyAndInsertValue(mutator, bitpos, key, val);
-			}
+			throw new UnsupportedOperationException();
 		}
 
 		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator,
@@ -1279,73 +1240,7 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator,
 				final K key, final int keyHash, final int shift,
 				final MapResult<K, V> details, final Comparator<Object> cmp) {
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int dataIndex = dataIndex(bitpos);
-
-				if (cmp.compare(getKey(dataIndex), key) == 0) {
-					final V currentVal = getValue(dataIndex);
-					details.updated(currentVal);
-
-					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
-						/*
-						 * Create new node with remaining pair. The new node
-						 * will a) either become the new root returned, or b)
-						 * unwrapped and inlined during returning.
-						 */
-						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-								: bitpos(mask(keyHash, 0));
-
-						if (dataIndex == 0) {
-							return CompactMapNode
-									.<K, V> nodeOf(mutator, (int) 0,
-											newDataMap, getKey(1), getValue(1));
-						} else {
-							return CompactMapNode
-									.<K, V> nodeOf(mutator, (int) 0,
-											newDataMap, getKey(0), getValue(0));
-						}
-					} else {
-						return copyAndRemoveValue(mutator, bitpos);
-					}
-				} else {
-					return this;
-				}
-			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final CompactMapNode<K, V> subNodeNew = subNode.removed(
-						mutator, key, keyHash, shift + bitPartitionSize(),
-						details, cmp);
-
-				if (!details.isModified()) {
-					return this;
-				}
-
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-					throw new IllegalStateException(
-							"Sub-node must have at least one element.");
-				}
-				case 1: {
-					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
-						// escalate (singleton or empty) result
-						return subNodeNew;
-					} else {
-						// inline value (move to front)
-						return copyAndMigrateFromNodeToInline(mutator, bitpos,
-								subNodeNew);
-					}
-				}
-				default: {
-					// modify current node (set replacement node)
-					return copyAndSetNode(mutator, bitpos, subNodeNew);
-				}
-				}
-			}
-
-			return this;
+			throw new UnsupportedOperationException();
 		}
 
 		/**
@@ -2362,7 +2257,7 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 		}
 	}
 
-	static final class TransientTrieMap_BleedingEdge<K, V> implements
+	static final class TransientTrieMap_BleedingEdge<K extends Number, V> implements
 			TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
@@ -2698,7 +2593,7 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 			return new TransientMapEntryIterator<>(this);
 		}
 
-		public static class TransientMapKeyIterator<K, V> extends
+		public static class TransientMapKeyIterator<K extends Number, V> extends
 				MapKeyIterator<K, V> {
 			final TransientTrieMap_BleedingEdge<K, V> collection;
 			K lastKey;
@@ -2719,7 +2614,7 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 			}
 		}
 
-		public static class TransientMapValueIterator<K, V> extends
+		public static class TransientMapValueIterator<K extends Number, V> extends
 				MapValueIterator<K, V> {
 			final TransientTrieMap_BleedingEdge<K, V> collection;
 
@@ -2738,7 +2633,7 @@ public class TrieMap_Heterogeneous<K, V> implements ImmutableMap<K, V> {
 			}
 		}
 
-		public static class TransientMapEntryIterator<K, V> extends
+		public static class TransientMapEntryIterator<K extends Number, V> extends
 				MapEntryIterator<K, V> {
 			final TransientTrieMap_BleedingEdge<K, V> collection;
 
