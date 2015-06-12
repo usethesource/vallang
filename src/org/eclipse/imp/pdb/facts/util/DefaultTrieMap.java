@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 
 public class DefaultTrieMap {
 
-	private static Class<?> target = TrieMap_5Bits.class;
+	private static Class<?> target = TrieMap_BleedingEdge.class;
 
 	private static Method persistentMapOfEmpty;
 	private static Method persistentMapOfKeyValuePairs;
@@ -13,6 +13,10 @@ public class DefaultTrieMap {
 	private static Method transientMapOfEmpty;
 	private static Method transientMapOfKeyValuePairs;
 
+	public static Class<?> getTargetClass() {
+		return target;
+	}
+	
 	static {
 		try {
 			persistentMapOfEmpty = target.getMethod("of");

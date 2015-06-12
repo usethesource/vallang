@@ -71,7 +71,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if ((elementTypeBag.lub().isTuple() && elementTypeBag.lub().getArity() == 2) == true) {
 			assert this.content.getClass() == org.eclipse.imp.pdb.facts.util.ImmutableSetMultimapAsImmutableSetView.class;
 		} else {
-			assert this.content.getClass() == org.eclipse.imp.pdb.facts.util.TrieSet_5Bits.class;
+			assert this.content.getClass() == DefaultTrieSet.getTargetClass();
 		}
 	}
 
