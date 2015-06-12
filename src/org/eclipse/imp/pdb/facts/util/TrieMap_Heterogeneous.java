@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.util;
 
 import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
 
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -28,6 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
@@ -859,6 +861,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		abstract int dataMap();
 
 		abstract int rareMap();
+		
+		static final boolean isRare(Object o) {
+			return o.getClass() == BigInteger.class;
+		}
+		
+		static final boolean isRare(Object... os) {
+			return Stream.of(os).anyMatch(o -> o.getClass() == BigInteger.class);
+		}
 
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
@@ -1089,7 +1099,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) { // inplace value
+			if ((dataMap() & bitpos) != 0) { // inplace (unboxed) value
 				final int dataIndex = dataIndex(bitpos);
 				final Object currentKey = getKey(dataIndex);
 
@@ -1119,7 +1129,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					return this;
 				}
 			} else {
-				// no value
+				// no value				
 				details.modified();
 				return copyAndInsertValue(mutator, bitpos, key, val);
 			}
@@ -1487,18 +1497,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
 						final Object key, final Object val) {
-			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
+			if (isRare(key, val)) {
+				throw new RuntimeException("Here I am ...");
+			} else {
+				final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
-			final Object[] src = this.nodes;
-			final Object[] dst = new Object[src.length + 2];
+				final Object[] src = this.nodes;
+				final Object[] dst = new Object[src.length + 2];
 
-			// copy 'src' and insert 2 element(s) at position 'idx'
-			System.arraycopy(src, 0, dst, 0, idx);
-			dst[idx + 0] = key;
-			dst[idx + 1] = val;
-			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
+				// copy 'src' and insert 2 element(s) at position 'idx'
+				System.arraycopy(src, 0, dst, 0, idx);
+				dst[idx + 0] = key;
+				dst[idx + 1] = val;
+				System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), dataMap() | bitpos, dst);
+				return nodeOf(mutator, nodeMap(), dataMap() | bitpos, dst);
+			}
 		}
 
 		@Override
