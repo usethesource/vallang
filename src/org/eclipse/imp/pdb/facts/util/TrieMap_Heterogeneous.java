@@ -801,6 +801,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		abstract Object getValue(final int index);
 
+		abstract Object getRareKey(final int index);
+
+		abstract Object getRareValue(final int index);
+				
 		abstract Map.Entry<Object, Object> getKeyValueEntry(final int index);
 
 		@Deprecated
@@ -856,6 +860,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return 1 << mask;
 		}
 
+		abstract int rawMap1();
+		
+		abstract int rawMap2();
+		
 		abstract int nodeMap();
 
 		abstract int dataMap();
@@ -992,6 +1000,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return java.lang.Integer.bitCount(dataMap() & (bitpos - 1));
 		}
 
+		int rareIndex(final int bitpos) {
+			return java.lang.Integer.bitCount(rareMap() & (bitpos - 1));
+		}
+		
 		int nodeIndex(final int bitpos) {
 			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
@@ -1010,6 +1022,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int index = index(dataMap, mask, bitpos);
 				return getKey(index).equals(key);
 			}
+			
+			final int rareMap = rareMap();
+			if ((rareMap & bitpos) != 0) {
+				final int index = index(rareMap, mask, bitpos);
+				return getRareKey(index).equals(key);
+			}
 
 			final int nodeMap = nodeMap();
 			if ((nodeMap & bitpos) != 0) {
@@ -1023,22 +1041,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		boolean containsKey(final Object key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			final int dataMap = dataMap();
-			if ((dataMap & bitpos) != 0) {
-				final int index = index(dataMap, mask, bitpos);
-				return cmp.compare(getKey(index), key) == 0;
-			}
-
-			final int nodeMap = nodeMap();
-			if ((nodeMap & bitpos) != 0) {
-				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).containsKey(key, keyHash, shift + bitPartitionSize(), cmp);
-			}
-
-			return false;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
@@ -1278,28 +1281,38 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 	protected static abstract class CompactMixedMapNode extends CompactMapNode {
 
-		private final int dataMap;
-		private final int eitherMap;
+		private final int rawMap1; // previously nodeMap
+		private final int rawMap2; // previously dataMap
 
-		CompactMixedMapNode(final AtomicReference<Thread> mutator, final int maybeMap,
-						final int dataMap) {
-			this.eitherMap = maybeMap;
-			this.dataMap = dataMap;
+		CompactMixedMapNode(final AtomicReference<Thread> mutator, final int rawMap1,
+						final int rawMap2) {
+			this.rawMap1 = rawMap1;
+			this.rawMap2 = rawMap2;
+		}
+
+		@Override
+		public int rawMap1() {
+			return rawMap1;
+		}
+
+		@Override
+		public int rawMap2() {
+			return rawMap2;
 		}
 
 		@Override
 		public int dataMap() {
-			return dataMap;
+			return rawMap1 ^ rawMap2;
 		}
 
 		@Override
 		public int nodeMap() {
-			return eitherMap ^ rareMap();
+			return rawMap1 ^ rareMap();
 		}
 
 		@Override
 		public int rareMap() {
-			return eitherMap & dataMap;
+			return rawMap1 & rawMap2;
 		}
 
 	}
@@ -1347,6 +1360,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return entryOf(nodes[TUPLE_LENGTH * index], nodes[TUPLE_LENGTH * index + 1]);
 		}
 
+		@Override
+		Object getRareKey(final int index) {
+			final int offset = java.lang.Integer.bitCount(dataMap());
+			return nodes[offset + TUPLE_LENGTH * index];
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			final int offset = java.lang.Integer.bitCount(dataMap());
+			return nodes[offset + TUPLE_LENGTH * index + 1];
+		}		
+		
 		@Override
 		CompactMapNode getNode(final int index) {
 			return (CompactMapNode) nodes[nodes.length - 1 - index];
@@ -1498,7 +1523,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
 						final Object key, final Object val) {
 			if (isRare(key, val)) {
-				throw new RuntimeException("Here I am ...");
+				final int offset = java.lang.Integer.bitCount(dataMap());
+				final int idx = offset + TUPLE_LENGTH * rareIndex(bitpos);
+
+				final Object[] src = this.nodes;
+				final Object[] dst = new Object[src.length + 2];
+
+				// copy 'src' and insert 2 element(s) at position 'idx'
+				System.arraycopy(src, 0, dst, 0, idx);
+				dst[idx + 0] = key;
+				dst[idx + 1] = val;
+				System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
+
+				return nodeOf(mutator, rawMap1() | bitpos, rawMap2() | bitpos, dst);
 			} else {
 				final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
@@ -1511,7 +1548,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				dst[idx + 1] = val;
 				System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-				return nodeOf(mutator, nodeMap(), dataMap() | bitpos, dst);
+				return nodeOf(mutator, rawMap1(), rawMap2() | bitpos, dst);
 			}
 		}
 
