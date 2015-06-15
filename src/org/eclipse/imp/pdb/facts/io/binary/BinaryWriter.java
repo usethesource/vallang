@@ -157,18 +157,18 @@ public class BinaryWriter{
 	private final IValue value;
 	private final OutputStream out;
 	private final TypeStore typeStore;
-	private final boolean compression;
+	private final boolean maximalSharing;
 	
 	public BinaryWriter(IValue value, OutputStream outputStream, TypeStore typeStore){
 		this(value, outputStream, true, typeStore);
 	}
-	public BinaryWriter(IValue value, OutputStream outputStream, boolean compression, TypeStore typeStore){
+	public BinaryWriter(IValue value, OutputStream outputStream, boolean maximalSharing, TypeStore typeStore){
 		super();
 		
 		this.value = value;
 		this.out = outputStream;
 		this.typeStore = typeStore;
-		this.compression = compression;
+		this.maximalSharing = maximalSharing;
 		
 		sharedValues = new IndexedSet<>();
 		sharedTypes = new IndexedSet<>();
@@ -199,10 +199,10 @@ public class BinaryWriter{
 			}
 		}
 		
-		boolean alwaysCompress = value.getType().isString() || value.getType().isNumber() || value.getType().isSourceLocation();
+		boolean alwaysMaximallyShare = value.getType().isString() || value.getType().isNumber() || value.getType().isSourceLocation();
 		if (tryHashing) {
 		  int valueId;
-		  if (compression || alwaysCompress) {
+		  if (maximalSharing || alwaysMaximallyShare) {
 		    valueId = sharedValues.get(value);
 		  }
 		  else {
@@ -263,7 +263,7 @@ public class BinaryWriter{
 		}
 		
 		if (tryHashing) {
-		  if (compression || alwaysCompress) {
+		  if (maximalSharing || alwaysMaximallyShare) {
 		    sharedValues.store(value);
 		  }
 		  else {

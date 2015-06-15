@@ -62,8 +62,8 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 	 *            Thrown when something goes wrong.
 	 * @see IValueTextWriter#write(IValue, OutputStream)
 	 */
-	public void write(IValue value, OutputStream outputStream, boolean compression) throws IOException{
-		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, compression, new TypeStore());
+	public void write(IValue value, OutputStream outputStream, boolean maximalSharing) throws IOException{
+		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, maximalSharing, new TypeStore());
 		binaryWriter.serialize();
 		outputStream.flush();
 	}
@@ -99,8 +99,8 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 	 *            Thrown when something goes wrong.
 	 * @see IValueTextWriter#write(IValue, OutputStream)
 	 */
-	public void write(IValue value, OutputStream outputStream, boolean compression, TypeStore typeStore) throws IOException{
-		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, compression, typeStore);
+	public void write(IValue value, OutputStream outputStream, boolean maximalSharing, TypeStore typeStore) throws IOException{
+		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, maximalSharing, typeStore);
 		binaryWriter.serialize();
 		outputStream.flush();
 	}
