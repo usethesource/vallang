@@ -37,7 +37,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 	private static final TrieMap_Heterogeneous EMPTY_MAP = new TrieMap_Heterogeneous(
 					CompactMapNode.emptyTrieNodeConstant(), 0, 0);
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private final AbstractMapNode rootNode;
 	private final int hashCode;
@@ -877,6 +877,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		static final boolean isRare(Object... os) {
 			return Stream.of(os).anyMatch(o -> o.getClass() == BigInteger.class);
 		}
+		
+		final boolean isRare(int bitpos) {
+			return ((rareMap() & bitpos) != 0);
+		}
 
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
@@ -953,7 +957,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			} else if (isRarePair1) {
 				valueMix = ValueMix.BASE_RARE;
 			} else {
-				throw new IllegalStateException();
+				valueMix = ValueMix.BASE_BASE;
 			}
 			
 			if (shift >= hashCodeLength()) {
@@ -1379,7 +1383,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		public int dataMap() {
-			return rawMap1 ^ rawMap2;
+			return rawMap2 ^ rareMap();
 		}
 
 		@Override
@@ -1399,18 +1403,63 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		final AtomicReference<Thread> mutator;
 		final Object[] nodes;
 
-		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final Object[] nodes) {
-			super(mutator, nodeMap, dataMap);
+		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int rawMap1,
+						final int rawMap2, final Object[] nodes) {
+			super(mutator, rawMap1, rawMap2);
 
 			this.mutator = mutator;
 			this.nodes = nodes;
 
 			if (DEBUG) {
+				int dataMap = dataMap();
+				int rareMap = rareMap();
+				int nodeMap = nodeMap();
 
-				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
+				int rareOffset = TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap);
+				
+				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap) + TUPLE_LENGTH
+								* java.lang.Integer.bitCount(rareMap)
 								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
+				
+				assert (payloadArity() == java.lang.Integer.bitCount(dataMap)
+								+ java.lang.Integer.bitCount(rareMap));
+				
+				// validate keys
+				for (int i = 0; i < java.lang.Integer.bitCount(dataMap); i++) {
+					int idx = TUPLE_LENGTH * i; 					
+					assert ((nodes[idx] instanceof java.lang.Integer) == true);
+				}
+				
+				// validate values
+				for (int i = 0; i < java.lang.Integer.bitCount(dataMap); i++) {
+					int idx = TUPLE_LENGTH * i + 1;
+					assert ((nodes[idx] instanceof java.lang.Integer) == true);
+				}
 
+				// validate keys equals vals 
+				for (int i = 0; i < java.lang.Integer.bitCount(dataMap); i++) {
+					int idx = TUPLE_LENGTH * i; 					
+					assert nodes[idx].equals(nodes[idx+1]);
+				}				
+				
+				// validate (boxed) keys
+				for (int i = 0; i < java.lang.Integer.bitCount(rareMap); i++) {
+					int idx = rareOffset + TUPLE_LENGTH * i;
+					assert ((nodes[idx] instanceof java.math.BigInteger) == true);
+				}
+
+				// validate (boxed) values
+				for (int i = 0; i < java.lang.Integer.bitCount(rareMap); i++) {
+					int idx = rareOffset + TUPLE_LENGTH * i + 1;
+					assert ((nodes[idx] instanceof java.math.BigInteger) == true);
+				}
+
+				// validate (boxed) keys equals vals 
+				for (int i = 0; i < java.lang.Integer.bitCount(rareMap); i++) {
+					int idx = rareOffset + TUPLE_LENGTH * i; 					
+					assert nodes[idx].equals(nodes[idx+1]);
+				}								
+				
 				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
 					assert ((nodes[i] instanceof CompactMapNode) == false);
 				}
@@ -1439,15 +1488,15 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Object getRareKey(final int index) {
-			final int offset = java.lang.Integer.bitCount(dataMap());
+			final int offset = TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap());
 			return nodes[offset + TUPLE_LENGTH * index];
 		}
 
 		@Override
 		Object getRareValue(final int index) {
-			final int offset = java.lang.Integer.bitCount(dataMap());
+			final int offset = TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap());
 			return nodes[offset + TUPLE_LENGTH * index + 1];
-		}		
+		}
 		
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -1470,12 +1519,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		boolean hasPayload() {
-			return dataMap() != 0;
+			return dataMap() != 0 || rareMap() != 0;
 		}
 
 		@Override
 		int payloadArity() {
-			return java.lang.Integer.bitCount(dataMap());
+			return java.lang.Integer.bitCount(dataMap() | rareMap());
 		}
 
 		@Override
@@ -1556,21 +1605,41 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
 						final Object val) {
-			final int idx = TUPLE_LENGTH * dataIndex(bitpos) + 1;
+			if (isRare(bitpos)) {
+				final int offset = TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap());
+				final int idx = offset + TUPLE_LENGTH * rareIndex(bitpos) + 1;
 
-			if (isAllowedToEdit(this.mutator, mutator)) {
-				// no copying if already editable
-				this.nodes[idx] = val;
-				return this;
+				if (isAllowedToEdit(this.mutator, mutator)) {
+					// no copying if already editable
+					this.nodes[idx] = val;
+					return this;
+				} else {
+					final Object[] src = this.nodes;
+					final Object[] dst = new Object[src.length];
+
+					// copy 'src' and set 1 element(s) at position 'idx'
+					System.arraycopy(src, 0, dst, 0, src.length);
+					dst[idx + 0] = val;
+
+					return nodeOf(mutator, rawMap1(), rawMap2(), dst);
+				}
 			} else {
-				final Object[] src = this.nodes;
-				final Object[] dst = new Object[src.length];
+				final int idx = TUPLE_LENGTH * dataIndex(bitpos) + 1;
 
-				// copy 'src' and set 1 element(s) at position 'idx'
-				System.arraycopy(src, 0, dst, 0, src.length);
-				dst[idx + 0] = val;
+				if (isAllowedToEdit(this.mutator, mutator)) {
+					// no copying if already editable
+					this.nodes[idx] = val;
+					return this;
+				} else {
+					final Object[] src = this.nodes;
+					final Object[] dst = new Object[src.length];
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst);
+					// copy 'src' and set 1 element(s) at position 'idx'
+					System.arraycopy(src, 0, dst, 0, src.length);
+					dst[idx + 0] = val;
+
+					return nodeOf(mutator, rawMap1(), rawMap2(), dst);
+				}
 			}
 		}
 
@@ -1592,7 +1661,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst);
+				return nodeOf(mutator, rawMap1(), rawMap2(), dst);
 			}
 		}
 
@@ -1600,7 +1669,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
 						final Object key, final Object val) {
 			if (isRare(key, val)) {
-				final int offset = java.lang.Integer.bitCount(dataMap());
+				final int offset = TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap());
 				final int idx = offset + TUPLE_LENGTH * rareIndex(bitpos);
 
 				final Object[] src = this.nodes;
@@ -1646,23 +1715,44 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
 						final int bitpos, final CompactMapNode node) {
-			throw new RuntimeException("Here I am ...");
-			
-			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
+			if (isRare(bitpos)) {
+				final int offset = TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap());
+				final int idxOld = offset + TUPLE_LENGTH * rareIndex(bitpos);
+				final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
-			final Object[] src = this.nodes;
-			final Object[] dst = new Object[src.length - 2 + 1];
+				final Object[] src = this.nodes;
+				final Object[] dst = new Object[src.length - 2 + 1];
 
-			// copy 'src' and remove 2 element(s) at position 'idxOld' and
-			// insert 1 element(s) at position 'idxNew' (TODO: carefully test)
-			assert idxOld <= idxNew;
-			System.arraycopy(src, 0, dst, 0, idxOld);
-			System.arraycopy(src, idxOld + 2, dst, idxOld, idxNew - idxOld);
-			dst[idxNew + 0] = node;
-			System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
+				// copy 'src' and remove 2 element(s) at position 'idxOld' and
+				// insert 1 element(s) at position 'idxNew' (TODO: carefully
+				// test)
+				assert idxOld <= idxNew;
+				System.arraycopy(src, 0, dst, 0, idxOld);
+				System.arraycopy(src, idxOld + 2, dst, idxOld, idxNew - idxOld);
+				dst[idxNew + 0] = node;
+				System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
 
-			return nodeOf(mutator, nodeMap() | bitpos, dataMap() ^ bitpos, dst);
+				// NOTE: rawMap1() | bitpos is without affect, because due to
+				// rare values, the bit is already set.
+				return nodeOf(mutator, rawMap1() | bitpos, rawMap2() ^ bitpos, dst);				
+			} else {
+				final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
+				final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final Object[] src = this.nodes;
+				final Object[] dst = new Object[src.length - 2 + 1];
+
+				// copy 'src' and remove 2 element(s) at position 'idxOld' and
+				// insert 1 element(s) at position 'idxNew' (TODO: carefully
+				// test)
+				assert idxOld <= idxNew;
+				System.arraycopy(src, 0, dst, 0, idxOld);
+				System.arraycopy(src, idxOld + 2, dst, idxOld, idxNew - idxOld);
+				dst[idxNew + 0] = node;
+				System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
+
+				return nodeOf(mutator, rawMap1() | bitpos, rawMap2() ^ bitpos, dst);
+			}
 		}
 
 		@Override

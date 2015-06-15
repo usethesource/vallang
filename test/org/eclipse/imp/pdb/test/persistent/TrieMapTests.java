@@ -22,7 +22,7 @@ import org.junit.Test;
 
 public class TrieMapTests {
 
-	final static int size = 64;
+	final static int size = (int) Math.pow(2, 10);
 
 	@Test
 	public void testPrintStatsSequential() {
@@ -151,16 +151,28 @@ public class TrieMapTests {
 		TrieMap_Heterogeneous map = (TrieMap_Heterogeneous) TrieMap_Heterogeneous.of();
 
 		Random rand = new Random(13);
-
+		
+		/*
+		 * 50% split between primitive int and BigInteger values when
+		 * multiplied.
+		 */
+		final int maxTestValue = (int) Math.ceil(2 * Math.sqrt(Integer.MAX_VALUE));
+		
+		
 		for (int i = size; i > 0; i--) {
-			final int j = rand.nextInt();
+			final int j = rand.nextInt(maxTestValue);
+			// System.out.println(j);
+			
 			final BigInteger bigJ = BigInteger.valueOf(j).multiply(BigInteger.valueOf(j));
-
+			// System.out.println(bigJ);
+			
 			if (bigJ.bitLength() > 31) {
+				// System.out.println("BIG");
 				TrieMap_Heterogeneous res = (TrieMap_Heterogeneous) map.__put(bigJ, bigJ);
 				assert res.containsKey(bigJ);
 				map = res;
 			} else {
+				// System.out.println("SMALL");
 				TrieMap_Heterogeneous res = (TrieMap_Heterogeneous) map.__put(j, j);
 				assert res.containsKey(j);
 				map = res;
