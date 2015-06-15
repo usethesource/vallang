@@ -17,8 +17,10 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
@@ -33,18 +35,67 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.IndexedSet;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 // TODO Change this thing so it doesn't use recursion.
 /**
  * @author Arnold Lankamp
  */
 public class BinaryWriter{
-	/*package*/ static final String CharEncoding = "UTF8";
+	public static final class IdentityValue implements IValue {
+	  private final IValue wrapped;
+    public IdentityValue(IValue toWrap) {
+	    wrapped = toWrap;
+    }
+
+    @Override
+    public int hashCode() {
+      return System.identityHashCode(wrapped);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof IdentityValue && wrapped == ((IdentityValue)obj).wrapped;
+    }
+
+    @Override
+    public Type getType() {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public boolean isEqual(IValue other) {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public boolean isAnnotatable() {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public IAnnotatable<? extends IValue> asAnnotatable() {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public boolean mayHaveKeywordParameters() {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+      throw new UnsupportedOperationException();
+    }
+
+  }
+
+  /*package*/ static final String CharEncoding = "UTF8";
 	private final static int BOOL_HEADER = 0x01;
 //	private final static int INTEGER_HEADER = 0x02;
 	private final static int BIG_INTEGER_HEADER = 0x03; // Special case of INTEGER_HEADER (flags for alternate encoding).
@@ -132,7 +183,7 @@ public class BinaryWriter{
 	private void doSerialize(IValue value) throws IOException{
 		// This special cases the hashing logic: if we have a constructor with
 		// at least one location annotation, don't try to hash it
-		boolean tryHashing = compression;
+		boolean tryHashing = true;
 		
 		if (tryHashing && value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
@@ -148,13 +199,20 @@ public class BinaryWriter{
 			}
 		}
 		
+		boolean alwaysCompress = value.getType().isString() || value.getType().isNumber() || value.getType().isSourceLocation();
 		if (tryHashing) {
-			int valueId = sharedValues.get(value);
-			if(valueId != -1){
-				out.write(SHARED_FLAG);
-				printInteger(valueId);
-				return;
-			}
+		  int valueId;
+		  if (compression || alwaysCompress) {
+		    valueId = sharedValues.get(value);
+		  }
+		  else {
+		    valueId = sharedValues.get(new IdentityValue(value));
+		  }
+		  if(valueId != -1){
+		    out.write(SHARED_FLAG);
+		    printInteger(valueId);
+		    return;
+		  }
 		}
 		
 		// This sucks and is order dependent :-/.
@@ -205,7 +263,12 @@ public class BinaryWriter{
 		}
 		
 		if (tryHashing) {
-			sharedValues.store(value);
+		  if (compression || alwaysCompress) {
+		    sharedValues.store(value);
+		  }
+		  else {
+		    sharedValues.store(new IdentityValue(value));
+		  }
 		}
 	}
 	
