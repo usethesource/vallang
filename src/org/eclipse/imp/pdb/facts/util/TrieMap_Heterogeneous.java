@@ -927,11 +927,35 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 						final AtomicReference<Thread> mutator, final int bitpos,
 						final CompactMapNode node);
 
+		static enum ValueMix {
+			BASE_BASE,
+			BASE_RARE,
+			RARE_BASE,
+			RARE_RARE
+		};
+		
 		static final CompactMapNode mergeTwoKeyValPairs(final Object key0, final Object val0,
 						final int keyHash0, final Object key1, final Object val1,
 						final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
-
+			
+			final ValueMix valueMix;
+			// if (isRare(key0, val0)) valueMix = ValueMix.valueMix.ordinal() ^
+			// ValueMix.RARE_BASE.ordinal();
+			
+			boolean isRarePair0 = isRare(key0, val0);
+			boolean isRarePair1 = isRare(key1, val1);
+			
+			if (isRarePair0 && isRarePair1) {
+				valueMix = ValueMix.RARE_RARE;
+			} else if (isRarePair0) {
+				valueMix = ValueMix.RARE_BASE;
+			} else if (isRarePair1) {
+				valueMix = ValueMix.BASE_RARE;
+			} else {
+				throw new IllegalStateException();
+			}
+			
 			if (shift >= hashCodeLength()) {
 				// throw new
 				// IllegalStateException("Hash collision not yet fixed.");
@@ -944,20 +968,54 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int dataMap = bitpos(mask0) | bitpos(mask1);
 
-				if (mask0 < mask1) {
-					return nodeOf(null, (0), dataMap, new Object[] { key0, val0, key1, val1 });
-				} else {
-					return nodeOf(null, (0), dataMap, new Object[] { key1, val1, key0, val0 });
+				switch (valueMix) {
+				case BASE_BASE: {
+					final int nodeMap = 0;
+					final int dataMap = bitpos(mask0) | bitpos(mask1);
+					
+					if (mask0 < mask1) {
+						return nodeOf(null, nodeMap, dataMap, new Object[] { key0, val0, key1, val1 });
+					} else {
+						return nodeOf(null, nodeMap, dataMap, new Object[] { key1, val1, key0, val0 });
+					}					
+				}
+				case BASE_RARE: {
+					final int nodeMap = bitpos(mask1);
+					final int dataMap = bitpos(mask0) | bitpos(mask1);
+					
+					// convention: rare after base
+					return nodeOf(null, nodeMap, dataMap, new Object[] { key0, val0, key1, val1 });
+				}
+				case RARE_BASE: {
+					final int nodeMap = bitpos(mask0);
+					final int dataMap = bitpos(mask0) | bitpos(mask1);
+					
+					// convention: rare after base
+					return nodeOf(null, nodeMap, dataMap, new Object[] { key1, val1, key0, val0 });
+				}
+				case RARE_RARE: {
+					final int nodeMap = bitpos(mask0) | bitpos(mask1);
+					final int dataMap = bitpos(mask0) | bitpos(mask1);
+					
+					if (mask0 < mask1) {
+						return nodeOf(null, nodeMap, dataMap, new Object[] { key0, val0, key1, val1 });
+					} else {
+						return nodeOf(null, nodeMap, dataMap, new Object[] { key1, val1, key0, val0 });
+					}					
+				}
+				default:
+					throw new IllegalStateException();
 				}
 			} else {
-				final CompactMapNode node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1, val1,
-								keyHash1, shift + bitPartitionSize());
 				// values fit on next level
 
+				final CompactMapNode node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1, val1,
+						keyHash1, shift + bitPartitionSize());
+
 				final int nodeMap = bitpos(mask0);
-				return nodeOf(null, nodeMap, (0), new Object[] { node });
+				final int dataMap = 0;
+				return nodeOf(null, nodeMap, dataMap, new Object[] { node });
 			}
 		}
 
@@ -1121,6 +1179,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
 				}
+			} else if ((rareMap() & bitpos) != 0) { // inplace (boxed) value
+				final int rareIndex = rareIndex(bitpos);
+				final Object currentRareKey = getRareKey(rareIndex);
+
+				if (currentRareKey.equals(key)) {
+					final Object currentRareVal = getRareValue(rareIndex);
+
+					// update mapping
+					details.updated(currentRareVal);
+					return copyAndSetValue(mutator, bitpos, val); // TODO: support rare
+				} else {
+					final Object currentRareVal = getRareValue(rareIndex);
+					final CompactMapNode subNodeNew = mergeTwoKeyValPairs(currentRareKey,
+							currentRareVal, transformHashCode(currentRareKey.hashCode()), key, val,
+							keyHash, shift + bitPartitionSize());  // TODO: support rare
+
+					details.modified();
+					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);  // TODO: support rare
+				}			
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode subNode = nodeAt(bitpos);
 				final CompactMapNode subNodeNew = subNode.updated(mutator, key, val, keyHash, shift
@@ -1569,7 +1646,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
 						final int bitpos, final CompactMapNode node) {
-
+			throw new RuntimeException("Here I am ...");
+			
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
 			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
@@ -2037,6 +2115,30 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		int rareMap() {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int rawMap1() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		int rawMap2() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		Object getRareKey(int index) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		Object getRareValue(int index) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}
