@@ -5191,7 +5191,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		@Override
@@ -5487,7 +5487,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -5731,7 +5731,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -5993,7 +5993,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -6281,7 +6281,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -6589,7 +6589,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -6924,7 +6924,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -7297,7 +7297,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -7702,7 +7702,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -8136,7 +8136,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -8604,7 +8604,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -9104,7 +9104,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -9642,7 +9642,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -10215,7 +10215,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -10837,7 +10837,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -11499,7 +11499,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -12284,7 +12284,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			throw new IllegalStateException("Index out of range.");
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -12730,12 +12730,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		@Override
@@ -13081,12 +13076,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -13376,12 +13366,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -13695,12 +13680,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -14041,12 +14021,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -14419,12 +14394,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -14833,12 +14803,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -15276,12 +15241,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -15753,12 +15713,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -16262,12 +16217,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -16809,12 +16759,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -17391,12 +17336,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -18022,12 +17962,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -18691,12 +18626,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -19479,12 +19409,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -20321,12 +20246,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -20804,14 +20724,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		@Override
@@ -21217,14 +21130,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -21550,14 +21456,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -21911,14 +21810,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -22311,14 +22203,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -22740,14 +22625,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -23203,14 +23081,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -23698,14 +23569,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -24231,14 +24095,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -24799,14 +24656,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -25407,14 +25257,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -26062,14 +25905,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -26794,14 +26630,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -27617,14 +27446,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -28498,14 +28320,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -29023,16 +28838,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		@Override
@@ -29492,16 +29298,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -29872,16 +29669,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -30281,16 +30069,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -30724,16 +30503,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -31199,16 +30969,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -31712,16 +31473,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -32260,16 +32012,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -32848,16 +32591,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -33482,16 +33216,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -34167,16 +33892,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -34899,16 +34615,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -35754,16 +35461,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -36663,16 +36361,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -37221,18 +36910,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		@Override
@@ -37745,18 +37423,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -38162,18 +37829,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -38611,18 +38267,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -39098,18 +38743,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -39620,18 +39254,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -40182,18 +39805,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -40782,18 +40394,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -41436,18 +41037,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -42135,18 +41725,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -42956,18 +42535,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -43831,18 +43399,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -44768,18 +44325,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -45357,20 +44903,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		@Override
@@ -45931,20 +45464,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -46386,20 +45906,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -46876,20 +46383,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -47406,20 +46900,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -47974,20 +47455,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -48596,20 +48064,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -49259,20 +48714,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -50038,20 +49480,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -50871,20 +50300,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -51766,20 +51182,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -52719,20 +52122,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -53326,22 +52716,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		@Override
@@ -53952,22 +53327,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -54444,22 +53804,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -54974,22 +54319,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -55558,22 +54888,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -56183,22 +55498,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -56900,22 +56200,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -57683,22 +56968,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -58528,22 +57798,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -59431,22 +58686,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -60399,22 +59639,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -61025,24 +60250,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		@Override
@@ -61701,24 +60909,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -62234,24 +61425,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -62815,24 +61989,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -63452,24 +62609,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -64177,24 +63317,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -64964,24 +64087,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -65809,24 +64915,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -66719,24 +65808,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -67691,24 +66763,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -68317,26 +67372,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object key5() {
@@ -69061,26 +68097,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -69642,26 +68659,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -70301,26 +69299,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -71022,26 +70001,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -71801,26 +70761,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -72645,26 +71586,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -73551,26 +72473,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -74527,26 +73430,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -75171,28 +74055,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object key5() {
@@ -75985,28 +74848,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -76632,28 +75474,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -77337,28 +76158,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -78107,28 +76907,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -78939,28 +77718,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -79841,28 +78599,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -80809,28 +79546,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -81457,30 +80173,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object key10() {
@@ -82321,30 +81014,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -83009,30 +81679,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -83759,30 +82406,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -84579,30 +83203,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -85465,30 +84066,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -86429,30 +85007,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -87040,32 +85595,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object key10() {
@@ -87997,32 +86527,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -88727,32 +87232,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -89523,32 +88003,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -90397,32 +88852,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -91351,32 +89781,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -91931,34 +90336,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object key10() {
@@ -92958,34 +91336,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -93734,34 +92085,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -94590,34 +92914,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -95536,34 +93833,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -96088,36 +94358,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object key10() {
@@ -97265,36 +95506,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -98105,36 +96317,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -99062,36 +97245,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -99568,38 +97722,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			case 13:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key14, val14);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object key10() {
@@ -100859,38 +98982,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			case 13:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key14, val14);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -101775,38 +99867,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			case 13:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key14, val14);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -102223,40 +100284,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			case 13:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key14, val14);
-			case 14:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key15, val15);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object key10() {
@@ -103596,40 +101624,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			case 13:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key14, val14);
-			case 14:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key15, val15);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object slot0() {
@@ -104525,42 +102520,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
-			switch (index) {
-			case 0:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
-			case 1:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
-			case 2:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
-			case 3:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
-			case 4:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key5, val5);
-			case 5:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key6, val6);
-			case 6:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key7, val7);
-			case 7:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key8, val8);
-			case 8:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key9, val9);
-			case 9:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key10, val10);
-			case 10:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key11, val11);
-			case 11:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key12, val12);
-			case 12:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key13, val13);
-			case 13:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key14, val14);
-			case 14:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key15, val15);
-			case 15:
-				return (java.util.Map.Entry<Object, Object>) entryOf(key16, val16);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+			throw new UnsupportedOperationException(); // TODO: to implement
 		}
 
 		Object val16() {
