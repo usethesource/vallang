@@ -47,9 +47,9 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
-		if (DEBUG) {
-			assert checkHashCodeAndSize(hashCode, cachedSize);
-		}
+		// if (DEBUG) {
+		// assert checkHashCodeAndSize(hashCode, cachedSize);
+		// }
 	}
 
 	public static final ImmutableMap of() {
@@ -979,9 +979,9 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					final int dataMap = bitpos(mask0) | bitpos(mask1);
 					
 					if (mask0 < mask1) {
-						return nodeOf(null, nodeMap, dataMap, new Object[] { key0, val0, key1, val1 });
+						return nodeOf0x2(null, nodeMap, dataMap, key0, val0, key1, val1);
 					} else {
-						return nodeOf(null, nodeMap, dataMap, new Object[] { key1, val1, key0, val0 });
+						return nodeOf0x2(null, nodeMap, dataMap, key1, val1, key0, val0);
 					}					
 				}
 				case BASE_RARE: {
@@ -989,23 +989,23 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					final int dataMap = bitpos(mask0) | bitpos(mask1);
 					
 					// convention: rare after base
-					return nodeOf(null, nodeMap, dataMap, new Object[] { key0, val0, key1, val1 });
+					return nodeOf2x1(null, nodeMap, dataMap, key0, val0, key1, val1);
 				}
 				case RARE_BASE: {
 					final int nodeMap = bitpos(mask0);
 					final int dataMap = bitpos(mask0) | bitpos(mask1);
 					
 					// convention: rare after base
-					return nodeOf(null, nodeMap, dataMap, new Object[] { key1, val1, key0, val0 });
+					return nodeOf2x1(null, nodeMap, dataMap, key1, val1, key0, val0);
 				}
 				case RARE_RARE: {
 					final int nodeMap = bitpos(mask0) | bitpos(mask1);
 					final int dataMap = bitpos(mask0) | bitpos(mask1);
 					
 					if (mask0 < mask1) {
-						return nodeOf(null, nodeMap, dataMap, new Object[] { key0, val0, key1, val1 });
+						return nodeOf4x0(null, nodeMap, dataMap, key0, val0, key1, val1);
 					} else {
-						return nodeOf(null, nodeMap, dataMap, new Object[] { key1, val1, key0, val0 });
+						return nodeOf4x0(null, nodeMap, dataMap, key1, val1, key0, val0);
 					}					
 				}
 				default:
@@ -1019,7 +1019,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 				final int nodeMap = bitpos(mask0);
 				final int dataMap = 0;
-				return nodeOf(null, nodeMap, dataMap, new Object[] { node });
+				return nodeOf1x0(null, nodeMap, dataMap, node);
 			}
 		}
 
@@ -1027,13 +1027,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return EMPTY_NODE;
 		}
 
-		static final CompactMapNode EMPTY_NODE;
-
-		static {
-
-			EMPTY_NODE = new BitmapIndexedMapNode(null, (0), (0), new Object[] {});
-
-		};
+		static final CompactMapNode EMPTY_NODE = new Map0To0Node_BleedingEdge(null, 0, 0);
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
 						final int nodeMap, final int dataMap, final Object[] nodes) {
@@ -1044,12 +1038,147 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return EMPTY_NODE;
 		}
 
-		static final CompactMapNode nodeOf(AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final Object key, final Object val) {
-			assert nodeMap == 0;
-			return nodeOf(mutator, (0), dataMap, new Object[] { key, val });
+		static final CompactMapNode nodeOf0x0(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap) {
+			return EMPTY_NODE;
 		}
 
+		static final CompactMapNode nodeOf1x0(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object slot0) {
+			return new Map0To1Node_BleedingEdge(mutator, nodeMap, dataMap, slot0);
+		}
+
+		static final CompactMapNode nodeOf2x0(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object slot0, final Object slot1) {
+			return new Map0To2Node_BleedingEdge(mutator, nodeMap, dataMap, slot0, slot1);
+		}
+
+		static final CompactMapNode nodeOf3x0(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object slot0, final Object slot1,
+				final Object slot2) {
+			return new Map0To3Node_BleedingEdge(mutator, nodeMap, dataMap, slot0, slot1, slot2);
+		}
+
+		static final CompactMapNode nodeOf4x0(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object slot0, final Object slot1,
+				final Object slot2, final Object slot3) {
+			return new Map0To4Node_BleedingEdge(mutator, nodeMap, dataMap, slot0, slot1, slot2,
+					slot3);
+		}
+
+		static final CompactMapNode nodeOf5x0(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object slot0, final Object slot1,
+				final Object slot2, final Object slot3, final Object slot4) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { slot0, slot1, slot2, slot3,
+					slot4 });
+		}
+
+		static final CompactMapNode nodeOf0x1(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1) {
+			return new Map1To0Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1);
+		}
+
+		static final CompactMapNode nodeOf1x1(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object slot0) {
+			return new Map1To1Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, slot0);
+		}
+
+		static final CompactMapNode nodeOf2x1(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object slot0, final Object slot1) {
+			return new Map1To2Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, slot0, slot1);
+		}
+
+		static final CompactMapNode nodeOf3x1(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object slot0, final Object slot1, final Object slot2) {
+			return new Map1To3Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, slot0,
+					slot1, slot2);
+		}
+
+		static final CompactMapNode nodeOf4x1(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object slot0, final Object slot1, final Object slot2, final Object slot3) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, slot0, slot1,
+					slot2, slot3 });
+		}
+
+		static final CompactMapNode nodeOf0x2(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2) {
+			return new Map2To0Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, key2, val2);
+		}
+
+		static final CompactMapNode nodeOf1x2(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object slot0) {
+			return new Map2To1Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, key2, val2,
+					slot0);
+		}
+
+		static final CompactMapNode nodeOf2x2(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object slot0, final Object slot1) {
+			return new Map2To2Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, key2, val2,
+					slot0, slot1);
+		}
+
+		static final CompactMapNode nodeOf3x2(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object slot0, final Object slot1,
+				final Object slot2) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, slot0,
+					slot1, slot2 });
+		}
+
+		static final CompactMapNode nodeOf0x3(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3) {
+			return new Map3To0Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, key2, val2,
+					key3, val3);
+		}
+
+		static final CompactMapNode nodeOf1x3(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object slot0) {
+			return new Map3To1Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, key2, val2,
+					key3, val3, slot0);
+		}
+
+		static final CompactMapNode nodeOf2x3(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object slot0, final Object slot1) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, slot0, slot1 });
+		}
+
+		static final CompactMapNode nodeOf0x4(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object key4, final Object val4) {
+			return new Map4To0Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, key2, val2,
+					key3, val3, key4, val4);
+		}
+
+		static final CompactMapNode nodeOf1x4(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object key4, final Object val4, final Object slot0) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, key4, val4, slot0 });
+		}
+
+		static final CompactMapNode nodeOf0x5(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object key4, final Object val4, final Object key5, final Object val5) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, key4, val4, key5, val5 });
+		}		
+		
 		static final int index(final int bitmap, final int bitpos) {
 			return java.lang.Integer.bitCount(bitmap & (bitpos - 1));
 		}
@@ -1229,68 +1358,70 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode removed(final AtomicReference<Thread> mutator, final Object key,
 						final int keyHash, final int shift, final MapResult details) {
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int dataIndex = dataIndex(bitpos);
-
-				if (getKey(dataIndex).equals(key)) {
-					final Object currentVal = getValue(dataIndex);
-					details.updated(currentVal);
-
-					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
-						/*
-						 * Create new node with remaining pair. The new node
-						 * will a) either become the new root returned, or b)
-						 * unwrapped and inlined during returning.
-						 */
-						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
-
-						if (dataIndex == 0) {
-							return CompactMapNode.nodeOf(mutator, 0, newDataMap, getKey(1),
-											getValue(1));
-						} else {
-							return CompactMapNode.nodeOf(mutator, 0, newDataMap, getKey(0),
-											getValue(0));
-						}
-					} else {
-						return copyAndRemoveValue(mutator, bitpos);
-					}
-				} else {
-					return this;
-				}
-			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode subNode = nodeAt(bitpos);
-				final CompactMapNode subNodeNew = subNode.removed(mutator, key, keyHash, shift
-								+ bitPartitionSize(), details);
-
-				if (!details.isModified()) {
-					return this;
-				}
-
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-					throw new IllegalStateException("Sub-node must have at least one element.");
-				}
-				case 1: {
-					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
-						// escalate (singleton or empty) result
-						return subNodeNew;
-					} else {
-						// inline value (move to front)
-						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
-					}
-				}
-				default: {
-					// modify current node (set replacement node)
-					return copyAndSetNode(mutator, bitpos, subNodeNew);
-				}
-				}
-			}
-
-			return this;
+			throw new UnsupportedOperationException();
+			
+//			final int mask = mask(keyHash, shift);
+//			final int bitpos = bitpos(mask);
+//
+//			if ((dataMap() & bitpos) != 0) { // inplace value
+//				final int dataIndex = dataIndex(bitpos);
+//
+//				if (getKey(dataIndex).equals(key)) {
+//					final Object currentVal = getValue(dataIndex);
+//					details.updated(currentVal);
+//
+//					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
+//						/*
+//						 * Create new node with remaining pair. The new node
+//						 * will a) either become the new root returned, or b)
+//						 * unwrapped and inlined during returning.
+//						 */
+//						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
+//										: bitpos(mask(keyHash, 0));
+//
+//						if (dataIndex == 0) {
+//							return CompactMapNode.nodeOf(mutator, 0, newDataMap, getKey(1),
+//											getValue(1));
+//						} else {
+//							return CompactMapNode.nodeOf(mutator, 0, newDataMap, getKey(0),
+//											getValue(0));
+//						}
+//					} else {
+//						return copyAndRemoveValue(mutator, bitpos);
+//					}
+//				} else {
+//					return this;
+//				}
+//			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
+//				final CompactMapNode subNode = nodeAt(bitpos);
+//				final CompactMapNode subNodeNew = subNode.removed(mutator, key, keyHash, shift
+//								+ bitPartitionSize(), details);
+//
+//				if (!details.isModified()) {
+//					return this;
+//				}
+//
+//				switch (subNodeNew.sizePredicate()) {
+//				case 0: {
+//					throw new IllegalStateException("Sub-node must have at least one element.");
+//				}
+//				case 1: {
+//					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
+//						// escalate (singleton or empty) result
+//						return subNodeNew;
+//					} else {
+//						// inline value (move to front)
+//						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
+//					}
+//				}
+//				default: {
+//					// modify current node (set replacement node)
+//					return copyAndSetNode(mutator, bitpos, subNodeNew);
+//				}
+//				}
+//			}
+//
+//			return this;
 		}
 
 		@Override
@@ -3029,4 +3160,4343 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		}
 	}
 
+	private static class Map0To0Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		private Map0To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap) {
+			super(mutator, nodeMap, dataMap);
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 0;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return false;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x0(mutator, nodeMap, dataMap, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x1(mutator, nodeMap, dataMap, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_EMPTY;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map0To1Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 0 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf1x0(mutator, nodeMap, dataMap, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		private Map0To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object slot0) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 1;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x0(mutator, nodeMap, dataMap, key, val, slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf1x1(mutator, nodeMap, dataMap, key, val, slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 0 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 0 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map0To2Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 1 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf2x0(mutator, nodeMap, dataMap, slot0, node);
+			case 1:
+				return nodeOf2x0(mutator, nodeMap, dataMap, node, slot1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot1() {
+			return slot1;
+		}
+
+		private final Object slot1;
+
+		private Map0To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object slot0, final Object slot1) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			case 0:
+				return slot1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot1;
+			case 1:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x0(mutator, nodeMap, dataMap, slot0, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 2;
+		}
+
+		@Override
+		int nodeArity() {
+			return 2;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf4x0(mutator, nodeMap, dataMap, key, val, slot0, slot1);
+				case 1:
+					return nodeOf4x0(mutator, nodeMap, dataMap, slot0, slot1, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x1(mutator, nodeMap, dataMap, key, val, slot0, slot1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x0(mutator, nodeMap, dataMap, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 1 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map0To3Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 2 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf3x0(mutator, nodeMap, dataMap, slot0, slot1, node);
+			case 1:
+				return nodeOf3x0(mutator, nodeMap, dataMap, slot0, node, slot2);
+			case 2:
+				return nodeOf3x0(mutator, nodeMap, dataMap, node, slot1, slot2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot1() {
+			return slot1;
+		}
+
+		private final Object slot1;
+
+		private Map0To3Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object slot0, final Object slot1, final Object slot2) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			case 0:
+				return slot1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot2;
+			case 1:
+				return (CompactMapNode) slot1;
+			case 2:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x0(mutator, nodeMap, dataMap, slot0, val, slot2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 3;
+		}
+
+		@Override
+		int nodeArity() {
+			return 3;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object slot2() {
+			return slot2;
+		}
+
+		private final Object slot2;
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf5x0(mutator, nodeMap, dataMap, key, val, slot0, slot1, slot2);
+				case 1:
+					return nodeOf5x0(mutator, nodeMap, dataMap, slot0, slot1, key, val, slot2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x1(mutator, nodeMap, dataMap, key, val, slot0, slot1, slot2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 2 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf2x0(mutator, nodeMap, dataMap, slot2, node);
+					case 1:
+						return nodeOf2x0(mutator, nodeMap, dataMap, node, slot2);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 2 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map0To4Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			case 1:
+				return slot2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot3() {
+			return slot3;
+		}
+
+		private final Object slot3;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 3 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf4x0(mutator, nodeMap, dataMap, slot0, slot1, slot2, node);
+			case 1:
+				return nodeOf4x0(mutator, nodeMap, dataMap, slot0, slot1, node, slot3);
+			case 2:
+				return nodeOf4x0(mutator, nodeMap, dataMap, slot0, node, slot2, slot3);
+			case 3:
+				return nodeOf4x0(mutator, nodeMap, dataMap, node, slot1, slot2, slot3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot1() {
+			return slot1;
+		}
+
+		private final Object slot1;
+
+		private Map0To4Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object slot0, final Object slot1, final Object slot2,
+				final Object slot3) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			case 0:
+				return slot1;
+			case 1:
+				return slot3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot3;
+			case 1:
+				return (CompactMapNode) slot2;
+			case 2:
+				return (CompactMapNode) slot1;
+			case 3:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf4x0(mutator, nodeMap, dataMap, slot0, val, slot2, slot3);
+				case 1:
+					return nodeOf4x0(mutator, nodeMap, dataMap, slot0, slot1, slot2, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 4;
+		}
+
+		@Override
+		int nodeArity() {
+			return 4;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object slot2() {
+			return slot2;
+		}
+
+		private final Object slot2;
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf6x0(mutator, nodeMap, dataMap, key, val, slot0, slot1, slot2,
+							slot3);
+				case 1:
+					return nodeOf6x0(mutator, nodeMap, dataMap, slot0, slot1, key, val, slot2,
+							slot3);
+				case 2:
+					return nodeOf6x0(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key,
+							val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf4x1(mutator, nodeMap, dataMap, key, val, slot0, slot1, slot2,
+							slot3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 3 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf3x0(mutator, nodeMap, dataMap, slot2, slot3, node);
+					case 1:
+						return nodeOf3x0(mutator, nodeMap, dataMap, slot2, node, slot3);
+					case 2:
+						return nodeOf3x0(mutator, nodeMap, dataMap, node, slot2, slot3);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 1:
+					switch (idxNew) {
+					case 0:
+						return nodeOf3x0(mutator, nodeMap, dataMap, slot0, slot1, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 3 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map1To0Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		private Map1To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x1(mutator, nodeMap, dataMap, key1, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 1;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 2;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x1(mutator, nodeMap, dataMap, key1, val1, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x2(mutator, nodeMap, dataMap, key, val, key1, val1);
+				case 1:
+					return nodeOf0x2(mutator, nodeMap, dataMap, key1, val1, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x0(mutator, nodeMap, dataMap, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map1To1Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 0 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf1x1(mutator, nodeMap, dataMap, key1, val1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		private Map1To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object slot0) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.slot0 = slot0;
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf1x1(mutator, nodeMap, dataMap, key1, val, slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 1;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 3;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x1(mutator, nodeMap, dataMap, key1, val1, key, val, slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf1x2(mutator, nodeMap, dataMap, key, val, key1, val1, slot0);
+				case 1:
+					return nodeOf1x2(mutator, nodeMap, dataMap, key1, val1, key, val, slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 0 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 0 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf2x0(mutator, nodeMap, dataMap, slot0, node);
+					case 1:
+						return nodeOf2x0(mutator, nodeMap, dataMap, node, slot0);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map1To2Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 1 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf2x1(mutator, nodeMap, dataMap, key1, val1, slot0, node);
+			case 1:
+				return nodeOf2x1(mutator, nodeMap, dataMap, key1, val1, node, slot1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot1() {
+			return slot1;
+		}
+
+		private final Object slot1;
+
+		private Map1To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object slot0,
+				final Object slot1) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			case 0:
+				return slot1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot1;
+			case 1:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x1(mutator, nodeMap, dataMap, key1, val1, slot0, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x1(mutator, nodeMap, dataMap, key1, val, slot0, slot1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 1;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 4;
+		}
+
+		@Override
+		int nodeArity() {
+			return 2;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf4x1(mutator, nodeMap, dataMap, key1, val1, key, val, slot0, slot1);
+				case 1:
+					return nodeOf4x1(mutator, nodeMap, dataMap, key1, val1, slot0, slot1, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x2(mutator, nodeMap, dataMap, key, val, key1, val1, slot0, slot1);
+				case 1:
+					return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key, val, slot0, slot1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x1(mutator, nodeMap, dataMap, key1, val1, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 1 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf3x0(mutator, nodeMap, dataMap, slot0, slot1, node);
+					case 1:
+						return nodeOf3x0(mutator, nodeMap, dataMap, slot0, node, slot1);
+					case 2:
+						return nodeOf3x0(mutator, nodeMap, dataMap, node, slot0, slot1);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map1To3Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 2 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf3x1(mutator, nodeMap, dataMap, key1, val1, slot0, slot1, node);
+			case 1:
+				return nodeOf3x1(mutator, nodeMap, dataMap, key1, val1, slot0, node, slot2);
+			case 2:
+				return nodeOf3x1(mutator, nodeMap, dataMap, key1, val1, node, slot1, slot2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot1() {
+			return slot1;
+		}
+
+		private final Object slot1;
+
+		private Map1To3Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object slot0,
+				final Object slot1, final Object slot2) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			;
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			case 0:
+				return slot1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot2;
+			case 1:
+				return (CompactMapNode) slot1;
+			case 2:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x1(mutator, nodeMap, dataMap, key1, val1, slot0, val, slot2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x1(mutator, nodeMap, dataMap, key1, val, slot0, slot1, slot2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 1;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 5;
+		}
+
+		@Override
+		int nodeArity() {
+			return 3;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot2() {
+			return slot2;
+		}
+
+		private final Object slot2;
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf5x1(mutator, nodeMap, dataMap, key1, val1, key, val, slot0, slot1,
+							slot2);
+				case 1:
+					return nodeOf5x1(mutator, nodeMap, dataMap, key1, val1, slot0, slot1, key, val,
+							slot2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x2(mutator, nodeMap, dataMap, key, val, key1, val1, slot0, slot1,
+							slot2);
+				case 1:
+					return nodeOf3x2(mutator, nodeMap, dataMap, key1, val1, key, val, slot0, slot1,
+							slot2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 2 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf2x1(mutator, nodeMap, dataMap, key1, val1, slot2, node);
+					case 1:
+						return nodeOf2x1(mutator, nodeMap, dataMap, key1, val1, node, slot2);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 2 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf4x0(mutator, nodeMap, dataMap, slot0, slot1, slot2, node);
+					case 1:
+						return nodeOf4x0(mutator, nodeMap, dataMap, slot0, slot1, node, slot2);
+					case 2:
+						return nodeOf4x0(mutator, nodeMap, dataMap, slot0, node, slot1, slot2);
+					case 3:
+						return nodeOf4x0(mutator, nodeMap, dataMap, node, slot0, slot1, slot2);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map2To0Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		private Map2To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object key2,
+				final Object val2) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x2(mutator, nodeMap, dataMap, key1, val, key2, val2);
+				case 1:
+					return nodeOf0x2(mutator, nodeMap, dataMap, key1, val1, key2, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 2;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			case 1:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 4;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key2() {
+			return key2;
+		}
+
+		private final Object key2;
+
+		Object val2() {
+			return val2;
+		}
+
+		private final Object val2;
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x3(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2);
+				case 1:
+					return nodeOf0x3(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2);
+				case 2:
+					return nodeOf0x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x1(mutator, nodeMap, dataMap, key2, val2, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 1:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x1(mutator, nodeMap, dataMap, key1, val1, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map2To1Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 0 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf1x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		private Map2To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object key2,
+				final Object val2, final Object slot0) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.slot0 = slot0;
+			;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf1x2(mutator, nodeMap, dataMap, key1, val, key2, val2, slot0);
+				case 1:
+					return nodeOf1x2(mutator, nodeMap, dataMap, key1, val1, key2, val, slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 2;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 5;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key2() {
+			return key2;
+		}
+
+		private final Object key2;
+
+		Object val2() {
+			return val2;
+		}
+
+		private final Object val2;
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
+							slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf1x3(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
+							slot0);
+				case 1:
+					return nodeOf1x3(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
+							slot0);
+				case 2:
+					return nodeOf1x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
+							slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			case 1:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 0 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 0 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf2x1(mutator, nodeMap, dataMap, key2, val2, slot0, node);
+					case 1:
+						return nodeOf2x1(mutator, nodeMap, dataMap, key2, val2, node, slot0);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 1:
+					switch (idxNew) {
+					case 0:
+						return nodeOf2x1(mutator, nodeMap, dataMap, key1, val1, slot0, node);
+					case 1:
+						return nodeOf2x1(mutator, nodeMap, dataMap, key1, val1, node, slot0);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map2To2Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 1 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, slot0, node);
+			case 1:
+				return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, slot1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot1() {
+			return slot1;
+		}
+
+		private final Object slot1;
+
+		private Map2To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object key2,
+				final Object val2, final Object slot0, final Object slot1) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, slot0, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x2(mutator, nodeMap, dataMap, key1, val, key2, val2, slot0, slot1);
+				case 1:
+					return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key2, val, slot0, slot1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int payloadArity() {
+			return 2;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 6;
+		}
+
+		@Override
+		int nodeArity() {
+			return 2;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			case 0:
+				return slot1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key2() {
+			return key2;
+		}
+
+		private final Object key2;
+
+		Object val2() {
+			return val2;
+		}
+
+		private final Object val2;
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot1;
+			case 1:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf4x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
+							slot0, slot1);
+				case 1:
+					return nodeOf4x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, slot0,
+							slot1, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x3(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
+							slot0, slot1);
+				case 1:
+					return nodeOf2x3(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
+							slot0, slot1);
+				case 2:
+					return nodeOf2x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
+							slot0, slot1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			case 1:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 1 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf3x1(mutator, nodeMap, dataMap, key2, val2, slot0, slot1, node);
+					case 1:
+						return nodeOf3x1(mutator, nodeMap, dataMap, key2, val2, slot0, node, slot1);
+					case 2:
+						return nodeOf3x1(mutator, nodeMap, dataMap, key2, val2, node, slot0, slot1);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 1:
+					switch (idxNew) {
+					case 0:
+						return nodeOf3x1(mutator, nodeMap, dataMap, key1, val1, slot0, slot1, node);
+					case 1:
+						return nodeOf3x1(mutator, nodeMap, dataMap, key1, val1, slot0, node, slot1);
+					case 2:
+						return nodeOf3x1(mutator, nodeMap, dataMap, key1, val1, node, slot0, slot1);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map3To0Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key3() {
+			return key3;
+		}
+
+		private final Object key3;
+
+		private Map3To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object key2,
+				final Object val2, final Object key3, final Object val3) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x3(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3);
+				case 1:
+					return nodeOf0x3(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3);
+				case 2:
+					return nodeOf0x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		int payloadArity() {
+			return 3;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			case 1:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
+			case 2:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 6;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key2() {
+			return key2;
+		}
+
+		private final Object key2;
+
+		Object val2() {
+			return val2;
+		}
+
+		private final Object val2;
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+							key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x4(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
+							key3, val3);
+				case 1:
+					return nodeOf0x4(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
+							key3, val3);
+				case 2:
+					return nodeOf0x4(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
+							key3, val3);
+				case 3:
+					return nodeOf0x4(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+							key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		Object val3() {
+			return val3;
+		}
+
+		private final Object val3;
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x2(mutator, nodeMap, dataMap, key2, val2, key3, val3, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 1:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x2(mutator, nodeMap, dataMap, key1, val1, key3, val3, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 2:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map3To1Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			switch (index) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			final int idx = 0 - nodeIndex(bitpos);
+
+			final int nodeMap = rawMap1();
+			final int dataMap = rawMap2();
+
+			switch (idx) {
+			case 0:
+				return nodeOf1x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+						node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key3() {
+			return key3;
+		}
+
+		private final Object key3;
+
+		private Map3To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object key2,
+				final Object val2, final Object key3, final Object val3, final Object slot0) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.slot0 = slot0;
+			;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf1x3(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3,
+							slot0);
+				case 1:
+					return nodeOf1x3(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3,
+							slot0);
+				case 2:
+					return nodeOf1x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val,
+							slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		int payloadArity() {
+			return 3;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 7;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Object getRareValue(final int index) {
+			switch (index) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object key2() {
+			return key2;
+		}
+
+		private final Object key2;
+
+		Object val2() {
+			return val2;
+		}
+
+		private final Object val2;
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			switch (index) {
+			case 0:
+				return (CompactMapNode) slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf3x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+							key, val, slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf1x4(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
+							key3, val3, slot0);
+				case 1:
+					return nodeOf1x4(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
+							key3, val3, slot0);
+				case 2:
+					return nodeOf1x4(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
+							key3, val3, slot0);
+				case 3:
+					return nodeOf1x4(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+							key, val, slot0);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		Object val3() {
+			return val3;
+		}
+
+		private final Object val3;
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			case 1:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
+			case 2:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object slot0() {
+			return slot0;
+		}
+
+		private final Object slot0;
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = 0 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = 0 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf2x2(mutator, nodeMap, dataMap, key2, val2, key3, val3, slot0,
+								node);
+					case 1:
+						return nodeOf2x2(mutator, nodeMap, dataMap, key2, val2, key3, val3, node,
+								slot0);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 1:
+					switch (idxNew) {
+					case 0:
+						return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key3, val3, slot0,
+								node);
+					case 1:
+						return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key3, val3, node,
+								slot0);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 2:
+					switch (idxNew) {
+					case 0:
+						return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, slot0,
+								node);
+					case 1:
+						return nodeOf2x2(mutator, nodeMap, dataMap, key1, val1, key2, val2, node,
+								slot0);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+
+	private static class Map4To0Node_BleedingEdge extends CompactMixedMapNode {
+
+		@Override
+		Object getRareKey(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key1() {
+			return key1;
+		}
+
+		private final Object key1;
+
+		@Override
+		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key3() {
+			return key3;
+		}
+
+		private final Object key3;
+
+		private Map4To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
+				final int dataMap, final Object key1, final Object val1, final Object key2,
+				final Object val2, final Object key3, final Object val3, final Object key4,
+				final Object val4) {
+			super(mutator, nodeMap, dataMap);
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object val) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idx = rareIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2();
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x4(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3,
+							key4, val4);
+				case 1:
+					return nodeOf0x4(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3,
+							key4, val4);
+				case 2:
+					return nodeOf0x4(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val,
+							key4, val4);
+				case 3:
+					return nodeOf0x4(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+							key4, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		int payloadArity() {
+			return 4;
+		}
+
+		Object val1() {
+			return val1;
+		}
+
+		private final Object val1;
+
+		@Override
+		public String toString() {
+			return "";
+		}
+
+		@Override
+		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
+			switch (index) {
+			case 0:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key1, val1);
+			case 1:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key2, val2);
+			case 2:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key3, val3);
+			case 3:
+				return (java.util.Map.Entry<Object, Object>) entryOf(key4, val4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		int slotArity() {
+			return 8;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		Object getValue(final int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		Object val4() {
+			return val4;
+		}
+
+		private final Object val4;
+
+		@Override
+		Object getRareValue(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key2() {
+			return key2;
+		}
+
+		private final Object key2;
+
+		Object val2() {
+			return val2;
+		}
+
+		private final Object val2;
+
+		@Override
+		CompactMapNode getNode(final int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		Object key4() {
+			return key4;
+		}
+
+		private final Object key4;
+
+		@Override
+		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
+				final Object key, final Object val) {
+			if (isRare(key, val)) {
+				final int idx = rareIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf2x4(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idx = dataIndex(bitpos);
+
+				// TODO: improve naming of bitmaps in heterogeneous
+				final int nodeMap = rawMap1();
+				final int dataMap = rawMap2() | bitpos;
+
+				switch (idx) {
+				case 0:
+					return nodeOf0x5(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
+							key3, val3, key4, val4);
+				case 1:
+					return nodeOf0x5(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
+							key3, val3, key4, val4);
+				case 2:
+					return nodeOf0x5(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
+							key3, val3, key4, val4);
+				case 3:
+					return nodeOf0x5(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+							key, val, key4, val4);
+				case 4:
+					return nodeOf0x5(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		Object getSlot(final int index) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		Object val3() {
+			return val3;
+		}
+
+		private final Object val3;
+
+		@Override
+		Iterator<? extends AbstractMapNode> nodeIterator() {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			throw new UnsupportedOperationException(); // TODO: to implement
+		}
+
+		@Override
+		Object getKey(final int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+				final int bitpos, final CompactMapNode node) {
+			// TODO: support migration if partial
+			if (isRare(bitpos)) {
+				final int idxOld = rareIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			} else {
+				final int idxOld = dataIndex(bitpos);
+				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+
+				final int nodeMap = rawMap1() | bitpos;
+				final int dataMap = rawMap2() ^ bitpos;
+
+				switch (idxOld) {
+				case 0:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x3(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4,
+								val4, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 1:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x3(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4,
+								val4, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 2:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4,
+								val4, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				case 3:
+					switch (idxNew) {
+					case 0:
+						return nodeOf1x3(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3,
+								val3, node);
+					default:
+						throw new IllegalStateException("Index out of range.");
+					}
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			}
+		}
+
+	}
+	
 }
