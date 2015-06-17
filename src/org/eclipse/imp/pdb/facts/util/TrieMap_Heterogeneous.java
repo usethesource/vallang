@@ -12642,7 +12642,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -12653,8 +12653,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		private Map1To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			;
 		}
 
@@ -12716,7 +12716,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -12885,7 +12885,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -12906,8 +12906,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		private Map1To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			;
 		}
@@ -12978,7 +12978,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -13157,7 +13157,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -13187,8 +13187,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int dataMap, final Object key1, final Object val1, final Object slot0,
 				final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -13266,7 +13266,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -13456,7 +13456,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -13488,8 +13488,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int dataMap, final Object key1, final Object val1, final Object slot0,
 				final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -13570,7 +13570,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -13804,8 +13804,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int dataMap, final Object key1, final Object val1, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -13896,7 +13896,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -13912,7 +13912,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -14168,8 +14168,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int dataMap, final Object key1, final Object val1, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -14263,7 +14263,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -14279,7 +14279,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -14560,8 +14560,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -14663,7 +14663,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -14685,7 +14685,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -14989,8 +14989,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -15073,7 +15073,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -15095,7 +15095,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -15428,8 +15428,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6, final Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -15518,7 +15518,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -15562,7 +15562,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -15923,8 +15923,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -16014,7 +16014,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -16064,7 +16064,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -16522,7 +16522,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -16574,7 +16574,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -16635,8 +16635,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -17096,7 +17096,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -17148,7 +17148,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -17209,8 +17209,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9, final Object slot10) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -17705,7 +17705,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -17759,7 +17759,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -17820,8 +17820,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9, final Object slot10, final Object slot11) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -18360,7 +18360,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot12() {
 			return slot12;
@@ -18420,7 +18420,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -18481,8 +18481,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9, final Object slot10, final Object slot11, final Object slot12) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -19133,7 +19133,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot12() {
 			return slot12;
@@ -19195,7 +19195,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -19257,8 +19257,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot9, final Object slot10, final Object slot11, final Object slot12,
 				final Object slot13) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -19961,7 +19961,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot12() {
 			return slot12;
@@ -20023,7 +20023,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -20091,8 +20091,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot9, final Object slot10, final Object slot11, final Object slot12,
 				final Object slot13, final Object slot14) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -20641,7 +20641,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -20653,10 +20653,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			;
 		}
 
@@ -20710,7 +20710,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -20773,13 +20773,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -20914,7 +20914,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -20936,10 +20936,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			;
 		}
@@ -20994,7 +20994,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -21055,13 +21055,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -21222,7 +21222,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -21252,10 +21252,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object slot0, final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -21313,7 +21313,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -21376,13 +21376,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -21559,7 +21559,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -21594,10 +21594,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object slot0, final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -21659,7 +21659,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -21728,13 +21728,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -21964,10 +21964,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -22033,7 +22033,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -22049,7 +22049,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -22116,13 +22116,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -22377,10 +22377,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -22447,7 +22447,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -22463,7 +22463,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -22530,13 +22530,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -22816,10 +22816,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -22890,7 +22890,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -22912,7 +22912,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -22981,13 +22981,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -23295,10 +23295,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -23370,7 +23370,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -23392,7 +23392,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -23461,13 +23461,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -23788,10 +23788,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -23867,7 +23867,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -23911,7 +23911,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -23982,13 +23982,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -24340,10 +24340,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7, final Object slot8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -24420,7 +24420,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -24470,7 +24470,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -24541,13 +24541,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -24983,7 +24983,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -25035,7 +25035,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -25098,10 +25098,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7, final Object slot8, final Object slot9) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -25137,13 +25137,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -25619,7 +25619,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -25671,7 +25671,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -25734,10 +25734,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7, final Object slot8, final Object slot9, final Object slot10) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -25774,13 +25774,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -26332,7 +26332,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -26386,7 +26386,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -26450,10 +26450,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot7, final Object slot8, final Object slot9, final Object slot10,
 				final Object slot11) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -26493,13 +26493,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -27139,7 +27139,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot12() {
 			return slot12;
@@ -27199,7 +27199,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -27263,10 +27263,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot7, final Object slot8, final Object slot9, final Object slot10,
 				final Object slot11, final Object slot12) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -27307,13 +27307,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -28002,7 +28002,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot12() {
 			return slot12;
@@ -28064,7 +28064,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -28128,10 +28128,10 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot7, final Object slot8, final Object slot9, final Object slot10,
 				final Object slot11, final Object slot12, final Object slot13) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -28175,13 +28175,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -28750,7 +28750,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -28762,18 +28762,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map3To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object key3, final Object val3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			;
 		}
 
@@ -28824,7 +28824,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -28889,13 +28889,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -28964,7 +28964,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -29057,7 +29057,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -29080,18 +29080,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map3To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object key3, final Object val3, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			;
 		}
@@ -29146,7 +29146,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -29209,13 +29209,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -29289,7 +29289,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -29407,7 +29407,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -29434,12 +29434,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object key3, final Object val3, final Object slot0,
 				final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -29498,7 +29498,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -29514,7 +29514,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -29575,13 +29575,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -29660,7 +29660,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -29795,7 +29795,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -29825,12 +29825,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object key3, final Object val3, final Object slot0,
 				final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -29890,7 +29890,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -29906,7 +29906,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -29973,13 +29973,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -30060,7 +30060,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -30236,12 +30236,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object key3, final Object val3, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -30305,7 +30305,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -30321,7 +30321,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -30333,7 +30333,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -30402,13 +30402,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -30494,7 +30494,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -30693,12 +30693,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object key3, final Object val3, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -30763,7 +30763,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -30779,7 +30779,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -30791,7 +30791,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -30860,13 +30860,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -30960,7 +30960,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -31180,12 +31180,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -31254,7 +31254,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -31276,7 +31276,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -31288,7 +31288,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -31359,13 +31359,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -31464,7 +31464,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -31710,12 +31710,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -31785,7 +31785,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -31807,7 +31807,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -31819,7 +31819,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -31890,13 +31890,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -32003,7 +32003,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -32256,12 +32256,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6, final Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -32335,7 +32335,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -32379,7 +32379,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -32391,7 +32391,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -32464,13 +32464,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -32582,7 +32582,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -32864,12 +32864,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -32944,7 +32944,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -32994,7 +32994,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -33006,7 +33006,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -33079,13 +33079,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -33207,7 +33207,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -33577,7 +33577,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -33629,7 +33629,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -33641,7 +33641,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -33707,12 +33707,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -33748,13 +33748,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -33883,7 +33883,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -34297,7 +34297,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -34349,7 +34349,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -34361,7 +34361,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -34427,12 +34427,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9, final Object slot10) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -34469,13 +34469,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -34606,7 +34606,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -35132,7 +35132,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -35186,7 +35186,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -35198,7 +35198,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -35264,12 +35264,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9, final Object slot10, final Object slot11) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -35309,13 +35309,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -35452,7 +35452,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -36023,7 +36023,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot12() {
 			return slot12;
@@ -36083,7 +36083,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -36095,7 +36095,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -36161,12 +36161,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9, final Object slot10, final Object slot11, final Object slot12) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -36207,13 +36207,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -36352,7 +36352,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -36813,7 +36813,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -36825,21 +36825,21 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map4To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object key3, final Object val3, final Object key4,
 				final Object val4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			;
 		}
 
@@ -36896,7 +36896,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -36958,7 +36958,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -36969,13 +36969,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -36986,7 +36986,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -37053,7 +37053,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -37159,7 +37159,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -37182,21 +37182,21 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map4To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object key3, final Object val3, final Object key4,
 				final Object val4, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			;
 		}
@@ -37254,7 +37254,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -37311,7 +37311,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -37325,13 +37325,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -37347,7 +37347,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -37414,7 +37414,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -37545,7 +37545,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -37572,14 +37572,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object key3, final Object val3, final Object key4,
 				final Object val4, final Object slot0, final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -37641,7 +37641,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -37657,7 +37657,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -37710,7 +37710,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -37726,13 +37726,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -37750,7 +37750,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -37820,7 +37820,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -37971,7 +37971,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -38001,14 +38001,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val2, final Object key3, final Object val3, final Object key4,
 				final Object val4, final Object slot0, final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -38071,7 +38071,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -38087,7 +38087,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -38146,7 +38146,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -38162,13 +38162,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -38188,7 +38188,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -38258,7 +38258,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -38454,14 +38454,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -38528,7 +38528,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -38544,7 +38544,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -38556,7 +38556,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -38615,7 +38615,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -38633,13 +38633,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -38661,7 +38661,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -38734,7 +38734,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -38956,14 +38956,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -39031,7 +39031,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -39047,7 +39047,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -39059,7 +39059,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -39118,7 +39118,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -39136,13 +39136,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -39166,7 +39166,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot4() {
 			return slot4;
@@ -39245,7 +39245,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -39490,14 +39490,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -39569,7 +39569,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -39591,7 +39591,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -39603,7 +39603,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -39662,7 +39662,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -39682,13 +39682,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -39714,7 +39714,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot4() {
 			return slot4;
@@ -39796,7 +39796,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -40070,14 +40070,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -40150,7 +40150,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -40172,7 +40172,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -40184,7 +40184,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -40243,7 +40243,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -40263,13 +40263,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -40297,7 +40297,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -40385,7 +40385,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -40670,14 +40670,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -40754,7 +40754,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -40798,7 +40798,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -40810,7 +40810,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -40869,7 +40869,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -40891,13 +40891,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -40927,7 +40927,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -41028,7 +41028,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -41345,14 +41345,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7, final Object slot8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -41434,7 +41434,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -41484,7 +41484,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -41496,7 +41496,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -41555,7 +41555,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -41577,13 +41577,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -41615,7 +41615,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -41716,7 +41716,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -42200,7 +42200,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -42252,7 +42252,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -42264,7 +42264,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -42332,14 +42332,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7, final Object slot8, final Object slot9) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -42357,7 +42357,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -42381,13 +42381,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -42421,7 +42421,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -42526,7 +42526,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -43061,7 +43061,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -43113,7 +43113,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -43125,7 +43125,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -43193,14 +43193,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7, final Object slot8, final Object slot9, final Object slot10) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -43219,7 +43219,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -43243,13 +43243,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -43285,7 +43285,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -43390,7 +43390,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -43975,7 +43975,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -44029,7 +44029,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -44041,7 +44041,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -44110,14 +44110,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot7, final Object slot8, final Object slot9, final Object slot10,
 				final Object slot11) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -44137,7 +44137,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -44163,13 +44163,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -44207,7 +44207,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -44316,7 +44316,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -44800,13 +44800,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -44818,23 +44818,23 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map5To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object key3, final Object val3, final Object key4,
 				final Object val4, final Object key5, final Object val5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			;
 		}
 
@@ -44894,7 +44894,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -44953,7 +44953,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -44964,13 +44964,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -44981,7 +44981,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -45051,7 +45051,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -45062,7 +45062,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -45178,13 +45178,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -45207,23 +45207,23 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map5To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
 				final Object val2, final Object key3, final Object val3, final Object key4,
 				final Object val4, final Object key5, final Object val5, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			;
 		}
@@ -45284,7 +45284,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -45338,7 +45338,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -45352,13 +45352,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -45374,7 +45374,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -45444,7 +45444,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -45455,7 +45455,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -45599,13 +45599,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -45633,16 +45633,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object slot0,
 				final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -45707,7 +45707,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -45718,7 +45718,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -45773,7 +45773,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -45789,13 +45789,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -45813,7 +45813,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -45886,7 +45886,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -45897,7 +45897,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -46064,13 +46064,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -46101,16 +46101,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object slot0,
 				final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -46176,7 +46176,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -46187,7 +46187,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -46248,7 +46248,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -46264,13 +46264,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -46290,7 +46290,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -46363,7 +46363,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -46374,7 +46374,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -46561,7 +46561,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -46595,16 +46595,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -46674,7 +46674,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -46685,7 +46685,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -46697,7 +46697,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -46758,7 +46758,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -46776,13 +46776,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -46804,7 +46804,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -46880,7 +46880,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -46891,7 +46891,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -47104,7 +47104,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -47141,16 +47141,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -47221,7 +47221,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -47232,7 +47232,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -47244,7 +47244,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -47305,7 +47305,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -47323,13 +47323,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -47353,7 +47353,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot4() {
 			return slot4;
@@ -47435,7 +47435,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -47446,7 +47446,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -47682,7 +47682,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -47723,16 +47723,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -47807,7 +47807,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -47824,7 +47824,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -47836,7 +47836,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -47897,7 +47897,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -47917,13 +47917,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -47949,7 +47949,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot4() {
 			return slot4;
@@ -48044,7 +48044,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -48055,7 +48055,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -48320,7 +48320,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -48364,16 +48364,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -48449,7 +48449,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -48466,7 +48466,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -48478,7 +48478,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -48539,7 +48539,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -48559,13 +48559,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -48593,7 +48593,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -48694,7 +48694,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -48705,7 +48705,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -49032,7 +49032,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -49087,16 +49087,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6, final Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -49185,7 +49185,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -49224,7 +49224,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -49236,7 +49236,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -49297,7 +49297,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -49319,13 +49319,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -49355,7 +49355,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -49460,7 +49460,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -49471,7 +49471,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -49839,7 +49839,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -49898,16 +49898,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -49997,7 +49997,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -50042,7 +50042,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -50054,7 +50054,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -50115,7 +50115,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -50137,13 +50137,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -50175,7 +50175,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -50280,7 +50280,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -50291,7 +50291,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -50695,7 +50695,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -50832,7 +50832,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -50879,7 +50879,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -50891,7 +50891,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -50962,16 +50962,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -50989,7 +50989,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -51013,13 +51013,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -51053,7 +51053,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -51162,7 +51162,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -51173,7 +51173,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -51757,7 +51757,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -51804,7 +51804,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object slot10() {
 			return slot10;
@@ -51816,7 +51816,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -51828,7 +51828,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -51899,16 +51899,16 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8,
 				final Object slot9, final Object slot10) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -51927,7 +51927,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -51951,13 +51951,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -51993,7 +51993,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -52102,7 +52102,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -52113,7 +52113,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -52607,13 +52607,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -52625,7 +52625,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map6To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -52633,18 +52633,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object key6,
 				final Object val6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			;
 		}
 
@@ -52707,7 +52707,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -52733,7 +52733,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -52774,7 +52774,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -52785,13 +52785,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -52802,13 +52802,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -52881,7 +52881,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -52892,7 +52892,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -53018,13 +53018,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -53047,7 +53047,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map6To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -53055,18 +53055,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object key6,
 				final Object val6, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			;
 		}
@@ -53130,7 +53130,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -53151,7 +53151,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -53192,7 +53192,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -53206,13 +53206,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -53228,13 +53228,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -53307,7 +53307,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -53318,7 +53318,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -53475,13 +53475,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -53509,18 +53509,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object key6,
 				final Object val6, final Object slot0, final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -53588,7 +53588,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -53599,7 +53599,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -53621,7 +53621,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -53662,7 +53662,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -53678,13 +53678,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -53702,13 +53702,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -53784,7 +53784,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -53795,7 +53795,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -53978,13 +53978,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -54015,18 +54015,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object key6,
 				final Object val6, final Object slot0, final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -54095,7 +54095,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -54106,7 +54106,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -54128,7 +54128,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -54175,7 +54175,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -54191,13 +54191,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -54217,13 +54217,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -54299,7 +54299,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -54310,7 +54310,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -54516,7 +54516,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -54551,18 +54551,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -54635,7 +54635,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -54646,7 +54646,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -54658,7 +54658,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -54680,7 +54680,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -54727,7 +54727,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -54745,13 +54745,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -54773,13 +54773,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -54868,7 +54868,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -54879,7 +54879,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -55114,7 +55114,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -55152,18 +55152,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -55237,7 +55237,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -55248,7 +55248,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -55260,7 +55260,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -55282,7 +55282,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -55329,7 +55329,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -55347,13 +55347,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -55377,13 +55377,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -55478,7 +55478,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -55489,7 +55489,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -55786,7 +55786,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -55827,18 +55827,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -55925,7 +55925,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -55942,7 +55942,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -55954,7 +55954,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -55976,7 +55976,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -56023,7 +56023,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -56043,13 +56043,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -56075,13 +56075,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -56180,7 +56180,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -56191,7 +56191,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -56535,7 +56535,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -56586,18 +56586,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -56685,7 +56685,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -56702,7 +56702,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -56714,7 +56714,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -56736,7 +56736,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -56783,7 +56783,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -56803,13 +56803,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -56837,7 +56837,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -56849,7 +56849,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -56948,7 +56948,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -56959,7 +56959,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -57325,7 +57325,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -57381,18 +57381,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -57485,7 +57485,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -57524,7 +57524,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -57536,7 +57536,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -57558,7 +57558,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -57605,7 +57605,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -57627,13 +57627,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -57663,7 +57663,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -57675,7 +57675,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -57778,7 +57778,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -57789,7 +57789,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -58200,7 +58200,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -58260,18 +58260,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7, final Object slot8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -58365,7 +58365,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -58410,7 +58410,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -58422,7 +58422,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -58444,7 +58444,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -58491,7 +58491,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -58513,13 +58513,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -58551,7 +58551,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -58563,7 +58563,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -58666,7 +58666,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -58677,7 +58677,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -59128,7 +59128,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -59269,7 +59269,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public String toString() {
@@ -59316,7 +59316,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -59328,7 +59328,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -59350,7 +59350,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -59407,18 +59407,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7, final Object slot8, final Object slot9) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -59436,7 +59436,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -59460,13 +59460,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -59500,7 +59500,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -59512,7 +59512,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -59619,7 +59619,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -59630,7 +59630,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -60135,19 +60135,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -60159,7 +60159,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map7To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -60167,20 +60167,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object key6,
 				final Object val6, final Object key7, final Object val7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			;
 		}
 
@@ -60246,7 +60246,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -60267,7 +60267,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -60310,7 +60310,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -60321,13 +60321,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -60338,13 +60338,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -60420,7 +60420,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -60431,7 +60431,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -60442,7 +60442,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -60578,19 +60578,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -60613,7 +60613,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map7To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -60621,20 +60621,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val4, final Object key5, final Object val5, final Object key6,
 				final Object val6, final Object key7, final Object val7, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			;
 		}
@@ -60701,7 +60701,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -60717,7 +60717,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -60760,7 +60760,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -60774,13 +60774,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -60796,13 +60796,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -60878,7 +60878,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -60889,7 +60889,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -60900,7 +60900,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -61070,19 +61070,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -61111,20 +61111,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object slot0,
 				final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -61195,13 +61195,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -61223,7 +61223,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -61266,7 +61266,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -61282,13 +61282,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -61306,13 +61306,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -61394,7 +61394,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -61405,7 +61405,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -61416,7 +61416,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -61615,19 +61615,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -61659,20 +61659,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object slot0,
 				final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -61744,13 +61744,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -61772,7 +61772,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -61821,7 +61821,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -61837,13 +61837,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -61863,13 +61863,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -61958,7 +61958,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -61969,7 +61969,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -61980,7 +61980,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -62205,13 +62205,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -62246,20 +62246,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -62344,13 +62344,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -62362,7 +62362,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -62384,7 +62384,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -62433,7 +62433,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -62451,13 +62451,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -62479,13 +62479,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -62578,7 +62578,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -62589,7 +62589,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -62600,7 +62600,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -62896,13 +62896,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -62945,20 +62945,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -63044,13 +63044,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -63062,7 +63062,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -63084,7 +63084,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -63133,7 +63133,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -63151,13 +63151,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -63181,13 +63181,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -63286,7 +63286,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -63297,7 +63297,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -63308,7 +63308,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -63642,13 +63642,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -63696,20 +63696,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -63800,7 +63800,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -63812,7 +63812,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -63824,7 +63824,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -63846,7 +63846,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -63895,7 +63895,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -63915,13 +63915,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -63947,13 +63947,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -64056,7 +64056,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -64067,7 +64067,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -64078,7 +64078,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -64457,13 +64457,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -64515,20 +64515,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -64620,7 +64620,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -64632,7 +64632,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -64644,7 +64644,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -64666,7 +64666,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -64715,7 +64715,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -64735,13 +64735,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -64769,7 +64769,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -64781,7 +64781,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -64884,7 +64884,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -64895,7 +64895,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -64906,7 +64906,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -65311,13 +65311,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -65373,20 +65373,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6, final Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -65483,7 +65483,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -65517,7 +65517,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -65529,7 +65529,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -65551,7 +65551,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -65600,7 +65600,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -65622,13 +65622,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -65658,7 +65658,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -65670,7 +65670,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -65777,7 +65777,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -65788,7 +65788,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -65799,7 +65799,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -66253,13 +66253,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key7() {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -66319,20 +66319,20 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6, final Object slot7, final Object slot8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -66430,7 +66430,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot8() {
 			return slot8;
@@ -66470,7 +66470,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -66482,7 +66482,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -66504,7 +66504,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -66553,7 +66553,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -66575,13 +66575,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -66613,7 +66613,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -66625,7 +66625,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -66732,7 +66732,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -66743,7 +66743,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -66754,7 +66754,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -67257,13 +67257,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -67275,7 +67275,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map8To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -67284,22 +67284,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object key8,
 				final Object val8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			;
 		}
 
@@ -67368,7 +67368,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -67379,13 +67379,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -67401,7 +67401,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -67446,7 +67446,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -67457,13 +67457,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -67474,13 +67474,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -67559,7 +67559,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -67570,7 +67570,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -67581,7 +67581,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -67592,7 +67592,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -67733,13 +67733,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -67762,7 +67762,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		private Map8To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -67771,22 +67771,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object key8,
 				final Object val8, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			this.slot0 = slot0;
 			;
 		}
@@ -67856,19 +67856,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -67884,7 +67884,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -67929,7 +67929,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -67943,13 +67943,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -67965,13 +67965,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -68060,7 +68060,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -68071,7 +68071,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -68082,7 +68082,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -68093,7 +68093,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -68271,13 +68271,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -68306,22 +68306,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object key8,
 				final Object val8, final Object slot0, final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -68398,25 +68398,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -68438,7 +68438,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -68483,7 +68483,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -68499,13 +68499,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -68523,13 +68523,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -68622,7 +68622,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -68633,7 +68633,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -68644,7 +68644,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -68655,7 +68655,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -68890,13 +68890,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -68931,22 +68931,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object key8,
 				final Object val8, final Object slot0, final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -69030,25 +69030,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -69070,7 +69070,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -69121,7 +69121,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -69137,13 +69137,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -69163,13 +69163,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -69262,7 +69262,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -69273,7 +69273,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -69284,7 +69284,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -69295,7 +69295,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -69568,7 +69568,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -69608,22 +69608,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -69712,25 +69712,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -69742,7 +69742,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -69764,7 +69764,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -69815,7 +69815,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -69833,13 +69833,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -69861,13 +69861,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -69964,7 +69964,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -69975,7 +69975,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -69986,7 +69986,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -69997,7 +69997,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -70315,7 +70315,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -70359,22 +70359,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -70464,25 +70464,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -70494,7 +70494,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -70516,7 +70516,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -70567,7 +70567,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -70585,13 +70585,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -70615,13 +70615,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -70724,7 +70724,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -70735,7 +70735,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -70746,7 +70746,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -70757,7 +70757,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -71117,7 +71117,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -71165,22 +71165,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -71275,7 +71275,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -71287,19 +71287,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -71311,7 +71311,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -71333,7 +71333,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -71384,7 +71384,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -71404,13 +71404,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -71436,13 +71436,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -71549,7 +71549,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -71560,7 +71560,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -71571,7 +71571,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -71582,7 +71582,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -71991,7 +71991,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -72043,22 +72043,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -72154,7 +72154,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -72166,19 +72166,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -72190,7 +72190,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -72212,7 +72212,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -72263,7 +72263,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -72283,13 +72283,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -72317,7 +72317,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -72329,7 +72329,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -72436,7 +72436,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -72447,7 +72447,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -72458,7 +72458,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -72469,7 +72469,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -72908,7 +72908,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -72965,22 +72965,22 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot3, final Object slot4, final Object slot5, final Object slot6,
 				final Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -73081,7 +73081,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -73115,19 +73115,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -73139,7 +73139,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -73161,7 +73161,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -73212,7 +73212,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -73234,13 +73234,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -73270,7 +73270,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -73282,7 +73282,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -73393,7 +73393,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -73404,7 +73404,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -73415,7 +73415,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -73426,7 +73426,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -73923,13 +73923,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -73941,13 +73941,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map9To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -73956,24 +73956,24 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object key8,
 				final Object val8, final Object key9, final Object val9) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
 			;
 		}
 
@@ -73986,7 +73986,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -74051,7 +74051,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -74062,13 +74062,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -74084,7 +74084,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -74131,7 +74131,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -74142,13 +74142,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -74159,13 +74159,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -74258,7 +74258,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -74269,7 +74269,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -74280,7 +74280,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -74291,7 +74291,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -74451,13 +74451,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -74481,13 +74481,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map9To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -74496,24 +74496,24 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val6, final Object key7, final Object val7, final Object key8,
 				final Object val8, final Object key9, final Object val9, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
 			this.slot0 = slot0;
 			;
 		}
@@ -74527,7 +74527,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -74601,19 +74601,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -74629,7 +74629,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -74676,7 +74676,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -74690,13 +74690,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -74712,13 +74712,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -74811,7 +74811,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -74822,7 +74822,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -74833,7 +74833,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -74844,7 +74844,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -75053,13 +75053,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -75087,7 +75087,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map9To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -75097,24 +75097,24 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object slot0,
 				final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -75129,7 +75129,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -75207,25 +75207,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -75247,7 +75247,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -75294,7 +75294,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -75310,13 +75310,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -75334,13 +75334,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -75437,7 +75437,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -75448,7 +75448,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -75459,7 +75459,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -75470,7 +75470,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -75724,13 +75724,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -75762,7 +75762,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map9To3Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -75772,24 +75772,24 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object slot0,
 				final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -75805,7 +75805,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -75883,25 +75883,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -75923,7 +75923,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -75976,7 +75976,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -75992,13 +75992,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -76018,13 +76018,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -76121,7 +76121,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -76132,7 +76132,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -76143,7 +76143,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -76154,7 +76154,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -76450,7 +76450,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -76486,7 +76486,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map9To4Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -76496,24 +76496,24 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -76530,7 +76530,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -76612,25 +76612,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -76642,7 +76642,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -76664,7 +76664,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -76717,7 +76717,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -76735,13 +76735,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -76763,13 +76763,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -76870,7 +76870,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -76881,7 +76881,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -76892,7 +76892,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -76903,7 +76903,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -77248,7 +77248,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -77288,7 +77288,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map9To5Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -77298,24 +77298,24 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -77333,7 +77333,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -77415,25 +77415,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -77445,7 +77445,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -77467,7 +77467,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -77520,7 +77520,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -77538,13 +77538,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -77568,13 +77568,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -77681,7 +77681,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -77692,7 +77692,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -77703,7 +77703,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -77714,7 +77714,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -78105,7 +78105,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -78149,7 +78149,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map9To6Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -78160,24 +78160,24 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -78196,7 +78196,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -78282,7 +78282,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -78294,19 +78294,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -78318,7 +78318,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -78340,7 +78340,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -78393,7 +78393,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -78413,13 +78413,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -78445,13 +78445,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -78562,7 +78562,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -78573,7 +78573,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -78584,7 +78584,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -78595,7 +78595,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -79039,7 +79039,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -79087,7 +79087,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map9To7Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -79098,24 +79098,24 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4,
 				final Object slot5, final Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -79135,7 +79135,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -79221,7 +79221,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -79233,19 +79233,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -79257,7 +79257,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -79279,7 +79279,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -79332,7 +79332,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -79352,13 +79352,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -79386,7 +79386,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object slot6() {
 			return slot6;
@@ -79398,7 +79398,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -79509,7 +79509,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -79520,7 +79520,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -79531,7 +79531,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -79542,7 +79542,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -80025,13 +80025,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -80043,13 +80043,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map10To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -80059,26 +80059,26 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object key10,
 				final Object val10) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
 			;
 		}
 
@@ -80091,7 +80091,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -80169,7 +80169,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -80180,19 +80180,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -80208,7 +80208,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -80257,7 +80257,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -80268,13 +80268,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -80285,13 +80285,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -80388,7 +80388,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -80399,7 +80399,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -80410,7 +80410,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -80421,13 +80421,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		Object val10() {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -80598,13 +80598,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -80628,13 +80628,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map10To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -80644,26 +80644,26 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object key10,
 				final Object val10, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
 			this.slot0 = slot0;
 			;
 		}
@@ -80677,7 +80677,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -80755,25 +80755,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -80789,7 +80789,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -80838,7 +80838,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -80852,13 +80852,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -80874,13 +80874,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -80977,7 +80977,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -80988,7 +80988,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -80999,7 +80999,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -81010,7 +81010,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -81027,7 +81027,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -81240,13 +81240,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -81274,7 +81274,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map10To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -81284,26 +81284,26 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object key10,
 				final Object val10, final Object slot0, final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -81318,7 +81318,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -81400,31 +81400,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -81446,7 +81446,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -81495,7 +81495,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -81511,13 +81511,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -81535,13 +81535,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -81642,7 +81642,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -81653,7 +81653,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -81664,7 +81664,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -81675,7 +81675,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -81692,7 +81692,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -81954,13 +81954,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -81992,7 +81992,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map10To3Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -82002,26 +82002,26 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object key10,
 				final Object val10, final Object slot0, final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -82037,7 +82037,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -82119,31 +82119,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -82165,7 +82165,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -82220,7 +82220,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -82236,13 +82236,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -82262,13 +82262,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -82369,7 +82369,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -82380,7 +82380,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -82391,7 +82391,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -82402,7 +82402,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -82419,7 +82419,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -82727,7 +82727,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -82763,7 +82763,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map10To4Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -82774,26 +82774,26 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -82810,7 +82810,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -82896,31 +82896,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -82932,7 +82932,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -82954,7 +82954,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -83009,7 +83009,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -83027,13 +83027,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -83055,13 +83055,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -83166,7 +83166,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -83177,7 +83177,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -83188,7 +83188,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -83199,7 +83199,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -83216,7 +83216,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -83577,7 +83577,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -83617,7 +83617,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map10To5Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -83628,26 +83628,26 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -83665,7 +83665,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -83751,31 +83751,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -83787,7 +83787,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -83809,7 +83809,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -83864,7 +83864,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -83882,13 +83882,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -83912,13 +83912,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -84029,7 +84029,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -84040,7 +84040,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -84051,7 +84051,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -84062,7 +84062,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -84079,7 +84079,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -84490,7 +84490,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -84534,7 +84534,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		private Map10To6Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -84545,26 +84545,26 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3, final Object slot4, final Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -84583,7 +84583,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -84673,7 +84673,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object slot5() {
 			return slot5;
@@ -84685,25 +84685,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -84715,7 +84715,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -84737,7 +84737,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -84792,7 +84792,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -84812,13 +84812,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -84844,13 +84844,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -84970,7 +84970,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -84981,7 +84981,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -84992,7 +84992,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -85003,7 +85003,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -85020,7 +85020,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -85479,13 +85479,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -85497,19 +85497,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -85591,7 +85591,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -85602,19 +85602,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -85630,7 +85630,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -85681,7 +85681,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map11To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -85691,28 +85691,28 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object key10,
 				final Object val10, final Object key11, final Object val11) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
 			;
 		}
 
@@ -85720,7 +85720,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -85731,13 +85731,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -85748,7 +85748,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -85759,13 +85759,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -85866,7 +85866,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -85877,7 +85877,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -85888,7 +85888,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -85899,13 +85899,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		Object val10() {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -86087,13 +86087,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -86117,19 +86117,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -86211,25 +86211,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		@Override
 		public boolean equals(final Object other) {
@@ -86245,7 +86245,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -86296,7 +86296,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map11To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -86306,28 +86306,28 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val8, final Object key9, final Object val9, final Object key10,
 				final Object val10, final Object key11, final Object val11, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
 			this.slot0 = slot0;
 			;
 		}
@@ -86336,7 +86336,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -86350,13 +86350,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -86372,7 +86372,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -86383,13 +86383,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -86490,7 +86490,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -86501,7 +86501,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -86512,7 +86512,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -86523,7 +86523,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -86540,7 +86540,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -86768,13 +86768,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -86802,13 +86802,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -86894,31 +86894,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -86940,7 +86940,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -86991,7 +86991,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map11To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -87002,28 +87002,28 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object slot0,
 				final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -87033,7 +87033,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -87049,13 +87049,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -87073,7 +87073,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -87084,13 +87084,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -87195,7 +87195,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -87206,7 +87206,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -87217,7 +87217,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -87228,7 +87228,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -87245,7 +87245,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -87526,13 +87526,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -87564,13 +87564,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -87656,31 +87656,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -87702,7 +87702,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -87759,7 +87759,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map11To3Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -87770,28 +87770,28 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object slot0,
 				final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -87802,7 +87802,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -87818,13 +87818,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -87844,7 +87844,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -87855,13 +87855,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -87966,7 +87966,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -87977,7 +87977,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -87988,7 +87988,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -87999,7 +87999,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -88016,7 +88016,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -88347,7 +88347,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -88383,13 +88383,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -88479,31 +88479,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -88515,7 +88515,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -88537,7 +88537,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -88594,7 +88594,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map11To4Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -88605,28 +88605,28 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -88638,7 +88638,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -88656,13 +88656,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -88684,7 +88684,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -88695,13 +88695,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -88815,7 +88815,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -88826,7 +88826,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -88837,7 +88837,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -88848,7 +88848,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -88865,7 +88865,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -89253,7 +89253,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -89293,13 +89293,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -89389,31 +89389,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -89425,7 +89425,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -89447,7 +89447,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -89504,7 +89504,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map11To5Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -89515,28 +89515,28 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object slot0,
 				final Object slot1, final Object slot2, final Object slot3, final Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -89549,7 +89549,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -89567,13 +89567,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -89597,7 +89597,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -89608,13 +89608,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		Object slot4() {
 			return slot4;
@@ -89744,7 +89744,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -89755,7 +89755,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -89766,7 +89766,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -89777,7 +89777,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -89794,7 +89794,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -90227,31 +90227,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -90332,7 +90332,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -90343,25 +90343,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -90383,7 +90383,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -90436,7 +90436,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map12To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -90447,30 +90447,30 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object key12,
 				final Object val12) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
 			;
 		}
 
@@ -90478,7 +90478,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -90489,13 +90489,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -90506,7 +90506,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -90517,13 +90517,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -90628,7 +90628,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -90639,7 +90639,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -90650,7 +90650,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -90661,7 +90661,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -90672,13 +90672,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		Object val10() {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -90871,31 +90871,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -90976,31 +90976,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -91034,7 +91034,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -91087,7 +91087,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map12To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -91098,30 +91098,30 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object key12,
 				final Object val12, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
 			this.slot0 = slot0;
 			;
 		}
@@ -91130,7 +91130,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -91144,13 +91144,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -91166,7 +91166,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -91177,13 +91177,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -91288,7 +91288,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -91299,7 +91299,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -91310,7 +91310,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -91321,7 +91321,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -91332,7 +91332,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -91349,7 +91349,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -91592,25 +91592,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -91695,31 +91695,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -91747,7 +91747,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -91769,7 +91769,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -91822,7 +91822,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map12To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -91833,30 +91833,30 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object key12,
 				final Object val12, final Object slot0, final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -91866,7 +91866,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -91882,13 +91882,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -91906,7 +91906,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -91917,13 +91917,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -92037,7 +92037,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -92048,7 +92048,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -92059,7 +92059,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -92070,7 +92070,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -92081,7 +92081,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -92098,7 +92098,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -92398,25 +92398,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -92501,31 +92501,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -92557,7 +92557,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -92579,7 +92579,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -92638,7 +92638,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map12To3Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -92649,30 +92649,30 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object key12,
 				final Object val12, final Object slot0, final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -92683,7 +92683,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -92699,13 +92699,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -92725,7 +92725,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -92736,13 +92736,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -92866,7 +92866,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -92877,7 +92877,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -92888,7 +92888,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -92899,7 +92899,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -92910,7 +92910,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -92927,7 +92927,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -93281,19 +93281,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -93393,31 +93393,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object slot3() {
 			return slot3;
@@ -93429,7 +93429,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -93465,7 +93465,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -93487,7 +93487,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -93546,7 +93546,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map12To4Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -93558,30 +93558,30 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val12, final Object slot0, final Object slot1, final Object slot2,
 				final Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -93593,7 +93593,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -93611,13 +93611,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -93639,7 +93639,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -93650,13 +93650,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -93785,7 +93785,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -93796,7 +93796,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -93807,7 +93807,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -93818,7 +93818,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -93829,7 +93829,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -93846,7 +93846,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -94318,43 +94318,43 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -94365,25 +94365,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -94405,7 +94405,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -94460,7 +94460,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map13To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -94471,32 +94471,32 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object key12,
 				final Object val12, final Object key13, final Object val13) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
 			;
 		}
 
@@ -94504,7 +94504,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -94515,13 +94515,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -94532,7 +94532,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -94543,13 +94543,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -94742,13 +94742,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -94759,7 +94759,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -94770,7 +94770,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -94781,7 +94781,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -94792,13 +94792,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		Object val10() {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -95002,67 +95002,67 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -95096,7 +95096,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -95151,7 +95151,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map13To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -95162,32 +95162,32 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val10, final Object key11, final Object val11, final Object key12,
 				final Object val12, final Object key13, final Object val13, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
 			this.slot0 = slot0;
 			;
 		}
@@ -95196,7 +95196,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -95210,13 +95210,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -95232,7 +95232,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -95243,13 +95243,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -95452,13 +95452,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -95469,7 +95469,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -95480,7 +95480,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -95491,7 +95491,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -95502,7 +95502,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -95519,7 +95519,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -95777,61 +95777,61 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -95859,7 +95859,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -95881,7 +95881,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -95936,7 +95936,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map13To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -95948,32 +95948,32 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val12, final Object key13, final Object val13, final Object slot0,
 				final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -95983,7 +95983,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -95999,13 +95999,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -96023,7 +96023,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -96034,13 +96034,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -96263,13 +96263,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -96280,7 +96280,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -96291,7 +96291,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -96302,7 +96302,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -96313,7 +96313,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -96330,7 +96330,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -96689,61 +96689,61 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -96775,7 +96775,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -96797,7 +96797,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -96858,7 +96858,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map13To3Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -96870,32 +96870,32 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val12, final Object key13, final Object val13, final Object slot0,
 				final Object slot1, final Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			this.slot2 = slot2;
@@ -96906,7 +96906,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -96922,13 +96922,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -96948,7 +96948,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -96959,13 +96959,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -97191,13 +97191,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -97208,7 +97208,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -97219,7 +97219,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -97230,7 +97230,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -97241,7 +97241,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -97258,7 +97258,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -97682,43 +97682,43 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -97729,25 +97729,25 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -97769,13 +97769,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key14;
 		}
 
-		private final Object key14;
+		private final int key14;
 
 		Object val6() {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -97832,7 +97832,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map14To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -97844,34 +97844,34 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val12, final Object key13, final Object val13, final Object key14,
 				final Object val14) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
-			this.key14 = key14;
-			this.val14 = val14;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
+			this.key14 = (Integer) key14;
+			this.val14 = (Integer) val14;
 			;
 		}
 
@@ -97879,7 +97879,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -97890,13 +97890,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -97907,7 +97907,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -97918,13 +97918,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -98043,7 +98043,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val14;
 		}
 
-		private final Object val14;
+		private final int val14;
 
 		@Override
 		boolean hasPayload() {
@@ -98153,13 +98153,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -98170,7 +98170,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -98181,7 +98181,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -98192,7 +98192,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -98203,13 +98203,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		Object val10() {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -98438,67 +98438,67 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -98532,13 +98532,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key14;
 		}
 
-		private final Object key14;
+		private final int key14;
 
 		Object val6() {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -98595,7 +98595,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map14To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -98607,34 +98607,34 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val12, final Object key13, final Object val13, final Object key14,
 				final Object val14, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
-			this.key14 = key14;
-			this.val14 = val14;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
+			this.key14 = (Integer) key14;
+			this.val14 = (Integer) val14;
 			this.slot0 = slot0;
 			;
 		}
@@ -98643,7 +98643,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -98657,13 +98657,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -98679,7 +98679,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -98690,13 +98690,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -98815,7 +98815,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val14;
 		}
 
-		private final Object val14;
+		private final int val14;
 
 		@Override
 		boolean hasPayload() {
@@ -98928,13 +98928,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -98945,7 +98945,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -98956,7 +98956,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -98967,7 +98967,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -98978,7 +98978,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -98995,7 +98995,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -99296,61 +99296,61 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -99380,7 +99380,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object slot1() {
 			return slot1;
@@ -99402,13 +99402,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key14;
 		}
 
-		private final Object key14;
+		private final int key14;
 
 		Object val6() {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -99465,7 +99465,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map14To2Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -99477,34 +99477,34 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val12, final Object key13, final Object val13, final Object key14,
 				final Object val14, final Object slot0, final Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
-			this.key14 = key14;
-			this.val14 = val14;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
+			this.key14 = (Integer) key14;
+			this.val14 = (Integer) val14;
 			this.slot0 = slot0;
 			this.slot1 = slot1;
 			;
@@ -99514,7 +99514,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -99530,13 +99530,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -99554,7 +99554,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -99565,13 +99565,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -99695,7 +99695,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val14;
 		}
 
-		private final Object val14;
+		private final int val14;
 
 		@Override
 		boolean hasPayload() {
@@ -99813,13 +99813,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -99830,7 +99830,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -99841,7 +99841,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -99852,7 +99852,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -99863,7 +99863,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -99880,7 +99880,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -100256,31 +100256,31 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -100291,37 +100291,37 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object val15() {
 			return val15;
 		}
 
-		private final Object val15;
+		private final int val15;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -100343,13 +100343,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key14;
 		}
 
-		private final Object key14;
+		private final int key14;
 
 		Object val6() {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -100408,7 +100408,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map15To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -100420,36 +100420,36 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val12, final Object key13, final Object val13, final Object key14,
 				final Object val14, final Object key15, final Object val15) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
-			this.key14 = key14;
-			this.val14 = val14;
-			this.key15 = key15;
-			this.val15 = val15;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
+			this.key14 = (Integer) key14;
+			this.val14 = (Integer) val14;
+			this.key15 = (Integer) key15;
+			this.val15 = (Integer) val15;
 			;
 		}
 
@@ -100457,7 +100457,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -100468,13 +100468,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -100485,7 +100485,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -100496,13 +100496,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -100626,7 +100626,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val14;
 		}
 
-		private final Object val14;
+		private final int val14;
 
 		@Override
 		boolean hasPayload() {
@@ -100744,13 +100744,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -100761,7 +100761,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -100772,19 +100772,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key15;
 		}
 
-		private final Object key15;
+		private final int key15;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object val7() {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -100795,7 +100795,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -100806,13 +100806,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		Object val10() {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -101053,67 +101053,67 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object val15() {
 			return val15;
 		}
 
-		private final Object val15;
+		private final int val15;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -101148,13 +101148,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key14;
 		}
 
-		private final Object key14;
+		private final int key14;
 
 		Object val6() {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -101213,7 +101213,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map15To1Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -101225,36 +101225,36 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val12, final Object key13, final Object val13, final Object key14,
 				final Object val14, final Object key15, final Object val15, final Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
-			this.key14 = key14;
-			this.val14 = val14;
-			this.key15 = key15;
-			this.val15 = val15;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
+			this.key14 = (Integer) key14;
+			this.val14 = (Integer) val14;
+			this.key15 = (Integer) key15;
+			this.val15 = (Integer) val15;
 			this.slot0 = slot0;
 			;
 		}
@@ -101263,7 +101263,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -101277,13 +101277,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -101299,7 +101299,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -101310,13 +101310,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -101440,7 +101440,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val14;
 		}
 
-		private final Object val14;
+		private final int val14;
 
 		@Override
 		boolean hasPayload() {
@@ -101558,13 +101558,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -101575,7 +101575,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -101586,19 +101586,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key15;
 		}
 
-		private final Object key15;
+		private final int key15;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object val7() {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -101609,7 +101609,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -101620,7 +101620,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -101637,7 +101637,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
@@ -101945,37 +101945,37 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key7;
 		}
 
-		private final Object key7;
+		private final int key7;
 
 		Object key3() {
 			return key3;
 		}
 
-		private final Object key3;
+		private final int key3;
 
 		Object key13() {
 			return key13;
 		}
 
-		private final Object key13;
+		private final int key13;
 
 		Object key9() {
 			return key9;
 		}
 
-		private final Object key9;
+		private final int key9;
 
 		Object val9() {
 			return val9;
 		}
 
-		private final Object val9;
+		private final int val9;
 
 		Object key10() {
 			return key10;
 		}
 
-		private final Object key10;
+		private final int key10;
 
 		@Override
 		Object getRareKey(final int index) {
@@ -101986,37 +101986,37 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key16;
 		}
 
-		private final Object key16;
+		private final int key16;
 
 		Object key5() {
 			return key5;
 		}
 
-		private final Object key5;
+		private final int key5;
 
 		Object key8() {
 			return key8;
 		}
 
-		private final Object key8;
+		private final int key8;
 
 		Object key1() {
 			return key1;
 		}
 
-		private final Object key1;
+		private final int key1;
 
 		Object val15() {
 			return val15;
 		}
 
-		private final Object val15;
+		private final int val15;
 
 		Object val12() {
 			return val12;
 		}
 
-		private final Object val12;
+		private final int val12;
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
@@ -102038,13 +102038,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key14;
 		}
 
-		private final Object key14;
+		private final int key14;
 
 		Object val6() {
 			return val6;
 		}
 
-		private final Object val6;
+		private final int val6;
 
 		@Override
 		int nodeArity() {
@@ -102105,7 +102105,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val11;
 		}
 
-		private final Object val11;
+		private final int val11;
 
 		private Map16To0Node_BleedingEdge(final AtomicReference<Thread> mutator, final int nodeMap,
 				final int dataMap, final Object key1, final Object val1, final Object key2,
@@ -102118,38 +102118,38 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				final Object val14, final Object key15, final Object val15, final Object key16,
 				final Object val16) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.val1 = val1;
-			this.key2 = key2;
-			this.val2 = val2;
-			this.key3 = key3;
-			this.val3 = val3;
-			this.key4 = key4;
-			this.val4 = val4;
-			this.key5 = key5;
-			this.val5 = val5;
-			this.key6 = key6;
-			this.val6 = val6;
-			this.key7 = key7;
-			this.val7 = val7;
-			this.key8 = key8;
-			this.val8 = val8;
-			this.key9 = key9;
-			this.val9 = val9;
-			this.key10 = key10;
-			this.val10 = val10;
-			this.key11 = key11;
-			this.val11 = val11;
-			this.key12 = key12;
-			this.val12 = val12;
-			this.key13 = key13;
-			this.val13 = val13;
-			this.key14 = key14;
-			this.val14 = val14;
-			this.key15 = key15;
-			this.val15 = val15;
-			this.key16 = key16;
-			this.val16 = val16;
+			this.key1 = (Integer) key1;
+			this.val1 = (Integer) val1;
+			this.key2 = (Integer) key2;
+			this.val2 = (Integer) val2;
+			this.key3 = (Integer) key3;
+			this.val3 = (Integer) val3;
+			this.key4 = (Integer) key4;
+			this.val4 = (Integer) val4;
+			this.key5 = (Integer) key5;
+			this.val5 = (Integer) val5;
+			this.key6 = (Integer) key6;
+			this.val6 = (Integer) val6;
+			this.key7 = (Integer) key7;
+			this.val7 = (Integer) val7;
+			this.key8 = (Integer) key8;
+			this.val8 = (Integer) val8;
+			this.key9 = (Integer) key9;
+			this.val9 = (Integer) val9;
+			this.key10 = (Integer) key10;
+			this.val10 = (Integer) val10;
+			this.key11 = (Integer) key11;
+			this.val11 = (Integer) val11;
+			this.key12 = (Integer) key12;
+			this.val12 = (Integer) val12;
+			this.key13 = (Integer) key13;
+			this.val13 = (Integer) val13;
+			this.key14 = (Integer) key14;
+			this.val14 = (Integer) val14;
+			this.key15 = (Integer) key15;
+			this.val15 = (Integer) val15;
+			this.key16 = (Integer) key16;
+			this.val16 = (Integer) val16;
 			;
 		}
 
@@ -102157,7 +102157,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val4;
 		}
 
-		private final Object val4;
+		private final int val4;
 
 		@Override
 		Object getRareValue(final int index) {
@@ -102168,13 +102168,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key2;
 		}
 
-		private final Object key2;
+		private final int key2;
 
 		Object val2() {
 			return val2;
 		}
 
-		private final Object val2;
+		private final int val2;
 
 		@Override
 		CompactMapNode getNode(final int index) {
@@ -102185,7 +102185,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key4;
 		}
 
-		private final Object key4;
+		private final int key4;
 
 		@Override
 		boolean hasNodes() {
@@ -102196,13 +102196,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key11;
 		}
 
-		private final Object key11;
+		private final int key11;
 
 		Object key6() {
 			return key6;
 		}
 
-		private final Object key6;
+		private final int key6;
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
@@ -102331,7 +102331,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val14;
 		}
 
-		private final Object val14;
+		private final int val14;
 
 		@Override
 		boolean hasPayload() {
@@ -102454,13 +102454,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val13;
 		}
 
-		private final Object val13;
+		private final int val13;
 
 		Object val3() {
 			return val3;
 		}
 
-		private final Object val3;
+		private final int val3;
 
 		@Override
 		Iterator<? extends AbstractMapNode> nodeIterator() {
@@ -102471,7 +102471,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key12;
 		}
 
-		private final Object key12;
+		private final int key12;
 
 		@Override
 		int payloadArity() {
@@ -102482,19 +102482,19 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return key15;
 		}
 
-		private final Object key15;
+		private final int key15;
 
 		Object val1() {
 			return val1;
 		}
 
-		private final Object val1;
+		private final int val1;
 
 		Object val7() {
 			return val7;
 		}
 
-		private final Object val7;
+		private final int val7;
 
 		@Override
 		public String toString() {
@@ -102505,7 +102505,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val5;
 		}
 
-		private final Object val5;
+		private final int val5;
 
 		@Override
 		CompactMapNode copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
@@ -102516,7 +102516,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val8;
 		}
 
-		private final Object val8;
+		private final int val8;
 
 		@Override
 		Map.Entry<Object, Object> getKeyValueEntry(final int index) {
@@ -102527,13 +102527,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			return val16;
 		}
 
-		private final Object val16;
+		private final int val16;
 
 		Object val10() {
 			return val10;
 		}
 
-		private final Object val10;
+		private final int val10;
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
