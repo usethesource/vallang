@@ -149,7 +149,10 @@ public class TrieMapTests {
 	@Test
 	public void testPrintStatsRandomSmallAndBigIntegers() {
 		TrieMap_Heterogeneous map = (TrieMap_Heterogeneous) TrieMap_Heterogeneous.of();
-
+		long smallCount = 0;
+		long bigCount = 0;
+		
+		
 		Random rand = new Random(13);
 		
 		/*
@@ -160,29 +163,34 @@ public class TrieMapTests {
 		
 		
 		for (int i = size; i > 0; i--) {
-			final int j = rand.nextInt(maxTestValue);
+			final int j = rand.nextInt();
 			// System.out.println(j);
 			
 			final BigInteger bigJ = BigInteger.valueOf(j).multiply(BigInteger.valueOf(j));
 			// System.out.println(bigJ);
 			
-			if (bigJ.bitLength() > 31) {
+			if (i % 20 == 0) { // earlier: bigJ.bitLength() > 31
 				// System.out.println("BIG");
+				bigCount++;
 				TrieMap_Heterogeneous res = (TrieMap_Heterogeneous) map.__put(bigJ, bigJ);
 				assert res.containsKey(bigJ);
 				map = res;
 			} else {
 				// System.out.println("SMALL");
+				smallCount++;
 				TrieMap_Heterogeneous res = (TrieMap_Heterogeneous) map.__put(j, j);
 				assert res.containsKey(j);
 				map = res;
 			}
 		}
 
-		map.printStatistics();
+		// map.printStatistics();
+		// System.out.println(map);
 		
-		System.out.println();
-		System.out.println(map);
+		System.out.println();		
+		System.out.println(String.format("PRIMITIVE:   %10d (%.2f percent)", smallCount, 100. * smallCount / (smallCount + bigCount)));
+		System.out.println(String.format("BIG_INTEGER: %10d (%.2f percent)", bigCount, 100. * bigCount / (smallCount + bigCount)));
+		System.out.println(String.format("UNIQUE:      %10d (%.2f percent)", map.size(), 100. * map.size() / (smallCount + bigCount)));
 	}
 
 }
