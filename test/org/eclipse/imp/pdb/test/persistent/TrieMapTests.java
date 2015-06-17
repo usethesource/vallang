@@ -151,16 +151,8 @@ public class TrieMapTests {
 		TrieMap_Heterogeneous map = (TrieMap_Heterogeneous) TrieMap_Heterogeneous.of();
 		long smallCount = 0;
 		long bigCount = 0;
-		
-		
+				
 		Random rand = new Random(13);
-		
-		/*
-		 * 50% split between primitive int and BigInteger values when
-		 * multiplied.
-		 */
-		final int maxTestValue = (int) Math.ceil(2 * Math.sqrt(Integer.MAX_VALUE));
-		
 		
 		for (int i = size; i > 0; i--) {
 			final int j = rand.nextInt();
@@ -191,6 +183,7 @@ public class TrieMapTests {
 		System.out.println(String.format("PRIMITIVE:   %10d (%.2f percent)", smallCount, 100. * smallCount / (smallCount + bigCount)));
 		System.out.println(String.format("BIG_INTEGER: %10d (%.2f percent)", bigCount, 100. * bigCount / (smallCount + bigCount)));
 		System.out.println(String.format("UNIQUE:      %10d (%.2f percent)", map.size(), 100. * map.size() / (smallCount + bigCount)));
+		System.out.println();
 	}
 
 }
