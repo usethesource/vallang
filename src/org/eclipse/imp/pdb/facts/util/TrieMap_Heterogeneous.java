@@ -1073,6 +1073,13 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					slot4 });
 		}
 
+		static final CompactMapNode nodeOf6x0(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object slot0, final Object slot1,
+				final Object slot2, final Object slot3, final Object slot4, final Object slot5) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { slot0, slot1, slot2, slot3,
+					slot4, slot5 });
+		}
+
 		static final CompactMapNode nodeOf0x1(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object key1, final Object val1) {
 			return new Map1To0Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1);
@@ -1104,6 +1111,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					slot2, slot3 });
 		}
 
+		static final CompactMapNode nodeOf5x1(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object slot0, final Object slot1, final Object slot2, final Object slot3,
+				final Object slot4) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, slot0, slot1,
+					slot2, slot3, slot4 });
+		}
+
 		static final CompactMapNode nodeOf0x2(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object key1, final Object val1,
 				final Object key2, final Object val2) {
@@ -1132,6 +1147,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					slot1, slot2 });
 		}
 
+		static final CompactMapNode nodeOf4x2(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object slot0, final Object slot1,
+				final Object slot2, final Object slot3) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, slot0,
+					slot1, slot2, slot3 });
+		}
+
 		static final CompactMapNode nodeOf0x3(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object key1, final Object val1,
 				final Object key2, final Object val2, final Object key3, final Object val3) {
@@ -1155,6 +1178,14 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					val3, slot0, slot1 });
 		}
 
+		static final CompactMapNode nodeOf3x3(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object slot0, final Object slot1, final Object slot2) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, slot0, slot1, slot2 });
+		}
+
 		static final CompactMapNode nodeOf0x4(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object key1, final Object val1,
 				final Object key2, final Object val2, final Object key3, final Object val3,
@@ -1171,13 +1202,39 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					val3, key4, val4, slot0 });
 		}
 
+		static final CompactMapNode nodeOf2x4(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object key4, final Object val4, final Object slot0, final Object slot1) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, key4, val4, slot0, slot1 });
+		}
+
 		static final CompactMapNode nodeOf0x5(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object key1, final Object val1,
 				final Object key2, final Object val2, final Object key3, final Object val3,
 				final Object key4, final Object val4, final Object key5, final Object val5) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
 					val3, key4, val4, key5, val5 });
-		}		
+		}
+
+		static final CompactMapNode nodeOf1x5(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object key4, final Object val4, final Object key5, final Object val5,
+				final Object slot0) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, key4, val4, key5, val5, slot0 });
+		}
+
+		static final CompactMapNode nodeOf0x6(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final Object key1, final Object val1,
+				final Object key2, final Object val2, final Object key3, final Object val3,
+				final Object key4, final Object val4, final Object key5, final Object val5,
+				final Object key6, final Object val6) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, key4, val4, key5, val5, key6, val6 });
+		}
 		
 		static final int index(final int bitmap, final int bitpos) {
 			return java.lang.Integer.bitCount(bitmap & (bitpos - 1));
@@ -1599,7 +1656,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			}
 
-			assert nodeInvariant();
+			// assert nodeInvariant();
 		}
 
 		@Override
@@ -3332,7 +3389,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -3343,7 +3400,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -3370,7 +3427,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 0 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -3557,7 +3614,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 0 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -3568,7 +3625,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 0 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -3597,7 +3654,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 1 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -3801,7 +3858,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -3819,7 +3876,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 1 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -3848,7 +3905,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 2 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -4063,7 +4120,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 2 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -4083,7 +4140,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 2 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -4120,7 +4177,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 3 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -4351,7 +4408,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 3 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -4380,7 +4437,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 3 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -4607,7 +4664,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -4618,7 +4675,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -4658,7 +4715,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 0 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -4880,7 +4937,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 0 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -4891,7 +4948,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 0 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -4935,7 +4992,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 1 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -5175,7 +5232,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -5193,7 +5250,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 1 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -5239,7 +5296,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 2 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -5494,7 +5551,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 2 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -5514,7 +5571,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 2 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -5779,7 +5836,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -5790,7 +5847,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -5837,7 +5894,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 0 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -6088,7 +6145,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 0 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -6099,7 +6156,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 0 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -6152,7 +6209,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 1 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -6421,7 +6478,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -6439,7 +6496,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 1 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -6742,7 +6799,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -6753,7 +6810,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -6807,7 +6864,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 				final CompactMapNode node) {
-			final int idx = 0 - nodeIndex(bitpos);
+			final int idx = nodeIndex(bitpos);
 
 			final int nodeMap = rawMap1();
 			final int dataMap = rawMap2();
@@ -7087,7 +7144,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = 0 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -7098,7 +7155,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = 0 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -7442,7 +7499,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 			// TODO: support migration if partial
 			if (isRare(bitpos)) {
 				final int idxOld = rareIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH + 1 - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
@@ -7453,7 +7510,7 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 				}
 			} else {
 				final int idxOld = dataIndex(bitpos);
-				final int idxNew = -1 - TUPLE_LENGTH - nodeIndex(bitpos);
+				final int idxNew = nodeIndex(bitpos);
 
 				final int nodeMap = rawMap1() | bitpos;
 				final int dataMap = rawMap2() ^ bitpos;
