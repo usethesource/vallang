@@ -38,7 +38,8 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 					CompactMapNode.emptyTrieNodeConstant(), 0, 0);
 
 	private static final boolean DEBUG = true;
-
+	public static boolean IS_SPECIALIZED = false;
+	
 	private final AbstractMapNode rootNode;
 	private final int hashCode;
 	private final int cachedSize;
@@ -847,11 +848,11 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		}
 
 		static final int bitPartitionSize() {
-			return 3;
+			return 5;
 		}
 
 		static final int bitPartitionMask() {
-			return 0b111;
+			return 0b11111;
 		}
 
 		static final int mask(final int keyHash, final int shift) {
@@ -1026,10 +1027,18 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		}
 
 		static final CompactMapNode emptyTrieNodeConstant() {
-			return EMPTY_NODE;
+			// return EMPTY_NODE;
+
+			if (IS_SPECIALIZED) {
+				return new Map0To0Node_BleedingEdge(null, 0, 0);
+			} else {
+				return new BitmapIndexedMapNode(null, 0, 0, new Object[] {});
+			}
+
 		}
 
-		static final CompactMapNode EMPTY_NODE = new Map0To0Node_BleedingEdge(null, 0, 0);
+		// static final CompactMapNode EMPTY_NODE = new Map0To0Node_BleedingEdge(null, 0, 0);
+		// static final CompactMapNode EMPTY_NODE = new BitmapIndexedMapNode(null, 0, 0, new Object[] {});
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
 						final int nodeMap, final int dataMap, final Object[] nodes) {
@@ -1037,17 +1046,21 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		}
 
 		static final CompactMapNode nodeOf(AtomicReference<Thread> mutator) {
-			return EMPTY_NODE;
+			return emptyTrieNodeConstant();
 		}
 
 		static final CompactMapNode nodeOf0x0(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap) {
-			return EMPTY_NODE;
+			return emptyTrieNodeConstant();
 		}
 
 		static final CompactMapNode nodeOf1x0(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object slot0) {
-			return new Map0To1Node_BleedingEdge(mutator, nodeMap, dataMap, slot0);
+			if (IS_SPECIALIZED) {
+				return new Map0To1Node_BleedingEdge(mutator, nodeMap, dataMap, slot0);
+			} else {
+				return new BitmapIndexedMapNode(mutator, nodeMap, dataMap, new Object[] { slot0 });
+			}
 		}
 
 		static final CompactMapNode nodeOf2x0(final AtomicReference<Thread> mutator,
@@ -1064,8 +1077,11 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		static final CompactMapNode nodeOf4x0(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object slot0, final Object slot1,
 				final Object slot2, final Object slot3) {
-			return new Map0To4Node_BleedingEdge(mutator, nodeMap, dataMap, slot0, slot1, slot2,
-					slot3);
+			if (IS_SPECIALIZED) {
+				return new Map0To4Node_BleedingEdge(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3);
+			} else {
+				return new BitmapIndexedMapNode(mutator, nodeMap, dataMap, new Object[] { slot0, slot1, slot2, slot3 });
+			}	
 		}
 
 		static final CompactMapNode nodeOf5x0(final AtomicReference<Thread> mutator,
@@ -1207,8 +1223,12 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 
 		static final CompactMapNode nodeOf2x1(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object key1, final Object val1,
-				final Object slot0, final Object slot1) {
-			return new Map1To2Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, slot0, slot1);
+				final Object slot0, final Object slot1) {		
+			if (IS_SPECIALIZED) {
+				return new Map1To2Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, slot0, slot1);
+			} else {
+				return new BitmapIndexedMapNode(mutator, nodeMap, dataMap, new Object[] { key1, val1, slot0, slot1 });
+			}
 		}
 
 		static final CompactMapNode nodeOf3x1(final AtomicReference<Thread> mutator,
@@ -1352,7 +1372,11 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		static final CompactMapNode nodeOf0x2(final AtomicReference<Thread> mutator,
 				final int nodeMap, final int dataMap, final Object key1, final Object val1,
 				final Object key2, final Object val2) {
-			return new Map2To0Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, key2, val2);
+			if (IS_SPECIALIZED) {
+				return new Map2To0Node_BleedingEdge(mutator, nodeMap, dataMap, key1, val1, key2, val2);
+			} else {
+				return new BitmapIndexedMapNode(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2 });
+			}
 		}
 
 		static final CompactMapNode nodeOf1x2(final AtomicReference<Thread> mutator,
