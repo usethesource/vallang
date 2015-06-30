@@ -874,11 +874,11 @@ public class TrieMap_Heterogeneous implements ImmutableMap<Object, Object> {
 		abstract int rareMap();
 		
 		static final boolean isRare(Object o) {
-			return o.getClass() == BigInteger.class;
+			return o.getClass() != Integer.class;
 		}
 		
 		static final boolean isRare(Object... os) {
-			return Stream.of(os).anyMatch(o -> o.getClass() == BigInteger.class);
+			return Stream.of(os).anyMatch(o -> o.getClass() != Integer.class);
 		}
 		
 		final boolean isRare(int bitpos) {
