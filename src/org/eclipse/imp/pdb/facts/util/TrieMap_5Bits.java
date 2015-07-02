@@ -1066,13 +1066,9 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				if (currentKey.equals(key)) {
 					final V currentVal = getValue(dataIndex);
 
-					if (currentVal.equals(val)) {
-						return this;
-					} else {
-						// update mapping
-						details.updated(currentVal);
-						return copyAndSetValue(mutator, bitpos, val);
-					}
+					// update mapping
+					details.updated(currentVal);
+					return copyAndSetValue(mutator, bitpos, val);
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
@@ -1112,13 +1108,9 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				if (cmp.compare(currentKey, key) == 0) {
 					final V currentVal = getValue(dataIndex);
 
-					if (cmp.compare(currentVal, val) == 0) {
-						return this;
-					} else {
-						// update mapping
-						details.updated(currentVal);
-						return copyAndSetValue(mutator, bitpos, val);
-					}
+					// update mapping
+					details.updated(currentVal);
+					return copyAndSetValue(mutator, bitpos, val);
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
