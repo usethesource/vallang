@@ -200,14 +200,14 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
-				final int valHashOld = details.getReplacedValue().hashCode();
-				final int valHashNew = val.hashCode();
+				final int valHashOld = 0; // TODO: details.getReplacedValue().hashCode();
+				final int valHashNew = 0; // TODO: val.hashCode();
 
 				return new TrieMap_5Bits_Memoized<K, V>(newRootNode, hashCode + ((keyHash ^ valHashNew))
 								- ((keyHash ^ valHashOld)), cachedSize);
 			}
 
-			final int valHash = val.hashCode();
+			final int valHash = 0; // // TODO: val.hashCode();
 			return new TrieMap_5Bits_Memoized<K, V>(newRootNode, hashCode + ((keyHash ^ valHash)),
 							cachedSize + 1);
 		}
@@ -261,7 +261,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
-			final int valHash = details.getReplacedValue().hashCode();
+			final int valHash = 0; // TODO: details.getReplacedValue().hashCode();
 			return new TrieMap_5Bits_Memoized<K, V>(newRootNode, hashCode - ((keyHash ^ valHash)),
 							cachedSize - 1);
 		}
@@ -517,7 +517,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return new TransientTrieMap_5Bits<K, V>(this);
+		return new TransientTrieMap_5Bits_Memoized<K, V>(this);
 	}
 
 	/*
@@ -531,7 +531,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 	 * For analysis purposes only.
 	 */
 	protected Iterator<AbstractMapNode<K, V>> nodeIterator() {
-		return new TrieMap_5BitsNodeIterator<>(rootNode);
+		return new TrieMap_5Bits_MemoizedNodeIterator<>(rootNode);
 	}
 
 	/*
@@ -780,8 +780,10 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		abstract boolean hasPayload();
 
 		abstract int payloadArity();
-
+		
 		abstract K getKey(final int index);
+
+		abstract int getKeyHash(final int index);
 
 		abstract V getValue(final int index);
 
@@ -870,7 +872,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 						final int bitpos, final V val);
 
 		abstract CompactMapNode<K, V> copyAndInsertValue(final AtomicReference<Thread> mutator,
-						final int bitpos, final K key, final V val);
+						final int bitpos, final K key, final V val, int keyHash);
 
 		abstract CompactMapNode<K, V> copyAndRemoveValue(final AtomicReference<Thread> mutator,
 						final int bitpos);
@@ -889,7 +891,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K key0, final V val0,
 						final int keyHash0, final K key1, final V val1, final int keyHash1,
 						final int shift) {
-			assert !(key0.equals(key1));
+			// assert !(key0.equals(key1));
 
 			if (shift >= HASH_CODE_LENGTH) {
 				// throw new
@@ -907,9 +909,13 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				final int dataMap = (int) (bitpos(mask0) | bitpos(mask1));
 
 				if (mask0 < mask1) {
-					return nodeOf(null, (int) (0), dataMap, new Object[] { key0, val0, key1, val1 });
+					return nodeOf(null, (int) (0), dataMap,
+							new Object[] { key0, val0, key1, val1 },
+							new int[] { keyHash0, keyHash1 });
 				} else {
-					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, val1, key0, val0 });
+					return nodeOf(null, (int) (0), dataMap,
+							new Object[] { key1, val1, key0, val0 },
+							new int[] { keyHash1, keyHash0 });
 				}
 			} else {
 				final CompactMapNode<K, V> node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1,
@@ -917,21 +923,20 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
-				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
+				return nodeOf(null, nodeMap, (int) (0), new Object[] { node }, new int[] {});
 			}
 		}
 
 		static final CompactMapNode EMPTY_NODE;
 
 		static {
-
-			EMPTY_NODE = new BitmapIndexedMapNode<>(null, (int) (0), (int) (0), new Object[] {});
-
+			EMPTY_NODE = new BitmapIndexedMapNode<>(null, (int) (0), (int) (0), new Object[] {},
+					new int[] {});
 		};
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final Object[] nodes) {
-			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes);
+						final int nodeMap, final int dataMap, final Object[] nodes, final int[] keyHashes) {
+			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes, keyHashes);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -940,9 +945,9 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key, final V val) {
+				final int nodeMap, final int dataMap, final K key, final V val) {
 			assert nodeMap == 0;
-			return nodeOf(mutator, (int) (0), dataMap, new Object[] { key, val });
+			return nodeOf(mutator, (int) (0), dataMap, new Object[] { key, val }, new int[] {});
 		}
 
 		static final int index(final int bitmap, final int bitpos) {
@@ -972,7 +977,12 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			final int dataMap = dataMap();
 			if ((dataMap & bitpos) != 0) {
 				final int index = index(dataMap, mask, bitpos);
-				return getKey(index).equals(key);
+
+				K currentKey = getKey(index);
+				// int currentKeyHash = currentKey.hashCode(); 
+				int currentKeyHash = getKeyHash(index);
+				
+				return currentKeyHash == keyHash && currentKey.equals(key); 
 			}
 
 			final int nodeMap = nodeMap();
@@ -992,7 +1002,12 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			final int dataMap = dataMap();
 			if ((dataMap & bitpos) != 0) {
 				final int index = index(dataMap, mask, bitpos);
-				return cmp.compare(getKey(index), key) == 0;
+				
+				K currentKey = getKey(index);
+				// int currentKeyHash = currentKey.hashCode(); 
+				int currentKeyHash = getKeyHash(index);
+				
+				return currentKeyHash == keyHash && cmp.compare(currentKey, key) == 0;
 			}
 
 			final int nodeMap = nodeMap();
@@ -1063,20 +1078,19 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				final int dataIndex = dataIndex(bitpos);
 				final K currentKey = getKey(dataIndex);
 
-				if (currentKey.equals(key)) {
+				int currentKeyHash = getKeyHash(dataIndex);
+				// int currentKeyHash = transformHashCode(currentKey.hashCode());
+				
+				if (currentKeyHash == keyHash && currentKey.equals(key)) {   
 					final V currentVal = getValue(dataIndex);
 
-					if (currentVal.equals(val)) {
-						return this;
-					} else {
-						// update mapping
-						details.updated(currentVal);
-						return copyAndSetValue(mutator, bitpos, val);
-					}
+					// update mapping
+					details.updated(currentVal);
+					return copyAndSetValue(mutator, bitpos, val);
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, transformHashCode(currentKey.hashCode()), key, val,
+									currentVal, currentKeyHash, key, val,
 									keyHash, shift + BIT_PARTITION_SIZE);
 
 					details.modified();
@@ -1095,7 +1109,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			} else {
 				// no value
 				details.modified();
-				return copyAndInsertValue(mutator, bitpos, key, val);
+				return copyAndInsertValue(mutator, bitpos, key, val, keyHash);
 			}
 		}
 
@@ -1109,16 +1123,15 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				final int dataIndex = dataIndex(bitpos);
 				final K currentKey = getKey(dataIndex);
 
-				if (cmp.compare(currentKey, key) == 0) {
+				int currentKeyHash = getKeyHash(dataIndex);
+				// int currentKeyHash = transformHashCode(currentKey.hashCode());
+								
+				if (currentKeyHash == keyHash && cmp.compare(currentKey, key) == 0) {
 					final V currentVal = getValue(dataIndex);
 
-					if (cmp.compare(currentVal, val) == 0) {
-						return this;
-					} else {
-						// update mapping
-						details.updated(currentVal);
-						return copyAndSetValue(mutator, bitpos, val);
-					}
+					// update mapping
+					details.updated(currentVal);
+					return copyAndSetValue(mutator, bitpos, val);
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
@@ -1141,7 +1154,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			} else {
 				// no value
 				details.modified();
-				return copyAndInsertValue(mutator, bitpos, key, val);
+				return copyAndInsertValue(mutator, bitpos, key, val, keyHash);
 			}
 		}
 
@@ -1153,7 +1166,9 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
 
-				if (getKey(dataIndex).equals(key)) {
+				int currentKeyHash = getKeyHash(dataIndex);
+				
+				if (currentKeyHash == keyHash && getKey(dataIndex).equals(key)) {
 					final V currentVal = getValue(dataIndex);
 					details.updated(currentVal);
 
@@ -1167,11 +1182,13 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 										: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
-							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(1), getValue(1));
+							return CompactMapNode.nodeOf(mutator, (int) (0), newDataMap,
+									new Object[] { getKey(1), getValue(1) },
+									new int[] { getKeyHash(1) });
 						} else {
-							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(0), getValue(0));
+							return CompactMapNode.nodeOf(mutator, (int) (0), newDataMap,
+									new Object[] { getKey(0), getValue(0) },
+									new int[] { getKeyHash(0) });
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
@@ -1220,7 +1237,9 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
 
-				if (cmp.compare(getKey(dataIndex), key) == 0) {
+				int currentKeyHash = getKeyHash(dataIndex);
+				
+				if (currentKeyHash == keyHash && cmp.compare(getKey(dataIndex), key) == 0) {
 					final V currentVal = getValue(dataIndex);
 					details.updated(currentVal);
 
@@ -1234,11 +1253,13 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 										: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
-							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(1), getValue(1));
+							return CompactMapNode.nodeOf(mutator, (int) (0), newDataMap,
+									new Object[] { getKey(1), getValue(1) },
+									new int[] { getKeyHash(1) });
 						} else {
-							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(0), getValue(0));
+							return CompactMapNode.nodeOf(mutator, (int) (0), newDataMap,
+									new Object[] { getKey(0), getValue(0) },
+									new int[] { getKeyHash(0) });
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
@@ -1365,14 +1386,16 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 
 		final AtomicReference<Thread> mutator;
 		final Object[] nodes;
+		final int[] keyHashes;
 
 		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final Object[] nodes) {
+						final int dataMap, final Object[] nodes, final int[] keyHashes) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
 			this.nodes = nodes;
-
+			this.keyHashes = keyHashes;
+			
 			if (DEBUG) {
 
 				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
@@ -1395,6 +1418,11 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			return (K) nodes[TUPLE_LENGTH * index];
 		}
 
+		@Override
+		int getKeyHash(int index) {
+			return keyHashes[index];
+		}		
+		
 		@SuppressWarnings("unchecked")
 		@Override
 		V getValue(final int index) {
@@ -1474,9 +1502,16 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			if (dataMap() != that.dataMap()) {
 				return false;
 			}
-			if (!Arrays.equals(nodes, that.nodes)) {
-				return false;
+//			if (!Arrays.equals(nodes, that.nodes)) {
+//				return false;
+//			}			
+
+			for (int i = nodes.length - 1; i >= 0; i--) {
+				if (!nodes[i].equals(that.nodes[i])) {
+					return false;
+				}
 			}
+						
 			return true;
 		}
 
@@ -1513,7 +1548,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = val;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst, keyHashes);
 			}
 		}
 
@@ -1535,16 +1570,26 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst, keyHashes);
 			}
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(final AtomicReference<Thread> mutator,
-						final int bitpos, final K key, final V val) {
-			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
+						final int bitpos, final K key, final V val, int keyHash) {
+			final int idx = dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
+			final Object[] dst = arraycopyAndInsertTuple(src, TUPLE_LENGTH * idx, key, val);
+
+			final int[] srcKeyHashes = this.keyHashes;
+			final int[] dstKeyHashes = arraycopyAndInsertInt(srcKeyHashes, idx, keyHash);
+			
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst, dstKeyHashes);
+		}
+
+		private Object[] arraycopyAndInsertTuple(final Object[] src, final int idx, final K key,
+				final V val) {
 			final Object[] dst = (Object[]) new Object[src.length + 2];
 
 			// copy 'src' and insert 2 element(s) at position 'idx'
@@ -1553,32 +1598,74 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			dst[idx + 1] = val;
 			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst);
+			return dst;
+		}
+		
+		private int[] arraycopyAndInsertInt(final int[] src, final int idx, final int value) {
+			final int[] dst = new int[src.length + 1];
+
+			// copy 'src' and insert 1 element(s) at position 'idx'
+			System.arraycopy(src, 0, dst, 0, idx);
+			dst[idx] = value;
+			System.arraycopy(src, idx, dst, idx + 1, src.length - idx);
+
+			return dst;
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndRemoveValue(final AtomicReference<Thread> mutator,
 						final int bitpos) {
-			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
+			final int idx = dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
+			final Object[] dst = arraycopyAndRemoveTuple(src, TUPLE_LENGTH * idx);
+
+			final int[] srcKeyHashes = this.keyHashes;
+			final int[] dstKeyHashes = arraycopyAndRemoveInt(srcKeyHashes, idx);
+			
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst, dstKeyHashes);
+		}
+
+		private Object[] arraycopyAndRemoveTuple(final Object[] src, final int idx) {
 			final Object[] dst = (Object[]) new Object[src.length - 2];
 
 			// copy 'src' and remove 2 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 2, dst, idx, src.length - idx - 2);
-
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst);
+			
+			return dst;
 		}
 
+		private int[] arraycopyAndRemoveInt(final int[] src, final int idx) {
+			final int[] dst = new int[src.length - 1];
+
+			// copy 'src' and remove 1 element(s) at position 'idx'
+			System.arraycopy(src, 0, dst, 0, idx);
+			System.arraycopy(src, idx + 1, dst, idx, src.length - idx - 1);
+			
+			return dst;
+		}
+		
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
 						final int bitpos, final CompactMapNode<K, V> node) {
-
-			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
+			final int idx = dataIndex(bitpos);
+			
+			final int idxOld = TUPLE_LENGTH * idx;
 			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
 			final Object[] src = this.nodes;
+			final Object[] dst = arraycopyAndMigrateFromInlineToNode(src, idxOld, idxNew, node);
+
+			final int[] srcKeyHashes = this.keyHashes;
+			final int[] dstKeyHashes = arraycopyAndRemoveInt(srcKeyHashes, idx);
+			
+			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst,
+					dstKeyHashes);
+		}
+
+		private Object[] arraycopyAndMigrateFromInlineToNode(final Object[] src, final int idxOld,
+				final int idxNew, final CompactMapNode<K, V> node) {
 			final Object[] dst = new Object[src.length - 2 + 1];
 
 			// copy 'src' and remove 2 element(s) at position 'idxOld' and
@@ -1588,22 +1675,32 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			System.arraycopy(src, idxOld + 2, dst, idxOld, idxNew - idxOld);
 			dst[idxNew + 0] = node;
 			System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
-
-			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst);
+			return dst;
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
 						final int bitpos, final CompactMapNode<K, V> node) {
-
+			final int idx = dataIndex(bitpos);
+			
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
-			final int idxNew = TUPLE_LENGTH * dataIndex(bitpos);
+			final int idxNew = TUPLE_LENGTH * idx;
 
 			final Object[] src = this.nodes;
+			final Object[] dst = arraycopyAndMigrateFromNodeToInline(src, idxOld, node, idxNew);
+
+			final int[] srcKeyHashes = this.keyHashes;
+			final int[] dstKeyHashes = arraycopyAndInsertInt(srcKeyHashes, idx, node.getKeyHash(0));
+			
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst, dstKeyHashes);
+		}
+
+		private Object[] arraycopyAndMigrateFromNodeToInline(final Object[] src, final int idxOld,
+				final CompactMapNode<K, V> node, final int idxNew) {
 			final Object[] dst = new Object[src.length - 1 + 2];
 
 			// copy 'src' and remove 1 element(s) at position 'idxOld' and
-			// insert 2 element(s) at position 'idxNew' (TODO: carefully test)
+			// insert 2 element(s) at position 'idxNew'
 			assert idxOld >= idxNew;
 			System.arraycopy(src, 0, dst, 0, idxNew);
 			dst[idxNew + 0] = node.getKey(0);
@@ -1611,7 +1708,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 			System.arraycopy(src, idxNew, dst, idxNew + 2, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 2, src.length - idxOld - 1);
 
-			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst);
+			return dst;
 		}
 
 	}
@@ -1908,6 +2005,11 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		K getKey(final int index) {
 			return keys[index];
 		}
+		
+		@Override
+		int getKeyHash(int index) {
+			return hash;
+		}		
 
 		@Override
 		V getValue(final int index) {
@@ -1999,7 +2101,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(final AtomicReference<Thread> mutator,
-						final int bitpos, final K key, final V val) {
+						final int bitpos, final K key, final V val, int keyHash) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -2036,7 +2138,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		int dataMap() {
 			throw new UnsupportedOperationException();
 		}
-
+		
 	}
 
 	/**
@@ -2190,11 +2292,11 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieMap_5BitsNodeIterator<K, V> implements Iterator<AbstractMapNode<K, V>> {
+	private static class TrieMap_5Bits_MemoizedNodeIterator<K, V> implements Iterator<AbstractMapNode<K, V>> {
 
 		final Deque<Iterator<? extends AbstractMapNode<K, V>>> nodeIteratorStack;
 
-		TrieMap_5BitsNodeIterator(AbstractMapNode<K, V> rootNode) {
+		TrieMap_5Bits_MemoizedNodeIterator(AbstractMapNode<K, V> rootNode) {
 			nodeIteratorStack = new ArrayDeque<>();
 			nodeIteratorStack.push(Collections.singleton(rootNode).iterator());
 		}
@@ -2236,17 +2338,17 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		}
 	}
 
-	static final class TransientTrieMap_5Bits<K, V> implements TransientMap<K, V> {
+	static final class TransientTrieMap_5Bits_Memoized<K, V> implements TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
 		private int hashCode;
 		private int cachedSize;
 
-		TransientTrieMap_5Bits(TrieMap_5Bits_Memoized<K, V> trieMap_5Bits) {
+		TransientTrieMap_5Bits_Memoized(TrieMap_5Bits_Memoized<K, V> TrieMap_5Bits_Memoized) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
-			this.rootNode = trieMap_5Bits.rootNode;
-			this.hashCode = trieMap_5Bits.hashCode;
-			this.cachedSize = trieMap_5Bits.cachedSize;
+			this.rootNode = TrieMap_5Bits_Memoized.rootNode;
+			this.hashCode = TrieMap_5Bits_Memoized.hashCode;
+			this.cachedSize = TrieMap_5Bits_Memoized.cachedSize;
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
@@ -2560,10 +2662,10 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		}
 
 		public static class TransientMapKeyIterator<K, V> extends MapKeyIterator<K, V> {
-			final TransientTrieMap_5Bits<K, V> collection;
+			final TransientTrieMap_5Bits_Memoized<K, V> collection;
 			K lastKey;
 
-			public TransientMapKeyIterator(final TransientTrieMap_5Bits<K, V> collection) {
+			public TransientMapKeyIterator(final TransientTrieMap_5Bits_Memoized<K, V> collection) {
 				super(collection.rootNode);
 				this.collection = collection;
 			}
@@ -2579,9 +2681,9 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		}
 
 		public static class TransientMapValueIterator<K, V> extends MapValueIterator<K, V> {
-			final TransientTrieMap_5Bits<K, V> collection;
+			final TransientTrieMap_5Bits_Memoized<K, V> collection;
 
-			public TransientMapValueIterator(final TransientTrieMap_5Bits<K, V> collection) {
+			public TransientMapValueIterator(final TransientTrieMap_5Bits_Memoized<K, V> collection) {
 				super(collection.rootNode);
 				this.collection = collection;
 			}
@@ -2596,9 +2698,9 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 		}
 
 		public static class TransientMapEntryIterator<K, V> extends MapEntryIterator<K, V> {
-			final TransientTrieMap_5Bits<K, V> collection;
+			final TransientTrieMap_5Bits_Memoized<K, V> collection;
 
-			public TransientMapEntryIterator(final TransientTrieMap_5Bits<K, V> collection) {
+			public TransientMapEntryIterator(final TransientTrieMap_5Bits_Memoized<K, V> collection) {
 				super(collection.rootNode);
 				this.collection = collection;
 			}
@@ -2620,27 +2722,27 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				keySet = new AbstractSet<K>() {
 					@Override
 					public Iterator<K> iterator() {
-						return TransientTrieMap_5Bits.this.keyIterator();
+						return TransientTrieMap_5Bits_Memoized.this.keyIterator();
 					}
 
 					@Override
 					public int size() {
-						return TransientTrieMap_5Bits.this.size();
+						return TransientTrieMap_5Bits_Memoized.this.size();
 					}
 
 					@Override
 					public boolean isEmpty() {
-						return TransientTrieMap_5Bits.this.isEmpty();
+						return TransientTrieMap_5Bits_Memoized.this.isEmpty();
 					}
 
 					@Override
 					public void clear() {
-						TransientTrieMap_5Bits.this.clear();
+						TransientTrieMap_5Bits_Memoized.this.clear();
 					}
 
 					@Override
 					public boolean contains(Object k) {
-						return TransientTrieMap_5Bits.this.containsKey(k);
+						return TransientTrieMap_5Bits_Memoized.this.containsKey(k);
 					}
 				};
 			}
@@ -2656,27 +2758,27 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				values = new AbstractCollection<V>() {
 					@Override
 					public Iterator<V> iterator() {
-						return TransientTrieMap_5Bits.this.valueIterator();
+						return TransientTrieMap_5Bits_Memoized.this.valueIterator();
 					}
 
 					@Override
 					public int size() {
-						return TransientTrieMap_5Bits.this.size();
+						return TransientTrieMap_5Bits_Memoized.this.size();
 					}
 
 					@Override
 					public boolean isEmpty() {
-						return TransientTrieMap_5Bits.this.isEmpty();
+						return TransientTrieMap_5Bits_Memoized.this.isEmpty();
 					}
 
 					@Override
 					public void clear() {
-						TransientTrieMap_5Bits.this.clear();
+						TransientTrieMap_5Bits_Memoized.this.clear();
 					}
 
 					@Override
 					public boolean contains(Object v) {
-						return TransientTrieMap_5Bits.this.containsValue(v);
+						return TransientTrieMap_5Bits_Memoized.this.containsValue(v);
 					}
 				};
 			}
@@ -2714,22 +2816,22 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 
 					@Override
 					public int size() {
-						return TransientTrieMap_5Bits.this.size();
+						return TransientTrieMap_5Bits_Memoized.this.size();
 					}
 
 					@Override
 					public boolean isEmpty() {
-						return TransientTrieMap_5Bits.this.isEmpty();
+						return TransientTrieMap_5Bits_Memoized.this.isEmpty();
 					}
 
 					@Override
 					public void clear() {
-						TransientTrieMap_5Bits.this.clear();
+						TransientTrieMap_5Bits_Memoized.this.clear();
 					}
 
 					@Override
 					public boolean contains(Object k) {
-						return TransientTrieMap_5Bits.this.containsKey(k);
+						return TransientTrieMap_5Bits_Memoized.this.containsKey(k);
 					}
 				};
 			}
@@ -2746,8 +2848,8 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 				return false;
 			}
 
-			if (other instanceof TransientTrieMap_5Bits) {
-				TransientTrieMap_5Bits<?, ?> that = (TransientTrieMap_5Bits<?, ?>) other;
+			if (other instanceof TransientTrieMap_5Bits_Memoized) {
+				TransientTrieMap_5Bits_Memoized<?, ?> that = (TransientTrieMap_5Bits_Memoized<?, ?>) other;
 
 				if (this.cachedSize != that.cachedSize) {
 					return false;
