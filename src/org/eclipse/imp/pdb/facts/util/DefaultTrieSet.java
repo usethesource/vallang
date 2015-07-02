@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 
 public class DefaultTrieSet {
 
-	private static Class<?> target = TrieSet_BleedingEdge.class;
+	private static Class<?> target = TrieSet_5Bits.class;
 
 	private static Method persistentSetOfEmpty;
 	private static Method persistentSetOfKeyValuePairs;
