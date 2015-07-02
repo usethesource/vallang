@@ -719,6 +719,7 @@ public class TrieSet_5Bits_LazyHashCode<K> implements ImmutableSet<K> {
 						final AtomicReference<Thread> mutator, final int bitpos,
 						final CompactSetNode<K> node);
 
+		@SuppressWarnings("unchecked")
 		static final <K> CompactSetNode<K> mergeTwoKeyValPairs(final K key0, final int keyHash0,
 						final K key1, final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));

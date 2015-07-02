@@ -191,13 +191,9 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
-				final int valHashOld = details.getReplacedValue().hashCode();
-				final int valHashNew = val.hashCode();
-
 				return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize);
 			}
 
-			final int valHash = val.hashCode();
 			return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize + 1);
 		}
 
@@ -213,13 +209,9 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 		if (details.isModified()) {
 			if (details.hasReplacedValue()) {
-				final int valHashOld = details.getReplacedValue().hashCode();
-				final int valHashNew = val.hashCode();
-
 				return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize);
 			}
 
-			final int valHash = val.hashCode();
 			return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize + 1);
 		}
 
@@ -248,7 +240,6 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
-			final int valHash = details.getReplacedValue().hashCode();
 			return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize - 1);
 		}
 
@@ -264,7 +255,6 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 		if (details.isModified()) {
 			assert details.hasReplacedValue();
-			final int valHash = details.getReplacedValue().hashCode();
 			return new TrieMap_5Bits_LazyHashCode<K, V>(newRootNode, cachedSize - 1);
 		}
 
@@ -882,6 +872,7 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 						final AtomicReference<Thread> mutator, final int bitpos,
 						final CompactMapNode<K, V> node);
 
+		@SuppressWarnings("unchecked")
 		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K key0, final V val0,
 						final int keyHash0, final K key1, final V val1, final int keyHash1,
 						final int shift) {
@@ -1396,6 +1387,7 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 			return (V) nodes[TUPLE_LENGTH * index + 1];
 		}
 
+		@SuppressWarnings("unchecked")
 		Map.Entry<K, V> getKeyValueEntry(final int index) {
 			return entryOf((K) nodes[TUPLE_LENGTH * index], (V) nodes[TUPLE_LENGTH * index + 1]);
 		}
@@ -2363,11 +2355,6 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
-					final V old = details.getReplacedValue();
-
-					final int valHashOld = old.hashCode();
-					final int valHashNew = val.hashCode();
-
 					rootNode = newRootNode;
 
 					if (DEBUG) {
@@ -2375,7 +2362,6 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 					}
 					return details.getReplacedValue();
 				} else {
-					final int valHashNew = val.hashCode();
 					rootNode = newRootNode;
 					cachedSize += 1;
 
@@ -2405,11 +2391,6 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 			if (details.isModified()) {
 				if (details.hasReplacedValue()) {
-					final V old = details.getReplacedValue();
-
-					final int valHashOld = old.hashCode();
-					final int valHashNew = val.hashCode();
-
 					rootNode = newRootNode;
 
 					if (DEBUG) {
@@ -2417,7 +2398,6 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 					}
 					return details.getReplacedValue();
 				} else {
-					final int valHashNew = val.hashCode();
 					rootNode = newRootNode;
 					cachedSize += 1;
 
@@ -2478,7 +2458,6 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
-				final int valHash = details.getReplacedValue().hashCode();
 
 				rootNode = newRootNode;
 				cachedSize = cachedSize - 1;
@@ -2509,8 +2488,7 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 			if (details.isModified()) {
 				assert details.hasReplacedValue();
-				final int valHash = details.getReplacedValue().hashCode();
-
+				
 				rootNode = newRootNode;
 				cachedSize = cachedSize - 1;
 
