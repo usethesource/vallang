@@ -17,15 +17,13 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public abstract class AbstractValue implements IValue {
 
 	protected AbstractValue() {
 		super();
-	}
-
-	public String toString() {
-		return StandardTextWriter.valueToString(this);
 	}
 
 	@Override
@@ -35,20 +33,37 @@ public abstract class AbstractValue implements IValue {
 
 	@Override
 	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
+		throw new IllegalOperationException("Cannot be viewed as annotatable.", getType());
 	}
-	
-	 @Override
-	  public boolean mayHaveKeywordParameters() {
-	    return false;
-	  }
 
-	  @Override
-	  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-	    throw new IllegalOperationException(
-	        "Cannot be viewed as with keyword parameters.", getType());
-	  }
-	  
-	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+		return false;
+	}
+
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+		throw new IllegalOperationException("Cannot be viewed as with keyword parameters.",
+				getType());
+	}
+
+	@Override
+	public Type getType() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean isEqual(IValue other) {
+		return equals(other);
+	}
+
+	public String toString() {
+		return StandardTextWriter.valueToString(this);
+	}
+
 }
