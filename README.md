@@ -71,3 +71,4 @@ Authors
   * Bob Fuhrer (IBM TJ Watson)
   * Jurgen Vinju (CWI)
   * Arnold Lankamp (CWI)
+  * Michael Steindorfer (CWI)
