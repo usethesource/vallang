@@ -20,6 +20,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractMap;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.openjdk.jmh.annotations.CompilerControl;
+import org.openjdk.jmh.annotations.CompilerControl.Mode;
 
 /*
  * Operates:

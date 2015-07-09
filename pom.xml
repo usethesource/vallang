@@ -22,6 +22,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
+		<jmh.version>1.10.1</jmh.version>		
 	</properties>
 
 	<build>
@@ -127,6 +128,11 @@
 	</build>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-core</artifactId>
+			<version>${jmh.version}</version>
+		</dependency>	
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

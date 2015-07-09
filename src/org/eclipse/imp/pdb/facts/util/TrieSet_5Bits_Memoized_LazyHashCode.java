@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
@@ -30,18 +31,16 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
-	private static final TrieSet_5Bits_Memoized_LazyHashCode EMPTY_SET = new TrieSet_5Bits_Memoized_LazyHashCode(CompactSetNode.EMPTY_NODE, 0,
-					0);
+	private static final TrieSet_5Bits_Memoized_LazyHashCode EMPTY_SET = new TrieSet_5Bits_Memoized_LazyHashCode(CompactSetNode.EMPTY_NODE, 0);
 
 	private static final boolean DEBUG = false;
 
 	private final AbstractSetNode<K> rootNode;
-	private final int hashCode;
+	private int hashCode = -1;
 	private final int cachedSize;
 
-	TrieSet_5Bits_Memoized_LazyHashCode(AbstractSetNode<K> rootNode, int hashCode, int cachedSize) {
+	TrieSet_5Bits_Memoized_LazyHashCode(AbstractSetNode<K> rootNode, int cachedSize) {
 		this.rootNode = rootNode;
-		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
 		if (DEBUG) {
 			assert checkHashCodeAndSize(hashCode, cachedSize);
@@ -160,7 +159,7 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
-			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
+			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(newRootNode, cachedSize + 1);
 		}
 
 		return this;
@@ -174,7 +173,7 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
-			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
+			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(newRootNode, cachedSize + 1);
 		}
 
 		return this;
@@ -201,7 +200,7 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
-			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
+			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(newRootNode, cachedSize - 1);
 		}
 
 		return this;
@@ -215,7 +214,7 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
-			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
+			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(newRootNode, cachedSize - 1);
 		}
 
 		return this;
@@ -346,10 +345,6 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 				return false;
 			}
 
-			if (this.hashCode != that.hashCode) {
-				return false;
-			}
-
 			return rootNode.equals(that.rootNode);
 		} else if (other instanceof Set) {
 			Set that = (Set) other;
@@ -365,6 +360,15 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 
 	@Override
 	public int hashCode() {
+		if (hashCode == -1) {
+			int hash = 0;
+			for (Iterator<K> it = keyIterator(); it.hasNext();) {
+				final K key = it.next();
+				hash += key.hashCode();
+			}
+			hashCode = hash;
+		}
+
 		return hashCode;
 	}
 
@@ -1957,17 +1961,12 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 	static final class TransientTrieSet_5Bits<K> implements TransientSet<K> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractSetNode<K> rootNode;
-		private int hashCode;
 		private int cachedSize;
 
 		TransientTrieSet_5Bits(TrieSet_5Bits_Memoized_LazyHashCode<K> trieSet_5Bits) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieSet_5Bits.rootNode;
-			this.hashCode = trieSet_5Bits.hashCode;
 			this.cachedSize = trieSet_5Bits.cachedSize;
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
-			}
 		}
 
 		private boolean checkHashCodeAndSize(final int targetHash, final int targetSize) {
@@ -2076,19 +2075,12 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 			if (details.isModified()) {
 
 				rootNode = newRootNode;
-				hashCode += keyHash;
 				cachedSize += 1;
 
-				if (DEBUG) {
-					assert checkHashCodeAndSize(hashCode, cachedSize);
-				}
 				return true;
 
 			}
 
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
-			}
 			return false;
 		}
 
@@ -2106,19 +2098,12 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 			if (details.isModified()) {
 
 				rootNode = newRootNode;
-				hashCode += keyHash;
 				cachedSize += 1;
 
-				if (DEBUG) {
-					assert checkHashCodeAndSize(hashCode, cachedSize);
-				}
 				return true;
 
 			}
 
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
-			}
 			return false;
 		}
 
@@ -2156,17 +2141,9 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
-				hashCode = hashCode - keyHash;
 				cachedSize = cachedSize - 1;
 
-				if (DEBUG) {
-					assert checkHashCodeAndSize(hashCode, cachedSize);
-				}
 				return true;
-			}
-
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
 
 			return false;
@@ -2185,17 +2162,9 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
-				hashCode = hashCode - keyHash;
 				cachedSize = cachedSize - 1;
 
-				if (DEBUG) {
-					assert checkHashCodeAndSize(hashCode, cachedSize);
-				}
 				return true;
-			}
-
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
 
 			return false;
@@ -2345,10 +2314,6 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 					return false;
 				}
 
-				if (this.hashCode != that.hashCode) {
-					return false;
-				}
-
 				return rootNode.equals(that.rootNode);
 			} else if (other instanceof Set) {
 				Set that = (Set) other;
@@ -2364,7 +2329,12 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 
 		@Override
 		public int hashCode() {
-			return hashCode;
+			int hash = 0;
+			for (Iterator<K> it = keyIterator(); it.hasNext();) {
+				final K key = it.next();
+				hash += key.hashCode();
+			}
+			return hash;
 		}
 
 		@Override
@@ -2374,7 +2344,7 @@ public class TrieSet_5Bits_Memoized_LazyHashCode<K> implements ImmutableSet<K> {
 			}
 
 			mutator.set(null);
-			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(rootNode, hashCode, cachedSize);
+			return new TrieSet_5Bits_Memoized_LazyHashCode<K>(rootNode, cachedSize);
 		}
 	}
 

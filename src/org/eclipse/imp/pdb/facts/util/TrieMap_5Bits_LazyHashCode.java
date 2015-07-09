@@ -2226,16 +2226,12 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 	static final class TransientTrieMap_5Bits<K, V> implements TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
-		private int hashCode = -1;
 		private int cachedSize;
 
 		TransientTrieMap_5Bits(TrieMap_5Bits_LazyHashCode<K, V> trieMap_5Bits) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap_5Bits.rootNode;
 			this.cachedSize = trieMap_5Bits.cachedSize;
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
-			}
 		}
 
 		private boolean checkHashCodeAndSize(final int targetHash, final int targetSize) {
@@ -2357,24 +2353,15 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 				if (details.hasReplacedValue()) {
 					rootNode = newRootNode;
 
-					if (DEBUG) {
-						assert checkHashCodeAndSize(hashCode, cachedSize);
-					}
 					return details.getReplacedValue();
 				} else {
 					rootNode = newRootNode;
 					cachedSize += 1;
 
-					if (DEBUG) {
-						assert checkHashCodeAndSize(hashCode, cachedSize);
-					}
 					return null;
 				}
 			}
 
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
-			}
 			return null;
 		}
 
@@ -2393,24 +2380,15 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 				if (details.hasReplacedValue()) {
 					rootNode = newRootNode;
 
-					if (DEBUG) {
-						assert checkHashCodeAndSize(hashCode, cachedSize);
-					}
 					return details.getReplacedValue();
 				} else {
 					rootNode = newRootNode;
 					cachedSize += 1;
 
-					if (DEBUG) {
-						assert checkHashCodeAndSize(hashCode, cachedSize);
-					}
 					return null;
 				}
 			}
 
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
-			}
 			return null;
 		}
 
@@ -2462,14 +2440,7 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 				rootNode = newRootNode;
 				cachedSize = cachedSize - 1;
 
-				if (DEBUG) {
-					assert checkHashCodeAndSize(hashCode, cachedSize);
-				}
 				return details.getReplacedValue();
-			}
-
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
 
 			return null;
@@ -2492,14 +2463,7 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 				rootNode = newRootNode;
 				cachedSize = cachedSize - 1;
 
-				if (DEBUG) {
-					assert checkHashCodeAndSize(hashCode, cachedSize);
-				}
 				return details.getReplacedValue();
-			}
-
-			if (DEBUG) {
-				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
 
 			return null;
@@ -2759,19 +2723,15 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		public int hashCode() {
-			if (hashCode == -1) {
-				int hash = 0;
-				for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
-					final Map.Entry<K, V> entry = it.next();
-					final K key = entry.getKey();
-					final V val = entry.getValue();
+			int hash = 0;
+			for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
+				final Map.Entry<K, V> entry = it.next();
+				final K key = entry.getKey();
+				final V val = entry.getValue();
 
-					hash += key.hashCode() ^ val.hashCode();
-				}
-				hashCode = hash;
+				hash += key.hashCode() ^ val.hashCode();
 			}
-			
-			return hashCode;
+			return hash;
 		}
 
 		@Override

@@ -19,6 +19,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
+import org.openjdk.jmh.annotations.CompilerControl;
+import org.openjdk.jmh.annotations.CompilerControl.Mode;
 
 /*
  * Operates:
