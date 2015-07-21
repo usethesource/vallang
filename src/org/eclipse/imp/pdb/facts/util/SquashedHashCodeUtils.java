@@ -292,23 +292,19 @@ public class SquashedHashCodeUtils {
 	}
 
 	public static int insertAndShift(final int hashes, final int idx, final int hash) {
-		final int left;
-		if (idx == ISEG.FIRST_HASH_INDEX) {
-			left = 0;
-		} else { 
-			left = hashes & (0xFFFFFFFF << (8 * (ISEG.LAST_HASH_INDEX - (idx - 1))));
-		}
-					
-		final int middle = (hash & 0xFF) << (24 - idx * 8);
-
-		final int right;
-		if (idx == ISEG.LAST_HASH_INDEX) {
-			right = 0;
-		} else {
-			right = (hashes >>> 8) & (0xFFFFFFFF >>> (8 * (idx + 1)));			
+		// middle
+		int output = (hash & 0xFF) << (24 - idx * 8);
+		
+		// left
+		if (idx != ISEG.FIRST_HASH_INDEX) {
+			output |= hashes & (0xFFFFFFFF << (8 * (ISEG.LAST_HASH_INDEX - (idx - 1))));
 		}
 
-		final int output = left | middle | right;
+		// right
+		if (idx != ISEG.LAST_HASH_INDEX) {
+			output |= (hashes >>> 8) & (0xFFFFFFFF >>> (8 * (idx + 1)));			
+		}
+
 		return output;
 	}	
 	
