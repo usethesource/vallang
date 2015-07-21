@@ -183,8 +183,8 @@ public class SquashedHashCodeUtils {
 	}
 
 	static final class LSEG {
-		static final int HASHES_PER_SEGMENT = 4;
-		static final int NUMBER_OF_SEGMENTS = 8;
+		static final int HASHES_PER_SEGMENT = 8;
+		static final int NUMBER_OF_SEGMENTS = 4;
 		
 		static final int FIRST_HASH_INDEX = 0;
 		static final int LAST_HASH_INDEX = HASHES_PER_SEGMENT - 1;
@@ -200,7 +200,7 @@ public class SquashedHashCodeUtils {
 	 * List(0, 1, 2, 3).foreach(idx => println(Integer.toHexString(0xFFFFFFFF >>> (8 * idx))))
 	 * final int[] rangeMaskRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
 	 */
-	public static int[] arraycopyAndInsertInt(int input0, int input1, int input2, int input3, int input4,
+	public static int[] arraycopyAndInsertIntAlt(int input0, int input1, int input2, int input3, int input4,
 			int input5, int input6, int input7, int idx, final int squashedHash) {		
 		final int[] inputs = new int[] { input0, input1, input2, input3, input4, input5, input6, input7 };
 		final int[] outputs = new int[ISEG.NUMBER_OF_SEGMENTS];
@@ -242,6 +242,76 @@ public class SquashedHashCodeUtils {
 		return outputs;
 	}
 	
+	public static int[] arraycopyAndInsertInt(int input0, int input1, int input2,
+			int input3, int input4, int input5, int input6, int input7, int idx,
+			final int squashedHash) {
+		// COPY SEGMENTS 
+		int output0 = input0;
+		int output1 = input1;
+		int output2 = input2;
+		int output3 = input3;
+		int output4 = input4;
+		int output5 = input5;
+		int output6 = input6;
+		int output7 = input7;
+		
+		final int segment = idx / ISEG.HASHES_PER_SEGMENT;
+		final int indexInsideSegment = idx % ISEG.HASHES_PER_SEGMENT;
+
+		// INSERT INTO SEGMENT					
+		switch(segment) {
+		case 0: output0 = insertAndShift(input0, indexInsideSegment, squashedHash); break;
+		case 1: output1 = insertAndShift(input1, indexInsideSegment, squashedHash); break;
+		case 2: output2 = insertAndShift(input2, indexInsideSegment, squashedHash); break;
+		case 3: output3 = insertAndShift(input3, indexInsideSegment, squashedHash); break;
+		case 4: output4 = insertAndShift(input4, indexInsideSegment, squashedHash); break;
+		case 5: output5 = insertAndShift(input5, indexInsideSegment, squashedHash); break;
+		case 6: output6 = insertAndShift(input6, indexInsideSegment, squashedHash); break;
+		case 7: output7 = insertAndShift(input7, indexInsideSegment, squashedHash); break;
+		} 
+		
+		// SHIFT AND COPY AFTER
+		switch (segment + 1) {
+		case 1:
+			output1 = (input0 << 24) ^ (input1 >>> 8);
+		case 2:
+			output2 = (input1 << 24) ^ (input2 >>> 8);
+		case 3:
+			output3 = (input2 << 24) ^ (input3 >>> 8);
+		case 4:
+			output4 = (input3 << 24) ^ (input4 >>> 8);
+		case 5:
+			output5 = (input4 << 24) ^ (input5 >>> 8);
+		case 6:
+			output6 = (input5 << 24) ^ (input6 >>> 8);
+		case 7:
+			output7 = (input6 << 24) ^ (input7 >>> 8);			
+		}
+			
+		return new int[] { output0, output1, output2, output3, output4, output5, output6, output7 };
+	}
+
+	public static int insertAndShift(final int hashes, final int idx, final int hash) {
+		final int left;
+		if (idx == ISEG.FIRST_HASH_INDEX) {
+			left = 0;
+		} else { 
+			left = hashes & (0xFFFFFFFF << (8 * (ISEG.LAST_HASH_INDEX - (idx - 1))));
+		}
+					
+		final int middle = shiftSquashedHash(hash, idx);
+
+		final int right;
+		if (idx == ISEG.LAST_HASH_INDEX) {
+			right = 0;
+		} else {
+			right = (hashes >>> 8) & (0xFFFFFFFF >>> (8 * (idx + 1)));			
+		}
+
+		final int output = left | middle | right;
+		return output;
+	}	
+		
 	public static int[] arraycopyAndRemoveInt(int input0, int input1, int input2, int input3, int input4,
 			int input5, int input6, int input7, int idx) {				
 		final int[] inputs = new int[] { input0, input1, input2, input3, input4, input5, input6, input7 };
