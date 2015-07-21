@@ -299,7 +299,7 @@ public class SquashedHashCodeUtils {
 			left = hashes & (0xFFFFFFFF << (8 * (ISEG.LAST_HASH_INDEX - (idx - 1))));
 		}
 					
-		final int middle = shiftSquashedHash(hash, idx);
+		final int middle = (hash & 0xFF) << (24 - idx * 8);
 
 		final int right;
 		if (idx == ISEG.LAST_HASH_INDEX) {
