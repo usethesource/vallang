@@ -26,6 +26,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.eclipse.imp.pdb.facts.util.SquashedHashCodeUtils.*;
+
 @SuppressWarnings("rawtypes")
 public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 
@@ -640,7 +642,7 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 
 		abstract K getKey(final int index);
 
-		abstract int getKeyHash(final int index);		
+		abstract int getSquashedKeyHash(final int index);		
 		
 		@Deprecated
 		abstract boolean hasSlots();
@@ -756,11 +758,13 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 				final int dataMap = (int) (bitpos(mask0) | bitpos(mask1));
 
 				if (mask0 < mask1) {
-					return nodeOf(null, (int) (0), dataMap, new Object[] { key0, key1 }, new int[] {
-							keyHash0, keyHash1 });
+					return nodeOf(null, (int) (0), dataMap, new Object[] { key0, key1 },
+							combineTwoSquashedHashes(squashHash(keyHash0), squashHash(keyHash1)),
+							0, 0, 0, 0, 0, 0, 0);
 				} else {
-					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, key0 }, new int[] {
-							keyHash1, keyHash0 });
+					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, key0 },
+							combineTwoSquashedHashes(squashHash(keyHash1), squashHash(keyHash0)),
+							0, 0, 0, 0, 0, 0, 0);
 				}
 			} else {
 				final CompactSetNode<K> node = mergeTwoKeyValPairs(key0, keyHash0, key1, keyHash1,
@@ -768,20 +772,24 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
-				return nodeOf(null, nodeMap, (int) (0), new Object[] { node }, new int[] {});
+				return nodeOf(null, nodeMap, (int) (0), new Object[] { node }, 0, 0, 0, 0, 0, 0, 0, 0);
 			}
 		}
 
 		static final CompactSetNode EMPTY_NODE;
 
 		static {
-			EMPTY_NODE = new BitmapIndexedSetNode<>(null, (int) (0), (int) (0), new Object[] {},
-					new int[] {});
+			EMPTY_NODE = new BitmapIndexedSetNode<>(null, (int) (0), (int) (0), new Object[] {}, 0,
+					0, 0, 0, 0, 0, 0, 0);
 		};
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final Object[] nodes, final int[] keyHashes) {
-			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes, keyHashes);
+				final int nodeMap, final int dataMap, final Object[] nodes, int keyHashes0,
+				int keyHashes1, int keyHashes2, int keyHashes3, int keyHashes4, int keyHashes5,
+				int keyHashes6, int keyHashes7) {
+			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes, keyHashes0,
+					keyHashes1, keyHashes2, keyHashes3, keyHashes4, keyHashes5, keyHashes6,
+					keyHashes7);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -818,9 +826,9 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 				final int index = index(dataMap, mask, bitpos);
 
 				K currentKey = getKey(index); 
-				int currentKeyHash = getKeyHash(index);
+				int currentSquashedKeyHash = getSquashedKeyHash(index);
 				
-				return currentKeyHash == keyHash && currentKey.equals(key);
+				return currentSquashedKeyHash == squashHash(keyHash) && currentKey.equals(key);
 			}
 
 			final int nodeMap = nodeMap();
@@ -842,9 +850,9 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 				final int index = index(dataMap, mask, bitpos);
 
 				K currentKey = getKey(index); 
-				int currentKeyHash = getKeyHash(index);
+				int currentSquashedKeyHash = getSquashedKeyHash(index);
 				
-				return currentKeyHash == keyHash && cmp.compare(currentKey, key) == 0;
+				return currentSquashedKeyHash == squashHash(keyHash) && cmp.compare(currentKey, key) == 0;
 			}
 
 			final int nodeMap = nodeMap();
@@ -910,13 +918,14 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 				final int dataIndex = dataIndex(bitpos);
 				final K currentKey = getKey(dataIndex);
 
-				int currentKeyHash = getKeyHash(dataIndex);
+				int currentSquashedKeyHash = getSquashedKeyHash(dataIndex);
 				
-				if (currentKeyHash == keyHash && currentKey.equals(key)) {
+				if (currentSquashedKeyHash == squashHash(keyHash) && currentKey.equals(key)) {
 					return this;
 				} else {
+					// NOTE: this is the only additional time hashCode() has to be called.
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
-							currentKeyHash, key, keyHash, shift + BIT_PARTITION_SIZE);
+							currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -948,13 +957,14 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 				final int dataIndex = dataIndex(bitpos);
 				final K currentKey = getKey(dataIndex);
 
-				int currentKeyHash = getKeyHash(dataIndex);
+				int currentSquashedKeyHash = getSquashedKeyHash(dataIndex);
 				
-				if (currentKeyHash == keyHash && cmp.compare(currentKey, key) == 0) {
+				if (currentSquashedKeyHash == squashHash(keyHash) && cmp.compare(currentKey, key) == 0) {
 					return this;
 				} else {
+					// NOTE: this is the only additional time hashCode() has to be called.
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
-							currentKeyHash, key, keyHash, shift + BIT_PARTITION_SIZE);
+							currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -984,9 +994,9 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
 
-				int currentKeyHash = getKeyHash(dataIndex);				
+				int currentSquashedKeyHash = getSquashedKeyHash(dataIndex);				
 				
-				if (currentKeyHash == keyHash && getKey(dataIndex).equals(key)) {
+				if (currentSquashedKeyHash == squashHash(keyHash) && getKey(dataIndex).equals(key)) {
 					details.modified();
 
 					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
@@ -1000,10 +1010,14 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 
 						if (dataIndex == 0) {
 							return CompactSetNode.nodeOf(mutator, (int) (0), newDataMap,
-									new Object[] { getKey(1) }, new int[] { getKeyHash(1) });
+											new Object[] { getKey(1) },
+											combineTwoSquashedHashes(getSquashedKeyHash(1), 0), 0, 0, 0, 0,
+											0, 0, 0);
 						} else {
 							return CompactSetNode.nodeOf(mutator, (int) (0), newDataMap,
-									new Object[] { getKey(0) }, new int[] { getKeyHash(0) });
+											new Object[] { getKey(0) },
+											combineTwoSquashedHashes(getSquashedKeyHash(0), 0), 0, 0, 0, 0,
+											0, 0, 0);
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
@@ -1052,9 +1066,9 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
 
-				int currentKeyHash = getKeyHash(dataIndex);
+				int currentSquashedKeyHash = getSquashedKeyHash(dataIndex);
 				
-				if (currentKeyHash == keyHash && cmp.compare(getKey(dataIndex), key) == 0) {
+				if (currentSquashedKeyHash == squashHash(keyHash) && cmp.compare(getKey(dataIndex), key) == 0) {
 					details.modified();
 
 					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
@@ -1068,10 +1082,10 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 
 						if (dataIndex == 0) {
 							return CompactSetNode.nodeOf(mutator, (int) (0), newDataMap,
-									new Object[] { getKey(1) }, new int[] { getKeyHash(1) });
+									new Object[] { getKey(1) }, combineTwoSquashedHashes(getSquashedKeyHash(1), 0), 0, 0, 0, 0, 0, 0, 0);
 						} else {
 							return CompactSetNode.nodeOf(mutator, (int) (0), newDataMap,
-									new Object[] { getKey(0) }, new int[] { getKeyHash(0) });
+									new Object[] { getKey(0) }, combineTwoSquashedHashes(getSquashedKeyHash(0), 0), 0, 0, 0, 0, 0, 0, 0);
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
@@ -1197,15 +1211,33 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 
 		final AtomicReference<Thread> mutator;
 		final Object[] nodes;
-		final int[] keyHashes;
 
+		final int keyHashes0;
+		final int keyHashes1;
+		final int keyHashes2;
+		final int keyHashes3;
+		final int keyHashes4;
+		final int keyHashes5;
+		final int keyHashes6;
+		final int keyHashes7;
+		
 		private BitmapIndexedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final Object[] nodes, final int[] keyHashes) {
+				final int dataMap, final Object[] nodes, int keyHashes0, int keyHashes1,
+				int keyHashes2, int keyHashes3, int keyHashes4, int keyHashes5, int keyHashes6,
+				int keyHashes7) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
 			this.nodes = nodes;
-			this.keyHashes = keyHashes;
+			
+			this.keyHashes0 = keyHashes0;
+			this.keyHashes1 = keyHashes1;
+			this.keyHashes2 = keyHashes2;
+			this.keyHashes3 = keyHashes3;
+			this.keyHashes4 = keyHashes4;
+			this.keyHashes5 = keyHashes5;
+			this.keyHashes6 = keyHashes6;
+			this.keyHashes7 = keyHashes7;			
 
 			if (DEBUG) {
 
@@ -1230,8 +1262,9 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		int getKeyHash(int index) {
-			return keyHashes[index];
+		int getSquashedKeyHash(int index) {
+			return getSquashedHash(keyHashes0, keyHashes1, keyHashes2, keyHashes3, keyHashes4,
+					keyHashes5, keyHashes6, keyHashes7, index);
 		}		
 		
 		@SuppressWarnings("unchecked")
@@ -1303,9 +1336,18 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 			if (dataMap() != that.dataMap()) {
 				return false;
 			}
-			if (!Arrays.equals(keyHashes, that.keyHashes)) {
+			if (keyHashes0 != that.keyHashes0) {
 				return false;
-			}			
+			}
+			if (keyHashes1 != that.keyHashes1) {
+				return false;
+			}				
+			if (keyHashes2 != that.keyHashes2) {
+				return false;
+			}
+			if (keyHashes3 != that.keyHashes3) {
+				return false;
+			}							
 //			for (int i = nodes.length - 1; i >= 0; i--) {
 //				if (!nodes[i].equals(that.nodes[i])) {
 //					return false;
@@ -1351,7 +1393,8 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst, keyHashes);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst, keyHashes0, keyHashes1,
+						keyHashes2, keyHashes3, keyHashes4, keyHashes5, keyHashes6, keyHashes7);
 			}
 		}
 
@@ -1363,10 +1406,16 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 			final Object[] src = this.nodes;
 			final Object[] dst = arraycopyAndInsertValue(src, TUPLE_LENGTH * idx, key);
 
-			final int[] srcKeyHashes = this.keyHashes;
-			final int[] dstKeyHashes = ArrayUtilsInt.arraycopyAndInsertInt(srcKeyHashes, idx, keyHash);
+			// final int[] srcKeyHashes = this.keyHashes;
+			// final int[] dstKeyHashes = ArrayUtilsInt.arraycopyAndInsertInt(srcKeyHashes, idx, keyHash);
 			
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst, dstKeyHashes);
+			final int[] dstKeyHashes = arraycopyAndInsertInt(keyHashes0, keyHashes1, keyHashes2,
+					keyHashes3, keyHashes4, keyHashes5, keyHashes6, keyHashes7, idx,
+					squashHash(keyHash));
+
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst, dstKeyHashes[0],
+					dstKeyHashes[1], dstKeyHashes[2], dstKeyHashes[3], dstKeyHashes[4],
+					dstKeyHashes[5], dstKeyHashes[6], dstKeyHashes[7]);
 		}
 
 		private Object[] arraycopyAndInsertValue(final Object[] src, final int idx, final K key) {
@@ -1386,10 +1435,15 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 			final Object[] src = this.nodes;
 			final Object[] dst = arraycopyAndRemoveValue(src, TUPLE_LENGTH * idx);
 
-			final int[] srcKeyHashes = this.keyHashes;
-			final int[] dstKeyHashes = ArrayUtilsInt.arraycopyAndRemoveInt(srcKeyHashes, idx);			
-			
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst, dstKeyHashes);
+			// final int[] srcKeyHashes = this.keyHashes;
+			// final int[] dstKeyHashes = ArrayUtilsInt.arraycopyAndRemoveInt(srcKeyHashes, idx);			
+						
+			final int[] dstKeyHashes = arraycopyAndRemoveInt(keyHashes0, keyHashes1, keyHashes2,
+					keyHashes3, keyHashes4, keyHashes5, keyHashes6, keyHashes7, idx);
+
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst, dstKeyHashes[0],
+					dstKeyHashes[1], dstKeyHashes[2], dstKeyHashes[3], dstKeyHashes[4],
+					dstKeyHashes[5], dstKeyHashes[6], dstKeyHashes[7]);
 		}
 
 		private Object[] arraycopyAndRemoveValue(final Object[] src, final int idx) {
@@ -1412,10 +1466,15 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 			final Object[] src = this.nodes;
 			final Object[] dst = arraycopyAndMigrateFromInlineToNode(src, idxOld, idxNew, node);
 
-			final int[] srcKeyHashes = this.keyHashes;
-			final int[] dstKeyHashes = ArrayUtilsInt.arraycopyAndRemoveInt(srcKeyHashes, idx);
+			// final int[] srcKeyHashes = this.keyHashes;
+			// final int[] dstKeyHashes = ArrayUtilsInt.arraycopyAndRemoveInt(srcKeyHashes, idx);
 			
-			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst, dstKeyHashes);
+			final int[] dstKeyHashes = arraycopyAndRemoveInt(keyHashes0, keyHashes1, keyHashes2,
+					keyHashes3, keyHashes4, keyHashes5, keyHashes6, keyHashes7, idx);
+			
+			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst,
+					dstKeyHashes[0], dstKeyHashes[1], dstKeyHashes[2], dstKeyHashes[3],
+					dstKeyHashes[4], dstKeyHashes[5], dstKeyHashes[6], dstKeyHashes[7]);
 		}
 
 		private Object[] arraycopyAndMigrateFromInlineToNode(final Object[] src, final int idxOld,
@@ -1443,10 +1502,16 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 			final Object[] src = this.nodes;
 			final Object[] dst = arraycopyAndMigrateFromNodeToInline(src, idxOld, node, idxNew);
 
-			final int[] srcKeyHashes = this.keyHashes;
-			final int[] dstKeyHashes = ArrayUtilsInt.arraycopyAndInsertInt(srcKeyHashes, idx, node.getKeyHash(0));
+			// final int[] srcKeyHashes = this.keyHashes;
+			// final int[] dstKeyHashes = ArrayUtilsInt.arraycopyAndInsertInt(srcKeyHashes, idx, node.getKeyHash(0));
 			
-			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst, dstKeyHashes);
+			final int[] dstKeyHashes = arraycopyAndInsertInt(keyHashes0, keyHashes1, keyHashes2,
+					keyHashes3, keyHashes4, keyHashes5, keyHashes6, keyHashes7, idx,
+					node.getSquashedKeyHash(0));
+			
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst,
+					dstKeyHashes[0], dstKeyHashes[1], dstKeyHashes[2], dstKeyHashes[3],
+					dstKeyHashes[4], dstKeyHashes[5], dstKeyHashes[6], dstKeyHashes[7]);
 		}
 
 		private Object[] arraycopyAndMigrateFromNodeToInline(final Object[] src, final int idxOld,
@@ -1678,7 +1743,7 @@ public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		int getKeyHash(int index) {
+		int getSquashedKeyHash(int index) {
 			return hash;
 		}		
 		
