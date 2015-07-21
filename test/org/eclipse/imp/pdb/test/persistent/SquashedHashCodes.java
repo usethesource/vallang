@@ -28,7 +28,7 @@ public class SquashedHashCodes {
 		int bh = 0xFF;
 		int idx = 0;
 		
-		int[] outputs = arraycopyAndInsertInt(0, 0, 0, 0, idx, bh);
+		int[] outputs = arraycopyAndInsertInt(0, 0, 0, 0, 0, 0, 0, 0, idx, bh);
 		
 		System.out.println(Arrays.toString(outputs));
 		
@@ -36,6 +36,10 @@ public class SquashedHashCodes {
 		assertEquals(0, outputs[1]);
 		assertEquals(0, outputs[2]);
 		assertEquals(0, outputs[3]);
+		assertEquals(0, outputs[4]);
+		assertEquals(0, outputs[5]);
+		assertEquals(0, outputs[6]);
+		assertEquals(0, outputs[7]);
 	}
 	
 	@Test
@@ -43,7 +47,7 @@ public class SquashedHashCodes {
 		int bh = 0x00;
 		int idx = 0;
 		
-		int[] outputs = arraycopyAndInsertInt(-1, 0, -1, -1, idx, bh);
+		int[] outputs = arraycopyAndInsertInt(-1, 0, -1, -1, -1, -1, -1, -1, idx, bh);
 		
 		System.out.println(Arrays.toString(outputs));
 		
@@ -51,6 +55,11 @@ public class SquashedHashCodes {
 		assertEquals(0xFF000000, outputs[1]);
 		assertEquals(0x00FFFFFF, outputs[2]);
 		assertEquals(0xFFFFFFFF, outputs[3]);
+		assertEquals(0xFFFFFFFF, outputs[4]);
+		assertEquals(0xFFFFFFFF, outputs[5]);
+		assertEquals(0xFFFFFFFF, outputs[6]);
+		assertEquals(0xFFFFFFFF, outputs[7]);
+		
 	}	
 
 	@Test
@@ -58,7 +67,7 @@ public class SquashedHashCodes {
 		int bh = 0xFF;
 		int idx = 3;
 		
-		int[] outputs = arraycopyAndInsertInt(0, 0, 0, 0, idx, bh);
+		int[] outputs = arraycopyAndInsertInt(0, 0, 0, 0, 0, 0, 0, 0, idx, bh);
 		
 		System.out.println(Arrays.toString(outputs));
 		
@@ -66,6 +75,10 @@ public class SquashedHashCodes {
 		assertEquals(0, outputs[1]);
 		assertEquals(0, outputs[2]);
 		assertEquals(0, outputs[3]);
+		assertEquals(0, outputs[4]);
+		assertEquals(0, outputs[5]);
+		assertEquals(0, outputs[6]);
+		assertEquals(0, outputs[7]);		
 	}
 		
 	@Test
@@ -73,7 +86,7 @@ public class SquashedHashCodes {
 		int bh = 0x00;
 		int idx = 3;
 		
-		int[] outputs = arraycopyAndInsertInt(-1, 0, -1, -1, idx, bh);
+		int[] outputs = arraycopyAndInsertInt(-1, 0, -1, -1, -1, -1, -1, -1, idx, bh);
 		
 		System.out.println(Arrays.toString(outputs));
 		
@@ -81,10 +94,52 @@ public class SquashedHashCodes {
 		assertEquals(0xFF000000, outputs[1]);
 		assertEquals(0x00FFFFFF, outputs[2]);
 		assertEquals(0xFFFFFFFF, outputs[3]);
-	}		
+		assertEquals(0xFFFFFFFF, outputs[4]);
+		assertEquals(0xFFFFFFFF, outputs[5]);
+		assertEquals(0xFFFFFFFF, outputs[6]);
+		assertEquals(0xFFFFFFFF, outputs[7]);		
+	} 
 	
 	static final int squashHash(final int h) {
 		return (h ^ h >>> 20) & 0xFF;
+	}
+	
+	static final int getSquashedHash(final int byteHashes0, final int byteHashes1,
+			final int byteHashes2, final int byteHashes3, final int byteHashes4,
+			final int byteHashes5, final int byteHashes6, final int byteHashes7, int pos) {
+		final int byteHashes;
+		
+		if (pos < 16) {
+			if (pos < 8) {
+				if (pos < 4) {
+					byteHashes = byteHashes0;
+				} else {
+					byteHashes = byteHashes1;
+				}
+			} else {
+				if (pos < 12) {
+					byteHashes = byteHashes2;
+				} else {
+					byteHashes = byteHashes3;
+				}
+			}
+		} else {
+			if (pos < 24) {
+				if (pos < 20) {
+					byteHashes = byteHashes4;
+				} else {
+					byteHashes = byteHashes5;
+				}
+			} else {
+				if (pos < 28) {
+					byteHashes = byteHashes6;
+				} else {
+					byteHashes = byteHashes7;
+				}
+			}
+		}
+			
+		return getSquashedHash(byteHashes, pos % HASHES_PER_SEGMENT);
 	}
 	
 	static final int getSquashedHash(final int byteHashes, int pos) {
@@ -104,44 +159,54 @@ public class SquashedHashCodes {
 		return r0 ^ r1 ^ r2 ^ r3;
 	}
 
-	static int[] arraycopyAndInsertInt(int input0, int input1, int input2, int input3, int idx, final int squashedHash) {
-		// final int[] maskOfHash = new int[] { 0xFF000000, 0xFF0000, 0xFF00, 0xFF };
-		final int[] maskOfHashLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
-		final int[] maskOfHashRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
+	static final int HASHES_PER_SEGMENT = 4;
 
-		final int[] inputs = new int[] { input0, input1, input2, input3 };
-		final int[] outputs = new int[4];
+	static final int FIRST_HASH_INDEX = 0;
+	static final int LAST_HASH_INDEX = HASHES_PER_SEGMENT - 1;
+	
+	static final int NUMBER_OF_SEGMENTS = 8;
+	
+	static final int FIRST_SEGMENT_INDEX = 0;
+	static final int LAST_SEGMENT_INDEX = NUMBER_OF_SEGMENTS - 1;
+	
+	static int[] arraycopyAndInsertInt(int input0, int input1, int input2, int input3, int input4,
+			int input5, int input6, int input7, int idx, final int squashedHash) {
+		final int[] rangeMaskLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
+		final int[] rangeMaskRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
+
+		final int[] inputs = new int[] { input0, input1, input2, input3, input4, input5, input6, input7 };
+		final int[] outputs = new int[NUMBER_OF_SEGMENTS];
 		
 		// COPY SEGMENTS BEFORE	
 		int segment = 0;
-		for (; segment < 4 && idx > 4; segment++) {
+		for (; segment < NUMBER_OF_SEGMENTS && idx > HASHES_PER_SEGMENT; segment++) {
 			outputs[segment] = inputs[segment];
-			idx -= 4;
+			idx -= HASHES_PER_SEGMENT;
 		}
 
 		// INSERT INTO SEGMENT	
 		final int left;
-		if (idx == 0) {
+		if (idx == FIRST_HASH_INDEX) {
 			left = 0;
 		} else {
-			left = inputs[segment] & maskOfHashLR[idx - 1];
+			left = inputs[segment] & rangeMaskLR[idx - 1];
 		}
 			
 		final int middle = shiftSquashedHash(squashedHash, idx);
 		
 		final int right;
-		if (idx == 3) {
+		if (idx == LAST_HASH_INDEX) {
 			right = 0;
 		} else {
-			right = (inputs[segment] >>> 8) & maskOfHashRL[idx + 1];
+			right = (inputs[segment] >>> 8) & rangeMaskRL[idx + 1];
 		}
-		
+
 		outputs[segment] = left | middle | right;
 		int remainder = inputs[segment] & 0xFF;
 		segment++;
 		
 		// SHIFT AND COPY AFTER
-		for (; segment < 4; segment++) {
+		for (; segment < NUMBER_OF_SEGMENTS; segment++) {
 			outputs[segment] = (remainder << 24) ^ (inputs[segment] >>> 8);
 			remainder = inputs[segment] & 0xFF;
 		}
@@ -153,21 +218,25 @@ public class SquashedHashCodes {
 	public void testRemoveFrontOverflow1() {
 		int idx = 0;
 		
-		int[] outputs = arraycopyAndRemoveInt(0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, idx);
+		int[] outputs = arraycopyAndRemoveInt(0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, idx);
 		
 		System.out.println(Arrays.toString(outputs));
 		
 		assertEquals(0x00FF00FF, outputs[0]);
 		assertEquals(0x00FF00FF, outputs[1]);
 		assertEquals(0x00FF00FF, outputs[2]);
-		assertEquals(0x00FF0000, outputs[3]);
+		assertEquals(0x00FF00FF, outputs[3]);
+		assertEquals(0x00FF00FF, outputs[4]);
+		assertEquals(0x00FF00FF, outputs[5]);
+		assertEquals(0x00FF00FF, outputs[6]);		
+		assertEquals(0x00FF0000, outputs[7]);
 	}	
 	
 	@Test
 	public void testRemoveFrontOverflow2() {
 		int idx = 0;
 		
-		int[] outputs = arraycopyAndRemoveInt(0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, idx);
+		int[] outputs = arraycopyAndRemoveInt(0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, idx);
 		
 		System.out.println(Arrays.toString(outputs));
 		
@@ -175,13 +244,17 @@ public class SquashedHashCodes {
 		assertEquals(0xFF00FF00, outputs[1]);
 		assertEquals(0xFF00FF00, outputs[2]);
 		assertEquals(0xFF00FF00, outputs[3]);
+		assertEquals(0xFF00FF00, outputs[4]);
+		assertEquals(0xFF00FF00, outputs[5]);
+		assertEquals(0xFF00FF00, outputs[6]);
+		assertEquals(0xFF00FF00, outputs[7]);		
 	}
 	
 	@Test
 	public void testRemoveFrontOverflow3() {
 		int idx = 2;
 		
-		int[] outputs = arraycopyAndRemoveInt(0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, idx);
+		int[] outputs = arraycopyAndRemoveInt(0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, idx);
 		
 		System.out.println(Arrays.toString(outputs));
 		
@@ -189,13 +262,17 @@ public class SquashedHashCodes {
 		assertEquals(0xFF00FF00, outputs[1]);
 		assertEquals(0xFF00FF00, outputs[2]);
 		assertEquals(0xFF00FF00, outputs[3]);
+		assertEquals(0xFF00FF00, outputs[4]);
+		assertEquals(0xFF00FF00, outputs[5]);
+		assertEquals(0xFF00FF00, outputs[6]);
+		assertEquals(0xFF00FF00, outputs[7]);		
 	}		
 	
 	@Test
 	public void testRemoveFrontOverflow4() {
 		int idx = 6;
 		
-		int[] outputs = arraycopyAndRemoveInt(0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, idx);
+		int[] outputs = arraycopyAndRemoveInt(0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, 0x00FF00FF, idx);
 		
 		System.out.println(Arrays.toString(outputs));
 		
@@ -203,53 +280,57 @@ public class SquashedHashCodes {
 		assertEquals(0x00FFFF00, outputs[1]);
 		assertEquals(0xFF00FF00, outputs[2]);
 		assertEquals(0xFF00FF00, outputs[3]);
+		assertEquals(0xFF00FF00, outputs[4]);
+		assertEquals(0xFF00FF00, outputs[5]);
+		assertEquals(0xFF00FF00, outputs[6]);
+		assertEquals(0xFF00FF00, outputs[7]);		
 	}		
 	
-	static int[] arraycopyAndRemoveInt(int input0, int input1, int input2, int input3, int idx) {
-		// final int[] maskOfHash = new int[] { 0xFF000000, 0xFF0000, 0xFF00, 0xFF };
-		final int[] maskOfHashLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
-		final int[] maskOfHashRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
+	static int[] arraycopyAndRemoveInt(int input0, int input1, int input2, int input3, int input4,
+			int input5, int input6, int input7, int idx) {
+		final int[] rangeMaskLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
+		final int[] rangeMaskRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
 
-		final int[] inputs = new int[] { input0, input1, input2, input3 };
-		final int[] outputs = new int[4];
+		final int[] inputs = new int[] { input0, input1, input2, input3, input4, input5, input6, input7 };
+		final int[] outputs = new int[NUMBER_OF_SEGMENTS];
 		
 		int segment = 0;
 		
 		// COPY SEGMENTS BEFORE	
-		for (; segment < 4 && idx > 4; segment++) {
+		for (; segment < NUMBER_OF_SEGMENTS && idx > 4; segment++) {
 			outputs[segment] = inputs[segment];
-			idx -= 4;
+			idx -= HASHES_PER_SEGMENT;
 		}
 
 		// REMOVE FROM SEGMENT	
 		final int left;
-		if (idx == 0) {
+		if (idx == FIRST_HASH_INDEX) {
 			left = 0;
 		} else {
-			left = inputs[segment] & maskOfHashLR[idx - 1];
+			left = inputs[segment] & rangeMaskLR[idx - 1];
 		}
 		
 		final int middle;
-		if (idx == 3) {
+		if (idx == LAST_HASH_INDEX) {
 			middle = 0;
 		} else {
-			middle = (inputs[segment] << 8) & maskOfHashRL[idx];
+			middle = (inputs[segment] << 8) & rangeMaskRL[idx];
 		}
 		
 		final int right;
-		if (segment >= 3) {
+		if (segment >= LAST_SEGMENT_INDEX) {
 			right = 0;
 		} else {
 			right = inputs[segment + 1] >>> 24;
-		}		
+		}
 		
 		outputs[segment] = left | middle | right;
 		segment++;
 		
 		// SHIFT AND COPY AFTER
-		for (; segment < 4; segment++) {
+		for (; segment < NUMBER_OF_SEGMENTS; segment++) {
 			final int remainder;
-			if (segment >= 3) {
+			if (segment >= LAST_SEGMENT_INDEX) {
 				remainder = 0;
 			} else {
 				remainder = inputs[segment + 1] >>> 24;
