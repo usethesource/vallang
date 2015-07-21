@@ -11,6 +11,44 @@ public class SquashedHashCodeUtils {
 			final int byteHashes5, final int byteHashes6, final int byteHashes7, int pos) {
 		final int byteHashes;
 		
+		final int segment = pos / HASHES_PER_SEGMENT;
+		final int indexInsideSegment = pos % HASHES_PER_SEGMENT;
+		
+		switch (segment) {
+		case 0:
+			byteHashes = byteHashes0;
+			break;
+		case 1:
+			byteHashes = byteHashes1;
+			break;
+		case 2:
+			byteHashes = byteHashes2;
+			break;
+		case 3:
+			byteHashes = byteHashes3;
+			break;
+		case 4:
+			byteHashes = byteHashes4;
+			break;
+		case 5:
+			byteHashes = byteHashes5;
+			break;
+		case 6:
+			byteHashes = byteHashes6;
+			break;
+		case 7:			
+			byteHashes = byteHashes7;
+			break;
+		default:
+			// throw new IndexOutOfBoundsException(Integer.toString(pos));
+			return -1;
+		}
+		
+		return getSquashedHash(byteHashes, indexInsideSegment);
+		
+		/*
+		final int byteHashes;
+
 		if (pos < 16) {
 			if (pos < 8) {
 				if (pos < 4) {
@@ -42,6 +80,7 @@ public class SquashedHashCodeUtils {
 		}
 			
 		return getSquashedHash(byteHashes, pos % HASHES_PER_SEGMENT);
+		*/
 	}
 	
 	public static final int getSquashedHash(final int byteHashes, int pos) {
