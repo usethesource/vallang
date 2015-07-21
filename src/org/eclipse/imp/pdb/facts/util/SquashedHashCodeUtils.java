@@ -9,10 +9,17 @@ public class SquashedHashCodeUtils {
 	public static final int getSquashedHash(final int byteHashes0, final int byteHashes1,
 			final int byteHashes2, final int byteHashes3, final int byteHashes4,
 			final int byteHashes5, final int byteHashes6, final int byteHashes7, int pos) {
+		return getSquashedHashWithBinarySearch(byteHashes0, byteHashes1, byteHashes2, byteHashes3,
+				byteHashes4, byteHashes5, byteHashes6, byteHashes7, pos);
+	}	
+	
+	public static final int getSquashedHashWithSwitch(final int byteHashes0, final int byteHashes1,
+			final int byteHashes2, final int byteHashes3, final int byteHashes4,
+			final int byteHashes5, final int byteHashes6, final int byteHashes7, int pos) {
 		final int byteHashes;
 		
-		final int segment = pos / HASHES_PER_SEGMENT;
-		final int indexInsideSegment = pos % HASHES_PER_SEGMENT;
+		final int segment = pos / ISEG.HASHES_PER_SEGMENT;
+		final int indexInsideSegment = pos % ISEG.HASHES_PER_SEGMENT;
 		
 		switch (segment) {
 		case 0:
@@ -45,8 +52,11 @@ public class SquashedHashCodeUtils {
 		}
 		
 		return getSquashedHash(byteHashes, indexInsideSegment);
-		
-		/*
+	}
+	
+	public static final int getSquashedHashWithBinarySearch(final int byteHashes0, final int byteHashes1,
+			final int byteHashes2, final int byteHashes3, final int byteHashes4,
+			final int byteHashes5, final int byteHashes6, final int byteHashes7, int pos) {
 		final int byteHashes;
 
 		if (pos < 16) {
@@ -79,13 +89,70 @@ public class SquashedHashCodeUtils {
 			}
 		}
 			
-		return getSquashedHash(byteHashes, pos % HASHES_PER_SEGMENT);
-		*/
+		return getSquashedHash(byteHashes, pos % ISEG.HASHES_PER_SEGMENT);
 	}
 	
+	public static final int getSquashedHash(final long byteHashes0, final long byteHashes1,
+			final long byteHashes2, final long byteHashes3, int pos) {
+		return getSquashedHashWithBinarySearch(byteHashes0, byteHashes1, byteHashes2, byteHashes3, pos);
+	}	
+	
+	public static final int getSquashedHashWithSwitch(final long byteHashes0, final long byteHashes1,
+			final long byteHashes2, final long byteHashes3, int pos) {
+		final long byteHashes;
+		
+		final int segment = pos / LSEG.HASHES_PER_SEGMENT;
+		final int indexInsideSegment = pos % LSEG.HASHES_PER_SEGMENT;
+		
+		switch (segment) {
+		case 0:
+			byteHashes = byteHashes0;
+			break;
+		case 1:
+			byteHashes = byteHashes1;
+			break;
+		case 2:
+			byteHashes = byteHashes2;
+			break;
+		case 3:
+			byteHashes = byteHashes3;
+			break;
+		default:
+			// throw new IndexOutOfBoundsException(Integer.toString(pos));
+			return -1;
+		}
+		
+		return getSquashedHash(byteHashes, indexInsideSegment);
+	}
+	
+	public static final int getSquashedHashWithBinarySearch(final long byteHashes0, final long byteHashes1,
+			final long byteHashes2, final long byteHashes3, int pos) {
+		final long byteHashes;
+
+		if (pos < 16) {
+			if (pos < 8) {
+				byteHashes = byteHashes0;
+			} else {
+				byteHashes = byteHashes1;
+			}
+		} else {
+			if (pos < 24) {
+				byteHashes = byteHashes2;
+			} else {
+				byteHashes = byteHashes3;
+			}
+		}
+			
+		return getSquashedHash(byteHashes, pos % LSEG.HASHES_PER_SEGMENT);
+	}
+		
 	public static final int getSquashedHash(final int byteHashes, int pos) {
 		return (byteHashes >>> (24 - pos * 8)) & 0xFF;
 	}
+	
+	public static final int getSquashedHash(final long byteHashes, int pos) {
+		return (int) ((byteHashes >>> (56 - pos * 8)) & 0xFF);
+	}	
 
 	public static final int shiftSquashedHash(final int squashedHash, int pos) {
 		assert squashedHash == (squashedHash & 0xFF);
@@ -103,51 +170,62 @@ public class SquashedHashCodeUtils {
 		final int r3 = h3;
 		return r0 ^ r1 ^ r2 ^ r3;
 	}
-
-	static final int HASHES_PER_SEGMENT = 4;
-
-	static final int FIRST_HASH_INDEX = 0;
-	static final int LAST_HASH_INDEX = HASHES_PER_SEGMENT - 1;
 	
-	static final int NUMBER_OF_SEGMENTS = 8;
-	
-	static final int FIRST_SEGMENT_INDEX = 0;
-	static final int LAST_SEGMENT_INDEX = NUMBER_OF_SEGMENTS - 1;
-	
-	public static int[] arraycopyAndInsertInt(int input0, int input1, int input2, int input3, int input4,
-			int input5, int input6, int input7, int idx, final int squashedHash) {
-		// List(0, 1, 2, 3).foreach(idx => println(Integer.toHexString(0xFFFFFFFF << (8 * (3 - idx)))))
-		// final int[] rangeMaskLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
+	static final class ISEG {
+		static final int HASHES_PER_SEGMENT = 4;
+		static final int NUMBER_OF_SEGMENTS = 8;
 		
-		// List(0, 1, 2, 3).foreach(idx => println(Integer.toHexString(0xFFFFFFFF >>> (8 * idx))))
-		// final int[] rangeMaskRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
+		static final int FIRST_HASH_INDEX = 0;
+		static final int LAST_HASH_INDEX = HASHES_PER_SEGMENT - 1;
+		
+		static final int FIRST_SEGMENT_INDEX = 0;
+		static final int LAST_SEGMENT_INDEX = NUMBER_OF_SEGMENTS - 1;	
+	}
 
+	static final class LSEG {
+		static final int HASHES_PER_SEGMENT = 4;
+		static final int NUMBER_OF_SEGMENTS = 8;
+		
+		static final int FIRST_HASH_INDEX = 0;
+		static final int LAST_HASH_INDEX = HASHES_PER_SEGMENT - 1;
+		
+		static final int FIRST_SEGMENT_INDEX = 0;
+		static final int LAST_SEGMENT_INDEX = NUMBER_OF_SEGMENTS - 1;	
+	}	
+	
+	/*
+	 * List(0, 1, 2, 3).foreach(idx => println(Integer.toHexString(0xFFFFFFFF << (8 * (3 - idx)))))
+	 * final int[] rangeMaskLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
+	 * 
+	 * List(0, 1, 2, 3).foreach(idx => println(Integer.toHexString(0xFFFFFFFF >>> (8 * idx))))
+	 * final int[] rangeMaskRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
+	 */
+	public static int[] arraycopyAndInsertInt(int input0, int input1, int input2, int input3, int input4,
+			int input5, int input6, int input7, int idx, final int squashedHash) {		
 		final int[] inputs = new int[] { input0, input1, input2, input3, input4, input5, input6, input7 };
-		final int[] outputs = new int[NUMBER_OF_SEGMENTS];
+		final int[] outputs = new int[ISEG.NUMBER_OF_SEGMENTS];
 		
 		// COPY SEGMENTS BEFORE	
 		int segment = 0;
-		for (; segment < NUMBER_OF_SEGMENTS && idx >= HASHES_PER_SEGMENT; segment++) {
+		for (; segment < ISEG.NUMBER_OF_SEGMENTS && idx >= ISEG.HASHES_PER_SEGMENT; segment++) {
 			outputs[segment] = inputs[segment];
-			idx -= HASHES_PER_SEGMENT;
+			idx -= ISEG.HASHES_PER_SEGMENT;
 		}
 
 		// INSERT INTO SEGMENT	
 		final int left;
-		if (idx == FIRST_HASH_INDEX) {
+		if (idx == ISEG.FIRST_HASH_INDEX) {
 			left = 0;
-		} else {
-			// left = inputs[segment] & rangeMaskLR[idx - 1]; 
-			left = inputs[segment] & (0xFFFFFFFF << (8 * (LAST_HASH_INDEX - (idx - 1))));
+		} else { 
+			left = inputs[segment] & (0xFFFFFFFF << (8 * (ISEG.LAST_HASH_INDEX - (idx - 1))));
 		}
 			
 		final int middle = shiftSquashedHash(squashedHash, idx);
 		
 		final int right;
-		if (idx == LAST_HASH_INDEX) {
+		if (idx == ISEG.LAST_HASH_INDEX) {
 			right = 0;
 		} else {
-			// right = (inputs[segment] >>> 8) & rangeMaskRL[idx + 1];
 			right = (inputs[segment] >>> 8) & (0xFFFFFFFF >>> (8 * (idx + 1)));			
 		}
 
@@ -156,7 +234,7 @@ public class SquashedHashCodeUtils {
 		segment++;
 		
 		// SHIFT AND COPY AFTER
-		for (; segment < NUMBER_OF_SEGMENTS; segment++) {
+		for (; segment < ISEG.NUMBER_OF_SEGMENTS; segment++) {
 			outputs[segment] = (remainder << 24) ^ (inputs[segment] >>> 8);
 			remainder = inputs[segment] & 0xFF;
 		}
@@ -165,35 +243,35 @@ public class SquashedHashCodeUtils {
 	}
 	
 	public static int[] arraycopyAndRemoveInt(int input0, int input1, int input2, int input3, int input4,
-			int input5, int input6, int input7, int idx) {		
+			int input5, int input6, int input7, int idx) {				
 		final int[] inputs = new int[] { input0, input1, input2, input3, input4, input5, input6, input7 };
-		final int[] outputs = new int[NUMBER_OF_SEGMENTS];
+		final int[] outputs = new int[ISEG.NUMBER_OF_SEGMENTS];
 		
 		int segment = 0;
 		
 		// COPY SEGMENTS BEFORE	
-		for (; segment < NUMBER_OF_SEGMENTS && idx >= HASHES_PER_SEGMENT; segment++) {
+		for (; segment < ISEG.NUMBER_OF_SEGMENTS && idx >= ISEG.HASHES_PER_SEGMENT; segment++) {
 			outputs[segment] = inputs[segment];
-			idx -= HASHES_PER_SEGMENT;
+			idx -= ISEG.HASHES_PER_SEGMENT;
 		}
 
 		// REMOVE FROM SEGMENT	
 		final int left;
-		if (idx == FIRST_HASH_INDEX) {
+		if (idx == ISEG.FIRST_HASH_INDEX) {
 			left = 0;
 		} else {
-			left = inputs[segment] & (0xFFFFFFFF << (8 * (LAST_HASH_INDEX - (idx - 1))));
+			left = inputs[segment] & (0xFFFFFFFF << (8 * (ISEG.LAST_HASH_INDEX - (idx - 1))));
 		}
 		
 		final int middle;
-		if (idx == LAST_HASH_INDEX) {
+		if (idx == ISEG.LAST_HASH_INDEX) {
 			middle = 0;
 		} else {
 			middle = (inputs[segment] << 8) & (0xFFFFFFFF >>> (8 * idx));
 		}
 		
 		final int right;
-		if (segment >= LAST_SEGMENT_INDEX) {
+		if (segment >= ISEG.LAST_SEGMENT_INDEX) {
 			right = 0;
 		} else {
 			right = inputs[segment + 1] >>> 24;
@@ -203,9 +281,9 @@ public class SquashedHashCodeUtils {
 		segment++;
 		
 		// SHIFT AND COPY AFTER
-		for (; segment < NUMBER_OF_SEGMENTS; segment++) {
+		for (; segment < ISEG.NUMBER_OF_SEGMENTS; segment++) {
 			final int remainder;
-			if (segment >= LAST_SEGMENT_INDEX) {
+			if (segment >= ISEG.LAST_SEGMENT_INDEX) {
 				remainder = 0;
 			} else {
 				remainder = inputs[segment + 1] >>> 24;
