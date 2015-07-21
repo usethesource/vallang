@@ -77,8 +77,11 @@ public class SquashedHashCodeUtils {
 	
 	public static int[] arraycopyAndInsertInt(int input0, int input1, int input2, int input3, int input4,
 			int input5, int input6, int input7, int idx, final int squashedHash) {
-		final int[] rangeMaskLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
-		final int[] rangeMaskRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
+		// List(0, 1, 2, 3).foreach(idx => println(Integer.toHexString(0xFFFFFFFF << (8 * (3 - idx)))))
+		// final int[] rangeMaskLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
+		
+		// List(0, 1, 2, 3).foreach(idx => println(Integer.toHexString(0xFFFFFFFF >>> (8 * idx))))
+		// final int[] rangeMaskRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
 
 		final int[] inputs = new int[] { input0, input1, input2, input3, input4, input5, input6, input7 };
 		final int[] outputs = new int[NUMBER_OF_SEGMENTS];
@@ -95,7 +98,8 @@ public class SquashedHashCodeUtils {
 		if (idx == FIRST_HASH_INDEX) {
 			left = 0;
 		} else {
-			left = inputs[segment] & rangeMaskLR[idx - 1];
+			// left = inputs[segment] & rangeMaskLR[idx - 1]; 
+			left = inputs[segment] & (0xFFFFFFFF << (8 * (LAST_HASH_INDEX - (idx - 1))));
 		}
 			
 		final int middle = shiftSquashedHash(squashedHash, idx);
@@ -104,7 +108,8 @@ public class SquashedHashCodeUtils {
 		if (idx == LAST_HASH_INDEX) {
 			right = 0;
 		} else {
-			right = (inputs[segment] >>> 8) & rangeMaskRL[idx + 1];
+			// right = (inputs[segment] >>> 8) & rangeMaskRL[idx + 1];
+			right = (inputs[segment] >>> 8) & (0xFFFFFFFF >>> (8 * (idx + 1)));			
 		}
 
 		outputs[segment] = left | middle | right;
@@ -121,10 +126,7 @@ public class SquashedHashCodeUtils {
 	}
 	
 	public static int[] arraycopyAndRemoveInt(int input0, int input1, int input2, int input3, int input4,
-			int input5, int input6, int input7, int idx) {
-		final int[] rangeMaskLR = new int[] { 0xFF000000, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF };
-		final int[] rangeMaskRL = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0000FFFF, 0x000000FF };
-
+			int input5, int input6, int input7, int idx) {		
 		final int[] inputs = new int[] { input0, input1, input2, input3, input4, input5, input6, input7 };
 		final int[] outputs = new int[NUMBER_OF_SEGMENTS];
 		
@@ -141,14 +143,14 @@ public class SquashedHashCodeUtils {
 		if (idx == FIRST_HASH_INDEX) {
 			left = 0;
 		} else {
-			left = inputs[segment] & rangeMaskLR[idx - 1];
+			left = inputs[segment] & (0xFFFFFFFF << (8 * (LAST_HASH_INDEX - (idx - 1))));
 		}
 		
 		final int middle;
 		if (idx == LAST_HASH_INDEX) {
 			middle = 0;
 		} else {
-			middle = (inputs[segment] << 8) & rangeMaskRL[idx];
+			middle = (inputs[segment] << 8) & (0xFFFFFFFF >>> (8 * idx));
 		}
 		
 		final int right;
