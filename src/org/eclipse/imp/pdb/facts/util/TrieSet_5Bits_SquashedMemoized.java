@@ -27,10 +27,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
+public class TrieSet_5Bits_SquashedMemoized<K> implements ImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
-	private static final TrieSet_5Bits_Memoized EMPTY_SET = new TrieSet_5Bits_Memoized(CompactSetNode.EMPTY_NODE, 0,
+	private static final TrieSet_5Bits_SquashedMemoized EMPTY_SET = new TrieSet_5Bits_SquashedMemoized(CompactSetNode.EMPTY_NODE, 0,
 					0);
 
 	private static final boolean DEBUG = false;
@@ -39,7 +39,7 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 	private final int hashCode;
 	private final int cachedSize;
 
-	TrieSet_5Bits_Memoized(AbstractSetNode<K> rootNode, int hashCode, int cachedSize) {
+	TrieSet_5Bits_SquashedMemoized(AbstractSetNode<K> rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
@@ -50,12 +50,12 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K> ImmutableSet<K> of() {
-		return TrieSet_5Bits_Memoized.EMPTY_SET;
+		return TrieSet_5Bits_SquashedMemoized.EMPTY_SET;
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K> ImmutableSet<K> of(K... keys) {
-		ImmutableSet<K> result = TrieSet_5Bits_Memoized.EMPTY_SET;
+		ImmutableSet<K> result = TrieSet_5Bits_SquashedMemoized.EMPTY_SET;
 
 		for (final K key : keys) {
 			result = result.__insert(key);
@@ -66,12 +66,12 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf() {
-		return TrieSet_5Bits_Memoized.EMPTY_SET.asTransient();
+		return TrieSet_5Bits_SquashedMemoized.EMPTY_SET.asTransient();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf(K... keys) {
-		final TransientSet<K> result = TrieSet_5Bits_Memoized.EMPTY_SET.asTransient();
+		final TransientSet<K> result = TrieSet_5Bits_SquashedMemoized.EMPTY_SET.asTransient();
 
 		for (final K key : keys) {
 			result.__insert(key);
@@ -160,7 +160,7 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
-			return new TrieSet_5Bits_Memoized<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
+			return new TrieSet_5Bits_SquashedMemoized<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
 		}
 
 		return this;
@@ -174,7 +174,7 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
-			return new TrieSet_5Bits_Memoized<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
+			return new TrieSet_5Bits_SquashedMemoized<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
 		}
 
 		return this;
@@ -201,7 +201,7 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 						transformHashCode(keyHash), 0, details);
 
 		if (details.isModified()) {
-			return new TrieSet_5Bits_Memoized<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
+			return new TrieSet_5Bits_SquashedMemoized<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
 		}
 
 		return this;
@@ -215,7 +215,7 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 						transformHashCode(keyHash), 0, details, cmp);
 
 		if (details.isModified()) {
-			return new TrieSet_5Bits_Memoized<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
+			return new TrieSet_5Bits_SquashedMemoized<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
 		}
 
 		return this;
@@ -339,8 +339,8 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 			return false;
 		}
 
-		if (other instanceof TrieSet_5Bits_Memoized) {
-			TrieSet_5Bits_Memoized<?> that = (TrieSet_5Bits_Memoized<?>) other;
+		if (other instanceof TrieSet_5Bits_SquashedMemoized) {
+			TrieSet_5Bits_SquashedMemoized<?> that = (TrieSet_5Bits_SquashedMemoized<?>) other;
 
 			if (this.cachedSize != that.cachedSize) {
 				return false;
@@ -1960,7 +1960,7 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 		private int hashCode;
 		private int cachedSize;
 
-		TransientTrieSet_5Bits(TrieSet_5Bits_Memoized<K> trieSet_5Bits) {
+		TransientTrieSet_5Bits(TrieSet_5Bits_SquashedMemoized<K> trieSet_5Bits) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieSet_5Bits.rootNode;
 			this.hashCode = trieSet_5Bits.hashCode;
@@ -2374,7 +2374,7 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 			}
 
 			mutator.set(null);
-			return new TrieSet_5Bits_Memoized<K>(rootNode, hashCode, cachedSize);
+			return new TrieSet_5Bits_SquashedMemoized<K>(rootNode, hashCode, cachedSize);
 		}
 	}
 
