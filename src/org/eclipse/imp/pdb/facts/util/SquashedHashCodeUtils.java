@@ -311,6 +311,27 @@ public class SquashedHashCodeUtils {
 		final int output = left | middle | right;
 		return output;
 	}	
+	
+	public static int insertAndShiftV2(final int hashes, final int idx, final int hash) {
+		final int offset = 8 * idx;
+		final int offsetFromRight = 32 - offset;
+		
+		final int middle = (hash << 24) >>> offset;
+		
+		if (offset == 0) {
+			final int right = (hashes << offset) >>> (offset + 8);
+			return middle | right;
+		} else {
+			final int left = (hashes >>> offsetFromRight) << (offsetFromRight);
+
+			if (offset == 24) {
+				return left | middle;
+			} else {
+				final int right = (hashes << offset) >>> (offset + 8);
+				return left | middle | right;
+			}
+		}
+	}	
 		
 	public static int[] arraycopyAndRemoveInt(int input0, int input1, int input2, int input3, int input4,
 			int input5, int input6, int input7, int idx) {				
