@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
@@ -317,7 +317,7 @@ public class IndexedImmutablePropertySet implements
 
 		abstract boolean hasElements();
 
-		abstract int payloadArity();
+		abstract int elementArity();
 
 		abstract Property getElement(final int index);
 
@@ -357,7 +357,7 @@ public class IndexedImmutablePropertySet implements
 		 * Abstract predicate over a node's size. Value can be either
 		 * {@value #SIZE_EMPTY}, {@value #SIZE_ONE}, or
 		 * {@value #SIZE_MORE_THAN_ONE}.
-		 * 
+		 *
 		 * @return size predicate
 		 */
 		abstract byte sizePredicate();
@@ -365,7 +365,7 @@ public class IndexedImmutablePropertySet implements
 		@Deprecated
 		// Only used in nodeInvariant()
 		int arity() {
-			return payloadArity() + nodeArity();
+			return elementArity() + nodeArity();
 		}
 
 		@Deprecated
@@ -383,17 +383,17 @@ public class IndexedImmutablePropertySet implements
 		}
 
 		boolean nodeInvariant() {
-			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
+			boolean inv1 = (size() - elementArity() >= 2 * (arity() - elementArity()));
 			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY
 					: true;
-			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
+			boolean inv3 = (this.arity() == 1 && elementArity() == 1) ? sizePredicate() == SIZE_ONE
 					: true;
 			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE
 					: true;
 
 			boolean inv5 = (this.nodeArity() >= 0)
-					&& (this.payloadArity() >= 0)
-					&& ((this.payloadArity() + this.nodeArity()) == this
+					&& (this.elementArity() >= 0)
+					&& ((this.elementArity() + this.nodeArity()) == this
 							.arity());
 
 			return inv1 && inv2 && inv3 && inv4 && inv5;
@@ -464,18 +464,6 @@ public class IndexedImmutablePropertySet implements
 			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
-		int dataIndex(final int bitpos) {
-			return java.lang.Integer.bitCount(dataMap() & (bitpos - 1));
-		}
-
-		int nodeIndex(final int bitpos) {
-			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
-		}
-
-		CompactNode nodeAt(final int bitpos) {
-			return getNode(nodeIndex(bitpos));
-		}
-
 		@Override
 		boolean contains(final Property key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
@@ -503,8 +491,9 @@ public class IndexedImmutablePropertySet implements
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int index = dataIndex(bitpos);
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
 				if (getElement(index).equals(key)) {
 					return Optional.of(getElement(index));
 				}
@@ -512,10 +501,11 @@ public class IndexedImmutablePropertySet implements
 				return Optional.empty();
 			}
 
-			if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final AbstractNode subNode = nodeAt(bitpos);
-
-				return subNode.find(key, keyHash, shift + bitPartitionSize());
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).find(key, keyHash,
+						shift + bitPartitionSize());
 			}
 
 			return Optional.empty();
@@ -528,7 +518,7 @@ public class IndexedImmutablePropertySet implements
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int dataIndex = dataIndex(bitpos);
+				final int dataIndex = index(dataMap(), bitpos);
 				final Property currentKey = getElement(dataIndex);
 
 				if (currentKey.equals(key)) {
@@ -542,7 +532,9 @@ public class IndexedImmutablePropertySet implements
 					return copyAndMigrateFromInlineToNode(bitpos, subNodeNew);
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactNode subNode = nodeAt(bitpos);
+				final int nodeIndex = index(nodeMap(), bitpos);
+
+				final CompactNode subNode = getNode(nodeIndex);
 				final CompactNode subNodeNew = subNode.updated(key, keyHash,
 						shift + bitPartitionSize(), details);
 
@@ -565,12 +557,12 @@ public class IndexedImmutablePropertySet implements
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int dataIndex = dataIndex(bitpos);
+				final int dataIndex = index(dataMap(), bitpos);
 
 				if (getElement(dataIndex).equals(key)) {
 					details.modified();
 
-					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
+					if (this.elementArity() == 2 && this.nodeArity() == 0) {
 						/*
 						 * Create new node with remaining pair. The new node
 						 * will a) either become the new root returned, or b)
@@ -588,7 +580,9 @@ public class IndexedImmutablePropertySet implements
 					return this;
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactNode subNode = nodeAt(bitpos);
+				final int nodeIndex = index(nodeMap(), bitpos);
+
+				final CompactNode subNode = getNode(nodeIndex);
 				final CompactNode subNodeNew = subNode.removed(key, keyHash,
 						shift + bitPartitionSize(), details);
 
@@ -602,7 +596,7 @@ public class IndexedImmutablePropertySet implements
 							"Sub-node must have at least one element.");
 				}
 				case 1: {
-					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
+					if (this.elementArity() == 0 && this.nodeArity() == 1) {
 						// escalate (singleton or empty) result
 						return subNodeNew;
 					} else {
@@ -652,17 +646,17 @@ public class IndexedImmutablePropertySet implements
 			final StringBuilder bldr = new StringBuilder();
 			bldr.append('[');
 
-			for (byte i = 0; i < payloadArity(); i++) {
+			for (byte i = 0; i < elementArity(); i++) {
 				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
 				bldr.append(String.format("@%d<#%d>", pos,
 						Objects.hashCode(getElement(i))));
 
-				if (!((i + 1) == payloadArity())) {
+				if (!((i + 1) == elementArity())) {
 					bldr.append(", ");
 				}
 			}
 
-			if (payloadArity() > 0 && nodeArity() > 0) {
+			if (elementArity() > 0 && nodeArity() > 0) {
 				bldr.append(", ");
 			}
 
@@ -699,10 +693,10 @@ public class IndexedImmutablePropertySet implements
 				assert (java.lang.Integer.bitCount(dataMap)
 						+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
-				for (int i = 0; i < payloadArity(); i++) {
+				for (int i = 0; i < elementArity(); i++) {
 					assert ((nodes[i] instanceof CompactNode) == false);
 				}
-				for (int i = payloadArity(); i < nodes.length; i++) {
+				for (int i = elementArity(); i < nodes.length; i++) {
 					assert ((nodes[i] instanceof CompactNode) == true);
 				}
 			}
@@ -736,7 +730,7 @@ public class IndexedImmutablePropertySet implements
 		}
 
 		@Override
-		int payloadArity() {
+		int elementArity() {
 			return java.lang.Integer.bitCount(dataMap());
 		}
 
@@ -787,7 +781,7 @@ public class IndexedImmutablePropertySet implements
 		@Override
 		byte sizePredicate() {
 			if (this.nodeArity() == 0) {
-				switch (this.payloadArity()) {
+				switch (this.elementArity()) {
 				case 0:
 					return SIZE_EMPTY;
 				case 1:
@@ -803,7 +797,7 @@ public class IndexedImmutablePropertySet implements
 		@Override
 		CompactNode copyAndSetNode(final int bitpos, final CompactNode node) {
 
-			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
+			final int idx = this.nodes.length - 1 - index(nodeMap, bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length];
@@ -817,7 +811,7 @@ public class IndexedImmutablePropertySet implements
 
 		@Override
 		CompactNode copyAndInsertValue(final int bitpos, final Property key) {
-			final int idx = dataIndex(bitpos);
+			final int idx = index(dataMap, bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length + 1];
@@ -832,7 +826,7 @@ public class IndexedImmutablePropertySet implements
 
 		@Override
 		CompactNode copyAndRemoveValue(final int bitpos) {
-			final int idx = dataIndex(bitpos);
+			final int idx = index(dataMap, bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length - 1];
@@ -848,8 +842,8 @@ public class IndexedImmutablePropertySet implements
 		CompactNode copyAndMigrateFromInlineToNode(final int bitpos,
 				final CompactNode node) {
 
-			final int idxOld = dataIndex(bitpos);
-			final int idxNew = this.nodes.length - 1 - nodeIndex(bitpos);
+			final int idxOld = index(dataMap, bitpos);
+			final int idxNew = this.nodes.length - 1 - index(nodeMap, bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length - 1 + 1];
@@ -871,8 +865,8 @@ public class IndexedImmutablePropertySet implements
 		CompactNode copyAndMigrateFromNodeToInline(final int bitpos,
 				final CompactNode node) {
 
-			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
-			final int idxNew = dataIndex(bitpos);
+			final int idxOld = this.nodes.length - 1 - index(nodeMap, bitpos);
+			final int idxNew = index(dataMap, bitpos);
 
 			final Object[] src = this.nodes;
 			final Object[] dst = new Object[src.length - 1 + 1];
@@ -893,22 +887,22 @@ public class IndexedImmutablePropertySet implements
 	}
 
 	private static final class HashCollisionNode extends CompactNode {
-		private final Property[] keys;
+		private final Property[] elements;
 
 		private final int hash;
 
 		HashCollisionNode(final int hash, final Property[] keys) {
-			this.keys = keys;
+			this.elements = keys;
 
 			this.hash = hash;
 
-			assert payloadArity() >= 2;
+			assert elementArity() >= 2;
 		}
 
 		@Override
 		boolean contains(final Property key, final int keyHash, final int shift) {
 			if (this.hash == keyHash) {
-				for (Property k : keys) {
+				for (Property k : elements) {
 					if (k.equals(key)) {
 						return true;
 					}
@@ -920,8 +914,8 @@ public class IndexedImmutablePropertySet implements
 		@Override
 		Optional<Property> find(final Property key, final int keyHash,
 				final int shift) {
-			for (int i = 0; i < keys.length; i++) {
-				final Property _key = keys[i];
+			for (int i = 0; i < elements.length; i++) {
+				final Property _key = elements[i];
 				if (key.equals(_key)) {
 					return Optional.of(_key);
 				}
@@ -934,20 +928,20 @@ public class IndexedImmutablePropertySet implements
 				final int shift, final ModificationResult details) {
 			assert this.hash == keyHash;
 
-			for (int idx = 0; idx < keys.length; idx++) {
-				if (keys[idx].equals(key)) {
+			for (int idx = 0; idx < elements.length; idx++) {
+				if (elements[idx].equals(key)) {
 					return this;
 				}
 			}
 
-			final Property[] keysNew = (Property[]) new Object[this.keys.length + 1];
+			final Property[] keysNew = (Property[]) new Object[this.elements.length + 1];
 
 			// copy 'this.keys' and insert 1 element(s) at position
 			// 'keys.length'
-			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
-			keysNew[keys.length] = key;
-			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1,
-					this.keys.length - keys.length);
+			System.arraycopy(this.elements, 0, keysNew, 0, elements.length);
+			keysNew[elements.length] = key;
+			System.arraycopy(this.elements, elements.length, keysNew,
+					elements.length + 1, this.elements.length - elements.length);
 
 			details.modified();
 			return new HashCollisionNode(keyHash, keysNew);
@@ -956,8 +950,8 @@ public class IndexedImmutablePropertySet implements
 		@Override
 		CompactNode removed(final Property key, final int keyHash,
 				final int shift, final ModificationResult details) {
-			for (int idx = 0; idx < keys.length; idx++) {
-				if (keys[idx].equals(key)) {
+			for (int idx = 0; idx < elements.length; idx++) {
+				if (elements[idx].equals(key)) {
 					details.modified();
 
 					if (this.arity() == 1) {
@@ -968,19 +962,19 @@ public class IndexedImmutablePropertySet implements
 						 * will be a) either be the new root returned, or b)
 						 * unwrapped and inlined.
 						 */
-						final Property theOtherKey = (idx == 0) ? keys[1]
-								: keys[0];
+						final Property theOtherKey = (idx == 0) ? elements[1]
+								: elements[0];
 
 						return EMPTY_NODE.updated(theOtherKey, keyHash, 0,
 								details);
 					} else {
-						final Property[] keysNew = (Property[]) new Object[this.keys.length - 1];
+						final Property[] keysNew = (Property[]) new Object[this.elements.length - 1];
 
 						// copy 'this.keys' and remove 1 element(s) at position
 						// 'idx'
-						System.arraycopy(this.keys, 0, keysNew, 0, idx);
-						System.arraycopy(this.keys, idx + 1, keysNew, idx,
-								this.keys.length - idx - 1);
+						System.arraycopy(this.elements, 0, keysNew, 0, idx);
+						System.arraycopy(this.elements, idx + 1, keysNew, idx,
+								this.elements.length - idx - 1);
 
 						return new HashCollisionNode(keyHash, keysNew);
 					}
@@ -995,8 +989,8 @@ public class IndexedImmutablePropertySet implements
 		}
 
 		@Override
-		int payloadArity() {
-			return keys.length;
+		int elementArity() {
+			return elements.length;
 		}
 
 		@Override
@@ -1011,7 +1005,7 @@ public class IndexedImmutablePropertySet implements
 
 		@Override
 		int arity() {
-			return payloadArity();
+			return elementArity();
 		}
 
 		@Override
@@ -1021,7 +1015,7 @@ public class IndexedImmutablePropertySet implements
 
 		@Override
 		Property getElement(final int index) {
-			return keys[index];
+			return elements[index];
 		}
 
 		@Override
@@ -1034,7 +1028,7 @@ public class IndexedImmutablePropertySet implements
 			final int prime = 31;
 			int result = 0;
 			result = prime * result + hash;
-			result = prime * result + Arrays.hashCode(keys);
+			result = prime * result + Arrays.hashCode(elements);
 			return result;
 		}
 
@@ -1063,11 +1057,11 @@ public class IndexedImmutablePropertySet implements
 			/*
 			 * Linear scan for each key, because of arbitrary element order.
 			 */
-			outerLoop: for (int i = 0; i < that.payloadArity(); i++) {
+			outerLoop: for (int i = 0; i < that.elementArity(); i++) {
 				final Object otherKey = that.getElement(i);
 
-				for (int j = 0; j < keys.length; j++) {
-					final Property key = keys[j];
+				for (int j = 0; j < elements.length; j++) {
+					final Property key = elements[j];
 
 					if (key.equals(otherKey)) {
 						continue outerLoop;
@@ -1147,7 +1141,7 @@ public class IndexedImmutablePropertySet implements
 			if (rootNode.hasElements()) {
 				currentValueNode = rootNode;
 				currentValueCursor = 0;
-				currentValueLength = rootNode.payloadArity();
+				currentValueLength = rootNode.elementArity();
 			}
 		}
 
@@ -1188,7 +1182,7 @@ public class IndexedImmutablePropertySet implements
 						 */
 						currentValueNode = nextNode;
 						currentValueCursor = 0;
-						currentValueLength = nextNode.payloadArity();
+						currentValueLength = nextNode.elementArity();
 						return true;
 					}
 				} else {
