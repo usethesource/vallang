@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
+import java.util.Collection;
 import java.util.Set;
 
 public interface IndexedImmutableSet<K> extends Set<K> {
@@ -21,4 +22,34 @@ public interface IndexedImmutableSet<K> extends Set<K> {
 
 	IndexedImmutableSet<K> __remove(final K key);
 
+	@Override
+	default void clear() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	default boolean add(final K key) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	default boolean addAll(Collection<? extends K> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	default boolean remove(final Object key) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	default boolean removeAll(final Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	default boolean retainAll(final Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}	
+	
 }
