@@ -21,17 +21,17 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.oracle.truffle.api.object.Property;
 
 /*
  * TODO: test default method behavior.
  */
-public class IndexedImmutablePropertySet extends AbstractSet<Property>
-		implements IndexedImmutableSet<Property> {
+public class IndexedImmutablePropertySet extends AbstractSet<Property> implements
+		IndexedImmutableSet<Property> {
 
-	private static final Node EMPTY_NODE = new BitmapIndexedNode(0, 0,
-			new Object[] {});
+	private static final Node EMPTY_NODE = new BitmapIndexedNode(0, 0, new Object[] {});
 
 	private static final IndexedImmutablePropertySet EMPTY_SET = new IndexedImmutablePropertySet(
 			EMPTY_NODE, 0, 0);
@@ -42,8 +42,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 	private final int hashCode;
 	private final int cachedSize;
 
-	private IndexedImmutablePropertySet(Node rootNode, int hashCode,
-			int cachedSize) {
+	private IndexedImmutablePropertySet(Node rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
@@ -66,13 +65,11 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 		return result;
 	}
 
-	private boolean checkHashCodeAndSize(final int targetHash,
-			final int targetSize) {
+	private boolean checkHashCodeAndSize(final int targetHash, final int targetSize) {
 		int hash = 0;
 		int size = 0;
 
-		for (Iterator<Property> it = new ElementIterator(rootNode); it
-				.hasNext();) {
+		for (Iterator<Property> it = new ElementIterator(rootNode); it.hasNext();) {
 			final Property key = it.next();
 
 			hash += key.hashCode();
@@ -114,8 +111,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 	public Property get(final Object o) {
 		try {
 			final Property key = (Property) o;
-			final Optional<Property> result = rootNode.find(key,
-					transformHashCode(key.hashCode()), 0);
+			final Optional<Property> result = rootNode.find(key, transformHashCode(key.hashCode()),
+					0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -132,12 +129,10 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 		final int keyHash = key.hashCode();
 		final UpdateReport report = new UpdateReport();
 
-		final Node newRootNode = rootNode.updated(key,
-				transformHashCode(keyHash), 0, report);
+		final Node newRootNode = rootNode.updated(key, transformHashCode(keyHash), 0, report);
 
 		if (report.isTrieModified()) {
-			return new IndexedImmutablePropertySet(newRootNode, hashCode
-					+ keyHash, cachedSize + 1);
+			return new IndexedImmutablePropertySet(newRootNode, hashCode + keyHash, cachedSize + 1);
 		}
 
 		return this;
@@ -148,12 +143,10 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 		final int keyHash = key.hashCode();
 		final UpdateReport report = new UpdateReport();
 
-		final Node newRootNode = rootNode.removed(key,
-				transformHashCode(keyHash), 0, report);
+		final Node newRootNode = rootNode.removed(key, transformHashCode(keyHash), 0, report);
 
 		if (report.isTrieModified()) {
-			return new IndexedImmutablePropertySet(newRootNode, hashCode
-					- keyHash, cachedSize - 1);
+			return new IndexedImmutablePropertySet(newRootNode, hashCode - keyHash, cachedSize - 1);
 		}
 
 		return this;
@@ -259,8 +252,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 		boolean contains(final Property key, final int keyHash, final int shift);
 
-		Optional<Property> find(final Property key, final int keyHash,
-				final int shift);
+		Optional<Property> find(final Property key, final int keyHash, final int shift);
 
 		Node updated(final Property key, final int keyHash, final int shift,
 				final UpdateReport report);
@@ -325,13 +317,12 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
-		static Node mergeTwoElements(final Property key0, final int keyHash0,
-				final Property key1, final int keyHash1, final int shift) {
+		static Node mergeTwoElements(final Property key0, final int keyHash0, final Property key1,
+				final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
 			if (shift >= hashCodeLength()) {
-				return new HashCollisionNode(keyHash0,
-						(Property[]) new Object[] { key0, key1 });
+				return new HashCollisionNode(keyHash0, key0, key1);
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -342,15 +333,13 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 				final int dataMap = bitpos(mask0) | bitpos(mask1);
 
 				if (mask0 < mask1) {
-					return new BitmapIndexedNode(0, dataMap, new Object[] {
-							key0, key1 });
+					return new BitmapIndexedNode(0, dataMap, new Object[] { key0, key1 });
 				} else {
-					return new BitmapIndexedNode(0, dataMap, new Object[] {
-							key1, key0 });
+					return new BitmapIndexedNode(0, dataMap, new Object[] { key1, key0 });
 				}
 			} else {
-				final Node node = mergeTwoElements(key0, keyHash0, key1,
-						keyHash1, shift + bitPartitionSize());
+				final Node node = mergeTwoElements(key0, keyHash0, key1, keyHash1, shift
+						+ bitPartitionSize());
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
@@ -366,8 +355,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 		private final int dataMap;
 		final Object[] nodes;
 
-		private BitmapIndexedNode(final int nodeMap, final int dataMap,
-				final Object[] nodes) {
+		private BitmapIndexedNode(final int nodeMap, final int dataMap, final Object[] nodes) {
 
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
@@ -375,8 +363,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 			if (DEBUG) {
 
-				assert (java.lang.Integer.bitCount(dataMap)
-						+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
+				assert (java.lang.Integer.bitCount(dataMap) + java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
 				for (int i = 0; i < elementArity(); i++) {
 					assert ((nodes[i] instanceof Node) == false);
@@ -411,17 +398,13 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 		boolean nodeInvariant() {
 			boolean inv1 = (size() - elementArity() >= 2 * (arity() - elementArity()));
-			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY
-					: true;
+			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
 			boolean inv3 = (this.arity() == 1 && elementArity() == 1) ? sizePredicate() == SIZE_ONE
 					: true;
-			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE
-					: true;
+			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
 
-			boolean inv5 = (this.nodeArity() >= 0)
-					&& (this.elementArity() >= 0)
-					&& ((this.elementArity() + this.nodeArity()) == this
-							.arity());
+			boolean inv5 = (this.nodeArity() >= 0) && (this.elementArity() >= 0)
+					&& ((this.elementArity() + this.nodeArity()) == this.arity());
 
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
@@ -523,8 +506,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 			for (byte i = 0; i < elementArity(); i++) {
 				final byte pos = recoverMask(dataMap, (byte) (i + 1));
-				bldr.append(String.format("@%d<#%d>", pos,
-						Objects.hashCode(getElement(i))));
+				bldr.append(String.format("@%d<#%d>", pos, Objects.hashCode(getElement(i))));
 
 				if (!((i + 1) == elementArity())) {
 					bldr.append(", ");
@@ -621,8 +603,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 			dst[idxNew] = node;
 			arraycopy(src, idxNew + 1, dst, idxNew + 1, src.length - idxNew - 1);
 
-			return new BitmapIndexedNode(nodeMap | bitpos, dataMap ^ bitpos,
-					dst);
+			return new BitmapIndexedNode(nodeMap | bitpos, dataMap ^ bitpos, dst);
 		}
 
 		Node copyAndMigrateFromNodeToInline(final int bitpos, final Node node) {
@@ -641,13 +622,11 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 			arraycopy(src, idxNew, dst, idxNew + 1, idxOld - idxNew);
 			arraycopy(src, idxOld + 1, dst, idxOld + 1, src.length - idxOld - 1);
 
-			return new BitmapIndexedNode(nodeMap ^ bitpos, dataMap | bitpos,
-					dst);
+			return new BitmapIndexedNode(nodeMap ^ bitpos, dataMap | bitpos, dst);
 		}
 
 		@Override
-		public boolean contains(final Property key, final int keyHash,
-				final int shift) {
+		public boolean contains(final Property key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -658,16 +637,14 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).contains(key, keyHash,
-						shift + bitPartitionSize());
+				return getNode(index).contains(key, keyHash, shift + bitPartitionSize());
 			}
 
 			return false;
 		}
 
 		@Override
-		public Optional<Property> find(final Property key, final int keyHash,
-				final int shift) {
+		public Optional<Property> find(final Property key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -682,16 +659,15 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).find(key, keyHash,
-						shift + bitPartitionSize());
+				return getNode(index).find(key, keyHash, shift + bitPartitionSize());
 			}
 
 			return Optional.empty();
 		}
 
 		@Override
-		public Node updated(final Property key, final int keyHash,
-				final int shift, final UpdateReport report) {
+		public Node updated(final Property key, final int keyHash, final int shift,
+				final UpdateReport report) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -703,8 +679,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 					return this;
 				} else {
 					final Node subNodeNew = mergeTwoElements(currentKey,
-							transformHashCode(currentKey.hashCode()), key,
-							keyHash, shift + bitPartitionSize());
+							transformHashCode(currentKey.hashCode()), key, keyHash, shift
+									+ bitPartitionSize());
 
 					report.setTrieModified();
 					return copyAndMigrateFromInlineToNode(bitpos, subNodeNew);
@@ -713,8 +689,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 				final int nodeIndex = index(nodeMap, bitpos);
 
 				final Node subNode = getNode(nodeIndex);
-				final Node subNodeNew = subNode.updated(key, keyHash, shift
-						+ bitPartitionSize(), report);
+				final Node subNodeNew = subNode.updated(key, keyHash, shift + bitPartitionSize(),
+						report);
 
 				if (report.isTrieModified()) {
 					return copyAndSetNode(bitpos, subNodeNew);
@@ -729,8 +705,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 		}
 
 		@Override
-		public Node removed(final Property key, final int keyHash,
-				final int shift, final UpdateReport report) {
+		public Node removed(final Property key, final int keyHash, final int shift,
+				final UpdateReport report) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -761,8 +737,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 				final int nodeIndex = index(nodeMap, bitpos);
 
 				final Node subNode = getNode(nodeIndex);
-				final Node subNodeNew = subNode.removed(key, keyHash, shift
-						+ bitPartitionSize(), report);
+				final Node subNodeNew = subNode.removed(key, keyHash, shift + bitPartitionSize(),
+						report);
 
 				if (!report.isTrieModified()) {
 					return this;
@@ -770,8 +746,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 				switch (subNodeNew.sizePredicate()) {
 				case 0: {
-					throw new IllegalStateException(
-							"Sub-node must have at least one element.");
+					throw new IllegalStateException("Sub-node must have at least one element.");
 				}
 				case 1: {
 					if (this.elementArity() == 0 && this.nodeArity() == 1) {
@@ -779,8 +754,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 						return subNodeNew;
 					} else {
 						// inline value (move to front)
-						return copyAndMigrateFromNodeToInline(bitpos,
-								subNodeNew);
+						return copyAndMigrateFromNodeToInline(bitpos, subNodeNew);
 					}
 				}
 				default: {
@@ -796,101 +770,71 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 	}
 
 	private static final class HashCollisionNode implements Node {
-		private final Property[] elements;
 
 		private final int hash;
+		private final Property[] elements;
 
-		private HashCollisionNode(final int hash, final Property[] keys) {
-			this.elements = keys;
-
+		private HashCollisionNode(final int hash, final Property element0, final Property element1) {
 			this.hash = hash;
-
-			assert elementArity() >= 2;
+			this.elements = new Property[] { element0, element1 };
 		}
 
-		@Override
-		public boolean contains(final Property key, final int keyHash,
-				final int shift) {
-			if (this.hash == keyHash) {
-				for (Property k : elements) {
-					if (k.equals(key)) {
-						return true;
-					}
-				}
+		private HashCollisionNode(final int hash, final Property[] elements) {
+			if (elements.length <= 2) {
+				throw new IllegalArgumentException("At least two elements are required.");
 			}
-			return false;
+			this.hash = hash;
+			this.elements = elements;
 		}
 
 		@Override
-		public Optional<Property> find(final Property key, final int keyHash,
-				final int shift) {
-			for (int i = 0; i < elements.length; i++) {
-				final Property _key = elements[i];
-				if (key.equals(_key)) {
-					return Optional.of(_key);
-				}
-			}
-			return Optional.empty();
+		public boolean contains(final Property key, final int keyHash, final int shift) {
+			return hash == keyHash && Stream.of(elements).anyMatch(e -> e.equals(key));
 		}
 
 		@Override
-		public Node updated(final Property key, final int keyHash,
-				final int shift, final UpdateReport report) {
+		public Optional<Property> find(final Property key, final int keyHash, final int shift) {
+			return Stream.of(elements).filter(e -> e.equals(key)).findAny();
+		}
+
+		@Override
+		public Node updated(final Property key, final int keyHash, final int shift,
+				final UpdateReport report) {
 			assert this.hash == keyHash;
 
-			for (int idx = 0; idx < elements.length; idx++) {
-				if (elements[idx].equals(key)) {
-					return this;
-				}
+			if (Stream.of(elements).anyMatch(e -> e.equals(key))) {
+				return this;
+			} else {
+				final Property[] extendedElements = new Property[elements.length + 1];
+				arraycopy(elements, 0, extendedElements, 0, elements.length);
+				extendedElements[elements.length] = key;
+
+				report.setTrieModified();
+				return new HashCollisionNode(keyHash, extendedElements);
 			}
-
-			final Property[] keysNew = (Property[]) new Object[this.elements.length + 1];
-
-			// copy 'this.keys' and insert 1 element(s) at position
-			// 'keys.length'
-			arraycopy(this.elements, 0, keysNew, 0, elements.length);
-			keysNew[elements.length] = key;
-			arraycopy(this.elements, elements.length, keysNew,
-					elements.length + 1, this.elements.length - elements.length);
-
-			report.setTrieModified();
-			return new HashCollisionNode(keyHash, keysNew);
 		}
 
 		@Override
-		public Node removed(final Property key, final int keyHash,
-				final int shift, final UpdateReport report) {
-			for (int idx = 0; idx < elements.length; idx++) {
-				if (elements[idx].equals(key)) {
+		public Node removed(final Property key, final int keyHash, final int shift,
+				final UpdateReport report) {
+			if (Stream.of(elements).noneMatch(e -> e.equals(key))) {
+				return this;
+			} else {
+				Property[] reducedElements = Stream.of(elements).filter(e -> !e.equals(key))
+						.toArray(Property[]::new);
+
+				if (reducedElements.length == 1) {
+					/*
+					 * Create root node with singleton element. This node will
+					 * be a) either be the new root returned, or b) unwrapped
+					 * and inlined.
+					 */
+					return EMPTY_NODE.updated(reducedElements[0], keyHash, 0, report);
+				} else {
 					report.setTrieModified();
-
-					if (this.elementArity() == 1) {
-						return EMPTY_NODE;
-					} else if (this.elementArity() == 2) {
-						/*
-						 * Create root node with singleton element. This node
-						 * will be a) either be the new root returned, or b)
-						 * unwrapped and inlined.
-						 */
-						final Property theOtherKey = (idx == 0) ? elements[1]
-								: elements[0];
-
-						return EMPTY_NODE.updated(theOtherKey, keyHash, 0,
-								report);
-					} else {
-						final Property[] keysNew = (Property[]) new Object[this.elements.length - 1];
-
-						// copy 'this.keys' and remove 1 element(s) at position
-						// 'idx'
-						arraycopy(this.elements, 0, keysNew, 0, idx);
-						arraycopy(this.elements, idx + 1, keysNew, idx,
-								this.elements.length - idx - 1);
-
-						return new HashCollisionNode(keyHash, keysNew);
-					}
+					return new HashCollisionNode(keyHash, reducedElements);
 				}
 			}
-			return this;
 		}
 
 		@Override
@@ -925,7 +869,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 		@Override
 		public Node getNode(int index) {
-			throw new IllegalStateException("Is leaf node.");
+			throw new UnsupportedOperationException(
+					"Hash collision nodes are leaf nodes, without further sub-trees.");
 		}
 
 		@Override
@@ -962,18 +907,10 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 			/*
 			 * Linear scan for each key, because of arbitrary element order.
 			 */
-			outerLoop: for (int i = 0; i < that.elementArity(); i++) {
-				final Object otherKey = that.getElement(i);
-
-				for (int j = 0; j < elements.length; j++) {
-					final Property key = elements[j];
-
-					if (key.equals(otherKey)) {
-						continue outerLoop;
-					}
+			for (Property e1 : elements) {
+				if (Stream.of(that.elements).noneMatch(e2 -> e1.equals(e2))) {
+					return false;
 				}
-				return false;
-
 			}
 
 			return true;
@@ -1025,8 +962,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 				final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
 
 				if (nodeCursor < nodeLength) {
-					final Node nextNode = nodes[currentStackLevel]
-							.getNode(nodeCursor);
+					final Node nextNode = nodes[currentStackLevel].getNode(nodeCursor);
 					nodeCursorsAndLengths[currentCursorIndex]++;
 
 					if (nextNode.hasNodes()) {
@@ -1040,8 +976,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property>
 
 						nodes[nextStackLevel] = nextNode;
 						nodeCursorsAndLengths[nextCursorIndex] = 0;
-						nodeCursorsAndLengths[nextLengthIndex] = nextNode
-								.nodeArity();
+						nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
 					}
 
 					if (nextNode.hasElements()) {
