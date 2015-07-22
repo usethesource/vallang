@@ -1,5 +1,7 @@
 package org.eclipse.imp.pdb.facts.util;
 
+import org.eclipse.imp.pdb.facts.util.SquashedHashCodeUtils.LSEG;
+
 public class SquashedHashCodeUtils {
 
 	public static final int squashHash(final int h) {
@@ -291,6 +293,93 @@ public class SquashedHashCodeUtils {
 		return new int[] { output0, output1, output2, output3, output4, output5, output6, output7 };
 	}
 
+	// V1
+	public static long[] arraycopyAndInsertIntV1(long input0, long input1, long input2, long input3,
+			int idx, final int squashedHash) {
+		// COPY SEGMENTS 
+		long output0 = input0;
+		long output1 = input1;
+		long output2 = input2;
+		long output3 = input3;
+		
+		final int segment = idx / LSEG.HASHES_PER_SEGMENT;
+		final int indexInsideSegment = idx % LSEG.HASHES_PER_SEGMENT;
+
+		// INSERT INTO SEGMENT					
+		switch(segment) {
+		case 0: output0 = insertAndShift(input0, indexInsideSegment, squashedHash); break;
+		case 1: output1 = insertAndShift(input1, indexInsideSegment, squashedHash); break;
+		case 2: output2 = insertAndShift(input2, indexInsideSegment, squashedHash); break;
+		case 3: output3 = insertAndShift(input3, indexInsideSegment, squashedHash); break;
+		}
+
+		// SHIFT AND COPY AFTER
+		switch (segment + 1) {
+		case 1:
+			output1 = (input0 << 56) ^ (input1 >>> 8);
+		case 2:
+			output2 = (input1 << 56) ^ (input2 >>> 8);
+		case 3:
+			output3 = (input2 << 56) ^ (input3 >>> 8);
+		}
+			
+		return new long[] { output0, output1, output2, output3};
+	}	
+	
+	// V2
+	public static long[] arraycopyAndInsertInt(long input0, long input1, long input2, long input3,
+			int idx, final int squashedHash) {
+		// COPY SEGMENTS 
+		long output0 = input0;
+		long output1 = input1;
+		long output2 = input2;
+		long output3 = input3;
+		
+		final int segment = idx / LSEG.HASHES_PER_SEGMENT;
+		final int indexInsideSegment = idx % LSEG.HASHES_PER_SEGMENT;
+
+		// INSERT INTO SEGMENT					
+		long input = 0;
+		switch(segment) {
+		case 0: input = input0; break;
+		case 1: input = input1; break;
+		case 2: input = input2; break;
+		case 3: input = input3; break;
+		}
+
+		// middle
+		long result = ((long) squashedHash & 0xFF) << (56 - indexInsideSegment * 8);
+		
+		// left
+		if (indexInsideSegment != LSEG.FIRST_HASH_INDEX) {
+			result |= input & (0xFFFFFFFFFFFFFFFFL << (8 * (LSEG.LAST_HASH_INDEX - (indexInsideSegment - 1))));
+		}
+		
+		// right
+		if (indexInsideSegment != LSEG.LAST_HASH_INDEX) {
+			result |= (input >>> 8) & (0xFFFFFFFFFFFFFFFFL >>> (8 * (indexInsideSegment + 1)));			
+		}
+		
+		switch(segment) {
+		case 0: output0 = result; break;
+		case 1: output1 = result; break;
+		case 2: output2 = result; break;
+		case 3: output3 = result; break;
+		}		
+		
+		// SHIFT AND COPY AFTER
+		switch (segment + 1) {
+		case 1:
+			output1 = (input0 << 56) ^ (input1 >>> 8);
+		case 2:
+			output2 = (input1 << 56) ^ (input2 >>> 8);
+		case 3:
+			output3 = (input2 << 56) ^ (input3 >>> 8);
+		}
+			
+		return new long[] { output0, output1, output2, output3};
+	}		
+	
 	public static int insertAndShift(final int hashes, final int idx, final int hash) {
 		// middle
 		int result = (hash & 0xFF) << (24 - idx * 8);
@@ -303,6 +392,23 @@ public class SquashedHashCodeUtils {
 		// right
 		if (idx != ISEG.LAST_HASH_INDEX) {
 			result |= (hashes >>> 8) & (0xFFFFFFFF >>> (8 * (idx + 1)));			
+		}
+
+		return result;
+	}	
+	
+	public static long insertAndShift(final long hashes, final int idx, final long hash) {
+		// middle
+		long result = (hash & 0xFF) << (56 - idx * 8);
+		
+		// left
+		if (idx != LSEG.FIRST_HASH_INDEX) {
+			result |= hashes & (0xFFFFFFFFFFFFFFFFL << (8 * (LSEG.LAST_HASH_INDEX - (idx - 1))));
+		}
+
+		// right
+		if (idx != LSEG.LAST_HASH_INDEX) {
+			result |= (hashes >>> 8) & (0xFFFFFFFFFFFFFFFFL >>> (8 * (idx + 1)));			
 		}
 
 		return result;
@@ -381,5 +487,151 @@ public class SquashedHashCodeUtils {
 			
 		return outputs;
 	}
+	
+	// V1
+	public static long[] arraycopyAndRemoveIntV1(long input0, long input1, long input2, long input3,
+			int idx) {				
+		// COPY SEGMENTS 
+		long output0 = input0;
+		long output1 = input1;
+		long output2 = input2;
+		long output3 = input3;
+
+		final int segment = idx / LSEG.HASHES_PER_SEGMENT;
+		final int indexInsideSegment = idx % LSEG.HASHES_PER_SEGMENT;
+
+		switch(segment) {
+		case 0: output0 = removeAndShift(input0, indexInsideSegment, input1 >>> 56); break;
+		case 1: output1 = removeAndShift(input1, indexInsideSegment, input2 >>> 56); break;
+		case 2: output2 = removeAndShift(input2, indexInsideSegment, input3 >>> 56); break;
+		case 3: output3 = removeAndShift(input3, indexInsideSegment, 0); break;
+		}
 		
+		// SHIFT AND COPY AFTER
+		switch (segment + 1) {
+		case 1:
+			output1 = (input1 << 8) ^ input2 >>> 56;
+		case 2:
+			output2 = (input2 << 8) ^ input3 >>> 56;
+		case 3:
+			output3 = (input3 << 8);			
+		}		
+			
+		return new long[] { output0, output1, output2, output3};
+	}
+	
+	// V2
+	public static long[] arraycopyAndRemoveIntV2(long input0, long input1, long input2, long input3,
+			int idx) {				
+		// COPY SEGMENTS 
+		long output0 = input0;
+		long output1 = input1;
+		long output2 = input2;
+		long output3 = input3;
+
+		if (idx < 16) {
+			if (idx < 8) {
+				output0 = removeAndShift(input0, idx, input1 >>> 56);
+				output1 = (input1 << 8) ^ input2 >>> 56;
+				output2 = (input2 << 8) ^ input3 >>> 56;
+				output3 = (input3 << 8);
+			} else {				
+				output1 = removeAndShift(input1, idx - 8, input2 >>> 56);
+				output2 = (input2 << 8) ^ input3 >>> 56;
+				output3 = (input3 << 8);
+			}
+		} else {
+			if (idx < 24) {
+				output2 = removeAndShift(input2, idx - 16, input3 >>> 56);
+				output3 = (input3 << 8);
+			} else {
+				output3 = removeAndShift(input3, idx - 24, 0);
+			}
+		}		
+					
+		return new long[] { output0, output1, output2, output3};
+	}	
+	
+	// V3
+	public static long[] arraycopyAndRemoveInt(long input0, long input1, long input2, long input3,
+			int idx) {				
+		// COPY SEGMENTS 
+		long output0 = input0;
+		long output1 = input1;
+		long output2 = input2;
+		long output3 = input3;
+
+		final int segment = idx / LSEG.HASHES_PER_SEGMENT;
+		final int indexInsideSegment = idx % LSEG.HASHES_PER_SEGMENT;
+
+		long input = 0;
+		long shift = 0;
+		switch(segment) {
+		case 0: input = input0; shift = input1 >>> 56; break;
+		case 1: input = input1; shift = input1 >>> 56; break;
+		case 2: input = input2; shift = input1 >>> 56; break;
+		case 3: input = input3; break;
+		}
+
+		long result = shift;
+		
+		// left
+		if (indexInsideSegment != LSEG.FIRST_HASH_INDEX) {
+			result |= input & (0xFFFFFFFFFFFFFFFFL << (8 * (LSEG.LAST_HASH_INDEX - (indexInsideSegment - 1))));
+		}
+		
+		// right
+		if (indexInsideSegment != LSEG.LAST_HASH_INDEX) {
+			result |= (input << 8) & (0xFFFFFFFFFFFFFFFFL >>> (8 * indexInsideSegment));
+		}
+		
+		switch(segment) {
+		case 0: output0 = result; break;
+		case 1: output1 = result; break;
+		case 2: output2 = result; break;
+		case 3: output3 = result; break;
+		}			
+		
+		// SHIFT AND COPY AFTER
+		switch (segment + 1) {
+		case 1:
+			output1 = (input1 << 8) ^ input2 >>> 56;
+		case 2:
+			output2 = (input2 << 8) ^ input3 >>> 56;
+		case 3:
+			output3 = (input3 << 8);			
+		}		
+			
+		return new long[] { output0, output1, output2, output3};
+	}	
+	
+	public static long removeAndShift(final long hashes, final int idx, final long remainder) {
+		long result = remainder;
+	
+		// left
+		if (idx != LSEG.FIRST_HASH_INDEX) {
+			result |= hashes & (0xFFFFFFFFFFFFFFFFL << (8 * (LSEG.LAST_HASH_INDEX - (idx - 1))));
+		}
+		
+		// right
+		if (idx != LSEG.LAST_HASH_INDEX) {
+			result |= (hashes << 8) & (0xFFFFFFFFFFFFFFFFL >>> (8 * idx));
+		}
+				
+		return result;
+
+		/*
+		switch (idx) {
+		case LSEG.FIRST_HASH_INDEX:
+			return remainder | ((hashes << 8) & (0xFFFFFFFFFFFFFFFFL >>> (8 * idx)));
+		case LSEG.LAST_HASH_INDEX:
+			return remainder
+					| (hashes & (0xFFFFFFFFFFFFFFFFL << (8 * (LSEG.LAST_HASH_INDEX - (idx - 1)))));
+		default:
+			return remainder | ((hashes << 8) & (0xFFFFFFFFFFFFFFFFL >>> (8 * idx)))
+					| (hashes & (0xFFFFFFFFFFFFFFFFL << (8 * (LSEG.LAST_HASH_INDEX - (idx - 1)))));
+		}
+		*/
+	}
+	
 }

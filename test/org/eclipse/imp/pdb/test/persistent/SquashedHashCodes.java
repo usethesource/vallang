@@ -25,6 +25,21 @@ public class SquashedHashCodes {
 	}	
 	
 	@Test
+	public void testGetSquasedHashesLong() {
+		int bh0 = squashHash(3093445);
+		int bh1 = squashHash(-230934599);
+		int bh2 = squashHash(120000009);
+		int bh3 = squashHash(-1);
+		
+		int hashes = combineFourSquashedHashes(bh0, bh1, bh2, bh3);
+		
+		assertEquals(bh0, getSquashedHash(hashes, 0));
+		assertEquals(bh1, getSquashedHash(hashes, 1));
+		assertEquals(bh2, getSquashedHash(hashes, 2));
+		assertEquals(bh3, getSquashedHash(hashes, 3));		
+	}		
+	
+	@Test
 	public void testInsertFront() {
 		int bh = 0xFF;
 		int idx = 0;

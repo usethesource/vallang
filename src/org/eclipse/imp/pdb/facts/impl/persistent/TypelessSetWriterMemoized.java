@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet_5Bits_Memoized;
+import org.eclipse.imp.pdb.facts.util.TrieSet_5Bits_SquashedMemoized;
 
 class TypelessSetWriterMemoized implements ISetWriter {
 
