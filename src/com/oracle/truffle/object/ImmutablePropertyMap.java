@@ -24,7 +24,10 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.oracle.truffle.api.object.Property;
 
@@ -170,6 +173,28 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 
 	public Iterator<Map.Entry<Object, Property>> entryIterator() {
 		return new EntryIterator(rootNode);
+	}
+	
+	private Spliterator<Map.Entry<Object, Property>> entrySpliterator() {
+		int characteristics = Spliterator.NONNULL | Spliterator.SIZED | Spliterator.SUBSIZED;
+		return Spliterators.spliterator(entryIterator(), size(), characteristics);
+	}
+
+	private Stream<Map.Entry<Object, Property>> entryStream() {
+		boolean isParallel = false;
+		return StreamSupport.stream(entrySpliterator(), isParallel);
+	}
+
+	public Iterator<Object> orderedKeyIterator() {
+		return entryStream().sorted().map(Map.Entry::getKey).iterator();
+	}
+
+	public Iterator<Property> orderedValueIterator() {
+		return entryStream().sorted().map(Map.Entry::getValue).iterator();
+	}
+
+	public Iterator<Map.Entry<Object, Property>> orderedEntryIterator() {
+		return entryStream().sorted().iterator();
 	}
 
 	@Override
@@ -1293,16 +1318,19 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
-				return new ImmutableMapEntry(currentValueNode.getElement(currentValueCursor++));
+				return new ImmutableMapEntry(currentValueNode.getSequenceId(currentValueCursor), currentValueNode.getElement(currentValueCursor++));
 			}
 		}
 	}
 
-	private static class ImmutableMapEntry implements Map.Entry<Object, Property> {
+	private static class ImmutableMapEntry implements Map.Entry<Object, Property>,
+			Comparable<ImmutableMapEntry> {
 
+		private final int sequenceId;
 		private final Property backingProperty;
 
-		ImmutableMapEntry(final Property property) {
+		ImmutableMapEntry(final int sequenceId, final Property property) {
+			this.sequenceId = sequenceId;
 			this.backingProperty = property;
 		}
 
@@ -1321,6 +1349,10 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
+		public int compareTo(ImmutableMapEntry other) {
+			return sequenceId - other.sequenceId;
+		}
 	}
-
+		
 }
