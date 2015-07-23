@@ -39,7 +39,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 
 	private final Node rootNode;
 	private final int cachedSize;
-	
+
 	/*
 	 * This field and subsequent IDs stored in nodes are not part of the object
 	 * identity.
@@ -101,12 +101,11 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 	}
 
 	@Override
-	public Property get(final Object o) {
+	public Property get(final Object key) {
 		try {
-			final Property element = (Property) o;
-			final int keyHash = extractKey(element).hashCode();
+			final int keyHash = key.hashCode();
 
-			final Optional<Property> result = rootNode.find(element, transformHashCode(keyHash), 0);
+			final Optional<Property> result = rootNode.find(key, transformHashCode(keyHash), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -127,8 +126,8 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		final int keyHash = extractKey(element).hashCode();
 		final UpdateReport report = new UpdateReport();
 
-		final Node newRootNode = rootNode.updated(element, transformHashCode(keyHash),
-				nextSequenceId, 0, report);
+		final Node newRootNode = rootNode.updated(key, element,
+				transformHashCode(keyHash), nextSequenceId, 0, report);
 
 		if (report.isTrieModified()) {
 			return new ImmutablePropertyMap(newRootNode, cachedSize + 1, nextSequenceId + 1);
@@ -340,10 +339,10 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 
 		boolean containsValue(final Property element, final int keyHash, final int shift);
 
-		Optional<Property> find(final Property element, final int keyHash, final int shift);
+		Optional<Property> find(final Object key, final int keyHash, final int shift);
 
-		Node updated(final Property element, final int keyHash, int sequenceId, final int shift,
-				final UpdateReport report);
+		Node updated(final Object key, final Property element, final int keyHash, int sequenceId,
+				final int shift, final UpdateReport report);
 
 		Node removed(final Object key, final int keyHash, final int shift, final UpdateReport report);
 
@@ -702,6 +701,24 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 			return new BitmapIndexedNode(nodeMap, dataMap | bitpos, newNodes, newIndices);
 		}
 
+		Node copyAndSetValue(final int bitpos, final Property element, int sequenceId) {
+			final int idx = index(dataMap, bitpos);
+
+			final Object[] newNodes = new Object[nodes.length];
+
+			// copy 'nodes' and set element(s) at position 'idx'
+			arraycopy(nodes, 0, newNodes, 0, nodes.length);
+			newNodes[idx] = element;
+
+			final int[] newIndices = new int[indices.length];
+
+			// copy 'indices' and set 1 element(s) at position 'idx'
+			arraycopy(indices, 0, newIndices, 0, indices.length);
+			newIndices[idx] = sequenceId;
+
+			return new BitmapIndexedNode(nodeMap, dataMap, newNodes, newIndices);
+		}
+		
 		Node copyAndRemoveValue(final int bitpos) {
 			final int idx = index(dataMap, bitpos);
 
@@ -806,13 +823,13 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		}
 
 		@Override
-		public Optional<Property> find(final Property element, final int keyHash, final int shift) {
+		public Optional<Property> find(final Object key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap & bitpos) != 0) {
 				final int index = index(dataMap, mask, bitpos);
-				if (getElement(index).equals(element)) {
+				if (getKey(index).equals(key)) {
 					return Optional.of(getElement(index));
 				}
 
@@ -821,26 +838,28 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).find(element, keyHash, shift + bitPartitionSize());
+				return getNode(index).find(key, keyHash, shift + bitPartitionSize());
 			}
 
 			return Optional.empty();
 		}
 
 		@Override
-		public Node updated(final Property element, final int keyHash, int sequenceId,
-				final int shift, final UpdateReport report) {
+		public Node updated(Object key, final Property element, final int keyHash,
+				int sequenceId, final int shift, final UpdateReport report) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap & bitpos) != 0) { // inplace value
 				final int dataIndex = index(dataMap, bitpos);
-				final Property currentElement = getElement(dataIndex);
 
-				if (currentElement.equals(element)) {
-					return this;
+				if (getKey(dataIndex).equals(key)) {
+					// update mapping
+					report.setTrieModified();
+					return copyAndSetValue(bitpos, element, sequenceId);
 				} else {
-					final int currentKeyHash = extractKey(currentElement).hashCode();
+					final Property currentElement = getElement(dataIndex);
+					final int currentKeyHash = getKey(dataIndex).hashCode();
 					final int currentSequenceId = getSequenceId(dataIndex);
 
 					final Node subNodeNew = mergeTwoElements(currentElement,
@@ -854,8 +873,8 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 				final int nodeIndex = index(nodeMap, bitpos);
 
 				final Node subNode = getNode(nodeIndex);
-				final Node subNodeNew = subNode.updated(element, keyHash, sequenceId, shift
-						+ bitPartitionSize(), report);
+				final Node subNodeNew = subNode.updated(key, element, keyHash, sequenceId, shift
+								+ bitPartitionSize(), report);
 
 				if (report.isTrieModified()) {
 					return copyAndSetNode(bitpos, subNodeNew);
@@ -878,7 +897,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 			if ((dataMap & bitpos) != 0) { // inplace value
 				final int dataIndex = index(dataMap, bitpos);
 
-				if (getElement(dataIndex).equals(key)) {
+				if (getKey(dataIndex).equals(key)) {
 					report.setTrieModified();
 
 					if (this.elementArity() == 2 && this.nodeArity() == 0) {
@@ -964,14 +983,14 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		}
 
 		@Override
-		public Optional<Property> find(final Property element, final int keyHash, final int shift) {
-			return Stream.of(elements).filter(e -> e.equals(element)).findAny();
+		public Optional<Property> find(final Object key, final int keyHash, final int shift) {
+			return Stream.of(elements).filter(e -> extractKey(e).equals(key)).findAny();
 		}
 
 		// TODO: Object key = extractKey(element);
 		@Override
-		public Node updated(final Property element, final int keyHash, int sequenceId,
-				final int shift, final UpdateReport report) {
+		public Node updated(Object key, final Property element, final int keyHash,
+				int sequenceId, final int shift, final UpdateReport report) {
 			assert this.hash == keyHash;
 
 			if (Stream.of(elements).anyMatch(e -> e.equals(element))) {
@@ -1018,7 +1037,6 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 					return BitmapIndexedNode.newElementSingleton(dataMap, elements[1 - indexOfKey],
 							indices[1 - indexOfKey]);
 				} else {
-
 					final Property[] reducedElements = new Property[elements.length - 1];
 					arraycopy(elements, 0, reducedElements, 0, indexOfKey);
 					arraycopy(elements, indexOfKey + 1, reducedElements, indexOfKey,
