@@ -353,7 +353,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 		private final int nodeMap;
 		private final int dataMap;
-		final Object[] nodes;
+		private final Object[] nodes;
 
 		private BitmapIndexedNode(final int nodeMap, final int dataMap, final Object[] nodes) {
 
@@ -426,7 +426,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 		@Override
 		public int elementArity() {
-			return java.lang.Integer.bitCount(dataMap);
+			return (dataMap == 0) ? 0 : java.lang.Integer.bitCount(dataMap);
 		}
 
 		@Override
@@ -436,7 +436,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 		@Override
 		public int nodeArity() {
-			return java.lang.Integer.bitCount(nodeMap);
+			return (nodeMap == 0) ? 0 : java.lang.Integer.bitCount(nodeMap);
 		}
 
 		@Override
@@ -722,8 +722,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 						 * will a) either become the new root returned, or b)
 						 * unwrapped and inlined during returning.
 						 */
-						final int newDataMap = (shift == 0) ? (int) (dataMap ^ bitpos)
-								: bitpos(mask(keyHash, 0));
+						final int newDataMap = (shift == 0) ? dataMap ^ bitpos : bitpos(mask(
+								keyHash, 0));
 
 						return new BitmapIndexedNode(0, newDataMap,
 								new Object[] { getElement(1 - dataIndex) });
@@ -744,11 +744,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 					return this;
 				}
 
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-					throw new IllegalStateException("Sub-node must have at least one element.");
-				}
-				case 1: {
+				if (subNodeNew.sizePredicate() == SIZE_ONE) {
 					if (this.elementArity() == 0 && this.nodeArity() == 1) {
 						// escalate (singleton or empty) result
 						return subNodeNew;
@@ -756,15 +752,16 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 						// inline value (move to front)
 						return copyAndMigrateFromNodeToInline(bitpos, subNodeNew);
 					}
-				}
-				default: {
+				} else {
+					assert subNode.sizePredicate() == SIZE_MORE_THAN_ONE;
+
 					// modify current node (set replacement node)
 					return copyAndSetNode(bitpos, subNodeNew);
 				}
-				}
+			} else {
+				// no value
+				return this;
 			}
-
-			return this;
 		}
 
 	}
