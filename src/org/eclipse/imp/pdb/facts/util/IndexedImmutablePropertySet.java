@@ -55,11 +55,11 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		return EMPTY_SET;
 	}
 
-	public static final IndexedImmutableSet<Property> of(Property... keys) {
+	public static final IndexedImmutableSet<Property> of(Property... elements) {
 		IndexedImmutableSet<Property> result = EMPTY_SET;
 
-		for (final Property key : keys) {
-			result = result.__insert(key);
+		for (final Property element : elements) {
+			result = result.__insert(element);
 		}
 
 		return result;
@@ -70,9 +70,9 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		int size = 0;
 
 		for (Iterator<Property> it = new ElementIterator(rootNode); it.hasNext();) {
-			final Property key = it.next();
+			final Property element = it.next();
 
-			hash += key.hashCode();
+			hash += element.hashCode();
 			size += 1;
 		}
 
@@ -90,8 +90,10 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 	@Override
 	public boolean contains(final Object o) {
 		try {
-			final Property key = (Property) o;
-			return rootNode.contains(key, transformHashCode(key.hashCode()), 0);
+			final Property element = (Property) o;
+			final int keyHash = extractKey(element).hashCode();
+
+			return rootNode.contains(element, transformHashCode(keyHash), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -110,9 +112,10 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 	@Override
 	public Property get(final Object o) {
 		try {
-			final Property key = (Property) o;
-			final Optional<Property> result = rootNode.find(key, transformHashCode(key.hashCode()),
-					0);
+			final Property element = (Property) o;
+			final int keyHash = extractKey(element).hashCode();
+
+			final Optional<Property> result = rootNode.find(element, transformHashCode(keyHash), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -125,28 +128,30 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 	}
 
 	@Override
-	public IndexedImmutableSet<Property> __insert(final Property key) {
-		final int keyHash = key.hashCode();
+	public IndexedImmutableSet<Property> __insert(final Property element) {
+		final int keyHash = extractKey(element).hashCode();
 		final UpdateReport report = new UpdateReport();
 
-		final Node newRootNode = rootNode.updated(key, transformHashCode(keyHash), 0, report);
+		final Node newRootNode = rootNode.updated(element, transformHashCode(keyHash), 0, report);
 
 		if (report.isTrieModified()) {
-			return new IndexedImmutablePropertySet(newRootNode, hashCode + keyHash, cachedSize + 1);
+			return new IndexedImmutablePropertySet(newRootNode, hashCode + element.hashCode(),
+					cachedSize + 1);
 		}
 
 		return this;
 	}
 
 	@Override
-	public IndexedImmutableSet<Property> __remove(final Property key) {
-		final int keyHash = key.hashCode();
+	public IndexedImmutableSet<Property> __remove(final Property element) {
+		final int keyHash = extractKey(element).hashCode();
 		final UpdateReport report = new UpdateReport();
 
-		final Node newRootNode = rootNode.removed(key, transformHashCode(keyHash), 0, report);
+		final Node newRootNode = rootNode.removed(element, transformHashCode(keyHash), 0, report);
 
 		if (report.isTrieModified()) {
-			return new IndexedImmutablePropertySet(newRootNode, hashCode - keyHash, cachedSize - 1);
+			return new IndexedImmutablePropertySet(newRootNode, hashCode - element.hashCode(),
+					cachedSize - 1);
 		}
 
 		return this;
@@ -172,8 +177,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 	// Object[] array = new Object[cachedSize];
 	//
 	// int idx = 0;
-	// for (Property key : this) {
-	// array[idx++] = key;
+	// for (Property element : this) {
+	// array[idx++] = element;
 	// }
 	//
 	// return array;
@@ -183,8 +188,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 	// public <T> T[] toArray(final T[] a) {
 	// List<Property> list = new ArrayList<Property>(cachedSize);
 	//
-	// for (Property key : this) {
-	// list.add(key);
+	// for (Property element : this) {
+	// list.add(element);
 	// }
 	//
 	// return list.toArray(a);
@@ -250,14 +255,14 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 	static interface Node {
 
-		boolean contains(final Property key, final int keyHash, final int shift);
+		boolean contains(final Property element, final int keyHash, final int shift);
 
-		Optional<Property> find(final Property key, final int keyHash, final int shift);
+		Optional<Property> find(final Property element, final int keyHash, final int shift);
 
-		Node updated(final Property key, final int keyHash, final int shift,
+		Node updated(final Property element, final int keyHash, final int shift,
 				final UpdateReport report);
 
-		Node removed(final Property key, final int keyHash, final int shift,
+		Node removed(final Property element, final int keyHash, final int shift,
 				final UpdateReport report);
 
 		boolean hasNodes();
@@ -317,12 +322,12 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
-		static Node mergeTwoElements(final Property key0, final int keyHash0, final Property key1,
-				final int keyHash1, final int shift) {
-			assert !(key0.equals(key1));
+		static Node mergeTwoElements(final Property element0, final int keyHash0,
+				final Property element1, final int keyHash1, final int shift) {
+			assert !(element0.equals(element1));
 
 			if (shift >= hashCodeLength()) {
-				return new HashCollisionNode(keyHash0, key0, key1);
+				return new HashCollisionNode(keyHash0, element0, element1);
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -333,12 +338,12 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 				final int dataMap = bitpos(mask0) | bitpos(mask1);
 
 				if (mask0 < mask1) {
-					return new BitmapIndexedNode(0, dataMap, new Object[] { key0, key1 });
+					return new BitmapIndexedNode(0, dataMap, new Object[] { element0, element1 });
 				} else {
-					return new BitmapIndexedNode(0, dataMap, new Object[] { key1, key0 });
+					return new BitmapIndexedNode(0, dataMap, new Object[] { element1, element0 });
 				}
 			} else {
-				final Node node = mergeTwoElements(key0, keyHash0, key1, keyHash1, shift
+				final Node node = mergeTwoElements(element0, keyHash0, element1, keyHash1, shift
 						+ bitPartitionSize());
 				// values fit on next level
 
@@ -506,7 +511,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 			for (byte i = 0; i < elementArity(); i++) {
 				final byte pos = recoverMask(dataMap, (byte) (i + 1));
-				bldr.append(String.format("@%d<#%d>", pos, Objects.hashCode(getElement(i))));
+				bldr.append(String.format("@%d<#%d>", pos,
+						Objects.hashCode(extractKey(getElement(i)))));
 
 				if (!((i + 1) == elementArity())) {
 					bldr.append(", ");
@@ -560,7 +566,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 			return new BitmapIndexedNode(nodeMap, dataMap, dst);
 		}
 
-		Node copyAndInsertValue(final int bitpos, final Property key) {
+		Node copyAndInsertValue(final int bitpos, final Property element) {
 			final int idx = index(dataMap, bitpos);
 
 			final Object[] src = this.nodes;
@@ -568,7 +574,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 			// copy 'src' and insert 1 element(s) at position 'idx'
 			arraycopy(src, 0, dst, 0, idx);
-			dst[idx] = key;
+			dst[idx] = element;
 			arraycopy(src, idx, dst, idx + 1, src.length - idx);
 
 			return new BitmapIndexedNode(nodeMap, dataMap | bitpos, dst);
@@ -626,31 +632,31 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		}
 
 		@Override
-		public boolean contains(final Property key, final int keyHash, final int shift) {
+		public boolean contains(final Property element, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap & bitpos) != 0) {
 				final int index = index(dataMap, mask, bitpos);
-				return getElement(index).equals(key);
+				return getElement(index).equals(element);
 			}
 
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).contains(key, keyHash, shift + bitPartitionSize());
+				return getNode(index).contains(element, keyHash, shift + bitPartitionSize());
 			}
 
 			return false;
 		}
 
 		@Override
-		public Optional<Property> find(final Property key, final int keyHash, final int shift) {
+		public Optional<Property> find(final Property element, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap & bitpos) != 0) {
 				final int index = index(dataMap, mask, bitpos);
-				if (getElement(index).equals(key)) {
+				if (getElement(index).equals(element)) {
 					return Optional.of(getElement(index));
 				}
 
@@ -659,27 +665,28 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).find(key, keyHash, shift + bitPartitionSize());
+				return getNode(index).find(element, keyHash, shift + bitPartitionSize());
 			}
 
 			return Optional.empty();
 		}
 
 		@Override
-		public Node updated(final Property key, final int keyHash, final int shift,
+		public Node updated(final Property element, final int keyHash, final int shift,
 				final UpdateReport report) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap & bitpos) != 0) { // inplace value
 				final int dataIndex = index(dataMap, bitpos);
-				final Property currentKey = getElement(dataIndex);
+				final Property currentElement = getElement(dataIndex);
 
-				if (currentKey.equals(key)) {
+				if (currentElement.equals(element)) {
 					return this;
 				} else {
-					final Node subNodeNew = mergeTwoElements(currentKey,
-							transformHashCode(currentKey.hashCode()), key, keyHash, shift
+					final int currentKeyHash = extractKey(currentElement).hashCode();
+					final Node subNodeNew = mergeTwoElements(currentElement,
+							transformHashCode(currentKeyHash), element, keyHash, shift
 									+ bitPartitionSize());
 
 					report.setTrieModified();
@@ -689,8 +696,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 				final int nodeIndex = index(nodeMap, bitpos);
 
 				final Node subNode = getNode(nodeIndex);
-				final Node subNodeNew = subNode.updated(key, keyHash, shift + bitPartitionSize(),
-						report);
+				final Node subNodeNew = subNode.updated(element, keyHash, shift
+						+ bitPartitionSize(), report);
 
 				if (report.isTrieModified()) {
 					return copyAndSetNode(bitpos, subNodeNew);
@@ -700,12 +707,12 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 			} else {
 				// no value
 				report.setTrieModified();
-				return copyAndInsertValue(bitpos, key);
+				return copyAndInsertValue(bitpos, element);
 			}
 		}
 
 		@Override
-		public Node removed(final Property key, final int keyHash, final int shift,
+		public Node removed(final Property element, final int keyHash, final int shift,
 				final UpdateReport report) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
@@ -713,7 +720,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 			if ((dataMap & bitpos) != 0) { // inplace value
 				final int dataIndex = index(dataMap, bitpos);
 
-				if (getElement(dataIndex).equals(key)) {
+				if (getElement(dataIndex).equals(element)) {
 					report.setTrieModified();
 
 					if (this.elementArity() == 2 && this.nodeArity() == 0) {
@@ -737,8 +744,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 				final int nodeIndex = index(nodeMap, bitpos);
 
 				final Node subNode = getNode(nodeIndex);
-				final Node subNodeNew = subNode.removed(key, keyHash, shift + bitPartitionSize(),
-						report);
+				final Node subNodeNew = subNode.removed(element, keyHash, shift
+						+ bitPartitionSize(), report);
 
 				if (!report.isTrieModified()) {
 					return this;
@@ -785,26 +792,26 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		}
 
 		@Override
-		public boolean contains(final Property key, final int keyHash, final int shift) {
-			return hash == keyHash && Stream.of(elements).anyMatch(e -> e.equals(key));
+		public boolean contains(final Property element, final int keyHash, final int shift) {
+			return hash == keyHash && Stream.of(elements).anyMatch(e -> e.equals(element));
 		}
 
 		@Override
-		public Optional<Property> find(final Property key, final int keyHash, final int shift) {
-			return Stream.of(elements).filter(e -> e.equals(key)).findAny();
+		public Optional<Property> find(final Property element, final int keyHash, final int shift) {
+			return Stream.of(elements).filter(e -> e.equals(element)).findAny();
 		}
 
 		@Override
-		public Node updated(final Property key, final int keyHash, final int shift,
+		public Node updated(final Property element, final int keyHash, final int shift,
 				final UpdateReport report) {
 			assert this.hash == keyHash;
 
-			if (Stream.of(elements).anyMatch(e -> e.equals(key))) {
+			if (Stream.of(elements).anyMatch(e -> e.equals(element))) {
 				return this;
 			} else {
 				final Property[] extendedElements = new Property[elements.length + 1];
 				arraycopy(elements, 0, extendedElements, 0, elements.length);
-				extendedElements[elements.length] = key;
+				extendedElements[elements.length] = element;
 
 				report.setTrieModified();
 				return new HashCollisionNode(keyHash, extendedElements);
@@ -812,12 +819,12 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		}
 
 		@Override
-		public Node removed(final Property key, final int keyHash, final int shift,
+		public Node removed(final Property element, final int keyHash, final int shift,
 				final UpdateReport report) {
-			if (Stream.of(elements).noneMatch(e -> e.equals(key))) {
+			if (Stream.of(elements).noneMatch(e -> e.equals(element))) {
 				return this;
 			} else {
-				Property[] reducedElements = Stream.of(elements).filter(e -> !e.equals(key))
+				Property[] reducedElements = Stream.of(elements).filter(e -> !e.equals(element))
 						.toArray(Property[]::new);
 
 				if (reducedElements.length == 1) {
@@ -902,7 +909,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 			}
 
 			/*
-			 * Linear scan for each key, because of arbitrary element order.
+			 * Linear scan for each element, because of arbitrary element order.
 			 */
 			for (Property e1 : elements) {
 				if (Stream.of(that.elements).noneMatch(e2 -> e1.equals(e2))) {
