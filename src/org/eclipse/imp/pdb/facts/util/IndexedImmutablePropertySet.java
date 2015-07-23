@@ -31,21 +31,25 @@ import com.oracle.truffle.api.object.Property;
 public class IndexedImmutablePropertySet extends AbstractSet<Property> implements
 		IndexedImmutableSet<Property> {
 
-	private static final Node EMPTY_NODE = new BitmapIndexedNode(0, 0, new Object[] {});
+	private static final Node EMPTY_NODE = new BitmapIndexedNode(0, 0, new Object[] {},
+			new int[] {});
 
 	private static final IndexedImmutablePropertySet EMPTY_SET = new IndexedImmutablePropertySet(
-			EMPTY_NODE, 0, 0);
+			EMPTY_NODE, 0, 0, 0);
 
 	private static final boolean DEBUG = false;
 
 	private final Node rootNode;
 	private final int hashCode;
 	private final int cachedSize;
+	private final int nextSequenceId;
 
-	private IndexedImmutablePropertySet(Node rootNode, int hashCode, int cachedSize) {
+	private IndexedImmutablePropertySet(Node rootNode, int hashCode, int cachedSize, int nextSequenceId) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
+		this.nextSequenceId = nextSequenceId;
+		
 		if (DEBUG) {
 			assert checkHashCodeAndSize(hashCode, cachedSize);
 		}
@@ -132,11 +136,12 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		final int keyHash = extractKey(element).hashCode();
 		final UpdateReport report = new UpdateReport();
 
-		final Node newRootNode = rootNode.updated(element, transformHashCode(keyHash), 0, report);
+		final Node newRootNode = rootNode.updated(element, transformHashCode(keyHash),
+				nextSequenceId, 0, report);
 
 		if (report.isTrieModified()) {
 			return new IndexedImmutablePropertySet(newRootNode, hashCode + element.hashCode(),
-					cachedSize + 1);
+					cachedSize + 1, nextSequenceId + 1);
 		}
 
 		return this;
@@ -151,7 +156,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 		if (report.isTrieModified()) {
 			return new IndexedImmutablePropertySet(newRootNode, hashCode - element.hashCode(),
-					cachedSize - 1);
+					cachedSize - 1, nextSequenceId);
 		}
 
 		return this;
@@ -259,7 +264,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 		Optional<Property> find(final Property element, final int keyHash, final int shift);
 
-		Node updated(final Property element, final int keyHash, final int shift,
+		Node updated(final Property element, final int keyHash, int sequenceId, final int shift,
 				final UpdateReport report);
 
 		Node removed(final Property element, final int keyHash, final int shift,
@@ -276,6 +281,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		int elementArity();
 
 		Property getElement(final int index);
+
+		int getSequenceId(final int index);
 
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
@@ -322,12 +329,14 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
-		static Node mergeTwoElements(final Property element0, final int keyHash0,
-				final Property element1, final int keyHash1, final int shift) {
-			assert !(element0.equals(element1));
+		static Node mergeTwoElements(final Property element0, final int keyHash0, int sequenceId0,
+				final Property element1, final int keyHash1, int sequenceId1, final int shift) {
+			Object key0 = extractKey(element0);
+			Object key1 = extractKey(element1);
+			assert !(key0.equals(key1));
 
 			if (shift >= hashCodeLength()) {
-				return new HashCollisionNode(keyHash0, element0, element1);
+				return new HashCollisionNode(keyHash0, element0, sequenceId0, element1, sequenceId1);
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -338,18 +347,20 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 				final int dataMap = bitpos(mask0) | bitpos(mask1);
 
 				if (mask0 < mask1) {
-					return new BitmapIndexedNode(0, dataMap, new Object[] { element0, element1 });
+					return BitmapIndexedNode.newElementTuple(dataMap, element0, sequenceId0,
+							element1, sequenceId1);
 				} else {
-					return new BitmapIndexedNode(0, dataMap, new Object[] { element1, element0 });
+					return BitmapIndexedNode.newElementTuple(dataMap, element1, sequenceId1,
+							element0, sequenceId0);
 				}
 			} else {
-				final Node node = mergeTwoElements(element0, keyHash0, element1, keyHash1, shift
-						+ bitPartitionSize());
+				final Node node = mergeTwoElements(element0, keyHash0, sequenceId0, element1,
+						keyHash1, sequenceId1, shift + bitPartitionSize());
 				// values fit on next level
-
 				final int nodeMap = bitpos(mask0);
-				return new BitmapIndexedNode(nodeMap, 0, new Object[] { node });
-			}
+
+				return BitmapIndexedNode.newSubnodeSingleton(nodeMap, node);
+		}
 		}
 
 	}
@@ -358,13 +369,18 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 		private final int nodeMap;
 		private final int dataMap;
-		private final Object[] nodes;
 
-		private BitmapIndexedNode(final int nodeMap, final int dataMap, final Object[] nodes) {
+		private final Object[] nodes;
+		private final int[] indices;
+
+		private BitmapIndexedNode(final int nodeMap, final int dataMap, final Object[] nodes,
+				int[] indices) {
 
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
+
 			this.nodes = nodes;
+			this.indices = indices;
 
 			if (DEBUG) {
 
@@ -379,6 +395,22 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 			}
 
 			assert nodeInvariant();
+		}
+
+		static final BitmapIndexedNode newElementSingleton(int dataMap, Property element0,
+				int index0) {
+			return new BitmapIndexedNode(0, dataMap, new Property[] { element0 },
+					new int[] { index0 });
+		}
+
+		static final BitmapIndexedNode newElementTuple(int dataMap, Property element0, int index0,
+				Property element1, int index1) {
+			return new BitmapIndexedNode(0, dataMap, new Property[] { element0, element1 },
+					new int[] { index0, index1 });
+		}
+
+		static final BitmapIndexedNode newSubnodeSingleton(int nodeMap, Node subNode) {
+			return new BitmapIndexedNode(nodeMap, 0, new Object[] { subNode }, new int[] {});
 		}
 
 		@Deprecated
@@ -417,6 +449,11 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		@Override
 		public Property getElement(final int index) {
 			return (Property) nodes[index];
+		}
+
+		@Override
+		public int getSequenceId(final int index) {
+			return indices[index];
 		}
 
 		@Override
@@ -553,82 +590,102 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		}
 
 		Node copyAndSetNode(final int bitpos, final Node node) {
-
 			final int idx = this.nodes.length - 1 - index(nodeMap, bitpos);
 
-			final Object[] src = this.nodes;
-			final Object[] dst = new Object[src.length];
+			final Object[] newNodes = new Object[nodes.length];
 
-			// copy 'src' and set 1 element(s) at position 'idx'
-			arraycopy(src, 0, dst, 0, src.length);
-			dst[idx] = node;
+			// copy 'nodes' and update 1 element(s) at position 'idx'
+			arraycopy(nodes, 0, newNodes, 0, nodes.length);
+			newNodes[idx] = node;
 
-			return new BitmapIndexedNode(nodeMap, dataMap, dst);
+			return new BitmapIndexedNode(nodeMap, dataMap, newNodes, indices);
 		}
 
-		Node copyAndInsertValue(final int bitpos, final Property element) {
+		Node copyAndInsertValue(final int bitpos, final Property element, int sequenceId) {
 			final int idx = index(dataMap, bitpos);
 
-			final Object[] src = this.nodes;
-			final Object[] dst = new Object[src.length + 1];
+			final Object[] newNodes = new Object[nodes.length + 1];
 
-			// copy 'src' and insert 1 element(s) at position 'idx'
-			arraycopy(src, 0, dst, 0, idx);
-			dst[idx] = element;
-			arraycopy(src, idx, dst, idx + 1, src.length - idx);
+			// copy 'nodes' and insert 1 element(s) at position 'idx'
+			arraycopy(nodes, 0, newNodes, 0, idx);
+			newNodes[idx] = element;
+			arraycopy(nodes, idx, newNodes, idx + 1, nodes.length - idx);
 
-			return new BitmapIndexedNode(nodeMap, dataMap | bitpos, dst);
+			final int[] newIndices = new int[indices.length + 1];
+
+			// copy 'indices' and insert 1 element(s) at position 'idx'
+			arraycopy(indices, 0, newIndices, 0, idx);
+			newIndices[idx] = sequenceId;
+			arraycopy(indices, idx, newIndices, idx + 1, indices.length - idx);
+
+			return new BitmapIndexedNode(nodeMap, dataMap | bitpos, newNodes, newIndices);
 		}
 
 		Node copyAndRemoveValue(final int bitpos) {
 			final int idx = index(dataMap, bitpos);
 
-			final Object[] src = this.nodes;
-			final Object[] dst = new Object[src.length - 1];
+			final Object[] newNodes = new Object[nodes.length - 1];
 
-			// copy 'src' and remove 1 element(s) at position 'idx'
-			arraycopy(src, 0, dst, 0, idx);
-			arraycopy(src, idx + 1, dst, idx, src.length - idx - 1);
+			// copy 'nodes' and remove 1 element(s) at position 'idx'
+			arraycopy(nodes, 0, newNodes, 0, idx);
+			arraycopy(nodes, idx + 1, newNodes, idx, nodes.length - idx - 1);
 
-			return new BitmapIndexedNode(nodeMap, dataMap ^ bitpos, dst);
+			final int[] newIndices = new int[indices.length - 1];
+
+			// copy 'indices' and remove 1 element(s) at position 'idx'
+			arraycopy(indices, 0, newIndices, 0, idx);
+			arraycopy(indices, idx + 1, newIndices, idx, indices.length - idx - 1);
+
+			return new BitmapIndexedNode(nodeMap, dataMap ^ bitpos, newNodes, newIndices);
 		}
 
 		Node copyAndMigrateFromInlineToNode(final int bitpos, final Node node) {
 
 			final int idxOld = index(dataMap, bitpos);
-			final int idxNew = this.nodes.length - 1 - index(nodeMap, bitpos);
+			final int idxNew = nodes.length - 1 - index(nodeMap, bitpos);
 
-			final Object[] src = this.nodes;
-			final Object[] dst = new Object[src.length - 1 + 1];
+			final Object[] newNodes = new Object[nodes.length];
 
-			// copy 'src' and remove 1 element(s) at position 'idxOld' and
+			// copy 'nodes' and remove 1 element(s) at position 'idxOld' and
 			// insert 1 element(s) at position 'idxNew'
 			assert idxOld <= idxNew;
-			arraycopy(src, 0, dst, 0, idxOld);
-			arraycopy(src, idxOld + 1, dst, idxOld, idxNew - idxOld);
-			dst[idxNew] = node;
-			arraycopy(src, idxNew + 1, dst, idxNew + 1, src.length - idxNew - 1);
+			arraycopy(nodes, 0, newNodes, 0, idxOld);
+			arraycopy(nodes, idxOld + 1, newNodes, idxOld, idxNew - idxOld);
+			newNodes[idxNew] = node;
+			arraycopy(nodes, idxNew + 1, newNodes, idxNew + 1, nodes.length - idxNew - 1);
 
-			return new BitmapIndexedNode(nodeMap | bitpos, dataMap ^ bitpos, dst);
+			final int[] newIndices = new int[indices.length - 1];
+
+			// copy 'indices' and remove 1 element(s) at position 'idxOld'
+			arraycopy(indices, 0, newIndices, 0, idxOld);
+			arraycopy(indices, idxOld + 1, newIndices, idxOld, indices.length - idxOld - 1);
+
+			return new BitmapIndexedNode(nodeMap | bitpos, dataMap ^ bitpos, newNodes, newIndices);
 		}
 
 		Node copyAndMigrateFromNodeToInline(final int bitpos, final Node node) {
 
-			final int idxOld = this.nodes.length - 1 - index(nodeMap, bitpos);
+			final int idxOld = nodes.length - 1 - index(nodeMap, bitpos);
 			final int idxNew = index(dataMap, bitpos);
 
-			final Object[] src = this.nodes;
-			final Object[] dst = new Object[src.length - 1 + 1];
+			final Object[] newNodes = new Object[nodes.length];
 
-			// copy 'src' and remove 1 element(s) at position 'idxOld' and
+			// copy 'nodes' and remove 1 element(s) at position 'idxOld' and
 			// insert 1 element(s) at position 'idxNew'
 			assert idxOld >= idxNew;
-			arraycopy(src, 0, dst, 0, idxNew);
-			dst[idxNew] = node.getElement(0);
-			arraycopy(src, idxNew, dst, idxNew + 1, idxOld - idxNew);
-			arraycopy(src, idxOld + 1, dst, idxOld + 1, src.length - idxOld - 1);
+			arraycopy(nodes, 0, newNodes, 0, idxNew);
+			newNodes[idxNew] = node.getElement(0);
+			arraycopy(nodes, idxNew, newNodes, idxNew + 1, idxOld - idxNew);
+			arraycopy(nodes, idxOld + 1, newNodes, idxOld + 1, nodes.length - idxOld - 1);
 
-			return new BitmapIndexedNode(nodeMap ^ bitpos, dataMap | bitpos, dst);
+			final int[] newIndices = new int[indices.length + 1];
+
+			// copy 'indices' and insert 1 element(s) at position 'idxNew'
+			arraycopy(indices, 0, newIndices, 0, idxNew);
+			newIndices[idxNew] = node.getSequenceId(0);
+			arraycopy(indices, idxNew, newIndices, idxNew + 1, indices.length - idxNew);
+
+			return new BitmapIndexedNode(nodeMap ^ bitpos, dataMap | bitpos, newNodes, newIndices);
 		}
 
 		@Override
@@ -672,8 +729,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		}
 
 		@Override
-		public Node updated(final Property element, final int keyHash, final int shift,
-				final UpdateReport report) {
+		public Node updated(final Property element, final int keyHash, int sequenceId,
+				final int shift, final UpdateReport report) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -685,9 +742,11 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 					return this;
 				} else {
 					final int currentKeyHash = extractKey(currentElement).hashCode();
+					final int currentSequenceId = getSequenceId(dataIndex);
+
 					final Node subNodeNew = mergeTwoElements(currentElement,
-							transformHashCode(currentKeyHash), element, keyHash, shift
-									+ bitPartitionSize());
+							transformHashCode(currentKeyHash), currentSequenceId, element, keyHash,
+							sequenceId, shift + bitPartitionSize());
 
 					report.setTrieModified();
 					return copyAndMigrateFromInlineToNode(bitpos, subNodeNew);
@@ -696,7 +755,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 				final int nodeIndex = index(nodeMap, bitpos);
 
 				final Node subNode = getNode(nodeIndex);
-				final Node subNodeNew = subNode.updated(element, keyHash, shift
+				final Node subNodeNew = subNode.updated(element, keyHash, sequenceId, shift
 						+ bitPartitionSize(), report);
 
 				if (report.isTrieModified()) {
@@ -707,7 +766,7 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 			} else {
 				// no value
 				report.setTrieModified();
-				return copyAndInsertValue(bitpos, element);
+				return copyAndInsertValue(bitpos, element, sequenceId);
 			}
 		}
 
@@ -732,8 +791,8 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 						final int newDataMap = (shift == 0) ? dataMap ^ bitpos : bitpos(mask(
 								keyHash, 0));
 
-						return new BitmapIndexedNode(0, newDataMap,
-								new Object[] { getElement(1 - dataIndex) });
+						return BitmapIndexedNode.newElementSingleton(newDataMap,
+								getElement(1 - dataIndex), getSequenceId(1 - dataIndex));
 					} else {
 						return copyAndRemoveValue(bitpos);
 					}
@@ -777,18 +836,22 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 
 		private final int hash;
 		private final Property[] elements;
+		private final int[] indices;
 
-		private HashCollisionNode(final int hash, final Property element0, final Property element1) {
+		private HashCollisionNode(final int hash, final Property element0, int sequenceId0,
+				final Property element1, int sequenceId1) {
 			this.hash = hash;
 			this.elements = new Property[] { element0, element1 };
+			this.indices = new int[] { sequenceId0, sequenceId1 };
 		}
 
-		private HashCollisionNode(final int hash, final Property[] elements) {
+		private HashCollisionNode(final int hash, final Property[] elements, final int[] indices) {
 			if (elements.length <= 2) {
 				throw new IllegalArgumentException("At least two elements are required.");
 			}
 			this.hash = hash;
 			this.elements = elements;
+			this.indices = indices;
 		}
 
 		@Override
@@ -800,9 +863,10 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		public Optional<Property> find(final Property element, final int keyHash, final int shift) {
 			return Stream.of(elements).filter(e -> e.equals(element)).findAny();
 		}
-
+		
+		// TODO: Object key = extractKey(element);
 		@Override
-		public Node updated(final Property element, final int keyHash, final int shift,
+		public Node updated(final Property element, final int keyHash, int sequenceId, final int shift,
 				final UpdateReport report) {
 			assert this.hash == keyHash;
 
@@ -812,31 +876,57 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 				final Property[] extendedElements = new Property[elements.length + 1];
 				arraycopy(elements, 0, extendedElements, 0, elements.length);
 				extendedElements[elements.length] = element;
+				
+				final int[] extendedIndices = new int[indices.length + 1];
+				arraycopy(indices, 0, extendedIndices, 0, indices.length);
+				extendedIndices[indices.length] = sequenceId;				
 
 				report.setTrieModified();
-				return new HashCollisionNode(keyHash, extendedElements);
+				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);
 			}
 		}
 
 		@Override
 		public Node removed(final Property element, final int keyHash, final int shift,
 				final UpdateReport report) {
-			if (Stream.of(elements).noneMatch(e -> e.equals(element))) {
+			assert this.hash == keyHash;
+			
+			Object key = extractKey(element);			
+			int indexOfKey = -1;
+			
+			for (int i = 0; i < elements.length && indexOfKey == -1; i++) {
+				if (extractKey(elements[i]).equals(key)) {
+					indexOfKey = i;
+				}
+			}
+			
+			if (indexOfKey == -1) {
 				return this;
 			} else {
-				Property[] reducedElements = Stream.of(elements).filter(e -> !e.equals(element))
-						.toArray(Property[]::new);
-
-				if (reducedElements.length == 1) {
+				if (elements.length == 2) {
 					/*
 					 * Create root node with singleton element. This node will
 					 * be a) either be the new root returned, or b) unwrapped
 					 * and inlined.
-					 */
-					return EMPTY_NODE.updated(reducedElements[0], keyHash, 0, report);
-				} else {
+					 */				
+					final int dataMap = bitpos(mask(hash, 0));
+					
 					report.setTrieModified();
-					return new HashCollisionNode(keyHash, reducedElements);
+					return BitmapIndexedNode.newElementSingleton(dataMap, elements[1 - indexOfKey], indices[1 - indexOfKey]);
+				} else {
+					
+					final Property[] reducedElements = new Property[elements.length - 1];
+					arraycopy(elements, 0, reducedElements, 0, indexOfKey);
+					arraycopy(elements, indexOfKey + 1, reducedElements, indexOfKey,
+							elements.length - indexOfKey - 1);
+
+					final int[] reducedIndices = new int[indices.length - 1];
+					arraycopy(indices, 0, reducedIndices, 0, indexOfKey);
+					arraycopy(indices, indexOfKey + 1, reducedIndices, indexOfKey, indices.length
+							- indexOfKey - 1);
+
+					report.setTrieModified();
+					return new HashCollisionNode(keyHash, reducedElements, reducedIndices);
 				}
 			}
 		}
@@ -869,6 +959,11 @@ public class IndexedImmutablePropertySet extends AbstractSet<Property> implement
 		@Override
 		public Property getElement(final int index) {
 			return elements[index];
+		}
+
+		@Override
+		public int getSequenceId(final int index) {
+			return indices[index];
 		}
 
 		@Override
