@@ -126,8 +126,8 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		final int keyHash = extractKey(element).hashCode();
 		final UpdateReport report = new UpdateReport();
 
-		final Node newRootNode = rootNode.updated(key, element,
-				transformHashCode(keyHash), nextSequenceId, 0, report);
+		final Node newRootNode = rootNode.updated(key, element, transformHashCode(keyHash),
+				nextSequenceId, 0, report);
 
 		if (report.isTrieModified()) {
 			return new ImmutablePropertyMap(newRootNode, cachedSize + 1, nextSequenceId + 1);
@@ -718,7 +718,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 
 			return new BitmapIndexedNode(nodeMap, dataMap, newNodes, newIndices);
 		}
-		
+
 		Node copyAndRemoveValue(final int bitpos) {
 			final int idx = index(dataMap, bitpos);
 
@@ -845,8 +845,8 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		}
 
 		@Override
-		public Node updated(Object key, final Property element, final int keyHash,
-				int sequenceId, final int shift, final UpdateReport report) {
+		public Node updated(Object key, final Property element, final int keyHash, int sequenceId,
+				final int shift, final UpdateReport report) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -874,7 +874,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 
 				final Node subNode = getNode(nodeIndex);
 				final Node subNodeNew = subNode.updated(key, element, keyHash, sequenceId, shift
-								+ bitPartitionSize(), report);
+						+ bitPartitionSize(), report);
 
 				if (report.isTrieModified()) {
 					return copyAndSetNode(bitpos, subNodeNew);
@@ -988,8 +988,8 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		}
 
 		@Override
-		public Node updated(Object key, final Property element, final int keyHash,
-				int sequenceId, final int shift, final UpdateReport report) {
+		public Node updated(Object key, final Property element, final int keyHash, int sequenceId,
+				final int shift, final UpdateReport report) {
 			assert this.hash == keyHash;
 
 			int indexOfKey = -1;
@@ -1011,8 +1011,8 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 				extendedIndices[indices.length] = sequenceId;
 
 				report.setTrieModified();
-				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);				
-			} else {			
+				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);
+			} else {
 				// replace
 				final Property[] extendedElements = new Property[elements.length];
 				arraycopy(elements, 0, extendedElements, 0, elements.length);
@@ -1023,7 +1023,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 				extendedIndices[indexOfKey] = sequenceId;
 
 				report.setTrieModified();
-				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);							
+				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);
 			}
 		}
 
