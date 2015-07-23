@@ -987,15 +987,21 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 			return Stream.of(elements).filter(e -> extractKey(e).equals(key)).findAny();
 		}
 
-		// TODO: Object key = extractKey(element);
 		@Override
 		public Node updated(Object key, final Property element, final int keyHash,
 				int sequenceId, final int shift, final UpdateReport report) {
 			assert this.hash == keyHash;
 
-			if (Stream.of(elements).anyMatch(e -> e.equals(element))) {
-				return this;
-			} else {
+			int indexOfKey = -1;
+
+			for (int i = 0; i < elementArity() && indexOfKey == -1; i++) {
+				if (getKey(i).equals(key)) {
+					indexOfKey = i;
+				}
+			}
+
+			if (indexOfKey == -1) {
+				// insert
 				final Property[] extendedElements = new Property[elements.length + 1];
 				arraycopy(elements, 0, extendedElements, 0, elements.length);
 				extendedElements[elements.length] = element;
@@ -1005,7 +1011,19 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 				extendedIndices[indices.length] = sequenceId;
 
 				report.setTrieModified();
-				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);
+				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);				
+			} else {			
+				// replace
+				final Property[] extendedElements = new Property[elements.length];
+				arraycopy(elements, 0, extendedElements, 0, elements.length);
+				extendedElements[indexOfKey] = element;
+
+				final int[] extendedIndices = new int[indices.length];
+				arraycopy(indices, 0, extendedIndices, 0, indices.length);
+				extendedIndices[indexOfKey] = sequenceId;
+
+				report.setTrieModified();
+				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);							
 			}
 		}
 
