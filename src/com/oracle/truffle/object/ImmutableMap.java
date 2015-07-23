@@ -9,47 +9,34 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package org.eclipse.imp.pdb.facts.util;
+package com.oracle.truffle.object;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.Map;
 
-public interface IndexedImmutableSet<K> extends Set<K> {
+public interface ImmutableMap<K, V> extends Map<K, V> {
 
-	K get(final Object o);
+	ImmutableMap<K, V> copyAndPut(final K key, final V value);
 
-	IndexedImmutableSet<K> __insert(final K key);
+	ImmutableMap<K, V> copyAndRemove(final K key);
 
-	IndexedImmutableSet<K> __remove(final K key);
+	@Override
+	default V put(final K key, final V value) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	default void putAll(final Map<? extends K, ? extends V> m) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	default V remove(final Object key) {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	default void clear() {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	default boolean add(final K key) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	default boolean addAll(Collection<? extends K> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	default boolean remove(final Object key) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	default boolean removeAll(final Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	default boolean retainAll(final Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}	
-	
 }
