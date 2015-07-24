@@ -59,7 +59,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		}
 	}
 
-	public static final ImmutableMap<Object, Property> of() {
+	public static final ImmutablePropertyMap of() {
 		return EMPTY_MAP;
 	}
 
@@ -120,13 +120,9 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		}
 	}
 
-	@Override
-	public ImmutableMap<Object, Property> copyAndPut(final Object key, final Property element) {
-		if (key != extractKey(element)) {
-			throw new IllegalArgumentException("Key must reference equal extracted key of tuple.");
-		}
-
-		final int keyHash = extractKey(element).hashCode();
+	public ImmutablePropertyMap copyAndPut(final Property element) {
+		final Object key = extractKey(element);
+		final int keyHash = key.hashCode();
 		final UpdateReport report = new UpdateReport();
 
 		final Node newRootNode = rootNode.updated(key, element, transformHashCode(keyHash),
@@ -138,9 +134,18 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 
 		return this;
 	}
-
+		
 	@Override
-	public ImmutableMap<Object, Property> copyAndRemove(final Object key) {
+	public ImmutablePropertyMap copyAndPut(final Object key, final Property element) {
+		if (!extractKey(element).equals(key)) {
+			throw new IllegalArgumentException("Key must equal extracted key of tuple.");
+		}
+
+		return copyAndPut(element);
+	}	
+	
+	@Override
+	public ImmutablePropertyMap copyAndRemove(final Object key) {
 		final int keyHash = key.hashCode();
 		final UpdateReport report = new UpdateReport();
 
