@@ -130,12 +130,16 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 				nextSequenceId, 0, report);
 
 		if (report.isTrieModified()) {
-			return new ImmutablePropertyMap(newRootNode, cachedSize + 1, nextSequenceId + 1);
+			if (report.isTrieElementReplaced()) {
+				return new ImmutablePropertyMap(newRootNode, cachedSize, nextSequenceId);
+			} else {
+				return new ImmutablePropertyMap(newRootNode, cachedSize + 1, nextSequenceId + 1);
+			}
 		}
 
 		return this;
 	}
-		
+
 	@Override
 	public ImmutablePropertyMap copyAndPut(final Object key, final Property element) {
 		if (!extractKey(element).equals(key)) {
@@ -143,8 +147,8 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		}
 
 		return copyAndPut(element);
-	}	
-	
+	}
+
 	@Override
 	public ImmutablePropertyMap copyAndRemove(final Object key) {
 		final int keyHash = key.hashCode();
@@ -180,7 +184,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 	public Iterator<Map.Entry<Object, Property>> entryIterator() {
 		return new EntryIterator(rootNode);
 	}
-	
+
 	private Spliterator<Map.Entry<Object, Property>> entrySpliterator() {
 		int characteristics = Spliterator.NONNULL | Spliterator.SIZED | Spliterator.SUBSIZED;
 		return Spliterators.spliterator(entryIterator(), size(), characteristics);
@@ -352,10 +356,12 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 	private static final class UpdateReport {
 
 		private boolean isModified;
+		private boolean isElementReplaced;
 
 		// // update: neither element, nor element count changed
 		public UpdateReport() {
 			this.isModified = false;
+			this.isElementReplaced = false;
 		}
 
 		// update: inserted/removed single element, element count changed
@@ -367,6 +373,13 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 			return isModified;
 		}
 
+		public void setTrieElementReplaced() {
+			this.isElementReplaced = true;
+		}
+
+		public boolean isTrieElementReplaced() {
+			return isElementReplaced;
+		}
 	}
 
 	static interface Node {
@@ -891,7 +904,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 
 				if (getKey(dataIndex).equals(key)) {
 					// update mapping
-					report.setTrieModified();
+					report.setTrieElementReplaced();
 					return copyAndSetValue(bitpos, element, getSequenceId(dataIndex));
 				} else {
 					final Property currentElement = getElement(dataIndex);
@@ -1058,7 +1071,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 				arraycopy(indices, 0, extendedIndices, 0, indices.length);
 				extendedIndices[indexOfKey] = sequenceId;
 
-				report.setTrieModified();
+				report.setTrieElementReplaced();
 				return new HashCollisionNode(keyHash, extendedElements, extendedIndices);
 			}
 		}
@@ -1329,7 +1342,8 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
-				return new ImmutableMapEntry(currentValueNode.getSequenceId(currentValueCursor), currentValueNode.getElement(currentValueCursor++));
+				return new ImmutableMapEntry(currentValueNode.getSequenceId(currentValueCursor),
+						currentValueNode.getElement(currentValueCursor++));
 			}
 		}
 	}
@@ -1364,11 +1378,11 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		public int compareTo(ImmutableMapEntry other) {
 			return sequenceId - other.sequenceId;
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.format("%s=%s", getKey(), getValue());
 		}
 	}
-		
+
 }
