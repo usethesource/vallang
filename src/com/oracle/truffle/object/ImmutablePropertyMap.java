@@ -12,6 +12,7 @@
 package com.oracle.truffle.object;
 
 import static java.lang.System.arraycopy;
+import static java.util.stream.Collectors.joining;
 import static com.oracle.truffle.object.ImmutablePropertyMap.Node.*;
 
 import java.util.AbstractCollection;
@@ -341,6 +342,11 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		}
 
 		return rootNode.equals(that.rootNode);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("{%s}", entryStream().map(Map.Entry::toString).collect(joining(", ")));
 	}
 
 	private static final class UpdateReport {
@@ -886,7 +892,7 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 				if (getKey(dataIndex).equals(key)) {
 					// update mapping
 					report.setTrieModified();
-					return copyAndSetValue(bitpos, element, sequenceId);
+					return copyAndSetValue(bitpos, element, getSequenceId(dataIndex));
 				} else {
 					final Property currentElement = getElement(dataIndex);
 					final int currentKeyHash = getKey(dataIndex).hashCode();
@@ -1357,6 +1363,11 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		@Override
 		public int compareTo(ImmutableMapEntry other) {
 			return sequenceId - other.sequenceId;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("%s=%s", getKey(), getValue());
 		}
 	}
 		
