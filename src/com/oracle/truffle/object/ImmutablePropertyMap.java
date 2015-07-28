@@ -32,6 +32,9 @@ import java.util.stream.StreamSupport;
 
 import com.oracle.truffle.api.object.Property;
 
+/*
+ * TODO: implement full support for other implementations that adhear to the `Map' and `Map.Entry' interfaces in `equals'. 
+ */
 public final class ImmutablePropertyMap implements ImmutableMap<Object, Property> {
 
 	private static final Node EMPTY_NODE = new BitmapIndexedNode(0, 0, new Object[] {},
@@ -149,6 +152,15 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		return copyAndPut(element);
 	}
 
+	@Override
+	public ImmutablePropertyMap copyAndUpdate(final Object key, final Property element) {
+		if (!extractKey(element).equals(key)) {
+			throw new IllegalArgumentException("Key must equal extracted key of tuple.");
+		}
+
+		return copyAndPut(element);
+	}	
+	
 	@Override
 	public ImmutablePropertyMap copyAndRemove(final Object key) {
 		final int keyHash = key.hashCode();
@@ -1377,6 +1389,28 @@ public final class ImmutablePropertyMap implements ImmutableMap<Object, Property
 		@Override
 		public int compareTo(ImmutableMapEntry other) {
 			return sequenceId - other.sequenceId;
+		}
+
+		@Override
+		public int hashCode() {
+			return getKey().hashCode() ^ getValue().hashCode();
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+
+			ImmutableMapEntry that = (ImmutableMapEntry) other;
+
+			return backingProperty.equals(that.backingProperty);
 		}
 
 		@Override

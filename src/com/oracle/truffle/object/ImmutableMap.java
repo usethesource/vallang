@@ -16,6 +16,9 @@ import java.util.Map;
 public interface ImmutableMap<K, V> extends Map<K, V> {
 
 	ImmutableMap<K, V> copyAndPut(final K key, final V value);
+	
+	@Deprecated
+	ImmutableMap<K, V> copyAndUpdate(final K key, final V value);
 
 	ImmutableMap<K, V> copyAndRemove(final K key);
 
