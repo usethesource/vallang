@@ -1493,7 +1493,7 @@ public class TrieMap_5Bits_Memoized_LazyHashCode<K, V> implements ImmutableMap<K
 //					return false;
 //				}
 //			}
-			if (!Arrays.equals(nodes, that.nodes)) {
+			if (!ArrayUtils.equals(nodes, that.nodes)) {
 				return false;
 			}			
 						

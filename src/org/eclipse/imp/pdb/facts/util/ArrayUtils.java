@@ -12,6 +12,33 @@
 package org.eclipse.imp.pdb.facts.util;
 
 public class ArrayUtils {
+
+	public static boolean equals(Object[] a1, Object[] a2) {
+		if (null == a1 || null == a2) {
+			return false;
+		}
+		if (a1 == a2) {
+			return true;
+		}
+
+		int length = a1.length;
+		if (length != a2.length) {
+			return false;
+		}
+
+		for (int i = 0; i < length; i++) {
+			Object o1 = a1[i];
+			Object o2 = a2[i];
+
+			boolean areEqual = (o1 == o2) || (o1 != null && o1.equals(o2));
+
+			if (!areEqual) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 	
 	@Deprecated
 	public static Object[] copyAndSet(Object[] array, int index, Object elementNew) {

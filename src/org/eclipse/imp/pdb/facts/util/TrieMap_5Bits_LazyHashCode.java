@@ -1453,7 +1453,7 @@ public class TrieMap_5Bits_LazyHashCode<K, V> implements ImmutableMap<K, V> {
 			if (dataMap() != that.dataMap()) {
 				return false;
 			}
-			if (!Arrays.equals(nodes, that.nodes)) {
+			if (!ArrayUtils.equals(nodes, that.nodes)) {
 				return false;
 			}
 			return true;

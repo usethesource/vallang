@@ -1311,7 +1311,7 @@ public class TrieSet_5Bits_Memoized<K> implements ImmutableSet<K> {
 //					return false;
 //				}
 //			}
-			if (!Arrays.equals(nodes, that.nodes)) {
+			if (!ArrayUtils.equals(nodes, that.nodes)) {
 				return false;
 			}
 			return true;

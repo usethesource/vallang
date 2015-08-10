@@ -1500,7 +1500,7 @@ public class TrieMap_5Bits_Memoized<K, V> implements ImmutableMap<K, V> {
 //					return false;
 //				}
 //			}
-			if (!Arrays.equals(nodes, that.nodes)) {
+			if (!ArrayUtils.equals(nodes, that.nodes)) {
 				return false;
 			}			
 						

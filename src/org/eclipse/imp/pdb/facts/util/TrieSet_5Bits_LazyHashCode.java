@@ -1269,7 +1269,7 @@ public class TrieSet_5Bits_LazyHashCode<K> implements ImmutableSet<K> {
 			if (dataMap() != that.dataMap()) {
 				return false;
 			}
-			if (!Arrays.equals(nodes, that.nodes)) {
+			if (!ArrayUtils.equals(nodes, that.nodes)) {
 				return false;
 			}
 			return true;
