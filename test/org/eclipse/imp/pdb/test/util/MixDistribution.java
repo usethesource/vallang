@@ -137,7 +137,7 @@ public class MixDistribution {
 		mixers.put("superfasthash", new SuperFastHashMix());
 		mixers.put("superfasthash2", new SuperFastHashMix2());
 		mixers.put("hashmap", new HashMapMix());
-		mixers.put("michael", new MichaelMix());
+		mixers.put("scala-hashmap", new ScalaHashMapMix());
 		
 		int[] data = new int[10000];
 		for (int i=0; i < data.length; i++) {
@@ -149,6 +149,18 @@ public class MixDistribution {
 			reportHashDistribution(m, mix(data, mixers.get(m)));
 			reportCollisions(m, data, mixers.get(m));
 		}
+		System.out.println("");
+		System.out.println("");
+		System.out.println("Numbers from 1-10000 << 16");
+		for (int i=0; i < data.length; i++) {
+			data[i] = i << 16;
+		}
+		for (String m : mixers.keySet()) {
+			reportHashDistribution(m, mix(data, mixers.get(m)));
+			reportCollisions(m, data, mixers.get(m));
+		}
+		
+		
 		Random rand = new Random();
 		for (int i=0; i < data.length; i++) {
 			data[i] = rand.nextInt();
@@ -164,8 +176,9 @@ public class MixDistribution {
 		}
 		
 		
+		data = new int[512];
 		for (int i=0; i < data.length; i++) {
-			data[i] = rand.nextInt(512);
+			data[i] = i;
 		}
 		System.out.println("");
 		System.out.println("");
@@ -236,7 +249,7 @@ public class MixDistribution {
 		}
 	}
 	
-	private static class MichaelMix implements Mixer {
+	private static class ScalaHashMapMix implements Mixer {
 		@Override
 		public int mix(int n) {
 			int h = n + ~(n << 9);
