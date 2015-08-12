@@ -134,6 +134,7 @@ public class MixDistribution {
 		mixers.put("murmur2-4", new MurmurHash2Mix4());
 		mixers.put("murmur3", new MurmurHash3Mix());
 		mixers.put("murmur3-2", new MurmurHash3Mix2());
+		mixers.put("crapwow", new CrapWowMix());
 		mixers.put("superfasthash", new SuperFastHashMix());
 		mixers.put("superfasthash2", new SuperFastHashMix2());
 		mixers.put("hashmap", new HashMapMix());
@@ -447,6 +448,29 @@ public class MixDistribution {
 	        hash += hash >> 6;
 			return hash;
 		}
+	}
+	
+	private static class CrapWowMix implements Mixer {
+
+	  private final static int M = 0x57559429, N = 0x5052acdb;
+
+	  @Override
+	  public int mix(int n) {
+	    int h = 1;
+	    int k = 1 + n + N;
+
+	    // "loop"
+	    long p = n * (long)M;
+	    h ^= (int)p;
+	    k ^= (int)(p >> 32);
+	    
+	    // end mix
+	    p = (h ^ (k + N)) * (long)N;
+	    k ^= (int)p;
+	    h ^= (int)(p >> 32);
+	    return k ^ h;
+	  }
+
 	}
 	
 }
