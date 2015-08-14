@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.test.persistent;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -117,6 +117,117 @@ public class TrieMapTests {
 		assert !res1.equals(res2);
 	}
 
+	public static PureSeparateHashCodeInteger p(int value, int hash) {
+		return new PureSeparateHashCodeInteger(value, hash);
+	}
+	
+	public static PureSeparateHashCodeInteger p(int value) {
+		return new PureSeparateHashCodeInteger(value, value);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void testCheckCompactionFromBeginUponDelete_HashCollisionNode1() {
+
+		TrieMap_5Bits map = (TrieMap_5Bits) TrieMap_5Bits.of();
+
+		TrieMap_5Bits res1 = (TrieMap_5Bits) map.__put(p(11, 1), p(11, 1)).__put(p(12, 1), p(12, 1));
+		assertTrue(res1.containsKey(p(11, 1)));
+		assertTrue(res1.containsKey(p(12, 1)));
+		
+		TrieMap_5Bits res2 = (TrieMap_5Bits) res1.__remove(p(12, 1));
+		assertTrue(res2.containsKey(p(11, 1)));
+		assertEquals(TrieMap_5Bits.of(p(11, 1), p(11, 1)), res2);		
+		
+		TrieMap_5Bits res3 = (TrieMap_5Bits) res1.__remove(p(11, 1));
+		assertTrue(res3.containsKey(p(12, 1)));
+		assertEquals(TrieMap_5Bits.of(p(12, 1), p(12, 1)), res3);
+		
+		TrieMap_5Bits resX = (TrieMap_5Bits) res1.__put(p(32769), p(32769)).__remove(p(12, 1));
+		assertTrue(resX.containsKey(p(11, 1)));
+		assertTrue(resX.containsKey(p(32769)));
+
+		// what to test for?
+		assert !res1.equals(resX);
+	}	
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void testCheckCompactionFromBeginUponDelete_HashCollisionNode2() {
+
+		TrieMap_5Bits map = (TrieMap_5Bits) TrieMap_5Bits.of();
+
+		TrieMap_5Bits res1 = (TrieMap_5Bits) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
+		assertEquals(2, res1.size());
+		assertTrue(res1.containsKey(p(32769_1, 32769)));
+		assertTrue(res1.containsKey(p(32769_2, 32769)));
+		
+		TrieMap_5Bits res2 = (TrieMap_5Bits) res1.__put(p(1, 1), p(1, 1));
+		assertEquals(3, res2.size());
+		assertTrue(res2.containsKey(p(1, 1)));
+		assertTrue(res2.containsKey(p(32769_1, 32769)));
+		assertTrue(res2.containsKey(p(32769_2, 32769)));		
+		
+		TrieMap_5Bits res3 = (TrieMap_5Bits) res2.__remove(p(32769_2, 32769));
+		assertEquals(2, res3.size());
+		assertTrue(res3.containsKey(p(1, 1)));
+		assertTrue(res3.containsKey(p(32769_1, 32769)));
+		
+		TrieMap_5Bits expected = (TrieMap_5Bits) TrieMap_5Bits.of(p(1, 1), p(1, 1), p(32769_1, 32769), p(32769_1, 32769));
+		assertEquals(expected, res3);
+	}	
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void testCheckCompactionFromBeginUponDelete_HashCollisionNode3() {
+
+		TrieMap_5Bits map = (TrieMap_5Bits) TrieMap_5Bits.of();
+
+		TrieMap_5Bits res1 = (TrieMap_5Bits) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
+		assertEquals(2, res1.size());
+		assertTrue(res1.containsKey(p(32769_1, 32769)));
+		assertTrue(res1.containsKey(p(32769_2, 32769)));
+		
+		TrieMap_5Bits res2 = (TrieMap_5Bits) res1.__put(p(1, 1), p(1, 1));
+		assertEquals(3, res2.size());
+		assertTrue(res2.containsKey(p(1, 1)));
+		assertTrue(res2.containsKey(p(32769_1, 32769)));
+		assertTrue(res2.containsKey(p(32769_2, 32769)));		
+		
+		TrieMap_5Bits res3 = (TrieMap_5Bits) res2.__remove(p(1, 1));
+		assertEquals(2, res3.size());
+		assertTrue(res3.containsKey(p(32769_1, 32769)));
+		assertTrue(res3.containsKey(p(32769_2, 32769)));
+		
+		assertEquals(res1, res3);
+	}	
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void testCheckCompactionFromBeginUponDelete_HashCollisionNode4() {
+
+		TrieMap_5Bits map = (TrieMap_5Bits) TrieMap_5Bits.of();
+
+		TrieMap_5Bits res1 = (TrieMap_5Bits) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
+		assertEquals(2, res1.size());
+		assertTrue(res1.containsKey(p(32769_1, 32769)));
+		assertTrue(res1.containsKey(p(32769_2, 32769)));
+		
+		TrieMap_5Bits res2 = (TrieMap_5Bits) res1.__put(p(5), p(5));
+		assertEquals(3, res2.size());
+		assertTrue(res2.containsKey(p(5)));
+		assertTrue(res2.containsKey(p(32769_1, 32769)));
+		assertTrue(res2.containsKey(p(32769_2, 32769)));		
+		
+		TrieMap_5Bits res3 = (TrieMap_5Bits) res2.__remove(p(5));
+		assertEquals(2, res3.size());
+		assertTrue(res3.containsKey(p(32769_1, 32769)));
+		assertTrue(res3.containsKey(p(32769_2, 32769)));
+		
+		assertEquals(res1, res3);
+	}	
+	
+	
 	@Test
 	public void testRecoverMask() {
 		byte mask = recoverMask(-2147483648, (byte) 1);
