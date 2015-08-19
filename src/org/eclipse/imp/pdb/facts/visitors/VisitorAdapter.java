@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.visitors;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -89,5 +90,13 @@ public abstract class VisitorAdapter<T, E extends Throwable> implements IValueVi
 	
 	public T visitDateTime(IDateTime o) throws E {
 		return fVisitor.visitDateTime(o);
+	}
+	@Override
+	public T visitListRelation(IList o) throws E {
+	  return fVisitor.visitListRelation(o);
+	}
+	@Override
+	public T visitExternal(IExternalValue externalValue) throws E {
+	  return fVisitor.visitExternal(externalValue);
 	}
 }
