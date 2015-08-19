@@ -42,8 +42,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * See also {@link StandardTextReader}
  */
 public class StandardTextWriter implements IValueTextWriter {
-	private final boolean indent;
-	private final int tabSize;
+	protected final boolean indent;
+	protected final int tabSize;
 
 	public StandardTextWriter() {
 		this(false);
@@ -80,7 +80,7 @@ public class StandardTextWriter implements IValueTextWriter {
 		write(value, stream);
 	}
 	
-	private static class Writer implements IValueVisitor<IValue, IOException> {
+	protected static class Writer implements IValueVisitor<IValue, IOException> {
 		private final java.io.Writer stream;
 		private final int tabSize;
 		private final boolean indent;
