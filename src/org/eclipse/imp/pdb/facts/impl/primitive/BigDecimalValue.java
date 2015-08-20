@@ -88,7 +88,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public IReal toReal() {
+	public IReal toReal(int precision) {
 		return this;
 	}
 	
@@ -134,12 +134,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public INumber add(IInteger other) {
-		return add(other.toReal());
+		return add(other.toReal(value.precision()));
 	}
 	
 	@Override
 	public INumber add(IRational other) {
-		return add(other.toReal());
+		return add(other.toReal(value.precision()));
 	}
 	
 	@Override
@@ -149,12 +149,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public INumber subtract(IInteger other) {
-		return subtract(other.toReal());
+		return subtract(other.toReal(value.precision()));
 	}
 	
 	@Override
 	public INumber subtract(IRational other) {
-		return subtract(other.toReal());
+		return subtract(other.toReal(value.precision()));
 	}
 	
 	@Override
@@ -166,12 +166,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public INumber multiply(IInteger other) {
-		return multiply(other.toReal());
+		return multiply(other.toReal(value.precision()));
 	}
 	
 	@Override
 	public INumber multiply(IRational other) {
-		return multiply(other.toReal());
+		return multiply(other.toReal(value.precision()));
 	}
 	
 	@Override
@@ -184,12 +184,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IReal divide(IInteger other, int precision) {
-		return divide(other.toReal(), precision);
+		return divide(other.toReal(precision), precision);
 	}
 	
 	@Override
 	public IReal divide(IRational other, int precision) {
-		return divide(other.toReal(), precision);
+		return divide(other.toReal(precision), precision);
 	}
 	
 	@Override
@@ -219,12 +219,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IBool equal(IInteger other) {
-	  return equal(other.toReal());
+	  return equal(other.toReal(value.precision()));
 	}
 
 	@Override
 	public IBool equal(IRational other) {
-	  return equal(other.toReal());
+	  return equal(other.toReal(value.precision()));
 	}
 	  
 	@Override
@@ -234,12 +234,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IBool greater(IInteger other) {
-		return greater(other.toReal());
+		return greater(other.toReal(value.precision()));
 	}
 	
 	@Override
 	public IBool greater(IRational other) {
-		return greater(other.toReal());
+		return greater(other.toReal(value.precision()));
 	}
 	
 	@Override
@@ -249,12 +249,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IBool greaterEqual(IInteger other) {
-		return greaterEqual(other.toReal());
+		return greaterEqual(other.toReal(value.precision()));
 	}
 	
 	@Override
 	public IBool greaterEqual(IRational other) {
-		return greaterEqual(other.toReal());
+		return greaterEqual(other.toReal(value.precision()));
 	}
 	
 	
@@ -265,12 +265,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IBool less(IInteger other) {
-		return less(other.toReal());
+		return less(other.toReal(value.precision()));
 	}
 	
 	@Override
 	public IBool less(IRational other) {
-		return less(other.toReal());
+		return less(other.toReal(value.precision()));
 	}
 	
 	@Override
@@ -280,12 +280,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IBool lessEqual(IInteger other) {
-		return lessEqual(other.toReal());
+		return lessEqual(other.toReal(value.precision()));
 	}
 	
 	@Override
 	public IBool lessEqual(IRational other) {
-		return lessEqual(other.toReal());
+		return lessEqual(other.toReal(value.precision()));
 	}
 	
 	@Override
@@ -295,7 +295,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public int compare(INumber other) {
-		return compare(other.toReal());
+		return compare(other.toReal(value.precision()));
 	}
 	
 	@Override
@@ -353,7 +353,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal log(IInteger base, int precision) {
-		return log(base.toReal(), precision);
+		return log(base.toReal(precision), precision);
 	}
 	
 	@Override

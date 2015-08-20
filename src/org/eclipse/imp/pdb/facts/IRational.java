@@ -52,7 +52,7 @@ public interface IRational extends INumber {
     /**
      * @return an IReal that approximates this IRational
      */
-    IReal  toReal();
+    IReal  toReal(int precision);
 
     /**
      * @return a double that approximates this IRational

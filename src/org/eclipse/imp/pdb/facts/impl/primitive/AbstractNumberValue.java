@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -30,7 +31,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			return add(other.toInteger());
 		}
 		if(isRealType(other)){
-			return add(other.toReal());
+			return add(other.toReal(((IReal) other).precision()));
 		}
 		if(isRationalType(other)){
 			return add(other.toRational());
@@ -45,7 +46,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			return divide(other.toInteger(), precision);
 		}
 		if(isRealType(other)){
-			return divide(other.toReal(), precision);
+			return divide(other.toReal(precision), precision);
 		}
 		if(isRationalType(other)){
 			return divide(other.toRational(), precision);
@@ -59,7 +60,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			return greater(other.toInteger());
 		}
 		if(isRealType(other)){
-			return greater(other.toReal());
+			return greater(other.toReal(((IReal) other).precision()));
 		}
 		if(isRationalType(other)){
 			return greater(other.toRational());
@@ -74,7 +75,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
       return equal(other.toInteger());
     }
     if(isRealType(other)){
-      return equal(other.toReal());
+      return equal(other.toReal(((IReal) other).precision()));
     }
     if(isRationalType(other)){
       return equal(other.toRational());
@@ -88,7 +89,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			return greaterEqual(other.toInteger());
 		}
 		if(isRealType(other)){
-			return greaterEqual(other.toReal());
+			return greaterEqual(other.toReal(((IReal) other).precision()));
 		}
 		if(isRationalType(other)){
 			return greaterEqual(other.toRational());
@@ -102,7 +103,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			return less(other.toInteger());
 		}
 		if(isRealType(other)){
-			return less(other.toReal());
+			return less(other.toReal(((IReal) other).precision()));
 		}
 		if(isRationalType(other)){
 			return less(other.toRational());
@@ -116,7 +117,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			return lessEqual(other.toInteger());
 		}
 		if(isRealType(other)){
-			return lessEqual(other.toReal());
+			return lessEqual(other.toReal(((IReal) other).precision()));
 		}
 		if(isRationalType(other)){
 			return lessEqual(other.toRational());
@@ -130,7 +131,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			return multiply(other.toInteger());
 		}
 		if(isRealType(other)){
-			return multiply(other.toReal());
+			return multiply(other.toReal(((IReal) other).precision()));
 		}
 		if(isRationalType(other)){
 			return multiply(other.toRational());
@@ -144,7 +145,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			return subtract(other.toInteger());
 		}
 		if(isRealType(other)){
-			return subtract(other.toReal());
+			return subtract(other.toReal(((IReal) other).precision()));
 		}
 		if(isRationalType(other)){
 			return subtract(other.toRational());

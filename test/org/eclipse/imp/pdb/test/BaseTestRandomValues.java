@@ -106,11 +106,11 @@ abstract public class BaseTestRandomValues extends TestCase {
 		mixedTestSet = new ArrayList<>();
 		for(IInteger i : intTestSet) {
 			if(!ratTestSet.contains(i.toRational())) {
-				realTestSet.add(i.toReal());
+				realTestSet.add(i.toReal(PRECISION));
 			}
 		}
 		for(IRational r : ratTestSet) {
-			realTestSet.add(r.toReal());
+			realTestSet.add(r.toReal(PRECISION));
 		}
 		realTestSet.addAll(Arrays.asList(vf.real(Float.MAX_VALUE), vf.real(Float.MIN_VALUE)));
 		mixedTestSet.addAll(intTestSet);
@@ -551,15 +551,15 @@ abstract public class BaseTestRandomValues extends TestCase {
 	}
 	
 	public void axiomNoEqualInt(IInteger i) {
-		assertFalse(i.toReal().equals(i));
-		assertTrue(i.toReal().equal(i).getValue());
+		assertFalse(i.toReal(PRECISION).equals(i));
+		assertTrue(i.toReal(PRECISION).equal(i).getValue());
 		assertFalse(i.toRational().equals(i));
 		assertTrue(i.toRational().equal(i).getValue());
 	}
 
 	public void axiomNoEqualRat(IRational i) {
-		assertFalse(i.toReal().equals(i));
-		assertTrue(i.toReal().equal(i).getValue());
+		assertFalse(i.toReal(PRECISION).equals(i));
+		assertTrue(i.toReal(PRECISION).equal(i).getValue());
 		assertFalse(i.toInteger().equals(i));
 	}
 

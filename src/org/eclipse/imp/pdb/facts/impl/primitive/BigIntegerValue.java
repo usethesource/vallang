@@ -71,7 +71,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public IReal toReal(){
+	public IReal toReal(int precision){
+		// precision is ignored intentionally
 		return BigDecimalValue.newReal(new BigDecimal(value));
 	}
 
@@ -131,7 +132,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public INumber subtract(IReal other) {
-		return toReal().subtract(other);
+		return toReal(other.precision()).subtract(other);
 	}
 
 	@Override
@@ -181,17 +182,17 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public INumber divide(IInteger other, int precision) {
-		return toReal().divide(other, precision);
+		return toReal(precision).divide(other, precision);
 	}
 	
 	@Override
 	public INumber divide(IRational other, int precision) {
-		return toReal().divide(other, precision);
+		return toReal(precision).divide(other, precision);
 	}
 
 	@Override
 	public IReal divide(IReal other, int precision) {
-		return toReal().divide(other, precision);
+		return toReal(precision).divide(other, precision);
 	}
 	
 	@Override
@@ -312,7 +313,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return toRational().compare(other);
 		}
 		else {
-			return toReal().compare(other);
+			assert other instanceof IReal;
+			return toReal(((IReal) other).precision()).compare(other);
 		}
 	}
 	

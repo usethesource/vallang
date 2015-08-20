@@ -58,7 +58,7 @@ public interface IInteger extends INumber {
     /**
      * @return an IReal that is equal to this IInteger
      */
-    IReal  toReal();
+    IReal  toReal(int precision);
     
     /**
      * @return true iff this < other

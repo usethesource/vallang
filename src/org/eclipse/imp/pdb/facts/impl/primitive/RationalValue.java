@@ -72,7 +72,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal add(IReal other) {
-		return toReal().add(other);
+		return toReal(other.precision()).add(other);
 	}
 
 	@Override
@@ -90,7 +90,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public INumber subtract(IReal other) {
-		return toReal().subtract(other);
+		return toReal(other.precision()).subtract(other);
 	}
 
 	@Override
@@ -106,7 +106,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal multiply(IReal other) {
-		return toReal().multiply(other);
+		return toReal(other.precision()).multiply(other);
 	}
 
 	@Override
@@ -124,7 +124,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal divide(IReal other, int precision) {
-		return toReal().divide(other, precision);
+		return toReal(precision).divide(other, precision);
 	}
 
 	@Override
@@ -250,8 +250,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			IRational diff = subtract((IRational)other);
 			return diff.signum();
 		}
-		else
-			return toReal().compare(other);
+		else {
+			assert other instanceof IReal;
+			return toReal(((IReal) other).precision()).compare(other);
+		}
 	}
 
 	@Override
@@ -270,10 +272,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public IReal toReal() {
-		IReal r1 = num.toReal();
-		IReal r2 = denom.toReal();
-		r1 = r1.divide(r2, r1.precision());
+	public IReal toReal(int precision) {
+		IReal r1 = num.toReal(precision);
+		IReal r2 = denom.toReal(precision);
+		r1 = r1.divide(r2, precision);
 		return r1;
 	}
 
@@ -310,7 +312,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IInteger round() {
-		return toReal().round().toInteger();
+		return toReal(2).round().toInteger();
 	}
 
 	@Override

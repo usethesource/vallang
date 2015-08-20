@@ -1,10 +1,6 @@
 package org.eclipse.imp.pdb.test;
 
-import java.net.URI;
 import java.net.URISyntaxException;
-
-import jdk.nashorn.internal.runtime.URIUtils;
-import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -14,6 +10,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+
+import junit.framework.TestCase;
 
 abstract public class BaseTestBasicValues extends TestCase {
 	protected IValueFactory vf;
@@ -29,6 +27,10 @@ abstract public class BaseTestBasicValues extends TestCase {
 		assertTrue("Expected " + l + " got " + r, l.isEqual(r));
 	}
 
+	public void testRationalToReal() {
+		assertTrue(vf.rational(1, 4).toReal(3).isEqual(vf.real(0.25)));
+	}
+	
 	public void testStringRepresentation() {
 		assertTrue(vf.string("\uD83C\uDF5D").isEqual(vf.string("🍝")));
 		assertTrue(vf.string(new String(Character.toChars(0x1F35D))).isEqual(vf.string("🍝")));

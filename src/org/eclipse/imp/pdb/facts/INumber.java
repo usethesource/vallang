@@ -110,9 +110,10 @@ public abstract interface INumber extends IValue {
     INumber negate();
     
     /**
+     * @param precision the precision of the result. This parameter may be ignored if another source of an accurate precision is available.
      * @return an IReal that is equal to this INumber
      */
-    IReal  toReal();
+    IReal  toReal(int precision);
     
     /**
      * @return an IInteger (truncated if it was a real value)
