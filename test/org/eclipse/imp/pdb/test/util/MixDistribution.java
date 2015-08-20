@@ -66,14 +66,18 @@ public class MixDistribution {
 		}
 		System.out.println();
 		Double total = 0.0;
+		int maxError = 0;
 		System.out.print(name+"-offset");
 		for (int c: counts) {
 			System.out.print(',');
 			int error = c - (hashes.length / 2);
 			System.out.print(error);
 			total += (error * error);
+			maxError = Math.max(maxError, Math.abs(error));
 		}
 		System.out.println();
+		System.out.println(name + " max absolute offset: " + maxError);
+
 		
 		System.out.println(name + " root mean error:" + Math.sqrt(total / hashes.length));
 	}
@@ -135,6 +139,9 @@ public class MixDistribution {
 		mixers.put("murmur3", new MurmurHash3Mix());
 		mixers.put("murmur3-2", new MurmurHash3Mix2());
 		mixers.put("crapwow", new CrapWowMix());
+		mixers.put("crapwow-2", new CrapWowMix2());
+		mixers.put("crapwow-3", new CrapWowMix3());
+		mixers.put("encode.ru-m2-2", new EncodeRUm2Mix());
 		mixers.put("superfasthash", new SuperFastHashMix());
 		mixers.put("superfasthash2", new SuperFastHashMix2());
 		mixers.put("hashmap", new HashMapMix());
@@ -472,5 +479,46 @@ public class MixDistribution {
 	  }
 
 	}
+
+	private static class CrapWowMix2 implements Mixer {
+
+	  private final static int M = 0x57559429, N = 0x5052acdb;
+
+	  @Override
+	  public int mix(int n) {
+	    long p = n * (long)M;
+	    p ^= (long)n + (long)N;
+	    p *= N;
+	    return ((int)p) ^ (int)(p >> 32);
+	  }
+	}
 	
+	private static class CrapWowMix3 implements Mixer {
+
+	  private final static int M = 0x57559429, N = 0x5052acdb;
+
+	  @Override
+	  public int mix(int n) {
+	    long p;
+	    p = n * (long)M;
+	    p ^= ((long)n) << 32;
+	    p *= (long)N;
+	    return ((int)p) ^ (int)(p >> 32);
+	  }
+	}
+	
+	private static class EncodeRUm2Mix implements Mixer {
+	  
+	  @Override
+	  public int mix(int n) {
+	    long k = n;
+	    k ^= k >> 33;
+	    k *= 0xff51afd7ed558ccdL;
+	    k ^= k >> 33;
+	    k *= 0xc4ceb9fe1a85ec53L;
+	    k ^= k >> 33;
+	   
+	    return (int)k ^ (int)(k >> 32);
+	  }
+	}
 }
