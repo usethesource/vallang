@@ -16,55 +16,57 @@ import static org.junit.Assert.*;
 import java.math.BigInteger;
 import java.util.Random;
 
-import org.eclipse.imp.pdb.facts.util.TrieMap_5Bits;
+import org.eclipse.imp.pdb.facts.util.DefaultTrieMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.util.TrieMap_BleedingEdge;
 import org.eclipse.imp.pdb.facts.util.TrieMap_Heterogeneous;
 import org.junit.Test;
 
 public class TrieMapTests {
 
-	final static int size = (int) Math.pow(2, 10);
-
+	final static int size = (int) Math.pow(2, 10);	
+	
 	@Test
 	public void testPrintStatsSequential() {
 		// int size = 128;
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap<Integer, Integer> map = (ImmutableMap) DefaultTrieMap.of();
 
 		for (int i = size; i > 0; i--) {
-			TrieMap_5Bits<Integer, Integer> res = (TrieMap_5Bits) map.__put(i, i);
+			ImmutableMap<Integer, Integer> res = (ImmutableMap) map.__put(i, i);
 			assert res.containsKey(i);
 			map = res;
 		}
 
-		map.printStatistics();
+		DefaultTrieMap.getTargetClass().cast(map).printStatistics();
 	}
 
 	@Test
 	public void testPrintStatsRandom() {
 		// int size = 128;
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap<Integer, Integer> map = (ImmutableMap) DefaultTrieMap.of();
 
 		Random rand = new Random(13);
 
 		for (int i = size; i > 0; i--) {
 			final int j = rand.nextInt();
 
-			TrieMap_5Bits<Integer, Integer> res = (TrieMap_5Bits) map.__put(j, j);
+			ImmutableMap<Integer, Integer> res = (ImmutableMap) map.__put(j, j);
 			assert res.containsKey(j);
 			map = res;
 		}
 
-		map.printStatistics();
+		DefaultTrieMap.getTargetClass().cast(map).printStatistics();
 	}
 
 	@Test
 	public void testCheckPrefixConstruction() {
 		// int size = 128;
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap<Integer, Integer> map = (ImmutableMap) DefaultTrieMap.of();
 
-		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map.__put(63, 63).__put(64, 64)
+		ImmutableMap<Integer, Integer> res1 = (ImmutableMap) map.__put(63, 63).__put(64, 64)
 						.__put(32768, 32768).__put(2147483647, 2147483647).__put(65536, 65536);
 
 		assert res1.containsKey(63);
@@ -73,7 +75,7 @@ public class TrieMapTests {
 		assert res1.containsKey(65536);
 		assert res1.containsKey(2147483647);
 
-		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) map.__put(2147483647, 2147483647)
+		ImmutableMap<Integer, Integer> res2 = (ImmutableMap) map.__put(2147483647, 2147483647)
 						.__put(32768, 32768).__put(63, 63).__put(64, 64).__put(65536, 65536);
 
 		assert res2.containsKey(63);
@@ -84,18 +86,18 @@ public class TrieMapTests {
 
 		assert res1.equals(res2);
 
-		map.printStatistics();
+		DefaultTrieMap.getTargetClass().cast(map).printStatistics();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testCheckCompactionFromBeginUponDelete() {
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap<Integer, Integer> map = (ImmutableMap) DefaultTrieMap.of();
 
-		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map.__put(1, 1).__put(2, 2);
+		ImmutableMap<Integer, Integer> res1 = (ImmutableMap) map.__put(1, 1).__put(2, 2);
 
-		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) res1.__put(32769, 32769).__remove(2);
+		ImmutableMap<Integer, Integer> res2 = (ImmutableMap) res1.__put(32769, 32769).__remove(2);
 
 		// what to test for?
 		assert !res1.equals(res2);
@@ -105,12 +107,12 @@ public class TrieMapTests {
 	@Test
 	public void testCheckCompactionFromMiddleUponDelete() {
 
-		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap<Integer, Integer> map = (ImmutableMap) DefaultTrieMap.of();
 
-		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map.__put(1, 1).__put(2, 2)
+		ImmutableMap<Integer, Integer> res1 = (ImmutableMap) map.__put(1, 1).__put(2, 2)
 						.__put(65, 65).__put(66, 66);
 
-		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) res1.__put(32769, 32769)
+		ImmutableMap<Integer, Integer> res2 = (ImmutableMap) res1.__put(32769, 32769)
 						.__remove(66);
 
 		// what to test for?
@@ -129,21 +131,21 @@ public class TrieMapTests {
 	@Test
 	public void testCheckCompactionFromBeginUponDelete_HashCollisionNode1() {
 
-		TrieMap_5Bits map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap map = (ImmutableMap) DefaultTrieMap.of();
 
-		TrieMap_5Bits res1 = (TrieMap_5Bits) map.__put(p(11, 1), p(11, 1)).__put(p(12, 1), p(12, 1));
+		ImmutableMap res1 = (ImmutableMap) map.__put(p(11, 1), p(11, 1)).__put(p(12, 1), p(12, 1));
 		assertTrue(res1.containsKey(p(11, 1)));
 		assertTrue(res1.containsKey(p(12, 1)));
 		
-		TrieMap_5Bits res2 = (TrieMap_5Bits) res1.__remove(p(12, 1));
+		ImmutableMap res2 = (ImmutableMap) res1.__remove(p(12, 1));
 		assertTrue(res2.containsKey(p(11, 1)));
-		assertEquals(TrieMap_5Bits.of(p(11, 1), p(11, 1)), res2);		
+		assertEquals(DefaultTrieMap.of(p(11, 1), p(11, 1)), res2);		
 		
-		TrieMap_5Bits res3 = (TrieMap_5Bits) res1.__remove(p(11, 1));
+		ImmutableMap res3 = (ImmutableMap) res1.__remove(p(11, 1));
 		assertTrue(res3.containsKey(p(12, 1)));
-		assertEquals(TrieMap_5Bits.of(p(12, 1), p(12, 1)), res3);
+		assertEquals(DefaultTrieMap.of(p(12, 1), p(12, 1)), res3);
 		
-		TrieMap_5Bits resX = (TrieMap_5Bits) res1.__put(p(32769), p(32769)).__remove(p(12, 1));
+		ImmutableMap resX = (ImmutableMap) res1.__put(p(32769), p(32769)).__remove(p(12, 1));
 		assertTrue(resX.containsKey(p(11, 1)));
 		assertTrue(resX.containsKey(p(32769)));
 
@@ -155,25 +157,25 @@ public class TrieMapTests {
 	@Test
 	public void testCheckCompactionFromBeginUponDelete_HashCollisionNode2() {
 
-		TrieMap_5Bits map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap map = (ImmutableMap) DefaultTrieMap.of();
 
-		TrieMap_5Bits res1 = (TrieMap_5Bits) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
+		ImmutableMap res1 = (ImmutableMap) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
 		assertEquals(2, res1.size());
 		assertTrue(res1.containsKey(p(32769_1, 32769)));
 		assertTrue(res1.containsKey(p(32769_2, 32769)));
 		
-		TrieMap_5Bits res2 = (TrieMap_5Bits) res1.__put(p(1, 1), p(1, 1));
+		ImmutableMap res2 = (ImmutableMap) res1.__put(p(1, 1), p(1, 1));
 		assertEquals(3, res2.size());
 		assertTrue(res2.containsKey(p(1, 1)));
 		assertTrue(res2.containsKey(p(32769_1, 32769)));
 		assertTrue(res2.containsKey(p(32769_2, 32769)));		
 		
-		TrieMap_5Bits res3 = (TrieMap_5Bits) res2.__remove(p(32769_2, 32769));
+		ImmutableMap res3 = (ImmutableMap) res2.__remove(p(32769_2, 32769));
 		assertEquals(2, res3.size());
 		assertTrue(res3.containsKey(p(1, 1)));
 		assertTrue(res3.containsKey(p(32769_1, 32769)));
 		
-		TrieMap_5Bits expected = (TrieMap_5Bits) TrieMap_5Bits.of(p(1, 1), p(1, 1), p(32769_1, 32769), p(32769_1, 32769));
+		ImmutableMap expected = (ImmutableMap) DefaultTrieMap.of(p(1, 1), p(1, 1), p(32769_1, 32769), p(32769_1, 32769));
 		assertEquals(expected, res3);
 	}	
 
@@ -181,20 +183,20 @@ public class TrieMapTests {
 	@Test
 	public void testCheckCompactionFromBeginUponDelete_HashCollisionNode3() {
 
-		TrieMap_5Bits map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap map = (ImmutableMap) DefaultTrieMap.of();
 
-		TrieMap_5Bits res1 = (TrieMap_5Bits) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
+		ImmutableMap res1 = (ImmutableMap) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
 		assertEquals(2, res1.size());
 		assertTrue(res1.containsKey(p(32769_1, 32769)));
 		assertTrue(res1.containsKey(p(32769_2, 32769)));
 		
-		TrieMap_5Bits res2 = (TrieMap_5Bits) res1.__put(p(1, 1), p(1, 1));
+		ImmutableMap res2 = (ImmutableMap) res1.__put(p(1, 1), p(1, 1));
 		assertEquals(3, res2.size());
 		assertTrue(res2.containsKey(p(1, 1)));
 		assertTrue(res2.containsKey(p(32769_1, 32769)));
 		assertTrue(res2.containsKey(p(32769_2, 32769)));		
 		
-		TrieMap_5Bits res3 = (TrieMap_5Bits) res2.__remove(p(1, 1));
+		ImmutableMap res3 = (ImmutableMap) res2.__remove(p(1, 1));
 		assertEquals(2, res3.size());
 		assertTrue(res3.containsKey(p(32769_1, 32769)));
 		assertTrue(res3.containsKey(p(32769_2, 32769)));
@@ -206,20 +208,20 @@ public class TrieMapTests {
 	@Test
 	public void testCheckCompactionFromBeginUponDelete_HashCollisionNode4() {
 
-		TrieMap_5Bits map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		ImmutableMap map = (ImmutableMap) DefaultTrieMap.of();
 
-		TrieMap_5Bits res1 = (TrieMap_5Bits) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
+		ImmutableMap res1 = (ImmutableMap) map.__put(p(32769_1, 32769), p(32769_1, 32769)).__put(p(32769_2, 32769), p(32769_2, 32769));
 		assertEquals(2, res1.size());
 		assertTrue(res1.containsKey(p(32769_1, 32769)));
 		assertTrue(res1.containsKey(p(32769_2, 32769)));
 		
-		TrieMap_5Bits res2 = (TrieMap_5Bits) res1.__put(p(5), p(5));
+		ImmutableMap res2 = (ImmutableMap) res1.__put(p(5), p(5));
 		assertEquals(3, res2.size());
 		assertTrue(res2.containsKey(p(5)));
 		assertTrue(res2.containsKey(p(32769_1, 32769)));
 		assertTrue(res2.containsKey(p(32769_2, 32769)));		
 		
-		TrieMap_5Bits res3 = (TrieMap_5Bits) res2.__remove(p(5));
+		ImmutableMap res3 = (ImmutableMap) res2.__remove(p(5));
 		assertEquals(2, res3.size());
 		assertTrue(res3.containsKey(p(32769_1, 32769)));
 		assertTrue(res3.containsKey(p(32769_2, 32769)));
@@ -297,4 +299,20 @@ public class TrieMapTests {
 		System.out.println();
 	}
 
+	@Test
+	public void testCreateSingletonWithFactoryMethod() {
+		ImmutableMap<Integer, Integer> map = DefaultTrieMap.of(63, 65);
+		assertTrue(map.containsKey(63));
+		assertEquals(Integer.valueOf(65), map.get(63));
+	}
+	
+	@Test
+	public void testRemoveFromSingleton() {
+		ImmutableMap<Integer, Integer> map = DefaultTrieMap.of(63, 65);
+		ImmutableMap<Integer, Integer> res = map.__remove(63);
+		assertTrue(res.isEmpty());
+		assertFalse(res.containsKey(63));
+		assertEquals(DefaultTrieMap.of(), res);
+	}
+	
 }
