@@ -22,10 +22,10 @@ import java.math.RoundingMode;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.BigDecimalCalculations;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -34,7 +34,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 /*
  * TODO: provide specializations for smaller values, similar to IntegerValue / BigIntegerValue.
  */
-/*package*/ class BigDecimalValue extends AbstractNumberValue implements IReal {
+/*package*/ class BigDecimalValue extends AbstractValue implements IReal {
 	private final static Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
 	
 	protected final BigDecimal value;
@@ -88,11 +88,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public IReal toReal(int precision) {
-		return this;
-	}
-	
-	@Override
 	public Type getType(){
 		return DOUBLE_TYPE;
 	}
@@ -113,11 +108,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public IRational toRational(){
-    	throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public IReal floor(){
 		return BigDecimalValue.newReal(value.setScale(0, RoundingMode.FLOOR));
 	}
@@ -133,12 +123,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public INumber add(IInteger other) {
+	public IReal add(IInteger other) {
 		return add(other.toReal(value.precision()));
 	}
 	
 	@Override
-	public INumber add(IRational other) {
+	public IReal add(IRational other) {
 		return add(other.toReal(value.precision()));
 	}
 	
@@ -148,12 +138,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public INumber subtract(IInteger other) {
+	public IReal subtract(IInteger other) {
 		return subtract(other.toReal(value.precision()));
 	}
 	
 	@Override
-	public INumber subtract(IRational other) {
+	public IReal subtract(IRational other) {
 		return subtract(other.toReal(value.precision()));
 	}
 	
@@ -165,12 +155,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public INumber multiply(IInteger other) {
+	public IReal multiply(IInteger other) {
 		return multiply(other.toReal(value.precision()));
 	}
 	
 	@Override
-	public INumber multiply(IRational other) {
+	public IReal multiply(IRational other) {
 		return multiply(other.toReal(value.precision()));
 	}
 	
@@ -218,43 +208,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public IBool equal(IInteger other) {
-	  return equal(other.toReal(value.precision()));
-	}
-
-	@Override
-	public IBool equal(IRational other) {
-	  return equal(other.toReal(value.precision()));
-	}
-	  
-	@Override
 	public IBool greater(IReal other){
 		return BoolValue.getBoolValue(compare(other) > 0);
 	}
 	
 	@Override
-	public IBool greater(IInteger other) {
-		return greater(other.toReal(value.precision()));
-	}
-	
-	@Override
-	public IBool greater(IRational other) {
-		return greater(other.toReal(value.precision()));
-	}
-	
-	@Override
 	public IBool greaterEqual(IReal other){
 		return BoolValue.getBoolValue(compare(other) >= 0);
-	}
-	
-	@Override
-	public IBool greaterEqual(IInteger other) {
-		return greaterEqual(other.toReal(value.precision()));
-	}
-	
-	@Override
-	public IBool greaterEqual(IRational other) {
-		return greaterEqual(other.toReal(value.precision()));
 	}
 	
 	
@@ -264,38 +224,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public IBool less(IInteger other) {
-		return less(other.toReal(value.precision()));
-	}
-	
-	@Override
-	public IBool less(IRational other) {
-		return less(other.toReal(value.precision()));
-	}
-	
-	@Override
 	public IBool lessEqual(IReal other){
 		return BoolValue.getBoolValue(compare(other) <= 0);
 	}
 	
 	@Override
-	public IBool lessEqual(IInteger other) {
-		return lessEqual(other.toReal(value.precision()));
-	}
-	
-	@Override
-	public IBool lessEqual(IRational other) {
-		return lessEqual(other.toReal(value.precision()));
-	}
-	
-	@Override
 	public int compare(IReal other){
 		return value.compareTo(((BigDecimalValue) other).value);
-	}
-	
-	@Override
-	public int compare(INumber other) {
-		return compare(other.toReal(value.precision()));
 	}
 	
 	@Override

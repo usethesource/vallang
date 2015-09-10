@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 
-/*package*/ final class IntegerType extends NumberType {
+/*package*/ final class IntegerType extends DefaultSubtypeOfValue {
     private static final class InstanceKeeper {
       public final static IntegerType sInstance= new IntegerType();
     }
@@ -62,6 +62,11 @@ package org.eclipse.imp.pdb.facts.type;
     @Override
     public Type glb(Type type) {
       return type.glbWithInteger(this);
+    }
+    
+    @Override
+    protected Type glbWithInteger(Type type) {
+        return this;
     }
     
     @Override

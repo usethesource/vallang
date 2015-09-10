@@ -455,7 +455,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			
 			IList carrier1 = rel1.asRelation().carrier();
 			
-			if (carrier1.getElementType() != tf.numberType()) {
+			if (carrier1.getElementType() != tf.valueType()) {
 				fail("expected number type on carrier");
 			}
 			

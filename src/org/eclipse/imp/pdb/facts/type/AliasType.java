@@ -295,11 +295,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   }
 
   @Override
-  protected boolean isSubtypeOfNumber(Type type) {
-    return fAliased.isSubtypeOfNumber(type); 
-  }
-
-  @Override
   protected boolean isSubtypeOfRelation(Type type) {
     return fAliased.isSubtypeOfRelation(type); 
   }
@@ -390,11 +385,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   }
 
   @Override
-  protected Type lubWithNumber(Type type) {
-    return fAliased.lubWithNumber(type);
-  }
-
-  @Override
   protected Type lubWithSet(Type type) {
     return fAliased.lubWithSet(type);
   }
@@ -482,11 +472,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   @Override
   protected Type glbWithMap(Type type) {
     return fAliased.glbWithMap(type);
-  }
-
-  @Override
-  protected Type glbWithNumber(Type type) {
-    return fAliased.glbWithNumber(type);
   }
 
   @Override

@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 
-/*package*/ final class RationalType extends NumberType {
+/*package*/ final class RationalType extends DefaultSubtypeOfValue {
   private static final class InstanceKeeper {
     public final static RationalType sInstance= new RationalType();
   }

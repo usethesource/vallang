@@ -12,7 +12,7 @@
 package org.eclipse.imp.pdb.facts;
 
 
-public interface IRational extends INumber {
+public interface IRational extends IValue {
 	/**
 	 * @return this + other;
 	 */
@@ -137,5 +137,25 @@ public interface IRational extends INumber {
      * @return this number rounded to the nearest integer number.
      */
     IInteger round();
+
+    IReal add(IReal other);
+
+    IRational add(IInteger other);
+
+    IReal subtract(IReal other);
+
+    IRational subtract(IInteger other);
+
+    IReal multiply(IReal other);
+
+    IRational multiply(IInteger other);
+
+    IReal divide(IReal other, int precision);
+
+    IReal divide(IInteger other, int precision);
+
+    IReal divide(IRational other, int precision);
+
+    IBool equal(IRational other);
     
 }

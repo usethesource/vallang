@@ -103,15 +103,6 @@ public class TypeFactory {
   /**
    * Construct a new type.
    * 
-   * @return a reference to the unique number type of the PDB.
-   */
-  public Type numberType() {
-    return NumberType.getInstance();
-  }
-
-  /**
-   * Construct a new type.
-   * 
    * @return a reference to the unique double type of the PDB.
    */
   public Type realType() {

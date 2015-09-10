@@ -17,14 +17,14 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+
+import junit.framework.TestCase;
 
 public abstract class BaseTestList extends TestCase {
     private IValueFactory vf;
@@ -78,7 +78,7 @@ public abstract class BaseTestList extends TestCase {
 		}
 		
 		try {
-			if (!integerList.append(vf.real(2)).getElementType().equivalent(tf.numberType())) {
+			if (!integerList.append(vf.real(2)).getElementType().equivalent(tf.valueType())) {
 			  fail("append should lub the element type");
 			}
 		} catch (FactTypeUseException e) {
@@ -112,7 +112,7 @@ public abstract class BaseTestList extends TestCase {
 		}
 		
 		try {
-			if (!integerList.insert(vf.real(2)).getElementType().equivalent(tf.numberType())) {
+			if (!integerList.insert(vf.real(2)).getElementType().equivalent(tf.valueType())) {
 			  fail("insert should lub the element type");
 			}
 		} catch (FactTypeUseException e) {

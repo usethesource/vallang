@@ -94,11 +94,6 @@ package org.eclipse.imp.pdb.facts.type;
   }
 
   @Override
-  protected boolean isSubtypeOfNumber(Type type) {
-    return false;
-  }
-
-  @Override
   protected boolean isSubtypeOfRelation(Type type) {
     return false;
   }

@@ -113,11 +113,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
   }
 
   @Override
-  protected boolean isSubtypeOfNumber(Type type) {
-    return true;
-  }
-
-  @Override
   protected boolean isSubtypeOfRational(Type type) {
     return true;
   }
@@ -204,11 +199,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
   @Override
   protected Type lubWithNode(Type type) {
-    return type;
-  }
-
-  @Override
-  protected Type lubWithNumber(Type type) {
     return type;
   }
 
@@ -439,11 +429,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
   @Override
   protected Type glbWithMap(Type type) {
-    return this;
-  }
-
-  @Override
-  protected Type glbWithNumber(Type type) {
     return this;
   }
 

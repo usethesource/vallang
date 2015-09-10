@@ -40,12 +40,12 @@ public class TestType extends TestCase {
 		try {
 			basic.add(ft.integerType());
 			basic.add(ft.realType());
+			basic.add(ft.rationalType());
 			basic.add(ft.sourceLocationType());
 			basic.add(ft.stringType());
 			basic.add(ft.nodeType());
 
 			allTypes.add(ft.valueType());
-			allTypes.add(ft.numberType());
 			allTypes.addAll(basic);
 
 			for (int i = 0; i < 2; i++) {

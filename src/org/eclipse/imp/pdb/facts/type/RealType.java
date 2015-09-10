@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 
-/*package*/ final class RealType extends NumberType {
+/*package*/ final class RealType extends DefaultSubtypeOfValue {
   private final static class InstanceKeeper {
     public final static RealType sInstance = new RealType();
   }

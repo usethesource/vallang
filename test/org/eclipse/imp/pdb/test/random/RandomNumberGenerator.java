@@ -10,7 +10,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.test.random;
 
-import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 /**
@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * @author anya
  *
  */
-public class RandomNumberGenerator extends RandomGenerator<INumber> {
+public class RandomNumberGenerator extends RandomGenerator<IValue> {
 
 	private final RandomIntegerGenerator ints;
 	private final RandomRealGenerator reals;
@@ -34,7 +34,7 @@ public class RandomNumberGenerator extends RandomGenerator<INumber> {
 	}
 	
 	@Override
-	public INumber next() {
+	public IValue next() {
 		int i = random.nextInt(3);
 		if(i == 0)
 			return ints.next();

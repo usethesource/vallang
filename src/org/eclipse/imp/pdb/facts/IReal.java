@@ -14,7 +14,7 @@
 package org.eclipse.imp.pdb.facts;
 
 
-public interface IReal extends INumber {
+public interface IReal extends IValue {
 	/**
 	 * @return this + other;
 	 */
@@ -189,5 +189,25 @@ public interface IReal extends INumber {
 	 * @return cos(this)
 	 */
 	IReal cos(int precision);
+
+    IReal add(IInteger other);
+
+    IReal add(IRational other);
+
+    IReal subtract(IInteger other);
+
+    IReal subtract(IRational other);
+
+    IReal multiply(IInteger other);
+
+    IReal multiply(IRational other);
+
+    IReal divide(IInteger other, int precision);
+
+    IReal divide(IRational other, int precision);
+
+    IBool equal(IReal other);
+
+    int signum();
 
 }

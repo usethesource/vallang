@@ -28,7 +28,6 @@ public class RandomTypeGenerator {
 		atomicTypes.add(tf.realType());
 		atomicTypes.add(tf.integerType());
 		atomicTypes.add(tf.rationalType());
-		atomicTypes.add(tf.numberType());
 		atomicTypes.add(tf.sourceLocationType());
 		atomicTypes.add(tf.stringType());
 		atomicTypes.add(tf.nodeType());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  *   * Arnold Lankamp - interfaces and implementation
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Jurgen Vinju - Jurgen.Vinju@cwi.nl
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
@@ -17,10 +18,10 @@ import java.math.BigInteger;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -32,7 +33,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class IntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
+/*package*/ class IntegerValue extends AbstractValue implements IInteger, ICanBecomeABigInteger{
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 
 	private final static String INTEGER_MAX_STRING = "2147483647";
@@ -106,11 +107,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.value = value;
 	}
 
-	@Override
-	public IInteger toInteger() {
-		return this;
-	}
-	
 	@Override
 	public Type getType(){
 		return INTEGER_TYPE;
@@ -222,7 +218,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	    
 	@Override
-	public INumber subtract(IReal other) {
+	public IReal subtract(IReal other) {
 		return toReal(other.precision()).subtract(other);
 	}
 	 
@@ -343,12 +339,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public INumber divide(IInteger other, int precision) {
+	public IReal divide(IInteger other, int precision) {
 		return toReal(precision).divide(other, precision);
 	}
 
 	@Override
-	public INumber divide(IRational other, int precision) {
+	public IReal divide(IRational other, int precision) {
 		return toReal(precision).divide(other, precision);
 	}
 
@@ -397,75 +393,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public IBool equal(IRational other) {
-	  return other.equal(this);
-	}
-
-	@Override
-	public IBool equal(IReal other) {
-	  return other.equal(this);
-	}
-
-	@Override
 	public IBool greater(IInteger other){
 		return BoolValue.getBoolValue(compare(other) > 0);
 	}
 
-	@Override
-	public IBool greater(IRational other) {
-    	return other.less(this);
-	}
-	 
-	@Override
-	public IBool greater(IReal other) {
-    	return other.less(this);
-	}
-    
 	@Override
 	public IBool greaterEqual(IInteger other){
 		return BoolValue.getBoolValue(compare(other) >= 0);
 	}
 
 	@Override
-	public IBool greaterEqual(IRational other) {
-		return other.lessEqual(this);
-	}
-
-	@Override
-	public IBool greaterEqual(IReal other) {
-	  return BoolValue.getBoolValue(compare(other) >= 0);
-	}
-	 
-	@Override
 	public IBool less(IInteger other){
 		return BoolValue.getBoolValue(compare(other) < 0);
 	}
 	
 	@Override
-	public IBool less(IRational other) {
-		return other.greater(this);
-	}
-	
-	@Override
-	public IBool less(IReal other) {
-		return other.greater(this);
-    }
-
-	@Override
 	public IBool lessEqual(IInteger other){
 		return BoolValue.getBoolValue(compare(other) <= 0);
 	}
 	
-	@Override
-	public IBool lessEqual(IRational other) {
-		return other.greaterEqual(this);
-	}
-	
-	@Override
-	public IBool lessEqual(IReal other) {
-		return other.greaterEqual(this);
-	}
-	 
 	@Override
 	public int compare(IInteger other){
 		if(other instanceof BigIntegerValue){
@@ -476,20 +422,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		if(value < other.intValue()) return -1;
 		
 		return 0;
-	}
-	
-	@Override
-	public int compare(INumber other) {
-		if (isIntegerType(other)) {
-			return compare(other.toInteger());
-		}
-		else if (isRationalType(other)) {
-			return toRational().compare(other);
-		}
-		else {
-			assert other instanceof IReal;
-			return toReal(((IReal) other).precision()).compare(other);
-		}
 	}
 	
 	@Override

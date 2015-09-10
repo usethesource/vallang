@@ -4,7 +4,7 @@ import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -113,30 +113,13 @@ abstract public class BaseTestBasicValues extends TestCase {
 		assertTrue(vf.real("1.5").round().isEqual(vf.real("2")));
 	}
 	
-	public void testNumberSubTypes() {
-		assertTrue(tf.integerType().isSubtypeOf(tf.numberType()));
-		assertFalse(tf.numberType().isSubtypeOf(tf.integerType()));
-		assertTrue(tf.realType().isSubtypeOf(tf.numberType()));
-		assertFalse(tf.numberType().isSubtypeOf(tf.realType()));
-		assertTrue(tf.rationalType().isSubtypeOf(tf.numberType()));
-		assertFalse(tf.numberType().isSubtypeOf(tf.rationalType()));
-		
-		assertTrue(tf.integerType().lub(tf.realType()).equivalent(tf.numberType()));
-		assertTrue(tf.integerType().lub(tf.rationalType()).equivalent(tf.numberType()));
-		assertTrue(tf.integerType().lub(tf.numberType()).equivalent(tf.numberType()));
-		assertTrue(tf.realType().lub(tf.numberType()).equivalent(tf.numberType()));
-		assertTrue(tf.rationalType().lub(tf.integerType()).equivalent(tf.numberType()));
-		assertTrue(tf.rationalType().lub(tf.realType()).equivalent(tf.numberType()));
-		assertTrue(tf.rationalType().lub(tf.numberType()).equivalent(tf.numberType()));
-	}
-	
 	public void testNumberArithmatic() {
-		INumber i1 = vf.integer(1);
-		INumber i2 = vf.integer(2);
-		INumber r1 = vf.real(1.0);
-		INumber r2 = vf.real(2.0);
-		INumber q1 = vf.rational(1, 1);
-		INumber q2 = vf.rational(2, 1);
+		IInteger i1 = vf.integer(1);
+		IInteger i2 = vf.integer(2);
+		IReal r1 = vf.real(1.0);
+		IReal r2 = vf.real(2.0);
+		IRational q1 = vf.rational(1, 1);
+		IRational q2 = vf.rational(2, 1);
 		
 		assertEqual(i1.add(i2),vf.integer(3));
 		assertEqual(i1.add(r2),vf.real(3));

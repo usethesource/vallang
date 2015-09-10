@@ -735,7 +735,7 @@ public class BinaryReader{
 	}
 	
 	private Type readNumType(){
-    return tf.numberType();
+    return tf.valueType();
   }
 	
 	private Type readRationalType(){

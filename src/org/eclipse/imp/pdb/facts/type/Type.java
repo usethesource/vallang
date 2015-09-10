@@ -393,10 +393,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return isSubtypeOf(TF.rationalType());
   }
   
-  public final boolean isNumber() {
-    return isSubtypeOf(TF.numberType());
-  }
-  
   public final boolean isTop() {
     return equivalent(TF.valueType());
   }
@@ -539,7 +535,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected boolean isSubtypeOfRational(Type type);
   abstract protected boolean isSubtypeOfList(Type type);
   abstract protected boolean isSubtypeOfMap(Type type);
-  abstract protected boolean isSubtypeOfNumber(Type type);
   abstract protected boolean isSubtypeOfRelation(Type type);
   abstract protected boolean isSubtypeOfListRelation(Type type);
   abstract protected boolean isSubtypeOfSet(Type type);
@@ -568,7 +563,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type lubWithRational(Type type) ;
   abstract protected Type lubWithList(Type type) ;
   abstract protected Type lubWithMap(Type type) ;
-  abstract protected Type lubWithNumber(Type type) ;
   abstract protected Type lubWithSet(Type type) ;
   abstract protected Type lubWithSourceLocation(Type type) ;
   abstract protected Type lubWithString(Type type) ;
@@ -594,7 +588,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type glbWithRational(Type type) ;
   abstract protected Type glbWithList(Type type) ;
   abstract protected Type glbWithMap(Type type) ;
-  abstract protected Type glbWithNumber(Type type) ;
   abstract protected Type glbWithSet(Type type) ;
   abstract protected Type glbWithSourceLocation(Type type) ;
   abstract protected Type glbWithString(Type type) ;

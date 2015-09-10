@@ -318,7 +318,7 @@ public abstract class BaseTestRelation extends TestCase {
 			}
 			
 			Type type = intersection.getType();
-			if (!type.getFieldType(0).isSubtypeOf(tf.numberType())) {
+			if (!type.getFieldType(0).isSubtypeOf(tf.valueType())) {
 				fail("intersection should produce lub types");
 			}
 		} catch (FactTypeUseException e) {
@@ -534,8 +534,8 @@ public abstract class BaseTestRelation extends TestCase {
 			
 			ISet carrier1 = rel1.asRelation().carrier();
 			
-			if (carrier1.getElementType() != tf.numberType()) {
-				fail("expected number type on carrier");
+			if (carrier1.getElementType() != tf.valueType()) {
+				fail("expected value type on carrier");
 			}
 			
 			if (carrier1.size() != 6) {

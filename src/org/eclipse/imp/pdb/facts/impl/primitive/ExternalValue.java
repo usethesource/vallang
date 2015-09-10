@@ -12,29 +12,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
-import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.impl.AbstractValue;
-import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
-import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 /**

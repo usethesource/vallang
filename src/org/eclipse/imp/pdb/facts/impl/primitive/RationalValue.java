@@ -14,15 +14,15 @@ package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
-/*package*/ class RationalValue extends AbstractNumberValue implements IRational {
+/*package*/ class RationalValue extends AbstractValue implements IRational {
 	public static final Type RATIONAL_TYPE = TypeFactory.getInstance().rationalType();
 
 	protected final IInteger num;
@@ -76,7 +76,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public INumber add(IInteger other) {
+	public IRational add(IInteger other) {
 		return toRational(num.add(other.multiply(denom)), denom);
 	}
 
@@ -89,12 +89,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public INumber subtract(IReal other) {
+	public IReal subtract(IReal other) {
 		return toReal(other.precision()).subtract(other);
 	}
 
 	@Override
-	public INumber subtract(IInteger other) {
+	public IRational subtract(IInteger other) {
 		return toRational(num.subtract(other.multiply(denom)), denom);
 	}
 
@@ -110,12 +110,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public INumber multiply(IInteger other) {
+	public IRational multiply(IInteger other) {
 		return toRational(num.multiply(other), denom);
 	}
 
-	// TODO: should we perhaps drop this and only have the other divide?
-	// or vice-versa?
 	@Override
 	public IRational divide(IRational other) {
 		return toRational(num.multiply(other.denominator()),
@@ -128,8 +126,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public IRational divide(IInteger other, int precision) {
-		return divide(other); // forget precision
+	public IReal divide(IInteger other, int precision) {
+		return divide(other.toReal(precision), precision); 
 	}
 
 	@Override
@@ -139,9 +137,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 
 	@Override
-	public INumber divide(IRational other, int precision) {
-		return toRational(num.multiply(other.denominator()),
-				denom.multiply(other.numerator()));
+	public IReal divide(IRational other, int precision) {
+		return toReal(precision).divide(other, precision);
 	}
 
 	@Override
@@ -150,28 +147,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public IBool less(IReal other) {
-		return other.greater(this);
-	}
-
-	@Override
-	public IBool less(IInteger other) {
-		return less(other.toRational());
-	}
-
-	@Override
 	public IBool greater(IRational other) {
 		return BoolValue.getBoolValue(compare(other) > 0);
-	}
-
-	@Override
-	public IBool greater(IReal other) {
-		return other.less(this);
-	}
-
-	@Override
-	public IBool greater(IInteger other) {
-		return greater(other.toRational());
 	}
 
 	@Override
@@ -180,43 +157,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	@Override
-	public IBool equal(IReal other) {
-		return other.equal(this);
-	}
-
-	@Override
-	public IBool equal(IInteger other) {
-		return equal(other.toRational());
-	}
-
-	@Override
 	public IBool lessEqual(IRational other) {
 		return BoolValue.getBoolValue(compare(other) <= 0);
 	}
 
 	@Override
-	public IBool lessEqual(IReal other) {
-		return other.greaterEqual(this);
-	}
-
-	@Override
-	public IBool lessEqual(IInteger other) {
-		return lessEqual(other.toRational());
-	}
-
-	@Override
 	public IBool greaterEqual(IRational other) {
 		return BoolValue.getBoolValue(compare(other) >= 0);
-	}
-
-	@Override
-	public IBool greaterEqual(IReal other) {
-		return other.lessEqual(this);
-	}
-
-	@Override
-	public IBool greaterEqual(IInteger other) {
-		return greaterEqual(other.toRational());
 	}
 
 	@Override
@@ -234,26 +181,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 
 		return false;
-	}
-
-	@Override
-	public int compare(INumber other) {
-		if(isIntegerType(other)) {
-			IInteger div = num.divide(denom);
-			IInteger rem = num.remainder(denom);
-			if(div.compare(other) != 0)
-				return div.compare(other);
-			else
-				return rem.signum();
-		}
-		else if(isRationalType(other)){
-			IRational diff = subtract((IRational)other);
-			return diff.signum();
-		}
-		else {
-			assert other instanceof IReal;
-			return toReal(((IReal) other).precision()).compare(other);
-		}
 	}
 
 	@Override
@@ -313,11 +240,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	@Override
 	public IInteger round() {
 		return toReal(2).round().toInteger();
-	}
-
-	@Override
-	public IRational toRational() {
-		return this;
 	}
 
 	public IRational toRational(IInteger n, IInteger d) {

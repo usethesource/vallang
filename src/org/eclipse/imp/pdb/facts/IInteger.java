@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts;
 
 
-public interface IInteger extends INumber {
+public interface IInteger extends IValue {
 	/**
 	 * @return this + other;
 	 */
@@ -136,4 +136,26 @@ public interface IInteger extends INumber {
      * @return absolute value of this integer
      */
 	IInteger abs();
+
+    IRational toRational();
+
+    IReal add(IReal other);
+
+    IRational add(IRational other);
+
+    IReal subtract(IReal other);
+
+    IRational subtract(IRational other);
+
+    IReal multiply(IReal other);
+
+    IRational multiply(IRational other);
+
+    IReal divide(IInteger other, int precision);
+
+    IReal divide(IRational other, int precision);
+
+    IReal divide(IReal other, int precision);
+
+    IBool equal(IInteger other);
 }

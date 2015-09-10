@@ -17,7 +17,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
@@ -199,7 +198,7 @@ public class BinaryWriter{
 			}
 		}
 		
-		boolean alwaysMaximallyShare = value.getType().isString() || value.getType().isNumber() || value.getType().isSourceLocation();
+		boolean alwaysMaximallyShare = value.getType().isString() || value.getType().isSourceLocation();
 		if (tryHashing) {
 		  int valueId;
 		  if (maximalSharing || alwaysMaximallyShare) {

@@ -21,11 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -41,9 +37,11 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.test.random.DataGenerator;
 import org.eclipse.imp.pdb.test.random.RandomIntegerGenerator;
-import org.eclipse.imp.pdb.test.random.RandomNumberGenerator;
 import org.eclipse.imp.pdb.test.random.RandomRationalGenerator;
 import org.eclipse.imp.pdb.test.random.RandomRealGenerator;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 
 
 /**
@@ -74,7 +72,7 @@ abstract public class BaseTestRandomValues extends TestCase {
 	protected List<IRational> ratTestSet;
 	protected List<IReal> realTestSet;
 	private DataGenerator generator;
-	protected List<INumber> mixedTestSet;
+	protected List<IValue> mixedTestSet;
 	protected static final boolean noisy = true;
 	protected void setUp(IValueFactory factory) throws Exception {
 		super.setUp();
@@ -127,18 +125,35 @@ abstract public class BaseTestRandomValues extends TestCase {
 		assertTrue("Expected " + l + " got " + r, l.isEqual(r));
 	}
 	
-	protected void assertEqualNumber(INumber l, INumber r) {
+	protected void assertEqualNumber(IInteger l, IInteger r) {
     assertTrue("Expected " + l + " got " + r, l.equal(r).getValue());
   }
 
+
+    protected void assertEqualNumber(IReal l, IReal r) {
+    assertTrue("Expected " + l + " got " + r, l.equal(r).getValue());
+  }
+    
+
+    protected void assertEqualNumber(IRational l, IRational r) {
+    assertTrue("Expected " + l + " got " + r, l.equal(r).getValue());
+  }
 
 	protected void assertEqual(String message, IValue l, IValue r) {
 		assertTrue(message + ": Expected " + l + " got " + r, l.isEqual(r));
 	}
 	
-	protected void assertEqualNumber(String message, INumber l, INumber r) {
-    assertTrue(message + ": Expected " + l + " got " + r, l.equal(r).getValue());
-  }
+	protected void assertEqualNumber(String message, IInteger l, IInteger r) {
+	    assertTrue(message + ": Expected " + l + " got " + r, l.equal(r).getValue());
+	}
+	
+	protected void assertEqualNumber(String message, IReal l, IReal r) {
+        assertTrue(message + ": Expected " + l + " got " + r, l.equal(r).getValue());
+    }
+	
+	protected void assertEqualNumber(String message, IRational l, IRational r) {
+        assertTrue(message + ": Expected " + l + " got " + r, l.equal(r).getValue());
+    }
 	/**
 	 * Test that the difference between two reals is insignificant.
 	 */
@@ -213,15 +228,15 @@ abstract public class BaseTestRandomValues extends TestCase {
 	}
 
 	private void ioHelperText(String io, IValueTextReader reader, IValueTextWriter writer) throws IOException {
-	  ioHelperText2(io + " Integers", reader, writer, new DataGenerator(generator, INumber.class, intTestSet, new RandomIntegerGenerator(vf)));
-	  ioHelperText2(io + " Rationals", reader, writer, new DataGenerator(generator, INumber.class, ratTestSet, new RandomRationalGenerator(vf)));
-	  ioHelperText2(io + " Reals", reader, writer, new DataGenerator(generator, INumber.class, realTestSet, new RandomRealGenerator(vf)));
+	  ioHelperText2(io + " Integers", reader, writer, new DataGenerator(generator, IInteger.class, intTestSet, new RandomIntegerGenerator(vf)));
+	  ioHelperText2(io + " Rationals", reader, writer, new DataGenerator(generator, IRational.class, ratTestSet, new RandomRationalGenerator(vf)));
+	  ioHelperText2(io + " Reals", reader, writer, new DataGenerator(generator, IReal.class, realTestSet, new RandomRealGenerator(vf)));
 	}
 	
 	private void ioHelperBin(String io, IValueBinaryReader reader, IValueBinaryWriter writer) throws IOException {
-	  ioHelperBin2(io + " Integers", reader, writer, new DataGenerator(generator, INumber.class, intTestSet, new RandomIntegerGenerator(vf)));
-	  ioHelperBin2(io + " Rationals", reader, writer, new DataGenerator(generator, INumber.class, ratTestSet, new RandomRationalGenerator(vf)));
-	  ioHelperBin2(io + " Reals", reader, writer, new DataGenerator(generator, INumber.class, realTestSet, new RandomRealGenerator(vf)));
+	  ioHelperBin2(io + " Integers", reader, writer, new DataGenerator(generator, IInteger.class, intTestSet, new RandomIntegerGenerator(vf)));
+	  ioHelperBin2(io + " Rationals", reader, writer, new DataGenerator(generator, IRational.class, ratTestSet, new RandomRationalGenerator(vf)));
+	  ioHelperBin2(io + " Reals", reader, writer, new DataGenerator(generator, IReal.class, realTestSet, new RandomRealGenerator(vf)));
 	}
 	
 	
@@ -229,7 +244,7 @@ abstract public class BaseTestRandomValues extends TestCase {
 		if(noisy)
 			System.out.printf("  %-16s ", typeName + ":");
 		int count = 0;
-		for(INumber n : g.generate(INumber.class, N*10)) {
+		for(IInteger n : g.generate(IInteger.class, N*10)) {
 			ioHelperText3(reader, writer, n);
 			count++;
 		}
@@ -241,7 +256,7 @@ abstract public class BaseTestRandomValues extends TestCase {
 		if(noisy)
 			System.out.printf("  %-16s ", typeName + ":");
 		int count = 0;
-		for(INumber n : g.generate(INumber.class, N*10)) {
+		for(IInteger n : g.generate(IInteger.class, N*10)) {
 			ioHelperBin3(reader, writer, n);
 			count++;
 		}
@@ -250,7 +265,7 @@ abstract public class BaseTestRandomValues extends TestCase {
 	}
 
 
-	private void ioHelperText3(IValueTextReader reader, IValueTextWriter writer, INumber n)
+	private void ioHelperText3(IValueTextReader reader, IValueTextWriter writer, IInteger n)
 			throws IOException, AssertionFailedError {
 		StringWriter output = new StringWriter();
 		writer.write(n, output);
@@ -260,7 +275,7 @@ abstract public class BaseTestRandomValues extends TestCase {
 		assertEqual(n, v);
 	}
 	
-	private void ioHelperBin3(IValueBinaryReader reader, IValueBinaryWriter writer, INumber n)
+	private void ioHelperBin3(IValueBinaryReader reader, IValueBinaryWriter writer, IInteger n)
 			throws IOException, AssertionFailedError {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		writer.write(n, output);
@@ -288,28 +303,30 @@ abstract public class BaseTestRandomValues extends TestCase {
 				Class<?>[] params = m.getParameterTypes();
 				// if at least one argument is an INumber, we want to
 				// test the axiom for all numeric types
-				if(hasINumber(params)) {
+				if(hasIInteger(params)) {
 					if(noisy)
 						System.out.print(m.getName() + "\n  Integers:  ");
 					callAxiom(m, params, new Object[params.length], 0,
-							new DataGenerator(generator, INumber.class, intTestSet, new RandomIntegerGenerator(vf)));
+							new DataGenerator(generator, IInteger.class, intTestSet, new RandomIntegerGenerator(vf)));
+				}
+				
+				if (hasIRational(params)) {
 					if(noisy)
 						System.out.print(" " + count + " calls\n" + m.getName() + "\n  Rationals: ");
 					callAxiom(m, params, new Object[params.length], 0,
-							new DataGenerator(generator, INumber.class, ratTestSet, new RandomRationalGenerator(vf)));
+							new DataGenerator(generator, IRational.class, ratTestSet, new RandomRationalGenerator(vf)));
+				}
+				
+				if (hasIReal(params)) {
 					if(noisy)
 						System.out.print(" " + count + " calls\n" + m.getName() + "\n  Reals:     ");
 					callAxiom(m, params, new Object[params.length], 0,
-							new DataGenerator(generator, INumber.class, realTestSet, new RandomRealGenerator(vf)));
-					if(noisy)
-						System.out.print(" " + count + " calls\n" + m.getName() + "\n  Mixed:     ");
-					callAxiom(m, params, new Object[params.length], 0, 
-							new DataGenerator(generator, INumber.class, mixedTestSet, new RandomNumberGenerator(vf)));
+							new DataGenerator(generator, IReal.class, realTestSet, new RandomRealGenerator(vf)));
 				}
-				else {
-					if(noisy) System.out.print(m.getName() + "\n          :  ");
-					callAxiom(m, params, new Object[params.length], 0, generator);
-				}
+
+				if(noisy) System.out.print(m.getName() + "\n          :  ");
+				callAxiom(m, params, new Object[params.length], 0, generator);
+				
 				if(noisy)
 					System.out.println(" " + count + " calls");
 			}
@@ -318,14 +335,32 @@ abstract public class BaseTestRandomValues extends TestCase {
 				+ "(" + getClass().getPackage().getName() + ")");
 	}
 
-	private boolean hasINumber(Class<?>[] params) {
+	private boolean hasIInteger(Class<?>[] params) {
 		for(Class<?> p : params) {
-			if(p.isAssignableFrom(INumber.class)) {
+			if(p.isAssignableFrom(IInteger.class)) {
 				return true;
 			}
 		}
 		return false;
 	}
+	
+	private boolean hasIReal(Class<?>[] params) {
+        for(Class<?> p : params) {
+            if(p.isAssignableFrom(IReal.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+	
+	private boolean hasIRational(Class<?>[] params) {
+        for(Class<?> p : params) {
+            if(p.isAssignableFrom(IRational.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
 	
 	/**
 	 * Keeps track of the number of times an axiom has been called.
@@ -396,7 +431,7 @@ abstract public class BaseTestRandomValues extends TestCase {
 	 * Relationship between compare() and the comparison functions,
 	 * and between the various comparisons.
 	 */
-	public void axiomCompare(INumber a, INumber b) {
+	public void axiomCompare(IInteger a, IInteger b) {
 		int cmp = a.compare(b);
 		assertEquals(cmp == 0, b.compare(a) == 0); // negating and comparing directly isn't safe
 		assertEquals(cmp < 0, b.compare(a) > 0);
@@ -424,18 +459,84 @@ abstract public class BaseTestRandomValues extends TestCase {
 			}
 		}
 		
-		if(a.getType().equivalent(b.getType())) {
-			INumber c = b.abs();
-			// add/subtract a non-negative number gives a greater/smaller or equal result
-			assertTrue("" + a + " + " + c + " >= " + a, a.add(c).greaterEqual(a).getValue());
-			assertTrue("" + a + " + -" + c + " >= " + a, a.add(c.negate()).lessEqual(a).getValue());
-		}
+		IInteger c = b.abs();
+		// add/subtract a non-negative number gives a greater/smaller or equal result
+		assertTrue("" + a + " + " + c + " >= " + a, a.add(c).greaterEqual(a).getValue());
+		assertTrue("" + a + " + -" + c + " >= " + a, a.add(c.negate()).lessEqual(a).getValue());
 	}
+	
+	   public void axiomCompare(IReal a, IReal b) {
+	        int cmp = a.compare(b);
+	        assertEquals(cmp == 0, b.compare(a) == 0); // negating and comparing directly isn't safe
+	        assertEquals(cmp < 0, b.compare(a) > 0);
+	        assertEquals(cmp > 0, b.compare(a) < 0);
+	        assertEquals(cmp < 0, a.less(b).getValue());
+	        assertEquals(cmp > 0, a.greater(b).getValue());
+	        assertEquals(cmp == 0, a.equal(b).getValue());
+	        assertEquals(cmp <= 0, a.less(b).getValue() || a.equal(b).getValue());
+	        assertEquals(cmp >= 0, a.greater(b).getValue() || a.equal(b).getValue());
+
+	        assertEquals(a.less(b), b.greater(a));
+	        assertEquals(a.greaterEqual(b), b.lessEqual(a));
+	        assertEquals(a.lessEqual(b).getValue(), a.less(b).getValue() || a.equal(b).getValue());
+	        assertEquals(a.greaterEqual(b).getValue(), a.greater(b).getValue() || a.equal(b).getValue());
+
+	        assertEquals(a.less(b).getValue() || a.greater(b).getValue(), !a.equal(b).getValue());
+	        assertEquals(a.equal(b).getValue(), b.equal(a).getValue());
+	        assertTrue(a.equal(a).getValue());
+
+	        if(a.equals(b) && a.getType() == b.getType()) {
+	            assertEquals("" + a + ".hashCode() != " + b + ".hashCode()", a.hashCode(), b.hashCode());
+	            
+	            if(!(a instanceof IReal || b instanceof IReal) && a.getType().equivalent(b.getType())) {
+	                assertEquals("" + a + ".toString() != " + b + ".toString()", a.toString(), b.toString());
+	            }
+	        }
+	        
+	        IReal c = b.abs();
+	        // add/subtract a non-negative number gives a greater/smaller or equal result
+	        assertTrue("" + a + " + " + c + " >= " + a, a.add(c).greaterEqual(a).getValue());
+	        assertTrue("" + a + " + -" + c + " >= " + a, a.add(c.negate()).lessEqual(a).getValue());
+	    }
+	   
+	    public void axiomCompare(IRational a, IRational b) {
+	        int cmp = a.compare(b);
+	        assertEquals(cmp == 0, b.compare(a) == 0); // negating and comparing directly isn't safe
+	        assertEquals(cmp < 0, b.compare(a) > 0);
+	        assertEquals(cmp > 0, b.compare(a) < 0);
+	        assertEquals(cmp < 0, a.less(b).getValue());
+	        assertEquals(cmp > 0, a.greater(b).getValue());
+	        assertEquals(cmp == 0, a.equal(b).getValue());
+	        assertEquals(cmp <= 0, a.less(b).getValue() || a.equal(b).getValue());
+	        assertEquals(cmp >= 0, a.greater(b).getValue() || a.equal(b).getValue());
+
+	        assertEquals(a.less(b), b.greater(a));
+	        assertEquals(a.greaterEqual(b), b.lessEqual(a));
+	        assertEquals(a.lessEqual(b).getValue(), a.less(b).getValue() || a.equal(b).getValue());
+	        assertEquals(a.greaterEqual(b).getValue(), a.greater(b).getValue() || a.equal(b).getValue());
+
+	        assertEquals(a.less(b).getValue() || a.greater(b).getValue(), !a.equal(b).getValue());
+	        assertEquals(a.equal(b).getValue(), b.equal(a).getValue());
+	        assertTrue(a.equal(a).getValue());
+
+	        if(a.equals(b) && a.getType() == b.getType()) {
+	            assertEquals("" + a + ".hashCode() != " + b + ".hashCode()", a.hashCode(), b.hashCode());
+	            
+	            if(!(a instanceof IReal || b instanceof IReal) && a.getType().equivalent(b.getType())) {
+	                assertEquals("" + a + ".toString() != " + b + ".toString()", a.toString(), b.toString());
+	            }
+	        }
+	        
+	        IRational c = b.abs();
+	        // add/subtract a non-negative number gives a greater/smaller or equal result
+	        assertTrue("" + a + " + " + c + " >= " + a, a.add(c).greaterEqual(a).getValue());
+	        assertTrue("" + a + " + -" + c + " >= " + a, a.add(c.negate()).lessEqual(a).getValue());
+	    }
 
 	/**
 	 *  Closure: These operations should yield a result of the same type.
 	 */
-	public void axiomClosure(INumber a, INumber b) {
+	public void axiomClosure(IInteger a, IInteger b) {
 		if(a.signum() == 0 && b.signum() == 0)
 			a.signum();
 		if(a.getType().equivalent(b.getType())) {
@@ -446,79 +547,114 @@ abstract public class BaseTestRandomValues extends TestCase {
 			assertEqual(a.getType(), a.negate().getType());			
 		}
 	}
+	
+	public void axiomClosure(IReal a, IReal b) {
+        if(a.signum() == 0 && b.signum() == 0)
+            a.signum();
+        if(a.getType().equivalent(b.getType())) {
+            assertEqual(a.getType(), a.add(b).getType());
+            assertEqual(a.getType(), a.multiply(b).getType());
+            assertEqual(a.getType(), a.subtract(b).getType());
+            assertEqual(a.getType(), a.abs().getType());
+            assertEqual(a.getType(), a.negate().getType());         
+        }
+    }
+	
+	public void axiomClosure(IRational a, IRational b) {
+        if(a.signum() == 0 && b.signum() == 0)
+            a.signum();
+        if(a.getType().equivalent(b.getType())) {
+            assertEqual(a.getType(), a.add(b).getType());
+            assertEqual(a.getType(), a.multiply(b).getType());
+            assertEqual(a.getType(), a.subtract(b).getType());
+            assertEqual(a.getType(), a.abs().getType());
+            assertEqual(a.getType(), a.negate().getType());         
+        }
+    }
 
 	/**
 	 * Associativity: addition and multiplication
 	 * 
 	 *  (Possibly not strictly true for reals.)
 	 */
-	public void axiomAssociativity(INumber a, INumber b, INumber c) {
-		if(!(a instanceof IReal || b instanceof IReal || c instanceof IReal)) {
-			assertEqualNumber(a.add(b.add(c)), a.add(b).add(c));
-			assertEqualNumber(a.multiply(b.multiply(c)), a.multiply(b).multiply(c));
-		}
+	public void axiomAssociativity(IInteger a, IInteger b, IInteger c) {
+	    assertEqualNumber(a.add(b.add(c)), a.add(b).add(c));
+	    assertEqualNumber(a.multiply(b.multiply(c)), a.multiply(b).multiply(c));
 	}
-
+	
+	public void axiomAssociativity(IRational a, IRational b, IRational c) {
+        assertEqualNumber(a.add(b.add(c)), a.add(b).add(c));
+        assertEqualNumber(a.multiply(b.multiply(c)), a.multiply(b).multiply(c));
+    }
 
 	/**
 	 * Commutativity: addition and multiplication
 	 */
-	public void axiomCommutativity(INumber a, INumber b) {
+	public void axiomCommutativity(IInteger a, IInteger b) {
 		assertEqualNumber(a.toString() + " + " + b.toString(), a.add(b), b.add(a));
 		assertEqualNumber(a.toString() + " * " + b.toString(), a.multiply(b), b.multiply(a));
 	}
+	
+	public void axiomCommutativity(IReal a, IReal b) {
+        assertEqualNumber(a.toString() + " + " + b.toString(), a.add(b), b.add(a));
+        assertEqualNumber(a.toString() + " * " + b.toString(), a.multiply(b), b.multiply(a));
+    }
+	
+	public void axiomCommutativity(IRational a, IRational b) {
+        assertEqualNumber(a.toString() + " + " + b.toString(), a.add(b), b.add(a));
+        assertEqualNumber(a.toString() + " * " + b.toString(), a.multiply(b), b.multiply(a));
+    }
 
 
 	/**
 	 * 0 or 1 are identities for all the binary ops
 	 */
-	public void axiomIdentity(INumber a) {
+	public void axiomIdentity(IInteger a) {
 		assertEqualNumber(a, a.add(INT_ZERO));
 		assertEqualNumber(a, a.multiply(INT_ONE));
 		assertEqualNumber(a, a.subtract(INT_ZERO));
 		if(a instanceof IInteger)
 		  assertEqualNumber(a, ((IInteger)a).divide(INT_ONE));
 		if(a instanceof IRational)
-		  assertEqualNumber(a, ((IRational)a).divide(RAT_ONE));
+		    assertEqualNumber(a.toRational(), a.divide(RAT_ONE));
 		if(a instanceof IReal)
-			assertEqualNumber(a, ((IReal)a).divide(REAL_ONE, ((IReal)a).precision()));
+			assertEqualNumber(a.toReal(REAL_ONE.precision()), a.divide(REAL_ONE, REAL_ONE.precision()));
 	}
 
 	/**
 	 * Subtraction is inverse of addition.
 	 * Division is inverse of non-integer multiplication.
 	 */
-	public void axiomInverse(INumber a) {
-		if(a instanceof IInteger) {
-			IInteger i = (IInteger)a;
-			assertEqualNumber(INT_ZERO, i.add(i.negate()));
-			assertEqualNumber(INT_ZERO, i.subtract(i));
-			if(i.signum() != 0) {
-				assertEqualNumber(INT_ONE, i.divide(i));
-			}
-		}
-		if(a instanceof IRational) {
-			IRational r = (IRational)a;
-			assertEqualNumber(RAT_ZERO, r.add(r.negate()));
-			assertEqualNumber(RAT_ZERO, r.subtract(r));
-			if(r.signum() != 0) {
-				assertEqualNumber(RAT_ONE, r.divide(r));
-				assertEqualNumber(RAT_ONE, r.multiply(RAT_ONE.divide(r)));
-			}
-		}
-		if(a instanceof IReal) {
-			IReal r = (IReal)a;
-			// this should hold:
-			assertEqualNumber(REAL_ZERO, r.add(r.negate()));
-			// this one only approximately
-			try {
-				assertApprox(REAL_ONE, r.divide(r, 80));
-				assertApprox(REAL_ONE, r.multiply(REAL_ONE.divide(r, 80)));
-			}
-			catch(ArithmeticException e) {
-				// ignore division by zero
-			}
-		}
+	public void axiomInverse(IInteger a) {
+	    IInteger i = (IInteger)a;
+	    assertEqualNumber(INT_ZERO, i.add(i.negate()));
+	    assertEqualNumber(INT_ZERO, i.subtract(i));
+	    if(i.signum() != 0) {
+	        assertEqualNumber(INT_ONE, i.divide(i));
+	    }
+	}
+	public void axiomInverse(IRational a) {
+	    IRational r = (IRational)a;
+	    assertEqualNumber(RAT_ZERO, r.add(r.negate()));
+	    assertEqualNumber(RAT_ZERO, r.subtract(r));
+	    if(r.signum() != 0) {
+	        assertEqualNumber(RAT_ONE, r.divide(r));
+	        assertEqualNumber(RAT_ONE, r.multiply(RAT_ONE.divide(r)));
+	    }
+	}
+
+	public void axiomInverse(IReal a) {
+	    IReal r = (IReal)a;
+	    // this should hold:
+	    assertEqualNumber(REAL_ZERO, r.add(r.negate()));
+	    // this one only approximately
+	    try {
+	        assertApprox(REAL_ONE, r.divide(r, 80));
+	        assertApprox(REAL_ONE, r.multiply(REAL_ONE.divide(r, 80)));
+	    }
+	    catch(ArithmeticException e) {
+	        // ignore division by zero
+	    }
 	}
 
 
@@ -527,22 +663,21 @@ abstract public class BaseTestRandomValues extends TestCase {
 	 * 
 	 * (Possibly not strictly true for reals.) 
 	 */
-	public void axiomDistributivity(INumber a, INumber b, INumber c) {
-		if(!(a instanceof IReal || b instanceof IReal || c instanceof IReal)) {
-			assertEqualNumber(String.format("a=%s, b=%s, c=%s", a.toString(), b.toString(), c.toString()),
-					a.multiply(b.add(c)), a.multiply(b).add(a.multiply(c)));
-		}
-		else {
-			//assertApprox(String.format("a=%s, b=%s, c=%s", a.toString(), b.toString(), c.toString()),
-			//		a.multiply(b.add(c)).toReal(), a.multiply(b).add(a.multiply(c)).toReal());
-		}
+	public void axiomDistributivity(IInteger a, IInteger b, IInteger c) {
+	    assertEqualNumber(String.format("a=%s, b=%s, c=%s", a.toString(), b.toString(), c.toString()),
+	            a.multiply(b.add(c)), a.multiply(b).add(a.multiply(c)));
 	}
+	
+	public void axiomDistributivity(IRational a, IRational b, IRational c) {
+        assertEqualNumber(String.format("a=%s, b=%s, c=%s", a.toString(), b.toString(), c.toString()),
+                a.multiply(b.add(c)), a.multiply(b).add(a.multiply(c)));
+    }
 
 	
 	/**
 	 *	This may not be strictly true for reals.
 	 */
-	public void axiomTransitivity(INumber a, INumber b, INumber c) {
+	public void axiomTransitivity(IInteger a, IInteger b, IInteger c) {
 		if(a.equal(b).getValue() && b.equal(c).getValue())
 			assertTrue("" + a + " == " + b + " == " + c, a.equal(c).getValue());
 		if(a.lessEqual(b).getValue() && b.lessEqual(c).getValue())
@@ -550,16 +685,24 @@ abstract public class BaseTestRandomValues extends TestCase {
 					a.lessEqual(c).getValue());
 	}
 	
+	public void axiomTransitivity(IRational a, IRational b, IRational c) {
+        if(a.equal(b).getValue() && b.equal(c).getValue())
+            assertTrue("" + a + " == " + b + " == " + c, a.equal(c).getValue());
+        if(a.lessEqual(b).getValue() && b.lessEqual(c).getValue())
+            assertTrue("" + a + " <= " + b + " <= " + c,
+                    a.lessEqual(c).getValue());
+    }
+	
 	public void axiomNoEqualInt(IInteger i) {
 		assertFalse(i.toReal(PRECISION).equals(i));
-		assertTrue(i.toReal(PRECISION).equal(i).getValue());
+		assertTrue(i.toReal(PRECISION).equal(i.toReal(PRECISION)).getValue());
 		assertFalse(i.toRational().equals(i));
-		assertTrue(i.toRational().equal(i).getValue());
+		assertTrue(i.toRational().equal(i.toRational()).getValue());
 	}
 
 	public void axiomNoEqualRat(IRational i) {
 		assertFalse(i.toReal(PRECISION).equals(i));
-		assertTrue(i.toReal(PRECISION).equal(i).getValue());
+		assertTrue(i.toReal(PRECISION).equal(i.toReal(PRECISION)).getValue());
 		assertFalse(i.toInteger().equals(i));
 	}
 
