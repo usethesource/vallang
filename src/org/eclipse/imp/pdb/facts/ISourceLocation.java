@@ -33,10 +33,10 @@ public interface ISourceLocation extends IValue {
     URI getURI();
 
     String getScheme();
-	String getAuthority() throws UnsupportedOperationException;
-	String getPath() throws UnsupportedOperationException;
-	String getFragment() throws UnsupportedOperationException;
-	String getQuery() throws UnsupportedOperationException;
+	String getAuthority();
+	String getPath();
+	String getFragment();
+	String getQuery();
 	Boolean hasAuthority();
 	Boolean hasPath();
 	Boolean hasFragment();

@@ -185,22 +185,22 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public String getAuthority() throws UnsupportedOperationException {
+		public String getAuthority() {
 			return uri.getAuthority();
 		}
 		
 		@Override
-		public String getFragment() throws UnsupportedOperationException {
+		public String getFragment() {
 			return uri.getFragment();
 		}
 		
 		@Override
-		public String getPath() throws UnsupportedOperationException {
+		public String getPath() {
 			return uri.getPath();
 		}
 		
 		@Override
-		public String getQuery() throws UnsupportedOperationException {
+		public String getQuery() {
 			return uri.getQuery();
 		}
 		

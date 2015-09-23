@@ -130,12 +130,12 @@ import java.util.regex.Pattern;
 
 		@Override
 		public String getFragment() {
-			throw new UnsupportedOperationException();
+		    return "";
 		}
 
 		@Override
 		public String getQuery() {
-			throw new UnsupportedOperationException();
+		    return "";
 		}
 
 		@Override
