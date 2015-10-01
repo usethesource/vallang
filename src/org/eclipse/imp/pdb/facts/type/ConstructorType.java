@@ -122,7 +122,12 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	public boolean hasField(String fieldName, TypeStore store) {
-		return hasField(fieldName);
+		return hasField(fieldName) ;
+	}
+	
+	@Override
+	public boolean hasKeywordField(String fieldName, TypeStore store) {
+		return store.getKeywordParameterType(this, fieldName) != null;
 	}
 	
 	@Override

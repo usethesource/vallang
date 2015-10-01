@@ -172,6 +172,15 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public boolean hasField(String fieldName, TypeStore store) {
     return hasField(fieldName);
   }
+  
+  /**
+   * @param fieldName
+   *          name of the keyword field to check for
+   * @return true iff this type has a keyword field named fieldName
+   */
+  public boolean hasKeywordField(String fieldName, TypeStore store) {
+	  throw new IllegalOperationException("hasKeywordField", this);
+  }
 
   /**
    * Retrieve the width, a.k.a. arity, of a tuple, a relation or a tree node
