@@ -960,7 +960,7 @@ public class TypeStore {
 	 * @return the type of the requested parameter value or null if none exists
 	 */
 	public Type getKeywordParameterType(Type onType, String key) {
-		assert onType.isConstructor();
+		assert onType.isConstructor() || onType.isAbstractData();
 		Map<String, Type> kwParamsFor = getKeywordParameters(onType);
 		return kwParamsFor != null ? kwParamsFor.get(key) : null;
 	}
