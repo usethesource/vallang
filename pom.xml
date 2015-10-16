@@ -1,17 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<relativePath>../imp.pom/pom.xml</relativePath>
-		<groupId>org.eclipse.imp</groupId>
-		<artifactId>org.eclipse.imp.pom</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
-	</parent>
+ 	<groupId>io.usethesource</groupId>
+	<artifactId>treasure</artifactId>
+	<version>0.5.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-	<artifactId>org.eclipse.imp.pdb.values</artifactId>
-	<version>0.4.3.qualifier</version>
-	<packaging>eclipse-plugin</packaging>
+	<modules>
+		<module>treasure-api</module>
+		<module>treasure-core</module>
+		<module>capsule</module>
+	</modules>
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/cwi-swat/pdb.values.git</developerConnection>
@@ -22,96 +22,6 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
-
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-					<exclude>**/*.class</exclude>
-				</excludes>
-			</resource>			
-		</resources>
-		<testSourceDirectory>test</testSourceDirectory>
-		<testResources>
-			<testResource>
-				<directory>test</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-					<exclude>**/*.class</exclude>					
-				</excludes>
-			</testResource>
-		</testResources>
-	
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-http</artifactId>
-				<version>2.6</version>
-			</extension>
-		</extensions>
-
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>wagon-maven-plugin</artifactId>
-				<version>1.0-beta-5</version>
-				<executions>
-					<execution>
-						<id>download-code-style</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>download-single</goal>
-						</goals>
-						<configuration>
-							<url>https://google-styleguide.googlecode.com/svn/trunk/</url>
-							<fromFile>eclipse-java-google-style.xml</fromFile>					
-							<toFile>${basedir}/eclipse-java-google-style.xml</toFile>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
- 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.5.1</version>
-				<executions>
-					<execution>
-						<id>compile-tests</id>
-						<phase>test-compile</phase>
-						<goals>
-							<goal>testCompile</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.12.4</version>
-				<executions>
-					<execution>
-						<id>test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<excludes>
-						<!-- reference implementation is broken and won't be tested for now  -->
-						<exclude>**/org/eclipse/imp/pdb/test/reference/**.java</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
-		
-	</build>
 
 	<dependencies>
 		<dependency>
