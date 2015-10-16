@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2013-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,39 +11,50 @@
  *******************************************************************************/
 package io.usethesource.capsule;
 
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Set;
 
-public interface ImmutableSet<E> extends ImmutableCollection<E>, Set<E> {
-	
-    E get(Object o);
-    
-    E getEquivalent(Object o, Comparator<Object> cmp);
-		
-	ImmutableSet<E> __insert(E e);
-	
-	ImmutableSet<E> __insertEquivalent(E e, Comparator<Object> cmp);
+public interface ImmutableSet<K> extends Set<K> {
 
-	ImmutableSet<E> __insertAll(ImmutableSet<? extends E> set);	
-	
-	ImmutableSet<E> __insertAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
-	
-	ImmutableSet<E> __retainAll(ImmutableSet<? extends E> set);
-	
-	ImmutableSet<E> __retainAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
-	
-	ImmutableSet<E> __removeAll(ImmutableSet<? extends E> set);
-	
-	ImmutableSet<E> __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
-	
-	ImmutableSet<E> __remove(E e);
+	boolean containsAll(final Collection<?> c);
 
-	ImmutableSet<E> __removeEquivalent(E e, Comparator<Object> cmp);
+	boolean containsAllEquivalent(final Collection<?> c, final Comparator<Object> cmp);
 
-	SupplierIterator<E, E> keyIterator();	
-	
-	public abstract TransientSet<E> asTransient();
+	K get(final Object o);
 
-	public abstract boolean isTransientSupported();
+	K getEquivalent(final Object o, final Comparator<Object> cmp);
+
+	boolean contains(final Object o);
+
+	boolean containsEquivalent(final Object o, final Comparator<Object> cmp);
+
+	ImmutableSet<K> __insert(final K key);
+
+	ImmutableSet<K> __insertEquivalent(final K key, final Comparator<Object> cmp);
+
+	ImmutableSet<K> __insertAll(final Set<? extends K> set);
+
+	ImmutableSet<K> __insertAllEquivalent(final Set<? extends K> set, final Comparator<Object> cmp);
+
+	ImmutableSet<K> __remove(final K key);
+
+	ImmutableSet<K> __removeEquivalent(final K key, final Comparator<Object> cmp);
+
+	ImmutableSet<K> __removeAll(final Set<? extends K> set);
+
+	ImmutableSet<K> __removeAllEquivalent(final Set<? extends K> set, final Comparator<Object> cmp);
+
+	ImmutableSet<K> __retainAll(final Set<? extends K> set);
+
+	ImmutableSet<K> __retainAllEquivalent(final TransientSet<? extends K> transientSet,
+					final Comparator<Object> cmp);
+
+	Iterator<K> keyIterator();
+
+	boolean isTransientSupported();
+
+	TransientSet<K> asTransient();
 
 }

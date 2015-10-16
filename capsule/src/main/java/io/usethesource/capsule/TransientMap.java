@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2013-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,32 +17,36 @@ import java.util.Map;
 
 public interface TransientMap<K, V> extends Map<K, V> {
 
-	boolean containsKey(Object o);
+	V get(final Object o);
 
-	boolean containsKeyEquivalent(Object o, Comparator<Object> cmp);
+	V getEquivalent(final Object o, final Comparator<Object> cmp);
 
-	V get(Object o);
+	boolean containsKey(final Object o);
 
-	V getEquivalent(Object o, Comparator<Object> cmp);
+	boolean containsKeyEquivalent(final Object o, final Comparator<Object> cmp);
 
-	V __put(K k, V v);
+	boolean containsValue(final Object o);
 
-	V __putEquivalent(K k, V v, Comparator<Object> cmp);
+	boolean containsValueEquivalent(final Object o, final Comparator<Object> cmp);
 
-	boolean __putAll(Map<? extends K, ? extends V> map);
+	V __put(final K key, final V val);
 
-	boolean __putAllEquivalent(Map<? extends K, ? extends V> map, Comparator<Object> cmp);
+	V __putEquivalent(final K key, final V val, final Comparator<Object> cmp);
 
-	boolean __remove(K k);
+	boolean __putAll(final Map<? extends K, ? extends V> map);
 
-	boolean __removeEquivalent(K k, Comparator<Object> cmp);
+	boolean __putAllEquivalent(final Map<? extends K, ? extends V> map, final Comparator<Object> cmp);
 
-	SupplierIterator<K, V> keyIterator();
-	
+	V __remove(final K key);
+
+	V __removeEquivalent(final K key, final Comparator<Object> cmp);
+
+	Iterator<K> keyIterator();
+
 	Iterator<V> valueIterator();
-	
-	Iterator<Map.Entry<K, V>> entryIterator();	
-	
+
+	Iterator<Map.Entry<K, V>> entryIterator();
+
 	ImmutableMap<K, V> freeze();
 
 }

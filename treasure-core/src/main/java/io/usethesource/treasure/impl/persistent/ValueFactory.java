@@ -33,16 +33,16 @@ public class ValueFactory extends io.usethesource.treasure.impl.fast.ValueFactor
 		return InstanceKeeper.instance;
 	}
 
-	public ISetWriter setWriter(Type elementType) {
-		return new SetWriter(elementType);
+	public ISetWriter setWriter(Type upperBoundType) {
+		return new SetWriter(upperBoundType);
 	}
 
 	public ISetWriter setWriter() {
 		return new SetWriter();
 	}
 
-	public ISetWriter relationWriter(Type tupleType) {
-		return new SetWriter(tupleType);
+	public ISetWriter relationWriter(Type upperBoundType) {
+		return setWriter(upperBoundType);
 	}
 
 	public ISetWriter relationWriter() {

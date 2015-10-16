@@ -13,8 +13,8 @@ package io.usethesource.treasure.impl.persistent;
 
 import java.util.Comparator;
 
+import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.TransientSet;
-import io.usethesource.capsule.TrieSet;
 import io.usethesource.treasure.ISet;
 import io.usethesource.treasure.ISetWriter;
 import io.usethesource.treasure.IValue;
@@ -44,7 +44,7 @@ class SetWriter implements ISetWriter {
 		this.upperBoundType = upperBoundType;
 
 		elementTypeBag = AbstractTypeBag.of();
-		setContent = TrieSet.transientOf();
+		setContent = DefaultTrieSet.transientOf();
 		constructedSet = null;
 	}
 
@@ -55,7 +55,7 @@ class SetWriter implements ISetWriter {
 		this.upperBoundType = null;
 
 		elementTypeBag = AbstractTypeBag.of();
-		setContent = TrieSet.transientOf();
+		setContent = DefaultTrieSet.transientOf();
 		constructedSet = null;
 	}
 

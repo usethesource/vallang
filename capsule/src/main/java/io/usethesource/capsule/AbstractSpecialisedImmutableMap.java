@@ -20,7 +20,8 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 
-public abstract class AbstractSpecialisedImmutableMap<K, V> implements ImmutableMap<K, V>, Cloneable {
+public abstract class AbstractSpecialisedImmutableMap<K, V> implements ImmutableMap<K, V>,
+				Cloneable {
 	@SuppressWarnings("rawtypes")
 	private static ImmutableMap EMPTY_MAP = new Map0();
 
@@ -29,8 +30,9 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 		return EMPTY_MAP;
 	}
 
-	public static final <K, V> Map.Entry<K, V> entryOf(final K key, final V val) {
-		return new MapEntry<K, V>(key, val);
+	@SuppressWarnings("unchecked")
+	public static final <K, V, T extends Map.Entry<K, V>> T entryOf(final K key, final V val) {
+		return (T) new MapEntry<K, V>(key, val);
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1) {
@@ -57,8 +59,8 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3,
 					K key4, V val4, K key5, V val5, K key6, V val6) {
-		final TransientMap<K, V> tmp = TrieMap.transientOf(key1, val1, key2, val2, key3, val3,
-						key4, val4, key5, val5, key6, val6);
+		final TransientMap<K, V> tmp = DefaultTrieMap.transientOf(key1, val1, key2, val2, key3,
+						val3, key4, val4, key5, val5, key6, val6);
 		return tmp.freeze();
 	}
 
@@ -66,7 +68,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 		if (map instanceof ImmutableMap) {
 			return (ImmutableMap<K, V>) map;
 		} else {
-			final TransientMap<K, V> tmp = TrieMap.transientOf();
+			final TransientMap<K, V> tmp = DefaultTrieMap.transientOf();
 			tmp.__putAll(map);
 			return tmp.freeze();
 		}
@@ -89,9 +91,9 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 
 	@Override
 	public void putAll(Map<? extends K, ? extends V> m) {
-		 throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException();
 	}
-		
+
 	@Override
 	public boolean isEmpty() {
 		return size() == 0;
@@ -135,7 +137,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	public Iterator<java.util.Map.Entry<K, V>> entryIterator() {
 		return entrySet().iterator();
 	}
-	
+
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		TransientMap<K, V> tmp = asTransient();
@@ -156,7 +158,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 			return this;
 		}
 	}
-	
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
@@ -165,7 +167,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	@Override
 	public boolean isTransientSupported() {
 		return true;
-	}	
+	}
 }
 
 class MapEntry<K, V> implements Map.Entry<K, V> {
@@ -278,7 +280,7 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf();
+		return DefaultTrieMap.transientOf();
 	}
 
 	@Override
@@ -460,7 +462,7 @@ class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1);
+		return DefaultTrieMap.transientOf(key1, val1);
 	}
 
 	@Override
@@ -678,7 +680,7 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1, key2, val2);
+		return DefaultTrieMap.transientOf(key1, val1, key2, val2);
 	}
 
 	@Override
@@ -927,7 +929,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1, key2, val2, key3, val3);
+		return DefaultTrieMap.transientOf(key1, val1, key2, val2, key3, val3);
 	}
 
 	@Override
@@ -1209,7 +1211,7 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1, key2, val2, key3, val3, key4, val4);
+		return DefaultTrieMap.transientOf(key1, val1, key2, val2, key3, val3, key4, val4);
 	}
 
 	@Override
@@ -1525,7 +1527,8 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5);
+		return DefaultTrieMap.transientOf(key1, val1, key2, val2, key3, val3, key4, val4, key5,
+						val5);
 	}
 
 	@Override

@@ -15,9 +15,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 
+import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.ImmutableSet;
 import io.usethesource.capsule.TransientSet;
-import io.usethesource.capsule.TrieSet;
 import io.usethesource.treasure.ISet;
 import io.usethesource.treasure.IValue;
 import io.usethesource.treasure.IValueFactory;
@@ -27,9 +27,9 @@ import io.usethesource.treasure.util.AbstractTypeBag;
 import io.usethesource.treasure.util.EqualityUtils;
 
 public final class PDBPersistentHashSet extends AbstractSet {
-	
+
 	private static final PDBPersistentHashSet EMPTY = new PDBPersistentHashSet();
-	
+
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 
@@ -38,8 +38,8 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	private final ImmutableSet<IValue> content;
 
 	private PDBPersistentHashSet() {
-		this.elementTypeBag = AbstractTypeBag.of(); 
-		this.content = TrieSet.of();
+		this.elementTypeBag = AbstractTypeBag.of();
+		this.content = DefaultTrieSet.of();
 	}
 
 	public PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
@@ -58,7 +58,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	public Type getType() {
 		if (cachedSetType == null) {
 			final Type elementType = elementTypeBag.lub();
-	
+
 			// consists collection out of tuples?
 			if (elementType.isFixedWidth()) {
 				cachedSetType = getTypeFactory().relTypeFromTuple(elementType);
@@ -66,7 +66,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 				cachedSetType = getTypeFactory().setType(elementType);
 			}
 		}
-		return cachedSetType;		
+		return cachedSetType;
 	}
 
 	@Override
@@ -76,27 +76,25 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	@Override
 	public ISet insert(IValue value) {
-		final ImmutableSet<IValue> contentNew = 
-				content.__insertEquivalent(value, equivalenceComparator);
+		final ImmutableSet<IValue> contentNew = content.__insertEquivalent(value, equivalenceComparator);
 
 		if (content == contentNew)
 			return this;
 
 		final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
-		
+
 		return new PDBPersistentHashSet(bagNew, contentNew);
 	}
 
 	@Override
 	public ISet delete(IValue value) {
-		final ImmutableSet<IValue> contentNew = 
-				content.__removeEquivalent(value, equivalenceComparator);
+		final ImmutableSet<IValue> contentNew = content.__removeEquivalent(value, equivalenceComparator);
 
 		if (content == contentNew)
 			return this;
 
 		final AbstractTypeBag bagNew = elementTypeBag.decrease(value.getType());
-		
+
 		return new PDBPersistentHashSet(bagNew, contentNew);
 	}
 
@@ -119,65 +117,65 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	public int hashCode() {
 		return content.hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object other) {
 		if (other == this)
 			return true;
 		if (other == null)
 			return false;
-		
+
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
 			if (this.getType() != that.getType())
 				return false;
-			
+
 			if (this.size() != that.size())
 				return false;
 
 			return content.equals(that.content);
 		}
-		
+
 		if (other instanceof ISet) {
 			ISet that = (ISet) other;
 
 			if (this.getType() != that.getType())
 				return false;
-			
+
 			if (this.size() != that.size())
 				return false;
-			
-			for (IValue e : that)
-	            if (!content.contains(e))
-	                return false;
 
-	        return true;			
+			for (IValue e : that)
+				if (!content.contains(e))
+					return false;
+
+			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public boolean isEqual(IValue other) {
 		if (other == this)
 			return true;
 		if (other == null)
 			return false;
-		
+
 		if (other instanceof ISet) {
 			ISet that = (ISet) other;
-			
+
 			if (this.size() != that.size())
 				return false;
-			
-			for (IValue e : that)
-	            if (!content.containsEquivalent(e, equivalenceComparator))
-	                return false;
 
-	        return true;			
+			for (IValue e : that)
+				if (!content.containsEquivalent(e, equivalenceComparator))
+					return false;
+
+			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -195,7 +193,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			final ImmutableSet<IValue> two;
 			AbstractTypeBag bag;
 			final ISet def;
-			
+
 			if (that.size() >= this.size()) {
 				def = that;
 				one = that.content;
@@ -217,7 +215,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 					bag = bag.increase(key.getType());
 				}
 			}
-			
+
 			if (modified) {
 				return new PDBPersistentHashSet(bag, tmp.freeze());
 			}
@@ -226,7 +224,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			return super.union(other);
 		}
 	}
-	
+
 	@Override
 	public ISet intersect(ISet other) {
 		if (other == this)
@@ -241,7 +239,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			final ImmutableSet<IValue> two;
 			AbstractTypeBag bag;
 			final ISet def;
-			
+
 			if (that.size() >= this.size()) {
 				def = this;
 				one = this.content;
@@ -253,7 +251,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 				bag = that.elementTypeBag;
 				two = this.content;
 			}
-			
+
 			final TransientSet<IValue> tmp = one.asTransient();
 			boolean modified = false;
 
@@ -265,7 +263,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 					bag = bag.decrease(key.getType());
 				}
 			}
-			
+
 			if (modified) {
 				return new PDBPersistentHashSet(bag, tmp.freeze());
 			}
@@ -289,12 +287,12 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			final ImmutableSet<IValue> two;
 			AbstractTypeBag bag;
 			final ISet def;
-			
+
 			def = this;
 			one = this.content;
 			bag = this.elementTypeBag;
 			two = that.content;
-			
+
 			final TransientSet<IValue> tmp = one.asTransient();
 			boolean modified = false;
 
@@ -325,5 +323,5 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		// TODO Auto-generated method stub
 		return super.isSubsetOf(that);
 	}
-		
+
 }

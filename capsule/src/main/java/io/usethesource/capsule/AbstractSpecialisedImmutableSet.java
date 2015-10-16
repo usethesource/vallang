@@ -28,7 +28,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	public static <K> ImmutableSet<K> setOf() {
 		return EMPTY_SET;
 	}
-	
+
 	public static <K> ImmutableSet<K> setOf(K key1) {
 		return new Set1<K>(key1);
 	}
@@ -40,7 +40,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3) {
 		return new Set3<K>(key1, key2, key3);
 	}
-	
+
 	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3, K key4) {
 		return new Set4<K>(key1, key2, key3, key4);
 	}
@@ -48,25 +48,25 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3, K key4, K key5) {
 		return new Set5<K>(key1, key2, key3, key4, key5);
 	}
-	
+
 	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3, K key4, K key5, K key6) {
-		final TransientSet<K> tmp = TrieSet.transientOf(key1, key2, key3, key4, key5, key6);
+		final TransientSet<K> tmp = DefaultTrieSet.transientOf(key1, key2, key3, key4, key5, key6);
 		return tmp.freeze();
 	}
-	
+
 	public static <K> ImmutableSet<K> setOf(Set<K> set) {
 		if (set instanceof AbstractSpecialisedImmutableSet) {
 			return (ImmutableSet<K>) set;
 		} else {
-			final TransientSet<K> tmp = TrieSet.transientOf();
+			final TransientSet<K> tmp = DefaultTrieSet.transientOf();
 			// TODO check interface definition of ImmutableSet.__insertAll()
 			for (K item : set) {
 				tmp.__insert(item);
 			}
-			return tmp.freeze();		
+			return tmp.freeze();
 		}
 	}
-	
+
 	@Override
 	public boolean add(K k) {
 		throw new UnsupportedOperationException();
@@ -96,21 +96,23 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	public void clear() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public boolean isEmpty() {
 		return size() == 0;
 	}
-	
+
 	@Override
 	public Iterator<K> iterator() {
 		return keyIterator();
-	}	
-	
+	}
+
 	@Override
 	public boolean equals(Object other) {
-		if (other == this) return true;
-		if (other == null) return false;
+		if (other == this)
+			return true;
+		if (other == null)
+			return false;
 
 		if (other instanceof Set) {
 			try {
@@ -120,7 +122,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 				if (this.size() == that.size()) {
 					for (K e : this)
 						if (!that.contains(e))
-							return false;					
+							return false;
 					return true;
 				}
 			} catch (ClassCastException unused) {
@@ -130,7 +132,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 
 		return false;
 	}
-	
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
@@ -142,7 +144,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAll(ImmutableSet<? extends K> set) {
+	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
 		TransientSet<K> tmp = asTransient();
 		if (tmp.__insertAll(set)) {
 			return tmp.freeze();
@@ -152,8 +154,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAllEquivalent(ImmutableSet<? extends K> set,
-					Comparator<Object> cmp) {
+	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set, Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		if (tmp.__insertAllEquivalent(set, cmp)) {
 			return tmp.freeze();
@@ -163,7 +164,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	}
 
 	@Override
-	public ImmutableSet<K> __retainAll(ImmutableSet<? extends K> set) {
+	public ImmutableSet<K> __retainAll(Set<? extends K> set) {
 		TransientSet<K> tmp = asTransient();
 		if (tmp.__retainAll(set)) {
 			return tmp.freeze();
@@ -173,7 +174,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	}
 
 	@Override
-	public ImmutableSet<K> __retainAllEquivalent(ImmutableSet<? extends K> set,
+	public ImmutableSet<K> __retainAllEquivalent(TransientSet<? extends K> set,
 					Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		if (tmp.__retainAllEquivalent(set, cmp)) {
@@ -184,7 +185,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	}
 
 	@Override
-	public ImmutableSet<K> __removeAll(ImmutableSet<? extends K> set) {
+	public ImmutableSet<K> __removeAll(Set<? extends K> set) {
 		TransientSet<K> tmp = asTransient();
 		if (tmp.__removeAll(set)) {
 			return tmp.freeze();
@@ -194,8 +195,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	}
 
 	@Override
-	public ImmutableSet<K> __removeAllEquivalent(ImmutableSet<? extends K> set,
-					Comparator<Object> cmp) {
+	public ImmutableSet<K> __removeAllEquivalent(Set<? extends K> set, Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		if (tmp.__removeAllEquivalent(set, cmp)) {
 			return tmp.freeze();
@@ -263,7 +263,7 @@ class Set0<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf();
+		return DefaultTrieSet.transientOf();
 	}
 
 	@Override
@@ -410,7 +410,7 @@ class Set1<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1);
+		return DefaultTrieSet.transientOf(key1);
 	}
 
 	@Override
@@ -585,7 +585,7 @@ class Set2<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1, key2);
+		return DefaultTrieSet.transientOf(key1, key2);
 	}
 
 	@Override
@@ -783,7 +783,7 @@ class Set3<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1, key2, key3);
+		return DefaultTrieSet.transientOf(key1, key2, key3);
 	}
 
 	@Override
@@ -1005,7 +1005,7 @@ class Set4<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1, key2, key3, key4);
+		return DefaultTrieSet.transientOf(key1, key2, key3, key4);
 	}
 
 	@Override
@@ -1252,7 +1252,7 @@ class Set5<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1, key2, key3, key4, key5);
+		return DefaultTrieSet.transientOf(key1, key2, key3, key4, key5);
 	}
 
 	@Override

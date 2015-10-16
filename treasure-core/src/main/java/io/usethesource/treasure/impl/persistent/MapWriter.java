@@ -16,8 +16,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import io.usethesource.capsule.DefaultTrieMap;
 import io.usethesource.capsule.TransientMap;
-import io.usethesource.capsule.TrieMap;
 import io.usethesource.treasure.IMap;
 import io.usethesource.treasure.IMapWriter;
 import io.usethesource.treasure.ITuple;
@@ -51,7 +51,7 @@ final class MapWriter implements IMapWriter {
 
 		keyTypeBag = AbstractTypeBag.of();
 		valTypeBag = AbstractTypeBag.of();
-		mapContent = TrieMap.transientOf();
+		mapContent = DefaultTrieMap.transientOf();
 		constructedMap = null;
 	}
 
@@ -70,7 +70,7 @@ final class MapWriter implements IMapWriter {
 			valTypeBag = AbstractTypeBag.of();
 		}
 
-		mapContent = TrieMap.transientOf();
+		mapContent = DefaultTrieMap.transientOf();
 		constructedMap = null;
 	}
 

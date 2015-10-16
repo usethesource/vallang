@@ -13,7 +13,6 @@ package io.usethesource.capsule;
 
 import java.util.NoSuchElementException;
 
-@Deprecated
 public class ArrayKeyValueSupplierIterator<K, V> implements SupplierIterator<K, V> {
 	
 	final Object[] values;
@@ -35,6 +34,7 @@ public class ArrayKeyValueSupplierIterator<K, V> implements SupplierIterator<K, 
 		return currentIndex < end;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public K next() {
 		if (!hasNext())
