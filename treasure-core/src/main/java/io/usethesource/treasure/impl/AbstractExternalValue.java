@@ -49,8 +49,7 @@ public abstract class AbstractExternalValue implements IExternalValue {
 		return equals(other);
 	}
 
-	@Override
-	public IConstructor encodeAsConstructor() {
+	public static IConstructor encodeAsConstructor(IExternalValue instance) {
 		return new IConstructor() {
 			@Override
 			public Type getConstructorType() {
@@ -64,7 +63,7 @@ public abstract class AbstractExternalValue implements IExternalValue {
 
 			@Override
 			public String getName() {
-				return AbstractExternalValue.this.getClass().getSimpleName().toLowerCase();
+				return instance.getClass().getSimpleName().toLowerCase();
 			}
 
 			@Override
@@ -186,7 +185,12 @@ public abstract class AbstractExternalValue implements IExternalValue {
 					    }
 				 }; 
 			}
-		};
+		};		
+	}
+	
+	@Override
+	public IConstructor encodeAsConstructor() {
+		return encodeAsConstructor(this);
 	}
 	
 	@Override
