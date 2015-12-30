@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeDeclarationException;
@@ -52,6 +53,20 @@ public class TypeStore {
 	private final Map<Type, Map<String, Type>> fAnnotations = new HashMap<>();
 	private final Map<Type, Map<String, Type>> fkeywordParameters = new HashMap<>();
 	private final Set<TypeStore> fImports = new HashSet<>();
+	
+	/*
+	 * The ADTs for which overloading checking is turned off
+	 * (they play a role in the Rascal bootstrap procedure)
+	 */
+	static private final TreeSet<String> IGNORE_OVERLOADING_CHECKS;
+	  
+	static {
+		String[] bootstrap_adts = {
+				"Grammar",
+				"RuntimeException"
+		};
+		IGNORE_OVERLOADING_CHECKS = new TreeSet<String>(Arrays.asList(bootstrap_adts));
+	}
 
 	/**
 	 * A type store that is initially empty and imports the given TypeStores.
@@ -336,16 +351,17 @@ public class TypeStore {
 		  if(!constructor.equals(constructor1)){
 			  constructor = constructor1;
 		  }
-	      
-	      checkOverloading(signature, constructor.getName(), constructor.getFieldTypes());
-	      try {
-	        checkFieldNames(signature, constructor.getFieldTypes());
-	      }
-	      catch (RedeclaredFieldNameException e) {
-	        throw new RedeclaredFieldNameException(e.getFieldName(),
-	            e.getFirstType(), e.getSecondType(),
-	            adt);
-	      }
+		  if(!IGNORE_OVERLOADING_CHECKS.contains(adt.getName())){
+			  checkOverloading(signature, constructor.getName(), constructor.getFieldTypes());
+			  try {
+				  checkFieldNames(signature, constructor.getFieldTypes());
+			  }
+			  catch (RedeclaredFieldNameException e) {
+				  throw new RedeclaredFieldNameException(e.getFieldName(),
+						  e.getFirstType(), e.getSecondType(),
+						  adt);
+			  }
+		  }
 
 	      Set<Type> localSignature = fConstructors.get(adt);
 	      if (localSignature == null) {
