@@ -1,7 +1,7 @@
 About
 =====
 
-Pdb.values contains the definition of interfaces and several alternative implementations
+Rascal-value contains the definition of interfaces and several alternative implementations
 for representing facts about source code. Such facts need to be extracted first from source code,
 then they are stored as PDB "Values". Any kind of analysis can then enrich these facts before
 they are presented to the user in the Eclipse IDE, or used in pre-condition checking for source-to-source
