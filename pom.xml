@@ -4,7 +4,7 @@
 
 	<groupId>org.rascalmpl</groupId>
 	<artifactId>value</artifactId>
-	<version>0.5.3-SNAPSHOT</version>
+	<version>0.5.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<scm>
