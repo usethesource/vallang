@@ -41,6 +41,24 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
   
+  // these constants are cached to avoid having to compute their hash-codes
+  // for canonicalization all the time. The types are used to implement predicate
+  // methods below such as isList and isMap, etc.
+  private static final Type DATE_TIME_TYPE = TF.dateTimeType();
+  private static final Type SOURCE_LOCATION_TYPE = TF.sourceLocationType();
+  private static final Type STRING_TYPE = TF.stringType();
+  private static final Type NODE_TYPE = TF.nodeType();
+  private static final Type VOID_TYPE = TF.voidType();
+  private static final Type VALUE_TYPE = TF.valueType();
+  private static final Type NUMBER_TYPE = TF.numberType();
+  private static final Type RATIONAL_TYPE = TF.rationalType();
+  private static final Type REAL_TYPE = TF.realType();
+  private static final Type INTEGER_TYPE = TF.integerType();
+  private static final Type BOOL_TYPE = TF.boolType();
+  private static final Type MAP_TYPE = TF.mapType(VALUE_TYPE, VALUE_TYPE);
+  private static final Type LIST_TYPE = TF.listType(VALUE_TYPE);
+  private static final Type SET_TYPE = TF.setType(VALUE_TYPE);
+  
   /**
    * Retrieve the type of elements in a set or a relation.
    * 
@@ -367,19 +385,19 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isSet() {
-    return isSubtypeOf(TF.setType(TF.valueType()));
+    return isSubtypeOf(SET_TYPE);
   }
   
   public final boolean isList() {
-    return isSubtypeOf(TF.listType(TF.valueType()));
+    return isSubtypeOf(LIST_TYPE);
   }
   
   public final boolean isMap() {
-    return isSubtypeOf(TF.mapType(TF.valueType(), TF.valueType()));
+    return isSubtypeOf(MAP_TYPE);
   }
   
   public final boolean isBool() {
-    return isSubtypeOf(TF.boolType());
+    return isSubtypeOf(BOOL_TYPE);
   }
   
   public final boolean isRelation() {
@@ -391,35 +409,35 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isInteger() {
-    return isSubtypeOf(TF.integerType());
+    return isSubtypeOf(INTEGER_TYPE);
   }
   
   public final boolean isReal() {
-    return isSubtypeOf(TF.realType());
+    return isSubtypeOf(REAL_TYPE);
   }
   
   public final boolean isRational() {
-    return isSubtypeOf(TF.rationalType());
+    return isSubtypeOf(RATIONAL_TYPE);
   }
   
   public final boolean isNumber() {
-    return isSubtypeOf(TF.numberType());
+    return isSubtypeOf(NUMBER_TYPE);
   }
   
   public final boolean isTop() {
-    return equivalent(TF.valueType());
+    return equivalent(VALUE_TYPE);
   }
   
   public final boolean isBottom() {
-    return equivalent(TF.voidType());
+    return equivalent(VOID_TYPE);
   }
   
   public final boolean isNode() {
-	  return isSubtypeOf(TF.nodeType());
+	  return isSubtypeOf(NODE_TYPE);
   }
   
   public final boolean isAbstractData() {
-    return isStrictSubtypeOf(TF.nodeType());
+    return isStrictSubtypeOf(NODE_TYPE);
   }
   
   public final boolean isConstructor() {
@@ -427,15 +445,15 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isString() {
-	  return isSubtypeOf(TF.stringType());
+	  return isSubtypeOf(STRING_TYPE);
   }
   
   public final boolean isSourceLocation() {
-    return isSubtypeOf(TF.sourceLocationType());
+    return isSubtypeOf(SOURCE_LOCATION_TYPE);
   }
   
   public final boolean isDateTime() {
-	  return isSubtypeOf(TF.dateTimeType());
+	  return isSubtypeOf(DATE_TIME_TYPE);
   }
   
   public final boolean isTuple() {
