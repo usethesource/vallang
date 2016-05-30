@@ -29,7 +29,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
     private final Type fParameters;
 
     protected AbstractDataType(String name, Type parameters) {
-        fName = name.intern();
+        fName = name;
         fParameters = parameters;
     }
 
