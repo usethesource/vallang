@@ -20,18 +20,16 @@ import org.rascalmpl.value.IValueFactory;
  * IConstructors have NodeType as a supertype.
  */
 class NodeType extends DefaultSubtypeOfValue {
-  private static final Type constructor = TF.constructor(symbolStore, Symbol, "node");
-  
   protected static class InstanceKeeper {
-    public final static NodeType sInstance = new NodeType();
+    public final static NodeType sInstance = new NodeType(TF.constructor(symbolStore, Symbol, "node"));
   }
 
   public static NodeType getInstance() {
     return InstanceKeeper.sInstance;
   }
 
-  protected NodeType() {
-    super();
+  protected NodeType(Type cons) {
+    super(cons);
   }
 
   @Override
@@ -41,7 +39,7 @@ class NodeType extends DefaultSubtypeOfValue {
 
   @Override
   protected IConstructor asSymbol(IValueFactory vf) {
-    return vf.constructor(constructor);
+    return vf.constructor(reifiedConstructorType);
   }
   
   /**

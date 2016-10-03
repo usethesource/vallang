@@ -16,23 +16,21 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValueFactory;
 
 /* package */class ValueType extends Type {
-  private static final Type constructor = TF.constructor(symbolStore, Symbol, "value");
-  
   protected static class InstanceHolder {
-    public static final ValueType sInstance = new ValueType();
+    public static final ValueType sInstance = new ValueType(TF.constructor(symbolStore, Symbol, "value"));
   }
 
   @Override
   protected IConstructor asSymbol(IValueFactory vf) {
-    return vf.constructor(constructor);
+    return vf.constructor(reifiedConstructorType);
   }
   
   public static ValueType getInstance() {
     return InstanceHolder.sInstance;
   }
 
-  protected ValueType() {
-    super();
+  protected ValueType(Type cons) {
+    super(cons);
   }
 
   @Override

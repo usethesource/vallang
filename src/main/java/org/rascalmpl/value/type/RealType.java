@@ -16,8 +16,6 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class RealType extends NumberType {
-  private static final Type constructor = TF.constructor(symbolStore, Symbol, "real");
-  
   private final static class InstanceKeeper {
     public final static RealType sInstance = new RealType();
   }
@@ -25,7 +23,7 @@ import org.rascalmpl.value.IValueFactory;
   
   @Override
   protected IConstructor asSymbol(IValueFactory vf) {
-    return vf.constructor(constructor);
+    return vf.constructor(reifiedConstructorType);
   }
   
 	public static RealType getInstance() {
@@ -33,7 +31,7 @@ import org.rascalmpl.value.IValueFactory;
 	}
 
 	private RealType() {
-		super();
+		super(TF.constructor(symbolStore, Symbol, "real"));
 	}
 
 	/**

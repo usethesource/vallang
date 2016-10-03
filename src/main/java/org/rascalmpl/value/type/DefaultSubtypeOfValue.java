@@ -14,8 +14,8 @@ package org.rascalmpl.value.type;
 
 /* package */abstract class DefaultSubtypeOfValue extends ValueType {
 
-  protected DefaultSubtypeOfValue() {
-    super();
+  protected DefaultSubtypeOfValue(Type cons) {
+    super(cons);
   }
 
   @Override 

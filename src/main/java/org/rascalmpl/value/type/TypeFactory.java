@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008, 2012 IBM Corporation and CWI
+ * Copyright (c) 2007, 2008, 2012, 2015 IBM Corporation and CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,6 @@ import org.rascalmpl.value.exceptions.FactTypeDeclarationException;
 import org.rascalmpl.value.exceptions.IllegalFieldNameException;
 import org.rascalmpl.value.exceptions.IllegalFieldTypeException;
 import org.rascalmpl.value.exceptions.IllegalIdentifierException;
-import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.exceptions.NullTypeException;
 
 /**
@@ -605,7 +604,8 @@ public class TypeFactory {
    * @return a type isomorphic to the given symbolic representation
    */
   public Type fromSymbol(IConstructor symbol, TypeStore store) {
-    throw new IllegalArgumentException(); // TODO
+	  // TODO!
+     return Type.fromSymbol(symbol, store);
   }
 
   /**

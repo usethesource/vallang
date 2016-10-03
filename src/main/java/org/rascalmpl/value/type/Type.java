@@ -12,6 +12,7 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -63,6 +64,28 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   private static final Type MAP_TYPE = TF.mapType(VALUE_TYPE, VALUE_TYPE);
   private static final Type LIST_TYPE = TF.listType(VALUE_TYPE);
   private static final Type SET_TYPE = TF.setType(VALUE_TYPE);
+  
+  private static final Map<Type, Class<?>> types = new HashMap<>();
+  protected final Type reifiedConstructorType;
+  
+  public Type(Type reifiedConstructorType) {
+	  this.reifiedConstructorType = reifiedConstructorType;
+	  synchronized (types) {
+		  types.put(reifiedConstructorType, getClass());
+	  }
+	  
+  }
+  
+  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+	  Class<?> typeClass = types.get(symbol.getConstructorType());
+	  
+	  if (typeClass == null) {
+		  throw new IllegalArgumentException("This is not a registered reified type symbol:" + symbol);
+	  }
+	  
+	  // TODO!!
+	  throw new NullPointerException();
+  }
   
   protected IConstructor labelSymbol(IValueFactory vf, IConstructor symbol, String label) {
     return vf.constructor(Symbol_Label, vf.string(label), symbol);

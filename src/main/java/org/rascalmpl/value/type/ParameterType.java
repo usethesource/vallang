@@ -30,11 +30,13 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 	private static final Type constructor = TF.constructor(symbolStore, Symbol, "parameter", TF.stringType() , "name", Symbol, "bound");
 	
 	/* package */ ParameterType(String name, Type bound) {
+		super(constructor);
 		fName = name.intern();
 		fBound = bound;
 	}
 	
 	/* package */ ParameterType(String name) {
+		super(constructor);
 		fName = name.intern();
 		fBound = TypeFactory.getInstance().valueType();
 	}

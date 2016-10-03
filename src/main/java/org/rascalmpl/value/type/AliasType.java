@@ -33,18 +33,20 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
  *        refer to the AliasType.
  */
 /* package */ final class AliasType extends Type {
+	private static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "alias", TF.stringType(), "name", TF.listType(Symbol), "parameters", Symbol, "aliased");
 	private final String fName;
 	private final Type fAliased;
 	private final Type fParameters;
-	private static final Type constructor = TF.constructor(symbolStore, Symbol, "alias", TF.stringType(), "name", TF.listType(Symbol), "parameters", Symbol, "aliased");
 
 	/* package */ AliasType(String name, Type aliased) {
+		super(CONSTRUCTOR);
 		fName = name;
 		fAliased = aliased;
 		fParameters = TypeFactory.getInstance().voidType();
 	}
 
 	/* package */ AliasType(String name, Type aliased, Type parameters) {
+		super(CONSTRUCTOR);
 		fName = name;
 		fAliased = aliased;
 		fParameters = parameters;
@@ -61,7 +63,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
           }
       }
       
-      return vf.constructor(constructor, vf.string(getName()), w.done(),getAliased().asSymbol(vf));
+      return vf.constructor(reifiedConstructorType, vf.string(getName()), w.done(),getAliased().asSymbol(vf));
 	}
 	
 	@Override

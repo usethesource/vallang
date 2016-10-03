@@ -30,13 +30,13 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 /* package */ class AbstractDataType extends NodeType {
     private final String fName;
     private final Type fParameters;
-    private static final Type constructor = TF.constructor(symbolStore, Symbol, "adt", TF.stringType(), "name", TF.listType(Symbol), "parameters");
 
     protected AbstractDataType(String name, Type parameters) {
+    	super(TF.constructor(symbolStore, Symbol, "adt", TF.stringType(), "name", TF.listType(Symbol), "parameters"));
         fName = name;
         fParameters = parameters;
     }
-
+    
     @Override
     protected IConstructor asSymbol(IValueFactory vf) {
       IListWriter w = vf.listWriter();
@@ -48,7 +48,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
           }
       }
       
-      return vf.constructor(constructor, vf.string(getName()), w.done());
+      return vf.constructor(reifiedConstructorType, vf.string(getName()), w.done());
     }
     
     @Override

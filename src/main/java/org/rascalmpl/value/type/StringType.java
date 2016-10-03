@@ -16,8 +16,6 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class StringType extends DefaultSubtypeOfValue {
-  private static final Type constructor = TF.constructor(symbolStore, Symbol, "str");
-  
     private static final class InstanceKeeper {
       private final static StringType sInstance= new StringType();
     }
@@ -27,12 +25,12 @@ import org.rascalmpl.value.IValueFactory;
     }
 
     private StringType() {
-      super();
+      super(TF.constructor(symbolStore, Symbol, "str"));
     }
     
     @Override
     protected IConstructor asSymbol(IValueFactory vf) {
-      return vf.constructor(constructor);
+      return vf.constructor(reifiedConstructorType);
     }
     
 

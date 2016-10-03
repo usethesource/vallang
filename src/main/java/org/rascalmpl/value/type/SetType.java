@@ -27,6 +27,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
   protected final Type fEltType;
 
   /* package */SetType(Type eltType) {
+	  super(setConstructor);
     fEltType = eltType;
   }
 

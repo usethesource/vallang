@@ -16,8 +16,6 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class RationalType extends NumberType {
-  private static final Type constructor = TF.constructor(symbolStore, Symbol, "rat");
-  
   private static final class InstanceKeeper {
     public final static RationalType sInstance= new RationalType();
   }
@@ -27,7 +25,7 @@ import org.rascalmpl.value.IValueFactory;
     }
 
     private RationalType() {
-    	super();
+    	super(TF.constructor(symbolStore, Symbol, "rat"));
     }
 
     /**
@@ -40,7 +38,7 @@ import org.rascalmpl.value.IValueFactory;
     
     @Override
     protected IConstructor asSymbol(IValueFactory vf) {
-      return vf.constructor(constructor);
+      return vf.constructor(reifiedConstructorType);
     }
     
 
