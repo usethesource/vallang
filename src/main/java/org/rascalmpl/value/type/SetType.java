@@ -34,7 +34,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
   }
   
   @Override
-  protected IConstructor asSymbol(IValueFactory vf) {
+public IConstructor asSymbol(IValueFactory vf) {
     return vf.constructor(setConstructor, fEltType.asSymbol(vf));
   }
   

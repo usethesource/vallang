@@ -18,7 +18,7 @@ import org.rascalmpl.value.IValueFactory;
 /* package */abstract class DefaultSubtypeOfValue extends ValueType {
 
 	@Override
-	protected IConstructor asSymbol(IValueFactory vf) {
+	public IConstructor asSymbol(IValueFactory vf) {
 		assert getReifiedConstructorType().getArity() == 0;
 		return vf.constructor(getReifiedConstructorType());
 	}

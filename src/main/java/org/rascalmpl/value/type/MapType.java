@@ -42,7 +42,7 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     }
     
     @Override
-    protected IConstructor asSymbol(IValueFactory vf) {
+	public IConstructor asSymbol(IValueFactory vf) {
       if (hasFieldNames()) {
         return vf.constructor(constructor, labelSymbol(vf, getKeyType().asSymbol(vf), getKeyLabel()),  labelSymbol(vf, getValueType().asSymbol(vf), getValueLabel()));
       }

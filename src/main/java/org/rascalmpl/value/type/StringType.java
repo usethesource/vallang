@@ -27,7 +27,7 @@ import org.rascalmpl.value.IValueFactory;
     }
 
     @Override
-    protected IConstructor asSymbol(IValueFactory vf) {
+	public IConstructor asSymbol(IValueFactory vf) {
       return vf.constructor(CONSTRUCTOR);
     }
 

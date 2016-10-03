@@ -28,7 +28,8 @@ import org.rascalmpl.value.IValueFactory;
 public abstract class ExternalType extends DefaultSubtypeOfValue {
 	
 	@Override
-	protected abstract IConstructor asSymbol(IValueFactory vf);
+	public
+	abstract IConstructor asSymbol(IValueFactory vf);
 
 	@Override
 	public Type getTypeParameters() {

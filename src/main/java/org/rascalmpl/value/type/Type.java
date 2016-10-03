@@ -334,7 +334,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param vf valuefactory to use 
    * @return a value to uniquely represent this type.
    */
-  protected abstract IConstructor asSymbol(IValueFactory vf);
+  public abstract IConstructor asSymbol(IValueFactory vf);
 
   /**
    * Compose two binary tuples or binary relation types.

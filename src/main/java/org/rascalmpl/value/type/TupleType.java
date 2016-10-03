@@ -35,7 +35,7 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 		fFieldNames = null;
 	}
 	
-	protected org.rascalmpl.value.IConstructor asSymbol(org.rascalmpl.value.IValueFactory vf) {
+	public org.rascalmpl.value.IConstructor asSymbol(org.rascalmpl.value.IValueFactory vf) {
 	  IListWriter w = vf.listWriter();
 
 	  if (hasFieldNames()) {

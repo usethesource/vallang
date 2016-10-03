@@ -65,7 +65,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	}
 	 
 	@Override
-  protected IConstructor asSymbol(IValueFactory vf) {
+	public IConstructor asSymbol(IValueFactory vf) {
 	  IListWriter w = vf.listWriter();
 
       if (hasFieldNames()) {
