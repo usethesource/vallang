@@ -13,6 +13,8 @@ package org.rascalmpl.value.type;
 
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 
@@ -25,6 +27,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 /*package*/ final class ParameterType extends Type {
 	private final String fName;
 	private final Type fBound;
+	private static final Type constructor = TF.constructor(symbolStore, Symbol, "parameter", TF.stringType() , "name", Symbol, "bound");
 	
 	/* package */ ParameterType(String name, Type bound) {
 		fName = name.intern();
@@ -39,6 +42,11 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 	@Override
 	public Type getBound() {
 		return fBound;
+	}
+	
+	@Override
+  protected IConstructor asSymbol(IValueFactory vf) {
+	  return vf.constructor(constructor, vf.string(getName()), getBound().asSymbol(vf));
 	}
 	
 	@Override

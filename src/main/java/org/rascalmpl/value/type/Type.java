@@ -15,7 +15,9 @@ package org.rascalmpl.value.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 
@@ -40,6 +42,9 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
  */
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
+  protected static final TypeStore symbolStore = new TypeStore();
+  protected static final Type Symbol = TF.abstractDataType(symbolStore, "Symbol");
+  protected static final Type Symbol_Label = TF.constructor(symbolStore, Symbol, "label", TF.stringType(), "name", Symbol, "symbol");
   
   // these constants are cached to avoid having to compute their hash-codes
   // for canonicalization all the time. The types are used to implement predicate
@@ -58,6 +63,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   private static final Type MAP_TYPE = TF.mapType(VALUE_TYPE, VALUE_TYPE);
   private static final Type LIST_TYPE = TF.listType(VALUE_TYPE);
   private static final Type SET_TYPE = TF.setType(VALUE_TYPE);
+  
+  protected IConstructor labelSymbol(IValueFactory vf, IConstructor symbol, String label) {
+    return vf.constructor(Symbol_Label, vf.string(label), symbol);
+  }
   
   /**
    * Retrieve the type of elements in a set or a relation.
@@ -209,6 +218,13 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public int getArity() {
     throw new IllegalOperationException("getArity", this);
   }
+  
+  /**
+   * Represent this type as a value of the abstract data-type "Symbol".
+   * @param vf valuefactory to use 
+   * @return a value to uniquely represent this type.
+   */
+  protected abstract IConstructor asSymbol(IValueFactory vf);
 
   /**
    * Compose two binary tuples or binary relation types.

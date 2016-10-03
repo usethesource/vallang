@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation.
+ * Copyright (c) 2007, 2016 IBM Corporation, Centrum Wiskunde & Informatica
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+ *    Jurgen Vinju (Jurgen.Vinju@cwi.nl)
  *******************************************************************************/
 
 package org.rascalmpl.value.type;
@@ -15,15 +15,47 @@ package org.rascalmpl.value.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 /*package*/class SetType extends DefaultSubtypeOfValue {
+  public static final Type setConstructor = TF.constructor(symbolStore, Symbol, "set", Symbol, "symbol");
+  private static final Type relConstructor = TF.constructor(symbolStore, Symbol, "rel", TF.listType(Symbol), "symbols");
+  
   protected final Type fEltType;
 
   /* package */SetType(Type eltType) {
     fEltType = eltType;
   }
 
+  @Override
+  protected IConstructor asSymbol(IValueFactory vf) {
+    if (isRelation()) {
+      IListWriter w = vf.listWriter();
+
+      if (hasFieldNames()) {
+          for (int i = 0; i < getArity(); i++) {
+              w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
+          }
+      }
+      else {
+          if (getFieldTypes().isBottom()) {
+              return vf.constructor(setConstructor, TF.voidType().asSymbol(vf));
+          }
+          for (Type f : getFieldTypes()) {
+              w.append(f.asSymbol(vf));
+          }
+      }
+  
+      return vf.constructor(relConstructor, w.done());
+    }
+    
+    // normal set
+    return vf.constructor(setConstructor, fEltType.asSymbol(vf));
+  }
+  
   @Override
   public Type getElementType() {
     return fEltType;

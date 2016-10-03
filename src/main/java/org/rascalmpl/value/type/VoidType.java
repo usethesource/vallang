@@ -15,6 +15,8 @@ package org.rascalmpl.value.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 
 /**
@@ -25,6 +27,8 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
  * used to elegantly initialize computations that involve least upper bounds.
  */
 /* package */final class VoidType extends Type {
+  private static final Type constructor = TF.constructor(symbolStore, Symbol, "void");
+  
   private static final class InstanceKeeper {
     public final static VoidType sInstance = new VoidType();
   }
@@ -33,6 +37,11 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
     return InstanceKeeper.sInstance;
   }
 
+  @Override
+  protected IConstructor asSymbol(IValueFactory vf) {
+    return vf.constructor(constructor);
+  }
+  
   private VoidType() {
     super();
   }

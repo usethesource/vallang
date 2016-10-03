@@ -11,7 +11,6 @@
 
 package org.rascalmpl.value.type;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;

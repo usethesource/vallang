@@ -15,15 +15,47 @@ package org.rascalmpl.value.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 /*package*/ class ListType extends DefaultSubtypeOfValue {
+  private static final Type listConstructor = TF.constructor(symbolStore, Symbol, "list", Symbol, "symbol");
+  private static final Type relConstructor  = TF.constructor(symbolStore, Symbol, "lrel", TF.listType(Symbol), "symbols");
+  
   protected final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
 		fEltType = eltType;
 	}
 
+	@Override
+  protected IConstructor asSymbol(IValueFactory vf) {
+	  if (isRelation()) {
+	      IListWriter w = vf.listWriter();
+
+	      if (hasFieldNames()) {
+	          for (int i = 0; i < getArity(); i++) {
+	              w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
+	          }
+	      }
+	      else {
+	          if (getFieldTypes().isBottom()) {
+	              return vf.constructor(listConstructor, TF.voidType().asSymbol(vf));
+	          }
+	          for (Type f : getFieldTypes()) {
+	              w.append(f.asSymbol(vf));
+	          }
+	      }
+	  
+	      return vf.constructor(relConstructor, w.done());
+	    }
+	    
+	    // normal list
+	    return vf.constructor(listConstructor, fEltType.asSymbol(vf));
+	}
+	 
 	@Override
 	public Type getElementType() {
 		return fEltType;

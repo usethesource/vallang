@@ -15,6 +15,7 @@ package org.rascalmpl.value.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
@@ -23,6 +24,7 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
 	protected final String[] fFieldNames;
 	protected int fHashcode = -1;
+	private static final Type constructor = TF.constructor(symbolStore, Symbol, "tuple", TF.listType(Symbol), "symbols");
 
 	/**
 	 * Creates a tuple type with the given field types. Copies the array.
@@ -34,6 +36,23 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 									// up being a bottleneck
 		fFieldNames = null;
 	}
+	
+	protected org.rascalmpl.value.IConstructor asSymbol(org.rascalmpl.value.IValueFactory vf) {
+	  IListWriter w = vf.listWriter();
+
+	  if (hasFieldNames()) {
+	    for (int i = 0; i < getArity(); i++) {
+	      w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
+	    }
+	  }
+	  else {
+	    for (Type f : this) {
+	      w.append(f.asSymbol(vf));
+	    }
+	  }
+
+	  return vf.constructor(constructor, w.done());
+	};
 
 	/**
 	 * Creates a tuple type with the given field types and names. Copies the

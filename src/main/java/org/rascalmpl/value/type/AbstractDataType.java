@@ -13,6 +13,9 @@ package org.rascalmpl.value.type;
 
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAbstractDataTypeException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
@@ -27,12 +30,27 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 /* package */ class AbstractDataType extends NodeType {
     private final String fName;
     private final Type fParameters;
+    private static final Type constructor = TF.constructor(symbolStore, Symbol, "adt", TF.stringType(), "name", TF.listType(Symbol), "parameters");
 
     protected AbstractDataType(String name, Type parameters) {
         fName = name;
         fParameters = parameters;
     }
 
+    @Override
+    protected IConstructor asSymbol(IValueFactory vf) {
+      IListWriter w = vf.listWriter();
+      Type params = getTypeParameters();
+      
+      if (params.getArity() > 0) {
+          for (Type param : params) {
+              w.append(param.asSymbol(vf));
+          }
+      }
+      
+      return vf.constructor(constructor, vf.string(getName()), w.done());
+    }
+    
     @Override
     protected boolean isSupertypeOf(Type type) {
         return type.isSubtypeOfAbstractData(this);

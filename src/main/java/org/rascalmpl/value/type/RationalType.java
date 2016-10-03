@@ -12,8 +12,12 @@
 
 package org.rascalmpl.value.type;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class RationalType extends NumberType {
+  private static final Type constructor = TF.constructor(symbolStore, Symbol, "rat");
+  
   private static final class InstanceKeeper {
     public final static RationalType sInstance= new RationalType();
   }
@@ -33,6 +37,12 @@ package org.rascalmpl.value.type;
     public boolean equals(Object obj) {
         return obj == RationalType.getInstance();
     }
+    
+    @Override
+    protected IConstructor asSymbol(IValueFactory vf) {
+      return vf.constructor(constructor);
+    }
+    
 
     @Override
     public int hashCode() {

@@ -12,8 +12,12 @@
 
 package org.rascalmpl.value.type;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class IntegerType extends NumberType {
+  private static final Type constructor = TF.constructor(symbolStore, Symbol, "int");
+  
     private static final class InstanceKeeper {
       public final static IntegerType sInstance= new IntegerType();
     }
@@ -34,6 +38,11 @@ package org.rascalmpl.value.type;
         return obj == IntegerType.getInstance();
     }
 
+    @Override
+    protected IConstructor asSymbol(IValueFactory vf) {
+      return vf.constructor(constructor);
+    }
+    
     @Override
     public int hashCode() {
         return 74843;

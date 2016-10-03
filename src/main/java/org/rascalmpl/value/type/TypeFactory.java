@@ -17,12 +17,14 @@ package org.rascalmpl.value.type;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeDeclarationException;
 import org.rascalmpl.value.exceptions.IllegalFieldNameException;
 import org.rascalmpl.value.exceptions.IllegalFieldTypeException;
 import org.rascalmpl.value.exceptions.IllegalIdentifierException;
+import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.exceptions.NullTypeException;
 
 /**
@@ -511,17 +513,6 @@ public class TypeFactory {
     return constructorFromTuple(store, adt, name, tupleType(children));
   }
 
-	/**
-	 * Special case of @see TypeFactory#constructor(TypeStore, Type, String,
-	 * Type...) with without varargs. It is necessary because the Eclipse Luna
-	 * compiler reports an ambiguity onder Java 8 (whereas Oracle's compiler
-	 * does not).
-	 */
-  @Deprecated
-  public Type constructor(TypeStore store, Type adt, String name) throws FactTypeDeclarationException {
-    return constructorFromTuple(store, adt, name, tupleEmpty());
-  }
-  
   /**
    * Make a new constructor type. A constructor type extends an abstract data
    * type such that it represents more values.
@@ -603,6 +594,18 @@ public class TypeFactory {
   public Type parameterType(String name, Type bound) {
     checkNull(name, bound);
     return getFromCache(new ParameterType(name, bound));
+  }
+  
+  /**
+   * Reconstruct a type from its symbolic value representation, and if relevant add
+   * its declaration to the store (for ADTs, constructors and aliases)
+   * 
+   * @param symbol value representation of a type
+   * @param store  store to put declarations in
+   * @return a type isomorphic to the given symbolic representation
+   */
+  public Type fromSymbol(IConstructor symbol, TypeStore store) {
+    throw new IllegalArgumentException(); // TODO
   }
 
   /**

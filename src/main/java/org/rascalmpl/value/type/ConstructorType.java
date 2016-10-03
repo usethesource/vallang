@@ -14,6 +14,9 @@ package org.rascalmpl.value.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 
@@ -37,12 +40,31 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
+	private static final Type constructor = TF.constructor(symbolStore, Symbol, "cons", Symbol, "adt", TF.stringType(), "name", TF.listType(Symbol), "parameters");
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 		super(adt.getName(), adt.getTypeParameters());
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
+	}
+	
+	@Override
+  protected IConstructor asSymbol(IValueFactory vf) {
+	  IListWriter w = vf.listWriter();
+
+      if (hasFieldNames()) {
+          for (int i = 0; i < getArity(); i++) {
+              w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
+          }
+      }
+      else {
+          for (Type field : getFieldTypes()) {
+              w.append(field.asSymbol(vf));
+          }
+      }
+      
+      return vf.constructor(constructor,labelSymbol(vf, getAbstractDataType().asSymbol(vf), getName()), w.done());
 	}
 
   @Override

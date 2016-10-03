@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007, 2016 IBM Corporation, Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -12,9 +12,12 @@
 
 package org.rascalmpl.value.type;
 
-
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
+  private static final Type constructor = TF.constructor(symbolStore, Symbol, "loc");
+  
     private static final class InstanceKeeper {
       public final static SourceLocationType sInstance= new SourceLocationType();
     }
@@ -22,7 +25,12 @@ package org.rascalmpl.value.type;
     public static SourceLocationType getInstance() {
         return InstanceKeeper.sInstance;
     }
-
+    
+    @Override
+    protected IConstructor asSymbol(IValueFactory vf) {
+      return vf.constructor(constructor);
+    }
+    
     private SourceLocationType() {
     	super();
     }

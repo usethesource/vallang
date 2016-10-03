@@ -12,10 +12,15 @@
 
 package org.rascalmpl.value.type;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
+
 /**
  * A type for values that are either ints or reals
  */
 /* package */class NumberType extends DefaultSubtypeOfValue {
+  private static final Type constructor = TF.constructor(symbolStore, Symbol, "num");
+  
   protected final static NumberType sInstance = new NumberType();
 
   protected NumberType() {
@@ -25,6 +30,12 @@ package org.rascalmpl.value.type;
   public static NumberType getInstance() {
     return sInstance;
   }
+  
+  @Override
+  protected IConstructor asSymbol(IValueFactory vf) {
+    return vf.constructor(constructor);
+  }
+  
 
   @Override
   public String toString() {

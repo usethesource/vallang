@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2008, 2012 CWI
+* Copyright (c) 2008, 2012, 2016 CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,12 +8,15 @@
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *    Anya Helene Bagge - labels
+*    Jurgen Vinju - reification
 *******************************************************************************/
 
 package org.rascalmpl.value.type;
 
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 
@@ -22,6 +25,7 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     private final Type fValueType;
     private final String fKeyLabel;
     private final String fValueLabel;
+    private final static Type constructor = TF.constructor(symbolStore, Symbol, "map", Symbol, "from", Symbol, "to");
     
     /*package*/ MapType(Type keyType, Type valueType) {
     	fKeyType= keyType;
@@ -35,6 +39,16 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     	fValueType = valueType;
     	fKeyLabel = keyLabel;
     	fValueLabel = valueLabel;
+    }
+    
+    @Override
+    protected IConstructor asSymbol(IValueFactory vf) {
+      if (hasFieldNames()) {
+        return vf.constructor(constructor, labelSymbol(vf, getKeyType().asSymbol(vf), getKeyLabel()),  labelSymbol(vf, getValueType().asSymbol(vf), getValueLabel()));
+      }
+      else {
+        return vf.constructor(constructor, getKeyType().asSymbol(vf), getValueType().asSymbol(vf));
+      }
     }
     
 	@Override

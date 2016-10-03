@@ -12,12 +12,22 @@
 
 package org.rascalmpl.value.type;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class RealType extends NumberType {
+  private static final Type constructor = TF.constructor(symbolStore, Symbol, "real");
+  
   private final static class InstanceKeeper {
     public final static RealType sInstance = new RealType();
   }
 
+  
+  @Override
+  protected IConstructor asSymbol(IValueFactory vf) {
+    return vf.constructor(constructor);
+  }
+  
 	public static RealType getInstance() {
 		return InstanceKeeper.sInstance;
 	}

@@ -15,6 +15,9 @@ package org.rascalmpl.value.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 /**
@@ -33,6 +36,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 	private final String fName;
 	private final Type fAliased;
 	private final Type fParameters;
+	private static final Type constructor = TF.constructor(symbolStore, Symbol, "alias", TF.stringType(), "name", TF.listType(Symbol), "parameters", Symbol, "aliased");
 
 	/* package */ AliasType(String name, Type aliased) {
 		fName = name;
@@ -46,6 +50,20 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 		fParameters = parameters;
 	}
 
+	@Override
+  protected IConstructor asSymbol(IValueFactory vf) {
+	  IListWriter w = vf.listWriter();
+      Type params = getTypeParameters();
+      
+      if (params.getArity() > 0) {
+          for (Type t : params) {
+              w.append(t.asSymbol(vf));
+          }
+      }
+      
+      return vf.constructor(constructor, vf.string(getName()), w.done(),getAliased().asSymbol(vf));
+	}
+	
 	@Override
 	public boolean isParameterized() {
 		return !fParameters.equivalent(VoidType.getInstance());

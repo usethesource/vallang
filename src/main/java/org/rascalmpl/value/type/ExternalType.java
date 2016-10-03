@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.value.type;
 
-
-
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /**
  * ExternalType facilitates a limited form of extensibility to the PDB's type system.
@@ -26,20 +26,11 @@ package org.rascalmpl.value.type;
  * Note that NORMAL USE OF THE PDB DOES NOT REQUIRE EXTENDING THIS CLASS
  */
 public abstract class ExternalType extends DefaultSubtypeOfValue {
-	static private final TypeStore store = new TypeStore();
-	
-	/** 
-	 * For encoding an external value as an ADT we need a representative type
-	 */
-	public Type asAbstractDataType() {
-		return TypeFactory.getInstance().abstractDataType(store, getName());
-	}
 	
 	@Override
-	public String getName() {
-		return getClass().getSimpleName();
-	}
-	
+  protected
+	abstract IConstructor asSymbol(IValueFactory vf);
+
 	@Override
 	public Type getTypeParameters() {
 		return TypeFactory.getInstance().voidType();

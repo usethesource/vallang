@@ -10,18 +10,27 @@
 *******************************************************************************/
 package org.rascalmpl.value.type;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /**
  * @author mhills
  *
  */
 public class DateTimeType extends DefaultSubtypeOfValue {
+  private static final Type constructor = TF.constructor(symbolStore, Symbol, "datetime");
+  
    private static final class InstanceKeeper {
     public final static DateTimeType sInstance= new DateTimeType();
    }
 
     public static DateTimeType getInstance() {
         return InstanceKeeper.sInstance;
+    }
+    
+    @Override
+    protected IConstructor asSymbol(IValueFactory vf) {
+      return vf.constructor(constructor);
     }
     
 	private DateTimeType() {
