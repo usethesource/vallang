@@ -13,26 +13,27 @@
 package org.rascalmpl.value.type;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class BoolType extends DefaultSubtypeOfValue {
+  static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "bool");
+
   private final static class InstanceKeeper {
     public final static BoolType sInstance = new BoolType();
   }
 
-	public static BoolType getInstance() {
-		return InstanceKeeper.sInstance;
-	}
+  public static BoolType getInstance() {
+	  return InstanceKeeper.sInstance;
+  }
 
-	private BoolType() {
-		super(TF.constructor(symbolStore, Symbol, "bool"));
-	}
-
+  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+	  return TF.boolType();
+  }
+  
 	@Override
-	protected IConstructor asSymbol(IValueFactory vf) {
-	  return vf.constructor(reifiedConstructorType);
+	protected Type getReifiedConstructorType() {
+		return CONSTRUCTOR;
 	}
-	
+
 	/**
 	 * Should never need to be called; there should be only one instance of
 	 * IntegerType

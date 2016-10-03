@@ -605,7 +605,7 @@ public class TypeFactory {
    */
   public Type fromSymbol(IConstructor symbol, TypeStore store) {
 	  // TODO!
-     return Type.fromSymbol(symbol, store);
+     return Type.fromSymbol(symbol);
   }
 
   /**
@@ -647,6 +647,15 @@ public class TypeFactory {
     }
 
     return true;
+  }
+  
+  /**
+   * Converts a value representing a type back to a type. 
+   * @param symbol is a constructor generated earlier by Type.asSymbol
+   * @return the type represented by the value
+   */
+  public Type fromSymbol(IConstructor symbol) {
+	  return Type.fromSymbol(symbol);
   }
 
 }

@@ -28,7 +28,6 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     private final static Type constructor = TF.constructor(symbolStore, Symbol, "map", Symbol, "from", Symbol, "to");
     
     /*package*/ MapType(Type keyType, Type valueType) {
-    	super(constructor);
     	fKeyType= keyType;
     	fValueType = valueType;
     	fKeyLabel = null;
@@ -36,7 +35,6 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     }
     
     /*package*/ MapType(Type keyType, String keyLabel, Type valueType, String valueLabel) {
-    	super(constructor);
     	fKeyType= keyType;
     	fValueType = valueType;
     	fKeyLabel = keyLabel;
@@ -51,6 +49,34 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
       else {
         return vf.constructor(constructor, getKeyType().asSymbol(vf), getValueType().asSymbol(vf));
       }
+    }
+    
+    public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+    	IConstructor from = (IConstructor) symbol.get("from");
+		IConstructor to = (IConstructor) symbol.get("to");
+		String fromLabel = null;
+		String toLabel = null;
+		
+		if (isLabel(from)) {
+			fromLabel = getLabel(from);
+			from = (IConstructor) from.get("symbol");
+		}
+		if (isLabel(to)) {
+			toLabel = getLabel(to);
+			to = (IConstructor) to.get("symbol");
+		}
+		if (fromLabel != null && toLabel != null) {
+			return TF.mapType(Type.fromSymbol(from), fromLabel, Type.fromSymbol(to), toLabel);
+		}
+		else {
+			return TF.mapType(Type.fromSymbol(from), Type.fromSymbol(to));
+		}
+	}
+    
+    
+    @Override
+    protected Type getReifiedConstructorType() {
+    	return constructor;
     }
     
 	@Override

@@ -12,25 +12,20 @@
 
 package org.rascalmpl.value.type;
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValueFactory;
-
 /*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
-    private static final class InstanceKeeper {
+    static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "loc");
+
+	private static final class InstanceKeeper {
       public final static SourceLocationType sInstance= new SourceLocationType();
     }
 
     public static SourceLocationType getInstance() {
         return InstanceKeeper.sInstance;
     }
-    
+
     @Override
-    protected IConstructor asSymbol(IValueFactory vf) {
-      return vf.constructor(reifiedConstructorType);
-    }
-    
-    private SourceLocationType() {
-    	super(TF.constructor(symbolStore, Symbol, "loc"));
+    protected Type getReifiedConstructorType() {
+    	return CONSTRUCTOR;
     }
 
     /**

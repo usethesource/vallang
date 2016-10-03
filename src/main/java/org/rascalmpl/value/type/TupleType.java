@@ -21,7 +21,7 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
-	private static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "tuple", TF.listType(Symbol), "symbols");
+	static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "tuple", TF.listType(Symbol), "symbols");
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
 	protected final String[] fFieldNames;
 	protected int fHashcode = -1;
@@ -30,8 +30,6 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 	 * Creates a tuple type with the given field types. Copies the array.
 	 */
 	/* package */TupleType(Type[] fieldTypes) {
-		super(CONSTRUCTOR);
-
 		fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
 									// up being a bottleneck
 		fFieldNames = null;
@@ -51,7 +49,7 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 	    }
 	  }
 
-	  return vf.constructor(reifiedConstructorType, w.done());
+	  return vf.constructor(CONSTRUCTOR, w.done());
 	};
 
 	/**
@@ -59,8 +57,6 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 	 * arrays.
 	 */
 	/* package */TupleType(Type[] fieldTypes, String[] fieldNames) {
-		super(CONSTRUCTOR);
-
 		fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
 									// up being a bottleneck
 		if (fieldNames.length != 0) {

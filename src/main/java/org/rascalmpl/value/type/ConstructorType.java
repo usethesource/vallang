@@ -15,7 +15,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
@@ -49,6 +51,19 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 		fADT = adt;
 	}
 	
+	@Override
+	protected Type getReifiedConstructorType() {
+		return constructor;
+	}
+	  
+	public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+		Type adt = Type.fromSymbol((IConstructor) symbol.get("adt"));
+		IList parameters = (IList) symbol.get("parameters");
+		String name = ((IString) symbol.get("name")).getValue();
+		// here we assume the store has the declaration already
+		return store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
+	}
+	 
 	@Override
   protected IConstructor asSymbol(IValueFactory vf) {
 	  IListWriter w = vf.listWriter();

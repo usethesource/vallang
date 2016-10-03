@@ -19,21 +19,21 @@ import org.rascalmpl.value.IValueFactory;
  * A type for values that are either ints or reals
  */
 /* package */class NumberType extends DefaultSubtypeOfValue {
-  protected final static NumberType sInstance = new NumberType(TF.constructor(symbolStore, Symbol, "num"));
-
-  protected NumberType(Type cons) {
-    super(cons);
-  }
+  static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "num");
+  protected final static NumberType sInstance = new NumberType();
 
   public static NumberType getInstance() {
     return sInstance;
   }
-  
+
   @Override
-  protected IConstructor asSymbol(IValueFactory vf) {
-    return vf.constructor(reifiedConstructorType);
+  protected Type getReifiedConstructorType() {
+	  return CONSTRUCTOR;
   }
   
+  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+	  return TF.numberType();
+  }
 
   @Override
   public String toString() {

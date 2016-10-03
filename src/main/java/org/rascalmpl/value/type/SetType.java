@@ -16,45 +16,30 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 /*package*/class SetType extends DefaultSubtypeOfValue {
-  public static final Type setConstructor = TF.constructor(symbolStore, Symbol, "set", Symbol, "symbol");
-  private static final Type relConstructor = TF.constructor(symbolStore, Symbol, "rel", TF.listType(Symbol), "symbols");
+  static final Type setConstructor = TF.constructor(symbolStore, Symbol, "set", Symbol, "symbol");
   
   protected final Type fEltType;
 
   /* package */SetType(Type eltType) {
-	  super(setConstructor);
-    fEltType = eltType;
+	  fEltType = eltType;
   }
 
   @Override
-  protected IConstructor asSymbol(IValueFactory vf) {
-    if (isRelation()) {
-      IListWriter w = vf.listWriter();
-
-      if (hasFieldNames()) {
-          for (int i = 0; i < getArity(); i++) {
-              w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
-          }
-      }
-      else {
-          if (getFieldTypes().isBottom()) {
-              return vf.constructor(setConstructor, TF.voidType().asSymbol(vf));
-          }
-          for (Type f : getFieldTypes()) {
-              w.append(f.asSymbol(vf));
-          }
-      }
+  protected Type getReifiedConstructorType() {
+	  return setConstructor;
+  }
   
-      return vf.constructor(relConstructor, w.done());
-    }
-    
-    // normal set
+  @Override
+  protected IConstructor asSymbol(IValueFactory vf) {
     return vf.constructor(setConstructor, fEltType.asSymbol(vf));
+  }
+  
+  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+	  return TF.listType(Type.fromSymbol((IConstructor) symbol.get("symbol")));
   }
   
   @Override

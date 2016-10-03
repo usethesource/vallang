@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation.
+ * Copyright (c) 2007 IBM Corporation, 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,20 +7,25 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+ *    Jurgen Vinju - initial API and implementation
  *******************************************************************************/
 
 package org.rascalmpl.value.type;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.exceptions.TypeReificationException;
 
 /**
  * This class is the abstract implementation for all types. Types are ordered in
@@ -47,6 +52,18 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final Type Symbol = TF.abstractDataType(symbolStore, "Symbol");
   protected static final Type Symbol_Label = TF.constructor(symbolStore, Symbol, "label", TF.stringType(), "name", Symbol, "symbol");
   
+  protected static boolean isLabel(IConstructor symbol) {
+	  return symbol.getConstructorType() == Symbol_Label;
+  }
+  
+  protected static String getLabel(IConstructor symbol) {
+	  return ((IString) symbol.get("label")).getValue();
+  }
+  
+  protected static IConstructor getLabeledSymbol(IConstructor symbol) {
+	  return (IConstructor) symbol.get("symbol");
+  }
+  
   // these constants are cached to avoid having to compute their hash-codes
   // for canonicalization all the time. The types are used to implement predicate
   // methods below such as isList and isMap, etc.
@@ -65,26 +82,96 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   private static final Type LIST_TYPE = TF.listType(VALUE_TYPE);
   private static final Type SET_TYPE = TF.setType(VALUE_TYPE);
   
-  private static final Map<Type, Class<?>> types = new HashMap<>();
-  protected final Type reifiedConstructorType;
+  /**
+   * A store for reified type constructors which we use to map back from
+   * reified type value to types.
+   */
+  private static final Map<Type, Class<? extends Type>> types = new HashMap<>();
   
-  public Type(Type reifiedConstructorType) {
-	  this.reifiedConstructorType = reifiedConstructorType;
-	  synchronized (types) {
-		  types.put(reifiedConstructorType, getClass());
-	  }
-	  
+  protected abstract Type getReifiedConstructorType();
+  
+  static {
+	  registerType(AbstractDataType.CONSTRUCTOR, AbstractDataType.class);
+	  registerType(AliasType.CONSTRUCTOR, AliasType.class);
+	  registerType(BoolType.CONSTRUCTOR, BoolType.class);
+	  registerType(ConstructorType.CONSTRUCTOR, ConstructorType.class);
+	  registerType(DateTimeType.CONSTRUCTOR, DateTimeType.class);
+	  registerType(IntegerType.CONSTRUCTOR, ListType.class);
+	  registerType(ListType.listConstructor, ListType.class);
+	  registerType(MapType.CONSTRUCTOR, MapType.class);
+	  registerType(NodeType.CONSTRUCTOR, NodeType.class);
+	  registerType(NumberType.CONSTRUCTOR, NumberType.class);
+	  registerType(ParameterType.CONSTRUCTOR, DateTimeType.class);
+	  registerType(RationalType.CONSTRUCTOR, RationalType.class);
+	  registerType(RealType.CONSTRUCTOR, RealType.class);
+	  registerType(SetType.setConstructor, SetType.class);
+	  registerType(SourceLocationType.CONSTRUCTOR, SourceLocationType.class);
+	  registerType(StringType.CONSTRUCTOR, StringType.class);
+	  registerType(TupleType.CONSTRUCTOR, TupleType.class);
+	  registerType(ValueType.CONSTRUCTOR, ValueType.class);
+	  registerType(VoidType.CONSTRUCTOR, VoidType.class);
   }
   
-  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
-	  Class<?> typeClass = types.get(symbol.getConstructorType());
-	  
-	  if (typeClass == null) {
-		  throw new IllegalArgumentException("This is not a registered reified type symbol:" + symbol);
+  protected static void registerType(Type cons, Class<? extends Type> type) {
+	  synchronized (types) {
+		  assert fromSymbolMethod(type) != null;
+		  types.put(cons, type);
+	  } 
+  }
+  
+  protected static Type symbolsToTupleType(IList symbols, TypeStore store) {
+	  boolean allLabels = true;
+	  Type[] types = new Type[symbols.length()];
+	  String[] labels = new String[symbols.length()];
+
+	  for (int i = 0; i < symbols.length(); i++) {
+		  IConstructor elem = (IConstructor) symbols.get(i);
+		  if (elem.getConstructorType() == Symbol_Label) {
+			  labels[i] = ((IString) elem.get("name")).getValue();
+			  elem = (IConstructor) elem.get("symbol");
+		  }
+		  else {
+			  allLabels = false;
+		  }
+
+		  types[i] = fromSymbol(elem);
 	  }
-	  
-	  // TODO!!
-	  throw new NullPointerException();
+
+	  if (allLabels) {
+		  return TF.tupleType(types, labels);
+	  }
+	  else {
+		  return TF.tupleType(types);
+	  }
+  }
+  
+  /**
+   * Converts a value representing a type back to a type. 
+   * @param symbol is a constructor generated earlier by Type.asSymbol
+   * @return the type represented by the value
+   */
+  public static Type fromSymbol(IConstructor symbol) {
+	  synchronized (types) {
+		  Class<? extends Type> typeClass = types.get(symbol.getConstructorType());
+
+		  if (typeClass == null) {
+			  throw new IllegalArgumentException("This is not a registered reified type symbol:" + symbol);
+		  }
+
+		  try {
+			  return (Type) fromSymbolMethod(typeClass).invoke(null /*static*/, symbol);
+		  } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
+			  throw new TypeReificationException("Could not create type from symbol:" + symbol, e);
+		  }
+	  }
+  }
+
+  private static Method fromSymbolMethod(Class<? extends Type> typeClass) {
+	  try {
+		  return typeClass.getMethod("fromSymbol", IConstructor.class);
+	  } catch (NoSuchMethodException e) {
+		  throw new TypeReificationException("fromSymbol method is missing on " + typeClass, e);
+	  }
   }
   
   protected IConstructor labelSymbol(IValueFactory vf, IConstructor symbol, String label) {

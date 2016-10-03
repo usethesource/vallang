@@ -16,7 +16,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
@@ -33,25 +35,24 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
  *        refer to the AliasType.
  */
 /* package */ final class AliasType extends Type {
-	private static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "alias", TF.stringType(), "name", TF.listType(Symbol), "parameters", Symbol, "aliased");
+	/*package*/ static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "alias", TF.stringType(), "name", TF.listType(Symbol), "parameters", Symbol, "aliased");
 	private final String fName;
 	private final Type fAliased;
 	private final Type fParameters;
 
 	/* package */ AliasType(String name, Type aliased) {
-		super(CONSTRUCTOR);
 		fName = name;
 		fAliased = aliased;
 		fParameters = TypeFactory.getInstance().voidType();
 	}
 
 	/* package */ AliasType(String name, Type aliased, Type parameters) {
-		super(CONSTRUCTOR);
 		fName = name;
 		fAliased = aliased;
 		fParameters = parameters;
 	}
 
+	
 	@Override
   protected IConstructor asSymbol(IValueFactory vf) {
 	  IListWriter w = vf.listWriter();
@@ -63,9 +64,27 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
           }
       }
       
-      return vf.constructor(reifiedConstructorType, vf.string(getName()), w.done(),getAliased().asSymbol(vf));
+      return vf.constructor(CONSTRUCTOR, vf.string(getName()), w.done(),getAliased().asSymbol(vf));
 	}
 	
+	 @Override
+	    protected Type getReifiedConstructorType() {
+	    	return CONSTRUCTOR;
+	    }
+	
+	 public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+		 String name = ((IString) symbol.get("name")).getValue();
+		 Type aliased = Type.fromSymbol((IConstructor) symbol.get("aliased"));
+		 IList parameters = (IList) symbol.get("parameters");
+
+		 if (parameters.isEmpty()) {
+			 return TF.aliasType(store, name, aliased);
+		 }
+		 else {
+			 return TF.aliasTypeFromTuple(store, name, aliased,  symbolsToTupleType(parameters, store));
+		 }
+	 }
+	 
 	@Override
 	public boolean isParameterized() {
 		return !fParameters.equivalent(VoidType.getInstance());

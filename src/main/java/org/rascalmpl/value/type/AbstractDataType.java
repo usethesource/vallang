@@ -14,7 +14,9 @@ package org.rascalmpl.value.type;
 import java.util.Map;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAbstractDataTypeException;
@@ -28,13 +30,18 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
  * @see ConstructorType
  */
 /* package */ class AbstractDataType extends NodeType {
-    private final String fName;
+    /*package*/ static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "adt", TF.stringType(), "name", TF.listType(Symbol), "parameters");
+	private final String fName;
     private final Type fParameters;
 
     protected AbstractDataType(String name, Type parameters) {
-    	super(TF.constructor(symbolStore, Symbol, "adt", TF.stringType(), "name", TF.listType(Symbol), "parameters"));
         fName = name;
         fParameters = parameters;
+    }
+    
+    @Override
+    protected Type getReifiedConstructorType() {
+    	return CONSTRUCTOR;
     }
     
     @Override
@@ -48,7 +55,24 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
           }
       }
       
-      return vf.constructor(reifiedConstructorType, vf.string(getName()), w.done());
+      return vf.constructor(CONSTRUCTOR, vf.string(getName()), w.done());
+    }
+    
+    public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+    	String name = ((IString) symbol.get("name")).getValue();
+		Type adt = store.lookupAbstractDataType(name);
+		
+		if (adt == null) {
+			Type params = symbolsToTupleType((IList) symbol.get("parameters"), store);
+			if (params.isBottom() || params.getArity() == 0) {
+				adt = TF.abstractDataType(store, name);
+			}
+			else {
+				adt = TF.abstractDataTypeFromTuple(store, name, params);
+			}
+		}
+		
+		return adt;
     }
     
     @Override

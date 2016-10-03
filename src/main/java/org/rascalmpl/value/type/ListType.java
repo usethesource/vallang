@@ -16,45 +16,33 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 /*package*/ class ListType extends DefaultSubtypeOfValue {
-  private static final Type listConstructor = TF.constructor(symbolStore, Symbol, "list", Symbol, "symbol");
-  private static final Type relConstructor  = TF.constructor(symbolStore, Symbol, "lrel", TF.listType(Symbol), "symbols");
+	static final Type listConstructor = TF.constructor(symbolStore, Symbol, "list", Symbol, "symbol");
   
   protected final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
-		super(listConstructor);
 		fEltType = eltType;
 	}
 
 	@Override
-  protected IConstructor asSymbol(IValueFactory vf) {
-	  if (isRelation()) {
-	      IListWriter w = vf.listWriter();
-
-	      if (hasFieldNames()) {
-	          for (int i = 0; i < getArity(); i++) {
-	              w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
-	          }
-	      }
-	      else {
-	          if (getFieldTypes().isBottom()) {
-	              return vf.constructor(listConstructor, TF.voidType().asSymbol(vf));
-	          }
-	          for (Type f : getFieldTypes()) {
-	              w.append(f.asSymbol(vf));
-	          }
-	      }
-	  
-	      return vf.constructor(relConstructor, w.done());
-	    }
-	    
-	    // normal list
-	    return vf.constructor(listConstructor, fEltType.asSymbol(vf));
+	protected Type getReifiedConstructorType() {
+		return listConstructor;
+	}
+	
+	public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+		return TF.listType(Type.fromSymbol((IConstructor) symbol.get("symbol")));
+	}
+	
+	@Override
+	protected IConstructor asSymbol(IValueFactory vf) {
+		return vf.constructor(listConstructor, fEltType.asSymbol(vf));
 	}
 	 
 	@Override

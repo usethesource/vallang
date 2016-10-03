@@ -13,23 +13,20 @@
 package org.rascalmpl.value.type;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValueFactory;
 
 /**
  * A type for values that are nodes. All INode have the type NodeType, and all
  * IConstructors have NodeType as a supertype.
  */
 class NodeType extends DefaultSubtypeOfValue {
-  protected static class InstanceKeeper {
-    public final static NodeType sInstance = new NodeType(TF.constructor(symbolStore, Symbol, "node"));
-  }
+	static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "node");
+
+	protected static class InstanceKeeper {
+		public final static NodeType sInstance = new NodeType();
+	}
 
   public static NodeType getInstance() {
     return InstanceKeeper.sInstance;
-  }
-
-  protected NodeType(Type cons) {
-    super(cons);
   }
 
   @Override
@@ -38,8 +35,12 @@ class NodeType extends DefaultSubtypeOfValue {
   }
 
   @Override
-  protected IConstructor asSymbol(IValueFactory vf) {
-    return vf.constructor(reifiedConstructorType);
+  protected Type getReifiedConstructorType() {
+	  return CONSTRUCTOR;
+  }
+  
+  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+	  return TF.nodeType();
   }
   
   /**

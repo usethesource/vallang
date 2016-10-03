@@ -13,19 +13,16 @@
 package org.rascalmpl.value.type;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class IntegerType extends NumberType {
-    private static final class InstanceKeeper {
+    static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "int");
+
+	private static final class InstanceKeeper {
       public final static IntegerType sInstance= new IntegerType();
     }
     
     public static IntegerType getInstance() {
         return InstanceKeeper.sInstance;
-    }
-
-    private IntegerType() {
-    	super(TF.constructor(symbolStore, Symbol, "int"));
     }
 
     /**
@@ -35,12 +32,16 @@ import org.rascalmpl.value.IValueFactory;
     public boolean equals(Object obj) {
         return obj == IntegerType.getInstance();
     }
-
+    
     @Override
-    protected IConstructor asSymbol(IValueFactory vf) {
-      return vf.constructor(reifiedConstructorType);
+    protected Type getReifiedConstructorType() {
+    	return CONSTRUCTOR;
     }
     
+    public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+  	  return TF.integerType();
+    }
+
     @Override
     public int hashCode() {
         return 74843;
