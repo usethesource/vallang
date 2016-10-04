@@ -46,7 +46,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 		super(adt.getName(), adt.getTypeParameters());
-		fName = name.intern();
+		fName = name.intern(); // TODO remove this expensive trick
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
 	}
@@ -99,7 +99,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	  if (o instanceof ConstructorType) {
 	    ConstructorType other = (ConstructorType) o;
 	    
-	    if (fName != other.fName) { // fName is interned
+	    if (fName != other.fName) { // fName is interned, change to equals when intern() is removed
 	      return false;
 	    }
 	    
