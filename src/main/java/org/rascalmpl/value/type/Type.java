@@ -96,7 +96,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * A store for reified type constructors which we use to map back from
    * reified type value to types.
    */
-  private static final Map<Type, Class<? extends Type>> types = new HashMap<>();
+  private static final Map<Type, Method> fromSymbolMethods = new HashMap<>();
   
   protected abstract Type getReifiedConstructorType();
   
@@ -123,9 +123,9 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   protected static void registerType(Type cons, Class<? extends Type> type) {
-	  synchronized (types) {
+	  synchronized (fromSymbolMethods) {
 		  assert fromSymbolMethod(type) != null;
-		  types.put(cons, type);
+		  fromSymbolMethods.put(cons, fromSymbolMethod(type));
 	  } 
   }
   
@@ -161,15 +161,15 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return the type represented by the value
    */
   public static Type fromSymbol(IConstructor symbol) {
-	  synchronized (types) {
-		  Class<? extends Type> typeClass = types.get(symbol.getConstructorType());
+	  synchronized (fromSymbolMethods) {
+		  Method fromSymbolMethod = fromSymbolMethods.get(symbol.getConstructorType());
 
-		  if (typeClass == null) {
+		  if (fromSymbolMethod == null) {
 			  throw new IllegalArgumentException("This is not a registered reified type symbol:" + symbol);
 		  }
 
 		  try {
-			  return (Type) fromSymbolMethod(typeClass).invoke(null /*static*/, symbol);
+			  return (Type) fromSymbolMethod.invoke(null /*static*/, symbol);
 		  } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			  throw new TypeReificationException("Could not create type from symbol:" + symbol, e);
 		  }
