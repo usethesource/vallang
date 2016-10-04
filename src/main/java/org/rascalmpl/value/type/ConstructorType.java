@@ -13,6 +13,8 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -56,12 +58,11 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 		return constructor;
 	}
 	  
-	public static Type fromSymbol(IConstructor symbol, TypeStore store) {
-		Type adt = Type.fromSymbol((IConstructor) symbol.get("adt"));
+	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+		Type adt = Type.fromSymbol((IConstructor) symbol.get("adt"), store, grammar);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		// here we assume the store has the declaration already
-		return store.lookupConstructor(adt, name, symbolsToTupleType(parameters));
+		return TF.constructor(store, adt, name, fromSymbols(parameters, store, grammar));
 	}
 	 
 	@Override

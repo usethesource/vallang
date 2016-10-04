@@ -14,8 +14,11 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValue;
@@ -254,7 +257,6 @@ public class TypeFactory {
    *          the labels of the fields (in respective order)
    * @return a tuple type
    */
-  @Deprecated
   public Type tupleType(Type[] types, String[] labels) {
     checkNull((Object[]) types);
     checkNull((Object[]) labels);
@@ -599,14 +601,14 @@ public class TypeFactory {
    * Reconstruct a type from its symbolic value representation, and if relevant add
    * its declaration to the store (for ADTs, constructors and aliases)
    * 
-   * @param symbol value representation of a type
-   * @param store  store to put declarations in
+   * @param symbol  value representation of a type
+   * @param store   store to put declarations in
+   * @param grammar function to look up definitions for non-terminal types
    * @return a type isomorphic to the given symbolic representation
    */
-  public Type fromSymbol(IConstructor symbol, TypeStore store) {
-	  // TODO!
-     return Type.fromSymbol(symbol);
-  }
+  public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+		return Type.fromSymbol(symbol, store, grammar);
+	}
 
   /**
    * Construct a type parameter, which can later be instantiated.
@@ -655,7 +657,7 @@ public class TypeFactory {
    * @return the type represented by the value
    */
   public Type fromSymbol(IConstructor symbol) {
-	  return Type.fromSymbol(symbol);
+	  return Type.fromSymbol(symbol, new TypeStore(), x -> Collections.emptySet());
   }
 
 }

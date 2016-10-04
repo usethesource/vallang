@@ -14,7 +14,11 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
@@ -51,6 +55,10 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 
 	  return vf.constructor(CONSTRUCTOR, w.done());
 	};
+	
+	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+		return Type.fromSymbols((IList) symbol.get("symbols"), store, grammar);
+	}
 
 	/**
 	 * Creates a tuple type with the given field types and names. Copies the

@@ -12,6 +12,9 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Set;
+import java.util.function.Function;
+
 import org.rascalmpl.value.IConstructor;
 
 /**
@@ -39,7 +42,7 @@ class NodeType extends DefaultSubtypeOfValue {
 	  return CONSTRUCTOR;
   }
   
-  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+  public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  return TF.nodeType();
   }
   

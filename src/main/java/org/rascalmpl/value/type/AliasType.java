@@ -14,6 +14,8 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -72,16 +74,16 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 	    	return CONSTRUCTOR;
 	    }
 	
-	 public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+	 public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 		 String name = ((IString) symbol.get("name")).getValue();
-		 Type aliased = Type.fromSymbol((IConstructor) symbol.get("aliased"));
+		 Type aliased = Type.fromSymbol((IConstructor) symbol.get("aliased"), store, grammar);
 		 IList parameters = (IList) symbol.get("parameters");
 
 		 if (parameters.isEmpty()) {
 			 return TF.aliasType(store, name, aliased);
 		 }
 		 else {
-			 return TF.aliasTypeFromTuple(store, name, aliased,  symbolsToTupleType(parameters));
+			 return TF.aliasTypeFromTuple(store, name, aliased,  fromSymbols(parameters, store, grammar));
 		 }
 	 }
 	 

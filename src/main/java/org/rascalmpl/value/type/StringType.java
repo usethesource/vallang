@@ -12,6 +12,9 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Set;
+import java.util.function.Function;
+
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValueFactory;
 
@@ -82,5 +85,9 @@ import org.rascalmpl.value.IValueFactory;
     @Override
     protected Type glbWithString(Type type) {
       return this;
+    }
+    
+    public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+  	  return TF.rationalType();
     }
 }

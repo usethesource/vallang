@@ -13,6 +13,9 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Set;
+import java.util.function.Function;
+
 import org.rascalmpl.value.IConstructor;
 
 /*package*/ final class RealType extends NumberType {
@@ -27,7 +30,7 @@ import org.rascalmpl.value.IConstructor;
 		return CONSTRUCTOR;
 	}
 
-	public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+	public static Type fromSymbol(IConstructor symbol,TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 		return TF.realType();
 	}
 	

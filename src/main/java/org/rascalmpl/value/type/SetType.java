@@ -14,6 +14,8 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValueFactory;
@@ -34,12 +36,12 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
   }
   
   @Override
-public IConstructor asSymbol(IValueFactory vf) {
+  public IConstructor asSymbol(IValueFactory vf) {
     return vf.constructor(setConstructor, fEltType.asSymbol(vf));
   }
   
-  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
-	  return TF.listType(Type.fromSymbol((IConstructor) symbol.get("symbol")));
+  public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+	  return TF.listType(Type.fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
   }
   
   @Override

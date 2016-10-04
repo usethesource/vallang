@@ -12,6 +12,8 @@
 package org.rascalmpl.value.type;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -58,17 +60,22 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
       return vf.constructor(CONSTRUCTOR, vf.string(getName()), w.done());
     }
     
-    public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+    public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
     	String name = ((IString) symbol.get("name")).getValue();
 		Type adt = store.lookupAbstractDataType(name);
 		
 		if (adt == null) {
-			Type params = symbolsToTupleType((IList) symbol.get("parameters"));
+			Type params = fromSymbols((IList) symbol.get("parameters"), store, grammar);
 			if (params.isBottom() || params.getArity() == 0) {
 				adt = TF.abstractDataType(store, name);
 			}
 			else {
 				adt = TF.abstractDataTypeFromTuple(store, name, params);
+			}
+			
+			// explore the rest of the definition and add it to the store
+			for (IConstructor t : grammar.apply(symbol)) {
+				Type.fromSymbol(t, store, grammar);
 			}
 		}
 		

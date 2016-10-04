@@ -12,6 +12,9 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Set;
+import java.util.function.Function;
+
 import org.rascalmpl.value.IConstructor;
 
 /*package*/ final class BoolType extends DefaultSubtypeOfValue {
@@ -25,7 +28,7 @@ import org.rascalmpl.value.IConstructor;
 	  return InstanceKeeper.sInstance;
   }
 
-  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+  public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  return TF.boolType();
   }
   

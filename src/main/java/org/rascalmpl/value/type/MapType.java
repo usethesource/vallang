@@ -14,6 +14,8 @@
 package org.rascalmpl.value.type;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValueFactory;
@@ -51,7 +53,7 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
       }
     }
     
-    public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+    public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
     	IConstructor from = (IConstructor) symbol.get("from");
 		IConstructor to = (IConstructor) symbol.get("to");
 		String fromLabel = null;
@@ -66,10 +68,10 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 			to = (IConstructor) to.get("symbol");
 		}
 		if (fromLabel != null && toLabel != null) {
-			return TF.mapType(Type.fromSymbol(from), fromLabel, Type.fromSymbol(to), toLabel);
+			return TF.mapType(Type.fromSymbol(from, store, grammar), fromLabel, Type.fromSymbol(to, store, grammar), toLabel);
 		}
 		else {
-			return TF.mapType(Type.fromSymbol(from), Type.fromSymbol(to));
+			return TF.mapType(Type.fromSymbol(from, store, grammar), Type.fromSymbol(to, store, grammar));
 		}
 	}
     

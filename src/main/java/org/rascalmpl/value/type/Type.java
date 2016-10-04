@@ -17,6 +17,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -129,7 +131,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	  } 
   }
   
-  protected static Type symbolsToTupleType(IList symbols) {
+  /**
+   * Builds a tuple type from a list of reified type symbols (see fromSymbol)
+   */
+  public static Type fromSymbols(IList symbols, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  boolean allLabels = true;
 	  Type[] types = new Type[symbols.length()];
 	  String[] labels = new String[symbols.length()];
@@ -144,7 +149,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 			  allLabels = false;
 		  }
 
-		  types[i] = fromSymbol(elem);
+		  types[i] = fromSymbol(elem, store, grammar);
 	  }
 
 	  if (allLabels) {
@@ -160,7 +165,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param symbol is a constructor generated earlier by Type.asSymbol
    * @return the type represented by the value
    */
-  public static Type fromSymbol(IConstructor symbol) {
+  public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  synchronized (fromSymbolMethods) {
 		  Method fromSymbolMethod = fromSymbolMethods.get(symbol.getConstructorType());
 
@@ -169,7 +174,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		  }
 
 		  try {
-			  return (Type) fromSymbolMethod.invoke(null /*static*/, symbol);
+			  return (Type) fromSymbolMethod.invoke(null /*static*/, symbol, store, grammar);
 		  } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			  throw new TypeReificationException("Could not create type from symbol:" + symbol, e);
 		  }
@@ -178,7 +183,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   private static Method fromSymbolMethod(Class<? extends Type> typeClass) {
 	  try {
-		  return typeClass.getMethod("fromSymbol", IConstructor.class);
+		  return typeClass.getMethod("fromSymbol", IConstructor.class, TypeStore.class, Function.class);
 	  } catch (NoSuchMethodException e) {
 		  throw new TypeReificationException("fromSymbol method is missing on " + typeClass, e);
 	  }

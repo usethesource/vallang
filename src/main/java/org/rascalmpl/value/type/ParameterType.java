@@ -12,6 +12,8 @@
 package org.rascalmpl.value.type;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IString;
@@ -45,8 +47,8 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 		return CONSTRUCTOR;
 	}
 	
-	public static Type fromSymbol(IConstructor symbol, TypeStore store) {
-		return TF.parameterType(((IString) symbol.get("name")).getValue(), Type.fromSymbol((IConstructor) symbol.get("bound")));
+	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+		return TF.parameterType(((IString) symbol.get("name")).getValue(), Type.fromSymbol((IConstructor) symbol.get("bound"), store, grammar));
 	}
 	 
 	@Override

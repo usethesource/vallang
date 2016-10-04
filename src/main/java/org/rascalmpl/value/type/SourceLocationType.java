@@ -12,6 +12,11 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Set;
+import java.util.function.Function;
+
+import org.rascalmpl.value.IConstructor;
+
 /*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
     static final Type CONSTRUCTOR = declareTypeSymbol("loc");
 
@@ -79,5 +84,9 @@ package org.rascalmpl.value.type;
     @Override
     protected Type glbWithSourceLocation(Type type) {
       return this;
+    }
+    
+    public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+  	  return TF.rationalType();
     }
 }
