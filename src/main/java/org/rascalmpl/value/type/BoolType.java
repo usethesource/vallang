@@ -15,7 +15,7 @@ package org.rascalmpl.value.type;
 import org.rascalmpl.value.IConstructor;
 
 /*package*/ final class BoolType extends DefaultSubtypeOfValue {
-  static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "bool");
+  static final Type CONSTRUCTOR = declareTypeSymbol("bool");
 
   private final static class InstanceKeeper {
     public final static BoolType sInstance = new BoolType();

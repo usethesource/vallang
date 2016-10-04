@@ -25,7 +25,7 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     private final Type fValueType;
     private final String fKeyLabel;
     private final String fValueLabel;
-    private final static Type constructor = TF.constructor(symbolStore, Symbol, "map", Symbol, "from", Symbol, "to");
+    private final static Type constructor = declareTypeSymbol("map", symbolType(), "from", symbolType(), "to");
     
     /*package*/ MapType(Type keyType, Type valueType) {
     	fKeyType= keyType;

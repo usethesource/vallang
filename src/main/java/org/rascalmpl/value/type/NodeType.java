@@ -19,7 +19,7 @@ import org.rascalmpl.value.IConstructor;
  * IConstructors have NodeType as a supertype.
  */
 class NodeType extends DefaultSubtypeOfValue {
-	static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "node");
+	static final Type CONSTRUCTOR = declareTypeSymbol("node");
 
 	protected static class InstanceKeeper {
 		public final static NodeType sInstance = new NodeType();

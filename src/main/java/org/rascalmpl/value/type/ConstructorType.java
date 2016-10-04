@@ -42,7 +42,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
-	private static final Type constructor = TF.constructor(symbolStore, Symbol, "cons", Symbol, "adt", TF.stringType(), "name", TF.listType(Symbol), "parameters");
+	private static final Type constructor = declareTypeSymbol("cons", symbolType(), "adt", TF.stringType(), "name", TF.listType(symbolType()), "parameters");
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 		super(adt.getName(), adt.getTypeParameters());
@@ -61,7 +61,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
 		// here we assume the store has the declaration already
-		return store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
+		return store.lookupConstructor(adt, name, symbolsToTupleType(parameters));
 	}
 	 
 	@Override

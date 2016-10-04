@@ -16,7 +16,7 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValueFactory;
 
 /* package */class ValueType extends Type {
-	static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "value");
+	static final Type CONSTRUCTOR = declareTypeSymbol("value");
 
 	protected static class InstanceHolder {
 		public static final ValueType sInstance = new ValueType();

@@ -15,7 +15,7 @@ package org.rascalmpl.value.type;
 import org.rascalmpl.value.IConstructor;
 
 /*package*/ final class IntegerType extends NumberType {
-    static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "int");
+    static final Type CONSTRUCTOR = declareTypeSymbol("int");
 
 	private static final class InstanceKeeper {
       public final static IntegerType sInstance= new IntegerType();

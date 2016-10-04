@@ -21,7 +21,7 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
-	static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "tuple", TF.listType(Symbol), "symbols");
+	static final Type CONSTRUCTOR = declareTypeSymbol("tuple", TF.listType(symbolType()), "symbols");
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
 	protected final String[] fFieldNames;
 	protected int fHashcode = -1;

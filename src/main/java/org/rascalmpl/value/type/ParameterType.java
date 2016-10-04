@@ -28,7 +28,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 /*package*/ final class ParameterType extends Type {
 	private final String fName;
 	private final Type fBound;
-	static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "parameter", TF.stringType() , "name", Symbol, "bound");
+	static final Type CONSTRUCTOR = declareTypeSymbol("parameter", TF.stringType() , "name", symbolType(), "bound");
 	
 	/* package */ ParameterType(String name, Type bound) {
 		fName = name.intern();

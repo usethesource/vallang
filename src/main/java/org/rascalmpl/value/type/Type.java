@@ -48,9 +48,9 @@ import org.rascalmpl.value.exceptions.TypeReificationException;
  */
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
-  protected static final TypeStore symbolStore = new TypeStore();
-  protected static final Type Symbol = TF.abstractDataType(symbolStore, "Symbol");
-  protected static final Type Symbol_Label = TF.constructor(symbolStore, Symbol, "label", TF.stringType(), "name", Symbol, "symbol");
+  private static final TypeStore symbolStore = new TypeStore();
+  private static final Type Symbol = TF.abstractDataType(symbolStore, "Symbol");
+  private static final Type Symbol_Label = TF.constructor(symbolStore, Symbol, "label", TF.stringType(), "name", Symbol, "symbol");
   
   protected static boolean isLabel(IConstructor symbol) {
 	  return symbol.getConstructorType() == Symbol_Label;
@@ -63,6 +63,16 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static IConstructor getLabeledSymbol(IConstructor symbol) {
 	  return (IConstructor) symbol.get("symbol");
   }
+  
+  protected static Type declareTypeSymbol(String name, Object... args) {
+	  return TF.constructor(symbolStore, symbolType(), name, args);
+  }
+  
+  protected static Type symbolType() {
+	  return TF.abstractDataType(symbolStore, "Symbol");
+  }
+  
+  
   
   // these constants are cached to avoid having to compute their hash-codes
   // for canonicalization all the time. The types are used to implement predicate
@@ -119,7 +129,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	  } 
   }
   
-  protected static Type symbolsToTupleType(IList symbols, TypeStore store) {
+  protected static Type symbolsToTupleType(IList symbols) {
 	  boolean allLabels = true;
 	  Type[] types = new Type[symbols.length()];
 	  String[] labels = new String[symbols.length()];

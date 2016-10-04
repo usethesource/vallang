@@ -20,7 +20,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 /*package*/class SetType extends DefaultSubtypeOfValue {
-  static final Type setConstructor = TF.constructor(symbolStore, Symbol, "set", Symbol, "symbol");
+  static final Type setConstructor = declareTypeSymbol("set", symbolType(), "symbol");
   
   protected final Type fEltType;
 

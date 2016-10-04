@@ -23,7 +23,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 /*package*/ class ListType extends DefaultSubtypeOfValue {
-	static final Type listConstructor = TF.constructor(symbolStore, Symbol, "list", Symbol, "symbol");
+	static final Type listConstructor = declareTypeSymbol("list", symbolType(), "symbol");
   
   protected final Type fEltType;
 	

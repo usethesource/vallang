@@ -17,7 +17,7 @@ import org.rascalmpl.value.IConstructor;
  *
  */
 public class DateTimeType extends DefaultSubtypeOfValue {
-   static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "datetime");
+   static final Type CONSTRUCTOR = declareTypeSymbol("datetime");
 
    private static final class InstanceKeeper {
     public final static DateTimeType sInstance= new DateTimeType();

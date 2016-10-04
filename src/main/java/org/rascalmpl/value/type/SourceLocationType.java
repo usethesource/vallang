@@ -13,7 +13,7 @@
 package org.rascalmpl.value.type;
 
 /*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
-    static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "loc");
+    static final Type CONSTRUCTOR = declareTypeSymbol("loc");
 
 	private static final class InstanceKeeper {
       public final static SourceLocationType sInstance= new SourceLocationType();

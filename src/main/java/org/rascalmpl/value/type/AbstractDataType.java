@@ -30,7 +30,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
  * @see ConstructorType
  */
 /* package */ class AbstractDataType extends NodeType {
-    /*package*/ static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "adt", TF.stringType(), "name", TF.listType(Symbol), "parameters");
+    /*package*/ static final Type CONSTRUCTOR = declareTypeSymbol("adt", TF.stringType(), "name", TF.listType(symbolType()), "parameters");
 	private final String fName;
     private final Type fParameters;
 
@@ -63,7 +63,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 		Type adt = store.lookupAbstractDataType(name);
 		
 		if (adt == null) {
-			Type params = symbolsToTupleType((IList) symbol.get("parameters"), store);
+			Type params = symbolsToTupleType((IList) symbol.get("parameters"));
 			if (params.isBottom() || params.getArity() == 0) {
 				adt = TF.abstractDataType(store, name);
 			}

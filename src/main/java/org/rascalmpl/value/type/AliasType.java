@@ -35,7 +35,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
  *        refer to the AliasType.
  */
 /* package */ final class AliasType extends Type {
-	/*package*/ static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "alias", TF.stringType(), "name", TF.listType(Symbol), "parameters", Symbol, "aliased");
+	/*package*/ static final Type CONSTRUCTOR = declareTypeSymbol("alias", TF.stringType(), "name", TF.listType(symbolType()), "parameters", symbolType(), "aliased");
 	private final String fName;
 	private final Type fAliased;
 	private final Type fParameters;
@@ -81,7 +81,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 			 return TF.aliasType(store, name, aliased);
 		 }
 		 else {
-			 return TF.aliasTypeFromTuple(store, name, aliased,  symbolsToTupleType(parameters, store));
+			 return TF.aliasTypeFromTuple(store, name, aliased,  symbolsToTupleType(parameters));
 		 }
 	 }
 	 

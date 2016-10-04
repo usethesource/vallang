@@ -16,7 +16,7 @@ package org.rascalmpl.value.type;
 import org.rascalmpl.value.IConstructor;
 
 /*package*/ final class RealType extends NumberType {
-	static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "real");
+	static final Type CONSTRUCTOR = declareTypeSymbol("real");
 
 	private final static class InstanceKeeper {
 		public final static RealType sInstance = new RealType();

@@ -27,7 +27,7 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
  * used to elegantly initialize computations that involve least upper bounds.
  */
 /* package */final class VoidType extends Type {
-  static final Type CONSTRUCTOR = TF.constructor(symbolStore, Symbol, "void");
+  static final Type CONSTRUCTOR = declareTypeSymbol("void");
 
   private static final class InstanceKeeper {
     public final static VoidType sInstance = new VoidType();
