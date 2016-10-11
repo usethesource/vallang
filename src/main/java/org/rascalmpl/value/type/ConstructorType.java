@@ -19,6 +19,9 @@ import java.util.function.Function;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetAlgebra;
+import org.rascalmpl.value.ISetRelation;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -75,41 +78,39 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	}
 	 
 	@Override
-	public IConstructor asSymbol(IValueFactory vf) {
+	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 	  IListWriter w = vf.listWriter();
 
       if (hasFieldNames()) {
           for (int i = 0; i < getArity(); i++) {
-              w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
+              w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf, store, grammar, done), getFieldName(i)));
           }
       }
       else {
           for (Type field : getFieldTypes()) {
-              w.append(field.asSymbol(vf));
+              w.append(field.asSymbol(vf, store, grammar, done));
           }
       }
       
-      return vf.constructor(constructor,labelSymbol(vf, getAbstractDataType().asSymbol(vf), getName()), w.done());
+      IConstructor adt = getAbstractDataType().asSymbol(vf, store, grammar, done);
+      IConstructor cons = vf.constructor(constructor,labelSymbol(vf, adt, getName()), w.done());
+
+      return cons;
 	}
 	
 	@Override
-	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
-		IConstructor adt = getAbstractDataType().asSymbol(vf);
-		Set<IConstructor> defs = grammar.get(adt);
-		
-		if (defs == null) {
-			getAbstractDataType().asProductions(vf, store, grammar);
-		}
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+		IConstructor adt = getAbstractDataType().asSymbol(vf, store, grammar, done);
 		
 		IListWriter w = vf.listWriter();
 		if (hasFieldNames()) {
 			for (int i = 0; i < getArity(); i++) {
-				w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
+				w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf, store, grammar, done), getFieldName(i)));
 			}
 		}
 		else {
 			for (Type field : getFieldTypes()) {
-				w.append(field.asSymbol(vf));
+				w.append(field.asSymbol(vf, store, grammar, done));
 			}
 		}
 		
@@ -117,10 +118,12 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 		Map<String,Type> keywordParameters = store.getKeywordParameters(this);
 				
 		for (String label : keywordParameters.keySet()) {
-			kwTypes.insert(labelSymbol(vf, keywordParameters.get(label).asSymbol(vf), label));
+			kwTypes.insert(labelSymbol(vf, keywordParameters.get(label).asSymbol(vf, store, grammar, done), label));
 		}
 		
-		defs.add(vf.constructor(production, labelSymbol(vf, adt, getName()), w.done(), kwTypes.done(), vf.set()));
+		IConstructor cons = vf.constructor(production, labelSymbol(vf, adt, getName()), w.done(), kwTypes.done(), vf.set());
+		
+		grammar.insert(vf.tuple(adt, cons));
 	}
 
   @Override

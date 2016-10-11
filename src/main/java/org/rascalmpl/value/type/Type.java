@@ -22,6 +22,7 @@ import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -357,12 +358,17 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   /**
-   * Represent this type as a value of the abstract data-type "Symbol"
+   * Represent this type as a value of the abstract data-type "Symbol". As a side-effect
+   * it will also add Production values to the grammar map, including all necessary productions
+   * to build values of the receiver type, transitively.
    * 
    * @param  vf valuefactory to use 
+   * @param store store to lookup additional necessary definitions in to store in the grammar
+   * @param grammar map to store production values in as a side-effect
+   * @param done a working set to store data-types which have been explored already to avoid infinite recursion
    * @return a value to uniquely represent this type.
    */
-  public abstract IConstructor asSymbol(IValueFactory vf);
+  public abstract IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
 
   /**
    * Map the given typestore to a set of production values, with only definitions
@@ -370,8 +376,9 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * 
    * @param  vf valuefactory to use 
    * @param  store typestore which contains source definitions
+   * @param done a working set to store data-types which have been explored already to avoid infinite recursion
    */
-  public abstract void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor,Set<IConstructor>> grammar);
+  protected abstract void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
 
   
   /**

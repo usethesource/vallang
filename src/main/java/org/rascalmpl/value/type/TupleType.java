@@ -20,6 +20,7 @@ import java.util.function.Function;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
@@ -40,17 +41,17 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 		fFieldNames = null;
 	}
 	
-	public IConstructor asSymbol(org.rascalmpl.value.IValueFactory vf) {
+	public IConstructor asSymbol(org.rascalmpl.value.IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 	  IListWriter w = vf.listWriter();
 
 	  if (hasFieldNames()) {
 	    for (int i = 0; i < getArity(); i++) {
-	      w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
+	      w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf, store, grammar, done), getFieldName(i)));
 	    }
 	  }
 	  else {
 	    for (Type f : this) {
-	      w.append(f.asSymbol(vf));
+	      w.append(f.asSymbol(vf, store, grammar, done));
 	    }
 	  }
 
@@ -58,9 +59,9 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 	}
 	
 	@Override
-	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 		for (Type f : fFieldTypes) {
-			f.asProductions(vf, store, grammar);
+			f.asProductions(vf, store, grammar, done);
 		}
 	}
 	

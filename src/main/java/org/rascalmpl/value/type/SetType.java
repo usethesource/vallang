@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
@@ -36,8 +37,8 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
   }
   
   @Override
-  public IConstructor asSymbol(IValueFactory vf) {
-    return vf.constructor(setConstructor, fEltType.asSymbol(vf));
+  public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+    return vf.constructor(setConstructor, fEltType.asSymbol(vf, store, grammar, done));
   }
   
   public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
@@ -45,8 +46,8 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
   }
   
   @Override
-  public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
-  	getElementType().asProductions(vf, store, grammar);
+protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+  	getElementType().asProductions(vf, store, grammar, done);
   }
   
   @Override

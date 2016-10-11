@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
@@ -44,12 +45,12 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     }
     
     @Override
-	public IConstructor asSymbol(IValueFactory vf) {
+	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
       if (hasFieldNames()) {
-        return vf.constructor(constructor, labelSymbol(vf, getKeyType().asSymbol(vf), getKeyLabel()),  labelSymbol(vf, getValueType().asSymbol(vf), getValueLabel()));
+        return vf.constructor(constructor, labelSymbol(vf, getKeyType().asSymbol(vf, store, grammar, done), getKeyLabel()),  labelSymbol(vf, getValueType().asSymbol(vf, store, grammar, done), getValueLabel()));
       }
       else {
-        return vf.constructor(constructor, getKeyType().asSymbol(vf), getValueType().asSymbol(vf));
+        return vf.constructor(constructor, getKeyType().asSymbol(vf, store, grammar, done), getValueType().asSymbol(vf, store, grammar, done));
       }
     }
     
@@ -76,9 +77,9 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 	}
     
     @Override
-    public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
-    	getKeyType().asProductions(vf, store, grammar);
-    	getValueType().asProductions(vf, store, grammar);
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+    	getKeyType().asProductions(vf, store, grammar, done);
+    	getValueType().asProductions(vf, store, grammar, done);
     }
     
     

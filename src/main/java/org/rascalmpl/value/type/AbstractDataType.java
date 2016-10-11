@@ -11,7 +11,6 @@
 
 package org.rascalmpl.value.type;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -19,6 +18,7 @@ import java.util.function.Function;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
@@ -48,30 +48,29 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
     }
     
     @Override
-	public IConstructor asSymbol(IValueFactory vf) {
+	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
       IListWriter w = vf.listWriter();
       Type params = getTypeParameters();
       
       if (params.getArity() > 0) {
           for (Type param : params) {
-              w.append(param.asSymbol(vf));
+              w.append(param.asSymbol(vf, store, grammar, done));
           }
       }
       
-      return vf.constructor(CONSTRUCTOR, vf.string(getName()), w.done());
+      IConstructor res = vf.constructor(CONSTRUCTOR, vf.string(getName()), w.done());
+      
+      if (!done.contains(res)) {
+    	  done.add(res);
+    	  asProductions(vf, store, grammar, done);
+      }
+      
+      return res;
     }
     
     @Override
-    public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
-    	IConstructor sym = asSymbol(vf);
-    	
-    	if (grammar.get(sym) == null) {
-    		grammar.put(sym, Collections.emptySet());
-    	}
-    	
-    	if (grammar.get(sym).size() == 0) {
-    		store.lookupAlternatives(this).stream().forEach(x -> x.asProductions(vf, store, grammar));
-    	}
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+    	store.lookupAlternatives(this).stream().forEach(x -> x.asProductions(vf, store, grammar, done));
     }
     
     public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {

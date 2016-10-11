@@ -13,11 +13,11 @@
 
 package org.rascalmpl.value.type;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class RealType extends NumberType {
@@ -37,7 +37,7 @@ import org.rascalmpl.value.IValueFactory;
 	}
 	
 	@Override
-	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 		// TODO empty on purpose, pull up
 	}
 	 

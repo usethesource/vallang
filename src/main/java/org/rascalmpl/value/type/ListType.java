@@ -20,6 +20,7 @@ import java.util.function.Function;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
@@ -43,13 +44,13 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
-		getElementType().asProductions(vf, store, grammar);
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+		getElementType().asProductions(vf, store, grammar, done);
 	}
 	
 	@Override
-	public IConstructor asSymbol(IValueFactory vf) {
-		return vf.constructor(listConstructor, fEltType.asSymbol(vf));
+	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+		return vf.constructor(listConstructor, fEltType.asSymbol(vf, store, grammar, done));
 	}
 	 
 	@Override

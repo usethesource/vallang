@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 
@@ -45,12 +46,12 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
 	}
   
   @Override
-  public IConstructor asSymbol(IValueFactory vf) {
+  public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 	  return vf.constructor(CONSTRUCTOR);
   }
   
   @Override
-  public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
   	// TODO empty on purpose, pull up
   }
 

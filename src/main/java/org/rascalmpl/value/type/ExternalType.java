@@ -11,8 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.value.type;
 
+import java.util.Set;
+
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 
 /**
@@ -25,7 +28,7 @@ import org.rascalmpl.value.IValueFactory;
 public abstract class ExternalType extends DefaultSubtypeOfValue {
 	
 	@Override
-	public abstract IConstructor asSymbol(IValueFactory vf);
+	public abstract IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
 
 	/**
 	 * Provide the type of the values produced by {@link IExternalValue}.encodeAsConstructor()
