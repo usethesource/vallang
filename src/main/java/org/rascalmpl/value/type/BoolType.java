@@ -12,10 +12,12 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class BoolType extends DefaultSubtypeOfValue {
   static final Type CONSTRUCTOR = declareTypeSymbol("bool");
@@ -30,6 +32,11 @@ import org.rascalmpl.value.IConstructor;
 
   public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  return TF.boolType();
+  }
+  
+  @Override
+  public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+	  // empty TODO pull up empty asProduction
   }
   
 	@Override

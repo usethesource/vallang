@@ -58,20 +58,28 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	  return symbol.getConstructorType() == Symbol_Label;
   }
   
-  protected static String getLabel(IConstructor symbol) {
-	  return ((IString) symbol.get("label")).getValue();
+  protected static String getLabel(IValue symbol) {
+	  return ((IString) ((IConstructor) symbol).get("label")).getValue();
   }
   
-  protected static IConstructor getLabeledSymbol(IConstructor symbol) {
-	  return (IConstructor) symbol.get("symbol");
+  protected static IConstructor getLabeledSymbol(IValue symbol) {
+	  return (IConstructor) ((IConstructor) symbol).get("symbol");
   }
   
   protected static Type declareTypeSymbol(String name, Object... args) {
 	  return TF.constructor(symbolStore, symbolType(), name, args);
   }
   
+  protected static Type declareTypeProduction(String name, Object... args) {
+	  return TF.constructor(symbolStore, productionType(), name, args);
+  }
+  
   protected static Type symbolType() {
 	  return TF.abstractDataType(symbolStore, "Symbol");
+  }
+  
+  protected static Type productionType() {
+	  return TF.abstractDataType(symbolStore, "Production");
   }
   
   
@@ -161,8 +169,12 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   /**
-   * Converts a value representing a type back to a type. 
+   * Converts a value representing a type back to a type and as a side-effect declares all necessary
+   * data-types and constructors in the provided typestore.
+   * 
    * @param symbol is a constructor generated earlier by Type.asSymbol
+   * @param store  is the typestore to store ADTs, constructors and kw fields in.
+   * @param grammar is a lookup function to produce definitions for the types to store in the typestore
    * @return the type represented by the value
    */
   public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
@@ -345,12 +357,23 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   /**
-   * Represent this type as a value of the abstract data-type "Symbol".
-   * @param vf valuefactory to use 
+   * Represent this type as a value of the abstract data-type "Symbol"
+   * 
+   * @param  vf valuefactory to use 
    * @return a value to uniquely represent this type.
    */
   public abstract IConstructor asSymbol(IValueFactory vf);
 
+  /**
+   * Map the given typestore to a set of production values, with only definitions
+   * reachable from the receiver type
+   * 
+   * @param  vf valuefactory to use 
+   * @param  store typestore which contains source definitions
+   */
+  public abstract void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor,Set<IConstructor>> grammar);
+
+  
   /**
    * Compose two binary tuples or binary relation types.
    * 

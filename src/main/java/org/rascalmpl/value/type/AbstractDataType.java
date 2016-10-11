@@ -11,6 +11,7 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -60,23 +61,39 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
       return vf.constructor(CONSTRUCTOR, vf.string(getName()), w.done());
     }
     
+    @Override
+    public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+    	IConstructor sym = asSymbol(vf);
+    	
+    	if (grammar.get(sym) == null) {
+    		grammar.put(sym, Collections.emptySet());
+    	}
+    	
+    	if (grammar.get(sym).size() == 0) {
+    		store.lookupAlternatives(this).stream().forEach(x -> x.asProductions(vf, store, grammar));
+    	}
+    }
+    
     public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
     	String name = ((IString) symbol.get("name")).getValue();
 		Type adt = store.lookupAbstractDataType(name);
 		
-		if (adt == null) {
-			Type params = fromSymbols((IList) symbol.get("parameters"), store, grammar);
-			if (params.isBottom() || params.getArity() == 0) {
-				adt = TF.abstractDataType(store, name);
-			}
-			else {
-				adt = TF.abstractDataTypeFromTuple(store, name, params);
-			}
-			
-			// explore the rest of the definition and add it to the store
-			for (IConstructor t : grammar.apply(symbol)) {
-				Type.fromSymbol(t, store, grammar);
-			}
+		if (adt != null) {
+			// this stops infinite recursions while exploring the type store.
+			return adt;
+		}
+		
+		Type params = fromSymbols((IList) symbol.get("parameters"), store, grammar);
+		if (params.isBottom() || params.getArity() == 0) {
+			adt = TF.abstractDataType(store, name);
+		}
+		else {
+			adt = TF.abstractDataTypeFromTuple(store, name, params);
+		}
+
+		// explore the rest of the definition and add it to the store
+		for (IConstructor t : grammar.apply(symbol)) {
+			Type.fromSymbol(t, store, grammar);
 		}
 		
 		return adt;

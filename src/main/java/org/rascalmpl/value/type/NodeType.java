@@ -12,10 +12,12 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /**
  * A type for values that are nodes. All INode have the type NodeType, and all
@@ -44,6 +46,11 @@ class NodeType extends DefaultSubtypeOfValue {
   
   public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  return TF.nodeType();
+  }
+  
+  @Override
+  public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+  	// TODO empty on purpose, pull up
   }
   
   /**

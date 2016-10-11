@@ -12,10 +12,12 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class RationalType extends NumberType {
   static final Type CONSTRUCTOR = declareTypeSymbol("rat");
@@ -36,6 +38,11 @@ import org.rascalmpl.value.IConstructor;
   
     public static RationalType getInstance() {
         return InstanceKeeper.sInstance;
+    }
+    
+    @Override
+    public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+    	// TODO empty on purpose, pull up
     }
 
     /**

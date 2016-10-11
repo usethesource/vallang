@@ -62,6 +62,11 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 	}
 	
 	@Override
+	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+		getBound().asProductions(vf, store, grammar);
+	}
+	
+	@Override
 	public String getName() {
 		return fName;
 	}

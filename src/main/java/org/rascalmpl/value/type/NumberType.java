@@ -12,7 +12,12 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /**
  * A type for values that are either ints or reals
@@ -30,10 +35,15 @@ import org.rascalmpl.value.IConstructor;
 	  return CONSTRUCTOR;
   }
   
-  public static Type fromSymbol(IConstructor symbol, TypeStore store) {
+  public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  return TF.numberType();
   }
 
+  @Override
+  public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+  	// TODO empty on purpose, pull up
+  }
+  
   @Override
   public String toString() {
     return "num";

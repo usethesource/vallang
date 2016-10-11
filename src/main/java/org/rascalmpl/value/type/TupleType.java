@@ -20,6 +20,7 @@ import java.util.function.Function;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
@@ -39,7 +40,7 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 		fFieldNames = null;
 	}
 	
-	public org.rascalmpl.value.IConstructor asSymbol(org.rascalmpl.value.IValueFactory vf) {
+	public IConstructor asSymbol(org.rascalmpl.value.IValueFactory vf) {
 	  IListWriter w = vf.listWriter();
 
 	  if (hasFieldNames()) {
@@ -54,7 +55,14 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 	  }
 
 	  return vf.constructor(CONSTRUCTOR, w.done());
-	};
+	}
+	
+	@Override
+	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+		for (Type f : fFieldTypes) {
+			f.asProductions(vf, store, grammar);
+		}
+	}
 	
 	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 		return Type.fromSymbols((IList) symbol.get("symbols"), store, grammar);

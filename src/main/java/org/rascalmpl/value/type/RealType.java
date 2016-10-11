@@ -13,10 +13,12 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class RealType extends NumberType {
 	static final Type CONSTRUCTOR = declareTypeSymbol("real");
@@ -34,6 +36,11 @@ import org.rascalmpl.value.IConstructor;
 		return TF.realType();
 	}
 	
+	@Override
+	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+		// TODO empty on purpose, pull up
+	}
+	 
 	public static RealType getInstance() {
 		return InstanceKeeper.sInstance;
 	}

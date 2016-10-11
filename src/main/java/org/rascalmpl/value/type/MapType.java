@@ -75,6 +75,12 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 		}
 	}
     
+    @Override
+    public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+    	getKeyType().asProductions(vf, store, grammar);
+    	getValueType().asProductions(vf, store, grammar);
+    }
+    
     
     @Override
     protected Type getReifiedConstructorType() {

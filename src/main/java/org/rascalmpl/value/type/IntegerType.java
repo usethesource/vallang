@@ -12,10 +12,12 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 
 /*package*/ final class IntegerType extends NumberType {
     static final Type CONSTRUCTOR = declareTypeSymbol("int");
@@ -45,6 +47,11 @@ import org.rascalmpl.value.IConstructor;
   	  return TF.integerType();
     }
 
+    @Override
+    public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+    	// TODO empty on purpose, pull up
+    }
+    
     @Override
     public int hashCode() {
         return 74843;

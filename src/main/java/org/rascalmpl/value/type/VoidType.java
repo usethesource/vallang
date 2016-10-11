@@ -48,6 +48,11 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
   public IConstructor asSymbol(IValueFactory vf) {
 	  return vf.constructor(CONSTRUCTOR);
   }
+  
+  @Override
+  public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+  	// TODO empty on purpose, pull up
+  }
 
   public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  return TF.voidType();

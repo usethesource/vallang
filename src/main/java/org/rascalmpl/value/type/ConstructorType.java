@@ -20,6 +20,7 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
@@ -45,6 +46,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	private final Type fADT;
 	private final String fName;
 	private static final Type constructor = declareTypeSymbol("cons", symbolType(), "adt", TF.stringType(), "name", TF.listType(symbolType()), "parameters");
+	private static final Type production = declareTypeProduction("cons", symbolType(), "def", TF.listType(symbolType()), "symbols", TF.listType(symbolType()), "kwTypes");
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 		super(adt.getName(), adt.getTypeParameters());
@@ -62,7 +64,14 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 		Type adt = Type.fromSymbol((IConstructor) symbol.get("adt"), store, grammar);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		return TF.constructor(store, adt, name, fromSymbols(parameters, store, grammar));
+		Type cons = TF.constructor(store, adt, name, fromSymbols(parameters, store, grammar));
+		IList kwtypes = (IList) symbol.get("kwTypes");
+		
+		for (IValue kwType : kwtypes) {
+			store.declareKeywordParameter(cons, getLabel(kwType), Type.fromSymbol(getLabeledSymbol(kwType), store, grammar));
+		}
+		
+		return cons;
 	}
 	 
 	@Override
@@ -81,6 +90,37 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
       }
       
       return vf.constructor(constructor,labelSymbol(vf, getAbstractDataType().asSymbol(vf), getName()), w.done());
+	}
+	
+	@Override
+	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+		IConstructor adt = getAbstractDataType().asSymbol(vf);
+		Set<IConstructor> defs = grammar.get(adt);
+		
+		if (defs == null) {
+			getAbstractDataType().asProductions(vf, store, grammar);
+		}
+		
+		IListWriter w = vf.listWriter();
+		if (hasFieldNames()) {
+			for (int i = 0; i < getArity(); i++) {
+				w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf), getFieldName(i)));
+			}
+		}
+		else {
+			for (Type field : getFieldTypes()) {
+				w.append(field.asSymbol(vf));
+			}
+		}
+		
+		IListWriter kwTypes = vf.listWriter();
+		Map<String,Type> keywordParameters = store.getKeywordParameters(this);
+				
+		for (String label : keywordParameters.keySet()) {
+			kwTypes.insert(labelSymbol(vf, keywordParameters.get(label).asSymbol(vf), label));
+		}
+		
+		defs.add(vf.constructor(production, labelSymbol(vf, adt, getName()), w.done(), kwTypes.done(), vf.set()));
 	}
 
   @Override

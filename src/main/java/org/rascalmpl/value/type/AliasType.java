@@ -54,6 +54,11 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 		fParameters = parameters;
 	}
 
+	@Override
+	public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+		fAliased.asProductions(vf, store, grammar);
+		fParameters.asProductions(vf, store, grammar);
+	}
 	
 	@Override
 	public IConstructor asSymbol(IValueFactory vf) {

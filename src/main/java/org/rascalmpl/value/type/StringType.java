@@ -12,6 +12,7 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -89,5 +90,10 @@ import org.rascalmpl.value.IValueFactory;
     
     public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
   	  return TF.rationalType();
+    }
+    
+    @Override
+    public void asProductions(IValueFactory vf, TypeStore store, Map<IConstructor, Set<IConstructor>> grammar) {
+    	// TODO empty on purpose, pull up
     }
 }
