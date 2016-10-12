@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007 IBM Corporation, 2009-2015 CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -19,8 +19,6 @@ import java.util.function.Function;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ISetAlgebra;
-import org.rascalmpl.value.ISetRelation;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
