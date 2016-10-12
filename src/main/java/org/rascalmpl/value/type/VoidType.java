@@ -51,7 +51,7 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
   }
   
   @Override
-protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
   	// TODO empty on purpose, pull up
   }
 

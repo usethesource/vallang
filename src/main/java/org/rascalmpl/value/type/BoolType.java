@@ -35,7 +35,7 @@ import org.rascalmpl.value.IValueFactory;
   }
   
   @Override
-protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 	  // empty TODO pull up empty asProduction
   }
   

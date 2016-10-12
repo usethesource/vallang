@@ -56,7 +56,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 		fAliased.asProductions(vf, store, grammar, done);
 		fParameters.asProductions(vf, store, grammar, done);
 	}

@@ -106,7 +106,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
-	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 		IConstructor adt = getAbstractDataType().asSymbol(vf, store, grammar, done);
 		
 		IListWriter w = vf.listWriter();
