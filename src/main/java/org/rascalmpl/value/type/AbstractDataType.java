@@ -92,7 +92,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 
 		// explore the rest of the definition and add it to the store
 		for (IConstructor t : grammar.apply(symbol)) {
-			Type.fromSymbol(t, store, grammar);
+			ConstructorType.fromProduction(t, store, grammar);
 		}
 		
 		return adt;

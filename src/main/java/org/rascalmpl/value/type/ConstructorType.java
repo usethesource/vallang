@@ -46,7 +46,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
-	private static final Type constructor = declareTypeSymbol("cons", symbolType(), "adt", TF.stringType(), "name", TF.listType(symbolType()), "parameters");
+	public static final Type CONSTRUCTOR = declareTypeSymbol("cons", symbolType(), "adt", TF.stringType(), "name", TF.listType(symbolType()), "parameters");
 	private static final Type production = declareTypeProduction("cons", symbolType(), "def", TF.listType(symbolType()), "symbols", TF.listType(symbolType()), "kwTypes");
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
@@ -58,15 +58,24 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	protected Type getReifiedConstructorType() {
-		return constructor;
+		return CONSTRUCTOR;
 	}
 	  
 	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 		Type adt = Type.fromSymbol((IConstructor) symbol.get("adt"), store, grammar);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		Type cons = TF.constructor(store, adt, name, fromSymbols(parameters, store, grammar));
-		IList kwtypes = (IList) symbol.get("kwTypes");
+		return TF.constructor(store, adt, name, fromSymbols(parameters, store, grammar));
+	}
+	
+	public static Type fromProduction(IConstructor prod, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+		IConstructor adt = (IConstructor) prod.get("def");
+		String name = getLabel(adt);
+		IConstructor sym = getLabeledSymbol(adt);
+		IList parameters = (IList) prod.get("symbols");
+		IList kwtypes = (IList) prod.get("kwTypes");
+		
+		Type cons = TF.constructor(store, Type.fromSymbol(sym, store, grammar), name, Type.fromSymbols(parameters, store, grammar));
 		
 		for (IValue kwType : kwtypes) {
 			store.declareKeywordParameter(cons, getLabel(kwType), Type.fromSymbol(getLabeledSymbol(kwType), store, grammar));
@@ -91,7 +100,7 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
       }
       
       IConstructor adt = getAbstractDataType().asSymbol(vf, store, grammar, done);
-      IConstructor cons = vf.constructor(constructor,labelSymbol(vf, adt, getName()), w.done());
+      IConstructor cons = vf.constructor(CONSTRUCTOR,labelSymbol(vf, adt, getName()), w.done());
 
       return cons;
 	}

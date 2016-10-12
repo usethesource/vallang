@@ -60,7 +60,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   protected static String getLabel(IValue symbol) {
-	  return ((IString) ((IConstructor) symbol).get("label")).getValue();
+	  return ((IString) ((IConstructor) symbol).get("name")).getValue();
   }
   
   protected static IConstructor getLabeledSymbol(IValue symbol) {
@@ -378,7 +378,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param  store typestore which contains source definitions
    * @param done a working set to store data-types which have been explored already to avoid infinite recursion
    */
-  protected abstract void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
+  public abstract void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
 
   
   /**
