@@ -25,7 +25,6 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAbstractDataTypeException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 import org.rascalmpl.value.type.TypeFactory.TypeReifier;
-import org.rascalmpl.value.type.TypeFactory.TypeValues;
 
 /**
  * A AbstractDataType is an algebraic sort. A sort is produced by
@@ -44,11 +43,9 @@ import org.rascalmpl.value.type.TypeFactory.TypeValues;
     }
   
     public static class Info implements TypeReifier {
-    	private static final TypeValues symbols = TypeFactory.getInstance().getSymbols();
-    	
 		@Override
 		public Type getSymbolConstructorType() {
-			return symbols.typeSymbolConstructor("adt", TF.stringType(), "name", TF.listType(symbols.symbolADT()), "parameters");
+			return symbols().typeSymbolConstructor("adt", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters");
 		}
 
 		@Override
@@ -87,7 +84,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeValues;
 				return adt;
 			}
 
-			Type params = symbols.fromSymbols((IList) symbol.get("parameters"), store, grammar);
+			Type params = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
 			if (params.isBottom() || params.getArity() == 0) {
 				adt = TF.abstractDataType(store, name);
 			}

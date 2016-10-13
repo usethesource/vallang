@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -686,11 +687,16 @@ public class TypeFactory {
 			return TypeFactory.getInstance();
 		}
 		
+		
+		default Set<Type> getSymbolConstructorTypes() {
+			return Collections.singleton(getSymbolConstructorType());
+		}
+		
 		Type getSymbolConstructorType();
 		
 		default IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-			// this will work for all nullary type symbols
-			return vf.constructor(getSymbolConstructorType());
+			// this will work for all nullary type symbols with only one constructor type
+			return vf.constructor(getSymbolConstructorType().iterator().next());
 		}
 		
 		default void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
@@ -727,19 +733,19 @@ public class TypeFactory {
 			return (IConstructor) ((IConstructor) symbol).get("symbol");
 		}
 		
-		protected Type typeSymbolConstructor(String name, Object... args) {
+		public Type typeSymbolConstructor(String name, Object... args) {
 			return constructor(symbolStore, symbolADT(), name, args);
 		}
 	
-		protected Type typeProductionConstructor(String name, Object... args) {
+		public Type typeProductionConstructor(String name, Object... args) {
 			return constructor(symbolStore, productionADT(), name, args);
 		}
 	
-		protected Type symbolADT() {
+		public Type symbolADT() {
 			return abstractDataType(symbolStore, "Symbol");
 		}
 	
-		protected Type productionADT() {
+		public Type productionADT() {
 			return abstractDataType(symbolStore, "Production");
 		}
 		
@@ -780,7 +786,7 @@ public class TypeFactory {
 		}
 	
 	    private void registerTypeInfo(TypeReifier instance) {
-			symbolConstructorTypes.put(instance.getSymbolConstructorType(), instance);
+			instance.getSymbolConstructorTypes().stream().forEach(x -> symbolConstructorTypes.put(x, instance));
 		}
 	
 		private String[] readConfigFile(URL nextElement) throws IOException {
