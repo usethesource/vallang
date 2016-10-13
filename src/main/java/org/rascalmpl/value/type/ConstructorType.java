@@ -25,6 +25,7 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
+import org.rascalmpl.value.type.AbstractDataType.Info;
 import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
@@ -142,6 +143,11 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		}
 	}
 
+	@Override
+    public TypeReifier getTypeReifier() {
+    	return new Info();
+    }
+	
 	@Override
 	public Type carrier() {
 		return fChildrenTypes.carrier();

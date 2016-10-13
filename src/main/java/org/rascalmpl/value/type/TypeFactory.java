@@ -15,13 +15,15 @@
 package org.rascalmpl.value.type;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -51,20 +53,16 @@ public class TypeFactory {
 	 * Caches all types to implement canonicalization
 	 */
 	private final Map<Type, Type> fCache = new HashMap<Type, Type>();
-	
+    private TypeValues typeValues;
+    
 	private static class InstanceHolder {
 		public static final TypeFactory sInstance = new TypeFactory();
-		public static final TypeValues typeSymbolInstance = sInstance.new TypeValues();
 	}
-
+	
 	private TypeFactory() { }
 
 	public static TypeFactory getInstance() {
 		return InstanceHolder.sInstance;
-	}
-	
-	public TypeValues getSymbols() {
-		return InstanceHolder.typeSymbolInstance;
 	}
 	
 	/**
@@ -612,7 +610,7 @@ public class TypeFactory {
 	 * @return a type isomorphic to the given symbolic representation
 	 */
 	public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-		return getSymbols().fromSymbol(symbol, store, grammar);
+		return cachedTypeValues().fromSymbol(symbol, store, grammar);
 	}
 	
 	/**
@@ -680,7 +678,7 @@ public class TypeFactory {
 
 	public static interface TypeReifier {
 		default TypeValues symbols() {
-			return tf().getSymbols();
+			return tf().cachedTypeValues();
 		}
 		
 		default TypeFactory tf() {
@@ -696,7 +694,7 @@ public class TypeFactory {
 		
 		default IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			// this will work for all nullary type symbols with only one constructor type
-			return vf.constructor(getSymbolConstructorType().iterator().next());
+			return vf.constructor(getSymbolConstructorType());
 		}
 		
 		default void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
@@ -707,7 +705,7 @@ public class TypeFactory {
 	}
 
 	public class TypeValues {
-		private static final String TYPES_CONFIG = "org/rascalmpl/value/types.config";
+		private static final String TYPES_CONFIG = "org/rascalmpl/value/type";
 		
 		private final TypeStore symbolStore = new TypeStore();
 		private final Type Symbol = abstractDataType(symbolStore, "Symbol");
@@ -715,7 +713,7 @@ public class TypeFactory {
 	
 		private final Map<Type, TypeReifier> symbolConstructorTypes = new HashMap<>();
 		
-		private TypeValues() { loadReifiers(); }
+		private TypeValues() { 	}
 		
 		public boolean isLabel(IConstructor symbol) {
 			return symbol.getConstructorType() == Symbol_Label;
@@ -749,48 +747,50 @@ public class TypeFactory {
 			return abstractDataType(symbolStore, "Production");
 		}
 		
-		private void loadReifiers() {
+		public TypeValues initialize() {
 			try {
 				Enumeration<URL> resources = getClass().getClassLoader().getResources(TYPES_CONFIG);
 				while (resources.hasMoreElements()) {
-					loadServices(resources.nextElement());
+					Files.list(Paths.get(resources.nextElement().toURI())).map(x -> { System.err.println(x); return x; }).filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
 				}
-			} catch (IOException e) {
+				
+				return this;
+			} catch (IOException | URISyntaxException e) {
 				throw new IllegalArgumentException("WARNING: Could not load type info extensions from " + TYPES_CONFIG);
 			}
 		}
 		
-		private void loadServices(URL nextElement) throws IOException {
-		    for (String name : readConfigFile(nextElement)) {
-		        name = name.trim();
-	
-		        if (name.startsWith("#")) { 
-		            // source code comment
-		            continue;
-		        }
-	
-		        try {
-		            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
-		            Object instance = clazz.newInstance();
-	
-		            if (instance instanceof TypeReifier) {
-		            	registerTypeInfo((TypeReifier) instance);
-		            }
-		            else {
-		                throw new IllegalArgumentException("WARNING: could not load type info " + name + " because it does not implement TypeFactory.TypeInfo");
-		            }
-		        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | SecurityException e) {
-		            throw new IllegalArgumentException("WARNING: could not load type info " + name + " due to " + e.getMessage());
-		        }
-		    }
+		private void loadServices(Path nextElement) {
+			try {
+				for (String name : readConfigFile(nextElement)) {
+					name = name.trim();
+
+					if (name.startsWith("#")) { 
+						// source code comment
+						continue;
+					}
+
+					Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+					Object instance = clazz.newInstance();
+
+					if (instance instanceof TypeReifier) {
+						registerTypeInfo((TypeReifier) instance);
+					}
+					else {
+						throw new IllegalArgumentException("WARNING: could not load type info " + name + " because it does not implement TypeFactory.TypeInfo");
+					}
+				}
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | SecurityException | IOException e) {
+				throw new IllegalArgumentException("WARNING: could not load type info " + nextElement + " due to " + e.getMessage());
+			}
 		}
 	
 	    private void registerTypeInfo(TypeReifier instance) {
 			instance.getSymbolConstructorTypes().stream().forEach(x -> symbolConstructorTypes.put(x, instance));
 		}
 	
-		private String[] readConfigFile(URL nextElement) throws IOException {
-	        try (Reader in = new InputStreamReader(nextElement.openStream())) {
+		private String[] readConfigFile(Path nextElement) throws IOException {
+	        try (Reader in = Files.newBufferedReader(nextElement)) {
 	            StringBuilder res = new StringBuilder();
 	            char[] chunk = new char[1024];
 	            int read;
@@ -856,7 +856,15 @@ public class TypeFactory {
 	 * @return the type represented by the value
 	 */
 	public Type fromSymbol(IConstructor symbol) {
-		return getSymbols().fromSymbol(symbol, new TypeStore(), x -> Collections.emptySet());
+		return cachedTypeValues().fromSymbol(symbol, new TypeStore(), x -> Collections.emptySet());
 	}
 
+	private TypeValues cachedTypeValues() {
+		if (typeValues == null) {
+			typeValues = getInstance().new TypeValues();
+			typeValues.initialize();
+		}
+		
+		return typeValues;
+	}
 }
