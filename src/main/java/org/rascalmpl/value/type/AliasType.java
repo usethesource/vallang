@@ -24,6 +24,7 @@ import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be used to
@@ -38,7 +39,6 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
  *        refer to the AliasType.
  */
 /* package */ final class AliasType extends Type {
-	/*package*/ static final Type CONSTRUCTOR = declareTypeSymbol("alias", TF.stringType(), "name", TF.listType(symbolType()), "parameters", symbolType(), "aliased");
 	private final String fName;
 	private final Type fAliased;
 	private final Type fParameters;
@@ -54,45 +54,55 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 		fAliased = aliased;
 		fParameters = parameters;
 	}
+	
+	public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("alias", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters", symbols().symbolADT(), "aliased");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+			 String name = ((IString) symbol.get("name")).getValue();
+			 Type aliased = symbols().fromSymbol((IConstructor) symbol.get("aliased"), store, grammar);
+			 IList parameters = (IList) symbol.get("parameters");
+
+			 if (parameters.isEmpty()) {
+				 return TF.aliasType(store, name, aliased);
+			 }
+			 else {
+				 return TF.aliasTypeFromTuple(store, name, aliased,  symbols().fromSymbols(parameters, store, grammar));
+			 }
+		}
+
+		@Override
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			IListWriter w = vf.listWriter();
+			Type params = type.getTypeParameters();
+
+			if (params.getArity() > 0) {
+				for (Type t : params) {
+					w.append(t.asSymbol(vf, store, grammar, done));
+				}
+			}
+
+			return vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), w.done(), type.getAliased().asSymbol(vf, store, grammar, done));
+		}
+
+		@Override
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			type.getAliased().asProductions(vf, store, grammar, done);
+			type.getTypeParameters().asProductions(vf, store, grammar, done);
+		}
+	}
 
 	@Override
-	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-		fAliased.asProductions(vf, store, grammar, done);
-		fParameters.asProductions(vf, store, grammar, done);
+	public TypeReifier getTypeReifier() {
+		return new Info();
 	}
-	
-	@Override
-	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  IListWriter w = vf.listWriter();
-      Type params = getTypeParameters();
-      
-      if (params.getArity() > 0) {
-          for (Type t : params) {
-              w.append(t.asSymbol(vf, store, grammar, done));
-          }
-      }
-      
-      return vf.constructor(CONSTRUCTOR, vf.string(getName()), w.done(),getAliased().asSymbol(vf, store, grammar, done));
-	}
-	
-	 @Override
-	    protected Type getReifiedConstructorType() {
-	    	return CONSTRUCTOR;
-	    }
-	
-	 public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-		 String name = ((IString) symbol.get("name")).getValue();
-		 Type aliased = Type.fromSymbol((IConstructor) symbol.get("aliased"), store, grammar);
-		 IList parameters = (IList) symbol.get("parameters");
 
-		 if (parameters.isEmpty()) {
-			 return TF.aliasType(store, name, aliased);
-		 }
-		 else {
-			 return TF.aliasTypeFromTuple(store, name, aliased,  fromSymbols(parameters, store, grammar));
-		 }
-	 }
-	 
 	@Override
 	public boolean isParameterized() {
 		return !fParameters.equivalent(VoidType.getInstance());

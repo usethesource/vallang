@@ -25,9 +25,9 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
-	static final Type CONSTRUCTOR = declareTypeSymbol("tuple", TF.listType(symbolType()), "symbols");
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
 	protected final String[] fFieldNames;
 	protected int fHashcode = -1;
@@ -41,34 +41,50 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 		fFieldNames = null;
 	}
 	
-	public IConstructor asSymbol(org.rascalmpl.value.IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  IListWriter w = vf.listWriter();
+	public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("tuple", TF.listType(symbols().symbolADT()), "symbols");
+		}
 
-	  if (hasFieldNames()) {
-	    for (int i = 0; i < getArity(); i++) {
-	      w.append(labelSymbol(vf, getFieldType(i).asSymbol(vf, store, grammar, done), getFieldName(i)));
-	    }
-	  }
-	  else {
-	    for (Type f : this) {
-	      w.append(f.asSymbol(vf, store, grammar, done));
-	    }
-	  }
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+			return symbols().fromSymbols((IList) symbol.get("symbols"), store, grammar);
+		}
 
-	  return vf.constructor(CONSTRUCTOR, w.done());
-	}
-	
-	@Override
-	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-		for (Type f : fFieldTypes) {
-			f.asProductions(vf, store, grammar, done);
+		@Override
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			IListWriter w = vf.listWriter();
+
+			if (type.hasFieldNames()) {
+				for (int i = 0; i < type.getArity(); i++) {
+					w.append(symbols().labelSymbol(vf, type.getFieldType(i).asSymbol(vf, store, grammar, done), type.getFieldName(i)));
+				}
+			}
+			else {
+				for (Type f : type) {
+					w.append(f.asSymbol(vf, store, grammar, done));
+				}
+			}
+
+			return vf.constructor(getSymbolConstructorType(), w.done());
+		}
+
+		@Override
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			for (Type f : type) {
+				f.asProductions(vf, store, grammar, done);
+			}
 		}
 	}
-	
-	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-		return Type.fromSymbols((IList) symbol.get("symbols"), store, grammar);
-	}
 
+	@Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+	
 	/**
 	 * Creates a tuple type with the given field types and names. Copies the
 	 * arrays.

@@ -12,23 +12,17 @@
 
 package org.rascalmpl.value.type;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
-import org.rascalmpl.value.exceptions.TypeReificationException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
  * This class is the abstract implementation for all types. Types are ordered in
@@ -51,40 +45,7 @@ import org.rascalmpl.value.exceptions.TypeReificationException;
  */
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
-  private static final TypeStore symbolStore = new TypeStore();
-  private static final Type Symbol = TF.abstractDataType(symbolStore, "Symbol");
-  private static final Type Symbol_Label = TF.constructor(symbolStore, Symbol, "label", TF.stringType(), "name", Symbol, "symbol");
-  
-  protected static boolean isLabel(IConstructor symbol) {
-	  return symbol.getConstructorType() == Symbol_Label;
-  }
-  
-  protected static String getLabel(IValue symbol) {
-	  return ((IString) ((IConstructor) symbol).get("name")).getValue();
-  }
-  
-  protected static IConstructor getLabeledSymbol(IValue symbol) {
-	  return (IConstructor) ((IConstructor) symbol).get("symbol");
-  }
-  
-  protected static Type declareTypeSymbol(String name, Object... args) {
-	  return TF.constructor(symbolStore, symbolType(), name, args);
-  }
-  
-  protected static Type declareTypeProduction(String name, Object... args) {
-	  return TF.constructor(symbolStore, productionType(), name, args);
-  }
-  
-  protected static Type symbolType() {
-	  return TF.abstractDataType(symbolStore, "Symbol");
-  }
-  
-  protected static Type productionType() {
-	  return TF.abstractDataType(symbolStore, "Production");
-  }
-  
-  
-  
+
   // these constants are cached to avoid having to compute their hash-codes
   // for canonicalization all the time. The types are used to implement predicate
   // methods below such as isList and isMap, etc.
@@ -103,108 +64,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   private static final Type LIST_TYPE = TF.listType(VALUE_TYPE);
   private static final Type SET_TYPE = TF.setType(VALUE_TYPE);
   
-  /**
-   * A store for reified type constructors which we use to map back from
-   * reified type value to types.
-   */
-  private static final Map<Type, Method> fromSymbolMethods = new HashMap<>();
-  
-  protected abstract Type getReifiedConstructorType();
-  
-  static {
-	  registerType(AbstractDataType.CONSTRUCTOR, AbstractDataType.class);
-	  registerType(AliasType.CONSTRUCTOR, AliasType.class);
-	  registerType(BoolType.CONSTRUCTOR, BoolType.class);
-	  registerType(ConstructorType.CONSTRUCTOR, ConstructorType.class);
-	  registerType(DateTimeType.CONSTRUCTOR, DateTimeType.class);
-	  registerType(IntegerType.CONSTRUCTOR, ListType.class);
-	  registerType(ListType.listConstructor, ListType.class);
-	  registerType(MapType.CONSTRUCTOR, MapType.class);
-	  registerType(NodeType.CONSTRUCTOR, NodeType.class);
-	  registerType(NumberType.CONSTRUCTOR, NumberType.class);
-	  registerType(ParameterType.CONSTRUCTOR, DateTimeType.class);
-	  registerType(RationalType.CONSTRUCTOR, RationalType.class);
-	  registerType(RealType.CONSTRUCTOR, RealType.class);
-	  registerType(SetType.setConstructor, SetType.class);
-	  registerType(SourceLocationType.CONSTRUCTOR, SourceLocationType.class);
-	  registerType(StringType.CONSTRUCTOR, StringType.class);
-	  registerType(TupleType.CONSTRUCTOR, TupleType.class);
-	  registerType(ValueType.CONSTRUCTOR, ValueType.class);
-	  registerType(VoidType.CONSTRUCTOR, VoidType.class);
-  }
-  
-  protected static void registerType(Type cons, Class<? extends Type> type) {
-	  synchronized (fromSymbolMethods) {
-		  assert fromSymbolMethod(type) != null;
-		  fromSymbolMethods.put(cons, fromSymbolMethod(type));
-	  } 
-  }
-  
-  /**
-   * Builds a tuple type from a list of reified type symbols (see fromSymbol)
-   */
-  public static Type fromSymbols(IList symbols, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-	  boolean allLabels = true;
-	  Type[] types = new Type[symbols.length()];
-	  String[] labels = new String[symbols.length()];
-
-	  for (int i = 0; i < symbols.length(); i++) {
-		  IConstructor elem = (IConstructor) symbols.get(i);
-		  if (elem.getConstructorType() == Symbol_Label) {
-			  labels[i] = ((IString) elem.get("name")).getValue();
-			  elem = (IConstructor) elem.get("symbol");
-		  }
-		  else {
-			  allLabels = false;
-		  }
-
-		  types[i] = fromSymbol(elem, store, grammar);
-	  }
-
-	  if (allLabels) {
-		  return TF.tupleType(types, labels);
-	  }
-	  else {
-		  return TF.tupleType(types);
-	  }
-  }
-  
-  /**
-   * Converts a value representing a type back to a type and as a side-effect declares all necessary
-   * data-types and constructors in the provided typestore.
-   * 
-   * @param symbol is a constructor generated earlier by Type.asSymbol
-   * @param store  is the typestore to store ADTs, constructors and kw fields in.
-   * @param grammar is a lookup function to produce definitions for the types to store in the typestore
-   * @return the type represented by the value
-   */
-  public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-	  synchronized (fromSymbolMethods) {
-		  Method fromSymbolMethod = fromSymbolMethods.get(symbol.getConstructorType());
-
-		  if (fromSymbolMethod == null) {
-			  throw new IllegalArgumentException("This is not a registered reified type symbol:" + symbol);
-		  }
-
-		  try {
-			  return (Type) fromSymbolMethod.invoke(null /*static*/, symbol, store, grammar);
-		  } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
-			  throw new TypeReificationException("Could not create type from symbol:" + symbol, e);
-		  }
-	  }
-  }
-
-  private static Method fromSymbolMethod(Class<? extends Type> typeClass) {
-	  try {
-		  return typeClass.getMethod("fromSymbol", IConstructor.class, TypeStore.class, Function.class);
-	  } catch (NoSuchMethodException e) {
-		  throw new TypeReificationException("fromSymbol method is missing on " + typeClass, e);
-	  }
-  }
-  
-  protected IConstructor labelSymbol(IValueFactory vf, IConstructor symbol, String label) {
-    return vf.constructor(Symbol_Label, vf.string(label), symbol);
-  }
+  public abstract TypeReifier getTypeReifier();
   
   /**
    * Retrieve the type of elements in a set or a relation.
@@ -368,7 +228,9 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param done a working set to store data-types which have been explored already to avoid infinite recursion
    * @return a value to uniquely represent this type.
    */
-  public abstract IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
+  public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+	  return getTypeReifier().toSymbol(this, vf, store, grammar, done);
+  }
 
   /**
    * Map the given typestore to a set of production values, with only definitions
@@ -378,7 +240,9 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param  store typestore which contains source definitions
    * @param done a working set to store data-types which have been explored already to avoid infinite recursion
    */
-  public abstract void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
+  public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+	  getTypeReifier().asProductions(this, vf, store, grammar, done);
+  }
 
   
   /**

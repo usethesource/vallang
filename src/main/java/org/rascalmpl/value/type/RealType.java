@@ -17,32 +17,35 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/ final class RealType extends NumberType {
-	static final Type CONSTRUCTOR = declareTypeSymbol("real");
-
 	private final static class InstanceKeeper {
 		public final static RealType sInstance = new RealType();
 	}
 
-	@Override
-	protected Type getReifiedConstructorType() {
-		return CONSTRUCTOR;
+	public static RealType getInstance() {
+		return InstanceKeeper.sInstance;
 	}
+	
+	public static class Info implements TypeReifier {
 
-	public static Type fromSymbol(IConstructor symbol,TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-		return TF.realType();
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("real");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store,
+				Function<IConstructor, Set<IConstructor>> grammar) {
+			return getInstance();
+		}
+		
 	}
 	
 	@Override
-	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-		// TODO empty on purpose, pull up
-	}
-	 
-	public static RealType getInstance() {
-		return InstanceKeeper.sInstance;
+	public TypeReifier getTypeReifier() {
+		return new Info();
 	}
 
 	/**

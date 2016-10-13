@@ -22,13 +22,13 @@ import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/ final class MapType extends DefaultSubtypeOfValue {
     private final Type fKeyType;
     private final Type fValueType;
     private final String fKeyLabel;
     private final String fValueLabel;
-    private final static Type constructor = declareTypeSymbol("map", symbolType(), "from", symbolType(), "to");
     
     /*package*/ MapType(Type keyType, Type valueType) {
     	fKeyType= keyType;
@@ -44,50 +44,60 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     	fValueLabel = valueLabel;
     }
     
-    @Override
-	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-      if (hasFieldNames()) {
-        return vf.constructor(constructor, labelSymbol(vf, getKeyType().asSymbol(vf, store, grammar, done), getKeyLabel()),  labelSymbol(vf, getValueType().asSymbol(vf, store, grammar, done), getValueLabel()));
-      }
-      else {
-        return vf.constructor(constructor, getKeyType().asSymbol(vf, store, grammar, done), getValueType().asSymbol(vf, store, grammar, done));
-      }
-    }
     
-    public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-    	IConstructor from = (IConstructor) symbol.get("from");
-		IConstructor to = (IConstructor) symbol.get("to");
-		String fromLabel = null;
-		String toLabel = null;
+    public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("map", symbols().symbolADT(), "from", symbols().symbolADT(), "to");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+			IConstructor from = (IConstructor) symbol.get("from");
+			IConstructor to = (IConstructor) symbol.get("to");
+			String fromLabel = null;
+			String toLabel = null;
+			
+			if (symbols().isLabel(from)) {
+				fromLabel = symbols().getLabel(from);
+				from = (IConstructor) from.get("symbol");
+			}
+			if (symbols().isLabel(to)) {
+				toLabel = symbols().getLabel(to);
+				to = (IConstructor) to.get("symbol");
+			}
+			if (fromLabel != null && toLabel != null) {
+				return tf().mapType(symbols().fromSymbol(from, store, grammar), fromLabel, symbols().fromSymbol(to, store, grammar), toLabel);
+			}
+			else {
+				return tf().mapType(symbols().fromSymbol(from, store, grammar), symbols().fromSymbol(to, store, grammar));
+			}
+		}
 		
-		if (isLabel(from)) {
-			fromLabel = getLabel(from);
-			from = (IConstructor) from.get("symbol");
+		@Override
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			if (type.hasFieldNames()) {
+				return vf.constructor(getSymbolConstructorType(), symbols().labelSymbol(vf, type.getKeyType().asSymbol(vf, store, grammar, done), type.getKeyLabel()),  symbols().labelSymbol(vf, type.getValueType().asSymbol(vf, store, grammar, done), type.getValueLabel()));
+			}
+			else {
+				return vf.constructor(getSymbolConstructorType(), type.getKeyType().asSymbol(vf, store, grammar, done), type.getValueType().asSymbol(vf, store, grammar, done));
+			}
 		}
-		if (isLabel(to)) {
-			toLabel = getLabel(to);
-			to = (IConstructor) to.get("symbol");
-		}
-		if (fromLabel != null && toLabel != null) {
-			return TF.mapType(Type.fromSymbol(from, store, grammar), fromLabel, Type.fromSymbol(to, store, grammar), toLabel);
-		}
-		else {
-			return TF.mapType(Type.fromSymbol(from, store, grammar), Type.fromSymbol(to, store, grammar));
+		
+		@Override
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			type.getKeyType().asProductions(vf, store, grammar, done);
+	    	type.getValueType().asProductions(vf, store, grammar, done);
 		}
 	}
-    
-    @Override
-	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-    	getKeyType().asProductions(vf, store, grammar, done);
-    	getValueType().asProductions(vf, store, grammar, done);
-    }
-    
-    
-    @Override
-    protected Type getReifiedConstructorType() {
-    	return constructor;
-    }
-    
+
+	@Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+	
 	@Override
     public Type getKeyType() {
     	return fKeyType;

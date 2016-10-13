@@ -24,6 +24,8 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAbstractDataTypeException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
+import org.rascalmpl.value.type.TypeFactory.TypeValues;
 
 /**
  * A AbstractDataType is an algebraic sort. A sort is produced by
@@ -33,69 +35,78 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
  * @see ConstructorType
  */
 /* package */ class AbstractDataType extends NodeType {
-    /*package*/ static final Type CONSTRUCTOR = declareTypeSymbol("adt", TF.stringType(), "name", TF.listType(symbolType()), "parameters");
 	private final String fName;
     private final Type fParameters;
-
+    
     protected AbstractDataType(String name, Type parameters) {
         fName = name;
         fParameters = parameters;
     }
-    
-    @Override
-    protected Type getReifiedConstructorType() {
-    	return CONSTRUCTOR;
-    }
-    
-    @Override
-	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-      IListWriter w = vf.listWriter();
-      Type params = getTypeParameters();
-      
-      if (params.getArity() > 0) {
-          for (Type param : params) {
-              w.append(param.asSymbol(vf, store, grammar, done));
-          }
-      }
-      
-      IConstructor res = vf.constructor(CONSTRUCTOR, vf.string(getName()), w.done());
-      
-      if (!done.contains(res)) {
-    	  done.add(res);
-    	  asProductions(vf, store, grammar, done);
-      }
-      
-      return res;
-    }
-    
-    @Override
-	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-    	store.lookupAlternatives(this).stream().forEach(x -> x.asProductions(vf, store, grammar, done));
-    }
-    
-    public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-    	String name = ((IString) symbol.get("name")).getValue();
-		Type adt = store.lookupAbstractDataType(name);
-		
-		if (adt != null) {
-			// this stops infinite recursions while exploring the type store.
-			return adt;
-		}
-		
-		Type params = fromSymbols((IList) symbol.get("parameters"), store, grammar);
-		if (params.isBottom() || params.getArity() == 0) {
-			adt = TF.abstractDataType(store, name);
-		}
-		else {
-			adt = TF.abstractDataTypeFromTuple(store, name, params);
+  
+    public static class Info implements TypeReifier {
+    	private static final TypeValues symbols = TypeFactory.getInstance().getSymbols();
+    	
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols.typeSymbolConstructor("adt", TF.stringType(), "name", TF.listType(symbols.symbolADT()), "parameters");
 		}
 
-		// explore the rest of the definition and add it to the store
-		for (IConstructor t : grammar.apply(symbol)) {
-			ConstructorType.fromProduction(t, store, grammar);
+		@Override
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+			IListWriter w = vf.listWriter();
+			Type params = type.getTypeParameters();
+
+			if (params.getArity() > 0) {
+				for (Type param : params) {
+					w.append(param.asSymbol(vf, store, grammar, done));
+				}
+			}
+
+			IConstructor res = vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), w.done());
+
+			if (!done.contains(res)) {
+				done.add(res);
+				asProductions(type, vf, store, grammar, done);
+			}
+
+			return res;
 		}
-		
-		return adt;
+
+		@Override
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+			store.lookupAlternatives(type).stream().forEach(x -> x.asProductions(vf, store, grammar, done));
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+			String name = ((IString) symbol.get("name")).getValue();
+			Type adt = store.lookupAbstractDataType(name);
+
+			if (adt != null) {
+				// this stops infinite recursions while exploring the type store.
+				return adt;
+			}
+
+			Type params = symbols.fromSymbols((IList) symbol.get("parameters"), store, grammar);
+			if (params.isBottom() || params.getArity() == 0) {
+				adt = TF.abstractDataType(store, name);
+			}
+			else {
+				adt = TF.abstractDataTypeFromTuple(store, name, params);
+			}
+
+			// explore the rest of the definition and add it to the store
+			for (IConstructor t : grammar.apply(symbol)) {
+				((ConstructorType.Info) t.getConstructorType().getTypeReifier()).fromProduction(t, store, grammar);
+			}
+
+			return adt;
+		}
+    }
+
+    @Override
+    public TypeReifier getTypeReifier() {
+    	return new Info();
     }
     
     @Override

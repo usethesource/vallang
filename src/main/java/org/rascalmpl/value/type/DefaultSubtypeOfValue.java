@@ -12,19 +12,7 @@
 
 package org.rascalmpl.value.type;
 
-import java.util.Set;
-
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValueFactory;
-
 /* package */abstract class DefaultSubtypeOfValue extends ValueType {
-
-	@Override
-	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-		assert getReifiedConstructorType().getArity() == 0;
-		return vf.constructor(getReifiedConstructorType());
-	}
 
 	@Override 
 	public abstract Type glb(Type type);

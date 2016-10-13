@@ -16,12 +16,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
-    static final Type CONSTRUCTOR = declareTypeSymbol("loc");
-
 	private static final class InstanceKeeper {
       public final static SourceLocationType sInstance= new SourceLocationType();
     }
@@ -30,11 +27,25 @@ import org.rascalmpl.value.IValueFactory;
         return InstanceKeeper.sInstance;
     }
 
-    @Override
-    protected Type getReifiedConstructorType() {
-    	return CONSTRUCTOR;
-    }
+    public static class Info implements TypeReifier {
 
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("loc");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store,
+				Function<IConstructor, Set<IConstructor>> grammar) {
+			return getInstance();
+		}
+	}
+    
+    @Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -86,14 +97,5 @@ import org.rascalmpl.value.IValueFactory;
     @Override
     protected Type glbWithSourceLocation(Type type) {
       return this;
-    }
-    
-    public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-  	  return TF.rationalType();
-    }
-    
-    @Override
-	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-    	// TODO empty on purpose, pull up
     }
 }

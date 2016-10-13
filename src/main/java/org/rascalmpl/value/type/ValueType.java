@@ -16,36 +16,35 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /* package */class ValueType extends Type {
-	static final Type CONSTRUCTOR = declareTypeSymbol("value");
-
+	
 	protected static class InstanceHolder {
 		public static final ValueType sInstance = new ValueType();
 	}
-
-	@Override
-	protected Type getReifiedConstructorType() {
-		return CONSTRUCTOR;
-	}
-
-	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-		return vf.constructor(CONSTRUCTOR);
-	}
 	
-	@Override
-	public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-		// TODO empty on purpose, pull up
-	}
-
-	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-		return TF.valueType();
-	}
-
 	public static ValueType getInstance() {
 		return InstanceHolder.sInstance;
+	}
+	
+	public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("value");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store,
+				Function<IConstructor, Set<IConstructor>> grammar) {
+			return getInstance();
+		}
+	}
+	
+	
+	@Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
 	}
 
 	@Override

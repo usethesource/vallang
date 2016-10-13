@@ -18,9 +18,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
  * The void type represents an empty collection of values. I.e. it is a subtype
@@ -30,8 +29,6 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
  * used to elegantly initialize computations that involve least upper bounds.
  */
 /* package */final class VoidType extends Type {
-  static final Type CONSTRUCTOR = declareTypeSymbol("void");
-
   private static final class InstanceKeeper {
     public final static VoidType sInstance = new VoidType();
   }
@@ -40,23 +37,17 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
     return InstanceKeeper.sInstance;
   }
 
-  @Override
-	protected Type getReifiedConstructorType() {
-	  return CONSTRUCTOR;
+  public static class Info implements TypeReifier {
+	@Override
+	public Type getSymbolConstructorType() {
+		return symbols().typeSymbolConstructor("void");
 	}
-  
-  @Override
-  public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  return vf.constructor(CONSTRUCTOR);
-  }
-  
-  @Override
-public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-  	// TODO empty on purpose, pull up
-  }
 
-  public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-	  return TF.voidType();
+	@Override
+	public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+		return getInstance();
+	}
+	  
   }
   
   @Override
@@ -523,4 +514,11 @@ public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar,
   protected Type glbWithDateTime(Type type) {
     return this;
   }
+
+  @Override
+  public TypeReifier getTypeReifier() {
+	 return new Info();
+  }
+
+  
 }
