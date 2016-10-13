@@ -811,7 +811,13 @@ public class TypeFactory {
 		 * @return the type represented by the value
 		 */
 		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-			return symbolConstructorTypes.get(symbol.getConstructorType()).fromSymbol(symbol, store, grammar);
+			 TypeReifier reifier = symbolConstructorTypes.get(symbol.getConstructorType());
+			 
+			 if (reifier != null) {
+				 return reifier.fromSymbol(symbol, store, grammar);
+			 }
+			 
+			 throw new IllegalArgumentException("trying to reify an unsupported type kind: " + symbol);
 		}
 
 		/**
