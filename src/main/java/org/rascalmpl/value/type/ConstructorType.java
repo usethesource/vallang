@@ -25,7 +25,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
-import org.rascalmpl.value.type.AbstractDataType.Info;
 import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
@@ -63,7 +62,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		}
 
 		public Type getProductionConstructorType() {
-			return symbols().typeProductionConstructor("cons", symbols().symbolADT(), "def", TF.listType(symbols().symbolADT()), "symbols", TF.listType(symbols().symbolADT()), "kwTypes");
+			return symbols().typeProductionConstructor("cons", symbols().symbolADT(), "def", TF.listType(symbols().symbolADT()), "symbols", TF.listType(symbols().symbolADT()), "kwTypes", tf().setType(symbols().attrADT()));
 		}
 
 

@@ -742,6 +742,10 @@ public class TypeFactory {
 		public Type symbolADT() {
 			return abstractDataType(symbolStore, "Symbol");
 		}
+		
+		public Type attrADT() {
+			return abstractDataType(symbolStore, "Attr");
+		}
 	
 		public Type productionADT() {
 			return abstractDataType(symbolStore, "Production");

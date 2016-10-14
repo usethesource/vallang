@@ -78,16 +78,8 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		@Override
 		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
 				Set<IConstructor> done) {
-			IListWriter w = vf.listWriter();
-			Type params = type.getTypeParameters();
-
-			if (params.getArity() > 0) {
-				for (Type t : params) {
-					w.append(t.asSymbol(vf, store, grammar, done));
-				}
-			}
-
-			return vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), w.done(), type.getAliased().asSymbol(vf, store, grammar, done));
+			// we expand aliases away here!
+			return type.getAliased().asSymbol(vf, store, grammar, done);
 		}
 
 		@Override
