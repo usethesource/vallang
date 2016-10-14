@@ -103,7 +103,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 			IList parameters = (IList) prod.get("symbols");
 			IList kwtypes = (IList) prod.get("kwTypes");
 
-			Type cons = TF.constructor(store, symbols().fromSymbol(sym, store, grammar), name, symbols().fromSymbols(parameters, store, grammar));
+			Type cons = TF.constructorFromTuple(store, symbols().fromSymbol(sym, store, grammar), name, symbols().fromSymbols(parameters, store, grammar));
 
 			for (IValue kwType : kwtypes) {
 				store.declareKeywordParameter(cons, symbols().getLabel(kwType), symbols().fromSymbol(symbols().getLabeledSymbol(kwType), store, grammar));
