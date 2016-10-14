@@ -38,7 +38,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 		@Override
 		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
-			return tf().listType(symbols().fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
+			return tf().setType(symbols().fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
 		}
 
 		@Override
