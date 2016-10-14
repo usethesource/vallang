@@ -11,6 +11,7 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -50,6 +51,28 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 		@Override
 		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+			IConstructor res = simpleToSymbol(type, vf, store, grammar, done);
+
+			
+			
+			if (!done.contains(res)) {
+				done.add(res);
+				
+				if (type.getTypeParameters().getArity() != 0) {
+					// we have to look up the original definition to find the original constructors
+					Type adt = store.lookupAbstractDataType(type.getName());
+					if (adt != null) {
+						type = adt; // then collect the grammar for the uninstantiated adt.
+					}
+				}
+				
+				asProductions(type, vf, store, grammar, done);
+			}
+
+			return res;
+		}
+
+		private IConstructor simpleToSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			IListWriter w = vf.listWriter();
 			Type params = type.getTypeParameters();
 
@@ -59,14 +82,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 				}
 			}
 
-			IConstructor res = vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), w.done());
-
-			if (!done.contains(res)) {
-				done.add(res);
-				asProductions(type, vf, store, grammar, done);
-			}
-
-			return res;
+			return vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), w.done());
 		}
 
 		@Override
