@@ -62,7 +62,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		}
 
 		public Type getProductionConstructorType() {
-			return symbols().typeProductionConstructor("cons", symbols().symbolADT(), "def", TF.listType(symbols().symbolADT()), "symbols", TF.listType(symbols().symbolADT()), "kwTypes", tf().setType(symbols().attrADT()));
+			return symbols().typeProductionConstructor("cons", symbols().symbolADT(), "def", TF.listType(symbols().symbolADT()), "symbols", TF.listType(symbols().symbolADT()), "kwTypes", tf().setType(symbols().attrADT()), "attributes");
 		}
 
 
