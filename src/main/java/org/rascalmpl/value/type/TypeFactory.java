@@ -751,7 +751,7 @@ public class TypeFactory {
 			try {
 				Enumeration<URL> resources = getClass().getClassLoader().getResources(TYPES_CONFIG);
 				while (resources.hasMoreElements()) {
-					Files.list(Paths.get(resources.nextElement().toURI())).map(x -> { System.err.println(x); return x; }).filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
+					Files.list(Paths.get(resources.nextElement().toURI())).filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
 				}
 				
 				return this;
@@ -765,7 +765,7 @@ public class TypeFactory {
 				for (String name : readConfigFile(nextElement)) {
 					name = name.trim();
 
-					if (name.startsWith("#")) { 
+					if (name.startsWith("#") || name.isEmpty()) { 
 						// source code comment
 						continue;
 					}
