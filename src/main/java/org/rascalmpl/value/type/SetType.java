@@ -12,12 +12,15 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
@@ -33,12 +36,26 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 	public static class Info implements TypeReifier {
 		@Override
 		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("set", symbols().symbolADT(), "symbol");
+			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public Set<Type> getSymbolConstructorTypes() {
+			return Arrays.stream(new Type[] { 
+					symbols().typeSymbolConstructor("set", symbols().symbolADT(), "symbol"),
+					symbols().typeSymbolConstructor("rel", tf().listType(symbols().symbolADT()), "symbols") // TODO: can be removed after bootstrap
+			}).collect(Collectors.toSet());
 		}
 
 		@Override
 		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
-			return tf().setType(symbols().fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
+			if (symbol.getConstructorType() == symbols().typeSymbolConstructor("set", symbols().symbolADT(), "symbol")) {
+				return tf().setType(symbols().fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
+			}
+			else {
+				// TODO remove; this is for bootstrapping with an old version
+				return tf().setType(symbols().fromSymbols((IList) symbol.get("symbols"), store, grammar));
+			}
 		}
 
 		@Override

@@ -16,8 +16,10 @@ package org.rascalmpl.value.type;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -751,11 +753,23 @@ public class TypeFactory {
 			return abstractDataType(symbolStore, "Production");
 		}
 		
+		private Path getPath(URI uri) throws URISyntaxException, IOException {
+			String uriString = uri.toString();
+			
+			if (uriString.startsWith("jar:file:")) {
+				int index = uriString.indexOf('!');
+				URI jarUri = new URI(uriString.substring(0, index));
+				return FileSystems.newFileSystem(jarUri, Collections.emptyMap()).getPath(uriString.substring(index + 1));
+			}
+			
+			return Paths.get(uri);
+		}
+		
 		public TypeValues initialize() {
 			try {
 				Enumeration<URL> resources = getClass().getClassLoader().getResources(TYPES_CONFIG);
 				while (resources.hasMoreElements()) {
-					Files.list(Paths.get(resources.nextElement().toURI())).filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
+					Files.list(getPath(resources.nextElement().toURI())).filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
 				}
 				
 				return this;
