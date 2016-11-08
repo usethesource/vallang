@@ -37,7 +37,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 		@Override
 		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
-			if (symbol.getConstructorType() == symbols().typeSymbolConstructor("list", symbols().symbolADT(), "symbol")) {
+			if (symbol.getConstructorType() == getListType()) {
 				return tf().listType(symbols().fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
 			}
 			else {
@@ -54,15 +54,23 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		@Override
 		public Set<Type> getSymbolConstructorTypes() {
 			return Arrays.stream(new Type[] { 
-					symbols().typeSymbolConstructor("list", symbols().symbolADT(), "symbol"),
-					symbols().typeSymbolConstructor("lrel", tf().listType(symbols().symbolADT()), "symbols") // TODO: can be removed after bootstrap
+					getListType(),
+					getRelType() // TODO: can be removed after bootstrap
 			}).collect(Collectors.toSet());
+		}
+
+		private Type getRelType() {
+			return symbols().typeSymbolConstructor("lrel", tf().listType(symbols().symbolADT()), "symbols");
+		}
+
+		private Type getListType() {
+			return symbols().typeSymbolConstructor("list", symbols().symbolADT(), "symbol");
 		}
 		
 		@Override
 		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
 				Set<IConstructor> done) {
-			return vf.constructor(getSymbolConstructorType(), type.getElementType().asSymbol(vf, store, grammar, done));
+			return vf.constructor(getListType(), type.getElementType().asSymbol(vf, store, grammar, done));
 		}
 		
 		@Override

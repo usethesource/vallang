@@ -71,16 +71,16 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 				Set<IConstructor> done) {
 			IListWriter w = vf.listWriter();
 
-			if (type.hasFieldNames()) {
-				for (int i = 0; i < type.getArity(); i++) {
-					w.append(symbols().labelSymbol(vf, type.getFieldType(i).asSymbol(vf, store, grammar, done), type.getFieldName(i)));
-				}
-			}
-			else {
+//			if (type.hasFieldNames()) {
+//				for (int i = 0; i < type.getArity(); i++) {
+//					w.append(symbols().labelSymbol(vf, type.getFieldType(i).asSymbol(vf, store, grammar, done), type.getFieldName(i)));
+//				}
+//			}
+//			else {
 				for (Type field : type.getFieldTypes()) {
 					w.append(field.asSymbol(vf, store, grammar, done));
 				}
-			}
+//			}
 
 			IConstructor adt = type.getAbstractDataType().asSymbol(vf, store, grammar, done);
 			IConstructor cons = vf.constructor(getSymbolConstructorType(),  symbols().labelSymbol(vf, adt, type.getName()), w.done());
@@ -93,7 +93,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 			Type adt = symbols().fromSymbol((IConstructor) symbol.get("adt"), store, grammar);
 			IList parameters = (IList) symbol.get("parameters");
 			String name = ((IString) symbol.get("name")).getValue();
-			return TF.constructor(store, adt, name, symbols().fromSymbols(parameters, store, grammar));
+			return TF.constructorFromTuple(store, adt, name, symbols().fromSymbols(parameters, store, grammar));
 		}
 
 		/*package*/ Type fromProduction(IConstructor prod, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {

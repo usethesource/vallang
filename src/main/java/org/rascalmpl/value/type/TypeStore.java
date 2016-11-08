@@ -342,7 +342,7 @@ public class TypeStore {
 		  if(!constructor.equals(constructor1)){
 			  constructor = constructor1;
 		  }
-		  if(IGNORE_OVERLOADING_CHECKS == null /*static race*/ || !IGNORE_OVERLOADING_CHECKS.contains(adt.getName())){
+		  if(!IGNORE_OVERLOADING_CHECKS.contains(adt.getName())){
 			  checkOverloading(signature, constructor.getName(), constructor.getFieldTypes());
 			  try {
 				  checkFieldNames(signature, constructor.getFieldTypes());
