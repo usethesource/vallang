@@ -97,7 +97,8 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		}
 
 		/*package*/ Type fromProduction(IConstructor prod, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-			IConstructor adt = (IConstructor) prod.get("def");
+		    // TODO remove double field name after bootstrap
+			IConstructor adt = (IConstructor)  (prod.has("def") ? prod.get("def") : prod.get("adt"));
 			String name = symbols().getLabel(adt);
 			IConstructor sym = symbols().getLabeledSymbol(adt);
 			IList parameters = (IList) prod.get("symbols");
