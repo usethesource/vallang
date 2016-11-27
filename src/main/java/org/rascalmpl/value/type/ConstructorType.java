@@ -64,8 +64,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		public Type getProductionConstructorType() {
 			return symbols().typeProductionConstructor("cons", symbols().symbolADT(), "def", TF.listType(symbols().symbolADT()), "symbols", TF.listType(symbols().symbolADT()), "kwTypes", tf().setType(symbols().attrADT()), "attributes");
 		}
-
-
+		
 		@Override
 		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
 				Set<IConstructor> done) {
@@ -97,6 +96,11 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		}
 
 		/*package*/ Type fromProduction(IConstructor prod, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+		    if (prod.getConstructorType() == getSymbolConstructorType()) {
+		        // TODO this should not be necessary after standardizing cons representations
+		        return fromAlternativeProduction(prod, store, grammar);
+		    }
+		    
 		    // TODO remove double field name after bootstrap
 			IConstructor adt = (IConstructor)  (prod.has("def") ? prod.get("def") : prod.get("adt"));
 			String name = symbols().getLabel(adt);
@@ -113,7 +117,15 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 			return cons;
 		}
 		
-		@Override
+		private Type fromAlternativeProduction(IConstructor prod, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+		    IConstructor adt = (IConstructor)  prod.get("adt");
+            String name = ((IString) prod.get("name")).getValue();
+            IList parameters = (IList) prod.get("parameters");
+
+            return TF.constructorFromTuple(store, symbols().fromSymbol(adt, store, grammar), name, symbols().fromSymbols(parameters, store, grammar));
+        }
+
+        @Override
 		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
 				Set<IConstructor> done) {
 			IConstructor adt = type.getAbstractDataType().asSymbol(vf, store, grammar, done);

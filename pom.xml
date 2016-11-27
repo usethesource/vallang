@@ -10,7 +10,7 @@
 	<scm>
 		<developerConnection>scm:git:https://github.com/usethesource/rascal-value.git</developerConnection>
 	  <tag>HEAD</tag>
-  </scm>
+       </scm>
 
 	<!-- deployment configuration (usethesource) -->
 	<distributionManagement>
@@ -38,7 +38,6 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 
-<<<<<<< HEAD
 	 <build>
 	   <resources>
             <resource>
@@ -48,9 +47,6 @@
                 </includes>
             </resource>
         </resources>
-=======
-	<build>
->>>>>>> master
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -722,6 +722,7 @@ public class TypeFactory {
 		}
 	
 		public String getLabel(IValue symbol) {
+		    assert symbol instanceof IConstructor && isLabel((IConstructor) symbol);
 			return ((IString) ((IConstructor) symbol).get("name")).getValue();
 		}
 		
@@ -730,6 +731,7 @@ public class TypeFactory {
 		}
 	
 		public IConstructor getLabeledSymbol(IValue symbol) {
+		    assert symbol instanceof IConstructor && isLabel((IConstructor) symbol);
 			return (IConstructor) ((IConstructor) symbol).get("symbol");
 		}
 		
