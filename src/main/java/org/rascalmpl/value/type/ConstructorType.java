@@ -84,7 +84,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 			}
 
 			IConstructor adt = type.getAbstractDataType().asSymbol(vf, store, grammar, done);
-			IConstructor cons = vf.constructor(getSymbolConstructorType(),  symbols().labelSymbol(vf, adt, type.getName()), w.done());
+			IConstructor cons = vf.constructor(getSymbolConstructorType(),  adt, vf.string(type.getName()), w.done());
 
 			return cons;
 		}

@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -69,6 +70,11 @@ public class TypeFactory {
 	public Type randomType() {
 	    return cachedTypeValues().randomType(new TypeStore(), 5);
 	}
+	
+	public Type randomType(TypeStore typeStore) {
+	    return cachedTypeValues().randomType(typeStore, 5);
+	}
+	
 	
     /**
 	 * construct the value type, which is the top type of the type hierarchy
@@ -619,19 +625,18 @@ public class TypeFactory {
 	}
 	
 	/**
-	   * Represent this type as a value of the abstract data-type "Symbol". As a side-effect
-	   * it will also add Production values to the grammar map, including all necessary productions
-	   * to build values of the receiver type, transitively.
-	   * 
-	   * @param  vf valuefactory to use 
-	   * @param store store to lookup additional necessary definitions in to store in the grammar
-	   * @param grammar map to store production values in as a side-effect
-	   * @param done a working set to store data-types which have been explored already to avoid infinite recursion
-	   * @return a value to uniquely represent this type.
-	   */
-	public IConstructor asSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-		return type.asSymbol(vf, store, grammar, done);
-	}
+     * Represent this type as a value of the abstract data-type "Symbol". As a side-effect
+     * it will also add Production values to the grammar map, including all necessary productions
+     * to build values of the receiver type, transitively.
+     * 
+     * @param  vf valuefactory to use 
+     * @param store store to lookup additional necessary definitions in to store in the grammar
+     * @param grammar map to store production values in as a side-effect
+     * @return a value to uniquely represent this type.
+     */
+	public IConstructor asSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar) {
+        return type.asSymbol(vf, store, grammar, new HashSet<>());
+    }
 
 	/**
 	 * Construct a type parameter, which can later be instantiated.
@@ -720,6 +725,10 @@ public class TypeFactory {
         
         default Type randomTuple(Supplier<Type> next, TypeStore store, Random rnd) {
             return new TupleType.Info().randomInstance(next, store, rnd);
+        }
+        
+        default Type randomTuple(Supplier<Type> next, TypeStore store, Random rnd, int arity) {
+            return new TupleType.Info().randomInstance(next, store, rnd, arity);
         }
 	}
 

@@ -88,8 +88,11 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		
 		@Override
 		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-		    int arity = rnd.nextInt(10);
-		    Type[] types = new Type[arity];
+		    return randomInstance(next, store, rnd, rnd.nextInt(10));
+		}
+
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd, int arity) {
+            Type[] types = new Type[arity];
 		    
 		    for (int i = 0; i < arity; i++) {
 		        types[i] = next.get();
@@ -105,7 +108,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		    }
 
 		    return tf().tupleType(types, labels);
-		}
+        }
 
         
 	}

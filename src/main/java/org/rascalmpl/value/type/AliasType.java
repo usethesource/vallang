@@ -92,17 +92,8 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 		@Override
 		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-		    Type[] aliases = store.getAliases().toArray(new Type[0]);
-		    
-		    if (aliases.length > 0 && rnd.nextBoolean()) {
-		        return aliases[rnd.nextInt(aliases.length)];
-		    }
-		    
-		    if (rnd.nextBoolean()) {
-		        return tf().aliasTypeFromTuple(store, randomLabel(rnd), next.get(), randomTuple(next, store, rnd));
-		    } else {
-		        return tf().aliasType(store, randomLabel(rnd), next.get());
-		    }
+		    // we don't generate aliases because we also never reify them
+		    return TypeFactory.getInstance().randomType(store);
 		}
 	}
 
