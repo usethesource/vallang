@@ -15,8 +15,10 @@ package org.rascalmpl.value.type;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.value.IConstructor;
@@ -44,6 +46,8 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 				// TODO remove; this is for bootstrapping with an old version
 				return tf().listType(symbols().fromSymbols((IList) symbol.get("symbols"), store, grammar));
 			}
+			
+			
 		}
 		
 		@Override
@@ -78,6 +82,20 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 				Set<IConstructor> done) {
 			type.getElementType().asProductions(vf, store, grammar, done);
 		}
+
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return tf().listType(next.get());
+        }
+        
+        @Override
+        public boolean isRecursive() {
+            return false;
+        }
+
+        public String randomLabel() {
+            return null;
+        }
 	}
 
 	@Override

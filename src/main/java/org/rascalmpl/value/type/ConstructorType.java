@@ -13,8 +13,10 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -153,6 +155,16 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 			grammar.insert(vf.tuple(adt, cons));
 		}
+        
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
+        
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return tf().constructorFromTuple(store, new AbstractDataType.Info().randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
+        }
 	}
 
 	@Override

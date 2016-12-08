@@ -15,8 +15,10 @@ package org.rascalmpl.value.type;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.value.IConstructor;
@@ -45,6 +47,16 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 					getSetType(),
 					getRelType() // TODO: can be removed after bootstrap
 			}).collect(Collectors.toSet());
+		}
+		
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    return tf().setType(next.get());
+		}
+		
+		@Override
+		public boolean isRecursive() {
+		    return false;
 		}
 
 		private Type getRelType() {
@@ -77,6 +89,10 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 				Set<IConstructor> done) {
 			type.getElementType().asProductions(vf, store, grammar, done);
 		}
+
+        public String randomLabel() {
+            return null;
+        }
 	}
 	
 

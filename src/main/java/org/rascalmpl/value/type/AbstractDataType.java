@@ -11,10 +11,11 @@
 
 package org.rascalmpl.value.type;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -53,8 +54,6 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			IConstructor res = simpleToSymbol(type, vf, store, grammar, done);
 
-			
-			
 			if (!done.contains(res)) {
 				done.add(res);
 				
@@ -114,6 +113,33 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 			}
 
 			return adt;
+		}
+		
+		@Override
+		public boolean isRecursive() {
+		    return true;
+		}
+
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    if (rnd.nextBoolean()) {
+		       Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
+		       
+		       if (adts.length > 0) {
+		           return adts[Math.max(0, (int) Math.round(Math.random() * adts.length - 1))];
+		       }
+		    } 
+		    
+		    if (rnd.nextBoolean()) {
+		        if (rnd.nextBoolean()) {
+		            return tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd)));
+		        }
+		        else {
+		            return tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd), new ParameterType.Info().randomInstance(next, store, rnd)));
+		        }
+		    } else {
+		        return tf().abstractDataType(store, randomLabel(rnd));
+		    }
 		}
     }
 

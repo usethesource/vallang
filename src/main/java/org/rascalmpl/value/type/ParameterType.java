@@ -12,8 +12,11 @@
 package org.rascalmpl.value.type;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISetWriter;
@@ -55,6 +58,11 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		}
 
 		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    return tf().parameterType(randomLabel(rnd));
+		}
+		
+		@Override
 		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
 				Set<IConstructor> done) {
 			return vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), type.getBound().asSymbol(vf, store, grammar, done));
@@ -65,6 +73,10 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 				Set<IConstructor> done) {
 			type.getBound().asProductions(vf, store, grammar, done);
 		}
+
+        public String randomLabel() {
+            return null;
+        }
 	}
 
 	@Override

@@ -14,8 +14,10 @@
 package org.rascalmpl.value.type;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISetWriter;
@@ -86,11 +88,25 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		}
 		
 		@Override
+        public boolean isRecursive() {
+            return false;
+        }
+		
+		@Override
 		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
 				Set<IConstructor> done) {
 			type.getKeyType().asProductions(vf, store, grammar, done);
 	    	type.getValueType().asProductions(vf, store, grammar, done);
 		}
+
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return tf().mapType(next.get(), next.get());
+        }
+
+        public String randomLabel() {
+            return null;
+        }
 	}
 
 	@Override
@@ -203,6 +219,8 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
     		return TypeFactory.getInstance().tupleType(fKeyType, fValueType);
     	}
     }
+    
+    
     
     @Override
     public Type carrier() {

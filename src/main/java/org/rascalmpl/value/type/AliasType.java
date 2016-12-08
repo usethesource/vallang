@@ -14,12 +14,13 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
@@ -87,6 +88,21 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 				Set<IConstructor> done) {
 			type.getAliased().asProductions(vf, store, grammar, done);
 			type.getTypeParameters().asProductions(vf, store, grammar, done);
+		}
+
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    Type[] aliases = store.getAliases().toArray(new Type[0]);
+		    
+		    if (aliases.length > 0 && rnd.nextBoolean()) {
+		        return aliases[rnd.nextInt(aliases.length)];
+		    }
+		    
+		    if (rnd.nextBoolean()) {
+		        return tf().aliasTypeFromTuple(store, randomLabel(rnd), next.get(), randomTuple(next, store, rnd));
+		    } else {
+		        return tf().aliasType(store, randomLabel(rnd), next.get());
+		    }
 		}
 	}
 

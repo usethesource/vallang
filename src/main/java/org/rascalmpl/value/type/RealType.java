@@ -13,8 +13,10 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.type.TypeFactory.TypeReifier;
@@ -40,6 +42,15 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 				Function<IConstructor, Set<IConstructor>> grammar) {
 			return getInstance();
 		}
+		
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    return tf().realType();
+		}
+
+        public String randomLabel() {
+            return null;
+        }
 		
 	}
 	

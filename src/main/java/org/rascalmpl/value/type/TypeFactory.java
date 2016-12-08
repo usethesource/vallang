@@ -17,13 +17,17 @@ package org.rascalmpl.value.type;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -62,7 +66,11 @@ public class TypeFactory {
 		return InstanceHolder.sInstance;
 	}
 	
-	/**
+	public Type randomType() {
+	    return cachedTypeValues().randomType(new TypeStore(), 5);
+	}
+	
+    /**
 	 * construct the value type, which is the top type of the type hierarchy
 	 * representing all possible values.
 	 * 
@@ -441,7 +449,7 @@ public class TypeFactory {
 		}
 		Type result = getFromCache(new AbstractDataType(name, params));
 
-		if (!params.equivalent(voidType())) {
+		if (!params.equivalent(voidType()) && params.getArity() > 0) {
 			if (params.getFieldType(0).isOpen()) { // parametrized and uninstantiated
 				// adts should be stored
 				store.declareAbstractDataType(result);
@@ -689,6 +697,12 @@ public class TypeFactory {
 		
 		Type getSymbolConstructorType();
 		
+		default boolean isRecursive() {
+		    return false;
+		}
+		
+		Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd);
+		
 		default IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			// this will work for all nullary type symbols with only one constructor type
 			return vf.constructor(getSymbolConstructorType());
@@ -699,6 +713,14 @@ public class TypeFactory {
 		}
 		
 		Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar);
+
+        default String randomLabel(Random rnd) {
+            return "x" + new BigInteger(130, rnd).toString(32);
+        }
+        
+        default Type randomTuple(Supplier<Type> next, TypeStore store, Random rnd) {
+            return new TupleType.Info().randomInstance(next, store, rnd);
+        }
 	}
 
 	public class TypeValues {
@@ -712,7 +734,52 @@ public class TypeFactory {
 		
 		private TypeValues() { 	}
 		
-		public boolean isLabel(IConstructor symbol) {
+		public Type randomType(TypeStore typeStore, int maxDepth) {
+		    Random rnd = new Random();
+		    Supplier<Type> next = new Supplier<Type>() {
+		        int maxTries = maxDepth;
+		        
+                @Override
+                public Type get() {
+                    if (maxTries-- > 0) {
+                        return getRandomType(this, rnd, typeStore); 
+                    }
+                    else {
+                        return getRandomNonRecursiveType(this, rnd, typeStore);
+                    }
+                }
+		    };
+		            
+		    return getRandomType(next, rnd, typeStore);
+	    }
+		
+		private Type getRandomNonRecursiveType(Supplier<Type> next, Random rnd, TypeStore typeStore) {
+		    Iterator<TypeReifier> it = symbolConstructorTypes.values().iterator();
+            TypeReifier reifier = it.next();
+          
+            while (it.hasNext()) {
+                reifier = it.next();
+                if (!reifier.isRecursive()) {
+                    break;
+                }
+            }
+            
+            return reifier.randomInstance(next, typeStore, rnd);
+        }
+
+        private Type getRandomType(Supplier<Type> next, Random rnd, TypeStore typeStore) {
+            TypeReifier[] alts = symbolConstructorTypes.values().toArray(new TypeReifier[0]);
+            TypeReifier selected = alts[Math.max(0, rnd.nextInt(alts.length) - 1)];
+            
+            // increase the chance of recursive types
+            while (rnd.nextBoolean() && !selected.isRecursive()) {
+               selected = alts[Math.max(0, rnd.nextInt(alts.length))];
+            }
+            
+            return selected.randomInstance(next, typeStore, rnd);
+        }
+
+        public boolean isLabel(IConstructor symbol) {
 			return symbol.getConstructorType() == Symbol_Label;
 		}
 	

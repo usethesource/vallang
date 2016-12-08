@@ -14,8 +14,10 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
@@ -48,6 +50,14 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		return getInstance();
 	}
 	  
+	@Override
+    public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        return tf().voidType();
+    }
+
+    public String randomLabel() {
+        return null;
+    }
   }
   
   @Override
