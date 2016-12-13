@@ -720,7 +720,7 @@ public class TypeFactory {
 		Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar);
 
         default String randomLabel(Random rnd) {
-            return "x" + new BigInteger(130, rnd).toString(32);
+            return "x" + new BigInteger(32, rnd).toString(32);
         }
         
         default Type randomTuple(Supplier<Type> next, TypeStore store, Random rnd) {

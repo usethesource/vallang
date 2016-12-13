@@ -88,7 +88,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		
 		@Override
 		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-		    return randomInstance(next, store, rnd, rnd.nextInt(10));
+		    return randomInstance(next, store, rnd, rnd.nextInt(5));
 		}
 
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd, int arity) {
