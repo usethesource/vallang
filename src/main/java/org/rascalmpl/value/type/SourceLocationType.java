@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007, 2016 IBM Corporation, Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -12,10 +12,16 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
-    private static final class InstanceKeeper {
+	private static final class InstanceKeeper {
       public final static SourceLocationType sInstance= new SourceLocationType();
     }
 
@@ -23,10 +29,34 @@ package org.rascalmpl.value.type;
         return InstanceKeeper.sInstance;
     }
 
-    private SourceLocationType() {
-    	super();
-    }
+    public static class Info implements TypeReifier {
 
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("loc");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store,
+				Function<IConstructor, Set<IConstructor>> grammar) {
+			return getInstance();
+		}
+		
+		@Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return tf().sourceLocationType();
+        }
+
+        public String randomLabel() {
+            return null;
+        }
+	}
+    
+    @Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */

@@ -14,10 +14,20 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
@@ -28,20 +38,91 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
 	 * Creates a tuple type with the given field types. Copies the array.
 	 */
 	/* package */TupleType(Type[] fieldTypes) {
-		super();
-
 		fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
 									// up being a bottleneck
 		fFieldNames = null;
 	}
+	
+	public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("tuple", TF.listType(symbols().symbolADT()), "symbols");
+		}
 
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+			return symbols().fromSymbols((IList) symbol.get("symbols"), store, grammar);
+		}
+
+		@Override
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			IListWriter w = vf.listWriter();
+
+			if (type.hasFieldNames()) {
+				for (int i = 0; i < type.getArity(); i++) {
+					w.append(symbols().labelSymbol(vf, type.getFieldType(i).asSymbol(vf, store, grammar, done), type.getFieldName(i)));
+				}
+			}
+			else {
+				for (Type f : type) {
+					w.append(f.asSymbol(vf, store, grammar, done));
+				}
+			}
+
+			return vf.constructor(getSymbolConstructorType(), w.done());
+		}
+
+		@Override
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			for (Type f : type) {
+				f.asProductions(vf, store, grammar, done);
+			}
+		}
+		
+		@Override
+        public boolean isRecursive() {
+            return true;
+        }
+		
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    return randomInstance(next, store, rnd, rnd.nextInt(5));
+		}
+
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd, int arity) {
+            Type[] types = new Type[arity];
+		    
+		    for (int i = 0; i < arity; i++) {
+		        types[i] = next.get();
+		    }
+		    
+		    if (rnd.nextBoolean()) {
+		        return tf().tupleType(types);
+		    }
+		    
+		    String[] labels = new String[arity];
+		    for (int i = 0; i < arity; i++) {
+		        labels[i] = randomLabel(rnd);
+		    }
+
+		    return tf().tupleType(types, labels);
+        }
+
+        
+	}
+
+	@Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+	
 	/**
 	 * Creates a tuple type with the given field types and names. Copies the
 	 * arrays.
 	 */
 	/* package */TupleType(Type[] fieldTypes, String[] fieldNames) {
-		super();
-
 		fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
 									// up being a bottleneck
 		if (fieldNames.length != 0) {

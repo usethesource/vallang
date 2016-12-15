@@ -12,10 +12,21 @@
 package org.rascalmpl.value.type;
 
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAbstractDataTypeException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
  * A AbstractDataType is an algebraic sort. A sort is produced by
@@ -25,14 +36,118 @@ import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
  * @see ConstructorType
  */
 /* package */ class AbstractDataType extends NodeType {
-    private final String fName;
+	private final String fName;
     private final Type fParameters;
-
+    
     protected AbstractDataType(String name, Type parameters) {
         fName = name;
         fParameters = parameters;
     }
+  
+    public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("adt", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters");
+		}
 
+		@Override
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+			IConstructor res = simpleToSymbol(type, vf, store, grammar, done);
+
+			if (!done.contains(res)) {
+				done.add(res);
+				
+				if (type.getTypeParameters().getArity() != 0) {
+					// we have to look up the original definition to find the original constructors
+					Type adt = store.lookupAbstractDataType(type.getName());
+					if (adt != null) {
+						type = adt; // then collect the grammar for the uninstantiated adt.
+					}
+				}
+				
+				asProductions(type, vf, store, grammar, done);
+			}
+
+			return res;
+		}
+
+		private IConstructor simpleToSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+			IListWriter w = vf.listWriter();
+			Type params = type.getTypeParameters();
+
+			if (params.getArity() > 0) {
+				for (Type param : params) {
+					w.append(param.asSymbol(vf, store, grammar, done));
+				}
+			}
+
+			return vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), w.done());
+		}
+
+		@Override
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+			store.lookupAlternatives(type).stream().forEach(x -> x.asProductions(vf, store, grammar, done));
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+			String name = ((IString) symbol.get("name")).getValue();
+			Type adt = store.lookupAbstractDataType(name);
+
+			if (adt != null) {
+				// this stops infinite recursions while exploring the type store.
+				return adt;
+			}
+
+			Type params = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+			if (params.isBottom() || params.getArity() == 0) {
+				adt = TF.abstractDataType(store, name);
+			}
+			else {
+				adt = TF.abstractDataTypeFromTuple(store, name, params);
+			}
+
+			// explore the rest of the definition and add it to the store
+			for (IConstructor t : grammar.apply(symbol)) {
+				((ConstructorType.Info) t.getConstructorType().getTypeReifier()).fromProduction(t, store, grammar);
+			}
+
+			return adt;
+		}
+		
+		@Override
+		public boolean isRecursive() {
+		    return true;
+		}
+
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    if (rnd.nextBoolean()) {
+		       Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
+		       
+		       if (adts.length > 0) {
+		           return adts[Math.max(0, (int) Math.round(Math.random() * adts.length - 1))];
+		       }
+		    } 
+		    
+		    if (rnd.nextBoolean()) {
+		        if (rnd.nextBoolean()) {
+		            return tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd)));
+		        }
+		        else {
+		            return tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd), new ParameterType.Info().randomInstance(next, store, rnd)));
+		        }
+		    } else {
+		        return tf().abstractDataType(store, randomLabel(rnd));
+		    }
+		}
+    }
+
+    @Override
+    public TypeReifier getTypeReifier() {
+    	return new Info();
+    }
+    
     @Override
     protected boolean isSupertypeOf(Type type) {
         return type.isSubtypeOfAbstractData(this);

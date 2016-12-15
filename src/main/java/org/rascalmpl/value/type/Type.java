@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation.
+ * Copyright (c) 2007 IBM Corporation, 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,17 +7,22 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+ *    Jurgen Vinju - initial API and implementation
  *******************************************************************************/
 
 package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
  * This class is the abstract implementation for all types. Types are ordered in
@@ -40,7 +45,7 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
  */
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
-  
+
   // these constants are cached to avoid having to compute their hash-codes
   // for canonicalization all the time. The types are used to implement predicate
   // methods below such as isList and isMap, etc.
@@ -58,6 +63,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   private static final Type MAP_TYPE = TF.mapType(VALUE_TYPE, VALUE_TYPE);
   private static final Type LIST_TYPE = TF.listType(VALUE_TYPE);
   private static final Type SET_TYPE = TF.setType(VALUE_TYPE);
+  
+  public abstract TypeReifier getTypeReifier();
   
   /**
    * Retrieve the type of elements in a set or a relation.
@@ -209,7 +216,35 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public int getArity() {
     throw new IllegalOperationException("getArity", this);
   }
+  
+  /**
+   * Represent this type as a value of the abstract data-type "Symbol". As a side-effect
+   * it will also add Production values to the grammar map, including all necessary productions
+   * to build values of the receiver type, transitively.
+   * 
+   * @param  vf valuefactory to use 
+   * @param store store to lookup additional necessary definitions in to store in the grammar
+   * @param grammar map to store production values in as a side-effect
+   * @param done a working set to store data-types which have been explored already to avoid infinite recursion
+   * @return a value to uniquely represent this type.
+   */
+  public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+	  return getTypeReifier().toSymbol(this, vf, store, grammar, done);
+  }
 
+  /**
+   * Map the given typestore to a set of production values, with only definitions
+   * reachable from the receiver type
+   * 
+   * @param  vf valuefactory to use 
+   * @param  store typestore which contains source definitions
+   * @param done a working set to store data-types which have been explored already to avoid infinite recursion
+   */
+  public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+	  getTypeReifier().asProductions(this, vf, store, grammar, done);
+  }
+
+  
   /**
    * Compose two binary tuples or binary relation types.
    * 

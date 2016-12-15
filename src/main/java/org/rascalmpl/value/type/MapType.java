@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2008, 2012 CWI
+* Copyright (c) 2008, 2012, 2016 CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,14 +8,23 @@
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *    Anya Helene Bagge - labels
+*    Jurgen Vinju - reification
 *******************************************************************************/
 
 package org.rascalmpl.value.type;
 
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredFieldException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/ final class MapType extends DefaultSubtypeOfValue {
     private final Type fKeyType;
@@ -37,6 +46,74 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     	fValueLabel = valueLabel;
     }
     
+    
+    public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("map", symbols().symbolADT(), "from", symbols().symbolADT(), "to");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+			IConstructor from = (IConstructor) symbol.get("from");
+			IConstructor to = (IConstructor) symbol.get("to");
+			String fromLabel = null;
+			String toLabel = null;
+			
+			if (symbols().isLabel(from)) {
+				fromLabel = symbols().getLabel(from);
+				from = (IConstructor) from.get("symbol");
+			}
+			if (symbols().isLabel(to)) {
+				toLabel = symbols().getLabel(to);
+				to = (IConstructor) to.get("symbol");
+			}
+			if (fromLabel != null && toLabel != null) {
+				return tf().mapType(symbols().fromSymbol(from, store, grammar), fromLabel, symbols().fromSymbol(to, store, grammar), toLabel);
+			}
+			else {
+				return tf().mapType(symbols().fromSymbol(from, store, grammar), symbols().fromSymbol(to, store, grammar));
+			}
+		}
+		
+		@Override
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			if (type.hasFieldNames()) {
+				return vf.constructor(getSymbolConstructorType(), symbols().labelSymbol(vf, type.getKeyType().asSymbol(vf, store, grammar, done), type.getKeyLabel()),  symbols().labelSymbol(vf, type.getValueType().asSymbol(vf, store, grammar, done), type.getValueLabel()));
+			}
+			else {
+				return vf.constructor(getSymbolConstructorType(), type.getKeyType().asSymbol(vf, store, grammar, done), type.getValueType().asSymbol(vf, store, grammar, done));
+			}
+		}
+		
+		@Override
+        public boolean isRecursive() {
+            return false;
+        }
+		
+		@Override
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			type.getKeyType().asProductions(vf, store, grammar, done);
+	    	type.getValueType().asProductions(vf, store, grammar, done);
+		}
+
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return tf().mapType(next.get(), next.get());
+        }
+
+        public String randomLabel() {
+            return null;
+        }
+	}
+
+	@Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+	
 	@Override
     public Type getKeyType() {
     	return fKeyType;
@@ -142,6 +219,8 @@ import org.rascalmpl.value.exceptions.UndeclaredFieldException;
     		return TypeFactory.getInstance().tupleType(fKeyType, fValueType);
     	}
     }
+    
+    
     
     @Override
     public Type carrier() {

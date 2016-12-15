@@ -14,8 +14,14 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
  * The void type represents an empty collection of values. I.e. it is a subtype
@@ -33,10 +39,27 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
     return InstanceKeeper.sInstance;
   }
 
-  private VoidType() {
-    super();
-  }
+  public static class Info implements TypeReifier {
+	@Override
+	public Type getSymbolConstructorType() {
+		return symbols().typeSymbolConstructor("void");
+	}
 
+	@Override
+	public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+		return getInstance();
+	}
+	  
+	@Override
+    public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        return tf().voidType();
+    }
+
+    public String randomLabel() {
+        return null;
+    }
+  }
+  
   @Override
   public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
     return visitor.visitVoid(this);
@@ -501,4 +524,11 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
   protected Type glbWithDateTime(Type type) {
     return this;
   }
+
+  @Override
+  public TypeReifier getTypeReifier() {
+	 return new Info();
+  }
+
+  
 }

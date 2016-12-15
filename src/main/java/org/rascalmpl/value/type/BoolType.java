@@ -1,31 +1,62 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ * Copyright (c) 2007 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
-*******************************************************************************/
+ *******************************************************************************/
 
 package org.rascalmpl.value.type;
 
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/ final class BoolType extends DefaultSubtypeOfValue {
-  private final static class InstanceKeeper {
-    public final static BoolType sInstance = new BoolType();
-  }
+	private final static class InstanceKeeper {
+		public final static BoolType sInstance = new BoolType();
+	}
 
 	public static BoolType getInstance() {
 		return InstanceKeeper.sInstance;
 	}
 
-	private BoolType() {
-		super();
+	public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("bool");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store,
+				Function<IConstructor, Set<IConstructor>> grammar) {
+			return getInstance();
+		}
+
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return tf().boolType();
+        }
+
+        public String randomLabel() {
+            return null;
+        }
+
 	}
 
+	@Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+	
 	/**
 	 * Should never need to be called; there should be only one instance of
 	 * IntegerType
@@ -49,34 +80,34 @@ package org.rascalmpl.value.type;
 	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitBool(this);
 	}
-	
+
 	@Override
-  protected boolean isSupertypeOf(Type type) {
-    return type.isSubtypeOfBool(this);
-  }
-  
-  @Override
-  public Type lub(Type other) {
-    return other.lubWithBool(this);
-  }
-  
-  @Override
-  protected boolean isSubtypeOfBool(Type type) {
-    return true;
-  }
-  
-  @Override
-  protected Type lubWithBool(Type type) {
-    return this;
-  }
-  
-  @Override
-  public Type glb(Type type) {
-    return type.glbWithBool(this);
-  }
-  
-  @Override
-  protected Type glbWithBool(Type type) {
-    return this;
-  }
+	protected boolean isSupertypeOf(Type type) {
+		return type.isSubtypeOfBool(this);
+	}
+
+	@Override
+	public Type lub(Type other) {
+		return other.lubWithBool(this);
+	}
+
+	@Override
+	protected boolean isSubtypeOfBool(Type type) {
+		return true;
+	}
+
+	@Override
+	protected Type lubWithBool(Type type) {
+		return this;
+	}
+
+	@Override
+	public Type glb(Type type) {
+		return type.glbWithBool(this);
+	}
+
+	@Override
+	protected Type glbWithBool(Type type) {
+		return this;
+	}
 }

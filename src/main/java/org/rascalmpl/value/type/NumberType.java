@@ -12,100 +12,133 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
+
 /**
  * A type for values that are either ints or reals
  */
 /* package */class NumberType extends DefaultSubtypeOfValue {
-  protected final static NumberType sInstance = new NumberType();
+	private static final class InstanceKeeper {
+		protected final static NumberType sInstance = new NumberType();
+	}
 
-  protected NumberType() {
-    super();
-  }
+	public static NumberType getInstance() {
+		return InstanceKeeper.sInstance;
+	}
 
-  public static NumberType getInstance() {
-    return sInstance;
-  }
+	public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("num");
+		}
 
-  @Override
-  public String toString() {
-    return "num";
-  }
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store,
+				Function<IConstructor, Set<IConstructor>> grammar) {
+			return getInstance();
+		}
+		
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    return tf().numberType();
+		}
 
-  @Override
-  protected boolean isSupertypeOf(Type type) {
-    return type.isSubtypeOfNumber(this);
-  }
+        public String randomLabel() {
+            return null;
+        }
+	}
 
-  @Override
-  public Type lub(Type other) {
-    return other.lubWithNumber(this);
-  }
+	@Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+	
+	@Override
+	public String toString() {
+		return "num";
+	}
 
-  @Override
-  protected boolean isSubtypeOfNumber(Type type) {
-    return true;
-  }
+	@Override
+	protected boolean isSupertypeOf(Type type) {
+		return type.isSubtypeOfNumber(this);
+	}
 
-  @Override
-  protected Type lubWithNumber(Type type) {
-    return type;
-  }
+	@Override
+	public Type lub(Type other) {
+		return other.lubWithNumber(this);
+	}
 
-  @Override
-  protected Type lubWithInteger(Type type) {
-    return NumberType.getInstance();
-  }
+	@Override
+	protected boolean isSubtypeOfNumber(Type type) {
+		return true;
+	}
 
-  @Override
-  protected Type lubWithReal(Type type) {
-    return NumberType.getInstance();
-  }
+	@Override
+	protected Type lubWithNumber(Type type) {
+		return type;
+	}
 
-  @Override
-  protected Type lubWithRational(Type type) {
-    return NumberType.getInstance();
-  }
-  
-  @Override
-  public Type glb(Type type) {
-    return type.glbWithNumber(this);
-  }
-  
-  @Override
-  protected Type glbWithNumber(Type type) {
-    return this;
-  }
+	@Override
+	protected Type lubWithInteger(Type type) {
+		return NumberType.getInstance();
+	}
 
-  @Override
-  protected Type glbWithInteger(Type type) {
-    return type;
-  }
-  
-  @Override
-  protected Type glbWithReal(Type type) {
-    return type;
-  }
-  
-  @Override
-  protected Type glbWithRational(Type type) {
-    return type;
-  }
-  
-  /**
-   * Should never be called, NodeType is a singleton
-   */
-  @Override
-  public boolean equals(Object o) {
-    return o == NumberType.getInstance();
-  }
+	@Override
+	protected Type lubWithReal(Type type) {
+		return NumberType.getInstance();
+	}
 
-  @Override
-  public int hashCode() {
-    return 133020331;
-  }
+	@Override
+	protected Type lubWithRational(Type type) {
+		return NumberType.getInstance();
+	}
 
-  @Override
-  public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-    return visitor.visitNumber(this);
-  }
+	@Override
+	public Type glb(Type type) {
+		return type.glbWithNumber(this);
+	}
+
+	@Override
+	protected Type glbWithNumber(Type type) {
+		return this;
+	}
+
+	@Override
+	protected Type glbWithInteger(Type type) {
+		return type;
+	}
+
+	@Override
+	protected Type glbWithReal(Type type) {
+		return type;
+	}
+
+	@Override
+	protected Type glbWithRational(Type type) {
+		return type;
+	}
+
+	/**
+	 * Should never be called, NodeType is a singleton
+	 */
+	@Override
+	public boolean equals(Object o) {
+		return o == NumberType.getInstance();
+	}
+
+	@Override
+	public int hashCode() {
+		return 133020331;
+	}
+
+	@Override
+	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
+		return visitor.visitNumber(this);
+	}
 }

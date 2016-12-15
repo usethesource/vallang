@@ -11,7 +11,6 @@
 
 package org.rascalmpl.value.type;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +18,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeDeclarationException;
@@ -58,15 +56,8 @@ public class TypeStore {
 	 * The ADTs for which overloading checking is turned off
 	 * (they play a role in the Rascal bootstrap procedure)
 	 */
-	static private final TreeSet<String> IGNORE_OVERLOADING_CHECKS;
-	  
-	static {
-		String[] bootstrap_adts = {
-				"Grammar",
-				"RuntimeException"
-		};
-		IGNORE_OVERLOADING_CHECKS = new TreeSet<String>(Arrays.asList(bootstrap_adts));
-	}
+	static private final java.util.List<String> IGNORE_OVERLOADING_CHECKS = Arrays.asList(
+			new String[] {"Grammar", "RuntimeException"});
 
 	/**
 	 * A type store that is initially empty and imports the given TypeStores.
@@ -304,7 +295,7 @@ public class TypeStore {
 
 	        if (oldAdt != null) {
 	          if (adt.comparable(oldAdt) || oldAdt.isExternalType()) {
-	            return; // paramaterized ADT got instantiated, don't store.
+	            return; // paramaterized ADT got instantiated, or a double declaration, so don't store.
 	          }
 
 	          throw new FactTypeRedeclaredException(name, oldAdt);

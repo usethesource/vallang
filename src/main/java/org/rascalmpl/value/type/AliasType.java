@@ -14,8 +14,18 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be used to
@@ -44,6 +54,52 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 		fName = name;
 		fAliased = aliased;
 		fParameters = parameters;
+	}
+	
+	public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("alias", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters", symbols().symbolADT(), "aliased");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+			 String name = ((IString) symbol.get("name")).getValue();
+			 Type aliased = symbols().fromSymbol((IConstructor) symbol.get("aliased"), store, grammar);
+			 IList parameters = (IList) symbol.get("parameters");
+
+			 if (parameters.isEmpty()) {
+				 return TF.aliasType(store, name, aliased);
+			 }
+			 else {
+				 return TF.aliasTypeFromTuple(store, name, aliased,  symbols().fromSymbols(parameters, store, grammar));
+			 }
+		}
+
+		@Override
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			// we expand aliases away here!
+			return type.getAliased().asSymbol(vf, store, grammar, done);
+		}
+
+		@Override
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+				Set<IConstructor> done) {
+			type.getAliased().asProductions(vf, store, grammar, done);
+			type.getTypeParameters().asProductions(vf, store, grammar, done);
+		}
+
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    // we don't generate aliases because we also never reify them
+		    return TypeFactory.getInstance().randomType(store);
+		}
+	}
+
+	@Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
 	}
 
 	@Override

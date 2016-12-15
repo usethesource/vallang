@@ -12,20 +12,50 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/ final class IntegerType extends NumberType {
-    private static final class InstanceKeeper {
+	private static final class InstanceKeeper {
       public final static IntegerType sInstance= new IntegerType();
     }
     
     public static IntegerType getInstance() {
         return InstanceKeeper.sInstance;
     }
+    
+    public static class Info implements TypeReifier {
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("int");
+		}
 
-    private IntegerType() {
-    	super();
-    }
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store,
+				Function<IConstructor, Set<IConstructor>> grammar) {
+			return getInstance();
+		}
+		
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    return tf().integerType();
+		}
 
+        public String randomLabel() {
+            return null;
+        }
+	}
+
+    @Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -33,7 +63,7 @@ package org.rascalmpl.value.type;
     public boolean equals(Object obj) {
         return obj == IntegerType.getInstance();
     }
-
+    
     @Override
     public int hashCode() {
         return 74843;

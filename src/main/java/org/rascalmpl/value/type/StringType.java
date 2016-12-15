@@ -12,9 +12,16 @@
 
 package org.rascalmpl.value.type;
 
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/ final class StringType extends DefaultSubtypeOfValue {
-    private static final class InstanceKeeper {
+	private static final class InstanceKeeper {
       private final static StringType sInstance= new StringType();
     }
 
@@ -22,10 +29,34 @@ package org.rascalmpl.value.type;
         return InstanceKeeper.sInstance;
     }
 
-    private StringType() {
-      super();
-    }
+    public static class Info implements TypeReifier {
 
+		@Override
+		public Type getSymbolConstructorType() {
+			return symbols().typeSymbolConstructor("str");
+		}
+
+		@Override
+		public Type fromSymbol(IConstructor symbol, TypeStore store,
+				Function<IConstructor, Set<IConstructor>> grammar) {
+			return getInstance();
+		}
+		
+		@Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return tf().stringType();
+        }
+
+        public String randomLabel() {
+            return null;
+        }
+	}
+    
+    @Override
+	public TypeReifier getTypeReifier() {
+		return new Info();
+	}
+    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
