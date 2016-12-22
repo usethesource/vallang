@@ -4,12 +4,12 @@
 
 	<groupId>org.rascalmpl</groupId>
 	<artifactId>value</artifactId>
-	<version>0.6.2-SNAPSHOT</version>
+	<version>0.6.2</version>
 	<packaging>jar</packaging>
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/usethesource/rascal-value.git</developerConnection>
-	  <tag>HEAD</tag>
+	  <tag>v0.6.2</tag>
        </scm>
 
 	<!-- deployment configuration (usethesource) -->
