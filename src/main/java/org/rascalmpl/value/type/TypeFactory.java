@@ -74,6 +74,15 @@ public class TypeFactory {
 	public Type randomType(TypeStore typeStore) {
 	    return cachedTypeValues().randomType(typeStore, 5);
 	}
+
+	public Type randomType(TypeStore typeStore, int depth) {
+	    return cachedTypeValues().randomType(typeStore, depth);
+	}
+
+	public Type randomType(TypeStore typeStore, Random r, int depth) {
+	    return cachedTypeValues().randomType(typeStore, depth);
+	}
+
 	
 	
     /**
@@ -744,7 +753,10 @@ public class TypeFactory {
 		private TypeValues() { 	}
 		
 		public Type randomType(TypeStore typeStore, int maxDepth) {
-		    Random rnd = new Random();
+		    return randomType(typeStore, new Random(), maxDepth);
+		}
+
+		public Type randomType(TypeStore typeStore, Random rnd, int maxDepth) {
 		    Supplier<Type> next = new Supplier<Type>() {
 		        int maxTries = maxDepth;
 		        
