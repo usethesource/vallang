@@ -68,11 +68,14 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 			 Type aliased = symbols().fromSymbol((IConstructor) symbol.get("aliased"), store, grammar);
 			 IList parameters = (IList) symbol.get("parameters");
 
+			 // we expand the aliases here, but only if the
+			 // type parameters have been instantiated or there are none
 			 if (parameters.isEmpty()) {
-				 return TF.aliasType(store, name, aliased);
+				 return aliased;
 			 }
 			 else {
-				 return TF.aliasTypeFromTuple(store, name, aliased,  symbols().fromSymbols(parameters, store, grammar));
+                Type params = symbols().fromSymbols(parameters, store, grammar);
+                return params.isOpen() ? TF.aliasTypeFromTuple(store, name, aliased,  params) : aliased; 
 			 }
 		}
 
