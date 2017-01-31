@@ -14,6 +14,7 @@ package org.rascalmpl.value.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.rascalmpl.value.IConstructor;
@@ -153,6 +154,14 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    */
   public String getFieldName(int i) {
     throw new IllegalOperationException("getFieldName", this);
+  }
+
+  public Optional<String> getOptionalFieldName(int index) {
+    if (hasFieldNames()) {
+      return Optional.of(getFieldName(index));
+    } else {
+      return Optional.empty();
+    }
   }
 
   /**
