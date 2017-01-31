@@ -12,22 +12,18 @@
 
 package org.rascalmpl.value.type;
 
+import org.rascalmpl.value.*;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.exceptions.UndeclaredFieldException;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.exceptions.IllegalOperationException;
-import org.rascalmpl.value.exceptions.UndeclaredFieldException;
-import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
@@ -41,6 +37,20 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 		fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
 									// up being a bottleneck
 		fFieldNames = null;
+	}
+
+	/**
+	 * Creates a tuple type with the given field types and names. Copies the
+	 * arrays.
+	 */
+	/* package */TupleType(Type[] fieldTypes, String[] fieldNames) {
+		fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
+		// up being a bottleneck
+		if (fieldNames.length != 0) {
+			fFieldNames = fieldNames; // fieldNames.clone(); same here
+		} else {
+			fFieldNames = null;
+		}
 	}
 	
 	public static class Info implements TypeReifier {
@@ -116,20 +126,6 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 	@Override
 	public TypeReifier getTypeReifier() {
 		return new Info();
-	}
-	
-	/**
-	 * Creates a tuple type with the given field types and names. Copies the
-	 * arrays.
-	 */
-	/* package */TupleType(Type[] fieldTypes, String[] fieldNames) {
-		fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
-									// up being a bottleneck
-		if (fieldNames.length != 0) {
-			fFieldNames = fieldNames; // fieldNames.clone(); same here
-		} else {
-			fFieldNames = null;
-		}
 	}
 	
 	@Override
@@ -299,7 +295,7 @@ import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 
 	   
 	/**
-	 * Compute a new tupletype that is the lub of t1 and t2. Precondition: t1
+	 * Compute a new tupleType that is the lub of t1 and t2. Precondition: t1
 	 * and t2 have the same arity.
 	 * 
 	 * @param t1
