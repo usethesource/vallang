@@ -12,8 +12,25 @@
  */ 
 package org.rascalmpl.value.io.binary.message;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.function.Supplier;
+
 import io.usethesource.capsule.core.deprecated.TrieMap_5Bits;
-import org.rascalmpl.value.*;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
@@ -21,17 +38,9 @@ import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URISyntaxException;
-import java.util.Collections;
 
 /**
- * An utility class for the {@link IValueInputStream}. Only directly use methods in this class if you have nested IValues in an exisiting {@link IWireInputStream}.
- *
+ * An utility class for the {@link IValueInputStream}. Only directly use methods in this class if you have nested IValues in an existing {@link IWireInputStream}.
  */
 public class IValueReader {
     private static final TypeFactory tf = TypeFactory.getInstance();
@@ -41,7 +50,7 @@ public class IValueReader {
      * <br/>
      * In most cases you want to use the {@linkplain IValueInputStream}!
      */
-    public static IValue readValue(IWireInputStream reader, IValueFactory vf) throws IOException {
+    public static IValue readValue(IWireInputStream reader, IValueFactory vf, Supplier<TypeStore> typeStoreSupplier) throws IOException {
         int typeWindowSize = 0;
         int valueWindowSize = 0;
         int uriWindowSize = 0;
@@ -54,7 +63,7 @@ public class IValueReader {
                 case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.VALUE: {
-                    IValueReader valueReader = new IValueReader(vf, makeTypeStore(), typeWindowSize, valueWindowSize, uriWindowSize);
+                    IValueReader valueReader = new IValueReader(vf, typeStoreSupplier, typeWindowSize, valueWindowSize, uriWindowSize);
                     try {
                         IValue result = valueReader.readValue(reader);
                         reader.skipMessage();
@@ -74,7 +83,7 @@ public class IValueReader {
     /**
      * Read a type from the wire reader. 
      */
-    public static Type readType(IWireInputStream reader, IValueFactory vf) throws IOException {
+    public static Type readType(IWireInputStream reader, IValueFactory vf, Supplier<TypeStore> typeStoreSupplier) throws IOException {
         int typeWindowSize = 0;
         int valueWindowSize = 0;
         int uriWindowSize = 0;
@@ -87,7 +96,7 @@ public class IValueReader {
                 case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.TYPE: {
-                    IValueReader valueReader = new IValueReader(vf, makeTypeStore(), typeWindowSize, valueWindowSize, uriWindowSize);
+                    IValueReader valueReader = new IValueReader(vf, typeStoreSupplier, typeWindowSize, valueWindowSize, uriWindowSize);
                     try {
                         Type result = valueReader.readType(reader);
                         reader.skipMessage();
@@ -104,13 +113,16 @@ public class IValueReader {
         throw new IOException("Missing Type in the stream");
     }
 
-    private IValueReader(IValueFactory vf, TypeStore store, int typeWindowSize, int valueWindowSize, int uriWindowSize) {
+    private IValueReader(IValueFactory vf, Supplier<TypeStore> typeStoreSupplier, int typeWindowSize, int valueWindowSize, int uriWindowSize) {
         WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
         typeWindow = windowFactory.getTrackLastRead(typeWindowSize);
         valueWindow = windowFactory.getTrackLastRead(valueWindowSize);
         uriWindow = windowFactory.getTrackLastRead(uriWindowSize);
+
+        this.typeStoreSupplier = typeStoreSupplier;
+
         this.vf = vf;
-        this.store = store;
+        this.store = typeStoreSupplier.get();
     }
 
     private void done() {
@@ -119,17 +131,12 @@ public class IValueReader {
         windowFactory.returnTrackLastRead(valueWindow);
         windowFactory.returnTrackLastRead(uriWindow);
     }
-    
-    private static TypeStore makeTypeStore(){
-        TypeStore typeStore = new TypeStore();
-        typeStore.declareAbstractDataType(RascalValueFactory.Type);
-        typeStore.declareConstructor(RascalValueFactory.Type_Reified);
-        typeStore.declareAbstractDataType(RascalValueFactory.ADTforType);
-        return typeStore;
-    }
-    
+
+    private final Supplier<TypeStore> typeStoreSupplier;
+
     private final IValueFactory vf;
     private final TypeStore store;
+
     private final TrackLastRead<Type> typeWindow;
     private final TrackLastRead<IValue> valueWindow;
     private final TrackLastRead<ISourceLocation> uriWindow;
@@ -284,7 +291,11 @@ public class IValueReader {
                     }
                 }
 
-                return returnAndStore(backReference, typeWindow, tf.fromSymbol(symbol, makeTypeStore(), p -> Collections.emptySet()));
+                /**
+                 * TODO previous code allocated a new {@link TypeStore} instance from the
+                 * {@link RascalValueFactory}. Is creating a new instance necessary here?
+                 */
+                return returnAndStore(backReference, typeWindow, tf.fromSymbol(symbol, typeStoreSupplier.get(), p -> Collections.emptySet()));
             }
 
             case IValueIDs.ListType.ID:    {

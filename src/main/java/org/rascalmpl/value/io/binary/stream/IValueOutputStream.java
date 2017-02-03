@@ -12,12 +12,12 @@
  */ 
 package org.rascalmpl.value.io.binary.stream;
 
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.io.binary.util.DelayedCompressionOutputStream;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
@@ -65,15 +65,17 @@ public class IValueOutputStream implements Closeable {
     private CompressionRate compression;
     private OutputStream rawStream;
     private IWireOutputStream writer;
+    private final IValueFactory vf;
 
-    public IValueOutputStream(OutputStream out) throws IOException {
-        this(out, CompressionRate.Normal);
+    public IValueOutputStream(OutputStream out, IValueFactory vf) throws IOException {
+        this(out, vf, CompressionRate.Normal);
     }
-    public IValueOutputStream(OutputStream out, CompressionRate compression) throws IOException {
+    public IValueOutputStream(OutputStream out, IValueFactory vf, CompressionRate compression) throws IOException {
         out.write(Header.MAIN);
-        rawStream = out;
+        this.rawStream = out;
         this.compression = compression;
-        writer = null;
+        this.writer = null;
+        this.vf = vf;
     }
     
 
@@ -82,7 +84,7 @@ public class IValueOutputStream implements Closeable {
         if (writer == null) {
             writer = initializeWriter(sizes);
         }
-        IValueWriter.write(writer, sizes, value);
+        IValueWriter.write(writer, vf, sizes, value);
     }
 
 

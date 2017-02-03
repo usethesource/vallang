@@ -39,8 +39,7 @@ import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-            
+
 /**
  * An utility class for the {@link IValueOutputStream}. Only directly use methods in this class if you have nested IValues in an exisiting {@link IWireOutputStream}.
  *
@@ -52,11 +51,11 @@ public class IValueWriter {
      * In most cases you want to use the {@linkplain IValueOutputStream}.
      *  
      * @param writer the wire writer to use
-     * @param size the windo sizes to use
-     * @param value the value to write
-     * @throws IOException
+     * @param vf the value factory used to rewrite external value types
+     * @param size the window sizes to use
+     * @param value the value to write   @throws IOException
      */
-    public static void write(IWireOutputStream writer, WindowSizes size, IValue value ) throws IOException {
+    public static void write(IWireOutputStream writer, IValueFactory vf, WindowSizes size, IValue value) throws IOException {
         final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
         TrackLastWritten<Type> typeCache = windowFactory.getTrackLastWrittenReferenceEquality(size.typeWindow);
         TrackLastWritten<IValue> valueCache = windowFactory.getTrackLastWrittenReferenceEquality(size.valueWindow);
@@ -64,7 +63,7 @@ public class IValueWriter {
         try {
             writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
             writer.writeNestedField(IValueIDs.Header.VALUE);
-            write(writer, value, typeCache, valueCache, uriCache);
+            write(writer, vf, value, typeCache, valueCache, uriCache);
             writer.endMessage();
         } finally {
             windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
@@ -74,14 +73,15 @@ public class IValueWriter {
     }
 
     /**
-     * Write an Type to an exisiting wire stream.
+     * Write an Type to an existing wire stream.
      *  
      * @param writer the wire writer to use
-     * @param size the windo sizes to use
+     * @param vf the value factory used to rewrite external value types
+     * @param size the window sizes to use
      * @param type the type to write
      * @throws IOException
      */
-    public static void write(IWireOutputStream writer, WindowSizes size, Type type) throws IOException {
+    public static void write(IWireOutputStream writer, IValueFactory vf, WindowSizes size, Type type) throws IOException {
         final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
         TrackLastWritten<Type> typeCache = windowFactory.getTrackLastWrittenReferenceEquality(size.typeWindow);
         TrackLastWritten<IValue> valueCache = windowFactory.getTrackLastWrittenReferenceEquality(size.valueWindow);
@@ -89,7 +89,7 @@ public class IValueWriter {
         try {
             writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
             writer.writeNestedField(IValueIDs.Header.TYPE);
-            write(writer, type, typeCache, valueCache, uriCache);
+            write(writer, vf, type, typeCache, valueCache, uriCache);
             writer.endMessage();
         } finally {
             windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
@@ -106,7 +106,7 @@ public class IValueWriter {
         writer.writeField(IValueIDs.Header.SOURCE_LOCATION_WINDOW, uriWindowSize);
     }
 
-    private static void write(final IWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+    private static void write(final IWireOutputStream writer, IValueFactory vf, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
         type.accept(new ITypeVisitor<Void, IOException>() {
 
             private boolean writeFromCache(Type type) throws IOException {
@@ -184,9 +184,8 @@ public class IValueWriter {
                 writeCanBeBackReferenced(writer);
 
                 writer.writeNestedField(IValueIDs.ExternalType.SYMBOL);
-                IValueFactory vf = ValueFactoryFactory.getValueFactory();
                 IConstructor symbol = type.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>());
-                write(writer, symbol, typeCache, valueCache, uriCache);
+                write(writer, vf, symbol, typeCache, valueCache, uriCache);
 
                 writer.endMessage();
                 typeCache.write(type);
@@ -368,10 +367,10 @@ public class IValueWriter {
         writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
     }
 
-    private static final IInteger MININT = ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
-    private static final IInteger MAXINT = ValueFactoryFactory.getValueFactory().integer(Integer.MAX_VALUE);
-    
-    private static void write(final IWireOutputStream writer, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+    private static void write(final IWireOutputStream writer, IValueFactory vf, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+        final IInteger MININT = vf.integer(Integer.MIN_VALUE);
+        final IInteger MAXINT = vf.integer(Integer.MAX_VALUE);
+
         StacklessStructuredVisitor.accept(value, new StructuredIValueVisitor<IOException>() {
 
             private boolean writeFromCache(IValue val) throws IOException {
@@ -392,7 +391,7 @@ public class IValueWriter {
                 writeCanBeBackReferenced(writer);
 
                 writer.writeNestedField(IValueIDs.ConstructorValue.TYPE);
-                write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
+                write(writer, vf, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
 
                 if (children > 0) {
                     writer.writeRepeatedNestedField(IValueIDs.ConstructorValue.PARAMS, children);

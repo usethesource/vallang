@@ -12,13 +12,13 @@
  */ 
 package org.rascalmpl.value.io.binary.stream;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -36,14 +36,17 @@ import org.rascalmpl.value.type.TypeStore;
 public class IValueInputStream implements Closeable {
     private final BinaryWireInputStream reader;
     private final IValueFactory vf;
+    private final Supplier<TypeStore> typeStoreSupplier;
+
     private final boolean legacy;
     private final BinaryReader legacyReader;
 
     /**
      * This will <strong>consume</strong> the whole stream (or at least more than needed due to buffering), don't use the InputStream afterwards!
      */
-    public IValueInputStream(InputStream in, IValueFactory vf) throws IOException {
+    public IValueInputStream(InputStream in, IValueFactory vf, Supplier<TypeStore> typeStoreSupplier) throws IOException {
         this.vf = vf;
+        this.typeStoreSupplier = typeStoreSupplier;
         byte[] currentHeader = new byte[Header.MAIN.length];
         in.read(currentHeader);
         if (!Arrays.equals(Header.MAIN, currentHeader)) {
@@ -66,12 +69,12 @@ public class IValueInputStream implements Closeable {
         in = Compressor.wrapStream(in, compression);
         reader = new BinaryWireInputStream(in);
     }
-    
+
     public IValue read() throws IOException {
         if (legacy) {
             return legacyReader.deserialize();
         }
-        return IValueReader.readValue(reader, vf);
+        return IValueReader.readValue(reader, vf, typeStoreSupplier);
     }
     
     @Override

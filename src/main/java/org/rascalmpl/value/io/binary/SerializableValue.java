@@ -25,10 +25,12 @@ import org.rascalmpl.value.type.TypeStore;
 public class SerializableValue<T extends IValue> implements Serializable {
 	private static final long serialVersionUID = -5507315290306212326L;
 	private IValueFactory vf;
+	private TypeStore store;
 	private T value;
 	
-	public SerializableValue(IValueFactory vf, T value, TypeStore store) {
+	public SerializableValue(IValueFactory vf, TypeStore store, T value) {
 		this.vf = vf;
+		this.store = store;
 		this.value = value;
 	}
 	
@@ -58,7 +60,7 @@ public class SerializableValue<T extends IValue> implements Serializable {
 		out.write(factoryName.getBytes("UTF8"));
 		out.write(':');
 		ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-		try (IValueOutputStream writer = new IValueOutputStream(bytesStream, CompressionRate.Normal)) {
+		try (IValueOutputStream writer = new IValueOutputStream(bytesStream, vf, CompressionRate.Normal)) {
 		    writer.write(value);
 		}
 		byte[] bytes = bytesStream.toByteArray();
@@ -83,7 +85,7 @@ public class SerializableValue<T extends IValue> implements Serializable {
 			in.read(bytes);
 			Class<?> clazz = getClass().getClassLoader().loadClass(new String(factoryName, "UTF8"));
 			this.vf = (IValueFactory) clazz.getMethod("getInstance").invoke(null, new Object[0]);
-			try (IValueInputStream reader = new IValueInputStream(new ByteArrayInputStream(bytes), vf)) {
+			try (IValueInputStream reader = new IValueInputStream(new ByteArrayInputStream(bytes), vf, () -> store)) {
 			    this.value = (T) reader.read();
 			}
 		}
