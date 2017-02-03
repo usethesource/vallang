@@ -18,13 +18,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import junit.framework.TestCase;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 
-import junit.framework.TestCase;
+import static org.rascalmpl.value.Setup.TYPE_STORE_SUPPLIER;
 
 /**
  * @author Anya Helene Bagge
@@ -319,11 +320,11 @@ public abstract class BaseTestMap extends TestCase {
 		switch(kind) {
 		case BINARY: {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			try (IValueOutputStream w = new IValueOutputStream(baos)) {
+			try (IValueOutputStream w = new IValueOutputStream(baos, vf)) {
 			    w.write(val);
 			}
 
-			try (IValueInputStream r = new IValueInputStream(new ByteArrayInputStream(baos.toByteArray()), vf)) {
+			try (IValueInputStream r = new IValueInputStream(new ByteArrayInputStream(baos.toByteArray()), vf, TYPE_STORE_SUPPLIER)) {
 			    return r.read();
 			}
 		}

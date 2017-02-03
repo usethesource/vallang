@@ -1,9 +1,9 @@
 package org.rascalmpl.value.io;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
+
+import static org.junit.Assert.assertEquals;
 
 public abstract class TrackWritesTestBase {
 

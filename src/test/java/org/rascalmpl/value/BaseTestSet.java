@@ -12,18 +12,11 @@
 
 package org.rascalmpl.value;
 
-import static org.rascalmpl.value.impl.fast.RelationalFunctionsOnSet.arity;
-
 import java.util.Iterator;
 
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import junit.framework.TestCase;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.type.TypeFactory;
-
-import junit.framework.TestCase;
 
 public abstract class BaseTestSet extends TestCase {
 	private IValueFactory vf;
@@ -301,7 +294,7 @@ public abstract class BaseTestSet extends TestCase {
 		ISet test = vf.set(integers[0], integers[1], integers[2],integers[3]);
 		ISet prod = test.product(test);
 		
-		if (arity(prod) != 2) {
+		if (prod.asRelation().arity() != 2) {
 			fail("product's arity should be 2");
 		}
 		
@@ -316,7 +309,7 @@ public abstract class BaseTestSet extends TestCase {
 		ISet prod = test.product(test);
 		ISet prod2 = test.product(prod);
 		
-		if (arity(prod2) != 2) {
+		if (prod2.asRelation().arity() != 2) {
 			fail("product's arity should be 3");
 		}
 		

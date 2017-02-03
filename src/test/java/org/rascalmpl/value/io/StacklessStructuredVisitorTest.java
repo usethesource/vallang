@@ -12,8 +12,6 @@
  */ 
 package org.rascalmpl.value.io;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,6 +20,8 @@ import java.util.Map;
 import java.util.Random;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -37,16 +37,29 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 import org.rascalmpl.value.io.binary.util.StacklessStructuredVisitor;
 import org.rascalmpl.value.io.binary.util.StructuredIValueVisitor;
 import org.rascalmpl.value.io.reference.ReferenceStructuredIValueVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.RandomValues;
-import org.rascalmpl.values.ValueFactoryFactory;
 
+import static org.junit.Assert.assertEquals;
+
+@RunWith(Parameterized.class)
 public class StacklessStructuredVisitorTest {
-	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+
+  @Parameterized.Parameters
+  public static Iterable<? extends Object> data() {
+    return Setup.valueFactories();
+  }
+
+    private final IValueFactory vf;
+
+    public StacklessStructuredVisitorTest(IValueFactory vf) {
+        this.vf = vf;
+    }
 
     @Test
     public void singleString() {

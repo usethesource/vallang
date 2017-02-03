@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.IValueBinaryReader;
 import org.rascalmpl.value.io.IValueBinaryWriter;
@@ -41,8 +43,7 @@ import org.rascalmpl.value.random.RandomRealGenerator;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
+import static org.rascalmpl.value.Setup.TYPE_STORE_SUPPLIER;
 
 
 /**
@@ -210,7 +211,7 @@ abstract public class BaseTestRandomValues extends TestCase {
         public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
                 throws FactTypeUseException, IOException {
             assert stream instanceof ByteArrayInputStream; // else the closing contract is broken!
-            try (IValueInputStream reader = new IValueInputStream(stream, factory)) {
+            try (IValueInputStream reader = new IValueInputStream(stream, factory, TYPE_STORE_SUPPLIER)) {
                 return reader.read();
             }
         }
@@ -245,7 +246,7 @@ abstract public class BaseTestRandomValues extends TestCase {
         @Override
         public void write(IValue value, OutputStream stream, TypeStore typeStore)
                 throws IOException {
-            try(IValueOutputStream writer = new IValueOutputStream(stream, CompressionRate.Normal)) {
+            try(IValueOutputStream writer = new IValueOutputStream(stream, vf, CompressionRate.Normal)) {
                 writer.write(value);
             }
         }

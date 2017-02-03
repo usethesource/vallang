@@ -12,14 +12,10 @@
 
 package org.rascalmpl.value;
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IValueFactory;
+import junit.framework.TestCase;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
-
-import junit.framework.TestCase;
 
 // TODO: this class could use more tests
 public abstract class BaseTestEquality extends TestCase {

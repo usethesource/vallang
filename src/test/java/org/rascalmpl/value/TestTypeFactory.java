@@ -15,15 +15,13 @@ package org.rascalmpl.value;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.value.IValue;
+import junit.framework.TestCase;
 import org.rascalmpl.value.exceptions.FactTypeDeclarationException;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.impl.reference.ValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
-
-import junit.framework.TestCase;
 
 public class TestTypeFactory extends TestCase {
 	private TypeFactory ft = TypeFactory.getInstance();

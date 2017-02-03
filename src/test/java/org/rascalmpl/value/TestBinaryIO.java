@@ -16,6 +16,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
@@ -31,16 +35,27 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.RandomValues;
-import org.rascalmpl.values.ValueFactoryFactory;
 
-import junit.framework.TestCase;
+import static org.rascalmpl.value.Setup.TYPE_STORE_SUPPLIER;
 
 /**
  * @author Arnold Lankamp
  */
+@RunWith(Parameterized.class)
 public class TestBinaryIO extends TestCase {
-	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
+	@Parameterized.Parameters
+	public static Iterable<? extends Object> data() {
+		return Setup.valueFactories();
+	}
+
+	private final IValueFactory vf;
+
+	public TestBinaryIO(IValueFactory vf) {
+		this.vf = vf;
+	}
+
+	@Test
 	public void testBinaryIO() {
 	    TypeStore ts = new TypeStore();
 	    RandomValues.addNameType(ts);
@@ -48,7 +63,8 @@ public class TestBinaryIO extends TestCase {
 	        ioRoundTrip(value, 0);
 	    }
 	}
-	
+
+	@Test
 	public void testRandomBinaryIO() {
 	    TypeStore ts = new TypeStore();
 	    Type name = RandomValues.addNameType(ts);
@@ -58,7 +74,8 @@ public class TestBinaryIO extends TestCase {
 	        ioRoundTrip(value, 42);
 	    }
 	}
-	
+
+	@Test
 	public void testConstructorTypeWithLabel() {
         TypeFactory tf = TypeFactory.getInstance();
 	    TypeStore ts = new TypeStore();
@@ -66,6 +83,8 @@ public class TestBinaryIO extends TestCase {
 	    Type cons = tf.constructor(ts, adt, "b", tf.integerType(), "i");
 	    iopRoundTrip(cons, 0);
 	}
+
+	@Test
 	public void testConstructorTypeWithParams() {
         TypeFactory tf = TypeFactory.getInstance();
 	    TypeStore ts = new TypeStore();
@@ -73,6 +92,8 @@ public class TestBinaryIO extends TestCase {
 	    Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
 	    iopRoundTrip(cons, 0);
 	}
+
+	@Test
 	public void testConstructorTypeWithInstanciatedParams() {
         TypeFactory tf = TypeFactory.getInstance();
 	    TypeStore ts = new TypeStore();
@@ -83,7 +104,8 @@ public class TestBinaryIO extends TestCase {
 	    binding.put(tf.parameterType("T"), tf.integerType());
 	    iopRoundTrip(cons.instantiate(binding), 0);
 	}
-	
+
+	@Test
 	public void testRandomTypesIO() {
         TypeFactory tf = TypeFactory.getInstance();
 	    TypeStore ts = new TypeStore();
@@ -95,6 +117,8 @@ public class TestBinaryIO extends TestCase {
             iopRoundTrip(tp, seed);
         }
 	}
+
+	@Test
 	public void testSmallRandomTypesIO() {
         TypeFactory tf = TypeFactory.getInstance();
 	    TypeStore ts = new TypeStore();
@@ -106,7 +130,8 @@ public class TestBinaryIO extends TestCase {
             iopRoundTrip(tp, seed);
         }
 	}
-	
+
+	@Test
 	public void testOldFilesStillSupported() {
 	    TypeStore ts = new TypeStore();
 	    Type name = RandomValues.addNameType(ts);
@@ -116,7 +141,8 @@ public class TestBinaryIO extends TestCase {
 	        ioRoundTripOld(value, 42);
 	    }
 	}
-	
+
+	@Test
 	public void testConstructorWithParameterized1() {
 	    TypeStore ts = new TypeStore();
         TypeFactory tf = TypeFactory.getInstance();
@@ -128,6 +154,7 @@ public class TestBinaryIO extends TestCase {
 	    ioRoundTrip(vf.constructor(cons.instantiate(binding), vf.integer(42)), 0);
 	}
 
+	@Test
 	public void testConstructorWithParameterized2() {
 	    TypeStore ts = new TypeStore();
         TypeFactory tf = TypeFactory.getInstance();
@@ -142,10 +169,10 @@ public class TestBinaryIO extends TestCase {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             try (IWireOutputStream w = new BinaryWireOutputStream(buffer, 1000)) {
-                IValueWriter.write(w, WindowSizes.SMALL_WINDOW, tp);
+                IValueWriter.write(w, vf, WindowSizes.SMALL_WINDOW, tp);
             }
             try (IWireInputStream read = new BinaryWireInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {
-                Type result = IValueReader.readType(read, vf);
+                Type result = IValueReader.readType(read, vf, TYPE_STORE_SUPPLIER);
                 if(!tp.equals(result)){
                     String message = "Not equal: (seed: " + seed +") \n\t"+result+" expected: "+seed;
                     System.err.println(message);
@@ -162,10 +189,10 @@ public class TestBinaryIO extends TestCase {
     private void ioRoundTrip(IValue value, int seed) {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            try (IValueOutputStream w = new IValueOutputStream(buffer, CompressionRate.Normal)) {
+            try (IValueOutputStream w = new IValueOutputStream(buffer, vf, CompressionRate.Normal)) {
                 w.write(value);
             }
-            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf)) {
+            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, TYPE_STORE_SUPPLIER)) {
                 IValue result = read.read();
                 if(!value.isEqual(result)){
                     String message = "Not equal: (seed: " + seed +") \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();
@@ -186,7 +213,7 @@ public class TestBinaryIO extends TestCase {
             BinaryWriter w = new BinaryWriter(value, buffer, new TypeStore());
             w.serialize();
             buffer.flush();
-            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf)) {
+            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, TYPE_STORE_SUPPLIER)) {
                 IValue result = read.read();
                 if(!value.isEqual(result)){
                     String message = "Not equal: (seed: " + seed + ") \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();
