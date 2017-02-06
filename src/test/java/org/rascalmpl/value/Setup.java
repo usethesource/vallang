@@ -19,12 +19,6 @@ import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.type.TypeStore;
 
 public class Setup {
-
-  public interface FastTests {
-    /* category marker */ }
-
-  public interface SlowTests {
-    /* category marker */ }
   
   public static Iterable<? extends Object> valueFactories() {
     final String propertyName = String.format("%s.%s", Setup.class.getName(), "valueFactory");
