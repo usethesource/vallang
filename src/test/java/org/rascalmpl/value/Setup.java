@@ -13,6 +13,7 @@ package org.rascalmpl.value;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.type.TypeStore;
@@ -20,9 +21,14 @@ import org.rascalmpl.value.type.TypeStore;
 public class Setup {
 
   public static Iterable<? extends Object> valueFactories() {
-    return Arrays.asList(org.rascalmpl.value.impl.reference.ValueFactory.getInstance(),
-        org.rascalmpl.value.impl.fast.ValueFactory.getInstance(),
-        org.rascalmpl.value.impl.persistent.ValueFactory.getInstance());
+    final String propertyName = String.format("%s.%s", Setup.class.getName(), "valueFactory");
+    final String propertyValue = System.getProperty(propertyName, "REFERENCE,FAST,PERSISTENT");
+
+    final IValueFactory[] valueFactories =
+        Stream.of(propertyValue.split(",")).map(String::trim).map(ValueFactoryEnum::valueOf)
+            .map(ValueFactoryEnum::getInstance).toArray(IValueFactory[]::new);
+
+    return Arrays.asList(valueFactories);
   }
 
   /**
@@ -38,5 +44,28 @@ public class Setup {
     // typeStore.declareAbstractDataType(RascalValueFactory.ADTforType);
     return typeStore;
   };
+
+  private enum ValueFactoryEnum {
+    REFERENCE {
+      @Override
+      public IValueFactory getInstance() {
+        return org.rascalmpl.value.impl.reference.ValueFactory.getInstance();
+      }
+    },
+    FAST {
+      @Override
+      public IValueFactory getInstance() {
+        return org.rascalmpl.value.impl.fast.ValueFactory.getInstance();
+      }
+    },
+    PERSISTENT {
+      @Override
+      public IValueFactory getInstance() {
+        return org.rascalmpl.value.impl.persistent.ValueFactory.getInstance();
+      }
+    };
+
+    public abstract IValueFactory getInstance();
+  }
 
 }
