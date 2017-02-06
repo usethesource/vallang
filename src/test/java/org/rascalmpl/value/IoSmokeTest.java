@@ -89,7 +89,7 @@ public final class IoSmokeTest {
   @Test
   public void testSerializable() {
     for (IValue t : testValues) {
-      SerializableValue<IValue> v = new SerializableValue<IValue>(vf, ts, t);
+      SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
       ByteArrayOutputStream buf = new ByteArrayOutputStream();
       try {
         v.write(buf);
