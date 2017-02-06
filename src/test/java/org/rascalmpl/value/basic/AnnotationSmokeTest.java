@@ -10,12 +10,19 @@
 
 *******************************************************************************/
 
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 import org.rascalmpl.value.exceptions.FactTypeDeclarationException;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.type.Type;

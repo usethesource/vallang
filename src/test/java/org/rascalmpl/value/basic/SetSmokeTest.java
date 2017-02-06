@@ -10,7 +10,7 @@
 
 *******************************************************************************/
 
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import java.util.Iterator;
 
@@ -18,6 +18,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.type.TypeFactory;
 

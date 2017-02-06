@@ -8,7 +8,7 @@
 * Contributors:
 *    Anya Helene Bagge (anya@ii.uib.no) - initial API and implementation
 *******************************************************************************/
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +28,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IRational;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.IValueBinaryReader;
 import org.rascalmpl.value.io.IValueBinaryWriter;
@@ -49,7 +56,6 @@ import org.rascalmpl.value.type.TypeStore;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.rascalmpl.value.Setup.TYPE_STORE_SUPPLIER;
 
 /**
  * Implements random testing of algebraic properties of the PDB values numeric types (aka
@@ -229,7 +235,7 @@ public final class RandomValueTest {
     public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
         throws FactTypeUseException, IOException {
       assert stream instanceof ByteArrayInputStream; // else the closing contract is broken!
-      try (IValueInputStream reader = new IValueInputStream(stream, factory, TYPE_STORE_SUPPLIER)) {
+      try (IValueInputStream reader = new IValueInputStream(stream, factory, Setup.TYPE_STORE_SUPPLIER)) {
         return reader.read();
       }
     }

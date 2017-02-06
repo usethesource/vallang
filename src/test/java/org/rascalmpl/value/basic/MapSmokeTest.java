@@ -9,7 +9,7 @@
  *    Anya Helene Bagge (University of Bergen) - implementation
  *    Arnold Lankamp - base implementation (from BinaryIoSmokeTest.java)
  *******************************************************************************/
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,10 +18,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
 import org.rascalmpl.value.type.Type;
@@ -33,7 +41,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.rascalmpl.value.Setup.TYPE_STORE_SUPPLIER;
 
 /**
  * @author Anya Helene Bagge
@@ -167,7 +174,7 @@ public final class MapSmokeTest {
       for (StringPair p : keyValues) {
         IMap newMap = map.put(p.a, p.b);
         assertTrue(newMap.containsKey(p.a));
-        assertEquals(p.b, newMap.get(p.a));
+        Assert.assertEquals(p.b, newMap.get(p.a));
         assertEquals(map.getType().getKeyLabel(), newMap.getType().getKeyLabel());
         assertEquals(map.getType().getValueLabel(), newMap.getType().getValueLabel());
         assertTrue(map.getType().isSubtypeOf(newMap.getType()));
@@ -367,7 +374,7 @@ public final class MapSmokeTest {
         }
 
         try (IValueInputStream r = new IValueInputStream(
-            new ByteArrayInputStream(baos.toByteArray()), vf, TYPE_STORE_SUPPLIER)) {
+            new ByteArrayInputStream(baos.toByteArray()), vf, Setup.TYPE_STORE_SUPPLIER)) {
           return r.read();
         }
       }

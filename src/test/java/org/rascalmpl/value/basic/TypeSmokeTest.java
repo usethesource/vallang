@@ -11,7 +11,7 @@
  *    Anya Helene Bagge
  *******************************************************************************/
 
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import java.util.HashMap;
 import java.util.LinkedList;

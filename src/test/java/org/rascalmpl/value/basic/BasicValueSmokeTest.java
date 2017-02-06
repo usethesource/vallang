@@ -1,10 +1,18 @@
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import java.net.URISyntaxException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.rascalmpl.value.IDateTime;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 import org.rascalmpl.value.type.TypeFactory;
 
 import static org.junit.Assert.assertEquals;

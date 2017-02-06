@@ -1,4 +1,4 @@
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -6,6 +6,11 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 
 import static org.junit.Assert.assertTrue;
 

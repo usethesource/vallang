@@ -8,7 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *******************************************************************************/
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,6 +19,9 @@ import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
@@ -36,7 +39,6 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.RandomValues;
 
 import static org.junit.Assert.fail;
-import static org.rascalmpl.value.Setup.TYPE_STORE_SUPPLIER;
 
 /**
  * @author Arnold Lankamp
@@ -172,7 +174,7 @@ public final class BinaryIoSmokeTest {
       }
       try (IWireInputStream read =
           new BinaryWireInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {
-        Type result = IValueReader.readType(read, vf, TYPE_STORE_SUPPLIER);
+        Type result = IValueReader.readType(read, vf, Setup.TYPE_STORE_SUPPLIER);
         if (!tp.equals(result)) {
           String message = "Not equal: (seed: " + seed + ") \n\t" + result + " expected: " + seed;
           System.err.println(message);
@@ -192,7 +194,7 @@ public final class BinaryIoSmokeTest {
         w.write(value);
       }
       try (IValueInputStream read = new IValueInputStream(
-          new ByteArrayInputStream(buffer.toByteArray()), vf, TYPE_STORE_SUPPLIER)) {
+          new ByteArrayInputStream(buffer.toByteArray()), vf, Setup.TYPE_STORE_SUPPLIER)) {
         IValue result = read.read();
         if (!value.isEqual(result)) {
           String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
@@ -214,7 +216,7 @@ public final class BinaryIoSmokeTest {
       w.serialize();
       buffer.flush();
       try (IValueInputStream read = new IValueInputStream(
-          new ByteArrayInputStream(buffer.toByteArray()), vf, TYPE_STORE_SUPPLIER)) {
+          new ByteArrayInputStream(buffer.toByteArray()), vf, Setup.TYPE_STORE_SUPPLIER)) {
         IValue result = read.read();
         if (!value.isEqual(result)) {
           String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()

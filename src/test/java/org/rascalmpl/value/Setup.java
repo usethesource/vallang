@@ -20,6 +20,12 @@ import org.rascalmpl.value.type.TypeStore;
 
 public class Setup {
 
+  public interface FastTests {
+    /* category marker */ }
+
+  public interface SlowTests {
+    /* category marker */ }
+  
   public static Iterable<? extends Object> valueFactories() {
     final String propertyName = String.format("%s.%s", Setup.class.getName(), "valueFactory");
     final String propertyValue = System.getProperty(propertyName, "REFERENCE,FAST,PERSISTENT");

@@ -10,11 +10,15 @@
 
 *******************************************************************************/
 
-package org.rascalmpl.value;
+package org.rascalmpl.value.basic;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.Setup;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
