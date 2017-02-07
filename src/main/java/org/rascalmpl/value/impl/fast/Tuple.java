@@ -36,10 +36,10 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		return new Tuple(tupleType, elements);
 	}
 
-	private Tuple(Type tupleType, IValue[] elements) {
+	private Tuple(Type tupleType /* ignored on purpose */, IValue[] elements) {
 		super();
 
-		this.cachedTupleType = tupleType;
+		this.cachedTupleType = null;
 		this.elements = elements;
 	}
 	

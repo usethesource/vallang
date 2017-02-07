@@ -57,22 +57,7 @@ final class MapWriter implements IMapWriter {
 	}
 
 	MapWriter(Type prototypeType) {
-		super();
-
-		this.checkUpperBound = false;
-		this.upperBoundKeyType = prototypeType.getKeyType();
-		this.upperBoundValType = prototypeType.getValueType();
-
-		if (prototypeType.hasFieldNames()) {
-			keyTypeBag = AbstractTypeBag.of(prototypeType.getKeyLabel());
-			valTypeBag = AbstractTypeBag.of(prototypeType.getValueLabel());
-		} else {
-			keyTypeBag = AbstractTypeBag.of();
-			valTypeBag = AbstractTypeBag.of();
-		}
-
-		mapContent = DefaultTrieMap.transientOf();
-		constructedMap = null;
+		this();
 	}
 
 	@Override

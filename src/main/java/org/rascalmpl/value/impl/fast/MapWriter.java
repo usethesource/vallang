@@ -31,39 +31,17 @@ import org.rascalmpl.value.type.TypeFactory;
 /*package*/ class MapWriter implements IMapWriter{
 	protected Type keyType;
 	protected Type valueType;
-	protected Type mapType;
 	
 	protected final ShareableValuesHashMap data;
 	
 	protected IMap constructedMap;
-	protected final boolean inferred;
-	protected boolean inferredTypeinvalidated;
+    private boolean inferredTypeinvalidated = false;
 	
 	/*package*/ MapWriter(){
 		super();
 		
-		this.mapType = null;
 		this.keyType = TypeFactory.getInstance().voidType();
 		this.valueType =  TypeFactory.getInstance().voidType();
-		this.inferred = true;
-		
-		data = new ShareableValuesHashMap();
-		
-		constructedMap = null;
-	}
-	
-	
-	/*package*/ MapWriter(Type mapType) {
-		super();
-		
-		if(mapType.isFixedWidth() && mapType.getArity() >= 2) {
-			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
-		}
-		
-		this.mapType = mapType;
-		this.keyType = mapType.getKeyType();
-		this.valueType = mapType.getValueType();
-		this.inferred = false;
 		
 		data = new ShareableValuesHashMap();
 		
@@ -73,11 +51,9 @@ import org.rascalmpl.value.type.TypeFactory;
 	/*package*/ MapWriter(Type mapType, ShareableValuesHashMap data){
 		super();
 		
-		this.mapType = mapType;
 		this.keyType = mapType.getKeyType();
-		this.valueType = mapType.getValueType();
+        this.valueType =  mapType.getValueType();
 		this.data = data;
-		this.inferred = false;
 		
 		constructedMap = null;
 	}
@@ -95,10 +71,8 @@ import org.rascalmpl.value.type.TypeFactory;
 	}
 	
 	private void updateTypes(IValue key, IValue value) {
-		if (inferred) {
-			keyType = keyType.lub(key.getType());
-			valueType = valueType.lub(value.getType());
-		}
+	    keyType = keyType.lub(key.getType());
+	    valueType = valueType.lub(value.getType());
 	}
 
 	@Override
@@ -179,16 +153,15 @@ import org.rascalmpl.value.type.TypeFactory;
 	@Override
 	public IMap done(){
 		if(constructedMap == null) {
-			if (mapType == null) {
-				mapType = TypeFactory.getInstance().mapType(keyType, valueType);
-			}
+			Type mapType = TypeFactory.getInstance().mapType(keyType, valueType);
+			
 			if (data.isEmpty()) {
 				Type voidType = TypeFactory.getInstance().voidType();
 				Type voidMapType = TypeFactory.getInstance().mapType(voidType, mapType.getKeyLabel(), voidType, mapType.getValueLabel());
 
 				constructedMap = Map.newMap(voidMapType, data);
 			} else {
-				if (inferred && inferredTypeinvalidated) {
+				if (inferredTypeinvalidated) {
 					Type voidType = TypeFactory.getInstance().voidType();
 					
 					keyType = voidType;

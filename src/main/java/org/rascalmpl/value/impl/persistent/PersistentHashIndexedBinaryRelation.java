@@ -111,7 +111,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
      * TODO: independence from value factory, however tuple constructor is not visible; wanted:
      * content.tupleIterator((first, second) -> Tuple.newTuple(tupleType, first, second);
      */
-    return (first, second) -> getValueFactory().tuple(getElementType(), first, second);
+    return (first, second) -> getValueFactory().tuple(first, second);
   }
 
   @Override

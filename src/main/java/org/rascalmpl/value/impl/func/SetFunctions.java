@@ -286,10 +286,7 @@ public final class SetFunctions {
 		}
 		
 		// Compute		
-		Type[] newTupleFieldTypes = new Type[]{set1.getElementType().getFieldType(0), set2.getElementType().getFieldType(1)};
-		Type tupleType = TF.tupleType(newTupleFieldTypes);
-		
-		ISetWriter resultWriter = vf.setWriter(tupleType);
+		ISetWriter resultWriter = vf.setWriter();
 		
 		Iterator<IValue> relationIterator = set1.iterator();
 		while(relationIterator.hasNext()){
@@ -302,7 +299,7 @@ public final class SetFunctions {
 				do{
 					IValue value = valuesIterator.next();
 					IValue[] newTupleData = new IValue[]{thisTuple.get(0), value};
-					resultWriter.insert(vf.tuple(tupleType, newTupleData));
+					resultWriter.insert(vf.tuple(newTupleData));
 				}while(valuesIterator.hasNext());
 			}
 		}
@@ -373,7 +370,7 @@ public final class SetFunctions {
 						Iterator<IValue> rightValuesIterator = rightValues.iterator();
 						while(rightValuesIterator.hasNext()){
 							IValue rightValue = rightValuesIterator.next();
-							if(newTuples.add(vf.tuple(tupleType, leftKey, rightValue))){
+							if(newTuples.add(vf.tuple(leftKey, rightValue))){
 								if(interestingLeftValues == null){
 									nextSize++;
 									
@@ -430,7 +427,7 @@ public final class SetFunctions {
 		java.util.Set<IValue> closureDelta = computeClosureDelta(vf, rel1, tupleType);
 
 		// NOTE: type is already known, thus, using a SetWriter degrades performance
-		ISetWriter resultWriter = vf.setWriter(tupleType);
+		ISetWriter resultWriter = vf.setWriter();
 		resultWriter.insertAll(rel1);
 		resultWriter.insertAll(closureDelta);
 
@@ -467,14 +464,14 @@ public final class SetFunctions {
 
 		// aggregate result
 		// NOTE: type is already known, thus, using a SetWriter degrades performance
-		ISetWriter resultWriter = vf.setWriter(rel1.getElementType());
+		ISetWriter resultWriter = vf.setWriter();
 		resultWriter.insertAll(rel1);
 		resultWriter.insertAll(closureDelta);
 		
 		Iterator<IValue> carrierIterator = carrier.iterator();
 		while (carrierIterator.hasNext()) {
 			IValue element = carrierIterator.next();
-			resultWriter.insert(vf.tuple(tupleType, element, element));
+			resultWriter.insert(vf.tuple(element, element));
 		}
 
 		return resultWriter.done();

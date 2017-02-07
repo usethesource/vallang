@@ -78,7 +78,7 @@ public abstract class TrackWritesTestBase {
     
     @Test
     public void randomTest() {
-        Object[] elements = new Object[10000];;
+        Object[] elements = new Object[1000];;
         for (int i = 0; i < elements.length; i++) {
             elements[i] = new Object();
         }

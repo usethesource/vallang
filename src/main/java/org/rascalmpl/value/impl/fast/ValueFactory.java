@@ -63,11 +63,11 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	
 	@Deprecated
 	public IMapWriter mapWriter(Type keyType, Type valueType){
-		return new MapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
+		return new MapWriter();
 	}
 
 	public IMapWriter mapWriter(Type mapType){
-		return new MapWriter(mapType);
+		return new MapWriter();
 	}
 	
 	public IMapWriter mapWriter(){
@@ -205,6 +205,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		return Tuple.newTuple(args.clone());
 	}
 
+	@Deprecated
 	public ITuple tuple(Type type, IValue... args) {
 		return Tuple.newTuple(type, args.clone());
 	}
