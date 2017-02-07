@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2012-2013 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012-2017 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -26,19 +26,15 @@ import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UnexpectedElementTypeException;
 import org.rascalmpl.value.impl.primitive.AbstractPrimitiveValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 
-/**
- * Implementation of IValueFactory.
- */
-public class ValueFactory extends AbstractPrimitiveValueFactory {
+public class ValueFactory extends AbstractPrimitiveValueFactory implements IValueFactory {
 	private final static TypeFactory tf = TypeFactory.getInstance();
-	
-	private final static Type EMPTY_TUPLE_TYPE = TypeFactory.getInstance().tupleEmpty();
 	
 	protected ValueFactory() {
 		super();
@@ -198,7 +194,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 	
 	public ITuple tuple() {
-		return Tuple.newTuple(EMPTY_TUPLE_TYPE, new IValue[0]);
+		return Tuple.newTuple();
 	}
 
 	public ITuple tuple(IValue... args) {
@@ -207,7 +203,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 
 	@Deprecated
 	public ITuple tuple(Type type, IValue... args) {
-		return Tuple.newTuple(type, args.clone());
+		return Tuple.newTuple(args.clone());
 	}
 
 	private static Type lub(IValue... elements) {

@@ -200,7 +200,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 				IValue right = setIterator.next();
 				
 				IValue[] tuple = new IValue[]{left, right};
-				newData.add(Tuple.newTuple(tupleType, tuple));
+				newData.add(Tuple.newTuple(tuple));
 			}
 		}
 		

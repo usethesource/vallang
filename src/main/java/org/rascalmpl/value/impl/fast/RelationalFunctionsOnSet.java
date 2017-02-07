@@ -207,7 +207,7 @@ public class RelationalFunctionsOnSet {
 				do{
 					IValue value = valuesIterator.next();
 					IValue[] newTupleData = new IValue[]{thisTuple.get(0), value};
-					newData.add(Tuple.newTuple(tupleType, newTupleData));
+					newData.add(Tuple.newTuple(newTupleData));
 				}while(valuesIterator.hasNext());
 			}
 		}
@@ -269,7 +269,7 @@ public class RelationalFunctionsOnSet {
 						Iterator<IValue> rightValuesIterator = rightValues.iterator();
 						while(rightValuesIterator.hasNext()){
 							IValue rightValue = rightValuesIterator.next();
-							if(allData.add(Tuple.newTuple(tupleType, new IValue[]{leftKey, rightValue}))){
+							if(allData.add(Tuple.newTuple(new IValue[]{leftKey, rightValue}))){
 								if(interestingLeftValues == null){
 									nextSize++;
 									
@@ -327,7 +327,7 @@ public class RelationalFunctionsOnSet {
 		Iterator<IValue> carrierIterator = carrier.iterator();
 		while(carrierIterator.hasNext()){
 			IValue element = carrierIterator.next();
-			closure.add(Tuple.newTuple(tupleType, new IValue[]{element, element}));
+			closure.add(Tuple.newTuple(new IValue[]{element, element}));
 		}
 		
 		return new SetWriter(rel1.getElementType(), closure).done();

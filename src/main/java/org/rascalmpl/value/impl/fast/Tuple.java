@@ -32,24 +32,14 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 	private Type cachedTupleType;
 	protected final IValue[] elements;
 
-	public static ITuple newTuple(Type tupleType, IValue[] elements) {
-		return new Tuple(tupleType, elements);
-	}
-
-	private Tuple(Type tupleType /* ignored on purpose */, IValue[] elements) {
-		super();
-
-		this.cachedTupleType = null;
-		this.elements = elements;
-	}
-	
-	/*package*/ static ITuple newTuple(IValue... elements) {
+	public static ITuple newTuple(IValue... elements) {
 		return new Tuple(elements);
 	}
 
 	private Tuple(IValue... elements) {
 		super();
 		
+		this.cachedTupleType = null;
 		this.elements = elements;
 	}
 
@@ -94,7 +84,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		newElements[index] = arg;
 		elementTypes[index] = arg.getType();
 
-		return new Tuple(typeFactory.tupleType(elementTypes), newElements);
+		return new Tuple(newElements);
 	}
 
 	public ITuple set(String label, IValue arg) {
@@ -110,7 +100,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		newElements[getType().getFieldIndex(label)] = arg;
 		elementTypes[getType().getFieldIndex(label)] = arg.getType();
 
-		return new Tuple(typeFactory.tupleType(elementTypes), newElements);
+		return new Tuple(newElements);
 	}
 
 	public IValue select(int... indexes) {
@@ -126,7 +116,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 			elementTypes[i] = element.getType();
 		}
 
-		return new Tuple(typeFactory.tupleType(elementTypes), elements);
+		return new Tuple(elements);
 	}
 
 	public IValue selectByFieldNames(String... fields) {
@@ -142,7 +132,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 			elementTypes[i] = element.getType();
 		}
 
-		return new Tuple(typeFactory.tupleType(elementTypes), elements);
+		return new Tuple(elements);
 	}
 
 	public int hashCode() {

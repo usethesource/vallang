@@ -331,13 +331,12 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 	}
 	
 	public IList product(IList lst){
-		Type resultType = TypeFactory.getInstance().tupleType(getElementType(),lst.getElementType());
-		ListWriter w = new ListWriter(resultType);
+		ListWriter w = new ListWriter();
 
 		for(IValue t1 : this){
 			for(IValue t2 : lst){
 				IValue vals[] = {t1, t2};
-				ITuple t3 = Tuple.newTuple(resultType, vals);
+				ITuple t3 = Tuple.newTuple(vals);
 				w.insert(t3);
 			}
 		}
