@@ -30,15 +30,15 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.exceptions.IllegalFieldTypeException;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.IllegalFieldNameException;
+import io.usethesource.vallang.exceptions.IllegalFieldTypeException;
 import io.usethesource.vallang.exceptions.IllegalIdentifierException;
 import io.usethesource.vallang.exceptions.NullTypeException;
 
@@ -231,7 +231,7 @@ public class TypeFactory {
 	/**
 	 * Construct a labeled tuple type. Note that if you pass an array, this array
 	 * should NEVER be modified after or serious breakage will occur.
-	 * 
+	 *
 	 * @param fieldTypesAndLabel
 	 *          an array of field types, where each field type of type @{link
 	 *          Type} is immediately followed by a field label of type @{link
@@ -273,18 +273,19 @@ public class TypeFactory {
 	/**
 	 * Construct a tuple type. The length of the types and labels arrays should be
 	 * equal.
-	 * 
+	 *
 	 * @param types
 	 *          the types of the fields
 	 * @param labels
 	 *          the labels of the fields (in respective order)
 	 * @return a tuple type
 	 */
-	public Type tupleType(Type[] types, String[] labels) {
-		checkNull((Object[]) types);
-		checkNull((Object[]) labels);
-		return getFromCache(new TupleType(types, labels));
-	}
+  @Deprecated
+  public Type tupleType(Type[] types, String[] labels) {
+    checkNull((Object[]) types);
+    checkNull((Object[]) labels);
+    return getFromCache(new TupleType(types, labels));
+  }
 
 	/**
 	 * Construct a tuple type.
@@ -340,11 +341,12 @@ public class TypeFactory {
 
 	/**
 	 * Construct a relation type.
-	 * 
+	 *
 	 * @param fieldTypes
 	 *          the types of the fields of the relation
 	 * @return a relation type
 	 */
+	@Deprecated
 	public Type relType(Object... fieldTypesAndLabels) {
 		return setType(tupleType(fieldTypesAndLabels));
 	}
@@ -363,11 +365,12 @@ public class TypeFactory {
 
 	/**
 	 * Construct a list relation type.
-	 * 
+	 *
 	 * @param fieldTypes
 	 *          the types of the fields of the relation
 	 * @return a list relation type
 	 */
+	@Deprecated
 	public Type lrelType(Object... fieldTypesAndLabels) {
 		return lrelTypeFromTuple(tupleType(fieldTypesAndLabels));
 	}
@@ -551,6 +554,7 @@ public class TypeFactory {
 	 *          the types of the children of the tree node type
 	 * @return a tree node type
 	 */
+	@Deprecated
 	public Type constructor(TypeStore store, Type nodeType, String name, Object... childrenAndLabels)
 			throws FactTypeDeclarationException {
 		return constructorFromTuple(store, nodeType, name, tupleType(childrenAndLabels));
