@@ -154,7 +154,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final IValue key = tuple.get(0);
     final IValue val = tuple.get(1);
 
-    final SetMultimap.Immutable<IValue, IValue> contentNew = content.__removeEntry(key, val);
+    final SetMultimap.Immutable<IValue, IValue> contentNew = content.__remove(key, val);
 
     if (content == contentNew)
       return this;
@@ -425,7 +425,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final IValue key = tuple.getKey();
         final IValue val = tuple.getValue();
 
-        if (tmp.__removeTuple(key, val)) {
+        if (tmp.__remove(key, val)) {
           modified = true;
           keyTypeBagNew = keyTypeBagNew.decrease(key.getType());
           valTypeBagNew = valTypeBagNew.decrease(val.getType());

@@ -245,7 +245,7 @@ public abstract class AbstractTypeBag implements Cloneable {
 //    return new CapsuleCollectors.DefaultCollector<>(
 //        (Supplier<Transient<K, V>>) DefaultTrieSetMultimap::transientOf, accumulator,
 //        (left, right) -> {
-//          left.__insertAll(right);
+//          left.union(right);
 //          return left;
 //        }, Transient::freeze, UNORDERED);
 //  }
@@ -254,7 +254,7 @@ public abstract class AbstractTypeBag implements Cloneable {
 //    return new CapsuleCollectors.DefaultCollector<>(
 //        (Supplier<Transient<T>>) DefaultTrieSet::transientOf, Transient::__insert,
 //        (left, right) -> {
-//          left.__insertAll(right);
+//          left.union(right);
 //          return left;
 //        }, Transient::freeze, UNORDERED);
 //  }
