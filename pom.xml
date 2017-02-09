@@ -90,7 +90,7 @@
 				<configuration>
 					<argLine>
 						-ea
-						-Dorg.rascalmpl.value.Setup.valueFactory=FAST,PERSISTENT
+						-Dio.usethesource.vallang.Setup.valueFactory=FAST,PERSISTENT
 					</argLine>
 				</configuration>
 			</plugin>
