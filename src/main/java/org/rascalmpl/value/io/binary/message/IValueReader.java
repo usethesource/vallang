@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.function.Supplier;
 
+import io.usethesource.capsule.api.Map;
 import io.usethesource.capsule.core.deprecated.TrieMap_5Bits;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -609,8 +610,8 @@ public class IValueReader {
     private IValue readNode(final IWireInputStream reader) throws IOException {
         String name = null;
         IValue[] children = new IValue[0];
-        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = null;
-        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> kwParams = null;
+        Map.Immutable<String, IValue> annos = null;
+        Map.Immutable<String, IValue> kwParams = null;
 
 
         boolean backReference = false;
@@ -655,8 +656,8 @@ public class IValueReader {
     private IValue readConstructor(final IWireInputStream reader) throws IOException {
         Type type = null;
         IValue[] children = new IValue[0];
-        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = null;
-        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> kwParams = null;
+        Map.Immutable<String, IValue> annos = null;
+        Map.Immutable<String, IValue> kwParams = null;
 
 
         boolean backReference = false;
@@ -726,8 +727,8 @@ public class IValueReader {
         return true;
     }
 
-    private io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
-        io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> result = TrieMap_5Bits.transientOf();
+    private Map.Immutable<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
+        Map.Transient<String, IValue> result = TrieMap_5Bits.transientOf();
         String[] names = null;
         reader.next();
         while (reader.next() != IWireInputStream.MESSAGE_END) {

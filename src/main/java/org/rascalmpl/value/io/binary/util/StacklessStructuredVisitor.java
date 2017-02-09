@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
+import io.usethesource.capsule.api.Map;
 import org.rascalmpl.value.*;
 import org.rascalmpl.value.impl.AbstractDefaultAnnotatable;
 import org.rascalmpl.value.impl.AbstractDefaultWithKeywordParameters;
@@ -143,7 +144,7 @@ public class StacklessStructuredVisitor {
             }
 
 
-            private void pushKWPairs(io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> namedValues) {
+            private void pushKWPairs(Map.Immutable<String, IValue> namedValues) {
                 workList.push(new NextStep<>(null, (l,w,v) -> {
                     v.leaveNamedValue();
                 }));

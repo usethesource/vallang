@@ -12,8 +12,8 @@
 package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.api.deprecated.Set;
-import io.usethesource.capsule.api.deprecated.SetMultimap;
+import io.usethesource.capsule.api.Set;
+import io.usethesource.capsule.api.SetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import org.rascalmpl.value.*;
