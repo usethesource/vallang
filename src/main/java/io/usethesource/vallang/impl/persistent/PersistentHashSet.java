@@ -11,7 +11,6 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
-import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.api.Set;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
@@ -48,7 +47,7 @@ public final class PersistentHashSet extends AbstractSet {
     assert checkDynamicType(elementTypeBag, content);
     assert !(elementTypeBag.lub() == getTypeFactory().voidType() || content.isEmpty());
 
-    assert this.content.getClass() == DefaultTrieSet.getTargetClass();
+//    assert this.content.getClass() == DefaultTrieSet.getTargetClass();
   }
 
   private static final boolean checkDynamicType(final AbstractTypeBag elementTypeBag,

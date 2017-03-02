@@ -20,7 +20,6 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.api.Set;
 import io.usethesource.capsule.api.SetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
@@ -496,7 +495,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
           final Set.Immutable<IValue> ys = xy.get(x);
           // TODO: simplify expression with nullable data
           final Set.Immutable<IValue> zs = ys.stream()
-              .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(DefaultTrieSet::of).stream())
+              .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(Set::of).stream())
               .collect(CapsuleCollectors.toSet());
 
           if (zs == null) {

@@ -1,7 +1,5 @@
 package io.usethesource.vallang.impl.persistent;
 
-import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.DefaultTrieSetMultimap;
 import io.usethesource.capsule.api.Set;
 import io.usethesource.capsule.api.SetMultimap;
 import io.usethesource.capsule.util.stream.DefaultCollector;
@@ -25,7 +23,7 @@ public class ValueCollectors {
 
     class SetStruct {
       AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
-      Set.Transient<T> set = DefaultTrieSet.transientOf();
+      Set.Transient<T> set = Set.transientOf();
     }
 
     /** extract key/value from type {@code T} and insert into multimap */
@@ -53,7 +51,7 @@ public class ValueCollectors {
       AbstractTypeBag keyTypeBag = AbstractTypeBag.of(keyLabel.orElse(null));
       AbstractTypeBag valTypeBag = AbstractTypeBag.of(valueLabel.orElse(null));
       SetMultimap.Transient<K, V> map =
-          DefaultTrieSetMultimap.transientOf(equivalenceEqualityComparator);
+          SetMultimap.transientOf(equivalenceEqualityComparator);
     }
 
     /** extract key/value from type {@code T} and insert into multimap */

@@ -26,8 +26,6 @@ import io.usethesource.vallang.util.EqualityUtils;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.type.Type;
 
-import io.usethesource.capsule.DefaultTrieMap;
-
 final class MapWriter implements IMapWriter {
 
 	@SuppressWarnings("unchecked")
@@ -52,7 +50,7 @@ final class MapWriter implements IMapWriter {
 
 		keyTypeBag = AbstractTypeBag.of();
 		valTypeBag = AbstractTypeBag.of();
-		mapContent = DefaultTrieMap.transientOf();
+		mapContent = Map.transientOf();
 		constructedMap = null;
 	}
 

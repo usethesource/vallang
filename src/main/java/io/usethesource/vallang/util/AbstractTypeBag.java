@@ -11,19 +11,20 @@
  *******************************************************************************/
 package io.usethesource.vallang.util;
 
-import io.usethesource.capsule.DefaultTrieMap;
-import io.usethesource.capsule.util.stream.DefaultCollector;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
-
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import io.usethesource.capsule.api.Map;
+import io.usethesource.capsule.api.Map.Transient;
+import io.usethesource.capsule.util.stream.CapsuleCollectors;
+import io.usethesource.capsule.util.stream.DefaultCollector;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 import static io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap.entryOf;
 import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
@@ -58,8 +59,8 @@ public abstract class AbstractTypeBag implements Cloneable {
 
   public abstract int size();
 
-  // Experimental
-  public abstract AbstractTypeBag select(int... fields);
+//  // Experimental
+//  public abstract AbstractTypeBag select(int... fields);
 
   // Experimental
   // public abstract AbstractTypeBag union(AbstractTypeBag other);
@@ -88,7 +89,7 @@ public abstract class AbstractTypeBag implements Cloneable {
     }
 
     public static final AbstractTypeBag of(final String label, final Type... ts) {
-      AbstractTypeBag result = new TypeBag(label, DefaultTrieMap.of());
+      AbstractTypeBag result = new TypeBag(label, io.usethesource.capsule.api.Map.of());
 
       for (Type t : ts) {
         result = result.increase(t);
@@ -97,25 +98,22 @@ public abstract class AbstractTypeBag implements Cloneable {
       return result;
     }
 
-    @Override
-    public AbstractTypeBag select(int... fields) {
-      final Map<Type, List<Map.Entry<Type, Integer>>> groupedBySelect = countMap.entrySet().stream()
-          .map(typeCount -> entryOf(typeCount.getKey().select(fields), typeCount.getValue()))
-          .collect(Collectors.groupingBy(Map.Entry::getKey));
-
-      /**
-       * TODO: provide immutable collectors TODO: simplify stream expression
-       */
-      final Map<Type, Integer> mutableCountMap = groupedBySelect.entrySet().stream()
-          .map(typeListEntry -> entryOf(typeListEntry.getKey(),
-              typeListEntry.getValue().stream().mapToInt(Map.Entry::getValue).sum()))
-          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-      final io.usethesource.capsule.api.Map.Immutable<Type, Integer> countMap =
-          DefaultTrieMap.<Type, Integer>of().__putAll(mutableCountMap);
-
-      return new TypeBag(label, countMap, cachedLub.select(fields));
-    }
+//    @Override
+//    public AbstractTypeBag select(int... fields) {
+//
+//      final Map<Type, List<Map.Entry<Type, Integer>>> groupedBySelect = countMap.entrySet().stream()
+//          .map(typeCount -> entryOf(typeCount.getKey().select(fields), typeCount.getValue()))
+//          .collect(Collectors.groupingBy(java.util.Map.Entry::getKey));
+//
+//      final io.usethesource.capsule.api.Map.Immutable<Type, Integer> countMap = groupedBySelect
+//          .entrySet().stream()
+//          .map(typeListEntry -> entryOf(typeListEntry.getKey(),
+//              typeListEntry.getValue().stream().mapToInt(Map.Entry::getValue).sum()))
+//          .collect(
+//              CapsuleCollectors.toMap(java.util.Map.Entry::getKey, java.util.Map.Entry::getValue));
+//
+//      return new TypeBag(label, countMap, cachedLub.select(fields));
+//    }
 
     // @Override
     // public AbstractTypeBag union(AbstractTypeBag other) {
@@ -231,8 +229,10 @@ public abstract class AbstractTypeBag implements Cloneable {
       return countMap1;
     };
 
-    return new DefaultCollector<>((Supplier<M>) DefaultTrieMap::transientOf,
-        accumulator, combiner, (countMap) -> new TypeBag(null, countMap.freeze()), UNORDERED);
+    final Supplier<? extends io.usethesource.capsule.api.Map.Transient<Type, Integer>> supplier = Map::transientOf;
+
+    return new DefaultCollector<>((Supplier<M>) supplier, accumulator, combiner,
+        (countMap) -> new TypeBag(null, countMap.freeze()), UNORDERED);
   }
 
 //  public static <T, K, V> Collector<T, ?, List<AbstractTypeBag>> toTypeBagList(
