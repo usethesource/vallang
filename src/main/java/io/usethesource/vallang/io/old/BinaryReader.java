@@ -21,33 +21,31 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.RedeclaredConstructorException;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
+import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.ResizingArray;
-import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.INode;
-import io.usethesource.vallang.IRational;
-import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.exceptions.FactParseError;
-import io.usethesource.vallang.type.Type;
-
-import io.usethesource.capsule.core.deprecated.TrieMap_5Bits;
 
 // TODO Change this thing so it doesn't use recursion.
 /**
@@ -545,7 +543,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfKeywordParameters = parseInteger();
 		
-		io.usethesource.capsule.api.Map.Transient<String, IValue> kwParams = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.Map.Transient<String, IValue> kwParams = io.usethesource.capsule.api.Map.transientOf();
 		for(int i = numberOfKeywordParameters - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -585,7 +583,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfAnnotations = parseInteger();
 		
-		io.usethesource.capsule.api.Map.Transient<String, IValue> annotations = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.Map.Transient<String, IValue> annotations = io.usethesource.capsule.api.Map.transientOf();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -626,7 +624,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfKeywordParams = parseInteger();
 		
-		io.usethesource.capsule.api.Map.Transient<String, IValue> kwParams = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.Map.Transient<String, IValue> kwParams = io.usethesource.capsule.api.Map.transientOf();
 		for(int i = numberOfKeywordParams - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -653,7 +651,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfAnnotations = parseInteger();
 		
-		io.usethesource.capsule.api.Map.Transient<String, IValue> annotations = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.Map.Transient<String, IValue> annotations = io.usethesource.capsule.api.Map.transientOf();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];

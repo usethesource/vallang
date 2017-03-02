@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.function.Supplier;
 
 import io.usethesource.capsule.api.Map;
-import io.usethesource.capsule.core.deprecated.TrieMap_5Bits;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -728,7 +727,7 @@ public class IValueReader {
     }
 
     private Map.Immutable<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
-        Map.Transient<String, IValue> result = TrieMap_5Bits.transientOf();
+        Map.Transient<String, IValue> result = Map.transientOf();
         String[] names = null;
         reader.next();
         while (reader.next() != IWireInputStream.MESSAGE_END) {
