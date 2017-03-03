@@ -74,7 +74,7 @@ public class SetWriter implements ISetWriter {
     this.upperBoundType = upperBoundType;
 
     elementTypeBag = AbstractTypeBag.of();
-    // setContent = DefaultTrieSet.transientOf();
+    // setContent = Set.Transient.of();
     constructedSet = null;
   }
 
@@ -85,7 +85,7 @@ public class SetWriter implements ISetWriter {
     this.upperBoundType = null;
 
     elementTypeBag = AbstractTypeBag.of();
-    // setContent = DefaultTrieSet.transientOf();
+    // setContent = Set.Transient.of();
     constructedSet = null;
   }
 

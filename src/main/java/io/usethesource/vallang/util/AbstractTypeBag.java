@@ -84,7 +84,7 @@ public abstract class AbstractTypeBag implements Cloneable {
     }
 
     public static final AbstractTypeBag of(final String label, final Type... ts) {
-      AbstractTypeBag result = new TypeBag(label, Map.of());
+      AbstractTypeBag result = new TypeBag(label, Map.Immutable.of());
 
       for (Type t : ts) {
         result = result.increase(t);
@@ -224,7 +224,7 @@ public abstract class AbstractTypeBag implements Cloneable {
       return countMap1;
     };
 
-    final Supplier<? extends Map.Transient<Type, Integer>> supplier = Map::transientOf;
+    final Supplier<? extends Map.Transient<Type, Integer>> supplier = Map.Transient::of;
 
     return new DefaultCollector<>((Supplier<M>) supplier, accumulator, combiner,
         (countMap) -> new TypeBag(null, countMap.freeze()), UNORDERED);

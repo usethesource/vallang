@@ -543,7 +543,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfKeywordParameters = parseInteger();
 		
-		io.usethesource.capsule.Map.Transient<String, IValue> kwParams = io.usethesource.capsule.Map.transientOf();
+		io.usethesource.capsule.Map.Transient<String, IValue> kwParams = io.usethesource.capsule.Map.Transient.of();
 		for(int i = numberOfKeywordParameters - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -583,7 +583,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfAnnotations = parseInteger();
 		
-		io.usethesource.capsule.Map.Transient<String, IValue> annotations = io.usethesource.capsule.Map.transientOf();
+		io.usethesource.capsule.Map.Transient<String, IValue> annotations = io.usethesource.capsule.Map.Transient.of();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -624,7 +624,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfKeywordParams = parseInteger();
 		
-		io.usethesource.capsule.Map.Transient<String, IValue> kwParams = io.usethesource.capsule.Map.transientOf();
+		io.usethesource.capsule.Map.Transient<String, IValue> kwParams = io.usethesource.capsule.Map.Transient.of();
 		for(int i = numberOfKeywordParams - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -651,7 +651,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfAnnotations = parseInteger();
 		
-		io.usethesource.capsule.Map.Transient<String, IValue> annotations = io.usethesource.capsule.Map.transientOf();
+		io.usethesource.capsule.Map.Transient<String, IValue> annotations = io.usethesource.capsule.Map.Transient.of();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];

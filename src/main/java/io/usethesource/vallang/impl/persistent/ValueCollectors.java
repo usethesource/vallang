@@ -23,7 +23,7 @@ public class ValueCollectors {
 
     class SetStruct {
       AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
-      Set.Transient<T> set = Set.transientOf();
+      Set.Transient<T> set = Set.Transient.of();
     }
 
     /** extract key/value from type {@code T} and insert into multimap */
@@ -51,7 +51,7 @@ public class ValueCollectors {
       AbstractTypeBag keyTypeBag = AbstractTypeBag.of(keyLabel.orElse(null));
       AbstractTypeBag valTypeBag = AbstractTypeBag.of(valueLabel.orElse(null));
       SetMultimap.Transient<K, V> map =
-          SetMultimap.transientOf(equivalenceEqualityComparator);
+          SetMultimap.Transient.of(equivalenceEqualityComparator);
     }
 
     /** extract key/value from type {@code T} and insert into multimap */

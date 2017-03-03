@@ -495,7 +495,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
           final Set.Immutable<IValue> ys = xy.get(x);
           // TODO: simplify expression with nullable data
           final Set.Immutable<IValue> zs = ys.stream()
-              .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(Set::of).stream())
+              .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(Set.Immutable::of).stream())
               .collect(CapsuleCollectors.toSet());
 
           if (zs == null) {

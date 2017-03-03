@@ -727,7 +727,7 @@ public class IValueReader {
     }
 
     private Map.Immutable<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
-        Map.Transient<String, IValue> result = Map.transientOf();
+        Map.Transient<String, IValue> result = Map.Transient.of();
         String[] names = null;
         reader.next();
         while (reader.next() != IWireInputStream.MESSAGE_END) {

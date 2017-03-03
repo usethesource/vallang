@@ -50,7 +50,7 @@ final class MapWriter implements IMapWriter {
 
 		keyTypeBag = AbstractTypeBag.of();
 		valTypeBag = AbstractTypeBag.of();
-		mapContent = Map.transientOf();
+		mapContent = Map.Transient.of();
 		constructedMap = null;
 	}
 
