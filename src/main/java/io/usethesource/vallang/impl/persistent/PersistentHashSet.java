@@ -11,7 +11,7 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
-import io.usethesource.capsule.api.Set;
+import io.usethesource.capsule.Set;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.IValue;

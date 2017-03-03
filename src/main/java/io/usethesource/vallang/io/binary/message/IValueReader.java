@@ -19,7 +19,7 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.function.Supplier;
 
-import io.usethesource.capsule.api.Map;
+import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;

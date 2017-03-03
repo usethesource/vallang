@@ -20,8 +20,8 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import io.usethesource.capsule.api.Set;
-import io.usethesource.capsule.api.SetMultimap;
+import io.usethesource.capsule.Set;
+import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import io.usethesource.vallang.ISet;

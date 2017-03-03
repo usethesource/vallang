@@ -1,7 +1,7 @@
 package io.usethesource.vallang.impl.persistent;
 
-import io.usethesource.capsule.api.Set;
-import io.usethesource.capsule.api.SetMultimap;
+import io.usethesource.capsule.Set;
+import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.stream.DefaultCollector;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.util.AbstractTypeBag;

@@ -11,8 +11,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
-import io.usethesource.capsule.api.Set;
-import io.usethesource.capsule.api.SetMultimap;
+import io.usethesource.capsule.Set;
+import io.usethesource.capsule.SetMultimap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.ITuple;

@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import io.usethesource.capsule.api.Map;
+import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IValue;

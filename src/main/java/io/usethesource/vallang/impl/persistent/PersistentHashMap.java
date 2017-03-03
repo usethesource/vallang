@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import io.usethesource.capsule.api.Map;
+import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.IMap;

@@ -13,7 +13,7 @@ package io.usethesource.vallang.impl;
 
 import java.util.Iterator;
 
-import io.usethesource.capsule.api.Map;
+import io.usethesource.capsule.Map;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.IAnnotatable;

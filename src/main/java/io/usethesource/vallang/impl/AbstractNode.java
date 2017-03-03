@@ -11,7 +11,7 @@
  ******************************************************************************/
 package io.usethesource.vallang.impl;
 
-import io.usethesource.capsule.api.Map;
+import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;

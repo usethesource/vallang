@@ -11,22 +11,17 @@
  *******************************************************************************/
 package io.usethesource.vallang.util;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
-import io.usethesource.capsule.api.Map;
-import io.usethesource.capsule.api.Map.Transient;
-import io.usethesource.capsule.util.stream.CapsuleCollectors;
+import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.stream.DefaultCollector;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
-import static io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap.entryOf;
 import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
 
 /**
@@ -70,15 +65,15 @@ public abstract class AbstractTypeBag implements Cloneable {
    */
   private static class TypeBag extends AbstractTypeBag {
     private final String label;
-    private final io.usethesource.capsule.api.Map.Immutable<Type, Integer> countMap;
+    private final Map.Immutable<Type, Integer> countMap;
 
     private Type cachedLub;
 
-    private TypeBag(String label, io.usethesource.capsule.api.Map.Immutable<Type, Integer> countMap) {
+    private TypeBag(String label, Map.Immutable<Type, Integer> countMap) {
       this(label, countMap, null);
     }
 
-    private TypeBag(String label, io.usethesource.capsule.api.Map.Immutable<Type, Integer> countMap, Type cachedLub) {
+    private TypeBag(String label, Map.Immutable<Type, Integer> countMap, Type cachedLub) {
       this.label = label;
       this.countMap = countMap;
       this.cachedLub = cachedLub;
@@ -89,7 +84,7 @@ public abstract class AbstractTypeBag implements Cloneable {
     }
 
     public static final AbstractTypeBag of(final String label, final Type... ts) {
-      AbstractTypeBag result = new TypeBag(label, io.usethesource.capsule.api.Map.of());
+      AbstractTypeBag result = new TypeBag(label, Map.of());
 
       for (Type t : ts) {
         result = result.increase(t);
@@ -105,7 +100,7 @@ public abstract class AbstractTypeBag implements Cloneable {
 //          .map(typeCount -> entryOf(typeCount.getKey().select(fields), typeCount.getValue()))
 //          .collect(Collectors.groupingBy(java.util.Map.Entry::getKey));
 //
-//      final io.usethesource.capsule.api.Map.Immutable<Type, Integer> countMap = groupedBySelect
+//      final io.usethesource.capsule.Map.Immutable<Type, Integer> countMap = groupedBySelect
 //          .entrySet().stream()
 //          .map(typeListEntry -> entryOf(typeListEntry.getKey(),
 //              typeListEntry.getValue().stream().mapToInt(Map.Entry::getValue).sum()))
@@ -123,7 +118,7 @@ public abstract class AbstractTypeBag implements Cloneable {
     @Override
     public AbstractTypeBag increase(Type t) {
       final Integer oldCount = countMap.get(t);
-      final io.usethesource.capsule.api.Map.Immutable<Type, Integer> newCountMap;
+      final Map.Immutable<Type, Integer> newCountMap;
 
       if (oldCount == null) {
         newCountMap = countMap.__put(t, 1);
@@ -149,11 +144,11 @@ public abstract class AbstractTypeBag implements Cloneable {
         throw new IllegalStateException(String.format("Type '%s' was not present.", t));
       } else if (oldCount > 1) {
         // update and decrease count; lub stays the same
-        final io.usethesource.capsule.api.Map.Immutable<Type, Integer> newCountMap = countMap.__put(t, oldCount - 1);
+        final Map.Immutable<Type, Integer> newCountMap = countMap.__put(t, oldCount - 1);
         return new TypeBag(label, newCountMap, cachedLub);
       } else {
         // count was zero, thus remove entry and invalidate cached type
-        final io.usethesource.capsule.api.Map.Immutable<Type, Integer> newCountMap = countMap.__remove(t);
+        final Map.Immutable<Type, Integer> newCountMap = countMap.__remove(t);
         return new TypeBag(label, newCountMap);
       }
     }
@@ -216,7 +211,7 @@ public abstract class AbstractTypeBag implements Cloneable {
     }
   }
 
-  public static <M extends io.usethesource.capsule.api.Map.Transient<Type, Integer>> Collector<Type, ?, ? extends AbstractTypeBag> toTypeBag() {
+  public static <M extends Map.Transient<Type, Integer>> Collector<Type, ?, ? extends AbstractTypeBag> toTypeBag() {
     final BiConsumer<M, Type> accumulator = (countMap, type0) -> countMap.compute(type0,
         (type1, count) -> count == null ? 1 : count + 1);
 
@@ -229,7 +224,7 @@ public abstract class AbstractTypeBag implements Cloneable {
       return countMap1;
     };
 
-    final Supplier<? extends io.usethesource.capsule.api.Map.Transient<Type, Integer>> supplier = Map::transientOf;
+    final Supplier<? extends Map.Transient<Type, Integer>> supplier = Map::transientOf;
 
     return new DefaultCollector<>((Supplier<M>) supplier, accumulator, combiner,
         (countMap) -> new TypeBag(null, countMap.freeze()), UNORDERED);
