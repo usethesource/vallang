@@ -25,6 +25,8 @@ package io.usethesource.vallang.io.binary.stream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
@@ -32,9 +34,13 @@ import org.apache.commons.compress.compressors.gzip.GzipParameters;
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
 import org.tukaani.xz.XZInputStream;
 
+import com.github.luben.zstd.ZstdDirectBufferDecompressingStream;
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
 import com.github.luben.zstd.util.Native;
+
+import io.usethesource.vallang.io.binary.util.ByteBufferInputStream;
+import io.usethesource.vallang.io.binary.util.DirectByteBufferCache;
 
 /* package */ final class Compressor {
 
@@ -76,6 +82,12 @@ import com.github.luben.zstd.util.Native;
                 return new XZInputStream(raw);
             case Header.Compression.ZSTD:
                 if (Compressor.zstdAvailable()) {
+                    if (raw instanceof ByteBufferInputStream) {
+                        ByteBuffer buf = ((ByteBufferInputStream)raw).getByteBuffer();
+                        if (buf.isDirect() && buf instanceof MappedByteBuffer) {
+                            return createZstdDirectBufferInputStream(buf);
+                        }
+                    }
                     return new ZstdInputStream(raw);
                 }
                 else {
@@ -84,6 +96,42 @@ import com.github.luben.zstd.util.Native;
             default:
                 throw new IOException("Unsupported compression format");
         }
+    }
+
+    private static InputStream createZstdDirectBufferInputStream(ByteBuffer buf) {
+        ZstdDirectBufferDecompressingStream stream = new ZstdDirectBufferDecompressingStream(buf);
+        ByteBuffer resultBuffer = DirectByteBufferCache.getInstance().get(
+            Math.min(buf.remaining() * 3, ZstdDirectBufferDecompressingStream.recommendedTargetBufferSize())
+        );
+        // empty buffer at the beginning to lazily start the decompresison
+        resultBuffer.position(0);
+        resultBuffer.limit(0); 
+        
+        return new ByteBufferInputStream(resultBuffer) {
+            private boolean closed = false;
+            @Override
+            protected ByteBuffer refill(ByteBuffer torefill) throws IOException {
+                if (closed) {
+                    throw new IOException();
+                }
+                torefill.clear();
+                stream.read(torefill);
+                torefill.flip();
+                return torefill;
+            }
+            
+            @Override
+            public void close() throws IOException {
+                if (!closed) {
+                    try {
+                        stream.close();
+                    } finally {
+                        closed = true;
+                        DirectByteBufferCache.getInstance().put(resultBuffer);        
+                    }
+                }
+            }
+        };
     }
 
 

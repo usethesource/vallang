@@ -12,13 +12,16 @@
  */ 
 package io.usethesource.vallang.io.binary.wire.binary;
 
+import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.BufferUnderflowException;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import io.usethesource.vallang.io.binary.util.ByteBufferInputStream;
 import io.usethesource.vallang.io.binary.util.TaggedInt;
 import io.usethesource.vallang.io.binary.util.TrackLastRead;
 import io.usethesource.vallang.io.binary.util.WindowCacheFactory;
@@ -47,14 +50,14 @@ public class BinaryWireInputStream implements IWireInputStream {
     public BinaryWireInputStream(InputStream stream) throws IOException {
         this(stream, 8*1024);
     }
-    /**
-     * 
-     * @param stream make sure the stream is buffered!
-     * @param bufferSize
-     * @throws IOException
-     */
+        
     public BinaryWireInputStream(InputStream stream, int bufferSize) throws IOException {
-        __stream = stream;
+        if (stream instanceof BufferedInputStream || stream instanceof ByteBufferInputStream) {
+            __stream = stream;
+        }
+        else {
+            this.__stream = new BufferedInputStream(stream, bufferSize);
+        }
         
         byte[] header = readBytes(WIRE_VERSION.length);
         if (!Arrays.equals(WIRE_VERSION, header)) {
