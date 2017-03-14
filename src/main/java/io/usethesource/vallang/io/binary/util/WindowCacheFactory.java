@@ -12,17 +12,6 @@
  */ 
 package io.usethesource.vallang.io.binary.util;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.SoftReference;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-
 /**
  * Since we are constructing and deconstructing a lot of windows, use this factory to build them.
  * For caching reasons, also return the windows to this factory, so they can be reused again.
@@ -36,63 +25,10 @@ public class WindowCacheFactory {
 	public static WindowCacheFactory getInstance() {
 		return InstanceHolder.sInstance;
 	}
-	
-	// the cache expires after 60 seconds
-	private final static long EXPIRE_AFTER = TimeUnit.SECONDS.toNanos(60);
-	
-	// or when more memory is needed.
-	private static final class LastUsedTracker<T> extends SoftReference<T> {
-        private final long lastUsed;
 
-        public LastUsedTracker(T obj, ReferenceQueue<T> queue) {
-            super(obj, queue);
-	        this.lastUsed = System.nanoTime();
-        } 
-        
-        public boolean clearIfOlderThan(long timeStamp) {
-            if (timeStamp > lastUsed) {
-                clear();
-                return true;
-            }
-            return false;
-        }
-        
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj;
-        }
-	}
-	
-	private static final class SoftPool<T> {
-	    private final Deque<LastUsedTracker<T>> dequeue = new ConcurrentLinkedDeque<>();
-	    private final ReferenceQueue<T> references = new ReferenceQueue<>();
-	    
-	    public void performHouseKeeping() {
-	        synchronized (references) {
-	            Object cleared;
-	            while ((cleared = references.poll()) != null) {
-	                dequeue.removeLastOccurrence(cleared);
-	            }
-            }
-	    }
-
-        public SoftReference<T> poll() {
-            return dequeue.poll();
-        }
-
-        public void push(T o) {
-            dequeue.push(new LastUsedTracker<>(o, references));
-        }
-
-        public Iterator<LastUsedTracker<T>> descendingIterator() {
-            return dequeue.descendingIterator();
-        }
-	}
-
-	private final Semaphore scheduleCleanups = new Semaphore(0);
-    private final Map<Integer, SoftPool<TrackLastRead<Object>>> lastReads = new ConcurrentHashMap<>();
-    private final Map<Integer, SoftPool<TrackLastWritten<Object>>> lastWrittenReference = new ConcurrentHashMap<>();
-    private final Map<Integer, SoftPool<TrackLastWritten<Object>>> lastWrittenObject = new ConcurrentHashMap<>();
+    private final CacheFactory<TrackLastRead<Object>> lastReads = new CacheFactory<>(WindowCacheFactory::clear);
+    private final CacheFactory<TrackLastWritten<Object>> lastWrittenReference = new CacheFactory<>(WindowCacheFactory::clear);
+    private final CacheFactory<TrackLastWritten<Object>> lastWrittenObject = new CacheFactory<>(WindowCacheFactory::clear);
     
     private final TrackLastRead<Object> disabledReadWindow = new TrackLastRead<Object>() {
         @Override
@@ -112,7 +48,7 @@ public class WindowCacheFactory {
         if (size == 0) {
             return (TrackLastRead<T>) disabledReadWindow;
         }
-        return (TrackLastRead<T>) computeIfAbsent(lastReads, size, LinearCircularLookupWindow::new);
+        return (TrackLastRead<T>) lastReads.get(size, LinearCircularLookupWindow::new);
     }
 
     @SuppressWarnings("unchecked")
@@ -120,98 +56,51 @@ public class WindowCacheFactory {
         if (size == 0) {
             return (TrackLastWritten<T>) disabledWriteWindow;
         }
-        return (TrackLastWritten<T>) computeIfAbsent(lastWrittenReference, size, OpenAddressingLastWritten::referenceEquality);
+        return (TrackLastWritten<T>) lastWrittenReference.get(size, OpenAddressingLastWritten::referenceEquality);
     }
     @SuppressWarnings("unchecked")
     public <T> TrackLastWritten<T> getTrackLastWrittenObjectEquality(int size) {
         if (size == 0) {
             return (TrackLastWritten<T>) disabledWriteWindow;
         }
-        return (TrackLastWritten<T>) computeIfAbsent(lastWrittenObject, size, OpenAddressingLastWritten::objectEquality);
+        return (TrackLastWritten<T>) lastWrittenObject.get(size, OpenAddressingLastWritten::objectEquality);
     }
     
     @SuppressWarnings("unchecked")
     public <T> void returnTrackLastRead(TrackLastRead<T> returned) {
         if (returned != disabledReadWindow) {
-            clearAndReturn(lastReads, (TrackLastRead<Object>) returned);
+            doReturn(lastReads, (TrackLastRead<Object>) returned);
         }
     }
+
     @SuppressWarnings("unchecked")
     public <T> void returnTrackLastWrittenReferenceEquality(TrackLastWritten<T> returned) {
         if (returned != disabledWriteWindow) {
-            clearAndReturn(lastWrittenReference, (TrackLastWritten<Object>) returned);
+            doReturn(lastWrittenReference, (TrackLastWritten<Object>) returned);
         }
     }
     @SuppressWarnings("unchecked")
     public <T> void returnTrackLastWrittenObjectEquality(TrackLastWritten<T> returned) {
         if (returned != disabledWriteWindow) {
-            clearAndReturn(lastWrittenObject, (TrackLastWritten<Object>) returned);
+            doReturn(lastWrittenObject, (TrackLastWritten<Object>) returned);
         }
     }
     
-    
-
-    private <T> void clearAndReturn(Map<Integer, SoftPool<T>> cache, T returned) {
+    private <T> void doReturn(CacheFactory<T> target, T returned) {
         if (returned instanceof ClearableWindow) {
-            ClearableWindow clearable = (ClearableWindow)returned;
+            target.put(((ClearableWindow)returned).size(), returned);
+        }
+    }
+
+    private static Boolean clear(Object c) {
+        if (c instanceof ClearableWindow) {
+            ClearableWindow clearable = (ClearableWindow)c;
             if (clearable.size() >= 1000) {
                 clearable.clear();
-                SoftPool<T> entries = cache.computeIfAbsent(clearable.size(), i -> new SoftPool<>());
-                entries.push(returned);
-                scheduleCleanups.release();
+                return true;
             }
         }
-    }
-
-    private static <T> T computeIfAbsent(Map<Integer, SoftPool<T>> cache, int size, Function<Integer, T> constructNew) {
-        SoftPool<T> reads = cache.computeIfAbsent(size, i -> new SoftPool<>());
-        SoftReference<T> tracker;
-        while ((tracker = reads.poll()) != null) {
-            T result = tracker.get();
-            if (result != null) {
-                return result;
-            }
-        }
-        return constructNew.apply(size);
-    }
-    
-    private WindowCacheFactory() {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        // we either wait at max the EXPIRE_AFTER time, or we have enough updates to the maps that some cleaning might be nice
-                        scheduleCleanups.tryAcquire(1000, EXPIRE_AFTER, TimeUnit.NANOSECONDS);
-                        cleanMap(lastReads);
-                        cleanMap(lastWrittenReference);
-                        cleanMap(lastWrittenObject);
-                    }
-                }
-                catch (InterruptedException e) {
-                }
-            }
-
-            private <T> void cleanMap(Map<Integer, SoftPool<T>> cache) {
-                long cleanBefore = System.nanoTime() - EXPIRE_AFTER;
-                for (SoftPool<T> v : cache.values()) {
-                    Iterator<LastUsedTracker<T>> it = v.descendingIterator();
-                    while (it.hasNext()) {
-                        LastUsedTracker<T> current = it.next();
-                        if (current.clearIfOlderThan(cleanBefore)) {
-                            it.remove();
-                        }
-                        else {
-                            break; // end of the chain of outdated stuff reached
-                        }
-                    }
-                    v.performHouseKeeping();
-                }
-            }
-        });
-        t.setName("Cleanup Window caches");
-        t.setDaemon(true);
-        t.start();
+        return false;
     }
 
 }
