@@ -51,7 +51,10 @@ public class IValueInputStream implements Closeable {
         this.vf = vf;
         this.typeStoreSupplier = typeStoreSupplier;
         byte[] currentHeader = new byte[Header.MAIN.length];
-        in.read(currentHeader);
+        int read = 0;
+        while (read < currentHeader.length) {
+            read += in.read(currentHeader, read, currentHeader.length - read);
+        }
         if (!Arrays.equals(Header.MAIN, currentHeader)) {
             byte firstByte = currentHeader[0];
             // possible an old binary stream

@@ -36,7 +36,10 @@ public class ByteBufferInputStream extends InputStream {
             if (read < len && !source.hasRemaining()) {
                 source = refill(source);
                 if (!source.hasRemaining()) {
-                    throw new EOFException();
+                    if (read == 0) {
+                        throw new EOFException();
+                    }
+                    return read;
                 }
             }
         }
@@ -52,7 +55,7 @@ public class ByteBufferInputStream extends InputStream {
         if (!source.hasRemaining()) {
             source = refill(source);
             if (!source.hasRemaining()) {
-                throw new EOFException();
+                return -1;
             } 
         }
         return source.get();

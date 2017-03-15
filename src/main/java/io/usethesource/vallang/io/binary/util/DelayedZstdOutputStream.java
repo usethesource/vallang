@@ -25,13 +25,8 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
     private int compressHeader;
     private final int level;
     private boolean firstFlush = true;
-    private boolean closing = false;
     private ZstdDirectBufferCompressingStream compressor = null;
     
-    @FunctionalInterface
-    public interface WrappingCompressorFunction {
-        OutputStream wrap(OutputStream toWrap) throws IOException;
-    }
 
     public DelayedZstdOutputStream(ByteBufferOutputStream out, int compressHeader, int level) throws IOException {
         super(DirectByteBufferCache.getInstance().get(COMPRESS_AFTER));
@@ -42,12 +37,6 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
     
     @Override
     protected ByteBuffer flush(ByteBuffer toflush) throws IOException {
-        if (closing && firstFlush) {
-            out.write(0);
-            out.write(toflush);
-            toflush.clear();
-            return toflush;
-        }
         boolean increaseBufferForCompressor = false;
         if (firstFlush) {
             firstFlush = false;
@@ -90,13 +79,13 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
     public void close() throws IOException {
         try {
             try {
-                closing = true;
                 flush();
                 if (compressor != null) {
                     compressor.close();
                 }
             }
             finally {
+                out.close();
                 super.close();
             }
         } 

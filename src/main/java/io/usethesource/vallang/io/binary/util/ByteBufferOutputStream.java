@@ -32,7 +32,9 @@ public abstract class ByteBufferOutputStream extends OutputStream {
             throw new IOException("Stream closed");
         }
         target.flip();
-        target = flush(target);
+        if (target.hasRemaining()) {
+            target = flush(target);
+        }
     }
     
     @Override

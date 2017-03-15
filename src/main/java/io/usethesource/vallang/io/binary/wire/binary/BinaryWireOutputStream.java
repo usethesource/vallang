@@ -48,7 +48,11 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         this.stringsWritten = WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(stringSharingWindowSize);
     }
     
-    
+
+    @Override
+    public void flush() throws IOException {
+        __stream.flush();
+    }
 
     private void writeBytes(byte[] bytes) throws IOException {
         __stream.write(bytes);
@@ -78,8 +82,8 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     @Override
     public void close() throws IOException {
         if (!closed) {
-            try (OutputStream closeJava = __stream) {
-                flush();
+            try {
+                __stream.close();
             }
             finally {
                 closed = true;
@@ -92,12 +96,6 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         if (closed) {
             throw new IOException("Stream already closed"); 
         }
-    }
-
-    @Override
-    public void flush() throws IOException {
-        assertNotClosed();
-        __stream.flush();
     }
 
     private void writeFieldTag(final int fieldId, final int type) throws IOException {

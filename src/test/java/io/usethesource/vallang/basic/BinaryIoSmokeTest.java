@@ -13,9 +13,11 @@ package io.usethesource.vallang.basic;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Random;
@@ -69,7 +71,16 @@ public final class BinaryIoSmokeTest {
       ioRoundTrip(value, 0);
     }
   }
+  @Test
+  public void testBinaryFileIO() {
+    TypeStore ts = new TypeStore();
+    RandomValues.addNameType(ts);
+    for (IValue value : RandomValues.getTestValues(vf)) {
+      ioRoundTripFile(value, 0);
+    }
+  }
 
+  
   @Test
   public void testRandomBinaryIO() {
     TypeStore ts = new TypeStore();
@@ -80,6 +91,18 @@ public final class BinaryIoSmokeTest {
       ioRoundTrip(value, 42);
     }
   }
+
+  @Test
+  public void testRandomBinaryFileIO() {
+    TypeStore ts = new TypeStore();
+    Type name = RandomValues.addNameType(ts);
+    Random r = new Random(42);
+    for (int i = 0; i < 20; i++) {
+      IValue value = RandomValues.generate(name, ts, vf, r, 10);
+      ioRoundTripFile(value, 42);
+    }
+  }
+
   
   @Test
   public void testRandomBinaryLargeFilesIO() {
@@ -95,6 +118,20 @@ public final class BinaryIoSmokeTest {
     ioRoundTripFile(writer.done(), seed);
   }
 
+  @Test
+  public void testRandomBinaryLargeFilesIO2() {
+    TypeStore ts = new TypeStore();
+    Type name = RandomValues.addNameType(ts);
+    Random r = new Random();
+    int seed = r.nextInt();
+    r.setSeed(seed);
+    IListWriter writer = vf.listWriter();
+    for (int i = 0; i < 20; i++) {
+        writer.append(RandomValues.generate(name, ts, vf, r, 10));      
+    }
+    ioRoundTripFile2(writer.done(), seed);
+  }
+  
 
   @Test
   public void testConstructorTypeWithLabel() {
@@ -228,16 +265,18 @@ public final class BinaryIoSmokeTest {
     }
   }
   private void ioRoundTripFile(IValue value, int seed) {
+      long fileSize = 0;
       try {
           File target = File.createTempFile("valllang-test-file", "for-" + seed);
           target.deleteOnExit();
           try (IValueOutputStream w = new IValueOutputStream(FileChannel.open(target.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE), vf, IValueOutputStream.CompressionRate.Normal)) {
               w.write(value);
           }
+          fileSize = Files.size(target.toPath());
           try (IValueInputStream read = new IValueInputStream(FileChannel.open(target.toPath(), StandardOpenOption.READ), vf, Setup.TYPE_STORE_SUPPLIER)) {
               IValue result = read.read();
               if (!value.isEqual(result)) {
-                  String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
+                  String message = "Not equal: (seed: " + seed + ", size: " + fileSize +") \n\t" + value + " : " + value.getType()
                   + "\n\t" + result + " : " + result.getType();
                   System.err.println(message);
                   fail(message);
@@ -247,11 +286,43 @@ public final class BinaryIoSmokeTest {
               target.delete();
           }
       } catch (IOException ioex) {
+          
           ioex.printStackTrace();
+          System.err.println("File size: " + fileSize);
           fail(ioex.getMessage());
       }
   }
 
+  private void ioRoundTripFile2(IValue value, int seed) {
+      long fileSize = 0;
+      try {
+          File target = File.createTempFile("valllang-test-file", "for-" + seed);
+          target.deleteOnExit();
+          try (IValueOutputStream w = new IValueOutputStream(new FileOutputStream(target), vf, IValueOutputStream.CompressionRate.Normal)) {
+              w.write(value);
+          }
+          fileSize = Files.size(target.toPath());
+          try (IValueInputStream read = new IValueInputStream(new FileInputStream(target), vf, Setup.TYPE_STORE_SUPPLIER)) {
+              IValue result = read.read();
+              if (!value.isEqual(result)) {
+                  String message = "Not equal: (seed: " + seed + ", size: " + fileSize +") \n\t" + value + " : " + value.getType()
+                  + "\n\t" + result + " : " + result.getType();
+                  System.err.println(message);
+                  fail(message);
+              }
+          }
+          finally {
+              target.delete();
+          }
+      } catch (IOException ioex) {
+          
+          ioex.printStackTrace();
+          System.err.println("File size: " + fileSize);
+          fail(ioex.getMessage());
+      }
+  }
+
+  
 
   private void ioRoundTripOld(IValue value, int seed) {
     try {

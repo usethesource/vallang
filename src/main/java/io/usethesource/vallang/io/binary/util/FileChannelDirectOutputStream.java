@@ -21,19 +21,18 @@ public class FileChannelDirectOutputStream extends ByteBufferOutputStream {
         channel.write(toflush);
         toflush.clear();
         flushes++;
-        if (!closing) {
-            if (flushes == growEvery) {
-                flushes = 0;
-                return grow(toflush);
-            }
+        if (flushes == growEvery && !closing) {
+            flushes = 0;
+            return grow(toflush);
         }
         return toflush;
     }
 
     protected ByteBuffer grow(ByteBuffer current) {
-        if (current.capacity() < (1024*1024)) {
+        int currentCapacity = current.capacity();
+        if (currentCapacity < (1024*1024)) {
             DirectByteBufferCache.getInstance().put(current);
-            return DirectByteBufferCache.getInstance().get(current.capacity() * 2);
+            return DirectByteBufferCache.getInstance().get(currentCapacity * 2);
         }
         return current;
     }
