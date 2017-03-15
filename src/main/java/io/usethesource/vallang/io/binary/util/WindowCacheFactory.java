@@ -12,6 +12,8 @@
  */ 
 package io.usethesource.vallang.io.binary.util;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Since we are constructing and deconstructing a lot of windows, use this factory to build them.
  * For caching reasons, also return the windows to this factory, so they can be reused again.
@@ -26,9 +28,9 @@ public class WindowCacheFactory {
 		return InstanceHolder.sInstance;
 	}
 
-    private final CacheFactory<TrackLastRead<Object>> lastReads = new CacheFactory<>(WindowCacheFactory::clear);
-    private final CacheFactory<TrackLastWritten<Object>> lastWrittenReference = new CacheFactory<>(WindowCacheFactory::clear);
-    private final CacheFactory<TrackLastWritten<Object>> lastWrittenObject = new CacheFactory<>(WindowCacheFactory::clear);
+    private final CacheFactory<TrackLastRead<Object>> lastReads = new CacheFactory<>(60, TimeUnit.SECONDS, WindowCacheFactory::clear);
+    private final CacheFactory<TrackLastWritten<Object>> lastWrittenReference = new CacheFactory<>(60, TimeUnit.SECONDS, WindowCacheFactory::clear);
+    private final CacheFactory<TrackLastWritten<Object>> lastWrittenObject = new CacheFactory<>(60, TimeUnit.SECONDS, WindowCacheFactory::clear);
     
     private final TrackLastRead<Object> disabledReadWindow = new TrackLastRead<Object>() {
         @Override

@@ -27,7 +27,6 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
     private boolean firstFlush = true;
     private boolean closing = false;
     private ZstdDirectBufferCompressingStream compressor = null;
-    private int flushes = 0;
     
     @FunctionalInterface
     public interface WrappingCompressorFunction {
@@ -49,7 +48,7 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
             toflush.clear();
             return toflush;
         }
-        
+        boolean increaseBufferForCompressor = false;
         if (firstFlush) {
             firstFlush = false;
             if (toflush.remaining() >= COMPRESS_AFTER) {
@@ -63,6 +62,7 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
                         return out.target;
                     }
                 };
+                increaseBufferForCompressor = true;
             }
             else {
                 // no compression
@@ -77,14 +77,11 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
             out.write(toflush);
         }
         toflush.clear();
-        
-        flushes++;
-        if (flushes == 10 && toflush.capacity() < (1024*1024)) {
-            flushes = 0;
+
+        if (increaseBufferForCompressor) {
             DirectByteBufferCache.getInstance().put(toflush);
-            return DirectByteBufferCache.getInstance().get(toflush.capacity() * 2);
+            return DirectByteBufferCache.getInstance().getExact(ZstdDirectBufferCompressingStream.recommendedOutputBufferSize());
         }
-        
         return toflush;
     }
         

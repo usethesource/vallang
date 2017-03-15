@@ -30,8 +30,6 @@ import java.util.function.Function;
  */
 public class CacheFactory<T> {
 	
-	// the cache expires after 60 seconds
-	private final static long EXPIRE_AFTER = TimeUnit.SECONDS.toNanos(60);
 	
 	// or when more memory is needed.
 	private static final class LastUsedTracker<T> extends SoftReference<T> {
@@ -86,15 +84,15 @@ public class CacheFactory<T> {
 	private final Map<Integer, SoftPool<T>> caches = new ConcurrentHashMap<>();
 	private final Function<T, Boolean> cleaner;
 	
-	public CacheFactory(Function<T, Boolean> cleaner) {
-	    this.cleaner = cleaner;
+	public CacheFactory(int expireAfter, TimeUnit unit, Function<T, Boolean> clearer) {
+	    this.cleaner = clearer;
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     while (true) {
                         // we either wait at max the EXPIRE_AFTER time, or we have enough updates to the maps that some cleaning might be nice
-                        scheduleCleanups.tryAcquire(1000, EXPIRE_AFTER, TimeUnit.NANOSECONDS);
+                        scheduleCleanups.tryAcquire(1000, expireAfter, unit);
                         cleanMap(caches);
                     }
                 }
@@ -103,7 +101,7 @@ public class CacheFactory<T> {
             }
 
             private void cleanMap(Map<Integer, SoftPool<T>> cache) {
-                long cleanBefore = System.nanoTime() - EXPIRE_AFTER;
+                long cleanBefore = System.nanoTime() - unit.toNanos(expireAfter);
                 for (SoftPool<T> v : cache.values()) {
                     Iterator<LastUsedTracker<T>> it = v.descendingIterator();
                     while (it.hasNext()) {

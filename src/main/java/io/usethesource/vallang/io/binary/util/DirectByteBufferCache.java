@@ -1,6 +1,7 @@
 package io.usethesource.vallang.io.binary.util;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 
 public class DirectByteBufferCache {
     
@@ -15,7 +16,7 @@ public class DirectByteBufferCache {
     private DirectByteBufferCache() { }
         
     
-    private final CacheFactory<ByteBuffer> buffers = new CacheFactory<>(DirectByteBufferCache::clear);
+    private final CacheFactory<ByteBuffer> buffers = new CacheFactory<>(3, TimeUnit.SECONDS, DirectByteBufferCache::clear);
 
     
     private static Boolean clear(ByteBuffer b) {
@@ -28,10 +29,14 @@ public class DirectByteBufferCache {
     }
     
     public ByteBuffer get(int size) {
-        return buffers.get(roundSize(size), ByteBuffer::allocateDirect);
+        return getExact(roundSize(size));
     }
     
     public void put(ByteBuffer returned) {
         buffers.put(returned.capacity(), returned);
+    }
+
+    public ByteBuffer getExact(int size) {
+        return buffers.get(size, ByteBuffer::allocateDirect);
     }
 }
