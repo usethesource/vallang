@@ -15,13 +15,22 @@ package io.usethesource.vallang.io.binary.stream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+
+import com.github.luben.zstd.ZstdDirectBufferDecompressingStream;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
+import io.usethesource.vallang.io.binary.util.ByteBufferOutputStream;
+import io.usethesource.vallang.io.binary.util.DelayedCompressionOutputStream;
+import io.usethesource.vallang.io.binary.util.DelayedZstdOutputStream;
+import io.usethesource.vallang.io.binary.util.DirectByteBufferCache;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.binary.util.DelayedCompressionOutputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
             
 /**
@@ -70,6 +79,12 @@ public class IValueOutputStream implements Closeable {
     public IValueOutputStream(OutputStream out, IValueFactory vf) throws IOException {
         this(out, vf, CompressionRate.Normal);
     }
+    
+    public IValueOutputStream(FileChannel channel, IValueFactory vf, CompressionRate compression) throws IOException {
+        this(byteBufferedOutput(channel), vf, compression);
+    }
+
+    
     public IValueOutputStream(OutputStream out, IValueFactory vf, CompressionRate compression) throws IOException {
         out.write(Header.MAIN);
         this.rawStream = out;
@@ -77,8 +92,63 @@ public class IValueOutputStream implements Closeable {
         this.writer = null;
         this.vf = vf;
     }
-    
 
+    private static OutputStream byteBufferedOutput(FileChannel channel) {
+        return new ByteBufferOutputStream(DirectByteBufferCache.getInstance().get(8*1024)) {
+            private boolean closing = false;
+            private int flushes = 0; 
+            @Override
+            protected ByteBuffer flush(ByteBuffer toflush) throws IOException {
+                channel.write(toflush);
+                toflush.clear();
+                flushes++;
+                if (!closing) {
+                    if (flushes == 10 && toflush.capacity() < (1024*1024)) {
+                        flushes = 0;
+                        DirectByteBufferCache.getInstance().put(toflush);
+                        return DirectByteBufferCache.getInstance().get(toflush.capacity() * 2);
+                    }
+                }
+                return toflush;
+            }
+            @Override
+            public void write(ByteBuffer buf) throws IOException {
+                if (target.remaining() >= buf.remaining()) {
+                    target.put(buf);
+                }
+                else {
+                    int oldLimit = buf.limit();
+                    buf.limit(buf.position() + target.remaining());
+                    target.put(buf);
+                    buf.limit(oldLimit);
+                    
+                    flush();
+                    if (target.remaining() >= buf.remaining()) {
+                        // now it does fit, no problem
+                        target.put(buf);
+                    }
+                    else {
+                        // directly write the remaining buffer to the channel
+                        // skipping our internal buffer
+                        channel.write(buf);
+                    }
+                }
+            }
+            @Override
+            public void close() throws IOException {
+                try {
+                    closing = true;
+                    super.close();
+                }
+                finally {
+                    channel.close();
+                    DirectByteBufferCache.getInstance().put(target);
+                }
+            }
+        };
+    }
+    
+    
     public void write(IValue value) throws IOException {
         WindowSizes sizes = compression.compressionLevel == 0 ? WindowSizes.NO_WINDOW : WindowSizes.NORMAL_WINDOW;
         if (writer == null) {
@@ -101,9 +171,14 @@ public class IValueOutputStream implements Closeable {
             compression = CompressionRate.None;
         }
         int algorithm = fallbackIfNeeded(compression.compressionAlgorithm);
-        rawStream = new DelayedCompressionOutputStream(rawStream, algorithm, o ->
-            Compressor.wrapStream(o, algorithm, compression.compressionLevel)
-        );
+        if (rawStream instanceof ByteBufferOutputStream && algorithm == Header.Compression.ZSTD && ((ByteBufferOutputStream)rawStream).getBuffer().isDirect()) {
+            rawStream = new DelayedZstdOutputStream((ByteBufferOutputStream)rawStream, algorithm, compression.compressionLevel);
+        }
+        else {
+            rawStream = new DelayedCompressionOutputStream(rawStream, algorithm, o ->
+                Compressor.wrapStream(o, algorithm, compression.compressionLevel)
+            );
+        }
         return new BinaryWireOutputStream(rawStream, sizes.stringsWindow);
     }
 

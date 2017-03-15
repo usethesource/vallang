@@ -24,7 +24,7 @@ public class DirectByteBufferCache {
     }
     
     private static int roundSize(int size) {
-        return (size / (8*1024)) * (8*1024);
+        return ((size / (8*1024)) + 1) * (8*1024);
     }
     
     public ByteBuffer get(int size) {

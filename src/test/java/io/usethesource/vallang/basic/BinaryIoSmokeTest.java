@@ -231,7 +231,7 @@ public final class BinaryIoSmokeTest {
       try {
           File target = File.createTempFile("valllang-test-file", "for-" + seed);
           target.deleteOnExit();
-          try (IValueOutputStream w = new IValueOutputStream(new FileOutputStream(target), vf, IValueOutputStream.CompressionRate.Normal)) {
+          try (IValueOutputStream w = new IValueOutputStream(FileChannel.open(target.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE), vf, IValueOutputStream.CompressionRate.Normal)) {
               w.write(value);
           }
           try (IValueInputStream read = new IValueInputStream(FileChannel.open(target.toPath(), StandardOpenOption.READ), vf, Setup.TYPE_STORE_SUPPLIER)) {

@@ -12,16 +12,17 @@
  */ 
 package io.usethesource.vallang.io.binary.wire.binary;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import io.usethesource.vallang.io.binary.util.ByteBufferOutputStream;
 import io.usethesource.vallang.io.binary.util.TaggedInt;
 import io.usethesource.vallang.io.binary.util.TrackLastWritten;
+import io.usethesource.vallang.io.binary.util.WindowCacheFactory;
 import io.usethesource.vallang.io.binary.wire.FieldKind;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
-import io.usethesource.vallang.io.binary.util.WindowCacheFactory;
 
 
 public class BinaryWireOutputStream implements IWireOutputStream {
@@ -30,16 +31,18 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     private boolean closed = false;
     private final OutputStream __stream;
     private final TrackLastWritten<String> stringsWritten;
-    private int flushes = 0;
-    private ByteBuffer buffer;
 
     public BinaryWireOutputStream(OutputStream stream, int stringSharingWindowSize) throws IOException {
         this(stream, stringSharingWindowSize, 8*1024);
     }
     public BinaryWireOutputStream(OutputStream stream, int stringSharingWindowSize, int bufferSize) throws IOException {
         assert stringSharingWindowSize > 0;
-        this.__stream = stream;
-        buffer = ByteBuffer.allocate(bufferSize);
+        if (stream instanceof BufferedOutputStream || stream instanceof ByteBufferOutputStream) {
+            this.__stream = stream;
+        }
+        else {
+            this.__stream = new BufferedOutputStream(stream, bufferSize);
+        }
         writeBytes(WIRE_VERSION);
         encodeInteger(stringSharingWindowSize);
         this.stringsWritten = WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(stringSharingWindowSize);
@@ -48,60 +51,19 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     
 
     private void writeBytes(byte[] bytes) throws IOException {
-        ByteBuffer buffer = this.buffer;
-        int room = buffer.remaining();
-        int length = bytes.length;
-        if (room >= length) {
-            buffer.put(bytes, 0, length);
-            return;
-        }
-        int written = 0;
-        if (room > 0) {
-            buffer.put(bytes, written, room);
-            written += room;
-        }
-        buffer = flushBuffer(buffer);
-        int remaining = length - written;
-        if (remaining >= buffer.capacity()) {
-            assert buffer.position() == 0;
-            // write directly to stream bypassing buffer
-            __stream.write(bytes, written, remaining);
-        }
-        else {
-            buffer.put(bytes, written, remaining);
-        }
-        
+        __stream.write(bytes);
     }
-    private ByteBuffer flushBuffer(ByteBuffer buffer) throws IOException {
-        buffer.flip();
-        __stream.write(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
-        flushes++;
-        if (flushes == 10 && buffer.capacity() < 8*1024*1024) {
-            this.buffer = ByteBuffer.allocate(buffer.capacity() * 2);
-            flushes = 0;
-            return this.buffer;
-        }
-        buffer.clear();
-        return buffer;
-    }
-    private ByteBuffer makeRoom(int room) throws IOException {
-        ByteBuffer buffer = this.buffer;
-        if (buffer.remaining() < room) {
-            return flushBuffer(buffer);
-        }
-        return buffer;
-    }
+
     /*
      * LEB128 encoding (or actually LEB32) of positive and negative integers, negative integers always take 5 bytes, positive integers are compact.
      */
     private void encodeInteger(int value) throws IOException {
-        ByteBuffer buffer = makeRoom(5);
         // unrolling this loop made it slower
         while((value & ~0x7F) != 0) {
-            buffer.put((byte)((value & 0x7F) | 0x80));
+            __stream.write((byte)((value & 0x7F) | 0x80));
             value >>>= 7;
         }
-        buffer.put((byte)value);
+        __stream.write((byte)value);
     }
 
     /*
@@ -135,9 +97,6 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     @Override
     public void flush() throws IOException {
         assertNotClosed();
-        if (buffer.position() > 0) {
-            flushBuffer(buffer);
-        }
         __stream.flush();
     }
 
