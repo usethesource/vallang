@@ -15,11 +15,7 @@ package io.usethesource.vallang.io.binary.stream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-
-import com.github.luben.zstd.ZstdDirectBufferDecompressingStream;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
