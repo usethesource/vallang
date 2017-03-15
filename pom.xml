@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/usethesource/vallang.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@github.com/usethesource/vallang.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
