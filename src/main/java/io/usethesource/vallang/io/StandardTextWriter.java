@@ -182,8 +182,7 @@ public class StandardTextWriter implements IValueTextWriter {
 
 		public IValue visitConstructor(IConstructor o) throws IOException {
 			String name = o.getName();
-			if (name == null) 
-				System.err.println("hello");
+
 			if (name.equals("loc")) {
 				append('\\');
 			}
@@ -214,6 +213,7 @@ public class StandardTextWriter implements IValueTextWriter {
 			  if (wkw.hasParameters()) {
 			    if (k > 0) {
 			      append(',');
+			      indent(indent);
 			    }
 			    
 			    Iterator<Entry<String, IValue>> iterator = wkw.getParameters().entrySet().iterator();
@@ -226,6 +226,7 @@ public class StandardTextWriter implements IValueTextWriter {
 			      
 			      if (iterator.hasNext()) {
 			        append(',');
+			        indent(indent);
 			      }
 			    }
 			  }
@@ -428,11 +429,20 @@ public class StandardTextWriter implements IValueTextWriter {
 		}
 		
 		private boolean checkIndent(INode o) {
-			if (indent && o.arity() > 1) {
+			int kwArity = o.mayHaveKeywordParameters() ? o.asWithKeywordParameters().getParameters().size() : 0;
+			if (indent && (o.arity() + kwArity) > 1) {
 				for (IValue x : o) {
 					Type type = x.getType();
 					if (indented(type)) {
 						return true;
+					}
+				}
+				if (o.mayHaveKeywordParameters()) {
+					for (IValue x : o.asWithKeywordParameters().getParameters().values()) {
+						Type type = x.getType();
+						if (indented(type)) {
+							return true;
+						}
 					}
 				}
 			}
