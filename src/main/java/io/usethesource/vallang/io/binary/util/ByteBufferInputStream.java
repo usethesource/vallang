@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 public class ByteBufferInputStream extends InputStream {
     
-    private ByteBuffer source;
+    protected ByteBuffer source;
     
     public ByteBuffer getByteBuffer() {
         return source;
