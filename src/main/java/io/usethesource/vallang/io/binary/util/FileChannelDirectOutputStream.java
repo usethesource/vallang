@@ -64,13 +64,15 @@ public class FileChannelDirectOutputStream extends ByteBufferOutputStream {
 
     @Override
     public void close() throws IOException {
-        try (FileChannel chan = channel) {
-            closing = true;
-            flush();
-            super.close();
-        }
-        finally {
-            DirectByteBufferCache.getInstance().put(target);
+        if (!closed) {
+            try (FileChannel chan = channel) {
+                closing = true;
+                flush();
+                super.close();
+            }
+            finally {
+                DirectByteBufferCache.getInstance().put(target);
+            }
         }
     }
 }

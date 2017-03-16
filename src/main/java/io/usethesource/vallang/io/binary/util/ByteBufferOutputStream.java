@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 public abstract class ByteBufferOutputStream extends OutputStream {
     
     protected ByteBuffer target;
-    private boolean closed = false;
+    protected boolean closed = false;
     public ByteBufferOutputStream(ByteBuffer target) {
         this.target = target;
     }

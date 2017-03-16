@@ -13,7 +13,6 @@
 package io.usethesource.vallang.io.binary.util;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import com.github.luben.zstd.ZstdDirectBufferCompressingStream;
@@ -89,20 +88,22 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
             throw new RuntimeException("That shouldn't happen");
         }
 
-        try {
+        if (!closed) {
             try {
-                flush(); // buffer to compressor
-                if (compressor != null) {
-                    compressor.close(); // flush the compressor
+                try {
+                    flush(); // buffer to compressor
+                    if (compressor != null) {
+                        compressor.close(); // flush the compressor
+                    }
+                    super.close();
                 }
-                super.close();
-            }
+                finally {
+                    out.close();
+                }
+            } 
             finally {
-                out.close();
+                DirectByteBufferCache.getInstance().put(target);
             }
-        } 
-        finally {
-            DirectByteBufferCache.getInstance().put(target);
         }
     }
    
