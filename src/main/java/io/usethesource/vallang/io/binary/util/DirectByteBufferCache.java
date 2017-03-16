@@ -1,5 +1,6 @@
 package io.usethesource.vallang.io.binary.util;
 
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
@@ -33,13 +34,31 @@ public class DirectByteBufferCache {
     }
     
     public void put(ByteBuffer returned) {
-//        System.out.println("returned:" + returned);
-        buffers.put(returned.capacity(), returned);
+//        buffers.put(returned.capacity(), returned);
+        closeDirectBuffer(returned);
+    }
+    // from: http://stackoverflow.com/a/19447758/11098
+    private static void closeDirectBuffer(ByteBuffer cb) {
+        if (cb==null || !cb.isDirect()) return;
+
+        // we could use this type cast and call functions without reflection code,
+        // but static import from sun.* package is risky for non-SUN virtual machine.
+        //try { ((sun.nio.ch.DirectBuffer)cb).cleaner().clean(); } catch (Exception ex) { }
+        try {
+            Method cleaner = cb.getClass().getMethod("cleaner");
+            cleaner.setAccessible(true);
+            Method clean = Class.forName("sun.misc.Cleaner").getMethod("clean");
+            clean.setAccessible(true);
+            clean.invoke(cleaner.invoke(cb));
+        } catch(Exception ex) { }
+        cb = null;
     }
 
+
+
     public ByteBuffer getExact(int size) {
-        ByteBuffer result = buffers.get(size, ByteBuffer::allocateDirect);
-//        System.out.println("getting: " + result);
-        return result;
+        return ByteBuffer.allocateDirect(size);
+//        ByteBuffer result = buffers.get(size, ByteBuffer::allocateDirect);
+//        return result;
     }
 }
