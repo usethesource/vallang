@@ -30,6 +30,10 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
 
     public DelayedZstdOutputStream(ByteBufferOutputStream out, int compressHeader, int level) throws IOException {
         super(DirectByteBufferCache.getInstance().get(COMPRESS_AFTER));
+        if (out.target == this.target) {
+            throw new RuntimeException("That shouldn't happen");
+        }
+
         this.out = out;
         this.compressHeader = compressHeader;
         this.level = level;
@@ -37,6 +41,10 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
     
     @Override
     protected ByteBuffer flush(ByteBuffer toflush) throws IOException {
+        if (out.target == this.target) {
+            throw new RuntimeException("That shouldn't happen");
+        }
+
         boolean increaseBufferForCompressor = false;
         if (firstFlush) {
             firstFlush = false;
@@ -77,16 +85,20 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
     
     @Override
     public void close() throws IOException {
+        if (out.target == this.target) {
+            throw new RuntimeException("That shouldn't happen");
+        }
+
         try {
             try {
-                flush();
+                flush(); // buffer to compressor
                 if (compressor != null) {
-                    compressor.close();
+                    compressor.close(); // flush the compressor
                 }
+                super.close();
             }
             finally {
                 out.close();
-                super.close();
             }
         } 
         finally {

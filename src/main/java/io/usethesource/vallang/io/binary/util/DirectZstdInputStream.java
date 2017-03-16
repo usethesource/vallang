@@ -26,8 +26,8 @@ public class DirectZstdInputStream extends ByteBufferInputStream {
         return torefill;
     }
 
-    private static ByteBuffer constructDecompressedBuffer(ByteBufferInputStream source) {
-        int compressedSize = source.getByteBuffer().remaining();
+    private static ByteBuffer constructDecompressedBuffer(ByteBufferInputStream oriStream) {
+        int compressedSize = oriStream.getByteBuffer().remaining();
         ByteBuffer result = DirectByteBufferCache.getInstance().get(Math.min(compressedSize * 2, ZstdDirectBufferDecompressingStream.recommendedTargetBufferSize()));
         result.limit(0); // delay compression for first read
         return result;
@@ -38,8 +38,8 @@ public class DirectZstdInputStream extends ByteBufferInputStream {
         if (!closed ) {
             closed = true;
             try (Closeable old = orginalStream) {
-                decompressor.close();
                 super.close();
+                decompressor.close();
             }
             finally {
                 DirectByteBufferCache.getInstance().put(super.source);

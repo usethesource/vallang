@@ -41,9 +41,7 @@ public abstract class ByteBufferOutputStream extends OutputStream {
     public void close() throws IOException {
         if (!closed ) {
             try {
-                if (target.position() > 0) {
-                    flush();
-                }
+                flush();
             } 
             finally {
                 closed = true;
@@ -84,6 +82,9 @@ public abstract class ByteBufferOutputStream extends OutputStream {
     }
     
     public void write(ByteBuffer buf) throws IOException {
+        if (closed) {
+            throw new IOException("Stream closed");
+        }
         int originalLimit = buf.limit();  
         while (buf.hasRemaining()) {
             if (!target.hasRemaining()) {

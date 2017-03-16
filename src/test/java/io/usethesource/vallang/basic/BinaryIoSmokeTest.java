@@ -44,6 +44,7 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.type.Type;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 /**
@@ -112,7 +113,7 @@ public final class BinaryIoSmokeTest {
     int seed = r.nextInt();
     r.setSeed(seed);
     IListWriter writer = vf.listWriter();
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 5; i++) {
         writer.append(RandomValues.generate(name, ts, vf, r, 10));      
     }
     ioRoundTripFile(writer.done(), seed);
@@ -126,7 +127,7 @@ public final class BinaryIoSmokeTest {
     int seed = r.nextInt();
     r.setSeed(seed);
     IListWriter writer = vf.listWriter();
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 5; i++) {
         writer.append(RandomValues.generate(name, ts, vf, r, 10));      
     }
     ioRoundTripFile2(writer.done(), seed);

@@ -56,6 +56,7 @@ public class FileChannelDirectOutputStream extends ByteBufferOutputStream {
             else {
                 // directly write the remaining buffer to the channel
                 // skipping our internal buffer
+                assert target.position() == 0;
                 channel.write(buf);
             }
         }
@@ -63,12 +64,12 @@ public class FileChannelDirectOutputStream extends ByteBufferOutputStream {
 
     @Override
     public void close() throws IOException {
-        try {
+        try (FileChannel chan = channel) {
             closing = true;
+            flush();
             super.close();
         }
         finally {
-            channel.close();
             DirectByteBufferCache.getInstance().put(target);
         }
     }

@@ -33,10 +33,13 @@ public class DirectByteBufferCache {
     }
     
     public void put(ByteBuffer returned) {
+//        System.out.println("returned:" + returned);
         buffers.put(returned.capacity(), returned);
     }
 
     public ByteBuffer getExact(int size) {
-        return buffers.get(size, ByteBuffer::allocateDirect);
+        ByteBuffer result = buffers.get(size, ByteBuffer::allocateDirect);
+//        System.out.println("getting: " + result);
+        return result;
     }
 }
