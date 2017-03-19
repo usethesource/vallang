@@ -1,7 +1,12 @@
 package io.usethesource.vallang.impl;
 
+import java.util.function.Function;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.func.ListFunctions;
 
@@ -68,6 +73,11 @@ public class DefaultRelationViewOnList implements IListRelation<IList> {
 	@Override
 	public String toString() {
 		return rel1.toString();
+	}
+	
+	@Override
+	public IList index(IValue key) {
+	    return ListFunctions.index(vf, rel1, key);
 	}
 	
 }

@@ -12,10 +12,13 @@
 package io.usethesource.vallang.impl.fast;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
@@ -377,4 +380,29 @@ public class RelationalFunctionsOnSet {
 	private static boolean isBinary(ISet rel1){
 		return rel1.getElementType().getArity() == 2;
 	}
+	
+    public static ISet index(ISet set1, IValue key) {
+        int valueArity = set1.getElementType().getArity() - 1;
+        Function<ITuple, IValue> mapper;
+        if (valueArity == 0) {
+            mapper = t -> t.get(1);
+        }
+        else {
+            int[] newTupleIndex = new int[valueArity];
+            for (int k = 1; k <= valueArity; k++) {
+                newTupleIndex[k - 1] =  k;
+            }
+            mapper = t -> t.select(newTupleIndex);
+        }
+        
+        ISetWriter result = new SetWriter();
+        for (IValue r : set1) {
+            ITuple tup = (ITuple)r;
+            if (tup.get(0).isEqual(key)) {
+                result.insert(mapper.apply(tup));
+            }
+        }
+        return result.done();
+    }
+
 }

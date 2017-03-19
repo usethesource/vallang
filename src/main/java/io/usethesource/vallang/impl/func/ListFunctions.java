@@ -19,6 +19,7 @@ package io.usethesource.vallang.impl.func;
 
 import java.util.Iterator;
 import java.util.Random;
+import java.util.function.Function;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -518,5 +519,29 @@ public final class ListFunctions {
 		throw new IllegalOperationException("select with field names",
 				list1.getType());
 	}
+
+    public static IList index(IValueFactory vf, IList list1, IValue key) {
+        int valueArity = list1.getElementType().getArity() - 1;
+        Function<ITuple, IValue> mapper;
+        if (valueArity == 0) {
+            mapper = t -> t.get(1);
+        }
+        else {
+            int[] newTupleIndex = new int[valueArity];
+            for (int k = 1; k <= valueArity; k++) {
+                newTupleIndex[k - 1] =  k;
+            }
+            mapper = t -> t.select(newTupleIndex);
+        }
+        
+        IListWriter result = vf.listWriter();
+        for (IValue r : list1) {
+            ITuple tup = (ITuple)r;
+            if (tup.get(0).isEqual(key)) {
+                result.append(mapper.apply(tup));
+            }
+        }
+        return result.done();
+    }
 
 }

@@ -20,4 +20,5 @@ public interface IRelationalAlgebra<R, A1 extends IRelationalAlgebra<R, A1>> {
 	R domain();
 	R range();
 
+	R index(IValue key);
 }

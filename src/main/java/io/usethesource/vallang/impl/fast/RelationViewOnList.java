@@ -2,6 +2,7 @@ package io.usethesource.vallang.impl.fast;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IValue;
 
 public class RelationViewOnList implements IListRelation<IList> {
 
@@ -65,5 +66,10 @@ public class RelationViewOnList implements IListRelation<IList> {
 	public String toString() {
 		return rel1.toString();
 	}	
+	
+	@Override
+	public IList index(IValue key) {
+	    return RelationalFunctionsOnList.index(rel1, key);
+	}
 	
 }

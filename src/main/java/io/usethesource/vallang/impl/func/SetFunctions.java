@@ -18,6 +18,7 @@
 package io.usethesource.vallang.impl.func;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -535,5 +536,29 @@ public final class SetFunctions {
 		throw new IllegalOperationException("select with field names",
 				set1.getType());
 	}
+
+    public static ISet index(IValueFactory vf, ISet set1, IValue key) {
+        int valueArity = set1.getElementType().getArity() - 1;
+        Function<ITuple, IValue> mapper;
+        if (valueArity == 0) {
+            mapper = t -> t.get(1);
+        }
+        else {
+            int[] newTupleIndex = new int[valueArity];
+            for (int k = 1; k <= valueArity; k++) {
+                newTupleIndex[k - 1] =  k;
+            }
+            mapper = t -> t.select(newTupleIndex);
+        }
+        
+        ISetWriter result = vf.setWriter();
+        for (IValue r : set1) {
+            ITuple tup = (ITuple)r;
+            if (tup.get(0).isEqual(key)) {
+                result.insert(mapper.apply(tup));
+            }
+        }
+        return result.done();
+    }
 
 }

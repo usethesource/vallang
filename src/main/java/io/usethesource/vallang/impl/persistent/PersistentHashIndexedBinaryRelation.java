@@ -620,6 +620,11 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       public String toString() {
         return thisSet.toString();
       }
+
+      @Override
+      public ISet index(IValue key) {
+          return thisSet.content.get(key).stream().collect(ValueCollectors.toSet());
+      }
     };
   }
 

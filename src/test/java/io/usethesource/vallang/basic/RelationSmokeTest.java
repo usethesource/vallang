@@ -542,7 +542,7 @@ public final class RelationSmokeTest {
       fail("the above should be type correct");
     }
   }
-
+  
   @Test
   public void testCarrier() {
     ISet carrier = integerRelation.asRelation().carrier();
@@ -578,5 +578,25 @@ public final class RelationSmokeTest {
       fail("the above should be type correct");
     }
 
+  }
+  
+  @Test
+  public void testIndex() {
+      testIndex(integerRelation);
+      testIndex(doubleRelation);
+  }
+
+  private void testIndex(ISet targetRel) {
+      for (IValue key: targetRel.asRelation().domain()) {
+          ISet values = targetRel.asRelation().index(key);
+          for (IValue val : targetRel) {
+              ITuple t = (ITuple) val;
+              if (t.get(0).isEqual(key)) {
+                  assertTrue(values.contains(t.get(1)));
+                  values = values.delete(t.get(1));
+              }
+          }
+          assertTrue(values.isEmpty());
+      }
   }
 }

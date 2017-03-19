@@ -12,10 +12,12 @@
 package io.usethesource.vallang.impl.fast;
 
 import java.util.HashSet;
+import java.util.function.Function;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.IListWriter;
@@ -175,5 +177,29 @@ public class RelationalFunctionsOnList {
 		
 		throw new IllegalOperationException("select with field names", rel1.getType());
 	}
-		
+	
+    public static IList index(IList list1, IValue key) {
+        int valueArity = list1.getElementType().getArity() - 1;
+        Function<ITuple, IValue> mapper;
+        if (valueArity == 0) {
+            mapper = t -> t.get(1);
+        }
+        else {
+            int[] newTupleIndex = new int[valueArity];
+            for (int k = 1; k <= valueArity; k++) {
+                newTupleIndex[k - 1] =  k;
+            }
+            mapper = t -> t.select(newTupleIndex);
+        }
+        
+        IListWriter result = List.createListWriter();
+        for (IValue r : list1) {
+            ITuple tup = (ITuple)r;
+            if (tup.get(0).isEqual(key)) {
+                result.append(mapper.apply(tup));
+            }
+        }
+        return result.done();
+    }
+	
 }

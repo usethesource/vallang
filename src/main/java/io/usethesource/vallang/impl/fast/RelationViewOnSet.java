@@ -2,6 +2,7 @@ package io.usethesource.vallang.impl.fast;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.IValue;
 
 public class RelationViewOnSet implements ISetRelation<ISet> {
 
@@ -64,6 +65,10 @@ public class RelationViewOnSet implements ISetRelation<ISet> {
 	@Override
 	public String toString() {
 		return rel1.toString();
+	}
+	@Override
+	public ISet index(IValue key) {
+	    return RelationalFunctionsOnSet.index(rel1, key);
 	}
 
 }

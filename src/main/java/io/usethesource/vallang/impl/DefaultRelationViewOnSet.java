@@ -2,6 +2,7 @@ package io.usethesource.vallang.impl;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.func.SetFunctions;
 
@@ -70,4 +71,8 @@ public class DefaultRelationViewOnSet implements ISetRelation<ISet> {
 		return rel1.toString();
 	}	
 
+	@Override
+	public ISet index(IValue key) {
+	    return SetFunctions.index(vf, rel1, key);
+	}
 }
