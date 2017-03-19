@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import io.usethesource.capsule.Set;
+import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
@@ -623,7 +624,11 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
       @Override
       public ISet index(IValue key) {
-          return thisSet.content.get(key).stream().collect(ValueCollectors.toSet());
+          Immutable<IValue> values = thisSet.content.get(key);
+          if (values ==  null) {
+              return EmptySet.EMPTY_SET;
+          }
+          return values.stream().collect(ValueCollectors.toSet());
       }
     };
   }

@@ -585,6 +585,11 @@ public final class RelationSmokeTest {
       testIndex(integerRelation);
       testIndex(doubleRelation);
   }
+  
+  @Test
+  public void testEmptyIndex() {
+      assertTrue(integerRelation.asRelation().index(vf.integer(integers.length +  1)).isEmpty());
+  }
 
   private void testIndex(ISet targetRel) {
       for (IValue key: targetRel.asRelation().domain()) {
