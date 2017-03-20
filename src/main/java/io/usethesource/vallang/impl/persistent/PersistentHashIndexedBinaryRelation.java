@@ -38,6 +38,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 
 import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
 import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
+import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceEqualityComparator;
 import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
 
 public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
@@ -570,9 +571,17 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
           return thisSet;
         }
 
-        // TODO: support fast inverse operator
+        // TODO: replace by `inverse` API of subsequent capsule release
         if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1, 0))) {
-          return SetFunctions.project(getValueFactory(), thisSet, fieldIndexes);
+          // return SetFunctions.project(getValueFactory(), thisSet, fieldIndexes);
+
+          final SetMultimap.Transient<IValue, IValue> builder =
+              SetMultimap.Transient.of(equivalenceEqualityComparator);
+
+          content.entryIterator().forEachRemaining(
+              tuple -> builder.__insert(tuple.getValue(), tuple.getKey()));
+
+          return PersistentSetFactory.from(valTypeBag, keyTypeBag, builder.freeze());
         }
 
         throw new IllegalStateException("Binary relation patterns exhausted.");
