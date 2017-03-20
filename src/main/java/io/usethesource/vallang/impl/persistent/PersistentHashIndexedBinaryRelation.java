@@ -76,7 +76,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
     AbstractTypeBag expectedValTypeBag = content.entrySet().stream().map(Map.Entry::getValue)
         .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
-    
+
     // the label is not on the stream of values and keys
     // so we have to set that back to the type bag,
     // else the equals that does compare the labels can fail.
@@ -142,8 +142,9 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
     final SetMultimap.Immutable<IValue, IValue> contentNew = content.__insert(key, val);
 
-    if (content == contentNew)
+    if (content == contentNew) {
       return this;
+    }
 
     final AbstractTypeBag keyTypeBagNew = keyTypeBag.increase(key.getType());
     final AbstractTypeBag valTypeBagNew = valTypeBag.increase(val.getType());
@@ -153,8 +154,9 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public ISet delete(IValue value) {
-    if (!isTupleOfArityTwo.test(value.getType()))
+    if (!isTupleOfArityTwo.test(value.getType())) {
       return this;
+    }
 
     final ITuple tuple = (ITuple) value;
     final IValue key = tuple.get(0);
@@ -162,8 +164,9 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
     final SetMultimap.Immutable<IValue, IValue> contentNew = content.__remove(key, val);
 
-    if (content == contentNew)
+    if (content == contentNew) {
       return this;
+    }
 
     final AbstractTypeBag keyTypeBagNew = keyTypeBag.decrease(key.getType());
     final AbstractTypeBag valTypeBagNew = valTypeBag.decrease(val.getType());
@@ -178,8 +181,9 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public boolean contains(IValue value) {
-    if (!isTupleOfArityTwo.test(value.getType()))
+    if (!isTupleOfArityTwo.test(value.getType())) {
       return false;
+    }
 
     final ITuple tuple = (ITuple) value;
     final IValue key = tuple.get(0);
@@ -204,19 +208,23 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public boolean equals(Object other) {
-    if (other == this)
+    if (other == this) {
       return true;
-    if (other == null)
+    }
+    if (other == null) {
       return false;
+    }
 
     if (other instanceof PersistentHashIndexedBinaryRelation) {
       PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
-      if (this.getType() != that.getType())
+      if (this.getType() != that.getType()) {
         return false;
+      }
 
-      if (this.size() != that.size())
+      if (this.size() != that.size()) {
         return false;
+      }
 
       return content.equals(that.content);
     }
@@ -224,11 +232,13 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     if (other instanceof ISet) {
       ISet that = (ISet) other;
 
-      if (this.getType() != that.getType())
+      if (this.getType() != that.getType()) {
         return false;
+      }
 
-      if (this.size() != that.size())
+      if (this.size() != that.size()) {
         return false;
+      }
 
       /**
        * TODO: simplify by adding stream support to {@link ISet}. Such that block below could be
@@ -246,8 +256,9 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final IValue key = tuple.get(0);
         final IValue val = tuple.get(1);
 
-        if (!content.containsEntry(key, val))
+        if (!content.containsEntry(key, val)) {
           return false;
+        }
       }
 
       return true;
@@ -258,16 +269,19 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public boolean isEqual(IValue other) {
-    if (other == this)
+    if (other == this) {
       return true;
-    if (other == null)
+    }
+    if (other == null) {
       return false;
+    }
 
     if (other instanceof ISet) {
       ISet that = (ISet) other;
 
-      if (this.size() != that.size())
+      if (this.size() != that.size()) {
         return false;
+      }
 
       for (IValue value : that) {
         if (!isTupleOfArityTwo.test(value.getType())) {
@@ -284,8 +298,9 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
          * TODO: containsEntry in isEquals does not use equivalence explicitly here
          * content.containsEntryEquivalent(key, val, equivalenceComparator);
          */
-        if (!content.containsEntry(key, val))
+        if (!content.containsEntry(key, val)) {
           return false;
+        }
       }
 
       return true;
@@ -296,10 +311,12 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public ISet union(ISet other) {
-    if (other == this)
+    if (other == this) {
       return this;
-    if (other == null)
+    }
+    if (other == null) {
       return this;
+    }
 
     if (other instanceof PersistentHashIndexedBinaryRelation) {
       PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
@@ -349,10 +366,12 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public ISet intersect(ISet other) {
-    if (other == this)
+    if (other == this) {
       return this;
-    if (other == null)
+    }
+    if (other == null) {
       return EmptySet.EMPTY_SET;
+    }
 
     if (other instanceof PersistentHashIndexedBinaryRelation) {
       PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
@@ -380,7 +399,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       final SetMultimap.Transient<IValue, IValue> tmp = one.asTransient();
       boolean modified = false;
 
-      for (Iterator<Map.Entry<IValue, IValue>> it = tmp.entryIterator(); it.hasNext();) {
+      for (Iterator<Map.Entry<IValue, IValue>> it = tmp.entryIterator(); it.hasNext(); ) {
         final Map.Entry<IValue, IValue> tuple = it.next();
         final IValue key = tuple.getKey();
         final IValue val = tuple.getValue();
@@ -404,10 +423,12 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public ISet subtract(ISet other) {
-    if (other == this)
+    if (other == this) {
       return EmptySet.EMPTY_SET;
-    if (other == null)
+    }
+    if (other == null) {
       return this;
+    }
 
     if (other instanceof PersistentHashIndexedBinaryRelation) {
       PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
@@ -537,18 +558,22 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
       @Override
       public ISet project(int... fieldIndexes) {
-        if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(0)))
+        if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(0))) {
           return domain();
+        }
 
-        if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1)))
+        if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1))) {
           return range();
+        }
 
-        if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(0, 1)))
+        if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(0, 1))) {
           return thisSet;
+        }
 
         // TODO: support fast inverse operator
-        if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1, 0)))
+        if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1, 0))) {
           return SetFunctions.project(getValueFactory(), thisSet, fieldIndexes);
+        }
 
         throw new IllegalStateException("Binary relation patterns exhausted.");
       }
@@ -557,8 +582,10 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       public ISet projectByFieldNames(String... fieldNames) {
         final Type fieldTypeType = thisSet.getType().getFieldTypes();
 
-        if (!fieldTypeType.hasFieldNames())
-          throw new IllegalOperationException("select with field names", thisSet.getType());
+        if (!fieldTypeType.hasFieldNames()) {
+          throw new IllegalOperationException("select with field names",
+              thisSet.getType());
+        }
 
         final int[] fieldIndices =
             Stream.of(fieldNames).mapToInt(fieldTypeType::getFieldIndex).toArray();
@@ -624,11 +651,12 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
       @Override
       public ISet index(IValue key) {
-          Immutable<IValue> values = thisSet.content.get(key);
-          if (values ==  null) {
-              return EmptySet.EMPTY_SET;
-          }
-          return values.stream().collect(ValueCollectors.toSet());
+        Immutable<IValue> values = thisSet.content.get(key);
+        if (values == null) {
+          return EmptySet.EMPTY_SET;
+        }
+
+        return PersistentSetFactory.from(values);
       }
     };
   }

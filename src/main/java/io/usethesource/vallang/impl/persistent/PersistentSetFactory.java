@@ -29,6 +29,26 @@ import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTw
 public class PersistentSetFactory {
 
   /**
+   * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation
+   * by recovering the precise dynamic type.
+   *
+   * @param content internal set representation of an {@link ISet}
+   * @return appropriate {@link ISet} based on data and type
+   */
+  static final ISet from(final Set.Immutable<IValue> content) {
+
+    if (content.isEmpty()) {
+      return EmptySet.EMPTY_SET;
+    }
+
+    // recover precise dynamic type
+    final AbstractTypeBag elementTypeBag =
+        content.stream().map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+
+    return from(elementTypeBag, content);
+  }
+
+  /**
    * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation.
    *
    * @param keyTypeBag precise dynamic type of first data column
