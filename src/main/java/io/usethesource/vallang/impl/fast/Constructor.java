@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -38,24 +39,24 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
  * Implementation of IConstructor.
  * <br /><br />
  * Constructors that are annotated will use the AnnotatedConstructor class instead.
- * 
+ *
  * @author Arnold Lankamp
  * @author Jurgen Vinju (specialisations)
  */
 /*package*/ class Constructor {
 	private static abstract class AbstractConstructor extends AbstractValue implements IConstructor {
-	    protected final Type constructorType;  
+	    protected final Type constructorType;
 	    private int hashCode;
-	    
+
 	    public AbstractConstructor(Type constructorType) {
 	        this.constructorType = constructorType;
         }
-	    
+
 	    @Override
         public IConstructor set(String label, IValue arg) throws FactTypeUseException {
             return set(constructorType.getFieldIndex(label), arg);
         }
-	    
+
 	    @Override
 	    public Iterable<IValue> getChildren(){
 	        return this;
@@ -65,19 +66,19 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	    public boolean isAnnotatable() {
 	        return true;
 	    }
-	    
+
 	    @Override
 	    public boolean declaresAnnotation(TypeStore store, String label) {
 	        return (store.getAnnotationType(constructorType.getAbstractDataType(), label) != null);
 	    }
-	    
+
 	    @Override
 	    public IConstructor replace(int first, int second, int end, IList repl)
 	            throws FactTypeUseException, IndexOutOfBoundsException {
 	        throw new UnsupportedOperationException("Replace not supported on constructor.");
 	    }
-	    
-	    
+
+
 	    @Override
 	    public IAnnotatable<IConstructor> asAnnotatable() {
 	        return new AbstractDefaultAnnotatable<IConstructor>(this) {
@@ -88,19 +89,19 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	            }
 	        };
 	    }
-	    
+
 	    @Override
 	    public boolean isEqual(IValue value){
 	        if(value == this) return true;
 	        if(value == null) return false;
-	        
+
 	        if (value instanceof IConstructor){
 	            IConstructor otherTree = (IConstructor) value;
-	            
+
 	            if(!constructorType.comparable(otherTree.getConstructorType())) {
 	              return false;
 	            }
-	            
+
 	            final Iterator<IValue> it1 = this.iterator();
 	            final Iterator<IValue> it2 = otherTree.iterator();
 
@@ -109,7 +110,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	                if (it1.next().isEqual(it2.next()) == false) {
 	                    return false;
 	                }
-	            }  
+	            }
 
 	            // if this has keyword parameters, then isEqual is overriden by the wrapper
 	            // but if the other has keyword parameters, then we should fail here:
@@ -118,59 +119,59 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 	        return false;
 	    }
-	    
+
 	    @Override
         public int hashCode(){
             if (hashCode == 0) {
                 hashCode = constructorType.hashCode();
-                
+
                 for (int i = arity() - 1; i >= 0; i--) {
                     hashCode = (hashCode << 23) + (hashCode >> 5);
                     hashCode ^= get(i).hashCode();
                 }
             }
-            
+
             return hashCode;
         }
-	    
+
 	    @Override
 	    public boolean equals(Object o){
 	        if(o == this) return true;
 	        if(o == null) return false;
-	        
+
 	        if(o.getClass() == getClass()){
 	            AbstractConstructor otherTree = (AbstractConstructor) o;
-	            
+
 	            if (constructorType != otherTree.constructorType) {
 	                return false;
 	            }
-	            
+
 	            Iterator<IValue> children = iterator();
 	            Iterator<IValue> other = otherTree.iterator();
-	            
+
 	            while (children.hasNext() && other.hasNext()) {
 	                if (!children.next().equals(other.next())) {
 	                    return false;
 	                }
 	            }
-	            
+
 	            return true;
 	        }
-	        
+
 	        return false;
 	    }
-	    
-	    
+
+
 	    @Override
 	    public boolean has(String label) {
 	        return getConstructorType().hasField(label);
 	    }
-	    
+
 	    @Override
 	    public boolean mayHaveKeywordParameters() {
 	      return true;
 	    }
-	    
+
 	    @Override
 	    public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 	      return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
@@ -178,7 +179,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	        protected IConstructor wrap(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
 	          return new ConstructorWithKeywordParametersFacade(content, parameters);
 	        }
-	        
+
 	        @Override
 	        public boolean hasParameters() {
 	            return false;
@@ -193,29 +194,29 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	        public Map<String, IValue> getParameters() {
 	            return Collections.unmodifiableMap(parameters);
 	        }
-	      }; 
+	      };
 	    }
-	    
+
 	    @Override
 	    public IValue get(String label){
 	        return get(constructorType.getFieldIndex(label));
 	    }
-	    
+
         @Override
         public String getName(){
             return constructorType.getName();
         }
-	    
+
 	    @Override
 	    public Type getUninstantiatedConstructorType() {
 	      return constructorType;
 	    }
-	    
+
 	    @Override
 	    public Type getType(){
 	        return getConstructorType().getAbstractDataType();
 	    }
-	    
+
 	    @Override
         public Iterator<IValue> iterator() {
             return new Iterator<IValue>() {
@@ -235,7 +236,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 }
             };
         }
-	    
+
 	    @Override
 	    public Type getConstructorType(){
 	        if (constructorType.getAbstractDataType().isParameterized()) {
@@ -258,26 +259,26 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 	            return constructorType.instantiate(bindings);
 	        }
-	      
+
 	        return constructorType;
 	    }
-	    
+
 	    @Override
 	    public Type getChildrenTypes(){
 	        return constructorType.getFieldTypes();
 	    }
-	    
+
 	    @Override
 	    public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
 	        return v.visitConstructor(this);
 	    }
 	}
-	
+
 	private static class Constructor0 extends AbstractConstructor {
         public Constructor0(Type constructorType) {
             super(constructorType);
         }
-        
+
         @Override
         public int arity() {
             return 0;
@@ -287,12 +288,12 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
         public Iterator<IValue> iterator() {
             return Collections.<IValue>emptyList().iterator();
         }
-        
+
         @Override
         public int hashCode(){
             return constructorType.hashCode();
         }
-        
+
         @Override
         public IValue get(int arg0) throws IndexOutOfBoundsException {
             throw new IndexOutOfBoundsException();
@@ -302,26 +303,47 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
         public IConstructor set(int arg0, IValue arg1) throws FactTypeUseException {
             throw new IndexOutOfBoundsException();
         }
-        
+
         @Override
         public IConstructor set(String arg0, IValue arg1) throws FactTypeUseException {
             throw new IndexOutOfBoundsException();
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+
+            if (o.getClass() != getClass()) {
+                return false;
+            }
+            Constructor0 otherTree = (Constructor0) o;
+
+            if (constructorType != otherTree.constructorType) {
+                return false;
+            }
+
+            return true;
+        }
     }
-	
+
 	private static class Constructor1 extends AbstractConstructor {
 	    private final IValue arg1;
-	    
+
         public Constructor1(Type constructorType, IValue arg1) {
             super(constructorType);
             this.arg1 = arg1;
         }
-        
+
         @Override
         public int arity() {
             return 1;
         }
-        
+
         @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
@@ -330,7 +352,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-        
+
         @Override
         public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
             switch (index) {
@@ -339,23 +361,44 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-	}
-	
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+
+            if (o.getClass() != getClass()) {
+                return false;
+            }
+            Constructor1 otherTree = (Constructor1) o;
+
+            if (constructorType != otherTree.constructorType) {
+                return false;
+            }
+
+            return Objects.equals(arg1, otherTree.arg1);
+        }
+    }
+
 	private static class Constructor2 extends AbstractConstructor {
 	    private final IValue arg1;
 	    private final IValue arg2;
-	    
+
         public Constructor2(Type constructorType, IValue arg1, IValue arg2) {
             super(constructorType);
             this.arg1 = arg1;
             this.arg2 = arg2;
         }
-        
+
         @Override
         public int arity() {
             return 2;
         }
-        
+
         @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
@@ -365,7 +408,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-        
+
         @Override
         public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
             switch (index) {
@@ -375,25 +418,47 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-	}
-	
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+
+            if (o.getClass() != getClass()) {
+                return false;
+            }
+            Constructor2 otherTree = (Constructor2) o;
+
+            if (constructorType != otherTree.constructorType) {
+                return false;
+            }
+
+            return Objects.equals(arg1, otherTree.arg1)
+                && Objects.equals(arg2, otherTree.arg2);
+        }
+    }
+
 	private static class Constructor3 extends AbstractConstructor {
 	    private final IValue arg1;
         private final IValue arg2;
         private final IValue arg3;
-        
+
         public Constructor3(Type constructorType, IValue arg1, IValue arg2, IValue arg3) {
             super(constructorType);
             this.arg1 = arg1;
             this.arg2 = arg2;
             this.arg3 = arg3;
         }
-        
+
         @Override
         public int arity() {
             return 3;
         }
-        
+
         @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
@@ -404,7 +469,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-        
+
         @Override
         public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
             switch (index) {
@@ -415,14 +480,37 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-	}
-	
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+
+            if (o.getClass() != getClass()) {
+                return false;
+            }
+            Constructor3 otherTree = (Constructor3) o;
+
+            if (constructorType != otherTree.constructorType) {
+                return false;
+            }
+
+            return Objects.equals(arg1, otherTree.arg1)
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3);
+        }
+    }
+
 	private static class Constructor4 extends AbstractConstructor {
 	    private final IValue arg1;
         private final IValue arg2;
         private final IValue arg3;
         private final IValue arg4;
-        
+
         public Constructor4(Type constructorType, IValue arg1, IValue arg2, IValue arg3, IValue arg4) {
             super(constructorType);
             this.arg1 = arg1;
@@ -430,12 +518,12 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
             this.arg3 = arg3;
             this.arg4 = arg4;
         }
-        
+
         @Override
         public int arity() {
             return 4;
         }
-        
+
         @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
@@ -447,7 +535,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-        
+
         @Override
         public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
             switch (index) {
@@ -459,15 +547,39 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-	}
-	
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+
+            if (o.getClass() != getClass()) {
+                return false;
+            }
+            Constructor4 otherTree = (Constructor4) o;
+
+            if (constructorType != otherTree.constructorType) {
+                return false;
+            }
+
+            return Objects.equals(arg1, otherTree.arg1)
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3)
+                && Objects.equals(arg4, otherTree.arg4);
+        }
+    }
+
 	private static class Constructor5 extends AbstractConstructor {
 	    private final IValue arg1;
         private final IValue arg2;
         private final IValue arg3;
         private final IValue arg4;
         private final IValue arg5;
-        
+
         public Constructor5(Type constructorType, IValue arg1, IValue arg2, IValue arg3, IValue arg4, IValue arg5) {
             super(constructorType);
             this.arg1 = arg1;
@@ -476,12 +588,12 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
             this.arg4 = arg4;
             this.arg5 = arg5;
         }
-        
+
         @Override
         public int arity() {
             return 5;
         }
-        
+
         @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
@@ -494,7 +606,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-        
+
         @Override
         public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
             switch (index) {
@@ -507,8 +619,33 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-	}
-	
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+
+            if (o.getClass() != getClass()) {
+                return false;
+            }
+            Constructor5 otherTree = (Constructor5) o;
+
+            if (constructorType != otherTree.constructorType) {
+                return false;
+            }
+
+            return Objects.equals(arg1, otherTree.arg1)
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3)
+                && Objects.equals(arg4, otherTree.arg4)
+                && Objects.equals(arg5, otherTree.arg5);
+        }
+    }
+
 	private static class Constructor6 extends AbstractConstructor {
 	    private final IValue arg1;
         private final IValue arg2;
@@ -516,7 +653,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
         private final IValue arg4;
         private final IValue arg5;
         private final IValue arg6;
-        
+
         public Constructor6(Type constructorType, IValue arg1, IValue arg2, IValue arg3, IValue arg4, IValue arg5, IValue arg6) {
             super(constructorType);
             this.arg1 = arg1;
@@ -526,12 +663,12 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
             this.arg5 = arg5;
             this.arg6 = arg6;
         }
-        
+
         @Override
         public int arity() {
             return 6;
         }
-        
+
         @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
@@ -545,7 +682,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-        
+
         @Override
         public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
             switch (index) {
@@ -559,8 +696,34 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (o == null) {
+        return false;
+      }
+
+      if (o.getClass() != getClass()) {
+        return false;
+      }
+      Constructor6 otherTree = (Constructor6) o;
+
+      if (constructorType != otherTree.constructorType) {
+        return false;
+      }
+
+      return Objects.equals(arg1, otherTree.arg1)
+          && Objects.equals(arg2, otherTree.arg2)
+          && Objects.equals(arg3, otherTree.arg3)
+          && Objects.equals(arg4, otherTree.arg4)
+          && Objects.equals(arg5, otherTree.arg5)
+          && Objects.equals(arg6, otherTree.arg6);
+    }
 	}
-	
+
 	private static class Constructor7 extends AbstractConstructor {
 	    private final IValue arg1;
         private final IValue arg2;
@@ -569,7 +732,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
         private final IValue arg5;
         private final IValue arg6;
         private final IValue arg7;
-        
+
         public Constructor7(Type constructorType, IValue arg1, IValue arg2, IValue arg3, IValue arg4, IValue arg5, IValue arg6, IValue arg7) {
             super(constructorType);
             this.arg1 = arg1;
@@ -580,12 +743,12 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
             this.arg6 = arg6;
             this.arg7 = arg7;
         }
-        
+
         @Override
         public int arity() {
             return 7;
         }
-        
+
         @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
@@ -600,7 +763,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-        
+
         @Override
         public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
             switch (index) {
@@ -615,31 +778,58 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-	}
-	
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+
+            if (o.getClass() != getClass()) {
+                return false;
+            }
+            Constructor7 otherTree = (Constructor7) o;
+
+            if (constructorType != otherTree.constructorType) {
+                return false;
+            }
+
+            return Objects.equals(arg1, otherTree.arg1)
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3)
+                && Objects.equals(arg4, otherTree.arg4)
+                && Objects.equals(arg5, otherTree.arg5)
+                && Objects.equals(arg6, otherTree.arg6)
+                && Objects.equals(arg7, otherTree.arg7);
+        }
+    }
+
 	private static class ConstructorN extends AbstractConstructor {
 	    protected final IValue[] children;
-	    
+
 	    public ConstructorN(Type constructorType, IValue[] children) {
 	        super(constructorType);
 	        this.children = children;
 	    }
-	    
+
 	    @Override
 	    public int arity(){
 	        return children.length;
 	    }
-	    
+
 	    @Override
 	    public Iterator<IValue> iterator() {
 	        return Arrays.stream(children).iterator();
 	    }
-	    
+
 	    @Override
 	    public IValue get(int i){
 	        return children[i];
 	    }
-	    
+
 	    @Override
 	    public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
 	        IValue[] newChildren = new IValue[children.length];
@@ -662,14 +852,14 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	    default: return new ConstructorN(constructorType, children);
 	    }
 	}
-	
+
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
 	  IConstructor r = newConstructor(constructorType, children);
-	  
+
 	  if (kwParams != null && !kwParams.isEmpty()) {
 	    return r.asWithKeywordParameters().setParameters(kwParams);
 	  }
-	  
+
 	  return r;
 	}
 }
