@@ -34,11 +34,11 @@ public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory
 	}
 
 	public ISetWriter setWriter(Type upperBoundType) {
-		return new SetWriter(upperBoundType);
+		return new SetWriter(upperBoundType, (a,b) -> tuple(a,b));
 	}
 
 	public ISetWriter setWriter() {
-		return new SetWriter();
+		return new SetWriter((a,b) -> tuple(a,b));
 	}
 
 	public ISetWriter relationWriter(Type upperBoundType) {
@@ -46,7 +46,7 @@ public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory
 	}
 
 	public ISetWriter relationWriter() {
-		return new SetWriter();
+		return new SetWriter((a,b) -> tuple(a,b));
 	}
 
 	public ISet set(Type elementType) {

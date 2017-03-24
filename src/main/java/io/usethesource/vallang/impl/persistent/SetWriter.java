@@ -11,24 +11,26 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 import io.usethesource.capsule.Set;
+import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
-import io.usethesource.vallang.ISetWriter;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /*
  * TODO: visibility is currently public to allow set-multimap experiments. Must be set back to
@@ -64,41 +66,106 @@ public class SetWriter implements ISetWriter {
   protected ISet constructedSet;
 
   private Type leastUpperBound = TypeFactory.getInstance().voidType();
-  private Stream.Builder<Type> typeStreamBuilder = Stream.builder();
-  private Stream.Builder<IValue> dataStreamBuilder = Stream.builder();
+  
+  private Builder builder = null;
 
-  SetWriter(Type upperBoundType) {
+  private final BiFunction<IValue, IValue, ITuple> constructTuple;
+  
+  private static interface Builder {
+      void put(IValue element, Type elementType);
+      ISet done();
+  }
+  
+  private final static class SetBuilder implements Builder {
+      private final Set.Transient<IValue> set = Set.Transient.of();
+      private AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
+
+      @Override
+      public void put(IValue element, Type elementType) {
+          if (set.__insert(element)) {
+              elementTypeBag = elementTypeBag.increase(elementType);
+          }
+      }
+      
+      @Override
+      public ISet done() {
+          return PersistentSetFactory.from(elementTypeBag, set.freeze());
+      }
+  }
+  
+  private final static class MultiMapBuilder implements Builder {
+      AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
+      AbstractTypeBag valTypeBag = AbstractTypeBag.of();
+      @SuppressWarnings("deprecation")
+      SetMultimap.Transient<IValue, IValue> map = SetMultimap.Transient.of(equivalenceEqualityComparator);
+
+      @Override
+      public void put(IValue element, Type elementType) {
+          IValue key = ((ITuple)element).get(0);
+          IValue value = ((ITuple)element).get(1);
+          if (map.__insert(key, value)) {
+              keyTypeBag = keyTypeBag.increase(elementType.getFieldType(0));
+              valTypeBag = valTypeBag.increase(elementType.getFieldType(1));
+          }
+      }
+      
+      @Override
+      public ISet done() {
+          return PersistentSetFactory.from(keyTypeBag, valTypeBag, map.freeze());
+      }
+
+  }
+  
+
+  SetWriter(Type upperBoundType, BiFunction<IValue, IValue, ITuple> constructTuple) {
     super();
 
     this.checkUpperBound = true;
     this.upperBoundType = upperBoundType;
+    this.constructTuple = constructTuple;
 
     elementTypeBag = AbstractTypeBag.of();
     // setContent = Set.Transient.of();
     constructedSet = null;
   }
 
-  SetWriter() {
+  SetWriter(BiFunction<IValue, IValue, ITuple> constructTuple) {
     super();
 
     this.checkUpperBound = false;
     this.upperBoundType = null;
+    this.constructTuple = constructTuple;
+
 
     elementTypeBag = AbstractTypeBag.of();
     // setContent = Set.Transient.of();
     constructedSet = null;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   private void put(IValue element) {
     final Type elementType = element.getType();
 
     if (checkUpperBound && !elementType.isSubtypeOf(upperBoundType)) {
       throw new UnexpectedElementTypeException(upperBoundType, elementType);
     }
-
-    dataStreamBuilder.accept(element);
-    typeStreamBuilder.accept(elementType);
+    
+    if (elementType.isTuple() && elementType.getArity() == 2) {
+        if (builder == null) {
+            // first tuple was a binary one, so let's assume all will be binary
+            builder = new MultiMapBuilder();
+        }
+    }
+    else if (builder == null) {
+        // first values was not a binary tuple, so let's build a normal set
+        builder = new SetBuilder(); 
+    }
+    else if (builder instanceof MultiMapBuilder) {
+        // special case, previous values were all binary tuples, but the new value isn't
+        MultiMapBuilder oldBuilder = (MultiMapBuilder) builder;
+        builder = new SetBuilder();
+        oldBuilder.map.tupleStream(constructTuple).forEach(t -> builder.put(t, t.getType()));        
+    }
+    builder.put(element, elementType);
     leastUpperBound = leastUpperBound.lub(elementType);
   }
 
@@ -119,49 +186,12 @@ public class SetWriter implements ISetWriter {
     if (constructedSet != null)
       return constructedSet;
 
-    final Stream<Type> typeStream = typeStreamBuilder.build();
-    final Stream<IValue> dataStream = dataStreamBuilder.build();
-
-    if (leastUpperBound == TypeFactory.getInstance().voidType()) {
+    if (leastUpperBound == TypeFactory.getInstance().voidType() || builder == null) {
       constructedSet = EmptySet.EMPTY_SET;
       return constructedSet;
     }
-
-    if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(leastUpperBound)) {
-      // collect to multimap
-
-//      final java.util.List<Type> tupleTypes = typeStream.collect(Collectors.toList());
-//
-//      final AbstractTypeBag keyTypeBag =
-//          tupleTypes.stream().map(type -> type.getFieldType(0)).collect(toTypeBag());
-//
-//      final AbstractTypeBag valTypeBag =
-//          tupleTypes.stream().map(type -> type.getFieldType(1)).collect(toTypeBag());
-//
-//      final Immutable<IValue, IValue> data = dataStream.map(asInstanceOf(ITuple.class))
-//          .collect(CapsuleCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
-//
-//      constructedSet = new PersistentHashIndexedBinaryRelation(keyTypeBag, valTypeBag, data);
-//      return constructedSet;
-
-      constructedSet = dataStream.map(asInstanceOf(ITuple.class))
-          .collect(ValueCollectors.toSetMultimap(leastUpperBound.getOptionalFieldName(0),
-              tuple -> tuple.get(0), leastUpperBound.getOptionalFieldName(1),
-              tuple -> tuple.get(1)));
-
-      return constructedSet;
-    } else {
-      // collect to set
-
-//      final AbstractTypeBag elementTypeBag = typeStream.collect(toTypeBag());
-//      final Immutable<IValue> data = dataStream.collect(CapsuleCollectors.toSet());
-//
-//      constructedSet = new PersistentHashSet(elementTypeBag, data);
-//      return constructedSet;
-
-      constructedSet = dataStream.collect(ValueCollectors.toSet());
-      return constructedSet;
-    }
+    
+    return constructedSet = builder.done();
   }
 
   // TODO: extract to a utilities class
