@@ -148,24 +148,28 @@ public class SetWriter implements ISetWriter {
     if (checkUpperBound && !elementType.isSubtypeOf(upperBoundType)) {
       throw new UnexpectedElementTypeException(upperBoundType, elementType);
     }
-    
-    if (elementType.isTuple() && elementType.getArity() == 2) {
-        if (builder == null) {
-            // first tuple was a binary one, so let's assume all will be binary
-            builder = new MultiMapBuilder();
+   
+    if (builder == null || elementType != leastUpperBound) {
+        if (elementType.isTuple() && elementType.getArity() == 2) {
+            if (builder == null) {
+                // first tuple was a binary one, so let's assume all will be binary
+                builder = new MultiMapBuilder();
+            }
+        }
+        else if (builder == null) {
+            // first values was not a binary tuple, so let's build a normal set
+            builder = new SetBuilder(); 
+        }
+        else if (builder instanceof MultiMapBuilder) {
+            // special case, previous values were all binary tuples, but the new value isn't
+            MultiMapBuilder oldBuilder = (MultiMapBuilder) builder;
+            builder = new SetBuilder();
+            oldBuilder.map.tupleStream(constructTuple).forEach(t -> builder.put(t, t.getType()));        
         }
     }
-    else if (builder == null) {
-        // first values was not a binary tuple, so let's build a normal set
-        builder = new SetBuilder(); 
-    }
-    else if (builder instanceof MultiMapBuilder) {
-        // special case, previous values were all binary tuples, but the new value isn't
-        MultiMapBuilder oldBuilder = (MultiMapBuilder) builder;
-        builder = new SetBuilder();
-        oldBuilder.map.tupleStream(constructTuple).forEach(t -> builder.put(t, t.getType()));        
-    }
+    
     builder.put(element, elementType);
+    
     leastUpperBound = leastUpperBound.lub(elementType);
   }
 
