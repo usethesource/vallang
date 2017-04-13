@@ -37,7 +37,7 @@ public class ByteBufferInputStream extends InputStream {
                 source = refill(source);
                 if (!source.hasRemaining()) {
                     if (read == 0) {
-                        throw new EOFException();
+                        return -1;
                     }
                     return read;
                 }
@@ -58,7 +58,7 @@ public class ByteBufferInputStream extends InputStream {
                 return -1;
             } 
         }
-        return source.get();
+        return Byte.toUnsignedInt(source.get());
     }
     
 }
