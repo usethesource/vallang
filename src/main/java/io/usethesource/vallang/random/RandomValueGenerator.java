@@ -436,6 +436,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitValue(Type type) throws RuntimeException {
+        /*
         if (oneEvery(7)) {
             Collection<Type> adts = currentStore.getAbstractDataTypes();
             if (!adts.isEmpty()) {
@@ -445,6 +446,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
                 }
             }
         }
+        */
         return continueGenerating(rt.next(maxDepth - currentDepth));
     }
 
