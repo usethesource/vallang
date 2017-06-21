@@ -29,7 +29,7 @@ public abstract class RandomGenerator<T> {
 	public RandomGenerator(IValueFactory vf) {
 		this.vf = vf;
 		this.random = new Random();
-	    this.generator = new RandomValueGenerator(vf, random, 5);
+	    this.generator = new RandomValueGenerator(vf, random, 5, 5);
 	}
 	
 	/**

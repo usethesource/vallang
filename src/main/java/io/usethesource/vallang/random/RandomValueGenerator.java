@@ -30,7 +30,6 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.random.util.RandomUtil;
-import io.usethesource.vallang.type.DefaultTypeVisitor;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -47,19 +46,22 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     protected final Random random;
     protected final int maxDepth;
     protected final RandomTypeGenerator rt;
+    protected int maxWidth;
     
     protected int currentDepth;
     protected TypeStore currentStore;
     protected Map<Type, Type> typeParameters;
     
+    
 
-    public RandomValueGenerator(IValueFactory vf, Random random, int maxDepth) {
+    public RandomValueGenerator(IValueFactory vf, Random random, int maxDepth, int maxWidth) {
         if (maxDepth <= 0) {
             throw new IllegalArgumentException("maxDepth is supposed to be 1 or higher");
         }
         this.vf = vf;
         this.random = random;
         this.maxDepth = maxDepth;
+        this.maxWidth = maxWidth;
         this.rt = new RandomTypeGenerator(random);
 
         this.currentStore = null;
@@ -268,7 +270,8 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     public IValue visitList(Type type) throws RuntimeException {
         IListWriter result = vf.listWriter();
         if (currentDepth < maxDepth) {
-            while (!oneEvery(Math.min(4, maxDepth - currentDepth))) {
+            int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
+            for (int i =0; i < size; i++) {
                 result.append(generateOneDeeper(type.getElementType()));
             }
         }
@@ -279,7 +282,8 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     public IValue visitMap(Type type) throws RuntimeException {
         IMapWriter result = vf.mapWriter();
         if (currentDepth < maxDepth) {
-            while (!oneEvery(Math.min(4, maxDepth - currentDepth))) {
+            int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
+            for (int i =0; i < size; i++) {
                 result.put(generateOneDeeper(type.getKeyType()),generateOneDeeper(type.getValueType()));
             }
         }
@@ -290,7 +294,8 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     public IValue visitSet(Type type) throws RuntimeException {
         ISetWriter result = vf.setWriter();
         if (currentDepth < maxDepth) {
-            while (!oneEvery(Math.min(4, maxDepth - currentDepth))) {
+            int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
+            for (int i =0; i < size; i++) {
                 result.insert(generateOneDeeper(type.getElementType()));
             }
         }
