@@ -50,7 +50,7 @@ public class RandomTypeGenerator {
     }
 
     private Type getTupleType(int maxDepth) {
-        Type[] args = new Type[Math.max(1, random.nextInt(maxDepth))];
+        Type[] args = new Type[Math.max(1, random.nextInt(Math.min(1, maxDepth)))];
         for (int i = 0; i < args.length; i++) {
             args[i] = next(maxDepth - 1);
         }
