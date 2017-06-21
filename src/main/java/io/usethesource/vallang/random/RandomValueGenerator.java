@@ -360,7 +360,12 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
      */
     private boolean alwaysIncreasesDepth(Type constructor) {
         for (int i = 0; i < constructor.getArity(); i++) {
-            if (constructor.getFieldType(i).isAbstractData()) {
+            Type argType = constructor.getFieldType(i);
+            if (argType.isAbstractData()) {
+                return true;
+            }
+            if (argType.isTuple() && alwaysIncreasesDepth(argType)) {
+                // tuple's can be increasing the depth.
                 return true;
             }
         }
@@ -375,10 +380,15 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         }
         Type constructor = pickRandom(candidates);
         if (currentDepth >= maxDepth) {
+            Type original = constructor;
+            
             // find the constructor that does not add depth
             Iterator<Type> it = candidates.iterator();
             while (alwaysIncreasesDepth(constructor) && it.hasNext()) {
                 constructor = it.next(); 
+            }
+            if (alwaysIncreasesDepth(constructor)) {
+                constructor = original; // keep it random
             }
         }
         return continueGenerating(constructor);
