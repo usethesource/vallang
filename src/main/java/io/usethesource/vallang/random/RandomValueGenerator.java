@@ -58,7 +58,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         this.vf = vf;
         this.random = random;
         this.maxDepth = maxDepth;
-        this.rt = new RandomTypeGenerator();
+        this.rt = new RandomTypeGenerator(random);
 
         this.currentStore = null;
         this.currentDepth = -1;
@@ -419,7 +419,10 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitValue(Type type) throws RuntimeException {
-        if (oneEvery(4)) {
+        if (oneEvery(7) && !currentStore.getAbstractDataTypes().isEmpty()) {
+            return continueGenerating(pickRandom(currentStore.getAbstractDataTypes()));
+        }
+        if (oneEvery(20)) {
             return continueGenerating(TypeFactory.getInstance().randomType(currentStore, random, maxDepth - currentDepth));
         }
         return continueGenerating(rt.next(maxDepth - currentDepth));
@@ -427,7 +430,6 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitParameter(Type parameterType) throws RuntimeException {
-        // TODO: is this the correct thing to do here?
         Type type = typeParameters.get(parameterType);
         if(type == null){
             throw new IllegalArgumentException("Unbound type parameter " + parameterType);

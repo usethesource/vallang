@@ -8,28 +8,29 @@
 * Contributors:
 *    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
-package io.usethesource.vallang.random;
+package io.usethesource.vallang.random.deprecated;
 
-import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
 
 /**
- * Random IInteger generator.
+ * Random IRational generator.
  * 
- * Generates integers in the range 0 ..  +/- Long.MAX_VALUE ^ 2 + Integer.MAX_VALUE
+ * Generates numerators/denominators based on the RandomIntegerGenerator.
  * @author anya
  *
  */
-public class RandomIntegerGenerator extends RandomGenerator<IInteger> {
+public class RandomRationalGenerator extends RandomGenerator<IRational> {
 
-	public RandomIntegerGenerator(IValueFactory vf) {
+
+	public RandomRationalGenerator(IValueFactory vf) {
 		super(vf);
 	}
 	
 	@Override
-	public IInteger next() {
-	    return (IInteger) generator.visitInteger(TypeFactory.getInstance().integerType());
+	public IRational next() {
+	    return (IRational) generator.visitRational(TypeFactory.getInstance().rationalType());
 	}
 
 }

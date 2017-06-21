@@ -8,29 +8,28 @@
 * Contributors:
 *    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
-package io.usethesource.vallang.random;
+package io.usethesource.vallang.random.deprecated;
 
-import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
 
 /**
- * Random IReal generator.
+ * Random INumber generator.
  * 
- * Generates reals in the range 0 ..  +/- Double.MAX_VALUE
+ * Generates numbers based on RandomIntegerGenerator, RandomRationalGenerator and RandomRealGenerator
  * @author anya
  *
  */
-public class RandomRealGenerator extends RandomGenerator<IReal> {
+public class RandomNumberGenerator extends RandomGenerator<INumber> {
 
-
-    public RandomRealGenerator(IValueFactory vf) {
+	public RandomNumberGenerator(IValueFactory vf) {
 		super(vf);
 	}
 	
 	@Override
-	public IReal next() {
-	    return (IReal) generator.visitReal(TypeFactory.getInstance().realType());
+	public INumber next() {
+	    return (INumber) generator.visitNumber(TypeFactory.getInstance().numberType());
 	}
 
 }

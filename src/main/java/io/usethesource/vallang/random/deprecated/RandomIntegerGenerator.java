@@ -8,31 +8,28 @@
 * Contributors:
 *    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
-package io.usethesource.vallang.random;
+package io.usethesource.vallang.random.deprecated;
 
-import java.util.Random;
-
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
- * Abstract interface to random generators for IValues.
+ * Random IInteger generator.
  * 
+ * Generates integers in the range 0 ..  +/- Long.MAX_VALUE ^ 2 + Integer.MAX_VALUE
  * @author anya
  *
  */
-public abstract class RandomGenerator<T> {
-	protected final Random random;
-	protected final IValueFactory vf;
-    protected final RandomValueGenerator generator;
+public class RandomIntegerGenerator extends RandomGenerator<IInteger> {
 
-	public RandomGenerator(IValueFactory vf) {
-		this.vf = vf;
-		this.random = new Random();
-	    this.generator = new RandomValueGenerator(vf, random, 5);
+	public RandomIntegerGenerator(IValueFactory vf) {
+		super(vf);
 	}
 	
-	/**
-	 * @return the next random value for the generator
-	 */
-	public abstract T next();
+	@Override
+	public IInteger next() {
+	    return (IInteger) generator.visitInteger(TypeFactory.getInstance().integerType());
+	}
+
 }
