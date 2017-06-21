@@ -47,9 +47,11 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     protected final Random random;
     protected final int maxDepth;
     protected final RandomTypeGenerator rt;
+    
     protected int currentDepth;
     protected TypeStore currentStore;
     protected Map<Type, Type> typeParameters;
+    
 
     public RandomValueGenerator(IValueFactory vf, Random random, int maxDepth) {
         if (maxDepth <= 0) {
@@ -352,12 +354,12 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
      * Find out if the arguments to the constructor contain ADTs or if they contain types that don't increase nesting
      */
     private boolean alwaysIncreasesDepth(Type constructor) {
-        return constructor.accept(new DefaultTypeVisitor<Boolean, RuntimeException>(false) {
-            @Override
-            public Boolean visitAbstractData(Type type) throws RuntimeException {
+        for (int i = 0; i < constructor.getArity(); i++) {
+            if (constructor.getFieldType(i).isAbstractData()) {
                 return true;
             }
-        });
+        }
+        return false;
     }
 
     @Override
@@ -422,9 +424,6 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         if (oneEvery(7) && !currentStore.getAbstractDataTypes().isEmpty()) {
             return continueGenerating(pickRandom(currentStore.getAbstractDataTypes()));
         }
-        if (oneEvery(20)) {
-            return continueGenerating(TypeFactory.getInstance().randomType(currentStore, random, maxDepth - currentDepth));
-        }
         return continueGenerating(rt.next(maxDepth - currentDepth));
     }
 
@@ -444,7 +443,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitExternal(Type type) throws RuntimeException {
-        throw new RuntimeException("External types not supported, use inheritance to add it");
+        throw new RuntimeException("External type (" + type + ") not supported, use inheritance to add it");
     }
     @Override
     public IValue visitVoid(Type type) throws RuntimeException {
