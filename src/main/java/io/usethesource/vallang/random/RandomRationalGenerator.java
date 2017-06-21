@@ -10,9 +10,9 @@
 *******************************************************************************/
 package io.usethesource.vallang.random;
 
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * Random IRational generator.
@@ -23,20 +23,14 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class RandomRationalGenerator extends RandomGenerator<IRational> {
 
-	private final RandomIntegerGenerator intGen;
 
 	public RandomRationalGenerator(IValueFactory vf) {
 		super(vf);
-		intGen = new RandomIntegerGenerator(vf);
 	}
 	
 	@Override
 	public IRational next() {
-		IInteger a = intGen.next();
-		IInteger b = intGen.next();
-		if(b.isEqual(vf.integer(0)))
-			b = vf.integer(1);
-		return vf.rational(a, b);
+	    return (IRational) generator.visitRational(TypeFactory.getInstance().rationalType());
 	}
 
 }

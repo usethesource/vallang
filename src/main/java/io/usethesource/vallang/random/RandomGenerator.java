@@ -21,11 +21,14 @@ import io.usethesource.vallang.IValueFactory;
  *
  */
 public abstract class RandomGenerator<T> {
-	protected final Random random = new Random();
+	protected final Random random;
 	protected final IValueFactory vf;
+    protected final RandomValueGenerator generator;
 
 	public RandomGenerator(IValueFactory vf) {
 		this.vf = vf;
+		this.random = new Random();
+	    this.generator = new RandomValueGenerator(vf, random, 5);
 	}
 	
 	/**

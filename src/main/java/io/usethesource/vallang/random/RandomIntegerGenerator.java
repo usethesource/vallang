@@ -12,6 +12,7 @@ package io.usethesource.vallang.random;
 
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * Random IInteger generator.
@@ -28,12 +29,7 @@ public class RandomIntegerGenerator extends RandomGenerator<IInteger> {
 	
 	@Override
 	public IInteger next() {
-		IInteger i = vf.integer(random.nextLong());
-		// make a few really huge numbers as well.
-		while(random.nextInt(5) == 1) {
-			i = i.multiply(vf.integer(random.nextLong())).add(vf.integer(random.nextInt()));
-		}
-		return i;
+	    return (IInteger) generator.visitInteger(TypeFactory.getInstance().integerType());
 	}
 
 }

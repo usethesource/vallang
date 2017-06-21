@@ -12,6 +12,7 @@ package io.usethesource.vallang.random;
 
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * Random IReal generator.
@@ -22,21 +23,14 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class RandomRealGenerator extends RandomGenerator<IReal> {
 
-	public RandomRealGenerator(IValueFactory vf) {
+
+    public RandomRealGenerator(IValueFactory vf) {
 		super(vf);
 	}
 	
 	@Override
 	public IReal next() {
-		IReal r;
-		if(random.nextInt(2) == 0)
-			r = vf.real(random.nextDouble());
-		else
-			r = vf.real(-random.nextDouble());
-		// TODO: make large numbers by tweaking the exponent
-		// int exp = (int) (random.nextInt(308)*random.nextGaussian());
-	
-		return r;
+	    return (IReal) generator.visitReal(TypeFactory.getInstance().realType());
 	}
 
 }
