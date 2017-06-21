@@ -8,7 +8,7 @@
 * Contributors:
 *    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
-package io.usethesource.vallang.random;
+package io.usethesource.vallang.random.deprecated;
 
 import java.util.HashMap;
 import java.util.Iterator;

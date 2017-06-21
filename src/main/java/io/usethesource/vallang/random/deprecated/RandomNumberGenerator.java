@@ -8,10 +8,11 @@
 * Contributors:
 *    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
-package io.usethesource.vallang.random;
+package io.usethesource.vallang.random.deprecated;
 
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * Random INumber generator.
@@ -22,26 +23,13 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class RandomNumberGenerator extends RandomGenerator<INumber> {
 
-	private final RandomIntegerGenerator ints;
-	private final RandomRealGenerator reals;
-	private final RandomRationalGenerator rats;
-
 	public RandomNumberGenerator(IValueFactory vf) {
 		super(vf);
-		this.ints = new RandomIntegerGenerator(vf);
-		this.reals= new RandomRealGenerator(vf);
-		this.rats = new RandomRationalGenerator(vf);
 	}
 	
 	@Override
 	public INumber next() {
-		int i = random.nextInt(3);
-		if(i == 0)
-			return ints.next();
-		else if(i == 1)
-			return reals.next();
-		else
-			return rats.next();
+	    return (INumber) generator.visitNumber(TypeFactory.getInstance().numberType());
 	}
 
 }

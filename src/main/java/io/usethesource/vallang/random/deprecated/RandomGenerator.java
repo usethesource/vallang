@@ -8,32 +8,32 @@
 * Contributors:
 *    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
-package io.usethesource.vallang.random;
+package io.usethesource.vallang.random.deprecated;
 
-import io.usethesource.vallang.IInteger;
+import java.util.Random;
+
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.random.RandomValueGenerator;
 
 /**
- * Random IInteger generator.
+ * Abstract interface to random generators for IValues.
  * 
- * Generates integers in the range 0 ..  +/- Long.MAX_VALUE ^ 2 + Integer.MAX_VALUE
  * @author anya
  *
  */
-public class RandomIntegerGenerator extends RandomGenerator<IInteger> {
+public abstract class RandomGenerator<T> {
+	protected final Random random;
+	protected final IValueFactory vf;
+    protected final RandomValueGenerator generator;
 
-	public RandomIntegerGenerator(IValueFactory vf) {
-		super(vf);
+	public RandomGenerator(IValueFactory vf) {
+		this.vf = vf;
+		this.random = new Random();
+	    this.generator = new RandomValueGenerator(vf, random, 5);
 	}
 	
-	@Override
-	public IInteger next() {
-		IInteger i = vf.integer(random.nextLong());
-		// make a few really huge numbers as well.
-		while(random.nextInt(5) == 1) {
-			i = i.multiply(vf.integer(random.nextLong())).add(vf.integer(random.nextInt()));
-		}
-		return i;
-	}
-
+	/**
+	 * @return the next random value for the generator
+	 */
+	public abstract T next();
 }

@@ -8,35 +8,29 @@
 * Contributors:
 *    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
-package io.usethesource.vallang.random;
+package io.usethesource.vallang.random.deprecated;
 
-import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
- * Random IReal generator.
+ * Random IRational generator.
  * 
- * Generates reals in the range 0 ..  +/- Double.MAX_VALUE
+ * Generates numerators/denominators based on the RandomIntegerGenerator.
  * @author anya
  *
  */
-public class RandomRealGenerator extends RandomGenerator<IReal> {
+public class RandomRationalGenerator extends RandomGenerator<IRational> {
 
-	public RandomRealGenerator(IValueFactory vf) {
+
+	public RandomRationalGenerator(IValueFactory vf) {
 		super(vf);
 	}
 	
 	@Override
-	public IReal next() {
-		IReal r;
-		if(random.nextInt(2) == 0)
-			r = vf.real(random.nextDouble());
-		else
-			r = vf.real(-random.nextDouble());
-		// TODO: make large numbers by tweaking the exponent
-		// int exp = (int) (random.nextInt(308)*random.nextGaussian());
-	
-		return r;
+	public IRational next() {
+	    return (IRational) generator.visitRational(TypeFactory.getInstance().rationalType());
 	}
 
 }
