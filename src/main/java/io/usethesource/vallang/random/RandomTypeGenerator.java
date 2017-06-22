@@ -27,6 +27,7 @@ public class RandomTypeGenerator {
     }
     public RandomTypeGenerator(Random random) {
         atomicTypes = new Type[] {
+            tf.integerType(), tf.stringType(), tf.boolType(),
             tf.realType(), tf.integerType(), tf.rationalType(), tf.numberType(),
             tf.sourceLocationType(), tf.stringType(), tf.nodeType(), tf.boolType(), tf.dateTimeType()
         };

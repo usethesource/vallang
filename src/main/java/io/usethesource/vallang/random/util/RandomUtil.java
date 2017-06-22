@@ -115,6 +115,7 @@ public class RandomUtil {
 	private final static StringGen rascalEscapes = new CharSets('\"','\'','>','\\','<','@','`');
 	
 	private final static StringGen[] generators = new StringGen[] {
+	    alphaOnly,
 		new MixGenerators(alphaOnly, numeric),
 		new MixGenerators(alphaOnly, numeric), // increase chances of normal strings
 		numeric,

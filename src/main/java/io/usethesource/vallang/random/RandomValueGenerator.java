@@ -269,7 +269,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     @Override
     public IValue visitList(Type type) throws RuntimeException {
         IListWriter result = vf.listWriter();
-        if (currentDepth < maxDepth) {
+        if (currentDepth < maxDepth && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
             for (int i =0; i < size; i++) {
                 result.append(generateOneDeeper(type.getElementType()));
@@ -281,7 +281,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     @Override
     public IValue visitMap(Type type) throws RuntimeException {
         IMapWriter result = vf.mapWriter();
-        if (currentDepth < maxDepth) {
+        if (currentDepth < maxDepth && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
             for (int i =0; i < size; i++) {
                 result.put(generateOneDeeper(type.getKeyType()),generateOneDeeper(type.getValueType()));
@@ -293,7 +293,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     @Override
     public IValue visitSet(Type type) throws RuntimeException {
         ISetWriter result = vf.setWriter();
-        if (currentDepth < maxDepth) {
+        if (currentDepth < maxDepth && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
             for (int i =0; i < size; i++) {
                 result.insert(generateOneDeeper(type.getElementType()));
