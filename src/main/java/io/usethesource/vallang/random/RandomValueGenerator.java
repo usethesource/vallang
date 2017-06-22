@@ -316,14 +316,14 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     public IValue visitNode(Type type) throws RuntimeException {
         String name = random.nextBoolean() ? RandomUtil.string(random, 1 + random.nextInt(5)) : RandomUtil.stringAlpha(random, random.nextInt(5));
 
-        int arity = currentDepth >= maxDepth ? 0 : random.nextInt(5);
+        int arity = currentDepth >= maxDepth ? 0 : random.nextInt(maxDepth - currentDepth);
         IValue[] args = new IValue[arity];
         for (int i = 0; i < arity; i++) {
             args[i] = generateOneDeeper(TypeFactory.getInstance().valueType());
         }
 
         if (oneEvery(4) && currentDepth < maxDepth) {
-            int kwArity = 1 + random.nextInt(4);
+            int kwArity = 1 + random.nextInt(maxDepth - currentDepth);
             Map<String, IValue> kwParams = new HashMap<>(kwArity);
             for (int i = 0; i < kwArity; i++) {
                 String kwName = "";
