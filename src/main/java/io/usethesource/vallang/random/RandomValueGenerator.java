@@ -123,16 +123,16 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitInteger(Type type) throws RuntimeException {
-        if (random.nextFloat() > 0.6) {
+        if (oneEvery(5)) {
             return vf.integer(random.nextInt());
         }
-        if (random.nextFloat() > 0.6) {
+        if (oneEvery(5)) {
             return vf.integer(random.nextInt(10));
         }
-        if (random.nextFloat() > 0.6) {
+        if (oneEvery(5)) {
             return vf.integer(-random.nextInt(10));
         }
-        if (random.nextFloat() > 0.9) {
+        if (oneEvery(20)) {
             // sometimes, a very huge number
             IInteger result = vf.integer(random.nextLong());
             do {
