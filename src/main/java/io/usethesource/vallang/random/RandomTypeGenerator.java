@@ -42,10 +42,13 @@ public class RandomTypeGenerator {
     }
 
     private Type getRecursiveType(int maxDepth) {
-        switch (random.nextInt(4)) {
-            case 0: return tf.listType(next(maxDepth));
-            case 1: return tf.setType(next(maxDepth));
-            case 2: return tf.mapType(next(maxDepth), next(maxDepth));
+        switch (random.nextInt(7)) { // tuples less often than the other type
+            case 0:
+            case 1: return tf.listType(next(maxDepth));
+            case 2:
+            case 3: return tf.setType(next(maxDepth));
+            case 4:
+            case 5: return tf.mapType(next(maxDepth), next(maxDepth));
             default: return getTupleType(maxDepth);
         }
     }
