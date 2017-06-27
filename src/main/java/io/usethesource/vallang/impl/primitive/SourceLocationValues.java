@@ -91,12 +91,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 		return new SourceLocationValues.IntIntIntIntIntInt(root, offset, length, beginLine, endLine, beginCol, endCol);
 	}	
-	
-    private final static Cache<URI, ISourceLocation> locationCache = Caffeine.newBuilder()
-            .expireAfterAccess(5, TimeUnit.MINUTES)
-            .maximumSize(1000)
-            .build();
-        
+	        
 	private final static Cache<ISourceLocation,URI>  reverseLocationCache = Caffeine.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(1000)
@@ -107,21 +102,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			throw new UnsupportedOperationException("Opaque URI schemes are not supported; the scheme-specific part must start with a / character.");
 		}
 		
-		try {
-            return locationCache.get(uri, u -> {
-                try {
-                    return newSourceLocation(u.getScheme(), u.getAuthority(), u.getPath(), u.getQuery(), u.getFragment());
-                } 
-                catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof URISyntaxException) {
-                throw (URISyntaxException)e.getCause();
-            }
-            throw e;
-        }
+		return newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
