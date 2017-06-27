@@ -107,23 +107,35 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     
     @Override
     public IValue visitReal(Type type) throws RuntimeException {
-        if (random.nextDouble() > 0.6) {
+        if (oneEvery(5)) {
+            return vf.real(10 * random.nextDouble());
+        }
+        if (oneEvery(5)) {
+            return vf.real(-10 * random.nextDouble());
+        }
+        if (oneEvery(10)) {
             return vf.real(random.nextDouble());
         }
-        if (random.nextDouble() > 0.6) {
+        if (oneEvery(10)) {
             return vf.real(-random.nextDouble());
         }
-        if (random.nextDouble() > 0.9) {
-            BigDecimal r = new BigDecimal(random.nextDouble());
+
+        if (oneEvery(20) && depthLeft() > 1) {
+            BigDecimal r = new BigDecimal(random.nextDouble()).multiply(new BigDecimal(random.nextInt(10000)));
             r = r.multiply(new BigDecimal(random.nextInt()).add(new BigDecimal(1000)));
             return vf.real(r.toString());
         }
+        
         return vf.real(0.0);
+    }
+
+    protected int depthLeft() {
+        return maxDepth - currentDepth;
     }
 
     @Override
     public IValue visitInteger(Type type) throws RuntimeException {
-        if (oneEvery(5)) {
+        if (oneEvery(5) && depthLeft() > 1) {
             return vf.integer(random.nextInt());
         }
         if (oneEvery(5)) {
@@ -132,7 +144,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         if (oneEvery(5)) {
             return vf.integer(-random.nextInt(10));
         }
-        if (oneEvery(20)) {
+        if (oneEvery(20) && depthLeft() > 1) {
             // sometimes, a very huge number
             IInteger result = vf.integer(random.nextLong());
             do {
@@ -215,13 +227,13 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     @Override
     public IValue visitSourceLocation(Type type) throws RuntimeException {
         try {
-            String scheme = "tmp";
+            String scheme = RandomUtil.stringAlpha(random, 1 + random.nextInt(depthLeft()));;
             String authority = "";
             String path = "";
             String query = "";
             String fragment = "";
             
-            while (!oneEvery(3)) {
+            while (!oneEvery(3) && depthLeft() > 1) {
                 path += "/"  + (random.nextDouble() < 0.9 ? RandomUtil.stringAlphaNumeric(random, 1 + random.nextInt(5)) : RandomUtil.string(random, 1 + random.nextInt(5)));
             }
             if (path.isEmpty()) {
@@ -232,7 +244,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
                 authority = RandomUtil.stringAlphaNumeric(random, 1 + random.nextInt(6));
             }
             
-            if (oneEvery(30)) {
+            if (oneEvery(30) && depthLeft() > 1) {
                 while (!oneEvery(3)) {
                     if (!query.isEmpty()) {
                         query += "&";
@@ -241,7 +253,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
                 }
             }
             
-            if (oneEvery(30)) {
+            if (oneEvery(30) && depthLeft() > 1) {
                 fragment = RandomUtil.stringAlphaNumeric(random, 1 + random.nextInt(5));
             }
             
@@ -262,7 +274,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         if (random.nextBoolean() || currentDepth >= maxDepth) {
             return vf.string("");
         }
-        return vf.string(RandomUtil.string(random, 1 + random.nextInt(maxDepth - currentDepth + 3)));
+        return vf.string(RandomUtil.string(random, 1 + random.nextInt(depthLeft() + 3)));
     }
 
 
@@ -270,7 +282,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     public IValue visitList(Type type) throws RuntimeException {
         IListWriter result = vf.listWriter();
         if (currentDepth < maxDepth && random.nextBoolean()) {
-            int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
+            int size = Math.min(maxWidth, 1 + random.nextInt(depthLeft()));
             for (int i =0; i < size; i++) {
                 result.append(generateOneDeeper(type.getElementType()));
             }
@@ -282,7 +294,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     public IValue visitMap(Type type) throws RuntimeException {
         IMapWriter result = vf.mapWriter();
         if (currentDepth < maxDepth && random.nextBoolean()) {
-            int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
+            int size = Math.min(maxWidth, 1 + random.nextInt(depthLeft()));
             for (int i =0; i < size; i++) {
                 result.put(generateOneDeeper(type.getKeyType()),generateOneDeeper(type.getValueType()));
             }
@@ -294,7 +306,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     public IValue visitSet(Type type) throws RuntimeException {
         ISetWriter result = vf.setWriter();
         if (currentDepth < maxDepth && random.nextBoolean()) {
-            int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth - currentDepth));
+            int size = Math.min(maxWidth, 1 + random.nextInt(depthLeft()));
             for (int i =0; i < size; i++) {
                 result.insert(generateOneDeeper(type.getElementType()));
             }
@@ -316,14 +328,14 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     public IValue visitNode(Type type) throws RuntimeException {
         String name = random.nextBoolean() ? RandomUtil.string(random, 1 + random.nextInt(5)) : RandomUtil.stringAlpha(random, random.nextInt(5));
 
-        int arity = currentDepth >= maxDepth ? 0 : random.nextInt(maxDepth - currentDepth);
+        int arity = currentDepth >= maxDepth ? 0 : random.nextInt(depthLeft());
         IValue[] args = new IValue[arity];
         for (int i = 0; i < arity; i++) {
             args[i] = generateOneDeeper(TypeFactory.getInstance().valueType());
         }
 
         if (oneEvery(4) && currentDepth < maxDepth) {
-            int kwArity = 1 + random.nextInt(maxDepth - currentDepth);
+            int kwArity = 1 + random.nextInt(depthLeft());
             Map<String, IValue> kwParams = new HashMap<>(kwArity);
             for (int i = 0; i < kwArity; i++) {
                 String kwName = "";
@@ -379,7 +391,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
             throw new UnsupportedOperationException("The "+type+" ADT has no constructors in the type store");
         }
         Type constructor = pickRandom(candidates);
-        if (currentDepth >= maxDepth) {
+        if (depthLeft() <= 0) {
             Type original = constructor;
             
             // find the constructor that does not add depth
@@ -410,11 +422,11 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
             args[i] = generateOneDeeper(type.getFieldType(i));
         }
         
-        if (kwParamsType.size() > 0 && oneEvery(3)) {
+        if (kwParamsType.size() > 0 && oneEvery(3) && depthLeft() > 0) {
             return vf.constructor(type, args, generateMappedArgs(kwParamsType));
         }
 
-        if (annoType.size() > 0 && oneEvery(5)) {
+        if (annoType.size() > 0 && oneEvery(5) && depthLeft() > 0) {
             return vf.constructor(type, generateMappedArgs(annoType), args);
         }
 
@@ -447,7 +459,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
             }
         }
         */
-        return continueGenerating(rt.next(maxDepth - currentDepth));
+        return continueGenerating(rt.next(depthLeft()));
     }
 
     @Override
