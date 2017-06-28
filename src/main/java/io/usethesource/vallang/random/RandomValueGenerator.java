@@ -227,7 +227,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     @Override
     public IValue visitSourceLocation(Type type) throws RuntimeException {
         try {
-            String scheme = RandomUtil.stringAlpha(random, 1 + random.nextInt(depthLeft()));;
+            String scheme = RandomUtil.stringAlpha(random, 1 + random.nextInt(Math.max(1, depthLeft())));;
             String authority = "";
             String path = "";
             String query = "";
