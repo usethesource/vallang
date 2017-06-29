@@ -26,7 +26,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 	    scheme = nullifyIfEmpty(scheme);
 	    authority = nullifyIfEmpty(authority);
 		if (path != null) {
-			if (path.isEmpty() || path.equals("/")) {
+			if (path.isEmpty() || path.equals("/") || path.trim().isEmpty()) {
 				path = null;
 			}
 			else if (!path.startsWith("/")) {
@@ -35,6 +35,9 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 			if (path != null && path.contains("//")) {
 				// normalize double or longer slashes
 				path = doubleSlashes.matcher(path).replaceAll("/");
+				if (path.equals("/")) {
+				    path  = null;
+				}
 			}
 		}
 		query = nullifyIfEmpty(query);
