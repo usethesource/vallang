@@ -26,7 +26,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 	    scheme = nullifyIfEmpty(scheme);
 	    authority = nullifyIfEmpty(authority);
 		if (path != null) {
-			if (path.isEmpty() || path.equals("/") || path.trim().isEmpty()) {
+			if (path.isEmpty() || path.equals("/")) {
 				path = null;
 			}
 			else if (!path.startsWith("/")) {
