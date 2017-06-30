@@ -25,6 +25,7 @@ import java.util.Random;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
@@ -33,6 +34,7 @@ import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
 import io.usethesource.vallang.io.old.BinaryWriter;
+import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
@@ -187,6 +189,20 @@ public final class BinaryIoSmokeTest {
     for (int i = 0; i < 1000; i++) {
       Type tp = tf.randomType(ts, r, 3);
       iopRoundTrip(tp, seed);
+    }
+  }
+  
+  @Test
+  public void testDeepRandomValuesIO() {
+    TypeFactory tf = TypeFactory.getInstance();
+    TypeStore ts = new TypeStore();
+    Random r = new Random();
+    int seed = r.nextInt();
+    r.setSeed(seed);
+    RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6);
+    for (int i = 0; i < 1000; i++) {
+        IValue val = gen.generate(tf.valueType(), ts, null);
+        ioRoundTrip(val, seed);
     }
   }
 
