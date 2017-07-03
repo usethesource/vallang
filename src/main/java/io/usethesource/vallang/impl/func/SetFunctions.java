@@ -257,9 +257,9 @@ public final class SetFunctions {
 //	}
 	
 	public static ISet compose(IValueFactory vf, ISet set1, ISet set2) throws FactTypeUseException {
-		if (set1.getElementType() == TF.voidType())
+		if (set1.getElementType().isBottom())
 			return set1;
-		if (set2.getElementType() == TF.voidType())
+		if (set2.getElementType().isBottom())
 			return set2;
 
 		if (set1.getElementType().getArity() != 2
@@ -421,7 +421,7 @@ public final class SetFunctions {
 //	}
 	
 	public static ISet closure(IValueFactory vf, ISet rel1) {
-		if (rel1.getElementType() == TF.voidType())
+		if (rel1.getElementType().isBottom())
 			return rel1;
 		if (!isBinary(rel1))
 			throw new IllegalOperationException("closure", rel1.getType());
@@ -455,7 +455,7 @@ public final class SetFunctions {
 	
 	// TODO: Currently untested in PDB.
 	public static ISet closureStar(IValueFactory vf, ISet rel1) {
-		if (rel1.getElementType() == TF.voidType())
+		if (rel1.getElementType().isBottom())
 			return rel1;
 		if (!isBinary(rel1))
 			throw new IllegalOperationException("closureStar", rel1.getType());
@@ -538,7 +538,14 @@ public final class SetFunctions {
 	}
 
     public static ISet index(IValueFactory vf, ISet set1, IValue key) {
-        int valueArity = set1.getElementType().getArity() - 1;
+        Type elementType = set1.getElementType();
+        
+        if (elementType.isBottom()) {
+            return vf.setWriter().done();
+        }
+        
+        int valueArity = elementType.getArity() - 1;
+
         Function<ITuple, IValue> mapper;
         if (valueArity == 0) {
             mapper = t -> t.get(1);
