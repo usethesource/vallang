@@ -370,7 +370,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     /**
      * Find out if the arguments to the constructor contain ADTs or if they contain types that don't increase nesting
      */
-    private boolean alwaysIncreasesDepth(Type constructor) {
+    protected boolean alwaysIncreasesDepth(Type constructor) {
         for (int i = 0; i < constructor.getArity(); i++) {
             Type argType = constructor.getFieldType(i);
             if (argType.isAbstractData()) {

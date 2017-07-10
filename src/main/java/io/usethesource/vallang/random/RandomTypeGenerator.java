@@ -18,13 +18,14 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class RandomTypeGenerator {
-    private final TypeFactory tf = TypeFactory.getInstance();
-    private final Type[] atomicTypes;
-    private final Random random;
+    protected final TypeFactory tf = TypeFactory.getInstance();
+    protected final Type[] atomicTypes;
+    protected final Random random;
 
     public RandomTypeGenerator() {
         this(new Random());
     }
+    
     public RandomTypeGenerator(Random random) {
         atomicTypes = new Type[] {
             tf.integerType(), tf.stringType(), tf.boolType(),
@@ -41,7 +42,7 @@ public class RandomTypeGenerator {
         return getRecursiveType(maxDepth - 1);
     }
 
-    private Type getRecursiveType(int maxDepth) {
+    protected Type getRecursiveType(int maxDepth) {
         switch (random.nextInt(7)) { // tuples less often than the other type
             case 0:
             case 1: return tf.listType(next(maxDepth));
@@ -53,7 +54,7 @@ public class RandomTypeGenerator {
         }
     }
 
-    private Type getTupleType(int maxDepth) {
+    protected Type getTupleType(int maxDepth) {
         Type[] args = new Type[1 + random.nextInt(Math.max(1, maxDepth))];
         for (int i = 0; i < args.length; i++) {
             args[i] = next(maxDepth - 1);
@@ -61,7 +62,7 @@ public class RandomTypeGenerator {
         return tf.tupleType(args);
     }
 
-    private Type getAtomicType() {
+    protected Type getAtomicType() {
         return atomicTypes[random.nextInt(atomicTypes.length)];
     }
 }
