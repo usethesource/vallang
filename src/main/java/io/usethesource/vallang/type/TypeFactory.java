@@ -554,7 +554,6 @@ public class TypeFactory {
 	 *          the types of the children of the tree node type
 	 * @return a tree node type
 	 */
-	@Deprecated
 	public Type constructor(TypeStore store, Type nodeType, String name, Object... childrenAndLabels)
 			throws FactTypeDeclarationException {
 		return constructorFromTuple(store, nodeType, name, tupleType(childrenAndLabels));
