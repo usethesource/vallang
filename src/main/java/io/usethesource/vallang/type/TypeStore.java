@@ -999,6 +999,34 @@ public class TypeStore {
 			}
 		}
 	}
+	
+	public boolean hasKeywordParameter(Type onType, String label) {
+        if (!onType.isConstructor()) {
+            return false;
+        }
+
+        synchronized(fkeywordParameters) {
+            synchronized (fImports) {
+                Map<String, Type> local = fkeywordParameters.get(onType);
+                if (local != null) {
+                    return local.containsKey(label); 
+                }
+
+                for (TypeStore s : fImports) {
+                    if (s.fkeywordParameters == null) {
+                        continue;
+                    }
+                    
+                    Map<String, Type> here = s.fkeywordParameters.get(onType);
+                    if (here != null) {
+                        return here.containsKey(label);
+                    }
+                }
+
+                return false;
+            }
+        }
+    }
 
 	public Type getAlias(String name) {
 	  synchronized (fAliases) {
