@@ -1008,13 +1008,13 @@ public class TypeStore {
         synchronized(fkeywordParameters) {
             synchronized (fImports) {
                 Map<String, Type> local = fkeywordParameters.get(onType);
-                if (local != null) {
-                    return local.containsKey(label); 
+                if (local != null && local.containsKey(label)) {
+                    return true;
                 }
                 
                 local = fkeywordParameters.get(onType.getAbstractDataType());
-                if (local != null) {
-                    return local.containsKey(label); 
+                if (local != null && local.containsKey(label)) {
+                    return true;
                 }
                 
                 for (TypeStore s : fImports) {
