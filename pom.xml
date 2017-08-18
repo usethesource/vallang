@@ -4,12 +4,12 @@
 
 	<groupId>io.usethesource</groupId>
 	<artifactId>vallang</artifactId>
-	<version>0.8.2-SNAPSHOT</version>
+	<version>0.8.2</version>
 	<packaging>jar</packaging>
 
 	<scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/vallang.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v0.8.2</tag>
 	</scm>
 
 	<!-- deployment configuration (usethesource) -->
