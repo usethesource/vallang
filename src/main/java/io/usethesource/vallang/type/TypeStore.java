@@ -1023,8 +1023,13 @@ public class TypeStore {
                     }
                     
                     Map<String, Type> here = s.fkeywordParameters.get(onType);
-                    if (here != null) {
-                        return here.containsKey(label);
+                    if (here != null && here.containsKey(label)) {
+                        return true;
+                    }
+                    
+                    here = fkeywordParameters.get(onType.getAbstractDataType());
+                    if (here != null && here.containsKey(label)) {
+                        return true;
                     }
                 }
 
