@@ -913,10 +913,10 @@ public class TypeStore {
 	      }
 	      
 	      if (onType.isConstructor()) {
-	    	  local = fkeywordParameters.get(onType.getAbstractDataType());
-	    	  if (local != null) {
-	    		  result.putAll(local);
-	    	  }
+	          local = fkeywordParameters.get(onType.getAbstractDataType());
+	          if (local != null) {
+	              result.putAll(local);
+	          }
 	      }
 
 	      for (TypeStore s : fImports) {
@@ -1011,7 +1011,12 @@ public class TypeStore {
                 if (local != null) {
                     return local.containsKey(label); 
                 }
-
+                
+                local = fkeywordParameters.get(onType.getAbstractDataType());
+                if (local != null) {
+                    return local.containsKey(label); 
+                }
+                
                 for (TypeStore s : fImports) {
                     if (s.fkeywordParameters == null) {
                         continue;

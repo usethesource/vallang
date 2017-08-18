@@ -254,7 +254,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 	@Override
 	public boolean hasKeywordField(String fieldName, TypeStore store) {
-		return store.getKeywordParameterType(this, fieldName) != null;
+	    return store.hasKeywordParameter(this, fieldName);
 	}
 
 	@Override
