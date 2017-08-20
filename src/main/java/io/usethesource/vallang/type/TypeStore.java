@@ -1027,7 +1027,7 @@ public class TypeStore {
                         return true;
                     }
                     
-                    here = fkeywordParameters.get(onType.getAbstractDataType());
+                    here = s.fkeywordParameters.get(onType.getAbstractDataType());
                     if (here != null && here.containsKey(label)) {
                         return true;
                     }
