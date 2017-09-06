@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import io.usethesource.capsule.Map;
+import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IValue;
@@ -28,9 +29,8 @@ import io.usethesource.vallang.type.Type;
 
 final class MapWriter implements IMapWriter {
 
-	@SuppressWarnings("unchecked")
-	private static final Comparator<Object> equivalenceComparator = EqualityUtils
-					.getEquivalenceComparator();
+	private static final EqualityComparator<Object> equivalenceComparator =
+			EqualityUtils.getEquivalenceComparator();
 
 	protected AbstractTypeBag keyTypeBag;
 	protected AbstractTypeBag valTypeBag;

@@ -46,11 +46,8 @@ public class SetWriter implements ISetWriter {
 
   /****************************************/
 
-  @SuppressWarnings("unchecked")
-  static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
-
   static final EqualityComparator<Object> equivalenceEqualityComparator =
-      (a, b) -> equivalenceComparator.compare(a, b) == 0;
+      EqualityUtils.getEquivalenceComparator();
 
   public static Predicate<Type> isTuple = (type) -> type.isTuple();
   public static Predicate<Type> arityEqualsTwo = (type) -> type.getArity() == 2;

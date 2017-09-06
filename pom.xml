@@ -4,7 +4,7 @@
 
 	<groupId>io.usethesource</groupId>
 	<artifactId>vallang</artifactId>
-	<version>0.8.4-SNAPSHOT</version>
+	<version>0.9.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<scm>
@@ -130,7 +130,7 @@
 		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>capsule</artifactId>
-			<version>0.3.2</version>
+			<version>0.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
