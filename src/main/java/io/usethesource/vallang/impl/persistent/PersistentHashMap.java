@@ -136,6 +136,9 @@ public final class PersistentHashMap extends AbstractMap {
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
 
+			if (this.getType() != that.getType())
+				return false;
+
 			if (this.size() != that.size())
 				return false;
 
@@ -171,6 +174,15 @@ public final class PersistentHashMap extends AbstractMap {
 			return true;
 		if (other == null)
 			return false;
+
+		if (other instanceof PersistentHashMap) {
+			PersistentHashMap that = (PersistentHashMap) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return content.equivalent(that.content, equivalenceComparator);
+		}
 
 		if (other instanceof IMap) {
 			IMap that = (IMap) other;

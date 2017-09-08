@@ -186,6 +186,15 @@ public final class PersistentHashSet extends AbstractSet {
     if (other == null)
       return false;
 
+    if (other instanceof PersistentHashSet) {
+      PersistentHashSet that = (PersistentHashSet) other;
+
+      if (this.size() != that.size())
+        return false;
+
+      return content.equivalent(that.content, equivalenceComparator);
+    }
+
     if (other instanceof ISet) {
       ISet that = (ISet) other;
 

@@ -11,8 +11,12 @@
  *******************************************************************************/
 package io.usethesource.vallang.util;
 
+import java.util.Objects;
+
+import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.impl.NodeWithKeywordParametersFacade;
 
 public class EqualityUtils {
 
@@ -33,5 +37,9 @@ public class EqualityUtils {
 	public static EqualityComparator<Object> getEquivalenceComparator() {
 		return (a, b) -> EqualityComparator.equals((IValue) a, (IValue) b, IValue::isEqual);
 	}
+
+	public static final EqualityComparator<Map.Immutable<String, IValue>> KEYWORD_PARAMETER_COMPARATOR =
+			(a, b) -> Objects.equals(a.keySet(), b.keySet()) && a.keySet().stream()
+					.allMatch(key -> getEquivalenceComparator().equals(a.get(key), b.get(key)));
 
 }

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl;
 
+import static io.usethesource.vallang.util.EqualityUtils.KEYWORD_PARAMETER_COMPARATOR;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -109,13 +111,12 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 			  return false;
 		  }
 	  }
-	  
-	  // TODO: the equals here should be isEqual
+
 	  ConstructorWithKeywordParametersFacade o = (ConstructorWithKeywordParametersFacade) other;
-	  
-	  return content.isEqual(o.content) && o.parameters.equals(parameters);
+
+	  return content.isEqual(o.content) && KEYWORD_PARAMETER_COMPARATOR.equals(parameters, o.parameters);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return 131 + 3 * content.hashCode() + 101 * parameters.hashCode();

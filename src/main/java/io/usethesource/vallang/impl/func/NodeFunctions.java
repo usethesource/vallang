@@ -122,7 +122,10 @@ public class NodeFunctions {
 			Iterator<IValue> it2 = node2.iterator();
 
 			while (it1.hasNext()) {
-				if (!it1.next().isEqual(it2.next())) {
+				IValue o1 = it1.next();
+				IValue o2 = it2.next();
+
+				if (!o1.isEqual(o2)) {
 					return false;
 				}
 			}
