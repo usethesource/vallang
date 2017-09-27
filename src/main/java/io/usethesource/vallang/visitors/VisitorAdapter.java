@@ -77,7 +77,7 @@ public abstract class VisitorAdapter<T, E extends Throwable> implements IValueVi
 	}
 
 	public T visitConstructor(IConstructor o) throws E {
-		return fVisitor.visitNode(o);
+		return fVisitor.visitConstructor(o);
 	}
 	
 	public T visitTuple(ITuple o) throws E {
