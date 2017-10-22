@@ -22,6 +22,7 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.impl.func.ConstructorFunctions;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -108,9 +109,14 @@ public abstract class AbstractExternalValue implements IExternalValue {
 			}
 
 			@Override
-			public boolean isEqual(IValue other) {
-				return equals(other);
-			}
+	        public boolean isEqual(IValue value) {
+	            return ConstructorFunctions.isEqual(this, value);
+	        }
+	        
+	        @Override
+	        public boolean match(IValue value) {
+	            return ConstructorFunctions.match(this, value);
+	        }
 
 			@Override
 			public boolean isAnnotatable() {

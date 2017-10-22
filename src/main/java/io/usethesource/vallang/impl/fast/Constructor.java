@@ -27,6 +27,7 @@ import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
 import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.func.ConstructorFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -92,61 +93,12 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 	    @Override
 	    public boolean isEqual(IValue value){
-	        if(value == this) return true;
-	        if(value == null) return false;
-
-	        if (value instanceof IConstructor){
-	            IConstructor otherTree = (IConstructor) value;
-
-	            if(!constructorType.comparable(otherTree.getConstructorType())) {
-	              return false;
-	            }
-
-	            final Iterator<IValue> it1 = this.iterator();
-	            final Iterator<IValue> it2 = otherTree.iterator();
-
-	            while (it1.hasNext() && it2.hasNext()) {
-	                // call to IValue.isEqual(IValue)
-	                if (it1.next().isEqual(it2.next()) == false) {
-	                    return false;
-	                }
-	            }
-
-	            // if this has keyword parameters, then isEqual is overriden by the wrapper
-	            // but if the other has keyword parameters, then we should fail here:
-	            return otherTree.mayHaveKeywordParameters() ? !otherTree.asWithKeywordParameters().hasParameters() : true;
-	        }
-
-	        return false;
+	        return ConstructorFunctions.isEqual(this, value);
 	    }
 	    
 	    @Override
         public boolean match(IValue value){
-            if(value == this) return true;
-            if(value == null) return false;
-
-            if (value instanceof IConstructor){
-                IConstructor otherTree = (IConstructor) value;
-
-                // TODO: if types are canonical, this can be ==
-                if(!constructorType.comparable(otherTree.getConstructorType())) {
-                  return false;
-                }
-
-                final Iterator<IValue> it1 = this.iterator();
-                final Iterator<IValue> it2 = otherTree.iterator();
-
-                while (it1.hasNext() && it2.hasNext()) {
-                    // call to IValue.isEqual(IValue)
-                    if (it1.next().match(it2.next()) == false) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            return false;
+            return ConstructorFunctions.match(this, value);
         }
 	    
 	    @Override

@@ -23,6 +23,7 @@ import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.impl.func.ConstructorFunctions;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -115,6 +116,19 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	  
 	  return content.isEqual(o.content) && o.parameters.equals(parameters);
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+	    if (other instanceof ConstructorWithKeywordParametersFacade) {
+	        return content.match(((ConstructorWithKeywordParametersFacade) other).content);    
+	    }
+	    
+	    if (other instanceof IConstructor) {
+	        return ConstructorFunctions.match(this, other);
+	    }
+	    
+	    return false;
+    }
 	
 	@Override
 	public int hashCode() {

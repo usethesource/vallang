@@ -90,9 +90,7 @@ public interface IValue {
      *         in type labels, the presence of annotations or the presence of keyword 
      *         parameters
      */
-    default boolean match(IValue other) {
-        return isEqual(other);
-    }
+     boolean match(IValue other);
     
     /**
      * Prints the value to a string using the {@link StandardTextWriter}
