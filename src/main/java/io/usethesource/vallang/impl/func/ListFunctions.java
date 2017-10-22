@@ -315,6 +315,35 @@ public final class ListFunctions {
 
 		return false;
 	}
+	
+	public static boolean match(IValueFactory vf, IList list1, IValue other) {
+        // return equals(vf, list1, other);
+        if (other == list1)
+            return true;
+        if (other == null)
+            return false;
+
+        if (other instanceof IList) {
+            IList list2 = (IList) other;
+
+            if (list1.length() == list2.length()) {
+
+                final Iterator<IValue> it1 = list1.iterator();
+                final Iterator<IValue> it2 = list2.iterator();
+
+                while (it1.hasNext() && it2.hasNext()) {
+                    // call to IValue.isEqual(IValue)
+                    if (it1.next().match(it2.next()) == false)
+                        return false;
+                }
+
+                assert (!it1.hasNext() && !it2.hasNext());
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 	public static IList product(IValueFactory vf, IList list1, IList list2) {
 		IListWriter w = vf.listWriter();

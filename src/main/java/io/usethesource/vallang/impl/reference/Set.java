@@ -70,6 +70,11 @@ import io.usethesource.vallang.type.Type;
 	public boolean isEqual(IValue other) {
 		return SetFunctions.isEqual(getValueFactory(), this, other);
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+        return SetFunctions.match(getValueFactory(), this, other);
+    }
 
 	@Override
 	protected IValueFactory getValueFactory() {

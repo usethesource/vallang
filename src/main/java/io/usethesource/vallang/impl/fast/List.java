@@ -314,6 +314,7 @@ import io.usethesource.vallang.impl.func.ListFunctions;
 		return false;
 	}
 
+	@Override
 	public boolean isEqual(IValue value){
 		if(value == this) return true;
 		if(value == null) return false;
@@ -329,6 +330,23 @@ import io.usethesource.vallang.impl.func.ListFunctions;
 		
 		return false;
 	}
+	
+	@Override
+	public boolean match(IValue value){
+        if(value == this) return true;
+        if(value == null) return false;
+        
+        if(value instanceof List){
+            List otherList = (List) value;
+            
+            return data.match(otherList.data);
+        }
+        else if (value instanceof IList) {
+            return ListFunctions.match(ValueFactory.getInstance(), this, value);
+        }
+        
+        return false;
+    }
 	
 	public IList product(IList lst){
 		ListWriter w = new ListWriter();

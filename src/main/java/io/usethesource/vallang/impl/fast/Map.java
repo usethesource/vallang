@@ -269,6 +269,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return false;
 	}
 	
+	@Override
 	public boolean isEqual(IValue value){
 		if(value == this) return true;
 		if(value == null) return false;
@@ -281,6 +282,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		return false;
 	}
+	
+	@Override
+    public boolean match(IValue value){
+        if(value == this) return true;
+        if(value == null) return false;
+        
+        if(value instanceof Map){
+            Map otherMap = (Map) value;
+            
+            return data.match(otherMap.data);
+        }
+        
+        return false;
+    }
 
 	@Override
 	public IMap removeKey(IValue key) {

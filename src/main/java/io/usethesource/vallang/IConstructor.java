@@ -108,24 +108,5 @@ public interface IConstructor extends INode {
 	 */
 	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters();
 	
-	@Override
-	default boolean match(IValue other) {
-        if (mayHaveKeywordParameters()) {
-            IWithKeywordParameters<? extends IConstructor> wkws = asWithKeywordParameters();
-            
-            if (wkws.hasParameters()) {
-                return wkws.unsetAll().match(other);
-            }
-	    }
-	    
-	    if (other.mayHaveKeywordParameters()) {
-	        IWithKeywordParameters<? extends IValue> owkws = other.asWithKeywordParameters();
-	        
-	        if (owkws.hasParameters()) {
-	            return isEqual(owkws.unsetAll());
-	        }
-	    }
-	    
-	    return isEqual(other);
-	}
+	
 }

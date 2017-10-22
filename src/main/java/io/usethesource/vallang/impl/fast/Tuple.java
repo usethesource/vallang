@@ -169,6 +169,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return false;
 	}
 
+	@Override
 	public boolean isEqual(IValue value) {
 		if (value == this)
 			return true;
@@ -195,6 +196,34 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return false;
 	}
 
+	
+	@Override
+    public boolean match(IValue value) {
+        if (value == this)
+            return true;
+        if (value == null)
+            return false;
+
+        if (value instanceof Tuple) {
+            Tuple otherTuple = (Tuple) value;
+
+            if (!getType().comparable(otherTuple.getType()))
+                return false;
+
+            IValue[] otherElements = otherTuple.elements;
+            int nrOfElements = elements.length;
+            if (otherElements.length == nrOfElements) {
+                for (int i = nrOfElements - 1; i >= 0; i--) {
+                    if (!otherElements[i].match(elements[i]))
+                        return false;
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
+	
 	private static class TupleIterator implements Iterator<IValue> {
 		private final IValue[] elements;
 		private int index = 0;

@@ -19,6 +19,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractSet;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.impl.DefaultRelationViewOnSet;
+import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 
 import java.util.Iterator;
@@ -198,6 +199,15 @@ public final class PersistentHashSet extends AbstractSet {
 
     return false;
   }
+  
+  @Override
+  public boolean match(IValue other) {
+      if (!(other instanceof ISet)) {
+          return false;
+      }
+      return SetFunctions.match(getValueFactory(), this, other);
+  }
+
 
   @Override
   public ISet union(ISet other) {

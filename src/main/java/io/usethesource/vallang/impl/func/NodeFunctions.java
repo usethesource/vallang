@@ -145,4 +145,45 @@ public class NodeFunctions {
 		return false;
 	}
 
+	
+	public static boolean match(IValueFactory vf, INode node1, IValue value) {
+        if(value == node1) return true;
+        if(value == null) return false;
+
+        if (node1 == value) {
+            return true;
+        }
+        
+        if (node1.getType() != value.getType()) {
+            return false;
+        }
+
+        if (value instanceof INode) {
+            INode node2 = (INode) value;
+
+            // Object equality ('==') is not applicable here
+            // because value is cast to {@link INode}.
+            if (!node1.getName().equals(node2.getName())) {
+                return false;
+            }
+
+            if (node1.arity() != node2.arity()) {
+                return false;
+            }
+
+            Iterator<IValue> it1 = node1.iterator();
+            Iterator<IValue> it2 = node2.iterator();
+
+            while (it1.hasNext()) {
+                if (!it1.next().match(it2.next())) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
 }

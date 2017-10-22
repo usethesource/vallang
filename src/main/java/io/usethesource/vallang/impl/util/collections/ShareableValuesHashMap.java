@@ -389,6 +389,40 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return true;
 	}
 	
+	public boolean match(ShareableValuesHashMap other){
+        if(other == null) {
+            return false;
+        }
+        if(other.currentHashCode != currentHashCode) { 
+            return false;
+        }
+        if(other.size() != size()) {
+            return false;
+        }
+        if(isEmpty()) {
+            return true; // No need to check if the maps are empty.
+        }
+        
+        Iterator<Map.Entry<IValue, IValue>> otherIterator = other.entryIterator();
+        while (otherIterator.hasNext()) {
+            Map.Entry<IValue, IValue> entry = otherIterator.next();
+            IValue otherValue = entry.getValue();
+            IValue thisValue = get(entry.getKey());
+            
+            if (thisValue == null) {
+                // Means the key from other is not present in this
+                return false; 
+            }
+            
+            if(otherValue != thisValue 
+                    && !thisValue.match(otherValue)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+	
 	private IValue getTruelyEqual(IValue key){
 		int hash = key.hashCode();
 		int position = hash & hashMask;

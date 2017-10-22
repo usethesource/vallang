@@ -47,6 +47,15 @@ public final class SetFunctions {
 		}
 		return false;
 	}
+	
+	public static boolean containsMatch(IValueFactory vf, ISet set1, IValue e) {
+        for (IValue v : set1) {
+            if (v.match(e)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 	public static ISet insert(IValueFactory vf, ISet set1, IValue e) {
 		ISetWriter sw = vf.setWriter();
@@ -183,7 +192,6 @@ public final class SetFunctions {
 	 * it is not supported by the underlying container.
 	 */
 	public static boolean isEqual(IValueFactory vf, ISet set1, IValue other) {
-//		return equals(vf, set1, other);		
 		if (other == set1)
 			return true;
 		if (other == null)
@@ -206,6 +214,30 @@ public final class SetFunctions {
 
 		return false;
 	}
+	
+	public static boolean match(IValueFactory vf, ISet set1, IValue other) {
+        if (other == set1)
+            return true;
+        if (other == null)
+            return false;
+            
+        if (other instanceof ISet) {
+            ISet set2 = (ISet) other;
+
+            if (set1.size() == set2.size()) {
+
+                for (IValue v1 : set1) {
+                    // function containsMatch() calls match() but uses O(n) time
+                    if (containsMatch(vf, set2, v1) == false)
+                        return false;
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 	public static ISet product(IValueFactory vf, ISet set1, ISet set2) {
 		ISetWriter w = vf.setWriter();

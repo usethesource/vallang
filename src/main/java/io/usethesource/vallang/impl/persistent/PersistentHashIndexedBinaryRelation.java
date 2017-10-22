@@ -25,6 +25,7 @@ import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.ITuple;
@@ -32,6 +33,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.AbstractSet;
+import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
@@ -308,6 +310,14 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     }
 
     return false;
+  }
+  
+  @Override
+  public boolean match(IValue other) {
+      if (!(other instanceof ISet)) {
+          return false;
+      }
+      return SetFunctions.match(getValueFactory(), this, other);
   }
 
   @Override

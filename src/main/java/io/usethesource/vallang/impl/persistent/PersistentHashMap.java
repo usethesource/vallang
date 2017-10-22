@@ -22,6 +22,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractMap;
+import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.EqualityUtils;
 
@@ -205,6 +206,15 @@ public final class PersistentHashMap extends AbstractMap {
 		}
 
 		return false;
+	}
+	
+	@Override
+	public boolean match(IValue other) {
+	    if (!(other instanceof IMap)) {
+	        return false;
+	    }
+	    
+	    return MapFunctions.match(getValueFactory(), this, other);
 	}
 
 	@Override

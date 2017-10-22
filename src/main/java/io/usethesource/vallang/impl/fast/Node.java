@@ -182,4 +182,9 @@ import io.usethesource.capsule.util.iterator.ArrayIterator;
 	public boolean isEqual(IValue value){
 		return NodeFunctions.isEqual(getValueFactory(), this, value);
 	}
+	
+	@Override
+    public boolean match(IValue value){
+        return NodeFunctions.match(getValueFactory(), this, value);
+    }
 }

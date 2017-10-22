@@ -119,7 +119,36 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 	        return false;
 	    }
+	    
+	    @Override
+        public boolean match(IValue value){
+            if(value == this) return true;
+            if(value == null) return false;
 
+            if (value instanceof IConstructor){
+                IConstructor otherTree = (IConstructor) value;
+
+                // TODO: if types are canonical, this can be ==
+                if(!constructorType.comparable(otherTree.getConstructorType())) {
+                  return false;
+                }
+
+                final Iterator<IValue> it1 = this.iterator();
+                final Iterator<IValue> it2 = otherTree.iterator();
+
+                while (it1.hasNext() && it2.hasNext()) {
+                    // call to IValue.isEqual(IValue)
+                    if (it1.next().match(it2.next()) == false) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+	    
 	    @Override
         public int hashCode(){
             if (hashCode == 0) {

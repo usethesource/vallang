@@ -74,5 +74,10 @@ import io.usethesource.vallang.type.Type;
 	public boolean isEqual(IValue that) {
 		return ListFunctions.isEqual(getValueFactory(), this, that);
 	}
+	
+    @Override
+    public boolean match(IValue that) {
+        return ListFunctions.match(getValueFactory(), this, that);
+    }
 
 }

@@ -86,6 +86,11 @@ import io.usethesource.vallang.type.Type;
 	public boolean isEqual(IValue other) {
 		return MapFunctions.isEqual(getValueFactory(), this, other);
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+        return MapFunctions.match(getValueFactory(), this, other);
+    }
 
 	@Override
 	public int hashCode() {
