@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import io.usethesource.capsule.Map;
+import io.usethesource.capsule.Map.Immutable;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.IMap;
@@ -302,6 +303,18 @@ public final class PersistentHashMap extends AbstractMap {
 	public boolean isSubMap(IMap that) {
 		// TODO Auto-generated method stub
 		return super.isSubMap(that);
+	}
+	
+	@Override
+	public IMap removeKey(IValue key) {
+	    final Immutable<IValue, IValue> newContent = content.__removeEquivalent(key, equivalenceComparator);
+	    if (newContent == content) {
+	        return this;
+	    }
+	    final IValue removedValue = get(key);
+	    final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
+	    final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
+	    return new PersistentHashMap(newKeyBag, newValBag, newContent);
 	}
 
 }
