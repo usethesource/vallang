@@ -316,6 +316,24 @@ public final class MapSmokeTest {
 
     }
   }
+  
+  @Test
+  public void testRemoveKey() {
+      for (IMap map1 : testMaps) {
+          for (IMap map2 : testMaps) {
+              for (IValue key: map2) {
+                  IMap map3 = map1.removeKey(key);
+                  assertFalse("Key " + key + " should not exist anymore", map3.containsKey(key));
+                  if (map1.getType().hasFieldNames()) {
+                      assertEquals(map1.getType().getKeyLabel(), map3.getType().getKeyLabel());
+                      assertEquals(map1.getType().getValueLabel(), map3.getType().getValueLabel());
+                  }
+              }
+          }
+
+      }
+  }
+
 
   static class TestValue {
     Type type;
