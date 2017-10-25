@@ -102,6 +102,18 @@ public final class PersistentHashMap extends AbstractMap {
 	}
 	
 	@Override
+	public IMap removeKey(IValue key) {
+	    final Immutable<IValue, IValue> newContent = content.__removeEquivalent(key, equivalenceComparator);
+	    if (newContent == content) {
+	        return this;
+	    }
+	    final IValue removedValue = content.getEquivalent(key, equivalenceComparator);
+	    final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
+	    final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
+	    return new PersistentHashMap(newKeyBag, newValBag, newContent);
+	}	
+	
+	@Override
 	public int size() {
 		return content.size();
 	}
@@ -303,18 +315,6 @@ public final class PersistentHashMap extends AbstractMap {
 	public boolean isSubMap(IMap that) {
 		// TODO Auto-generated method stub
 		return super.isSubMap(that);
-	}
-	
-	@Override
-	public IMap removeKey(IValue key) {
-	    final Immutable<IValue, IValue> newContent = content.__removeEquivalent(key, equivalenceComparator);
-	    if (newContent == content) {
-	        return this;
-	    }
-	    final IValue removedValue = get(key);
-	    final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
-	    final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
-	    return new PersistentHashMap(newKeyBag, newValBag, newContent);
 	}
 
 }
