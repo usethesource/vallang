@@ -101,6 +101,22 @@ public final class PersistentHashMap extends AbstractMap {
 	}
 	
 	@Override
+	public IMap removeKey(IValue key) {
+	    final Map.Immutable<IValue, IValue> newContent = 
+				content.__removeEquivalent(key, equivalenceComparator);
+		
+	    if (newContent == content) {
+	        return this;
+	    }
+		
+	    final IValue removedValue = content.getEquivalent(key, equivalenceComparator);
+	    final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
+	    final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
+		
+	    return new PersistentHashMap(newKeyBag, newValBag, newContent);
+	}	
+	
+	@Override
 	public int size() {
 		return content.size();
 	}

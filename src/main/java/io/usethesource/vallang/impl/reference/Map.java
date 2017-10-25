@@ -91,5 +91,4 @@ import io.usethesource.vallang.type.Type;
 	public int hashCode() {
 		return MapFunctions.hashCode(getValueFactory(), this);
 	}
-	
 }

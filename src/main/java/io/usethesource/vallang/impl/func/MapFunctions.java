@@ -96,6 +96,18 @@ public final class MapFunctions {
 		}
 		return sw.done();
 	}
+	
+    public static IMap removeKey(IValueFactory vf, IMap map, IValue key) {
+        IMapWriter sw = vf.mapWriter();
+        for (IValue c : map) {
+            if (!c.isEqual(key)) {
+                sw.put(c, map.get(c));
+            }
+        }
+        return sw.done();
+    }
+
+	
 
 	public static boolean isSubMap(IValueFactory vf, IMap map1, IMap map2) {
 		for (IValue key : map1) {
@@ -220,5 +232,6 @@ public final class MapFunctions {
 		}
 		return false;
 	}
+
 
 }
