@@ -20,7 +20,6 @@ package io.usethesource.vallang.impl.reference;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractMap;
@@ -92,15 +91,4 @@ import io.usethesource.vallang.type.Type;
 	public int hashCode() {
 		return MapFunctions.hashCode(getValueFactory(), this);
 	}
-	
-	@Override
-	public IMap remove(IMap that) {
-	    return MapFunctions.remove(getValueFactory(), this, that);
-	}
-	
-	@Override
-	public IMap removeKey(IValue key) {
-	    return MapFunctions.removeKey(getValueFactory(), this, key);
-	}
-	
 }
