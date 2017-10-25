@@ -100,7 +100,7 @@ public final class MapFunctions {
     public static IMap removeKey(IValueFactory vf, IMap map, IValue key) {
         IMapWriter sw = vf.mapWriter();
         for (IValue c : map) {
-            if (!c.equals(key)) {
+            if (!c.isEqual(key)) {
                 sw.put(c, map.get(c));
             }
         }
