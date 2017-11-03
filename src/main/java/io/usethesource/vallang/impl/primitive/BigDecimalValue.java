@@ -336,6 +336,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	@Override
+	public boolean match(IValue other) {
+	    return equals(other);
+	}
+	
+	@Override
 	public String getStringRepresentation(){
 		StringBuilder sb = new StringBuilder();
 		String decimalString = value.toString();

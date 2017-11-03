@@ -65,6 +65,11 @@ public class BinaryWriter{
     public boolean equals(Object obj) {
       return obj instanceof IdentityValue && wrapped == ((IdentityValue)obj).wrapped;
     }
+    
+    @Override
+    public boolean match(IValue other) {
+        return other instanceof IdentityValue && wrapped == ((IdentityValue)other).wrapped;
+    }
 
     @Override
     public Type getType() {

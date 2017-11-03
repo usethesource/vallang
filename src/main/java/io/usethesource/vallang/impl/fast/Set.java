@@ -227,6 +227,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return false;
 	}
 	
+	@Override
 	public boolean isEqual(IValue value){
 		if(value == this) return true;
 		if(value == null) return false;
@@ -242,6 +243,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		return false;
 	}
+	
+	@Override
+	public boolean match(IValue value){
+        if(value == this) return true;
+        if(value == null) return false;
+        
+        if(value instanceof Set){
+            Set otherSet = (Set) value;
+            
+            return data.match(otherSet.data);
+        }
+        else if (value instanceof ISet) {
+            return SetFunctions.match(ValueFactory.getInstance(), this, (ISet) value);
+        }
+        
+        return false;
+    }
 
 	@Override
 	public boolean isRelation() {

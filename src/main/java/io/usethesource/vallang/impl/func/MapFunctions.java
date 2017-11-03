@@ -25,8 +25,8 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public final class MapFunctions {
 
@@ -96,6 +96,18 @@ public final class MapFunctions {
 		}
 		return sw.done();
 	}
+	
+    public static IMap removeKey(IValueFactory vf, IMap map, IValue key) {
+        IMapWriter sw = vf.mapWriter();
+        for (IValue c : map) {
+            if (!c.isEqual(key)) {
+                sw.put(c, map.get(c));
+            }
+        }
+        return sw.done();
+    }
+
+	
 
 	public static boolean isSubMap(IValueFactory vf, IMap map1, IMap map2) {
 		for (IValue key : map1) {
@@ -173,6 +185,31 @@ public final class MapFunctions {
         return false;
 	
 	}
+	
+	public static boolean match(IValueFactory vf, IMap map1, IValue other){
+        if (other == map1) return true;
+        if (other == null) return false;
+
+        if (other instanceof IMap) {
+          IMap map2 = (IMap) other;
+
+          if (map1.size() == map2.size()) {
+
+            for (IValue k1 : map1) {
+              if (containsMatchingKey(vf, map2, k1) == false) { // call to IValue.match(IValue)
+                return false;
+              } else if (map2.get(k1).match(map1.get(k1)) == false) { // call to IValue.isEqual(IValue)
+                return false;
+              }
+            }
+
+            return true;
+          }
+        }
+
+        return false;
+    
+    }
 
 	public static IValue get(IValueFactory valueFactory, IMap map1, IValue key) {
 		for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
@@ -201,6 +238,15 @@ public final class MapFunctions {
 		}
 		return false;
 	}
+	
+	public static boolean containsMatchingKey(IValueFactory valueFactory, IMap map1, IValue key) {
+        for (Iterator<IValue> iterator = map1.iterator(); iterator.hasNext();) {
+            if (iterator.next().match(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 	public static boolean containsValueWithEquals(IValueFactory valueFactory, IMap map1,
 					IValue value) {
@@ -220,5 +266,6 @@ public final class MapFunctions {
 		}
 		return false;
 	}
+
 
 }

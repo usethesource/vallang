@@ -53,6 +53,25 @@ public class ShareableValuesList extends ShareableList<IValue> {
 		return true;
 	}
 	
+	public boolean match(ShareableValuesList otherShareableValuesList){
+        if(otherShareableValuesList == null) return false;
+        if(otherShareableValuesList.size() != size()) return false;
+        
+        if(otherShareableValuesList.isEmpty()) return true;
+        
+        Iterator<IValue> thisListIterator = iterator();
+        Iterator<IValue> otherListIterator = otherShareableValuesList.iterator();
+        while(thisListIterator.hasNext()){
+            IValue thisValue = thisListIterator.next();
+            IValue otherValue = otherListIterator.next();
+            if(!thisValue.match(otherValue)){
+                return false;
+            }
+        }
+        
+        return true;
+    }
+	
 	public boolean contains(IValue value){
 		Iterator<IValue> valuesIterator = iterator();
 		while(valuesIterator.hasNext()){

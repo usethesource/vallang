@@ -23,6 +23,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractMap;
+import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.EqualityUtils;
 
@@ -100,6 +101,22 @@ public final class PersistentHashMap extends AbstractMap {
 		
 		return new PersistentHashMap(keyBagNew, valBagNew, contentNew);
 	}
+	
+	@Override
+	public IMap removeKey(IValue key) {
+	    final Map.Immutable<IValue, IValue> newContent = 
+				content.__removeEquivalent(key, equivalenceComparator);
+		
+	    if (newContent == content) {
+	        return this;
+	    }
+		
+	    final IValue removedValue = content.getEquivalent(key, equivalenceComparator);
+	    final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
+	    final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
+		
+	    return new PersistentHashMap(newKeyBag, newValBag, newContent);
+	}	
 	
 	@Override
 	public int size() {
@@ -202,6 +219,15 @@ public final class PersistentHashMap extends AbstractMap {
 		}
 
 		return false;
+	}
+	
+	@Override
+	public boolean match(IValue other) {
+	    if (!(other instanceof IMap)) {
+	        return false;
+	    }
+	    
+	    return MapFunctions.match(getValueFactory(), this, other);
 	}
 
 	@Override

@@ -61,6 +61,11 @@ public abstract class AbstractValue implements IValue {
 	public boolean isEqual(IValue other) {
 		return equals(other);
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+        return equals(other);
+    }
 
 	public String toString() {
 		return StandardTextWriter.valueToString(this);

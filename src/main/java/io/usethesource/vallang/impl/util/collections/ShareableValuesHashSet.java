@@ -176,6 +176,22 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		return false;
 	}
 	
+	public boolean containsMatch(Object object){
+        IValue value = (IValue) object;
+        
+        int hash = value.hashCode();
+        int position = hash & hashMask;
+        
+        Entry<IValue> entry = data[position];
+        while(entry != null){
+            if(hash == entry.hash && value.match(entry.value)) return true;
+            
+            entry = entry.next;
+        }
+        
+        return false;
+    }
+	
 	public boolean remove(Object object){
 		IValue value = (IValue) object;
 		
@@ -344,6 +360,21 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		}
 		return true;
 	}
+	
+	public boolean match(ShareableValuesHashSet other){
+        if(other == null) return false;
+        
+        if(other.currentHashCode != currentHashCode) return false;
+        if(other.size() != size()) return false;
+        
+        if(isEmpty()) return true; // No need to check if the sets are empty.
+        
+        Iterator<IValue> otherIterator = other.iterator();
+        while(otherIterator.hasNext()){
+            if(!containsMatch(otherIterator.next())) return false;
+        }
+        return true;
+    }
 	
 	private boolean containsTruelyEqual(IValue value){
 		int hash = value.hashCode();

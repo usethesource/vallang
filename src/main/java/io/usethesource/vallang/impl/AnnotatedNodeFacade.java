@@ -91,9 +91,15 @@ public class AnnotatedNodeFacade implements INode {
 		return false;
 	}
 
+	@Override
 	public boolean isEqual(IValue other) {
 		return content.isEqual(other);
 	}
+	
+    @Override
+    public boolean match(IValue other) {
+        return content.match(other);
+    }	
 	
 	@Override
 	public int hashCode() {

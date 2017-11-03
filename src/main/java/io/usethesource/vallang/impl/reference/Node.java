@@ -192,6 +192,11 @@ import io.usethesource.capsule.util.iterator.ArrayIterator;
 		return NodeFunctions.isEqual(getValueFactory(), this, value);
 	}
 	
+	@Override
+    public boolean match(IValue value){
+        return NodeFunctions.match(getValueFactory(), this, value);
+    }
+	
 	public int computeHashCode() {
        int hash = fName != null ? fName.hashCode() : 0;
        

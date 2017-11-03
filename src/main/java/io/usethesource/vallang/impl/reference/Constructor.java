@@ -138,6 +138,11 @@ public class Constructor extends Node implements IConstructor {
 	public boolean isEqual(IValue value) {
 	  return NodeFunctions.isEqual(getValueFactory(), this, value);
 	}
+	
+	@Override
+    public boolean match(IValue value) {
+      return NodeFunctions.match(getValueFactory(), this, value);
+    }
 
 	@Override
 	public int hashCode() {

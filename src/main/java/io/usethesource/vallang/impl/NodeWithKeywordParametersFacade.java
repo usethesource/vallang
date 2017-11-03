@@ -22,6 +22,7 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -108,6 +109,21 @@ public class NodeWithKeywordParametersFacade implements INode {
 		return false;
 	}
 
+	@Override
+    public boolean match(IValue other) {
+      if (other instanceof NodeWithKeywordParametersFacade) {
+          NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
+          
+          return content.match(o.content);
+      }
+      
+      if (other instanceof INode) {
+          return NodeFunctions.match(null, this, other);
+      }
+      
+      return false;
+    }
+	
 	@Override
 	public int hashCode() {
 		return 15551 + 7 * content.hashCode() + 11 * parameters.hashCode();

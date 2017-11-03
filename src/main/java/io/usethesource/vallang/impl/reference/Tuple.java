@@ -21,6 +21,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.impl.AbstractValue;
+import io.usethesource.vallang.impl.func.TupleFunctions;
 
 class Tuple extends AbstractValue implements ITuple {
 
@@ -51,8 +52,13 @@ class Tuple extends AbstractValue implements ITuple {
 
 	@Override
 	public boolean isEqual(IValue other) {
-		return equals(other);
+		return TupleFunctions.isEqual(this, other);
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+        return TupleFunctions.match(this, other);
+    }
 
 	/*package*/ Tuple(Type tupleType, IValue[] elems) {
 		super();

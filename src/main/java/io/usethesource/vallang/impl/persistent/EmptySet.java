@@ -112,6 +112,11 @@ public final class EmptySet extends AbstractSet {
   public boolean isEqual(IValue other) {
     return other == this;
   }
+  
+  @Override
+  public boolean match(IValue other) {
+    return other == this;
+  }
 
   @Override
   public ISet union(ISet other) {

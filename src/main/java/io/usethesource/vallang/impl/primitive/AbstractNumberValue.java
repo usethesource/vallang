@@ -13,6 +13,7 @@ package io.usethesource.vallang.impl.primitive;
 
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.UnexpectedTypeException;
 import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.TypeFactory;
