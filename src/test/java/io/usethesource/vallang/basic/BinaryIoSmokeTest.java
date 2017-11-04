@@ -191,19 +191,29 @@ public final class BinaryIoSmokeTest {
       iopRoundTrip(tp, seed);
     }
   }
-  
+
   @Test
   public void testDeepRandomValuesIO() {
-    TypeFactory tf = TypeFactory.getInstance();
-    TypeStore ts = new TypeStore();
     Random r = new Random();
     int seed = r.nextInt();
-    r.setSeed(seed);
+
+    testDeepRandomValuesIO(seed);
+  }
+
+  private void testDeepRandomValuesIO(int seed) {
+    TypeFactory tf = TypeFactory.getInstance();
+    TypeStore ts = new TypeStore();
+    Random r = new Random(seed);
     RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6);
     for (int i = 0; i < 1000; i++) {
         IValue val = gen.generate(tf.valueType(), ts, null);
         ioRoundTrip(val, seed);
     }
+  }
+
+  @Test
+  public void testDeepRandomValuesIORegressions() {
+    testDeepRandomValuesIO(1544959898);
   }
 
   @Test

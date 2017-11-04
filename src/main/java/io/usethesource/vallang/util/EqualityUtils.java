@@ -11,10 +11,12 @@
  *******************************************************************************/
 package io.usethesource.vallang.util;
 
-import java.util.Comparator;
 import java.util.Objects;
 
+import io.usethesource.capsule.Map;
+import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.impl.NodeWithKeywordParametersFacade;
 
 public class EqualityUtils {
 
@@ -22,34 +24,22 @@ public class EqualityUtils {
 	 * Temporary function in order to support different equality checks.
 	 */
 	@SuppressWarnings("rawtypes")
-	public static Comparator getDefaultEqualityComparator() {
-		return new Comparator() {
-			@Override
-			public int compare(Object a, Object b) {
-				return Objects.equals(a, b) ? 0 : -1;
-			}
-		};
+	public static EqualityComparator<Object> getDefaultEqualityComparator() {
+		return Object::equals;
 	}
-	
+
 	/**
 	 * Temporary function in order to support equivalence. Note, this
 	 * implementation is only works for {@link IValue} arguments. If arguments
 	 * are of a different type, an unchecked exception will be thrown.
 	 */
 	@SuppressWarnings("rawtypes")
-	public static Comparator getEquivalenceComparator() {
-		return new Comparator() {
-			@Override
-			public int compare(Object a, Object b) {
-				IValue v = (IValue) a;
-				IValue w = (IValue) b;
-
-				if ((v == w) || (v != null && v.isEqual(w)))
-					return 0;
-				else
-					return -1;
-			}
-		};
+	public static EqualityComparator<Object> getEquivalenceComparator() {
+		return (a, b) -> EqualityComparator.equals((IValue) a, (IValue) b, IValue::isEqual);
 	}
+
+	public static final EqualityComparator<Map.Immutable<String, IValue>> KEYWORD_PARAMETER_COMPARATOR =
+			(a, b) -> Objects.equals(a.keySet(), b.keySet()) && a.keySet().stream()
+					.allMatch(key -> getEquivalenceComparator().equals(a.get(key), b.get(key)));
 
 }
