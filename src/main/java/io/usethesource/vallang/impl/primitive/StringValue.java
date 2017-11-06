@@ -23,7 +23,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.impl.AbstractValue;
-import io.usethesource.vallang.impl.primitive.StringValue.IStringTreeNode;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -337,7 +336,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	
 	private static interface IStringTreeNode extends IString {
 	    int depth();
-	    IStringTreeNode lazyConcat(IStringTreeNode other);
+	    
+	    default IStringTreeNode lazyConcat(IStringTreeNode other) {
+	        // TODO: balance this tree!
+	        return new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
+	    }
 	}
 	
     /**
@@ -363,17 +366,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
      * Note that an implementation with a destructively updated linked list would be much faster,
      * but due to immutability and lots of sharing of IStrings this is not feasible.
      */
-	private static class BinaryBalancedLazyConcatString implements IString {
+	private static class BinaryBalancedLazyConcatString implements IStringTreeNode {
 	    private final IStringTreeNode left;
 	    private final IStringTreeNode right;
 	    private final int length;
-	    private final int depth;
 	    
 	    public BinaryBalancedLazyConcatString(IStringTreeNode left, IStringTreeNode right) {
 	        this.left = left;
 	        this.right = right;
 	        this.length = left.length() + right.length();
-	        this.depth = Math.max(left.depth(), right.depth());
         }
 	    
         @Override
@@ -430,15 +431,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public IString concat(IString other) {
-            if (((IStringTreeNode) other).depth() == 1) {
-                
-            }
+            return lazyConcat((IStringTreeNode) other);
         }
 
         @Override
         public IString reverse() {
-            // TODO Auto-generated method stub
-            return null;
+            return right.reverse().concat(left.reverse());
         }
 
         @Override
@@ -508,6 +506,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 return left.replace(first, second, left.length(), repl)
                         .concat(right.replace(0, second - left.length(), end - left.length(), repl));
             }
+        }
+
+        @Override
+        public void write(Writer w) throws IOException {
+            left.write(w);
+            right.write(w);
+        }
+
+        @Override
+        public int depth() {
+            // TODO cache this
+            return Math.max(left.depth(), right.depth());
         }
 	}
 }
