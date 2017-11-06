@@ -220,7 +220,7 @@ public class IValueReader {
             case IValueIDs.AliasType.ID:   {   
                 String name = null;
                 boolean backReference = false;
-                Type typeParameters = null;
+                Type typeParameters = tf.voidType();
                 Type aliasedType = null;
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
@@ -245,7 +245,7 @@ public class IValueReader {
 
                 assert name != null;
 
-                return returnAndStore(backReference, typeWindow, tf.aliasType(store, name, aliasedType, typeParameters));
+                return returnAndStore(backReference, typeWindow, tf.aliasTypeFromTuple(store, name, aliasedType, typeParameters));
             }
 
             case IValueIDs.ConstructorType.ID:     {
