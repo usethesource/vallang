@@ -12,6 +12,9 @@
 
 package io.usethesource.vallang;
 
+import java.io.IOException;
+import java.io.Writer;
+
 public interface IString extends IValue {
 	/**
 	 * @return the Java string that this string represents
@@ -76,4 +79,10 @@ public interface IString extends IValue {
      * @return
      */
     IString replace(int first, int second, int end, IString repl);
+    
+    /**
+     * Writes the content of this string to a character writer.
+     */
+    void write(Writer w) throws IOException;
+
 }

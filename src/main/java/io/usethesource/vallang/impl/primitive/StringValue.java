@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,37 +7,51 @@
  *
  * Contributors:
  *
- *   * Arnold Lankamp - interfaces and implementation
+ *   * Arnold Lankamp - interfaces and implementation - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Jurgen Vinju - lazy concat - CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.CharBuffer;
 
+import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.impl.AbstractValue;
+import io.usethesource.vallang.impl.primitive.StringValue.IStringTreeNode;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * Implementation of IString.
- * 
- * @author Arnold Lankamp
  */
 /*package*/ class StringValue {
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
+	private static final int MAX_FLAT_STRING = 512;
 
 	/*package*/ static IString newString(String value) {
-		if (value ==null) value = "";
+		if (value == null) {
+		    value = "";
+		}
+		
 		return newString(value, containsSurrogatePairs(value));
 	}
+	
 	/*package*/ static IString newString(String value, boolean fullUnicode) {
-		if (value ==null) value = "";
+		if (value == null) {
+		    value = "";
+		}
+		
 		if (fullUnicode) {
 			return new FullUnicodeString(value);
 		}
+		
 		return new SimpleUnicodeString(value);
 	}
 
@@ -54,7 +68,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return false;
 	}
 
-	private static class FullUnicodeString  extends AbstractValue implements IString {
+	private static class FullUnicodeString  extends AbstractValue implements IString, IStringTreeNode {
 		protected final String value;
 	
 	
@@ -62,6 +76,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			super();
 			
 			this.value = value;
+		}
+		
+		@Override
+		public int depth() {
+		    return 1;
 		}
 	
 		@Override
@@ -76,11 +95,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public IString concat(IString other){
-			StringBuilder buffer = new StringBuilder();
-			buffer.append(value);
-			buffer.append(other.getValue());
-			
-			return StringValue.newString(buffer.toString(), true);
+		    if (length() + other.length() <= MAX_FLAT_STRING) {
+		        StringBuilder buffer = new StringBuilder();
+	            buffer.append(value);
+	            buffer.append(other.getValue());
+	            
+	            return StringValue.newString(buffer.toString(), true);
+            }
+            else {
+                return lazyConcat((IStringTreeNode) other);
+            }
 		}
 		
 		@Override
@@ -246,10 +270,17 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			String res = buffer.toString();
 			return StringValue.newString(res);
 		}
+		
+		@Override
+		public void write(Writer w) throws IOException {
+		    w.write(value);
+		}
 	}
 	
 	private static class SimpleUnicodeString extends FullUnicodeString {
-		public SimpleUnicodeString(String value) {
+		
+
+        public SimpleUnicodeString(String value) {
 			super(value);
 		}
 		@Override
@@ -291,11 +322,192 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public IString concat(IString other) {
-			StringBuilder buffer = new StringBuilder();
-			buffer.append(value);
-			buffer.append(other.getValue());
-			
-			return StringValue.newString(buffer.toString(), other.getClass() != getClass());
+		    if (length() + other.length() <= MAX_FLAT_STRING) {
+		        StringBuilder buffer = new StringBuilder();
+		        buffer.append(value);
+		        buffer.append(other.getValue());
+
+		        return StringValue.newString(buffer.toString(), other.getClass() != getClass());
+		    }
+		    else {
+		        return lazyConcat((IStringTreeNode) other);
+		    }
 		}
+	}
+	
+	private static interface IStringTreeNode extends IString {
+	    int depth();
+	    IStringTreeNode lazyConcat(IStringTreeNode other);
+	}
+	
+    /**
+     * Concatenation must be fast when generating large strings (for example by a Rascal program
+     * which uses `+` and template expansion. With the basic implementation the left-hand side of
+     * the concat would always need to be copied using System.arraycopy somewhere. For large
+     * prefixes this becomes a bottleneck. The worst case execution time is in O(n^2) where n is the
+     * length of the produced string. The smaller the steps taken (the more concat operations)
+     * towards this length, the worse it gets.
+     * 
+     * A simple solution is to build a binary tree of concatenation nodes which can later be
+     * streamed in a linear fashion. That's a good solution because it is an easy immutable
+     * implementation. However, the trees can become quite unbalanced and therefore extremely deep
+     * (consider a number of Rascal for loops in a template). The recursion required to stream such
+     * a tree would run out of stack space regularly (we know from experience).
+     * 
+     * So the current implementation of a lazy concat string _balances_ the tree to maintain an
+     * invariant of an (almost) balanced tree. The worst case depth of the tree will alway be in
+     * O(log(length)). We flatten out strings below 512 characters because the System.arraycopy below
+     * that number is still really efficient. The cost we pay for balancing the tree is in O(log(length)),
+     * so concat is now in O(log(length)) instead of in O(1), all to avoid the StackOverflow.
+     * 
+     * Note that an implementation with a destructively updated linked list would be much faster,
+     * but due to immutability and lots of sharing of IStrings this is not feasible.
+     */
+	private static class BinaryBalancedLazyConcatString implements IString {
+	    private final IStringTreeNode left;
+	    private final IStringTreeNode right;
+	    private final int length;
+	    private final int depth;
+	    
+	    public BinaryBalancedLazyConcatString(IStringTreeNode left, IStringTreeNode right) {
+	        this.left = left;
+	        this.right = right;
+	        this.length = left.length() + right.length();
+	        this.depth = Math.max(left.depth(), right.depth());
+        }
+	    
+        @Override
+        public Type getType() {
+            return STRING_TYPE;
+        }
+
+        @Override
+        public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+            return v.visitString(this);
+        }
+
+        @Override
+        public boolean isEqual(IValue other) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean match(IValue other) {
+            return isEqual(other);
+        }
+
+        @Override
+        public boolean isAnnotatable() {
+            return false;
+        }
+
+        @Override
+        public IAnnotatable<? extends IValue> asAnnotatable() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean mayHaveKeywordParameters() {
+            return false;
+        }
+
+        @Override
+        public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getValue() {
+            try (StringWriter w = new StringWriter()) {
+                write(w);
+                return w.toString();
+            } catch (IOException e) {
+                // this will not happen with a StringWriter
+                return "";
+            }
+        }
+
+        @Override
+        public IString concat(IString other) {
+            if (((IStringTreeNode) other).depth() == 1) {
+                
+            }
+        }
+
+        @Override
+        public IString reverse() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public int length() {
+            return length;
+        }
+
+        @Override
+        public IString substring(int start, int end) {
+            assert end >= start;
+            
+            if (end < left.length()) {
+                // left, right: <-------><------>
+                // slice:         <--->
+                return left.substring(start, end);
+            }
+            else if (start >= left.length()) {
+                // left, right: <-------><------>
+                // slice:                  <--->
+                return right.substring(start - left.length(), end - left.length());
+            }
+            else {
+                // left, right: <-------><------>
+                // slice:            <------>
+                return left.substring(start, left.length())
+                        .concat(right.substring(0, end - left.length()));
+            }
+        }
+
+        @Override
+        public IString substring(int start) {
+            return substring(start, length);
+        }
+
+        @Override
+        public int compare(IString other) {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public int charAt(int index) {
+            if (index < left.length()) {
+                return left.charAt(index);
+            }
+            else {
+                return right.charAt(index - left.length());
+            }
+        }
+
+        @Override
+        public IString replace(int first, int second, int end, IString repl) {
+            if (end < left.length()) {
+                // left, right: <-------><------>
+                // slice:         <--->
+                return left.replace(first, second, end, repl);
+            }
+            else if (first >= left.length()) {
+                // left, right: <-------><------>
+                // slice:                  <--->
+                return right.replace(first - left.length(), second - left.length(), end - left.length(), repl);
+            }
+            else {
+                // left, right: <-------><------>
+                // slice:            <------>
+                // TODO: there is a corner case here at the end of left and the beginning of right regarding `second`?
+                return left.replace(first, second, left.length(), repl)
+                        .concat(right.replace(0, second - left.length(), end - left.length(), repl));
+            }
+        }
 	}
 }
