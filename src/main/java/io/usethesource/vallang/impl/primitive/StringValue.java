@@ -341,6 +341,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	        // TODO: balance this tree!
 	        return new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
 	    }
+	    
+	    default IStringTreeNode rotateLeft() {
+	        // TODO; this is just an idea to start implementig an AVL tree
+	        // should be overriden in BinaryBalancedLazyConcatString
+	        return this;
+	    }
+	    
+	    default IStringTreeNode rotateRight() {
+	        // TODO; this is just an idea to start implementig an AVL tree
+	        // should be overriden in BinaryBalancedLazyConcatString
+	        return this;
+	    }
 	}
 	
     /**
@@ -389,8 +401,22 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public boolean isEqual(IValue other) {
-            // TODO Auto-generated method stub
-            return false;
+            if (!(other instanceof IString)) {
+                return false;
+            }
+            
+            if (other == this) {
+                return true;
+            }
+
+            IString o = (IString) other;
+            
+            if (length() != o.length()) {
+                return false;
+            }
+
+            // TODO: split equal over the right branches!
+            throw new UnsupportedOperationException("not yet implemented");
         }
 
         @Override
@@ -420,7 +446,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public String getValue() {
-            try (StringWriter w = new StringWriter()) {
+            try (StringWriter w = new StringWriter((int) (length * 1.5 /* leave some room for surrogate pairs */))) {
                 write(w);
                 return w.toString();
             } catch (IOException e) {
@@ -445,6 +471,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
+        // TODO: this needs a unit test
         public IString substring(int start, int end) {
             assert end >= start;
             
@@ -478,6 +505,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
+        // TODO: this needs a unit test
         public int charAt(int index) {
             if (index < left.length()) {
                 return left.charAt(index);
@@ -488,6 +516,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
+        // TODO this needs a unit test
         public IString replace(int first, int second, int end, IString repl) {
             if (end < left.length()) {
                 // left, right: <-------><------>
@@ -516,7 +545,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public int depth() {
-            // TODO cache this
+            // TODO cache this?
             return Math.max(left.depth(), right.depth());
         }
 	}
