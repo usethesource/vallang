@@ -379,8 +379,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
      * but due to immutability and lots of sharing of IStrings this is not feasible.
      */
 	private static class BinaryBalancedLazyConcatString implements IStringTreeNode {
-	    private final IStringTreeNode left;
-	    private final IStringTreeNode right;
+	    private final IStringTreeNode left; /* must remain final for immutability's sake */
+	    private final IStringTreeNode right; /* must remain final for immutability's sake */
 	    private final int length;
 	    
 	    public BinaryBalancedLazyConcatString(IStringTreeNode left, IStringTreeNode right) {
