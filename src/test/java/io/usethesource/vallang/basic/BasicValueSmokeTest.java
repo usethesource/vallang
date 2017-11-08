@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2017 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Toine Khonraad - a.khonraad@khonraad.nl 
+ *******************************************************************************/
 package io.usethesource.vallang.basic;
 
 import java.net.URISyntaxException;
@@ -185,6 +196,29 @@ public final class BasicValueSmokeTest {
     assertEqual(vf.integer(0), vf.integer(0).abs());
     assertEqual(vf.rational(0, 1), vf.rational(0, 1).abs());
     assertEqual(vf.real(0), vf.real(0).abs());
+    
+    // Test division by zero
+    IInteger i0 = vf.integer(0);
+    IInteger i41 = vf.integer(41);
+    
+    boolean thrown = false;
+    try {
+    		i0.divide(i0);
+    } catch (IllegalArgumentException e) {
+        thrown = true;
+    }
+    assertTrue(thrown);
+    
+    thrown = false;
+    try {
+    		i41.divide(i0);
+    } catch (IllegalArgumentException e) {
+    		thrown = true;
+    }
+    assertTrue(thrown);
+    
+    
+    
   }
 
   @Test

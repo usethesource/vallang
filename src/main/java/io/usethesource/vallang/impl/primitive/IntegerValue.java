@@ -9,6 +9,7 @@
  *
  *   * Arnold Lankamp - interfaces and implementation
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Toine Khonraad - a.khonraad@khonraad.nl 
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
@@ -339,13 +340,27 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	
 	@Override
 	public IInteger divide(IInteger other){
-		if(value == 0)
-			return this;
+		
 		if(other instanceof BigIntegerValue){
+			if ( ((BigIntegerValue) other).equals(BigInteger.ZERO) ) {
+				throw new IllegalArgumentException("Big Argument 'divisor' is 0");
+			}
 			return IntegerValue.newInteger(toBigInteger().divide(((ICanBecomeABigInteger) other).toBigInteger()));
 		}
 		
+		// other is an instance of IntegerValue
+		
+		/*
+		 * This optimization? doesn't hold
+		 * 
+		 * if(value == 0)
+		 *	return this;
+		 */
+
 		int otherIntValue = other.intValue();
+		if(otherIntValue == 0) {
+			throw new IllegalArgumentException("Argument 'divisor' is 0");
+		}
 		if(otherIntValue == 1)
 			return this;
 		return IntegerValue.newInteger(value / otherIntValue);
