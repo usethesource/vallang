@@ -10,8 +10,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
-
-import io.usethesource.vallang.io.binary.message.IValueIDs.StringValue;
+import io.usethesource.vallang.impl.primitive.StringValue;
 import io.usethesource.vallang.type.TypeFactory;
 
 @RunWith(Parameterized.class)
@@ -21,14 +20,27 @@ public final class TreeStringTest {
 	public static Iterable<? extends Object> data() {
 		return Setup.valueFactories();
 	}
+	
+	private IString genString(int n) {
+		String[] s = {"a", "b", "c", "d", "e", "f"};
+		IString result = vf.string(s[0]);
+		for (int i=1;i<n; i++) {
+			result = result.concat(vf.string(s[i%6]));
+			// result = vf.string(s[i%6]).concat(result);
+		}
+		return result;
+	}
 
-	private IString example;
+	private IString example, example1, example2;
 
 	private final IValueFactory vf;
 
 	public TreeStringTest(final IValueFactory vf) {
 		this.vf = vf;
-		this.example = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef"));
+		this.example =  vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
+		this.example1 = vf.string("ab").concat(vf.string("cd").concat(vf.string("ef").concat(vf.string("gh"))));
+		this.example2 = example.concat(example1);
+		
 	}
 
 	protected TypeFactory tf = TypeFactory.getInstance();
@@ -49,9 +61,9 @@ public final class TreeStringTest {
 
 	@Test
 	public void testConcat() {
-		assertTrue(example.isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef"))));
-		assertTrue(vf.string("ab").concat((vf.string("cd")).concat(vf.string("ef")))
-				.isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef"))));
+		assertTrue(example.isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"))));  
+		assertTrue(example.
+				isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef").concat(vf.string("gh")))));
 	}
 
 	@Test
@@ -77,17 +89,46 @@ public final class TreeStringTest {
 	@Test
 	public void testStringReplace() {
 		// System.out.println(example.replace(4, 1, 4, vf.string("x")).getValue());
-		assertEqual(example.replace(0, 1, 0, vf.string("x")), vf.string("xabcdef"));
-		assertEqual(example.replace(1, 1, 1, vf.string("x")), vf.string("axbcdef"));
-		assertEqual(example.replace(2, 1, 2, vf.string("x")), vf.string("abxcdef"));
-		assertEqual(example.replace(3, 1, 3, vf.string("x")), vf.string("abcxdef"));
-		assertEqual(example.replace(4, 1, 4, vf.string("x")), vf.string("abcdxef"));
-		assertEqual(example.replace(5, 1, 5, vf.string("x")), vf.string("abcdexf"));
-		assertEqual(example.replace(6, 1, 6, vf.string("x")), vf.string("abcdefx"));
+		assertEqual(example.replace(0, 1, 0, vf.string("x")), vf.string("xabcdefgh"));
+		assertEqual(example.replace(1, 1, 1, vf.string("x")), vf.string("axbcdefgh"));
+		assertEqual(example.replace(2, 1, 2, vf.string("x")), vf.string("abxcdefgh"));
+		assertEqual(example.replace(3, 1, 3, vf.string("x")), vf.string("abcxdefgh"));
+		assertEqual(example.replace(4, 1, 4, vf.string("x")), vf.string("abcdxefgh"));
+		assertEqual(example.replace(5, 1, 5, vf.string("x")), vf.string("abcdexfgh"));
+		assertEqual(example.replace(6, 1, 6, vf.string("x")), vf.string("abcdefxgh"));
 	}
     
 	@Test
 	public void testEquals() {
 		assertTrue(vf.string("abc").concat(vf.string("de")).isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("e"))));
+	}
+	@Test
+	public void testBalanceFactor() {
+		StringValue.setMaxFlatString(1);
+		StringValue.setBalance(true);
+		long startTime = System.nanoTime();
+		IString example3 = genString(10000);
+		long estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("Balanced "+example3.balanceFactor()+" "+estimatedTime+"ms");	
+		assertTrue(example3.balanceFactor()<=1 && example3.balanceFactor()>=-1);
+		//System.out.println();
+		
+		StringValue.setMaxFlatString(1);
+		StringValue.setBalance(false);
+		startTime = System.nanoTime();
+		example3 = genString(10000);
+		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("Unbalanced "+example3.balanceFactor()+" "+estimatedTime+"ms");	
+		assertTrue(example3.balanceFactor()<=1000000 && example3.balanceFactor()>=-1000000);
+		//System.out.println();
+		
+		StringValue.setMaxFlatString(100000);
+		StringValue.setBalance(false);
+		startTime = System.nanoTime();
+		example3 = genString(10000);
+		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("Simple "+example3.balanceFactor()+" "+estimatedTime+"ms");	
+		assertTrue(example3.balanceFactor()<=1 && example3.balanceFactor()>=-1);
+		System.out.println();
 	}
 }

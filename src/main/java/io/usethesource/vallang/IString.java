@@ -84,5 +84,11 @@ public interface IString extends IValue {
      * Writes the content of this string to a character writer.
      */
     void write(Writer w) throws IOException;
+    
+    /**
+     * The difference in depth between the right end the left branch (=1 in a leaf)
+     */
+    int balanceFactor();
+    
 
 }

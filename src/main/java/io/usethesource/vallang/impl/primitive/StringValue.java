@@ -33,9 +33,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 /**
  * Implementation of IString.
  */
-/* package */ class StringValue {
+/* package */ public class StringValue {
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
-	private static final int MAX_FLAT_STRING = 1;
+	private static int MAX_FLAT_STRING = 512;
+	
+	private static boolean balance = true;
+	
+	static public void setBalance(boolean balance) {
+		StringValue.balance = balance;
+	}
+	
+	static public void  setMaxFlatString(int maxFlatString) {
+		MAX_FLAT_STRING = maxFlatString;
+	}
 
 	/* package */ static IString newString(String value) {
 		if (value == null) {
@@ -301,6 +311,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public void write(Writer w) throws IOException {
 			w.write(value);
 		}
+
+		@Override
+		public int balanceFactor() {
+			return 1;
+		}
 	}
 
 	private static class SimpleUnicodeString extends FullUnicodeString {
@@ -327,6 +342,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public int length() {
 			return value.length();
+		}
+		
+		@Override
+		public int depth() {
+			return 1;
 		}
 
 		@Override
@@ -365,19 +385,33 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 	private static interface IStringTreeNode extends IString {
 		int depth();
-
 		default IStringTreeNode lazyConcat(IStringTreeNode other) {
-			// TODO: balance this tree!
-			return new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
+					BinaryBalancedLazyConcatString result = new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
+		   if (StringValue.balance) result = BinaryBalancedLazyConcatString.balance(result);
+		   return result;
 		}
 
 		default IStringTreeNode rotateLeft() {
 			// TODO; this is just an idea to start implementig an AVL tree
 			// should be overriden in BinaryBalancedLazyConcatString
+			
 			return this;
 		}
 
 		default IStringTreeNode rotateRight() {
+			// TODO; this is just an idea to start implementig an AVL tree
+			// should be overriden in BinaryBalancedLazyConcatString
+			return this;
+		}
+		
+		default IStringTreeNode rotateLeftRight() {
+			// TODO; this is just an idea to start implementig an AVL tree
+			// should be overriden in BinaryBalancedLazyConcatString
+			
+			return this;
+		}
+
+		default IStringTreeNode rotateRightLeft() {
 			// TODO; this is just an idea to start implementig an AVL tree
 			// should be overriden in BinaryBalancedLazyConcatString
 			return this;
@@ -414,15 +448,17 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	 */
 
 
-	private static class BinaryBalancedLazyConcatString implements IStringTreeNode {
+	private static class BinaryBalancedLazyConcatString extends AbstractValue implements IStringTreeNode {
 		private final IStringTreeNode left; /* must remain final for immutability's sake */
 		private final IStringTreeNode right; /* must remain final for immutability's sake */
 		private final int length;
+		private final int depth;
 
 		public BinaryBalancedLazyConcatString(IStringTreeNode left, IStringTreeNode right) {
 			this.left = left;
 			this.right = right;
 			this.length = left.length() + right.length();
+			this.depth = Math.max(left.depth(), right.depth())+1;
 		}
 
 		@Override
@@ -449,13 +485,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			if (length() != o.length()) {
 				return false;
 			}
-
-			// TODO: split equal over the right branches!
-			// throw new UnsupportedOperationException("not yet implemented");
 			IString[][] r = BinaryBalancedLazyConcatString.refine(BinaryBalancedLazyConcatString.flatten(this), BinaryBalancedLazyConcatString.flatten(o));
-			for (int i=0;i<r[0].length;i++) System.out.println(r[0][i]);
-			System.out.println("---");
-			for (int i=0;i<r[1].length;i++) System.out.println(r[1][i]);
 			if (r[0].length!=r[1].length) return false;
 			int i = 0;
 			while (i<r[0].length && r[0][i].isEqual(r[1][i])) i++;
@@ -510,7 +540,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 					}
 				}
 			}
-			return new IString[][] { (IString[]) ra.toArray(new IString[] {}), (IString[]) rb.toArray(new IString[] {}) };
+			return new IString[][] { (IString[]) ra.toArray(new IString[ra.size()]), (IString[]) rb.toArray(new IString[rb.size()]) };
 		}
 
 		
@@ -563,6 +593,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public int length() {
 			return length;
+		}
+		
+		@Override
+		public int depth() {
+			return depth;
 		}
 
 		@Override
@@ -633,11 +668,62 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			left.write(w);
 			right.write(w);
 		}
+		
+		@Override
+		public IStringTreeNode rotateRight() {
+			BinaryBalancedLazyConcatString p =  new BinaryBalancedLazyConcatString(((StringValue.BinaryBalancedLazyConcatString) (this.left)).right, this.right) ;
+			return new BinaryBalancedLazyConcatString(((StringValue.BinaryBalancedLazyConcatString) (this.left)).left, p);
+		}
+		
+		@Override
+		public IStringTreeNode rotateLeft() {
+			BinaryBalancedLazyConcatString p =  new BinaryBalancedLazyConcatString(this.left, ((StringValue.BinaryBalancedLazyConcatString) (this.right)).left) ;
+			return new BinaryBalancedLazyConcatString(p, ((StringValue.BinaryBalancedLazyConcatString) (this.right)).right);	
+		}
+		
+		@Override
+		public IStringTreeNode rotateRightLeft() {
+			BinaryBalancedLazyConcatString r = (BinaryBalancedLazyConcatString) this.right;
+			IStringTreeNode rotateRight = new BinaryBalancedLazyConcatString(this.left, r.rotateRight());
+			return rotateRight.rotateLeft();
+		}
+		
+		@Override
+		public IStringTreeNode rotateLeftRight() {
+			BinaryBalancedLazyConcatString l= (BinaryBalancedLazyConcatString) this.left;
+			IStringTreeNode rotateLeft = new BinaryBalancedLazyConcatString(l.rotateLeft(), this.right);
+			return rotateLeft.rotateRight();
+		}
+		
+		static  BinaryBalancedLazyConcatString balance(BinaryBalancedLazyConcatString t) {
+			IStringTreeNode l = t.left; 
+			IStringTreeNode r = t.right; 
+			
+			if (l instanceof BinaryBalancedLazyConcatString && l.depth()>2)  l = balance((BinaryBalancedLazyConcatString) l);
+			if (r instanceof BinaryBalancedLazyConcatString && r.depth()>2)  r = balance((BinaryBalancedLazyConcatString) r);
+			
+			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(l, r);
+			// BinaryBalancedLazyConcatString p = t;
+			if (p.balanceFactor()>=2) {
+				  if (p.right.balanceFactor()<0) 
+				       p = (BinaryBalancedLazyConcatString) p.rotateRightLeft();
+				  else
+					   p = (BinaryBalancedLazyConcatString) p.rotateLeft();
+				  
+			} else
+			if (p.balanceFactor()<=-2) {
+				 if (p.left.balanceFactor()>0) 
+				       p = (BinaryBalancedLazyConcatString) p.rotateLeftRight();
+				 else
+					   p = (BinaryBalancedLazyConcatString) p.rotateRight();
+				  
+			}
+			return p;
+		}
 
 		@Override
-		public int depth() {
-			// TODO cache this?
-			return Math.max(left.depth(), right.depth());
+		public int balanceFactor() {
+			return this.right.depth()-this.left.depth();
 		}
 	}
 
