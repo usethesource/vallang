@@ -17,6 +17,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
@@ -292,23 +295,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
         @Override
         public boolean equals(Object o) {
-            if (o == this) {
-                return true;
-            }
-            if (o == null) {
-                return false;
-            }
-
-            if (o.getClass() != getClass()) {
-                return false;
-            }
-            Constructor0 otherTree = (Constructor0) o;
-
-            if (constructorType != otherTree.constructorType) {
-                return false;
-            }
-
-            return true;
+            return o == this;
         }
     }
 
@@ -819,10 +806,17 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	        return new ConstructorN(constructorType, newChildren);
 	    }
 	}
+	
+	/**
+	 * As empty constructors are very common and are only based on a type that is already maximally shared we also maximally share the Constructor0 instances
+	 * 
+	 * This descreases both memory footprint and allocation overhead.
+	 */
+    private static final LoadingCache<Type, IConstructor> EMPTY_CONSTRUCTOR_SINGLETONS = Caffeine.newBuilder().build(Constructor0::new);
 
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
 	    switch (children.length) {
-	    case 0: return new Constructor0(constructorType);
+	    case 0: return EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType);
 	    case 1: return new Constructor1(constructorType, children[0]);
 	    case 2: return new Constructor2(constructorType, children[0], children[1]);
 	    case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
