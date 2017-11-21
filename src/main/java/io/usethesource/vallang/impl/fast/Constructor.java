@@ -297,6 +297,30 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
         public boolean equals(Object o) {
             return o == this;
         }
+        
+        @Override
+        public boolean isEqual(IValue value) {
+            if (value == this) {
+                return true;
+            }
+            if (value instanceof IConstructor) {
+                IConstructor cons = (IConstructor)value;
+                if (cons.isAnnotatable() && cons.asAnnotatable().hasAnnotations()) {
+                    // isEquals ignores annotations, so let's skip them and just compare
+                    return cons.arity() == 0 && cons.getConstructorType() == this.constructorType;
+                }
+                // no need to check kw params, since Constructor0 doesn't have kw params
+                // this means that it can never be isEqual to the `cons`
+            }
+            return false;
+        }
+        
+        @Override
+        public boolean match(IValue value) {
+            // either value is the same instance
+            // or the other could be a wrapped IConstructor (with annotations or keyword params) so compare the constructor type and the arity
+            return value == this || (value instanceof IConstructor && (((IConstructor)value).arity() == 0 && ((IConstructor)value).getConstructorType() == this.constructorType));
+        }
     }
 
 	private static class Constructor1 extends AbstractConstructor {
