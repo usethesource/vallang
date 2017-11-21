@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
@@ -159,8 +160,16 @@ public final class EqualitySmokeTest {
       assertFalse(b.equals(a));
       assertTrue(a.match(b));
       assertTrue(b.match(a));
+      assertTrue(a.match(a));
+      assertTrue(b.match(b));
       assertFalse(b.isEqual(a));
       assertFalse(a.isEqual(b));
+      
+      assertTrue(vf.list(a).match(vf.list(b)));
+      assertTrue(vf.list(b).match(vf.list(a)));
+      assertTrue(vf.set(a).match(vf.set(b)));
+      assertTrue(vf.set(b).match(vf.set(a)));
+      
   }
   
   @Test
@@ -177,6 +186,8 @@ public final class EqualitySmokeTest {
       assertFalse(m.equals(n));
       assertTrue(n.match(m));
       assertTrue(m.match(n));
+      assertTrue(n.match(n));
+      assertTrue(m.match(m));
       assertFalse(m.isEqual(n));
       assertFalse(n.isEqual(m));
       
@@ -190,7 +201,21 @@ public final class EqualitySmokeTest {
       assertFalse(b.equals(a));
       assertTrue(a.match(b));
       assertTrue(b.match(a));
+      assertTrue(a.match(a));
+      assertTrue(b.match(b));
       assertFalse(b.isEqual(a));
       assertFalse(a.isEqual(b));
+      
+      assertTrue(vf.list(a).match(vf.list(b)));
+      assertTrue(vf.list(b).match(vf.list(a)));
+      assertTrue(vf.set(a).match(vf.set(b)));
+      assertTrue(vf.set(b).match(vf.set(a)));
+      
+      final IMapWriter map1 = vf.mapWriter();
+      final IMapWriter map2 = vf.mapWriter();
+      map1.put(a, vf.integer(0));
+      map2.put(b, vf.integer(0));
+      assertTrue(map1.done().match(map2.done()));
+      
   }
 }

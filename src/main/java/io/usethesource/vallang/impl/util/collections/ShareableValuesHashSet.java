@@ -184,9 +184,17 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
         
         Entry<IValue> entry = data[position];
         while(entry != null){
-            if(hash == entry.hash && value.match(entry.value)) return true;
+            if(hash == entry.hash && value.match(entry.value)) {
+                return true;
+            }
             
             entry = entry.next;
+        }
+        
+        for (Entry<IValue> e : data) {
+            if (e != null && value.match(e.value)) {
+                return true;
+            }
         }
         
         return false;
@@ -364,7 +372,6 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	public boolean match(ShareableValuesHashSet other){
         if(other == null) return false;
         
-        if(other.currentHashCode != currentHashCode) return false;
         if(other.size() != size()) return false;
         
         if(isEmpty()) return true; // No need to check if the sets are empty.
