@@ -139,4 +139,58 @@ public final class EqualitySmokeTest {
     // unidirectional: c -> n = false
     assertFalse(c.isEqual(n));
   }
+  
+  @Test
+  public void testNodeMatch() {
+      final INode n = vf.node("hello");
+      final INode m = n.asWithKeywordParameters().setParameter("x", vf.integer(0));
+      
+      assertFalse(n.equals(m));
+      assertFalse(m.equals(n));
+      assertTrue(n.match(m));
+      assertTrue(m.match(n));
+      assertFalse(m.isEqual(n));
+      assertFalse(n.isEqual(m));
+      
+      final INode a = vf.node("hello", vf.string("bye"));
+      final INode b = a.asWithKeywordParameters().setParameter("x", vf.integer(0));
+      
+      assertFalse(a.equals(b));
+      assertFalse(b.equals(a));
+      assertTrue(a.match(b));
+      assertTrue(b.match(a));
+      assertFalse(b.isEqual(a));
+      assertFalse(a.isEqual(b));
+  }
+  
+  @Test
+  public void testConstructorMatch() {
+      final TypeStore store = new TypeStore();
+      final Type Hello = tf.abstractDataType(store, "Hello");
+      final Type Cons = tf.constructor(store, Hello, "bye");
+      store.declareKeywordParameter(Cons, "x", tf.integerType());
+      
+      final IConstructor n = vf.constructor(Cons);
+      final IConstructor m = n.asWithKeywordParameters().setParameter("x", vf.integer(0));
+      
+      assertFalse(n.equals(m));
+      assertFalse(m.equals(n));
+      assertTrue(n.match(m));
+      assertTrue(m.match(n));
+      assertFalse(m.isEqual(n));
+      assertFalse(n.isEqual(m));
+      
+      Type AR = tf.constructor(store, Hello, "aurevoir", tf.stringType(), "greeting");
+      store.declareKeywordParameter(AR, "x", tf.integerType());
+      
+      final IConstructor a = vf.constructor(AR, vf.string("bye"));
+      final IConstructor b = a.asWithKeywordParameters().setParameter("x", vf.integer(0));
+      
+      assertFalse(a.equals(b));
+      assertFalse(b.equals(a));
+      assertTrue(a.match(b));
+      assertTrue(b.match(a));
+      assertFalse(b.isEqual(a));
+      assertFalse(a.isEqual(b));
+  }
 }
