@@ -14,6 +14,7 @@ package io.usethesource.vallang.impl.fast;
 import java.util.Iterator;
 import java.util.Map;
 
+import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
@@ -23,8 +24,6 @@ import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-
-import io.usethesource.capsule.util.iterator.ArrayIterator;
 
 /**
  * Implementation of INode.

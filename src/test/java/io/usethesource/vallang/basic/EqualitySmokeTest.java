@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
@@ -138,5 +139,92 @@ public final class EqualitySmokeTest {
 
     // unidirectional: c -> n = false
     assertFalse(c.isEqual(n));
+  }
+  
+  @Test
+  public void testNodeMatch() {
+      final INode n = vf.node("hello");
+      final INode m = n.asWithKeywordParameters().setParameter("x", vf.integer(0));
+      
+      assertFalse(n.equals(m));
+      assertFalse(m.equals(n));
+      assertTrue(n.match(m));
+      assertTrue(m.match(n));
+      assertFalse(m.isEqual(n));
+      assertFalse(n.isEqual(m));
+      
+      final INode a = vf.node("hello", vf.string("bye"));
+      final INode b = a.asWithKeywordParameters().setParameter("x", vf.integer(0));
+      
+      assertFalse(a.equals(b));
+      assertFalse(b.equals(a));
+      assertTrue(a.match(b));
+      assertTrue(b.match(a));
+      assertTrue(a.match(a));
+      assertTrue(b.match(b));
+      assertFalse(b.isEqual(a));
+      assertFalse(a.isEqual(b));
+      
+      assertTrue(vf.list(a).match(vf.list(b)));
+      assertTrue(vf.list(b).match(vf.list(a)));
+      assertTrue(vf.set(a).match(vf.set(b)));
+      assertTrue(vf.set(b).match(vf.set(a)));
+      assertTrue(vf.tuple(a).match(vf.tuple(b)));
+      assertTrue(vf.tuple(b).match(vf.tuple(a)));
+      
+      final IMapWriter map1 = vf.mapWriter();
+      final IMapWriter map2 = vf.mapWriter();
+      map1.put(a, vf.integer(0));
+      map2.put(b, vf.integer(0));
+      assertTrue(map1.done().match(map2.done()));
+  }
+  
+  @Test
+  public void testConstructorMatch() {
+      final TypeStore store = new TypeStore();
+      final Type Hello = tf.abstractDataType(store, "Hello");
+      final Type Cons = tf.constructor(store, Hello, "bye");
+      store.declareKeywordParameter(Cons, "x", tf.integerType());
+      
+      final IConstructor n = vf.constructor(Cons);
+      final IConstructor m = n.asWithKeywordParameters().setParameter("x", vf.integer(0));
+      
+      assertFalse(n.equals(m));
+      assertFalse(m.equals(n));
+      assertTrue(n.match(m));
+      assertTrue(m.match(n));
+      assertTrue(n.match(n));
+      assertTrue(m.match(m));
+      assertFalse(m.isEqual(n));
+      assertFalse(n.isEqual(m));
+      
+      Type AR = tf.constructor(store, Hello, "aurevoir", tf.stringType(), "greeting");
+      store.declareKeywordParameter(AR, "x", tf.integerType());
+      
+      final IConstructor a = vf.constructor(AR, vf.string("bye"));
+      final IConstructor b = a.asWithKeywordParameters().setParameter("x", vf.integer(0));
+      
+      assertFalse(a.equals(b));
+      assertFalse(b.equals(a));
+      assertTrue(a.match(b));
+      assertTrue(b.match(a));
+      assertTrue(a.match(a));
+      assertTrue(b.match(b));
+      assertFalse(b.isEqual(a));
+      assertFalse(a.isEqual(b));
+      
+      assertTrue(vf.list(a).match(vf.list(b)));
+      assertTrue(vf.list(b).match(vf.list(a)));
+      assertTrue(vf.set(a).match(vf.set(b)));
+      assertTrue(vf.set(b).match(vf.set(a)));
+      assertTrue(vf.tuple(a).match(vf.tuple(b)));
+      assertTrue(vf.tuple(b).match(vf.tuple(a)));
+      
+      final IMapWriter map1 = vf.mapWriter();
+      final IMapWriter map2 = vf.mapWriter();
+      map1.put(a, vf.integer(0));
+      map2.put(b, vf.integer(0));
+      assertTrue(map1.done().match(map2.done()));
+      
   }
 }

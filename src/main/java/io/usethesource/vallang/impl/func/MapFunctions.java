@@ -194,16 +194,27 @@ public final class MapFunctions {
           IMap map2 = (IMap) other;
 
           if (map1.size() == map2.size()) {
+              next:for (IValue k1 : map1) {
+                  IValue v1 = get(vf, map1, k1);
+                  
+                  for (Iterator<IValue> iterator = map2.iterator(); iterator.hasNext();) {
+                      IValue k2 = iterator.next();
+                      if (k2.match(k1)) {
+                          IValue v2 = get(vf, map2, k2);
 
-            for (IValue k1 : map1) {
-              if (containsMatchingKey(vf, map2, k1) == false) { // call to IValue.match(IValue)
-                return false;
-              } else if (map2.get(k1).match(map1.get(k1)) == false) { // call to IValue.isEqual(IValue)
-                return false;
+                          if (!v2.match(v1)) {
+                              return false;
+                          }
+                          else {
+                              continue next; // this key is co
+                          }
+                      }
+                  }
+                  
+                  return false; // no matching key found for k1
               }
-            }
 
-            return true;
+              return true;
           }
         }
 

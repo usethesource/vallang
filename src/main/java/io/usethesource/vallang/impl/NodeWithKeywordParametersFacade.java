@@ -11,6 +11,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl;
 
+import static io.usethesource.vallang.util.EqualityUtils.KEYWORD_PARAMETER_COMPARATOR;
+
 import java.util.Iterator;
 
 import io.usethesource.capsule.Map;
@@ -18,12 +20,12 @@ import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.io.StandardTextWriter;
-import io.usethesource.vallang.visitors.IValueVisitor;
-import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class NodeWithKeywordParametersFacade implements INode {
 	protected final INode content;
@@ -97,16 +99,16 @@ public class NodeWithKeywordParametersFacade implements INode {
 	    return false;
 	  }
 
-	  if (other instanceof NodeWithKeywordParametersFacade) {
-		  NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
-		  
-		  // TODO: this equals is fishy
-		  return content.isEqual(o.content) && o.parameters.equals(parameters);
-	  }
-	  
-	  return false;
+		if (other instanceof NodeWithKeywordParametersFacade) {
+			NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
+
+			return content.isEqual(o.content)
+					&& KEYWORD_PARAMETER_COMPARATOR.equals(parameters, o.parameters);
+		}
+
+		return false;
 	}
-	
+
 	@Override
     public boolean match(IValue other) {
       if (other instanceof NodeWithKeywordParametersFacade) {

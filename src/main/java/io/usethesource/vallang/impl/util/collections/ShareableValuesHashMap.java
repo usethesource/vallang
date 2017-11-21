@@ -393,9 +393,6 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
         if(other == null) {
             return false;
         }
-        if(other.currentHashCode != currentHashCode) { 
-            return false;
-        }
         if(other.size() != size()) {
             return false;
         }
@@ -410,8 +407,13 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
             IValue thisValue = get(entry.getKey());
             
             if (thisValue == null) {
-                // Means the key from other is not present in this
-                return false; 
+                // Means the key from other is not present in this map with the same hash code
+                for (Entry<IValue,IValue> e : data) {
+                    if (e != null && e.getKey().match(entry.getKey())) {
+                        thisValue = e.getValue();
+                        break;
+                    }
+                }
             }
             
             if(otherValue != thisValue 

@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import io.usethesource.capsule.Map;
+import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.IMap;
@@ -27,9 +28,9 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.EqualityUtils;
 
 public final class PersistentHashMap extends AbstractMap {
-		
-	@SuppressWarnings("unchecked")
-	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
+
+	private static final EqualityComparator<Object> equivalenceComparator =
+			EqualityUtils.getEquivalenceComparator();
 	
 	private Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag;
@@ -152,6 +153,9 @@ public final class PersistentHashMap extends AbstractMap {
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
 
+			if (this.getType() != that.getType())
+				return false;
+
 			if (this.size() != that.size())
 				return false;
 
@@ -187,6 +191,15 @@ public final class PersistentHashMap extends AbstractMap {
 			return true;
 		if (other == null)
 			return false;
+
+		if (other instanceof PersistentHashMap) {
+			PersistentHashMap that = (PersistentHashMap) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return content.equivalent(that.content, equivalenceComparator);
+		}
 
 		if (other instanceof IMap) {
 			IMap that = (IMap) other;

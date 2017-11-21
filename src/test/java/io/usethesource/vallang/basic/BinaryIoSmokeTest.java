@@ -22,6 +22,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Random;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.Setup;
@@ -191,19 +192,29 @@ public final class BinaryIoSmokeTest {
       iopRoundTrip(tp, seed);
     }
   }
-  
+
   @Test
   public void testDeepRandomValuesIO() {
-    TypeFactory tf = TypeFactory.getInstance();
-    TypeStore ts = new TypeStore();
     Random r = new Random();
     int seed = r.nextInt();
-    r.setSeed(seed);
+
+    testDeepRandomValuesIO(seed);
+  }
+
+  private void testDeepRandomValuesIO(int seed) {
+    TypeFactory tf = TypeFactory.getInstance();
+    TypeStore ts = new TypeStore();
+    Random r = new Random(seed);
     RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6);
     for (int i = 0; i < 1000; i++) {
         IValue val = gen.generate(tf.valueType(), ts, null);
         ioRoundTrip(val, seed);
     }
+  }
+
+  @Test
+  public void testDeepRandomValuesIORegressions() {
+    testDeepRandomValuesIO(1544959898);
   }
 
   @Test
@@ -238,6 +249,19 @@ public final class BinaryIoSmokeTest {
 
     ioRoundTrip(vf.constructor(cons, vf.integer(42)), 0);
   }
+  
+  @Test
+  public void testAliasedTupleInAdt() {
+    TypeStore ts = new TypeStore();
+    TypeFactory tf = TypeFactory.getInstance();
+    Type aliased = tf.aliasType(ts, "XX", tf.integerType());
+    Type tuple = tf.tupleType(aliased, tf.stringType());
+    Type adt = tf.abstractDataType(ts, "A");
+    Type cons = tf.constructor(ts, adt, "b", tuple);
+
+    ioRoundTrip(vf.constructor(cons, vf.tuple(vf.integer(1), vf.string("a"))), 0);
+  }
+  
 
   private void iopRoundTrip(Type tp, int seed) {
     try {
@@ -274,6 +298,23 @@ public final class BinaryIoSmokeTest {
               + "\n\t" + result + " : " + result.getType();
           System.err.println(message);
           fail(message);
+        }
+        else if (value.getType() != result.getType()) {
+          String message = "Type's not equal: (seed: " + seed + ") \n\t" + value.getType() 
+              + "\n\t" + result.getType();
+          System.err.println(message);
+          fail(message);
+        }
+        else if (value instanceof IConstructor) {
+            Type expectedConstructorType = ((IConstructor)value).getConstructorType();
+            Type returnedConstructorType = ((IConstructor)result).getConstructorType();
+            if (expectedConstructorType != returnedConstructorType) {
+                String message = "Constructor Type's not equal: (seed: " + seed + ") \n\t" + expectedConstructorType 
+                + "\n\t" + returnedConstructorType;
+                System.err.println(message);
+          fail(message);
+                
+            }
         }
       }
     } catch (IOException ioex) {

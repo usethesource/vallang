@@ -11,23 +11,26 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
+import java.util.Iterator;
+import java.util.Objects;
+
 import io.usethesource.capsule.Set;
+import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractSet;
-import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.impl.DefaultRelationViewOnSet;
 import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
-
-import java.util.Iterator;
-import java.util.Objects;
-
-import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceComparator;
+import io.usethesource.vallang.util.AbstractTypeBag;
+import io.usethesource.vallang.util.EqualityUtils;
 
 public final class PersistentHashSet extends AbstractSet {
+
+  private static final EqualityComparator<Object> equivalenceComparator =
+      EqualityUtils.getEquivalenceComparator();
 
   private Type cachedSetType;
   private final AbstractTypeBag elementTypeBag;
@@ -183,6 +186,15 @@ public final class PersistentHashSet extends AbstractSet {
       return true;
     if (other == null)
       return false;
+
+    if (other instanceof PersistentHashSet) {
+      PersistentHashSet that = (PersistentHashSet) other;
+
+      if (this.size() != that.size())
+        return false;
+
+      return content.equivalent(that.content, equivalenceComparator);
+    }
 
     if (other instanceof ISet) {
       ISet that = (ISet) other;
