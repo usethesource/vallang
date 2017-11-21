@@ -169,7 +169,14 @@ public final class EqualitySmokeTest {
       assertTrue(vf.list(b).match(vf.list(a)));
       assertTrue(vf.set(a).match(vf.set(b)));
       assertTrue(vf.set(b).match(vf.set(a)));
+      assertTrue(vf.tuple(a).match(vf.tuple(b)));
+      assertTrue(vf.tuple(b).match(vf.tuple(a)));
       
+      final IMapWriter map1 = vf.mapWriter();
+      final IMapWriter map2 = vf.mapWriter();
+      map1.put(a, vf.integer(0));
+      map2.put(b, vf.integer(0));
+      assertTrue(map1.done().match(map2.done()));
   }
   
   @Test
@@ -210,6 +217,8 @@ public final class EqualitySmokeTest {
       assertTrue(vf.list(b).match(vf.list(a)));
       assertTrue(vf.set(a).match(vf.set(b)));
       assertTrue(vf.set(b).match(vf.set(a)));
+      assertTrue(vf.tuple(a).match(vf.tuple(b)));
+      assertTrue(vf.tuple(b).match(vf.tuple(a)));
       
       final IMapWriter map1 = vf.mapWriter();
       final IMapWriter map2 = vf.mapWriter();
