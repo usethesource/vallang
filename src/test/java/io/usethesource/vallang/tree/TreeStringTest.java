@@ -21,12 +21,13 @@ public final class TreeStringTest {
 		return Setup.valueFactories();
 	}
 	
-	private IString genString(int n) {
+	private IString genString(int n, int balance) {
 		String[] s = {"a", "b", "c", "d", "e", "f"};
 		IString result = vf.string(s[0]);
 		for (int i=1;i<n; i++) {
-			result = result.concat(vf.string(s[i%6]));
+		    result = result.concat(vf.string(s[i%6]));
 			// result = vf.string(s[i%6]).concat(result);
+			if (balance>0 && i%balance==0) result = result.balance();
 		}
 		return result;
 	}
@@ -104,31 +105,31 @@ public final class TreeStringTest {
 	}
 	@Test
 	public void testBalanceFactor() {
+		int N = 10000;
 		StringValue.setMaxFlatString(1);
-		StringValue.setBalance(true);
+		StringValue.setBalance(0);
 		long startTime = System.nanoTime();
-		IString example3 = genString(10000);
+		IString example3 = genString(N, -1);
 		long estimatedTime = (System.nanoTime() - startTime)/1000000;
-		System.out.println("Balanced "+example3.balanceFactor()+" "+estimatedTime+"ms");	
-		assertTrue(example3.balanceFactor()<=1 && example3.balanceFactor()>=-1);
-		//System.out.println();
-		
-		StringValue.setMaxFlatString(1);
-		StringValue.setBalance(false);
-		startTime = System.nanoTime();
-		example3 = genString(10000);
-		estimatedTime = (System.nanoTime() - startTime)/1000000;
-		System.out.println("Unbalanced "+example3.balanceFactor()+" "+estimatedTime+"ms");	
-		assertTrue(example3.balanceFactor()<=1000000 && example3.balanceFactor()>=-1000000);
-		//System.out.println();
-		
-		StringValue.setMaxFlatString(100000);
-		StringValue.setBalance(false);
-		startTime = System.nanoTime();
-		example3 = genString(10000);
-		estimatedTime = (System.nanoTime() - startTime)/1000000;
-		System.out.println("Simple "+example3.balanceFactor()+" "+estimatedTime+"ms");	
+		System.out.println("Balanced "+example3.balanceFactor()+" "+example3.length()+" "+estimatedTime+"ms");	
 		assertTrue(example3.balanceFactor()<=1 && example3.balanceFactor()>=-1);
 		System.out.println();
+		StringValue.setMaxFlatString(1);
+		StringValue.setBalance(1500);
+		startTime = System.nanoTime();
+		example3 = genString(N, -1).balance();
+		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("Balanced2 "+example3.balanceFactor()+" "+example3.length()+" "+estimatedTime+"ms");	
+		assertTrue(example3.balanceFactor()<=1 && example3.balanceFactor()>=-1);
+		System.out.println();
+		StringValue.setMaxFlatString(100000);
+		StringValue.setBalance(-1);
+		startTime = System.nanoTime();
+		IString example4 = genString(N, -1);
+		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("Simple "+example4.balanceFactor()+" "+example4.length()+" "+estimatedTime+"ms");	
+		assertTrue(example4.balanceFactor()<=1 && example4.balanceFactor()>=-1);
+		System.out.println();
+		assertEqual(example3, example4);
 	}
 }

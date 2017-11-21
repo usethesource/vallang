@@ -89,6 +89,8 @@ public interface IString extends IValue {
      * The difference in depth between the right end the left branch (=1 in a leaf)
      */
     int balanceFactor();
-    
-
+    /***
+     *  balances the Stringtree
+     */
+    IString balance();
 }

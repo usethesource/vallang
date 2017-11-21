@@ -37,9 +37,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
 	private static int MAX_FLAT_STRING = 512;
 	
-	private static boolean balance = true;
+	private static int balance = -1;
 	
-	static public void setBalance(boolean balance) {
+	/*
+	 * balance == -1 : Unbalanced tree
+	 * balance == 0  : Fully balanced tree
+	 * balance == n  : Balancing tree occurs when balanceFactor is greater equal to n
+	 */
+	static public void setBalance(int balance) {
 		StringValue.balance = balance;
 	}
 	
@@ -316,6 +321,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int balanceFactor() {
 			return 1;
 		}
+
+		@Override
+		public IString balance() {
+			// TODO Auto-generated method stub
+			return this;
+		}
 	}
 
 	private static class SimpleUnicodeString extends FullUnicodeString {
@@ -386,8 +397,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private static interface IStringTreeNode extends IString {
 		int depth();
 		default IStringTreeNode lazyConcat(IStringTreeNode other) {
-					BinaryBalancedLazyConcatString result = new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
-		   if (StringValue.balance) result = BinaryBalancedLazyConcatString.balance(result);
+			// System.out.println("lazyConcat");
+		   BinaryBalancedLazyConcatString result = new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
+		   if (StringValue.balance==0) result = BinaryBalancedLazyConcatString.balance(result);
+		   else
+		   if (StringValue.balance>0 && Math.abs(result.balanceFactor())>=StringValue.balance) result = BinaryBalancedLazyConcatString.balance(result);
 		   return result;
 		}
 
@@ -601,7 +615,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		// TODO: this needs a unit test
 		public IString substring(int start, int end) {
 			assert end >= start;
 
@@ -698,21 +711,22 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		static  BinaryBalancedLazyConcatString balance(BinaryBalancedLazyConcatString t) {
 			IStringTreeNode l = t.left; 
 			IStringTreeNode r = t.right; 
-			
-			if (l instanceof BinaryBalancedLazyConcatString && l.depth()>2)  l = balance((BinaryBalancedLazyConcatString) l);
-			if (r instanceof BinaryBalancedLazyConcatString && r.depth()>2)  r = balance((BinaryBalancedLazyConcatString) r);
+			if (t.balanceFactor()<=-0 || t.balanceFactor()>=0) 
+			{
+			    if (l instanceof BinaryBalancedLazyConcatString && l.depth()>2)  l = balance((BinaryBalancedLazyConcatString) l);
+			    if (r instanceof BinaryBalancedLazyConcatString && r.depth()>2)  r = balance((BinaryBalancedLazyConcatString) r);
+			}	          
 			
 			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(l, r);
-			// BinaryBalancedLazyConcatString p = t;
-			if (p.balanceFactor()>=2) {
-				  if (p.right.balanceFactor()<0) 
+			while (p.balanceFactor()>=2) {
+				  if (p.right.balanceFactor()<=0) 
 				       p = (BinaryBalancedLazyConcatString) p.rotateRightLeft();
 				  else
 					   p = (BinaryBalancedLazyConcatString) p.rotateLeft();
 				  
-			} else
-			if (p.balanceFactor()<=-2) {
-				 if (p.left.balanceFactor()>0) 
+			} 
+			while (p.balanceFactor()<=-2) {
+				 if (p.left.balanceFactor()>=0) 
 				       p = (BinaryBalancedLazyConcatString) p.rotateLeftRight();
 				 else
 					   p = (BinaryBalancedLazyConcatString) p.rotateRight();
@@ -724,6 +738,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public int balanceFactor() {
 			return this.right.depth()-this.left.depth();
+		}
+
+		@Override
+		public IString balance() {
+			// TODO Auto-generated method stub
+			return BinaryBalancedLazyConcatString.balance(this);
 		}
 	}
 
