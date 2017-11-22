@@ -18,7 +18,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import io.usethesource.vallang.IAnnotatable;
@@ -31,26 +33,81 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
- * Implementation of IString.
+ * Implementations of IString.
  */
 /* package */ public class StringValue {
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
 	private static int MAX_FLAT_STRING = 512;
-	
-	private static int balance = -1;
-	
-	/*
-	 * balance == -1 : Unbalanced tree
-	 * balance == 0  : Fully balanced tree
-	 * balance == n  : Balancing tree occurs when balanceFactor is greater equal to n
-	 */
-	static public void setBalance(int balance) {
-		StringValue.balance = balance;
-	}
-	
+	private static int MAX_UNBALANCE = 1;
+
+	/** for testing purposes we can set the max flat string value */
 	static public void  setMaxFlatString(int maxFlatString) {
 		MAX_FLAT_STRING = maxFlatString;
 	}
+
+	/** for testing and tuning purposes we can set the max unbalance factor */
+    static public void setMaxUnbalance(int maxUnbalance) {
+        MAX_UNBALANCE = maxUnbalance;
+    }
+    
+    /** 
+     * This method is for tuning and benchmarking purposes only.
+     * It uses internal implementation details of IString values.
+     * 
+     */
+    static public boolean tuneBalancedTreeParameters() {
+        int N = 10000;
+        StringValue.setMaxFlatString(1);
+        StringValue.setMaxUnbalance(0);
+        long startTime = System.nanoTime();
+        IStringTreeNode example3 = (IStringTreeNode) genString(N, -1);
+        long estimatedTime = (System.nanoTime() - startTime)/1000000;
+
+        System.out.println("Balanced " + example3.balanceFactor() + " " + example3.length() + " " + estimatedTime + "ms");
+        
+        
+//        assert example3.balanceFactor() <= 1 && example3.balanceFactor() >= -1;
+        
+        System.out.println();
+        StringValue.setMaxFlatString(1);
+        StringValue.setMaxUnbalance(1500);
+        startTime = System.nanoTime();
+        
+        example3 = genString(N, -1);
+        estimatedTime = (System.nanoTime() - startTime)/1000000;
+        System.out.println("Balanced2 " + example3.balanceFactor() + " " + example3.length() + " " + estimatedTime + "ms");
+        
+        // this one I don't understand
+//        assert example3.balanceFactor() <= 1 && example3.balanceFactor() >= -1;
+        
+        System.out.println();
+        StringValue.setMaxFlatString(100000);
+        StringValue.setMaxUnbalance(-1);
+        
+        startTime = System.nanoTime();
+        IStringTreeNode example4 = genString(N, -1);
+        estimatedTime = (System.nanoTime() - startTime)/1000000;
+        System.out.println("Simple " + example4.balanceFactor() + " " + example4.length() + " " + estimatedTime + "ms");
+        
+//        assert example4.balanceFactor() <= 1 && example4.balanceFactor() >= -1;
+        
+        System.out.println();
+        assert example3.equals(example4);
+        
+        return true;
+    }
+    
+    private static IStringTreeNode genString(int n, int balance) {
+        String[] s = {"a", "b", "c", "d", "e", "f"};
+        IString result = newString(s[0]);
+        for (int i=1;i<n; i++) {
+            result = result.concat(newString(s[i%6]));
+            // result = vf.string(s[i%6]).concat(result);
+//          if (balance>0 && i%balance==0) result = result.balance();
+        }
+        
+        return (IStringTreeNode) result;
+    }
 
 	/* package */ static IString newString(String value) {
 		if (value == null) {
@@ -59,14 +116,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		return newString(value, containsSurrogatePairs(value));
 	}
-	/*
-	 * static IString newTreeString(String value) { if
-	 * (value.length()<MAX_FLAT_STRING) return newString(value); IString root =
-	 * newString(value.substring(0, MAX_FLAT_STRING));
-	 * value=value.substring(MAX_FLAT_STRING); while(!value.isEmpty()) { String s =
-	 * value.substring(0, MAX_FLAT_STRING); value=value.substring(MAX_FLAT_STRING);
-	 * root.lazyConcat(newString(s)); } return root; }
-	 */
 
 	/* package */ static IString newString(String value, boolean fullUnicode) {
 		if (value == null) {
@@ -126,7 +175,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 				return StringValue.newString(buffer.toString(), true);
 			} else {
-				return lazyConcat((IStringTreeNode) other);
+				return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other);
 			}
 		}
 
@@ -134,10 +183,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int compare(IString other) {
 			int result = value.compareTo(other.getValue());
 
-			if (result > 0)
+			if (result > 0) {
 				return 1;
-			if (result < 0)
+			}
+			if (result < 0) {
 				return -1;
+			}
 
 			return 0;
 		}
@@ -152,10 +203,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		public boolean equals(Object o) {
-			if (o == null)
+			if (o == null) {
 				return false;
-			if (this == o)
+			}
+			if (this == o) {
 				return true;
+			}
 			if (o.getClass() == getClass()) {
 				FullUnicodeString otherString = (FullUnicodeString) o;
 				return value.equals(otherString.value);
@@ -317,16 +370,24 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			w.write(value);
 		}
 
-		@Override
-		public int balanceFactor() {
-			return 1;
-		}
+        @Override
+        public Iterator<Character> iterator() {
+            return new Iterator<Character> () {
+                private int cur = 0;
 
-		@Override
-		public IString balance() {
-			// TODO Auto-generated method stub
-			return this;
-		}
+                public boolean hasNext() {
+                    return cur < value.length();
+                }
+
+                public Character next() {
+                    return value.charAt(cur++);
+                }
+
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        }
 	}
 
 	private static class SimpleUnicodeString extends FullUnicodeString {
@@ -356,11 +417,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public int depth() {
-			return 1;
-		}
-
-		@Override
 		public int charAt(int index) {
 			return value.charAt(index);
 		}
@@ -389,78 +445,93 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 				return StringValue.newString(buffer.toString(), other.getClass() != getClass());
 			} else {
-				return lazyConcat((IStringTreeNode) other); // IString lazyConcat?
+				return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other); 
 			}
 		}
 	}
 
-	private static interface IStringTreeNode extends IString {
-		int depth();
-		default IStringTreeNode lazyConcat(IStringTreeNode other) {
-			// System.out.println("lazyConcat");
-		   BinaryBalancedLazyConcatString result = new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
-		   if (StringValue.balance==0) result = BinaryBalancedLazyConcatString.balance(result);
-		   else
-		   if (StringValue.balance>0 && Math.abs(result.balanceFactor())>=StringValue.balance) result = BinaryBalancedLazyConcatString.balance(result);
-		   return result;
-		}
+	/**
+     * Concatenation must be fast when generating large strings (for example by a
+     * Rascal program which uses `+` and template expansion. With the basic
+     * implementation the left-hand side of the concat would always need to be
+     * copied using System.arraycopy somewhere. For large prefixes this becomes a
+     * bottleneck. The worst case execution time is in O(n^2) where n is the length
+     * of the produced string. The smaller the steps taken (the more concat
+     * operations) towards this length, the worse it gets.
+     * 
+     * A simple solution is to build a binary tree of concatenation nodes which can
+     * later be streamed in a linear fashion. That's a good solution because it is
+     * an easy immutable implementation. However, the trees can become quite
+     * unbalanced and therefore extremely deep (consider a number of Rascal for
+     * loops in a template). The recursion required to stream such a tree would run
+     * out of stack space regularly (we know from experience).
+     * 
+     * So the current implementation of a lazy concat string _balances_ the tree to
+     * maintain an invariant of an (almost) balanced tree. The worst case depth of
+     * the tree will alway be in O(log(length)). We flatten out strings below 512
+     * characters because the System.arraycopy below that number is still really
+     * efficient. The cost we pay for balancing the tree is in O(log(length)), so
+     * concat is now in O(log(length)) instead of in O(1), all to avoid the
+     * StackOverflow.
+     * 
+     * Note that an implementation with a destructively updated linked list would be
+     * much faster, but due to immutability and lots of sharing of IStrings this is
+     * not feasible.
+     */
+	private static interface IStringTreeNode extends IString, Iterable<Character> {
+		/** 
+         * The leaf nodes have depth one; should be computed by the binary node
+         */
+        default int depth() {
+            return 1;
+        }
 
-		default IStringTreeNode rotateLeft() {
-			// TODO; this is just an idea to start implementig an AVL tree
-			// should be overriden in BinaryBalancedLazyConcatString
-			
-			return this;
-		}
-
-		default IStringTreeNode rotateRight() {
-			// TODO; this is just an idea to start implementig an AVL tree
-			// should be overriden in BinaryBalancedLazyConcatString
-			return this;
+        /** 
+         * all tree nodes must always be almost fully balanced 
+         * */
+		default boolean invariant() {
+		    return Math.abs(balanceFactor()) - 1 <= MAX_UNBALANCE ;
 		}
 		
-		default IStringTreeNode rotateLeftRight() {
-			// TODO; this is just an idea to start implementig an AVL tree
-			// should be overriden in BinaryBalancedLazyConcatString
-			
-			return this;
-		}
-
-		default IStringTreeNode rotateRightLeft() {
-			// TODO; this is just an idea to start implementig an AVL tree
-			// should be overriden in BinaryBalancedLazyConcatString
-			return this;
-		}
+		/**
+	     * The difference in depth between the right end the left branch (=1 in a leaf)
+	     */
+	    default int balanceFactor() {
+	        return 0;
+	    }
+	    
+	    /** 
+         *  Should be overridden by the binary node and never called on the
+         *  leaf nodes because they are not out of balance.
+         */
+        default IStringTreeNode left() {
+            throw new UnsupportedOperationException();
+        }
+        
+        /** 
+         *  Should be overridden by the binary node and never called on the
+         *  leaf nodes because they are not out of balance.
+         */
+        default IStringTreeNode right() {
+            throw new UnsupportedOperationException();
+        }
+        
+	    default IStringTreeNode rotateRight() {
+	        return this;
+	    }
+        
+        default IStringTreeNode rotateLeft() {
+            return this;   
+        }
+        
+        default IStringTreeNode rotateRightLeft() {
+            return this;
+        }
+        
+        default IStringTreeNode rotateLeftRight() {
+            return this;
+        }
 	}
-
-	/**
-	 * Concatenation must be fast when generating large strings (for example by a
-	 * Rascal program which uses `+` and template expansion. With the basic
-	 * implementation the left-hand side of the concat would always need to be
-	 * copied using System.arraycopy somewhere. For large prefixes this becomes a
-	 * bottleneck. The worst case execution time is in O(n^2) where n is the length
-	 * of the produced string. The smaller the steps taken (the more concat
-	 * operations) towards this length, the worse it gets.
-	 * 
-	 * A simple solution is to build a binary tree of concatenation nodes which can
-	 * later be streamed in a linear fashion. That's a good solution because it is
-	 * an easy immutable implementation. However, the trees can become quite
-	 * unbalanced and therefore extremely deep (consider a number of Rascal for
-	 * loops in a template). The recursion required to stream such a tree would run
-	 * out of stack space regularly (we know from experience).
-	 * 
-	 * So the current implementation of a lazy concat string _balances_ the tree to
-	 * maintain an invariant of an (almost) balanced tree. The worst case depth of
-	 * the tree will alway be in O(log(length)). We flatten out strings below 512
-	 * characters because the System.arraycopy below that number is still really
-	 * efficient. The cost we pay for balancing the tree is in O(log(length)), so
-	 * concat is now in O(log(length)) instead of in O(1), all to avoid the
-	 * StackOverflow.
-	 * 
-	 * Note that an implementation with a destructively updated linked list would be
-	 * much faster, but due to immutability and lots of sharing of IStrings this is
-	 * not feasible.
-	 */
-
 
 	private static class BinaryBalancedLazyConcatString extends AbstractValue implements IStringTreeNode {
 		private final IStringTreeNode left; /* must remain final for immutability's sake */
@@ -468,11 +539,52 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		private final int length;
 		private final int depth;
 
-		public BinaryBalancedLazyConcatString(IStringTreeNode left, IStringTreeNode right) {
+		public static IStringTreeNode build(IStringTreeNode left, IStringTreeNode right) {
+		    assert left.invariant() && right.invariant();
+		    
+		    // How can it not be balanced? we have an invariant...
+//		    if (left.depth() > 2) {
+//		        left = balance(left.left(), left.right());
+//		    }
+//		    
+//		    if (right.depth() > 2) {
+//		        right = balance(right.left(), right.right());
+//		    }
+		    
+		    IStringTreeNode result = balance(left, right);
+		    
+		    assert result.invariant();
+		    return result;
+		}
+
+        private static IStringTreeNode balance(IStringTreeNode left, IStringTreeNode right) {
+            IStringTreeNode result = new BinaryBalancedLazyConcatString(left, right);
+            
+            while (result.balanceFactor() - 1 > MAX_UNBALANCE) {
+                if (result.right().balanceFactor() < 0) {
+                    result = result.rotateRightLeft();
+                } else {
+                    result = result.rotateLeft();
+                }
+            }
+            
+            while (result.balanceFactor() + 1 < -MAX_UNBALANCE) {
+                if (result.left().balanceFactor() > 0) {
+                    result = result.rotateLeftRight();
+                }
+                else {
+                    result = result.rotateRight();
+                }
+            }
+            
+            return result;
+        }
+		
+		private BinaryBalancedLazyConcatString(IStringTreeNode left, IStringTreeNode right) {
 			this.left = left;
 			this.right = right;
 			this.length = left.length() + right.length();
-			this.depth = Math.max(left.depth(), right.depth())+1;
+			this.depth = Math.max(left.depth(), right.depth()) + 1;
 		}
 
 		@Override
@@ -486,7 +598,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public boolean isEqual(IValue other) {
+		public boolean equals(Object other) {
+		    // TODO: this one should be a streaming implementation, perhaps
+		    // with to String iterators or character iterators?
 			if (!(other instanceof IString)) {
 				return false;
 			}
@@ -499,11 +613,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			if (length() != o.length()) {
 				return false;
 			}
+			
+			// TODO: this is too much memory allocation imho, hence the streaming idea
 			IString[][] r = BinaryBalancedLazyConcatString.refine(BinaryBalancedLazyConcatString.flatten(this), BinaryBalancedLazyConcatString.flatten(o));
-			if (r[0].length!=r[1].length) return false;
+			if (r[0].length != r[1].length) {
+			    return false;
+			}
+			
 			int i = 0;
-			while (i<r[0].length && r[0][i].isEqual(r[1][i])) i++;
-			return i==r[0].length;
+			while (i < r[0].length && r[0][i].isEqual(r[1][i])) {
+			    i++;
+			}
+			
+			return i == r[0].length;
 		}
 
 		static boolean isLeaf(IString a) {
@@ -596,7 +718,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString concat(IString other) {
-			return lazyConcat((IStringTreeNode) other);
+			return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other);
 		}
 
 		@Override
@@ -608,6 +730,21 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int length() {
 			return length;
 		}
+		
+		@Override
+		public IStringTreeNode left() {
+		    return left;
+		}
+		
+		@Override
+		public IStringTreeNode right() {
+		    return right;
+		}
+		
+		@Override
+		public int balanceFactor() {
+            return right().depth() - left().depth();
+        }
 		
 		@Override
 		public int depth() {
@@ -684,67 +821,52 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public IStringTreeNode rotateRight() {
-			BinaryBalancedLazyConcatString p =  new BinaryBalancedLazyConcatString(((StringValue.BinaryBalancedLazyConcatString) (this.left)).right, this.right) ;
-			return new BinaryBalancedLazyConcatString(((StringValue.BinaryBalancedLazyConcatString) (this.left)).left, p);
-		}
+            BinaryBalancedLazyConcatString p =  new BinaryBalancedLazyConcatString(left().right(), right());
+            return new BinaryBalancedLazyConcatString(left().left(), p);
+        }
 		
 		@Override
 		public IStringTreeNode rotateLeft() {
-			BinaryBalancedLazyConcatString p =  new BinaryBalancedLazyConcatString(this.left, ((StringValue.BinaryBalancedLazyConcatString) (this.right)).left) ;
-			return new BinaryBalancedLazyConcatString(p, ((StringValue.BinaryBalancedLazyConcatString) (this.right)).right);	
-		}
-		
+            IStringTreeNode p =  new BinaryBalancedLazyConcatString(left(), right().left());
+            return new BinaryBalancedLazyConcatString(p, right().right());   
+        }
+        
 		@Override
 		public IStringTreeNode rotateRightLeft() {
-			BinaryBalancedLazyConcatString r = (BinaryBalancedLazyConcatString) this.right;
-			IStringTreeNode rotateRight = new BinaryBalancedLazyConcatString(this.left, r.rotateRight());
-			return rotateRight.rotateLeft();
-		}
-		
+            IStringTreeNode rotateRight = new BinaryBalancedLazyConcatString(left(), right().rotateRight());
+            return rotateRight.rotateLeft();
+        }
+        
 		@Override
 		public IStringTreeNode rotateLeftRight() {
-			BinaryBalancedLazyConcatString l= (BinaryBalancedLazyConcatString) this.left;
-			IStringTreeNode rotateLeft = new BinaryBalancedLazyConcatString(l.rotateLeft(), this.right);
-			return rotateLeft.rotateRight();
-		}
-		
-		static  BinaryBalancedLazyConcatString balance(BinaryBalancedLazyConcatString t) {
-			IStringTreeNode l = t.left; 
-			IStringTreeNode r = t.right; 
-			if (t.balanceFactor()<=-0 || t.balanceFactor()>=0) 
-			{
-			    if (l instanceof BinaryBalancedLazyConcatString && l.depth()>2)  l = balance((BinaryBalancedLazyConcatString) l);
-			    if (r instanceof BinaryBalancedLazyConcatString && r.depth()>2)  r = balance((BinaryBalancedLazyConcatString) r);
-			}	          
-			
-			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(l, r);
-			while (p.balanceFactor()>=2) {
-				  if (p.right.balanceFactor()<=0) 
-				       p = (BinaryBalancedLazyConcatString) p.rotateRightLeft();
-				  else
-					   p = (BinaryBalancedLazyConcatString) p.rotateLeft();
-				  
-			} 
-			while (p.balanceFactor()<=-2) {
-				 if (p.left.balanceFactor()>=0) 
-				       p = (BinaryBalancedLazyConcatString) p.rotateLeftRight();
-				 else
-					   p = (BinaryBalancedLazyConcatString) p.rotateRight();
-				  
-			}
-			return p;
-		}
+            IStringTreeNode rotateLeft = new BinaryBalancedLazyConcatString(left().rotateLeft(), right());
+            return rotateLeft.rotateRight();
+        }
 
-		@Override
-		public int balanceFactor() {
-			return this.right.depth()-this.left.depth();
-		}
+        @Override
+        public Iterator<Character> iterator() {
+            return new Iterator<Character>() {
+                List<Iterator<Character>> its = Arrays.asList(left.iterator(), right.iterator());
+                
+                @Override
+                public boolean hasNext() {
+                    return !its.isEmpty() && current().hasNext();
+                }
 
-		@Override
-		public IString balance() {
-			// TODO Auto-generated method stub
-			return BinaryBalancedLazyConcatString.balance(this);
-		}
+                private Iterator<Character> current() {
+                    return its.get(0);
+                }
+
+                @Override
+                public Character next() {
+                    Character r = current().next();
+                    if (!current().hasNext()) {
+                        its.remove(0);
+                    }
+                    return r;
+                }
+                
+            };
+        }
 	}
-
 }

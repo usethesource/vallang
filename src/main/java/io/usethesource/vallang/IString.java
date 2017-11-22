@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007 IBM Corporation, 2017 Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Jurgen Vinju - initial API and implementation and extensions
 *******************************************************************************/
 
 package io.usethesource.vallang;
@@ -84,13 +84,4 @@ public interface IString extends IValue {
      * Writes the content of this string to a character writer.
      */
     void write(Writer w) throws IOException;
-    
-    /**
-     * The difference in depth between the right end the left branch (=1 in a leaf)
-     */
-    int balanceFactor();
-    /***
-     *  balances the Stringtree
-     */
-    IString balance();
 }
