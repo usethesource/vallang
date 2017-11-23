@@ -88,13 +88,11 @@ public final class TreeStringTest {
 		assertEqual(example.replace(6, 1, 6, vf.string("x")), vf.string("abcdefxgh"));
 	}
     
-	@Test
-	public void testEquals() {
-		assertTrue(vf.string("abc").concat(vf.string("de")).isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("e"))));
-	}
 	
 	@Test
 	public void testBalanceFactor() {
 	    assertTrue(StringValue.tuneBalancedTreeParameters());
 	}
+	
+	
 }

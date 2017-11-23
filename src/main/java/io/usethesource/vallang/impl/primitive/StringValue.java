@@ -39,6 +39,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
 	private static int MAX_FLAT_STRING = 512;
 	private static int MAX_UNBALANCE = 1;
+	
 
 	/** for testing purposes we can set the max flat string value */
 	static public void  setMaxFlatString(int maxFlatString) {
@@ -49,6 +50,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     static public void setMaxUnbalance(int maxUnbalance) {
         MAX_UNBALANCE = maxUnbalance;
     }
+    
+    
     
     /** 
      * This method is for tuning and benchmarking purposes only.
@@ -92,10 +95,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 //        assert example4.balanceFactor() <= 1 && example4.balanceFactor() >= -1;
         
         System.out.println();
+        // System.out.println(""+example3+" "+example4);
+        startTime = System.nanoTime();
         assert example3.equals(example4);
-        
+        assert !example3.equals(example4.replace(1, 1, 1, newString("x")));
+        estimatedTime = (System.nanoTime() - startTime)/1000000;
+        System.out.println("Equals "  + estimatedTime + "ms");
         return true;
     }
+    
     
     private static IStringTreeNode genString(int n, int balance) {
         String[] s = {"a", "b", "c", "d", "e", "f"};
@@ -144,6 +152,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 	private static class FullUnicodeString extends AbstractValue implements IString, IStringTreeNode {
 		protected final String value;
+		
+		private int hash = 0;
 
 		private FullUnicodeString(String value) {
 			super();
@@ -197,10 +207,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 			return v.visitString(this);
 		}
-
-		public int hashCode() {
-			return value.hashCode();
-		}
+		
 
 		public boolean equals(Object o) {
 			if (o == null) {
@@ -215,6 +222,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			}
 
 			return false;
+		}
+		
+		@Override
+		public int hashCode() {
+		    int h = hash;
+		    if (h==0) {
+			Iterator<Character> it = iterator();
+			while (it.hasNext()) {
+				 h += (31*h) + it.next();
+			}
+			}
+			hash =h;
+			return h;
 		}
 
 		@Override
@@ -369,7 +389,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public void write(Writer w) throws IOException {
 			w.write(value);
 		}
-
+        
         @Override
         public Iterator<Character> iterator() {
             return new Iterator<Character> () {
@@ -388,6 +408,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 }
             };
         }
+        
+
+		@Override
+		public void iterate(ArrayList<Iterator<Character>> w) {
+			w.add(iterator());		
+		}     
+        
 	}
 
 	private static class SimpleUnicodeString extends FullUnicodeString {
@@ -486,7 +513,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return 1;
         }
 
-        /** 
+        void iterate(ArrayList<Iterator<Character>> w);
+
+		/** 
          * all tree nodes must always be almost fully balanced 
          * */
 		default boolean invariant() {
@@ -516,6 +545,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             throw new UnsupportedOperationException();
         }
         
+        /**
+         * Iterator of Chars
+         */
+        default Iterator<Character> iterator() {
+            throw new UnsupportedOperationException();
+        }
+        
 	    default IStringTreeNode rotateRight() {
 	        return this;
 	    }
@@ -538,6 +574,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		private final IStringTreeNode right; /* must remain final for immutability's sake */
 		private final int length;
 		private final int depth;
+		int hash = 0;
 
 		public static IStringTreeNode build(IStringTreeNode left, IStringTreeNode right) {
 		    assert left.invariant() && right.invariant();
@@ -596,7 +633,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 			return v.visitString(this);
 		}
-
+	/*
 		@Override
 		public boolean equals(Object other) {
 		    // TODO: this one should be a streaming implementation, perhaps
@@ -627,7 +664,34 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			
 			return i == r[0].length;
 		}
+	*/
+		
 
+		@Override
+		public boolean equals(Object other) {
+			if (!(other instanceof IStringTreeNode)) {
+				return false;
+			}
+
+			if (other == this) {
+				return true;
+			}
+
+			IStringTreeNode o = (IStringTreeNode) other;
+			if (length() != o.length()) {
+				return false;
+			}
+			Iterator<Character> it1 = this.iterator();
+		    Iterator<Character> it2 = o.iterator();
+			while (it1.hasNext() && it2.hasNext()) {
+				Character c1 = it1.next();
+				Character c2 = it2.next();
+				if (c1.compareTo(c2)!=0) return false;
+			}
+			return true;
+		}
+	
+/*
 		static boolean isLeaf(IString a) {
 			return !(a instanceof BinaryBalancedLazyConcatString);
 		}
@@ -638,7 +702,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			Collections.addAll(both, second);
 			return both.toArray(new IString[both.size()]);
 		}
-
 		static IString[] flatten(IString a) {
 			IString[] result;
 			if (!isLeaf(a)) {
@@ -678,7 +741,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			}
 			return new IString[][] { (IString[]) ra.toArray(new IString[ra.size()]), (IString[]) rb.toArray(new IString[rb.size()]) };
 		}
-
+*/
 		
 		@Override
 		public boolean match(IValue other) {
@@ -819,6 +882,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			right.write(w);
 		}
 		
+		
 		@Override
 		public IStringTreeNode rotateRight() {
             BinaryBalancedLazyConcatString p =  new BinaryBalancedLazyConcatString(left().right(), right());
@@ -842,31 +906,76 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             IStringTreeNode rotateLeft = new BinaryBalancedLazyConcatString(left().rotateLeft(), right());
             return rotateLeft.rotateRight();
         }
+		
+		@Override
+		public int hashCode() {
+		    int h = hash;
+		    if (h==0) {
+			Iterator<Character> it = iterator();
+			while (it.hasNext()) {
+				 h += (31*h) + it.next();
+			}
+			}
+			hash =h;
+			return h;
+		}
+		
 
+		/*
         @Override
         public Iterator<Character> iterator() {
             return new Iterator<Character>() {
-                List<Iterator<Character>> its = Arrays.asList(left.iterator(), right.iterator());
-                
+            	Iterator<Character> it = left.iterator();
+            	boolean change = true;
+              
                 @Override
                 public boolean hasNext() {
-                    return !its.isEmpty() && current().hasNext();
-                }
-
-                private Iterator<Character> current() {
-                    return its.get(0);
+                    return it.hasNext();
                 }
 
                 @Override
                 public Character next() {
-                    Character r = current().next();
-                    if (!current().hasNext()) {
-                        its.remove(0);
+                    Character r = it.next();
+                    if (!it.hasNext()) {
+                        if (change) {
+                        	 it = right.iterator();
+                        	 change = false;
+                        }
                     }
                     return r;
                 }
                 
             };
         }
+        */
+        
+        @Override
+        public Iterator<Character> iterator() {
+            return new Iterator<Character>() {
+            	int i  = 0;
+            	ArrayList<Iterator<Character>> w = new ArrayList<Iterator<Character>>();
+            	{
+            		iterate(w);
+            	}
+				@Override
+				public boolean hasNext() {
+					return i<w.size() && (w.get(i).hasNext() || i<(w.size()-1));
+				}
+				@Override
+				public Character next() {
+					Character r = w.get(i).next();
+					if (!(w.get(i).hasNext())) i = i+1;
+					return r;
+				}
+            	};       
+            };
+            @Override
+    		public void iterate(ArrayList<Iterator<Character>> w) {
+    			left.iterate(w);
+    			right.iterate(w);;	
+        }
+
+				
+		}
 	}
-}
+
