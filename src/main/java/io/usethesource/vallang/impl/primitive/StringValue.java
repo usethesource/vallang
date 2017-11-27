@@ -70,47 +70,82 @@ import io.usethesource.vallang.visitors.IValueVisitor;
      */
     static public boolean tuneBalancedTreeParameters() {
         int N = 10000;
-        StringValue.setMaxFlatString(1);
-        StringValue.setMaxUnbalance(0);
-        long startTime = System.nanoTime();
-        IStringTreeNode example3 = (IStringTreeNode) genString(N, -1);
-        long estimatedTime = (System.nanoTime() - startTime)/1000000;
+        long startTime, estimatedTime;
+        
+        try {
+        	StringValue.setMaxFlatString(1);
+        	StringValue.setMaxUnbalance(0);
+        	startTime = System.nanoTime();
+        	IStringTreeNode example1 = (IStringTreeNode) genString(N, -1);
+        	estimatedTime = (System.nanoTime() - startTime)/1000000;
 
-        System.out.println("Balanced " + example3.balanceFactor() + " " + example3.length() + " " + estimatedTime + "ms");
-        
-        
-//        assert example3.balanceFactor() <= 1 && example3.balanceFactor() >= -1;
-        
-        System.out.println();
-        StringValue.setMaxFlatString(1);
-        StringValue.setMaxUnbalance(1500);
-        startTime = System.nanoTime();
-        
-        example3 = genString(N, -1);
-        estimatedTime = (System.nanoTime() - startTime)/1000000;
-        System.out.println("Balanced2 " + example3.balanceFactor() + " " + example3.length() + " " + estimatedTime + "ms");
-        
-        // this one I don't understand
-//        assert example3.balanceFactor() <= 1 && example3.balanceFactor() >= -1;
+        	System.out.println("Fully Balanced " + example1.balanceFactor() + " " + example1.length() + " " + estimatedTime + "ms");
+        }
+        finally {
+        	StringValue.resetMaxFlatString();
+        	StringValue.resetMaxUnbalance();
+        }
         
         System.out.println();
-        StringValue.setMaxFlatString(100000);
-        StringValue.setMaxUnbalance(-1);
         
-        startTime = System.nanoTime();
-        IStringTreeNode example4 = genString(N, -1);
-        estimatedTime = (System.nanoTime() - startTime)/1000000;
-        System.out.println("Simple " + example4.balanceFactor() + " " + example4.length() + " " + estimatedTime + "ms");
+        try {
+        	StringValue.setMaxFlatString(1);
+        	StringValue.setMaxUnbalance(1500);
+        	startTime = System.nanoTime();
+
+        	IStringTreeNode example2 = genString(N, -1);
+        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+        	System.out.println("Balanced to 1500: " + example2.balanceFactor() + " " + example2.length() + " " + estimatedTime + "ms");
+
+        }
+        finally {
+        	StringValue.resetMaxFlatString();
+        	StringValue.resetMaxUnbalance();
+        }
+
+        System.out.println();
         
-//        assert example4.balanceFactor() <= 1 && example4.balanceFactor() >= -1;
+        try {
+        	StringValue.setMaxFlatString(100000);
+        	StringValue.setMaxUnbalance(Integer.MAX_VALUE);
+
+        	startTime = System.nanoTime();
+        	IStringTreeNode example3 = genString(N, -1);
+        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+        	System.out.println("Only 1 leaf " + example3.balanceFactor() + " " + example3.length() + " " + estimatedTime + "ms");
+        }
+        finally {
+        	StringValue.resetMaxFlatString();
+        	StringValue.resetMaxUnbalance();
+        }
         
         System.out.println();
+        
         // System.out.println(""+example3+" "+example4);
-        startTime = System.nanoTime();
-        assert example3.equals(example4);
-        assert !example3.equals(example4.replace(1, 1, 1, newString("x")));
-        estimatedTime = (System.nanoTime() - startTime)/1000000;
-        System.out.println("Equals "  + estimatedTime + "ms");
+        try {
+        	StringValue.setMaxFlatString(1);
+        	StringValue.setMaxUnbalance(1500);
+        	IStringTreeNode ex1 = genString(N, -1);
+        	
+        	StringValue.setMaxFlatString(1000000);
+        	StringValue.setMaxUnbalance(-1);
+        	IStringTreeNode ex2 = genString(N, -1);
+        	
+        	startTime = System.nanoTime();
+        	assert ex1.equals(ex2);
+        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+        	System.out.println("Equals "  + estimatedTime + "ms");
+        	
+        	assert ex2.equals(ex1);
+        	assert !ex1.equals(ex2.replace(1, 1, 1, newString("x")));
+        	
+        	
+        }
+        finally {
+        	StringValue.resetMaxFlatString();
+        	StringValue.resetMaxUnbalance();
+        }
+        
         return true;
     }
     
@@ -163,8 +198,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private static class FullUnicodeString extends AbstractValue implements IString, IStringTreeNode {
 		protected final String value;
 		
-		private int hash = 0;
-
 		private FullUnicodeString(String value) {
 			super();
 
@@ -849,7 +882,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public Iterator<Character> iterator() {
-		    final List<Iterator<Character>> leafs = new ArrayList<>();
+		    final List<Iterator<Character>> leafs = new ArrayList<>(this.length / (StringValue.DEFAULT_MAX_FLAT_STRING / 2));
 		    
 		    /** 
 		     * Because the trees can be quite unbalanced and therefore very deep,
