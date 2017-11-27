@@ -37,21 +37,31 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  */
 /* package */ public class StringValue {
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
-	private static int MAX_FLAT_STRING = 512;
-	private static int MAX_UNBALANCE = 1;
 	
-
+	private static int DEFAULT_MAX_FLAT_STRING = 512;
+	private static int MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
+	
+	private static int DEFAULT_MAX_UNBALANCE = 1500;
+	private static int MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
+	
 	/** for testing purposes we can set the max flat string value */
-	static public void  setMaxFlatString(int maxFlatString) {
+	static synchronized public void  setMaxFlatString(int maxFlatString) {
 		MAX_FLAT_STRING = maxFlatString;
 	}
+	
+	/** for testing purposes we can set the max flat string value */
+    static synchronized public void  resetMaxFlatString() {
+        MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
+    }
 
 	/** for testing and tuning purposes we can set the max unbalance factor */
-    static public void setMaxUnbalance(int maxUnbalance) {
+    static synchronized public void setMaxUnbalance(int maxUnbalance) {
         MAX_UNBALANCE = maxUnbalance;
     }
     
-    
+    static synchronized public void resetMaxUnbalance() {
+        MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
+    }
     
     /** 
      * This method is for tuning and benchmarking purposes only.
@@ -426,6 +436,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			if (o.getClass() == getClass()) {
 				SimpleUnicodeString otherString = (SimpleUnicodeString) o;
 				return value.equals(otherString.value);
+			}
+			if (o.getClass() == BinaryBalancedLazyConcatString.class) {
+			    return o.equals(this);
 			}
 
 			return false;
