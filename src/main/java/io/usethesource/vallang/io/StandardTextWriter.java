@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) CWI 2009
+ * Copyright (c) CWI 2009-2017
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -502,6 +502,8 @@ public class StandardTextWriter implements IValueTextWriter {
         }
 
         private void printString(String o) throws IOException {
+            // TODO: this can be streamed and optimized, which is necessary for the BinaryBalanced IString implementations.
+            
             append('\"');
             char[] chars = o.toCharArray();
             for (int i = 0; i < chars.length; i++) {
