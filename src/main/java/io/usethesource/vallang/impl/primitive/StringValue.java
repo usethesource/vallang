@@ -216,25 +216,26 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			if (this == o) {
 				return true;
 			}
+			
 			if (o.getClass() == getClass()) {
 				FullUnicodeString otherString = (FullUnicodeString) o;
 				return value.equals(otherString.value);
+			}
+			
+			if (o.getClass() == BinaryBalancedLazyConcatString.class) {
+			    return o.equals(this);
 			}
 
 			return false;
 		}
 		
 		@Override
+		/**
+		 * Note that this algorithm can not be changed, unless you also have change BinaryBalancedTreeNode.hashCode() (to not
+		 * break the hashCode/equals contract).
+		 */
 		public int hashCode() {
-		    int h = hash;
-		    if (h==0) {
-			Iterator<Character> it = iterator();
-			while (it.hasNext()) {
-				 h += (31*h) + it.next();
-			}
-			}
-			hash =h;
-			return h;
+		    return value.hashCode();
 		}
 
 		@Override
@@ -408,13 +409,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 }
             };
         }
-        
-
-		@Override
-		public void iterate(ArrayList<Iterator<Character>> w) {
-			w.add(iterator());		
-		}     
-        
 	}
 
 	private static class SimpleUnicodeString extends FullUnicodeString {
@@ -513,8 +507,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return 1;
         }
 
-        void iterate(ArrayList<Iterator<Character>> w);
-
 		/** 
          * all tree nodes must always be almost fully balanced 
          * */
@@ -567,6 +559,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         default IStringTreeNode rotateLeftRight() {
             return this;
         }
+        
+        default void collectLeafIterators(List<Iterator<Character>> w) {
+            w.add(iterator());
+        }
 	}
 
 	private static class BinaryBalancedLazyConcatString extends AbstractValue implements IStringTreeNode {
@@ -574,19 +570,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		private final IStringTreeNode right; /* must remain final for immutability's sake */
 		private final int length;
 		private final int depth;
-		int hash = 0;
+		private int hash = 0;
 
 		public static IStringTreeNode build(IStringTreeNode left, IStringTreeNode right) {
 		    assert left.invariant() && right.invariant();
-		    
-		    // How can it not be balanced? we have an invariant...
-//		    if (left.depth() > 2) {
-//		        left = balance(left.left(), left.right());
-//		    }
-//		    
-//		    if (right.depth() > 2) {
-//		        right = balance(right.left(), right.right());
-//		    }
 		    
 		    IStringTreeNode result = balance(left, right);
 		    
@@ -633,39 +620,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 			return v.visitString(this);
 		}
-	/*
-		@Override
-		public boolean equals(Object other) {
-		    // TODO: this one should be a streaming implementation, perhaps
-		    // with to String iterators or character iterators?
-			if (!(other instanceof IString)) {
-				return false;
-			}
-
-			if (other == this) {
-				return true;
-			}
-
-			IString o = (IString) other;
-			if (length() != o.length()) {
-				return false;
-			}
-			
-			// TODO: this is too much memory allocation imho, hence the streaming idea
-			IString[][] r = BinaryBalancedLazyConcatString.refine(BinaryBalancedLazyConcatString.flatten(this), BinaryBalancedLazyConcatString.flatten(o));
-			if (r[0].length != r[1].length) {
-			    return false;
-			}
-			
-			int i = 0;
-			while (i < r[0].length && r[0][i].isEqual(r[1][i])) {
-			    i++;
-			}
-			
-			return i == r[0].length;
-		}
-	*/
-		
 
 		@Override
 		public boolean equals(Object other) {
@@ -681,68 +635,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			if (length() != o.length()) {
 				return false;
 			}
+			
 			Iterator<Character> it1 = this.iterator();
 		    Iterator<Character> it2 = o.iterator();
+		    
 			while (it1.hasNext() && it2.hasNext()) {
-				Character c1 = it1.next();
-				Character c2 = it2.next();
-				if (c1.compareTo(c2)!=0) return false;
+				if (it1.next() != it2.next()) {
+				    return false;
+				}
 			}
+			
 			return true;
 		}
 	
-/*
-		static boolean isLeaf(IString a) {
-			return !(a instanceof BinaryBalancedLazyConcatString);
-		}
-
-		static IString[] concat(IString[] first, IString[] second) {
-			List<IString> both = new ArrayList<IString>(first.length + second.length);
-			Collections.addAll(both, first);
-			Collections.addAll(both, second);
-			return both.toArray(new IString[both.size()]);
-		}
-		static IString[] flatten(IString a) {
-			IString[] result;
-			if (!isLeaf(a)) {
-				result = concat(flatten(((BinaryBalancedLazyConcatString) a).left),
-						flatten(((BinaryBalancedLazyConcatString) a).right));
-				return result;
-			}
-			return new IString[] { a };
-
-		}
-
-		static IString[][] refine(IString[] a, IString[] b) {
-			int pa = 0, pb = 0;
-			int ia = 0, ib = 0;
-			ArrayList<IString> ra = new ArrayList<IString>(), rb = new ArrayList<IString>();
-			while (ia < a.length || ib < b.length) {
-				final int len = Math.min((ia < a.length ? (a[ia].length() - pa) : Integer.MAX_VALUE),
-						ib < b.length ? (b[ib].length() - pb) : Integer.MAX_VALUE);
-				if (ia < a.length) {	
-					IString sa = a[ia].substring(pa, pa+len);
-					ra.add(sa);
-					pa += len;
-					if (pa == a[ia].length()) {
-						pa = 0;
-						ia++;
-					}
-				}
-				if (ib < b.length) {
-					IString sb = b[ib].substring(pb, pb+len);
-					rb.add(sb);
-					pb += len;
-					if (ib < b.length && pb == b[ib].length()) {
-						pb = 0;
-						ib++;
-					}
-				}
-			}
-			return new IString[][] { (IString[]) ra.toArray(new IString[ra.size()]), (IString[]) rb.toArray(new IString[rb.size()]) };
-		}
-*/
-		
 		@Override
 		public boolean match(IValue other) {
 			return isEqual(other);
@@ -908,74 +813,67 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 		
 		@Override
+		/**
+		 * Note that we used the hashcode algorithm for java.lang.String here, which is necessary because
+		 * that is also used by the other implementations of IString which must implement together with this
+		 * class the hashCode/equals contract.
+		 */
 		public int hashCode() {
 		    int h = hash;
-		    if (h==0) {
-			Iterator<Character> it = iterator();
-			while (it.hasNext()) {
-				 h += (31*h) + it.next();
-			}
-			}
-			hash =h;
-			return h;
+		    if (h == 0) {
+		        for (Character c : this) {
+		            h += (31 * h) + c;
+		        }
+		        
+		        hash = h;
+		    }
+		    
+		    return h;
 		}
 		
-
-		/*
-        @Override
-        public Iterator<Character> iterator() {
-            return new Iterator<Character>() {
-            	Iterator<Character> it = left.iterator();
-            	boolean change = true;
-              
-                @Override
-                public boolean hasNext() {
-                    return it.hasNext();
-                }
-
-                @Override
-                public Character next() {
+		@Override
+		public Iterator<Character> iterator() {
+		    final List<Iterator<Character>> leafs = new ArrayList<>();
+		    
+		    /** 
+		     * Because the trees can be quite unbalanced and therefore very deep,
+		     * allocating an iterator for every depth becomes quite expensive.
+		     * We collect here the necessary iterators of the leaf nodes only.
+		     */
+		    collectLeafIterators(leafs);
+		    
+		    return new Iterator<Character>() {
+		        int current = 0;
+		        
+		        @Override
+		        public boolean hasNext() {
+		            return iteratorHasNext(current) || iteratorHasNext(current + 1);
+		        }
+		        
+		        private boolean iteratorHasNext(int index) {
+		            return index < leafs.size() && leafs.get(index).hasNext(); 
+		        }
+		        
+		        @Override
+		        public Character next() {
+		            Iterator<Character> it = leafs.get(current);
                     Character r = it.next();
-                    if (!it.hasNext()) {
-                        if (change) {
-                        	 it = right.iterator();
-                        	 change = false;
-                        }
-                    }
-                    return r;
-                }
-                
-            };
-        }
-        */
-        
-        @Override
-        public Iterator<Character> iterator() {
-            return new Iterator<Character>() {
-            	int i  = 0;
-            	ArrayList<Iterator<Character>> w = new ArrayList<Iterator<Character>>();
-            	{
-            		iterate(w);
-            	}
-				@Override
-				public boolean hasNext() {
-					return i<w.size() && (w.get(i).hasNext() || i<(w.size()-1));
-				}
-				@Override
-				public Character next() {
-					Character r = w.get(i).next();
-					if (!(w.get(i).hasNext())) i = i+1;
-					return r;
-				}
-            	};       
-            };
-            @Override
-    		public void iterate(ArrayList<Iterator<Character>> w) {
-    			left.iterate(w);
-    			right.iterate(w);;	
-        }
-
-				
+		            
+		            if (!it.hasNext()) {
+		                // move to the next iterator
+		                current = current+1;
+		            }
+		            
+		            return r;
+		        }
+		    };       
+		};
+		
+		@Override
+		public void collectLeafIterators(List<Iterator<Character>> w) {
+		    left.collectLeafIterators(w);
+		    right.collectLeafIterators(w);;	
 		}
 	}
+}
 
