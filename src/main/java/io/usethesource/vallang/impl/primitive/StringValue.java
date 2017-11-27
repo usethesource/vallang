@@ -822,7 +822,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    int h = hash;
 		    if (h == 0) {
 		        for (Character c : this) {
-		            h += (31 * h) + c;
+		            h = 31 * h + c;
 		        }
 		        
 		        hash = h;
