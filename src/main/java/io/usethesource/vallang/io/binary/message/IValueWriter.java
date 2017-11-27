@@ -619,7 +619,7 @@ public class IValueWriter {
 
             @Override
             public void visitString(IString o) throws IOException {
-                // TODO: o is a really big binary tree string this o.getValue() duplicates the memory consumption, and it can be slow because of this. 
+                // TODO: if `o` is a really big binary tree string this o.getValue() duplicates the memory consumption, and it can be slow because of this. 
                 // We can then optimize using the writer interface or the character iterators of IString 
                 writeSingleValueMessage(writer, IValueIDs.StringValue.ID, IValueIDs.StringValue.CONTENT, o.getValue());
             }
