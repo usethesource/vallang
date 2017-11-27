@@ -653,7 +653,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    Iterator<Character> it2 = o.iterator();
 		    
 			while (it1.hasNext() && it2.hasNext()) {
-				if (it1.next() != it2.next()) {
+				Character c1 = it1.next();
+                Character c2 = it2.next();
+                
+                if (c1.compareTo(c2) != 0) {
 				    return false;
 				}
 			}
