@@ -1,6 +1,7 @@
 package io.usethesource.vallang.tree;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,16 +22,13 @@ public final class TreeStringTest {
 		return Setup.valueFactories();
 	}
 	
-	private IString example, example1, example2;
+	private IString example;
 
 	private final IValueFactory vf;
 
 	public TreeStringTest(final IValueFactory vf) {
 		this.vf = vf;
 		this.example =  vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
-		this.example1 = vf.string("ab").concat(vf.string("cd").concat(vf.string("ef").concat(vf.string("gh"))));
-		this.example2 = example.concat(example1);
-		
 	}
 
 	protected TypeFactory tf = TypeFactory.getInstance();
@@ -129,6 +127,47 @@ public final class TreeStringTest {
 		assertEqual(example.replace(6, 1, 6, vf.string("x")), vf.string("abcdefxgh"));
 	}
     
+	@Test
+	public void neverRunOutOfStack() {
+	    int outofStack = 200000;
+
+	    // first we have to know for sure that we would run out of stack with @see outOfStack iterations:
+	    try {
+	        StringValue.setMaxFlatString(1);
+	        StringValue.setMaxUnbalance(Integer.MAX_VALUE);
+	        
+	        IString v = vf.string("x");
+	        for (int i = 0; i < outofStack; i++) {
+	            v = v.concat(vf.string("-" + i));
+	        }
+	        
+	        try {
+	            System.err.println(v.toString()); // do not remove this, this is the test
+	            fail("this should run out of stack");
+	        }
+	        catch (StackOverflowError e) {
+	            // yes, that is what is expected
+	        }
+	    }
+	    finally {
+	        StringValue.resetMaxFlatString();
+	        StringValue.resetMaxUnbalance();
+	    }
+	    
+	    // then, with the maxFlatString and Unbalance parameters reset, we should _not_ run out of stack anymore:
+	    IString v = vf.string("x");
+        for (int i = 0; i < outofStack; i++) {
+            v = v.concat(vf.string("-" + i));
+        }
+        
+	    try {
+	        System.err.println(v.toString()); // do not remove this, this is the test
+	        assertTrue(true);
+	    }
+	    catch (StackOverflowError e) {
+	        fail("the tree balancer should have avoided a stack overflow");
+	    }
+	}
 	
 	@Test
 	public void testBalanceFactor() {
