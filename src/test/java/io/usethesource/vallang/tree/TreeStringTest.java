@@ -3,6 +3,9 @@ package io.usethesource.vallang.tree;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.HashMap;
+import java.util.Random;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -12,7 +15,9 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
 import io.usethesource.vallang.impl.primitive.StringValue;
+import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 @RunWith(Parameterized.class)
 public final class TreeStringTest {
@@ -26,11 +31,18 @@ public final class TreeStringTest {
 
 	private final IValueFactory vf;
 
+    private final RandomValueGenerator generator;
+
 	public TreeStringTest(final IValueFactory vf) {
 		this.vf = vf;
 		this.example =  vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
+		this.generator = new RandomValueGenerator(vf, new Random(), 10, 50);
 	}
 
+	private IString genString() {
+	    return (IString) generator.generate(tf.stringType(), new TypeStore(), new HashMap<>());
+	}
+	
 	protected TypeFactory tf = TypeFactory.getInstance();
 
 	protected void assertEqual(IValue l, IValue r) {
@@ -53,7 +65,7 @@ public final class TreeStringTest {
 	    try {
 	        StringValue.setMaxFlatString(1);
 	        StringValue.setMaxUnbalance(1);
-
+	        
 	        IString x = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
 	        IString y = vf.string("abcdefgh");
 
