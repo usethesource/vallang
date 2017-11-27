@@ -41,6 +41,7 @@ public final class TreeStringTest {
 
 	@Test
 	public void testStringLength() {
+	    assertTrue(example.substring(0, 0).length() == 0);
 		assertTrue(example.substring(0, 1).length() == 1);
 		assertTrue(example.substring(0, 2).length() == 2);
 		assertTrue(example.substring(0, 3).length() == 3);
@@ -49,6 +50,46 @@ public final class TreeStringTest {
 		assertTrue(example.substring(0, 6).length() == 6);
 	}
 
+	@Test
+	public void testEquals() {
+	    try {
+	        StringValue.setMaxFlatString(1);
+	        StringValue.setMaxUnbalance(1);
+
+	        IString x = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
+	        IString y = vf.string("abcdefgh");
+
+	        assertTrue(x.hashCode() == y.hashCode());
+	        assertTrue(x.equals(y));
+	        assertTrue(y.equals(x));
+	        assertTrue(x.substring(0,0).equals(vf.string("")));
+	    }
+	    finally {
+	        StringValue.resetMaxFlatString();
+	        StringValue.resetMaxUnbalance();
+	    }
+	}
+	
+	@Test
+    public void testEqualsUnicode() {
+        try {
+            StringValue.setMaxFlatString(1);
+            StringValue.setMaxUnbalance(1);
+
+            IString x = vf.string("a🍕b").concat(vf.string("c🍕d")).concat(vf.string("e🍕f")).concat(vf.string("g🍕h"));
+            IString y = vf.string("a🍕bc🍕de🍕fg🍕h");
+
+            assertTrue(x.hashCode() == y.hashCode());
+            assertTrue(x.equals(y));
+            assertTrue(y.equals(x));
+            assertTrue(x.substring(0,0).equals(vf.string("")));
+        }
+        finally {
+            StringValue.resetMaxFlatString();
+            StringValue.resetMaxUnbalance();
+        }
+    }
+	
 	@Test
 	public void testConcat() {
 		assertTrue(example.isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"))));  
