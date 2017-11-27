@@ -111,23 +111,23 @@ The intended effects of the toString/equals contract of **vallang** are the foll
 * Serialisation and deserialisation is never lossy
 * The sub-type relation for types of values coincides exactly with sublanguage concept of the set of sentences for all values of the given types. 
 
-The latter point is one of the main reasons why **vallang** is called a **lang**uage. The result of `anyValue.toString()` is a members of a precisely defined textual languages. The full textual language is generated from the `value` type, and sub-languages are generated from the respective sub-types. `void` is the empty language. In this manner the types of **vallang** act like non-terminals of a precise context-free grammar. The **vallang** language as defined above is a strict sub-language of the `Expression` sub-language of Rascal.
+The latter point is one of the main reasons why **vallang** is called a **lang**uage. The result of `anyValue.toString()` is a member of a precisely defined textual language. The full textual language is generated from the `value` type, and sub-languages are generated from the respective sub-types. `void` is the empty language. In this manner the types of **vallang** act like non-terminals of a precise context-free grammar. The **vallang** language as defined above is a strict sub-language of the `Expression` sub-language of Rascal.
 
 The other reason why **vallang** is names as a language is because the implementations of the `IValue` interface and its sub-interfaces are seen as a closed combinator language for computations on the values, and their implementations are interpreters for this language. 
 
 #### Vallang values always know their most-precise concrete ad-hoc run-time type
 
 * This is nice for debugging purposes, the types are descriptions of values and if matching or equality checking fails then the type abstraction usually explains why without having to go into reading the entire value.
-* Types may be computed lazily or eagerly, cashed or not. This is not functionally observable but it may affect run-time efficiency
-* Having precise run-time types for every (nested) value, and having efficient access to this, is a prerequisite for building fast and type-safe rank-2 polymorphic higher order functional computations. Or in functional terms: you need this to make folds and maps work on heterogenous recursive and open data-types. Or in simpler terms: using this we can build statically type-safe data traversal and daya transformation features into Rascal. 
+* Types may be computed lazily or eagerly, cached or not. This is not functionally observable but it may affect run-time efficiency
+* Having precise run-time types for every (nested) value, and having efficient access to this, is a prerequisite for building fast and type-safe rank-2 polymorphic higher order functional computations. Or in functional terms: you need this to make folds and maps work on heterogenous recursive and open data-types. Or in simpler terms: using this we can build statically type-safe data traversal and data transformation features into Rascal.
 
 #### Vallang values include both trees and relations
 
-Even though both trees and relations are generic enought to represent any data, sometimes a graph or table is more natural than a tree and sometimes the other way around. 
+Even though both trees and relations are generic enough to represent any data, sometimes a graph or table is more natural than a tree and sometimes the other way around.
 
 * trees are nice for abstract and concrete syntax representations
 * trees are nice for abstract symbolic domains, such as terms for constraint variables and binary constraints
-* relations are nice for graph-like unstructred data, such as project dependencies, call graphs, etc.
+* relations are nice for graph-like unstructured data, such as project dependencies, call graphs, etc.
 * relations are nice for access to external data stored in spreadsheets and databases
 * trees are nice for access to web data stored in HTML, XML, JSON formats etc.
 * trees are good for transformation purposes, where we parse something, rewrite it and unparse it again
