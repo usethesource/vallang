@@ -66,17 +66,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     /** 
      * This method is for tuning and benchmarking purposes only.
      * It uses internal implementation details of IString values.
+     * @param maxFlatString TODO
+     * @param stringLength TODO
      * 
      */
-    static public boolean tuneBalancedTreeParameters() {
-        int N = 10000;
+    static public boolean tuneBalancedTreeParameters(int maxFlatString, int stringLength) {
         long startTime, estimatedTime;
-        
+        System.out.println("maxFlatString:"+maxFlatString);
         try {
-        	StringValue.setMaxFlatString(1);
+        	StringValue.setMaxFlatString(maxFlatString);
         	StringValue.setMaxUnbalance(0);
         	startTime = System.nanoTime();
-        	IStringTreeNode example1 = (IStringTreeNode) genString(N, -1);
+        	IStringTreeNode example1 = (IStringTreeNode) genString(stringLength);
         	estimatedTime = (System.nanoTime() - startTime)/1000000;
 
         	System.out.println("Fully Balanced " + example1.balanceFactor() + " " + example1.length() + " " + estimatedTime + "ms");
@@ -89,11 +90,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         System.out.println();
         
         try {
-        	StringValue.setMaxFlatString(1);
+        	StringValue.setMaxFlatString(maxFlatString);
         	StringValue.setMaxUnbalance(1500);
         	startTime = System.nanoTime();
 
-        	IStringTreeNode example2 = genString(N, -1);
+        	IStringTreeNode example2 = genString(stringLength);
         	estimatedTime = (System.nanoTime() - startTime)/1000000;
         	System.out.println("Balanced to 1500: " + example2.balanceFactor() + " " + example2.length() + " " + estimatedTime + "ms");
 
@@ -106,11 +107,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         System.out.println();
         
         try {
-        	StringValue.setMaxFlatString(100000);
+        	StringValue.setMaxFlatString(1000000);
         	StringValue.setMaxUnbalance(Integer.MAX_VALUE);
 
         	startTime = System.nanoTime();
-        	IStringTreeNode example3 = genString(N, -1);
+        	IStringTreeNode example3 = genString(stringLength);
         	estimatedTime = (System.nanoTime() - startTime)/1000000;
         	System.out.println("Only 1 leaf " + example3.balanceFactor() + " " + example3.length() + " " + estimatedTime + "ms");
         }
@@ -124,12 +125,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         // System.out.println(""+example3+" "+example4);
         try {
         	StringValue.setMaxFlatString(1);
-        	StringValue.setMaxUnbalance(1500);
-        	IStringTreeNode ex1 = genString(N, -1);
+        	StringValue.setMaxUnbalance(maxFlatString);
+        	IStringTreeNode ex1 = genString(stringLength);
         	
         	StringValue.setMaxFlatString(1000000);
         	StringValue.setMaxUnbalance(-1);
-        	IStringTreeNode ex2 = genString(N, -1);
+        	IStringTreeNode ex2 = genString(stringLength);
         	
         	startTime = System.nanoTime();
         	assert ex1.equals(ex2);
@@ -150,13 +151,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     }
     
     
-    private static IStringTreeNode genString(int n, int balance) {
+    private static IStringTreeNode genString(int n) {
         String[] s = {"a", "b", "c", "d", "e", "f"};
         IString result = newString(s[0]);
         for (int i=1;i<n; i++) {
             result = result.concat(newString(s[i%6]));
             // result = vf.string(s[i%6]).concat(result);
-//          if (balance>0 && i%balance==0) result = result.balance();
         }
         
         return (IStringTreeNode) result;
@@ -684,7 +684,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			
 			Iterator<Character> it1 = this.iterator();
 		    Iterator<Character> it2 = o.iterator();
-		    
+		    /*
 			while (it1.hasNext() && it2.hasNext()) {
 				Character c1 = it1.next();
                 Character c2 = it2.next();
@@ -695,6 +695,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			}
 			
 			return true;
+			*/
+		    return this.compare(o)==0;
 		}
 	
 		@Override
@@ -794,8 +796,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int compare(IString other) {
-			// TODO Auto-generated method stub
-			return 0;
+			IStringTreeNode o = (IStringTreeNode) other;
+			Iterator<Character> it1 = this.iterator();
+		    Iterator<Character> it2 = o.iterator();
+		    
+			while (it1.hasNext() && it2.hasNext()) {
+				Character c1 = it1.next();
+                Character c2 = it2.next();
+                int r = c1.compareTo(c2);
+                if (r != 0) return r;
+			}
+			int result = this.length()-other.length();
+			if (result<0) return -1;
+			if (result>0) return 1;
+			return result;
 		}
 
 		@Override
@@ -908,9 +922,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		            Iterator<Character> it = leafs.get(current);
                     Character r = it.next();
 		            
-		            if (!it.hasNext()) {
+		            while (!it.hasNext()) {
 		                // move to the next iterator
 		                current = current+1;
+		                if (current==leafs.size()) break;
+		                it = leafs.get(current);
 		            }
 		            
 		            return r;

@@ -182,9 +182,16 @@ public final class TreeStringTest {
 	}
 	
 	@Test
-	public void testBalanceFactor() {
-		for (int i = 0; i < 10; i++) {
-			assertTrue(StringValue.tuneBalancedTreeParameters());
+	public void testBalanceFactor1() {
+		for (int i = 0; i < 5; i++) {
+			assertTrue(StringValue.tuneBalancedTreeParameters(1, 25000));
+		}
+	}
+	
+	@Test
+	public void testBalanceFactor512() {
+		for (int i = 0; i < 5; i++) {
+			assertTrue(StringValue.tuneBalancedTreeParameters(512, 25000));
 		}
 	}
 	
