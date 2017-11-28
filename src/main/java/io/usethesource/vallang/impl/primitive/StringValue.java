@@ -682,21 +682,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				return false;
 			}
 			
-			Iterator<Character> it1 = this.iterator();
-		    Iterator<Character> it2 = o.iterator();
-		    /*
-			while (it1.hasNext() && it2.hasNext()) {
-				Character c1 = it1.next();
-                Character c2 = it2.next();
-                
-                if (c1.compareTo(c2) != 0) {
-				    return false;
-				}
-			}
-			
-			return true;
-			*/
-		    return this.compare(o)==0;
+		    return this.compare(o) == 0;
 		}
 	
 		@Override
@@ -796,20 +782,33 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int compare(IString other) {
-			IStringTreeNode o = (IStringTreeNode) other;
-			Iterator<Character> it1 = this.iterator();
+		    IStringTreeNode o = (IStringTreeNode) other;
+
+		    Iterator<Character> it1 = this.iterator();
 		    Iterator<Character> it2 = o.iterator();
-		    
-			while (it1.hasNext() && it2.hasNext()) {
-				Character c1 = it1.next();
-                Character c2 = it2.next();
-                int r = c1.compareTo(c2);
-                if (r != 0) return r;
-			}
-			int result = this.length()-other.length();
-			if (result<0) return -1;
-			if (result>0) return 1;
-			return result;
+
+		    while (it1.hasNext() && it2.hasNext()) {
+		        Character c1 = it1.next();
+		        Character c2 = it2.next();
+
+		        int r = c1.compareTo(c2);
+
+		        if (r != 0) {
+		            return r;
+		        }
+		    }
+
+		    int result = this.length() - other.length();
+
+		    if (result == 0) {
+		        return 0;
+		    }
+		    else if (result < 0) {
+		        return -1;
+		    }
+		    else { // result > 0
+		        return 1;
+		    }
 		}
 
 		@Override
