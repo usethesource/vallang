@@ -10,6 +10,7 @@
  *   * Arnold Lankamp - interfaces and implementation - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *   * Jurgen Vinju - lazy concat - CWI
+ *   * Bert Lisser - balanced trees - CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
@@ -18,8 +19,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
