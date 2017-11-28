@@ -32,6 +32,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.impl.primitive.StringValue;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
@@ -94,6 +95,16 @@ public class StandardTextWriter implements IValueTextWriter {
 
         private void append(String string) throws IOException {
             stream.write(string);
+        }
+
+        private void append(int cp) throws IOException {
+            if (Character.isBmpCodePoint(cp)) {
+                stream.write(cp);
+            }
+            else {
+                stream.write(Character.highSurrogate(cp));
+                stream.write(Character.lowSurrogate(cp));
+            }
         }
 
         private void append(char c) throws IOException {
@@ -497,17 +508,8 @@ public class StandardTextWriter implements IValueTextWriter {
         }
 
         public IValue visitString(IString o) throws IOException {
-            printString(o.getValue());
-            return o;
-        }
-
-        private void printString(String o) throws IOException {
-            // TODO: this can be streamed and optimized, which is necessary for the BinaryBalanced IString implementations.
-            
             append('\"');
-            char[] chars = o.toCharArray();
-            for (int i = 0; i < chars.length; i++) {
-                char ch = chars[i];
+            for (int ch : o) {
                 switch (ch) {
                     case '\"':
                         append('\\');
@@ -546,38 +548,29 @@ public class StandardTextWriter implements IValueTextWriter {
                         append(' ');
                         break;
                     default:
-                        int cp = Character.codePointAt(chars, i);
-
-                        if (Character.isSpaceChar(cp)
-                                || Character.isISOControl(cp)
-                                || Character.UnicodeBlock.SPECIALS.equals(Character.UnicodeBlock.of(cp))) {
+                        if (Character.isSpaceChar(ch)
+                                || Character.isISOControl(ch)
+                                || Character.UnicodeBlock.SPECIALS.equals(Character.UnicodeBlock.of(ch))) {
                             // these characters are invisible or otherwise unreadable and we escape them here
                             // for clarity of the serialized string
 
-                            if (cp <= Byte.MAX_VALUE) {
-                                append("\\a" + String.format("%02x", (int) ch));
+                            if (ch <= Byte.MAX_VALUE) {
+                                append("\\a" + String.format("%02x", ch));
                             }
-                            else if (cp <= Character.MAX_VALUE) {
-                                append("\\u" + String.format("%04x", (int) ch));
+                            else if (ch <= Character.MAX_VALUE) {
+                                append("\\u" + String.format("%04x", ch));
                             }
                             else {
-                                append("\\U" + String.format("%06x", (int) ch));
-                            }
-
-                            if (Character.isHighSurrogate(ch)) {
-                                i++; // skip the next char
+                                append("\\U" + String.format("%06x", ch));
                             }
                         }
                         else {
                             append(ch);
-
-                            if (Character.isHighSurrogate(ch) && i + 1 < chars.length) {
-                                append(chars[++i]);
-                            }
                         }
                 }
             }
             append('\"');
+            return o;
         }
 
         public IValue visitTuple(ITuple o) throws IOException {
@@ -660,7 +653,7 @@ public class StandardTextWriter implements IValueTextWriter {
         }
 
         public IValue visitNode(INode o) throws IOException {
-            printString(o.getName());
+            visitString(StringValue.newString(o.getName()));
 
             boolean indent = checkIndent(o);
 

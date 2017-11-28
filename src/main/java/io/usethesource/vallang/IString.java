@@ -14,8 +14,9 @@ package io.usethesource.vallang;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Iterator;
 
-public interface IString extends IValue {
+public interface IString extends IValue, Iterable<Integer> {
 	/**
 	 * @return the Java string that this string represents
 	 */
@@ -84,4 +85,11 @@ public interface IString extends IValue {
      * Writes the content of this string to a character writer.
      */
     void write(Writer w) throws IOException;
+    
+    /**
+     * Build an iterator which generates the Unicode UTF-32 codepoints of the IString one-by-one.
+     * @see Character for more information on Unicode UTF-32 codepoints.
+     */
+    @Override
+    Iterator<Integer> iterator();
 }

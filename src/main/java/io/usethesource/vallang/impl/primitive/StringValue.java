@@ -161,7 +161,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         return (IStringTreeNode) result;
     }
 
-	/* package */ static IString newString(String value) {
+	public static IString newString(String value) {
 		if (value == null) {
 			value = "";
 		}
@@ -434,16 +434,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
         
         @Override
-        public Iterator<Character> iterator() {
-            return new Iterator<Character> () {
+        public Iterator<Integer> iterator() {
+            return new Iterator<Integer> () {
                 private int cur = 0;
 
                 public boolean hasNext() {
-                    return cur < value.length();
+                    return cur < length();
                 }
 
-                public Character next() {
-                    return value.charAt(cur++);
+                public Integer next() {
+                    return charAt(cur++);
                 }
 
                 public void remove() {
@@ -514,6 +514,25 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other); 
 			}
 		}
+		
+		 @Override
+	        public Iterator<Integer> iterator() {
+	            return new Iterator<Integer> () {
+	                private int cur = 0;
+
+	                public boolean hasNext() {
+	                    return cur < value.length();
+	                }
+
+	                public Integer next() {
+	                    return (int) value.charAt(cur++);
+	                }
+
+	                public void remove() {
+	                    throw new UnsupportedOperationException();
+	                }
+	            };
+	        }
 	}
 
 	/**
@@ -544,7 +563,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
      * much faster, but due to immutability and lots of sharing of IStrings this is
      * not feasible.
      */
-	private static interface IStringTreeNode extends IString, Iterable<Character> {
+	private static interface IStringTreeNode extends IString {
 		/** 
          * The leaf nodes have depth one; should be computed by the binary node
          */
@@ -582,13 +601,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             throw new UnsupportedOperationException();
         }
         
-        /**
-         * Iterator of Chars
-         */
-        default Iterator<Character> iterator() {
-            throw new UnsupportedOperationException();
-        }
-        
 	    default IStringTreeNode rotateRight() {
 	        return this;
 	    }
@@ -605,7 +617,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return this;
         }
         
-        default void collectLeafIterators(List<Iterator<Character>> w) {
+        default void collectLeafIterators(List<Iterator<Integer>> w) {
             w.add(iterator());
         }
 	}
@@ -783,17 +795,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int compare(IString other) {
 		    IStringTreeNode o = (IStringTreeNode) other;
 
-		    Iterator<Character> it1 = this.iterator();
-		    Iterator<Character> it2 = o.iterator();
+		    Iterator<Integer> it1 = this.iterator();
+		    Iterator<Integer> it2 = o.iterator();
 
 		    while (it1.hasNext() && it2.hasNext()) {
-		        Character c1 = it1.next();
-		        Character c2 = it2.next();
+		        Integer c1 = it1.next();
+		        Integer c2 = it2.next();
 
-		        int r = c1.compareTo(c2);
-
-		        if (r != 0) {
-		            return r;
+		        int diff = c1 - c2;
+		        if (diff != 0) {
+		            return diff < 0 ? -1 : 1;
 		        }
 		    }
 
@@ -882,8 +893,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int hashCode() {
 		    int h = hash;
 		    if (h == 0) {
-		        for (Character c : this) {
-		            h = 31 * h + c;
+		        for (Integer c : this) {
+		            if (!Character.isBmpCodePoint(c)) {
+		                h = 31 * h + Character.highSurrogate(c);
+		                h = 31 * h + Character.lowSurrogate(c);
+		            }
+		            else {
+		                h = 31 * h + c;
+		            }
 		        }
 		        
 		        hash = h;
@@ -893,8 +910,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Iterator<Character> iterator() {
-		    final List<Iterator<Character>> leafs = new ArrayList<>(this.length / (StringValue.DEFAULT_MAX_FLAT_STRING / 2));
+		public Iterator<Integer> iterator() {
+		    final List<Iterator<Integer>> leafs = new ArrayList<>(this.length / (StringValue.DEFAULT_MAX_FLAT_STRING / 2));
 		    
 		    /** 
 		     * Because the trees can be quite unbalanced and therefore very deep,
@@ -903,7 +920,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		     */
 		    collectLeafIterators(leafs);
 		    
-		    return new Iterator<Character>() {
+		    return new Iterator<Integer>() {
 		        int current = 0;
 		        
 		        @Override
@@ -916,9 +933,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        }
 		        
 		        @Override
-		        public Character next() {
-		            Iterator<Character> it = leafs.get(current);
-                    Character r = it.next();
+		        public Integer next() {
+		            Iterator<Integer> it = leafs.get(current);
+		            Integer r = it.next();
 		            
 		            while (!it.hasNext()) {
 		                // move to the next iterator
@@ -933,7 +950,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		};
 		
 		@Override
-		public void collectLeafIterators(List<Iterator<Character>> w) {
+		public void collectLeafIterators(List<Iterator<Integer>> w) {
 		    left.collectLeafIterators(w);
 		    right.collectLeafIterators(w);;	
 		}
