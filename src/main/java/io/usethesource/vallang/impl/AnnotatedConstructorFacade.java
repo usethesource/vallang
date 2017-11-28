@@ -162,6 +162,6 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 	@Override
 	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-	  throw new UnsupportedOperationException("can not add keyword parameters to a node which already has annotations");
+	  throw new UnsupportedOperationException("can not add keyword parameters to a constructor (" + content.getType().toString() + ") which already has annotations");
 	}
 }
