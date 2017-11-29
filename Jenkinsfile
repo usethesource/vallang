@@ -11,7 +11,9 @@ node {
     sh "mvn -B clean install"
     
     stage 'Deploy'
-    sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
+    if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
+        sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
+    }
     
     if (currentBuild.previousBuild.result == "FAILURE") { 
   	  slackSend (color: '#5cb85c', message: "BUILD BACK TO NORMAL:  <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
