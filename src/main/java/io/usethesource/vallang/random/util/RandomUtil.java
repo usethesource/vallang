@@ -136,7 +136,7 @@ public class RandomUtil {
 	}
 	public static String stringAlphaNumeric(Random rand, int depth) {
 		StringBuilder result = new StringBuilder(depth);
-		generators[0].generate(rand, depth, result);
+		new MixGenerators(alphaOnly, numeric).generate(rand, depth, result);
 		return sanitize(result.toString());
 	}
 
