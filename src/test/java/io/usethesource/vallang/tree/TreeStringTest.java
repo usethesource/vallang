@@ -45,11 +45,12 @@ public final class TreeStringTest {
 	
 	@Test 
 	public void testRandomHashcodeEquals() {
-	    for (int count = 0; count < 10; count++) {
+	    for (int count = 0; count < 50; count++) {
 	        int loops = 100 + rnd.nextInt(250);
 
 	        try {
 	            StringValue.setMaxFlatString(3);
+	            StringValue.setMaxUnbalance(5);
 	            StringBuilder b = new StringBuilder();
 	            IString concat = genString(25);
 	            b.append(concat.getValue());
@@ -68,9 +69,9 @@ public final class TreeStringTest {
 	        } 
 	        finally {
 	            StringValue.resetMaxFlatString();
+	            StringValue.resetMaxUnbalance();
 	        }
 	    }
-	    
 	}
 	
 	protected TypeFactory tf = TypeFactory.getInstance();

@@ -925,26 +925,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        
 		        @Override
 		        public boolean hasNext() {
-		            return iteratorHasNext(current) || iteratorHasNext(current + 1);
-		        }
-		        
-		        private boolean iteratorHasNext(int index) {
-		            return index < leafs.size() && leafs.get(index).hasNext(); 
+		            while (current < leafs.size() && !leafs.get(current).hasNext()) {
+		                current++;
+		            }
+		            
+		            return current < leafs.size();
 		        }
 		        
 		        @Override
 		        public Integer next() {
-		            Iterator<Integer> it = leafs.get(current);
-		            Integer r = it.next();
-		            
-		            while (!it.hasNext()) {
-		                // move to the next iterator
-		                current = current+1;
-		                if (current==leafs.size()) break;
-		                it = leafs.get(current);
-		            }
-		            
-		            return r;
+		            return leafs.get(current).next();
 		        }
 		    };       
 		};
