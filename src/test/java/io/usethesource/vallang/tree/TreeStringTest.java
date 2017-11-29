@@ -45,28 +45,30 @@ public final class TreeStringTest {
 	
 	@Test 
 	public void testRandomHashcodeEquals() {
-	    int loops = 1000 + rnd.nextInt(250);
-	    
-	    try {
-	        StringValue.setMaxFlatString(3);
-	        StringBuilder b = new StringBuilder();
-	        IString concat = genString(25);
-	        b.append(concat.getValue());
+	    for (int count = 0; count < 10; count++) {
+	        int loops = 100 + rnd.nextInt(250);
 
-	        for (int i = 0; i < loops; i++) {
-	            IString next = genString(25);
-	            concat = concat.concat(next);
-	            b.append(next.getValue());
+	        try {
+	            StringValue.setMaxFlatString(3);
+	            StringBuilder b = new StringBuilder();
+	            IString concat = genString(25);
+	            b.append(concat.getValue());
+
+	            for (int i = 0; i < loops; i++) {
+	                IString next = genString(25);
+	                concat = concat.concat(next);
+	                b.append(next.getValue());
+	            }
+
+	            IString single = vf.string(b.toString());
+
+	            assertTrue(single.hashCode() == concat.hashCode());
+	            assertTrue(single.equals(concat));
+	            assertTrue(concat.equals(single));
+	        } 
+	        finally {
+	            StringValue.resetMaxFlatString();
 	        }
-	        
-	        IString single = vf.string(b.toString());
-	                
-	        assertTrue(single.hashCode() == concat.hashCode());
-	        assertTrue(single.equals(concat));
-	        assertTrue(concat.equals(single));
-	    } 
-	    finally {
-	        StringValue.resetMaxFlatString();
 	    }
 	    
 	}
