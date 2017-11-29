@@ -16,6 +16,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
 import io.usethesource.vallang.impl.primitive.StringValue;
 import io.usethesource.vallang.random.RandomValueGenerator;
+import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -31,16 +32,43 @@ public final class TreeStringTest {
 
 	private final IValueFactory vf;
 
-    private final RandomValueGenerator generator;
-
+	private final Random rnd = new Random();
+	
 	public TreeStringTest(final IValueFactory vf) {
 		this.vf = vf;
 		this.example =  vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
-		this.generator = new RandomValueGenerator(vf, new Random(), 10, 50);
 	}
 
-	private IString genString() {
-	    return (IString) generator.generate(tf.stringType(), new TypeStore(), new HashMap<>());
+	private IString genString(int max) {
+	    return vf.string(RandomUtil.string(rnd, rnd.nextInt(max)));
+	}
+	
+	@Test 
+	public void testRandomHashcodeEquals() {
+	    int loops = 1000 + rnd.nextInt(250);
+	    
+	    try {
+	        StringValue.setMaxFlatString(3);
+	        StringBuilder b = new StringBuilder();
+	        IString concat = genString(25);
+	        b.append(concat.getValue());
+
+	        for (int i = 0; i < loops; i++) {
+	            IString next = genString(25);
+	            concat = concat.concat(next);
+	            b.append(next.getValue());
+	        }
+	        
+	        IString single = vf.string(b.toString());
+	                
+	        assertTrue(single.hashCode() == concat.hashCode());
+	        assertTrue(single.equals(concat));
+	        assertTrue(concat.equals(single));
+	    } 
+	    finally {
+	        StringValue.resetMaxFlatString();
+	    }
+	    
 	}
 	
 	protected TypeFactory tf = TypeFactory.getInstance();
