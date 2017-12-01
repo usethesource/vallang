@@ -160,6 +160,15 @@ public final class TreeStringTest {
 
 	@Test
 	public void testStringReplace() {
+		int n = 10;
+        StringValue.setMaxFlatString(1);
+        StringValue.setMaxUnbalance(0);
+        String[] s = {"a", "b", "c", "d", "e", "f","g", "h"};
+        IString str = vf.string(s[0]);
+        for (int i=1;i<n; i++) {
+              str = str.concat(vf.string(s[i%8]));
+                   // result = vf.string(s[i%8]).concat(result);
+               }
 		// System.out.println(example.replace(4, 1, 4, vf.string("x")).getValue());
 		assertEqual(example.replace(0, 1, 0, vf.string("x")), vf.string("xabcdefgh"));
 		assertEqual(example.replace(1, 1, 1, vf.string("x")), vf.string("axbcdefgh"));
@@ -168,6 +177,7 @@ public final class TreeStringTest {
 		assertEqual(example.replace(4, 1, 4, vf.string("x")), vf.string("abcdxefgh"));
 		assertEqual(example.replace(5, 1, 5, vf.string("x")), vf.string("abcdexfgh"));
 		assertEqual(example.replace(6, 1, 6, vf.string("x")), vf.string("abcdefxgh"));
+		assertEqual(str.replace(6, 1, 6, vf.string("x").concat(vf.string("y"))), vf.string("abcdefxygh").concat(str.substring(8)));
 	}
     
 	@Test
@@ -214,7 +224,7 @@ public final class TreeStringTest {
 	
 	@Test
 	public void testBalanceFactor1() {
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 2; i++) {
 			assertTrue(StringValue.tuneBalancedTreeParameters(1, 25000));
 		}
 	}

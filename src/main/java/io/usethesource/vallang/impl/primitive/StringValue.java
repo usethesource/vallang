@@ -630,11 +630,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		private int hash = 0;
 
 		public static IStringTreeNode build(IStringTreeNode left, IStringTreeNode right) {
-		    assert left.invariant() && right.invariant();
+		    assert left.invariant();
+		    assert right.invariant();
 		    
 		    IStringTreeNode result = balance(left, right);
 		    
 		    assert result.invariant();
+		    assert result.left().invariant();
+		    assert result.right().invariant();
 		    return result;
 		}
 
@@ -833,7 +836,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		// TODO this needs a unit test
-		public IString replace(int first, int second, int end, IString repl) {
+		public IString replace(int first, int second, int end, IString repl) {	
 			if (end < left.length()) {
 				// left, right: <-------><------>
 				// slice: <--->
@@ -863,12 +866,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public IStringTreeNode rotateRight() {
             BinaryBalancedLazyConcatString p =  new BinaryBalancedLazyConcatString(left().right(), right());
+            p = (BinaryBalancedLazyConcatString) balance(p.left, p.right);
             return new BinaryBalancedLazyConcatString(left().left(), p);
         }
 		
 		@Override
 		public IStringTreeNode rotateLeft() {
-            IStringTreeNode p =  new BinaryBalancedLazyConcatString(left(), right().left());
+			BinaryBalancedLazyConcatString p =  new BinaryBalancedLazyConcatString(left(), right().left());
+			p = (BinaryBalancedLazyConcatString) balance(p.left, p.right);
             return new BinaryBalancedLazyConcatString(p, right().right());   
         }
         
