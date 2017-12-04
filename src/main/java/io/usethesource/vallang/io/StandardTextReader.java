@@ -111,23 +111,24 @@ public class StandardTextReader extends AbstractTextReader {
 		} 
 		else if ((Character.isJavaIdentifierStart(current) && '$' != current)
 				|| current == '\\') {
+		    boolean escaped = current == '\\';
 		  String id = readIdentifier();
 		  
-		  if (id.equals("true")) {
-	      return factory.bool(true);
-	    }
-	    else if (id.equals("false")) {
-	      return factory.bool(false);
-	    }
-	    else if (current == '=') {
-	      return factory.string(id);
-	    } 
-	    else if (current == START_OF_ARGUMENTS) {
-	      result = readConstructor(id, expected);
-	    }
-	    else {
-	      throw new FactParseError("expected = or (", stream.offset);
-	    }
+		  if (!escaped && id.equals("true")) {
+		      return factory.bool(true);
+		  }
+		  else if (!escaped && id.equals("false")) {
+		      return factory.bool(false);
+		  }
+		  else if (current == '=') {
+		      return factory.string(id);
+		  } 
+		  else if (current == START_OF_ARGUMENTS) {
+		      result = readConstructor(id, expected);
+		  }
+		  else {
+		      throw new FactParseError("expected = or (", stream.offset);
+		  }
 		}
 		else {
 			switch (current) {
