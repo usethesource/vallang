@@ -3,6 +3,7 @@ package io.usethesource.vallang.tree;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -195,7 +196,7 @@ public final class TreeStringTest {
 	        }
 	        
 	        try {
-	            System.err.println(v.toString()); // do not remove this, this is the test
+	            new StringWriter().write(v.toString());
 	            fail("this should run out of stack");
 	        }
 	        catch (StackOverflowError e) {
@@ -214,7 +215,7 @@ public final class TreeStringTest {
         }
         
 	    try {
-	        System.err.println(v.toString()); // do not remove this, this is the test
+	        new StringWriter().write(v.toString());  // do not remove this, this is the test
 	        assertTrue(true);
 	    }
 	    catch (StackOverflowError e) {
