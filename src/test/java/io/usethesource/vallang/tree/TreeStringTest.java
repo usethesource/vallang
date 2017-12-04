@@ -238,4 +238,156 @@ public final class TreeStringTest {
 	}
 	
 	
+private IString genFixedString1(int n) {
+		String[] s = {"a", "b", "c", "d", "e", "f","g", "h"};
+        IString str = vf.string(s[0]);
+        for (int i=1;i<n; i++) {
+              str = str.concat(vf.string(s[i%8]));
+              }
+       return str;
+       }
+
+private IString genFixedString2(int n) {
+	String[] s = {"a", "b", "c", "d", "e", "f","g", "h"};
+    IString str = vf.string(s[0]);
+    for (int i=1;i<n; i++) {
+           str = vf.string(s[i%8]).concat(str);
+           }
+   
+   return str;
+   }
+
+private int work(IString str) {
+	int r = 0;
+    for (Integer c : str) r+=c;
+    return r;
+}
+		
+@Test
+public void testStringIterator1() {
+    int  n =10000;
+    for (int i=0;i<2;i++) {
+		 long startTime, estimatedTime;
+	        System.out.println("Fully balanced:"+n);
+	        try {
+	        	StringValue.setMaxFlatString(512);
+	        	StringValue.setMaxUnbalance(0);
+	        	IString str = genFixedString1(n);
+	        	startTime = System.nanoTime();
+	        	work(str);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Fully Balanced:"+ estimatedTime + "ms");
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }
+	        System.out.println("Partly balanced:"+n);
+	        try {
+	        	StringValue.setMaxFlatString(512);
+	        	StringValue.setMaxUnbalance(512);
+	        	IString str = genFixedString1(n);
+	        	startTime = System.nanoTime();
+	        	work(str);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Partly Balanced:"+ estimatedTime + "ms");
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }
+	        System.out.println("Unbalanced:"+n);
+	        try {
+	        	StringValue.setMaxFlatString(512);
+	        	StringValue.setMaxUnbalance(1000000);
+	        	IString str = genFixedString1(n);
+	        	startTime = System.nanoTime();
+	        	work(str);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Unbalanced:"+ estimatedTime + "ms");
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }	  
+	        System.out.println("Simple :"+n);
+	        try {
+	        	StringValue.setMaxFlatString(1000000);
+	        	StringValue.setMaxUnbalance(0);
+	        	IString str = genFixedString1(n);
+	        	startTime = System.nanoTime();
+	        	work(str);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Simple:"+ estimatedTime + "ms");
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }
+    }
+}
+	        
+@Test
+public void testStringIterator2() {
+	    int  n =10000;
+	    for (int i=0;i<2;i++) {
+	    		 long startTime, estimatedTime;
+	    	        System.out.println("Fully balanced:"+n);
+	    	        try {
+	    	        	StringValue.setMaxFlatString(512);
+	    	        	StringValue.setMaxUnbalance(0);
+	    	        	IString str = genFixedString2(n);
+	    	        	startTime = System.nanoTime();
+	    	        	work(str);
+	    	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	    	        	System.out.println("Fully Balanced:"+ estimatedTime + "ms");
+	    	        }
+	    	        finally {
+	    	        	StringValue.resetMaxFlatString();
+	    	        	StringValue.resetMaxUnbalance();
+	    	        }
+	    	        System.out.println("Partly balanced:"+n);
+	    	        try {
+	    	        	StringValue.setMaxFlatString(512);
+	    	        	StringValue.setMaxUnbalance(512);
+	    	        	IString str = genFixedString2(n);
+	    	        	startTime = System.nanoTime();
+	    	        	work(str);
+	    	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	    	        	System.out.println("Partly Balanced:"+ estimatedTime + "ms");
+	    	        }
+	    	        finally {
+	    	        	StringValue.resetMaxFlatString();
+	    	        	StringValue.resetMaxUnbalance();
+	    	        }
+	    	        System.out.println("Unbalanced:"+n);
+	    	        try {
+	    	        	StringValue.setMaxFlatString(512);
+	    	        	StringValue.setMaxUnbalance(1000000);
+	    	        	IString str = genFixedString2(n);
+	    	        	startTime = System.nanoTime();
+	    	        	work(str);
+	    	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	    	        	System.out.println("Unbalanced:"+ estimatedTime + "ms");
+	    	        }
+	    	        finally {
+	    	        	StringValue.resetMaxFlatString();
+	    	        	StringValue.resetMaxUnbalance();
+	    	        }	  
+	    	        System.out.println("Simple :"+n);
+	    	        try {
+	    	        	StringValue.setMaxFlatString(1000000);
+	    	        	StringValue.setMaxUnbalance(0);
+	    	        	IString str = genFixedString2(n);
+	    	        	startTime = System.nanoTime();
+	    	        	work(str);
+	    	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	    	        	System.out.println("Simple:"+ estimatedTime + "ms");
+	    	        }
+	    	        finally {
+	    	        	StringValue.resetMaxFlatString();
+	    	        	StringValue.resetMaxUnbalance();
+	    	        }
+	     }
+}   	
 }
