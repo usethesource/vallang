@@ -787,7 +787,7 @@ public class StandardTextReader extends AbstractTextReader {
 		current = stream.read();
 		
 		for (int i = 0; current != end; i++) {
-		  Type exp = expected.isFixedWidth() ? expected.getFieldType(i) : types.valueType();
+		  Type exp = expected.isFixedWidth() && i < expected.getArity() ? expected.getFieldType(i) : types.valueType();
 		  IValue elem = readValue(exp);
 
 		  if (current == '=') {
