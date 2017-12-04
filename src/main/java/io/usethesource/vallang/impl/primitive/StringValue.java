@@ -40,7 +40,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private static int DEFAULT_MAX_FLAT_STRING = 512;
 	private static int MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
 	
-	private static int DEFAULT_MAX_UNBALANCE = 1500;
+	private static int DEFAULT_MAX_UNBALANCE = 0;
 	private static int MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
 	
 	/** for testing purposes we can set the max flat string value */
