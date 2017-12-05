@@ -168,7 +168,14 @@ public final class IoSmokeTest {
 
       IValue v = reader.read(vf, new StringReader("\"f\"(\"a b c\")"));
       assertEquals(v, vf.node("f", vf.string("a b c")));
+      
+      IValue vv = reader.read(vf, new StringReader("\"f\"(\"a b c\", x=1)"));
+      assertEquals(vv, vf.node("f", vf.string("a b c")).asWithKeywordParameters().setParameter("x", vf.integer(1)));
 
+//      System.err.println(vf.constructor(True).asWithKeywordParameters().setParameter("x", vf.integer(1)));
+      IValue vvv = reader.read(vf, ts, Boolean, new StringReader("\\true(x=1)"));
+      assertEquals(vvv, vf.constructor(True).asWithKeywordParameters().setParameter("x", vf.integer(1)));
+      
       IValue r = reader.read(vf, new StringReader("[1.7976931348623157E+308]"));
       System.err.println(r);
       assertEquals(r, vf.list(vf.real("1.7976931348623157E+308")));
