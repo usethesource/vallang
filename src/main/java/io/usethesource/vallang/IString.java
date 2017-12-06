@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007 IBM Corporation, 2017 Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,12 +7,16 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Jurgen Vinju - initial API and implementation and extensions
 *******************************************************************************/
 
 package io.usethesource.vallang;
 
-public interface IString extends IValue {
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Iterator;
+
+public interface IString extends IValue, Iterable<Integer> {
 	/**
 	 * @return the Java string that this string represents
 	 */
@@ -76,4 +80,16 @@ public interface IString extends IValue {
      * @return
      */
     IString replace(int first, int second, int end, IString repl);
+    
+    /**
+     * Writes the content of this string to a character writer.
+     */
+    void write(Writer w) throws IOException;
+    
+    /**
+     * Build an iterator which generates the Unicode UTF-32 codepoints of the IString one-by-one.
+     * @see Character for more information on Unicode UTF-32 codepoints.
+     */
+    @Override
+    Iterator<Integer> iterator();
 }
