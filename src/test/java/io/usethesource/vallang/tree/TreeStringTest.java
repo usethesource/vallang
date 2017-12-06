@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.Random;
 
 import org.junit.Test;
@@ -16,13 +15,12 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
 import io.usethesource.vallang.impl.primitive.StringValue;
-import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 
 @RunWith(Parameterized.class)
 public final class TreeStringTest {
+	
 
 	@Parameterized.Parameters
 	public static Iterable<? extends Object> data() {
@@ -100,10 +98,12 @@ public final class TreeStringTest {
 	        
 	        IString x = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
 	        IString y = vf.string("abcdefgh");
+	        IString z = vf.string("abcdefgi");
 
 	        assertTrue(x.hashCode() == y.hashCode());
 	        assertTrue(x.equals(y));
 	        assertTrue(y.equals(x));
+	        assertTrue(!z.equals(x));
 	        assertTrue(x.substring(0,0).equals(vf.string("")));
 	    }
 	    finally {
@@ -223,19 +223,99 @@ public final class TreeStringTest {
 	    }
 	}
 	
-	@Test
-	public void testBalanceFactor1() {
+/** 
+     * This method is for tuning and benchmarking purposes only.
+     * It uses internal implementation details of IString values.
+     * 
+*/
+	
+	
+	public void testBalanceFactor(int maxFlatString) {
+		int n = 10000;
 		for (int i = 0; i < 2; i++) {
-			assertTrue(StringValue.tuneBalancedTreeParameters(1, 25000));
+			long startTime, estimatedTime;
+	        try {
+	        	System.out.println("Fully balanced maxFlatString:"+maxFlatString);
+	        	StringValue.setMaxFlatString(maxFlatString);
+	        	StringValue.setMaxUnbalance(0);
+	        	startTime = System.nanoTime();
+	        	IString example1 = (IString) genFixedString1(n);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Fully Balanced "  + example1.length() + " " + estimatedTime + "ms");
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }
+	        try {
+	        	System.out.println("Partly balanced (1500) maxFlatString:"+maxFlatString);
+	        	StringValue.setMaxFlatString(maxFlatString);
+	        	StringValue.setMaxUnbalance(1500);
+	        	startTime = System.nanoTime();
+	        	IString example2 = genFixedString1(n);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Partly balanced: " + " " + example2.length() + " " + estimatedTime + "ms");
+
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }
+	        try {
+	        	System.out.println("Simple maxFlatString:"+maxFlatString);
+	        	StringValue.setMaxFlatString(10000000);
+	        	StringValue.setMaxUnbalance(Integer.MAX_VALUE);
+	        	startTime = System.nanoTime();
+	        	IString example3 = genFixedString1(n);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Simple" + " " + example3.length() + " " + estimatedTime + "ms");
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }
+	        
+	        try {
+	        	System.out.println("Native maxFlatString:"+maxFlatString);
+	        	startTime = System.nanoTime();
+	        	IString example3 = genFlatString(n);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Native" + " " + example3.length() + " " + estimatedTime + "ms");
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }
+	        
+	        // System.out.println(""+example3+" "+example4);
+	        try {
+	        	StringValue.setMaxFlatString(1);
+	        	StringValue.setMaxUnbalance(0);
+	        	IString ex1 = genFixedString1(n);
+	        	IString ex2 = genFlatString(n);
+	        	
+	        	startTime = System.nanoTime();
+	        	assert ex1.equals(ex2);
+	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	        	System.out.println("Equals "  + estimatedTime + "ms");
+	        	
+	        	assert ex2.equals(ex1);
+	        	assert !ex1.equals(ex2.replace(1, 1, 1, vf.string("x")));
+	        	assertEqual(ex1, ex2);
+	        }
+	        finally {
+	        	StringValue.resetMaxFlatString();
+	        	StringValue.resetMaxUnbalance();
+	        }
 		}
 	}
 	
-	@Test
-	public void testBalanceFactor512() {
-		for (int i = 0; i < 5; i++) {
-			assertTrue(StringValue.tuneBalancedTreeParameters(512, 25000));
-		}
-	}
+	
+@Test
+	public void testBalanceFactor() {
+	    testBalanceFactor(1);
+	    testBalanceFactor(512);
+        }
 	
 	
 private IString genFixedString1(int n) {
@@ -246,6 +326,15 @@ private IString genFixedString1(int n) {
               }
        return str;
        }
+
+private IString genFlatString(int n) {
+	String[] s = {"a", "b", "c", "d", "e", "f","g", "h"};
+	StringBuffer str = new StringBuffer(n);
+	for (int i=0;i<n; i++) {
+        str = str.append(s[i%8]);
+        }
+	return vf.string(str.toString());
+}
 
 private IString genFixedString2(int n) {
 	String[] s = {"a", "b", "c", "d", "e", "f","g", "h"};
@@ -265,7 +354,8 @@ private int work(IString str) {
 		
 @Test
 public void testStringIterator1() {
-    int  n =10000;
+    int  n =1000000;
+	IString flatStr = genFlatString(n);
     for (int i=0;i<2;i++) {
 		 long startTime, estimatedTime;
 	        System.out.println("Fully balanced:"+n);
@@ -296,6 +386,7 @@ public void testStringIterator1() {
 	        	StringValue.resetMaxFlatString();
 	        	StringValue.resetMaxUnbalance();
 	        }
+	        /*
 	        System.out.println("Unbalanced:"+n);
 	        try {
 	        	StringValue.setMaxFlatString(512);
@@ -309,14 +400,13 @@ public void testStringIterator1() {
 	        finally {
 	        	StringValue.resetMaxFlatString();
 	        	StringValue.resetMaxUnbalance();
-	        }	  
+	        }
+	        */	  
 	        System.out.println("Simple :"+n);
 	        try {
-	        	StringValue.setMaxFlatString(1000000);
-	        	StringValue.setMaxUnbalance(0);
-	        	IString str = genFixedString1(n);
+	        	
 	        	startTime = System.nanoTime();
-	        	work(str);
+	        	work(flatStr);
 	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
 	        	System.out.println("Simple:"+ estimatedTime + "ms");
 	        }
@@ -329,7 +419,8 @@ public void testStringIterator1() {
 	        
 @Test
 public void testStringIterator2() {
-	    int  n =10000;
+	    int  n =1000000;
+		IString flatStr = genFlatString(n);
 	    for (int i=0;i<2;i++) {
 	    		 long startTime, estimatedTime;
 	    	        System.out.println("Fully balanced:"+n);
@@ -360,6 +451,7 @@ public void testStringIterator2() {
 	    	        	StringValue.resetMaxFlatString();
 	    	        	StringValue.resetMaxUnbalance();
 	    	        }
+	    	        /*
 	    	        System.out.println("Unbalanced:"+n);
 	    	        try {
 	    	        	StringValue.setMaxFlatString(512);
@@ -373,14 +465,12 @@ public void testStringIterator2() {
 	    	        finally {
 	    	        	StringValue.resetMaxFlatString();
 	    	        	StringValue.resetMaxUnbalance();
-	    	        }	  
+	    	        }
+	    	        */	  
 	    	        System.out.println("Simple :"+n);
 	    	        try {
-	    	        	StringValue.setMaxFlatString(1000000);
-	    	        	StringValue.setMaxUnbalance(0);
-	    	        	IString str = genFixedString2(n);
 	    	        	startTime = System.nanoTime();
-	    	        	work(str);
+	    	        	work(flatStr);
 	    	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
 	    	        	System.out.println("Simple:"+ estimatedTime + "ms");
 	    	        }
