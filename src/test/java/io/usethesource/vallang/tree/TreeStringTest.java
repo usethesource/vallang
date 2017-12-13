@@ -479,5 +479,15 @@ public void testStringIterator2() {
 	    	        	StringValue.resetMaxUnbalance();
 	    	        }
 	     }
-}   	
+}  
+
+
+@Test
+public void testIndent() {
+	IString s = vf.string("\naap").indent(vf.string("123")).concat((vf.string("\nnoot\nteun").indent(vf.string("456")))).concat(vf.string("\nmies"));
+	 System.out.println(s.getValue());
+	 for (int i=0;i<40;i++)
+	      System.out.println(Character.toChars(s.charAt(i)));
+	 assertTrue(vf.string("\naap").indent(vf.string("123")).getValue().equals(vf.string("\n123aap").getValue()));
+     }
 }

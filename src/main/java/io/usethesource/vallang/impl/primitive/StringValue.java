@@ -366,6 +366,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 }
             };
         }
+
+		@Override
+		public IString indent(IString whiteSpace) {
+	            return new IndentedString(this, whiteSpace);
+			
+		}
 	}
 
 	private static class SimpleUnicodeString extends FullUnicodeString {
@@ -864,6 +870,134 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    left.collectLeafIterators(w);
 		    right.collectLeafIterators(w);;	
 		}
+
+		@Override
+		public IString indent(IString whiteSpace) {
+			// TODO Auto-generated method stub
+			return new IndentedString(this, whiteSpace);
+		}
+	}
+	private static class IndentedString extends AbstractValue implements IString {
+		
+		final private IString whiteSpace;
+		final private IString istring;
+		
+		
+        IndentedString(IString istring, IString whiteSpace) {
+        	this.whiteSpace = whiteSpace;
+        	this.istring = istring;
+        }
+        
+        public IString indent(IString whiteSpace) {
+        	return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));	
+        }
+
+
+		@Override
+		public String getValue() {
+	        if (this.istring instanceof BinaryBalancedLazyConcatString) {
+	        	IStringTreeNode treeNode = ((IStringTreeNode) this.istring);
+	        	return treeNode.left().getValue()+treeNode.right().getValue();
+	        }
+	        StringBuffer bf = new StringBuffer(this.istring.length());
+	        String string = istring.getValue();
+	        for (Character c: string.toCharArray()) {
+	        	bf.append(c);
+	        	if (c=='\n') {
+	        		for (Character d:whiteSpace.getValue().toCharArray())
+	        			bf.append(d);
+	        	}
+	        }
+	        return bf.toString();	
+	    }
+		
+
+
+		@Override
+		public IString concat(IString other) {
+			return new IndentedString(this.istring.concat(other), this.whiteSpace);
+		}
+
+
+		@Override
+		public IString reverse() {
+			String s = getValue();
+			return new IndentedString(newString(s).reverse(), whiteSpace);
+		}
+
+
+		@Override
+		public int length() {
+		    int n = this.istring.length()+this.whiteSpace.length();
+		    return n;
+		}
+
+
+		@Override
+		public IString substring(int start, int end) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		@Override
+		public IString substring(int start) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		@Override
+		public int compare(IString other) {
+			return istring.compare(other);
+		}
+
+
+		@Override
+		public int charAt(int index) {
+			int offset = 0;
+			for (int i=0;i<istring.length();i++) {
+				if (i+offset==index) return istring.charAt(i);
+				else if (i+offset>index) return whiteSpace.charAt(whiteSpace.length()-(i+offset-index));
+				if (Character.toChars(istring.charAt(i))[0]=='\n') offset+= whiteSpace.length();
+			    }
+			return -1;
+		}
+
+
+		@Override
+		public IString replace(int first, int second, int end, IString repl) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		@Override
+		public void write(Writer w) throws IOException {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+        public Iterator<Integer> iterator() {
+            return new Iterator<Integer> () {
+                private int cur = 0;
+
+                public boolean hasNext() {
+                    return cur < length();
+                }
+
+                public Integer next() {
+                    return charAt(cur++);
+                }
+
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        }
+		
+		
 	}
 }
 
