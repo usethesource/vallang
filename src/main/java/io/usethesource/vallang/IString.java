@@ -92,4 +92,6 @@ public interface IString extends IValue, Iterable<Integer> {
      */
     @Override
     Iterator<Integer> iterator();
+    
+    IString indent(IString whiteSpace);
 }
