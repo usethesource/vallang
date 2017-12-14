@@ -889,7 +889,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         
         public IString indent(IString whiteSpace) {
-        	return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));	
+        	return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));
+        }
+        
+        private IString expand() {
+        	return newString(this.getValue());
         }
 
 
@@ -928,28 +932,40 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int length() {
-		    int n = this.istring.length()+this.whiteSpace.length();
-		    return n;
+			int numberOfNewlines = 0;
+			for (int i=0;i<istring.length();i++) {
+				if (Character.toChars(istring.charAt(i))[0]=='\n') numberOfNewlines++;
+			}
+		    return this.istring.length()+numberOfNewlines * this.whiteSpace.length();
 		}
 
 
 		@Override
 		public IString substring(int start, int end) {
-			// TODO Auto-generated method stub
-			return null;
+			String value = this.getValue();
+			return newString(value.substring(value.offsetByCodePoints(0, start), value.offsetByCodePoints(0, end)));
 		}
 
 
 		@Override
 		public IString substring(int start) {
-			// TODO Auto-generated method stub
-			return null;
+			String value = this.getValue();
+			return newString(value.substring(value.offsetByCodePoints(0, start)));
 		}
 
 
 		@Override
 		public int compare(IString other) {
-			return istring.compare(other);
+			int result=  this.getValue().compareTo(other.getValue());
+			if (result == 0) {
+		        return 0;
+		    }
+		    else if (result < 0) {
+		        return -1;
+		    }
+		    else { // result > 0
+		        return 1;
+		    }		
 		}
 
 
@@ -967,17 +983,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString replace(int first, int second, int end, IString repl) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+		    if (repl instanceof IndentedString)
+               repl = ((IndentedString) repl).expand();
+			IString result = this.expand();
+			return result.replace(first, second, end, repl);
+		};
 
 
 		@Override
 		public void write(Writer w) throws IOException {
-			// TODO Auto-generated method stub
-			
-		}
-		
+				w.write(this.getValue());
+	    }
+				
 		@Override
         public Iterator<Integer> iterator() {
             return new Iterator<Integer> () {
@@ -996,6 +1013,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 }
             };
         }
+       
+		@Override
+		public boolean equals(Object other) {
+			if (other == this) {
+				return true;
+			}
+			if (!(other instanceof IString)) return false;	
+		    return this.compare((IString) other) == 0;
+		}
+		
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+			return v.visitString(this);
+		}
 		
 		
 	}
