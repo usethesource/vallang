@@ -479,7 +479,9 @@ public void testStringIterator2() {
 	    	        	StringValue.resetMaxUnbalance();
 	    	        }
 	     }
-}  
+} 
+
+
 
 
 @Test
@@ -490,4 +492,36 @@ public void testIndent() {
 	      System.out.println(Character.toChars(s.charAt(i)));
 	 assertEqual(vf.string("\naap").indent(vf.string("123")), vf.string("\n123aap"));
      }
+
+
+@Test
+public void compareIndent()  {
+	int n  = 1000;
+	String indent = "123";
+	IString start1 = vf.string("start");
+	IString start2 =  start1.indent(vf.string(indent));
+	String step = "abc";
+	IString step1 = vf.string("\n"+indent).concat(vf.string(step));
+	IString step2 = vf.string("\n").concat(vf.string(step));
+	IString result1 = start1;
+	IString result2 = start2;
+	long startTime, estimatedTime;
+	startTime = System.nanoTime();
+	for (int i=0;i<n;i++) {
+	   result1 = result1.concat(step1);
+	   }
+	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	System.out.println("Old:"+ estimatedTime + "ms");
+	startTime = System.nanoTime();
+	for (int i=0;i<n;i++) {
+	   result2 = result2.concat(step2);
+	   }
+	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	System.out.println("New:"+ estimatedTime + "ms");
+	startTime = System.nanoTime();
+	assertEqual(result1, result2);
+	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	System.out.println("Eq:"+ estimatedTime + "ms");
+    }
 }
+
