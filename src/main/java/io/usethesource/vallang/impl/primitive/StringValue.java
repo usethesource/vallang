@@ -178,8 +178,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				FullUnicodeString otherString = (FullUnicodeString) o;
 				return value.equals(otherString.value);
 			}
-			
-			if (o.getClass() == BinaryBalancedLazyConcatString.class) {
+			if (o.getClass() == BinaryBalancedLazyConcatString.class || o.getClass() == IndentedString.class) {
 			    return o.equals(this);
 			}
 
@@ -390,7 +389,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				SimpleUnicodeString otherString = (SimpleUnicodeString) o;
 				return value.equals(otherString.value);
 			}
-			if (o.getClass() == BinaryBalancedLazyConcatString.class) {
+			if (o.getClass() == BinaryBalancedLazyConcatString.class || o.getClass() == IndentedString.class) {
 			    return o.equals(this);
 			}
 
@@ -600,6 +599,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 			return v.visitString(this);
+		}
+		
+		@Override
+		public boolean isEqual(IValue value) {
+			return this.equals(value);
 		}
 
 		@Override
@@ -877,7 +881,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return new IndentedString(this, whiteSpace);
 		}
 	}
-	private static class IndentedString extends AbstractValue implements IString {
+	private static class IndentedString extends AbstractValue implements IString, IStringTreeNode {
 		
 		final private IString whiteSpace;
 		final private IString istring;
@@ -956,7 +960,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int compare(IString other) {
-			int result=  this.getValue().compareTo(other.getValue());
+			// int result=  this.getValue().compareTo(other.getValue());
+			// int result = this.expand().compare(other);
+			int result = other.compare(this.expand());
 			if (result == 0) {
 		        return 0;
 		    }
@@ -1021,6 +1027,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			}
 			if (!(other instanceof IString)) return false;	
 		    return this.compare((IString) other) == 0;
+		}
+		
+		@Override
+		public boolean isEqual(IValue value) {
+			return this.equals(value);
 		}
 		
 		@Override
