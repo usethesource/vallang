@@ -18,7 +18,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -885,11 +888,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		final private IString whiteSpace;
 		final private IString istring;
+		final int[] posNewline;
+		final Hashtable<Integer, Integer> newlineOffset = new Hashtable<Integer, Integer>();
+		int length = -1;
+		final int shrink = 10;
 		
 		
         IndentedString(IString istring, IString whiteSpace) {
         	this.whiteSpace = whiteSpace;
         	this.istring = istring;
+        	this.posNewline =new int[10000];
         }
         
         public IString indent(IString whiteSpace) {
@@ -936,6 +944,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int length() {
+			if (length>=0) return length;
 			int numberOfNewlines = 0;
 			for (int i=0;i<istring.length();i++) {
 				if (Character.toChars(istring.charAt(i))[0]=='\n') numberOfNewlines++;
@@ -977,11 +986,30 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int charAt(int index) {
-			int offset = 0;
-			for (int i=0;i<istring.length();i++) {
-				if (i+offset==index) return istring.charAt(i);
-				else if (i+offset>index) return whiteSpace.charAt(whiteSpace.length()-(i+offset-index));
-				if (Character.toChars(istring.charAt(i))[0]=='\n') offset+= whiteSpace.length();
+			int start = posNewline[index/shrink];
+			// int start = 0;
+			int offset = newlineOffset.get(start)!=null?newlineOffset.get(start):0;
+			// int offset = 0;
+			// System.out.println("start:"+start);
+			int lastNewline = 0;
+			for (int i= start;i<istring.length();i++) {
+				if (i+offset==index) {
+					if (posNewline[index/shrink+1]==0) {
+						posNewline[index/shrink+1]=lastNewline;
+					}
+					return istring.charAt(i);
+				}
+				else if (i+offset>index) {
+					if (posNewline[index/shrink+1]==0) {
+						posNewline[index/shrink+1]=lastNewline;
+					}
+					return whiteSpace.charAt(whiteSpace.length()-(i+offset-index));
+				}
+				if (Character.toChars(istring.charAt(i))[0]=='\n')  {
+				    lastNewline = i; 
+				    newlineOffset.put(i, offset);
+				    offset+=whiteSpace.length();
+			        }		
 			    }
 			return -1;
 		}
