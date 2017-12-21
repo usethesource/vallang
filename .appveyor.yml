@@ -1,7 +1,7 @@
 version: "{branch} {build}"
 
 cache:
-  - C:\Users\appveyor\.m2
+  - C:\Users\appveyor\.m2 -> pom.xml
 
 install:
   # set JAVA_HOME path to JDK 1.7
