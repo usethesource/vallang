@@ -18,6 +18,3 @@ build_script:
 
 test_script:
   - mvn test
-
-package_script:
-  - mvn package
