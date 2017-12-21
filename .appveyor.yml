@@ -13,6 +13,7 @@ install:
   # check Java version
   - java -version
 
+  - SET MAVEN_OPTS="-Dmaven.repo.local=C:/Users/appveyor/.m2"
 build_script:
   - mvn clean compile
 
