@@ -5,18 +5,18 @@ init:
 
 environment:
   APPVEYOR_CACHE_ENTRY_ZIP_ARGS: -t7z -mx0 -mmt=0 -snl -snh
+  MAVEN_OPTS: "-Dmaven.repo.local=C:/Users/appveyor/.m2"
+  JAVA_HOME: "C:/Program Files/Java/jdk1.8.0"
 
 cache:
   - C:\Users\appveyor\.m2 -> pom.xml
 
 install:
-  - SET JAVA_HOME=C:\Program Files\Java\jdk1.8.0
   - SET PATH=%JAVA_HOME%\bin;%PATH%
-  - SET MAVEN_OPTS="-Dmaven.repo.local=C:/Users/appveyor/.m2"
   - java -version
 
 build_script:
-  - mvn clean compile
+  - mvn clean compile -DskipTests
 
 test_script:
   - mvn test
