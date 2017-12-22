@@ -4,7 +4,7 @@ init:
   - git config --global core.autocrlf true
 
 environment:
-  - APPVEYOR_CACHE_ENTRY_ZIP_ARGS: -t7z -mx0 -mmt=0 -snl -snh
+  APPVEYOR_CACHE_ENTRY_ZIP_ARGS: -t7z -mx0 -mmt=0 -snl -snh
 
 cache:
   - C:\Users\appveyor\.m2 -> pom.xml
