@@ -312,7 +312,7 @@ public final class TreeStringTest {
 	
 	
 @Test
-	public void testBalanceFactor() {
+public void testBalanceFactor() {
 	    testBalanceFactor(1);
 	    testBalanceFactor(512);
         }
@@ -496,19 +496,19 @@ public void testIndent() {
 
 @Test
 public void compareIndent()  {
-	int n  = 1000;
+	int n  = 10000;
 	String indent = "123";
 	IString start1 = vf.string("start");
 	IString start2 =  start1.indent(vf.string(indent));
 	String step = "abc";
-	IString step1 = vf.string("\n"+indent).concat(vf.string(step));
-	IString step2 = vf.string("\n").concat(vf.string(step));
+	// IString step1 = vf.string("\n"+indent).concat(vf.string(step));
+	IString step2 = vf.string("\n"+step);
 	IString result1 = start1;
 	IString result2 = start2;
 	long startTime, estimatedTime;
 	startTime = System.nanoTime();
 	for (int i=0;i<n;i++) {
-	   result1 = result1.concat(step1);
+	   result1 = result1.concat(vf.string("\n"+indent).concat(vf.string(step)));
 	   }
 	estimatedTime = (System.nanoTime() - startTime)/1000000;
 	System.out.println("Old:"+ estimatedTime + "ms");
@@ -519,9 +519,17 @@ public void compareIndent()  {
 	estimatedTime = (System.nanoTime() - startTime)/1000000;
 	System.out.println("New:"+ estimatedTime + "ms");
 	startTime = System.nanoTime();
+	work(result1);
+	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	System.out.println("work old:"+ estimatedTime + "ms");
+	startTime = System.nanoTime();
+	work(result2);
+	estimatedTime = (System.nanoTime() - startTime)/1000000;
+	System.out.println("work new:"+ estimatedTime + "ms");
+	startTime = System.nanoTime();
 	assertEqual(result1, result2);
 	estimatedTime = (System.nanoTime() - startTime)/1000000;
-	System.out.println("Eq:"+ estimatedTime + "ms");
+	System.out.println("Equals:"+ estimatedTime + "ms");
     }
 }
 
