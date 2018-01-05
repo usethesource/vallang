@@ -888,16 +888,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		final private IString whiteSpace;
 		final private IString istring;
-		final int[] posNewline;
-		final Hashtable<Integer, Integer> newlineOffset = new Hashtable<Integer, Integer>();
+		private IString expandedString;
 		int length = -1;
-		final int shrink = 10;
 		
 		
         IndentedString(IString istring, IString whiteSpace) {
         	this.whiteSpace = whiteSpace;
         	this.istring = istring;
-        	this.posNewline =new int[10000];
         }
         
         public IString indent(IString whiteSpace) {
@@ -905,26 +902,42 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         
         private IString expand() {
-        	return newString(this.getValue());
+        	if (expandedString==null) expandedString= newString(this.getValue());
+        	return expandedString;
         }
 
 
 		@Override
 		public String getValue() {
+			if (expandedString!=null) return expandedString.getValue();
+			String output;
 	        if (this.istring instanceof BinaryBalancedLazyConcatString) {
 	        	IStringTreeNode treeNode = ((IStringTreeNode) this.istring);
-	        	return treeNode.left().getValue()+treeNode.right().getValue();
+	        	output = new IndentedString(treeNode.left(), this.whiteSpace).getValue()+
+	        			 new IndentedString(treeNode.right(),this.whiteSpace).getValue();
 	        }
+	        else
+	        {
 	        StringBuffer bf = new StringBuffer(this.istring.length());
 	        String string = istring.getValue();
+	        String[] str = string.split("\n");
+	        String ws =  "\n"+whiteSpace.getValue();
+	        if (str.length>0) bf.append(str[0]);
+	        for (int i=1;i<str.length;i++) {
+	        	bf.append(ws);
+	        	bf.append(str[i]);
+	        }
+	        /*
 	        for (Character c: string.toCharArray()) {
 	        	bf.append(c);
 	        	if (c=='\n') {
-	        		for (Character d:whiteSpace.getValue().toCharArray())
-	        			bf.append(d);
+	        		bf.append(whiteSpace.getValue());
 	        	}
 	        }
-	        return bf.toString();	
+	        */
+	        output= bf.toString();
+	        }
+	        return output;	
 	    }
 		
 
@@ -938,18 +951,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public IString reverse() {
 			String s = getValue();
-			return new IndentedString(newString(s).reverse(), whiteSpace);
+			return newString(s).reverse();
 		}
 
 
 		@Override
 		public int length() {
 			if (length>=0) return length;
+			if (expandedString!=null) {length = expandedString.length(); return length;}
 			int numberOfNewlines = 0;
 			for (int i=0;i<istring.length();i++) {
 				if (Character.toChars(istring.charAt(i))[0]=='\n') numberOfNewlines++;
 			}
-		    return this.istring.length()+numberOfNewlines * this.whiteSpace.length();
+		    length =  this.istring.length()+numberOfNewlines * this.whiteSpace.length();
+		    return length;
 		}
 
 
@@ -969,9 +984,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int compare(IString other) {
-			// int result=  this.getValue().compareTo(other.getValue());
-			// int result = this.expand().compare(other);
-			int result = other.compare(this.expand());
+			int result = expand().compare(other);
 			if (result == 0) {
 		        return 0;
 		    }
@@ -986,32 +999,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int charAt(int index) {
-			int start = posNewline[index/shrink];
-			// int start = 0;
-			int offset = newlineOffset.get(start)!=null?newlineOffset.get(start):0;
-			// int offset = 0;
-			// System.out.println("start:"+start);
-			int lastNewline = 0;
-			for (int i= start;i<istring.length();i++) {
-				if (i+offset==index) {
-					if (posNewline[index/shrink+1]==0) {
-						posNewline[index/shrink+1]=lastNewline;
-					}
-					return istring.charAt(i);
-				}
-				else if (i+offset>index) {
-					if (posNewline[index/shrink+1]==0) {
-						posNewline[index/shrink+1]=lastNewline;
-					}
-					return whiteSpace.charAt(whiteSpace.length()-(i+offset-index));
-				}
-				if (Character.toChars(istring.charAt(i))[0]=='\n')  {
-				    lastNewline = i; 
-				    newlineOffset.put(i, offset);
-				    offset+=whiteSpace.length();
-			        }		
-			    }
-			return -1;
+			String str = expand().getValue();
+			return str.codePointAt(str.offsetByCodePoints(0, index));
 		}
 
 
@@ -1033,7 +1022,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         public Iterator<Integer> iterator() {
             return new Iterator<Integer> () {
                 private int cur = 0;
-
                 public boolean hasNext() {
                     return cur < length();
                 }
