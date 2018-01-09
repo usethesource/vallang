@@ -889,6 +889,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		final private IString whiteSpace;
 		final private IString istring;
 		private IString expandedString;
+		static final private StringBuffer stringBuffer = new StringBuffer(10000);
 		int length = -1;
 		
 		
@@ -902,11 +903,45 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         
         private IString expand() {
-        	if (expandedString==null) expandedString= newString(this.getValue());
+        	if (expandedString==null) {
+        		expandedString= newString(this.getValue());
+        	    }
         	return expandedString;
         }
+        
+        
+        public void _getValue() {
+			if (expandedString==null) {
+	        if (this.istring instanceof BinaryBalancedLazyConcatString) {
+	        	IStringTreeNode treeNode = ((IStringTreeNode) this.istring);
+	        	new IndentedString(treeNode.left(), this.whiteSpace)._getValue();
+	            new IndentedString(treeNode.right(),this.whiteSpace)._getValue();
+	            }
+	        else {
+	            String string = istring.getValue();
+	            String[] str = string.split("\n");
+	            String ws =  "\n"+whiteSpace.getValue();
+	            if (str.length>0) stringBuffer.append(str[0]);
+	            for (int i=1;i<str.length;i++) {
+	        	    stringBuffer.append(ws);
+	        	    stringBuffer.append(str[i]);
+	                }
+	            }
+			}		
+        }
+       
+        @Override
+		public String getValue() {
+			if (expandedString!=null) return expandedString.getValue();
+			stringBuffer.setLength(0);
+			_getValue();
+			String string = stringBuffer.toString();
+			// expandedString = newString(string, false);
+			return string;		
+        }
+        
 
-
+ /*       
 		@Override
 		public String getValue() {
 			if (expandedString!=null) return expandedString.getValue();
@@ -918,7 +953,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	        }
 	        else
 	        {
-	        StringBuffer bf = new StringBuffer(this.istring.length());
+	        // StringBuffer bf = new StringBuffer(this.istring.length());
+	        StringBuffer bf = new StringBuffer(1000);
 	        String string = istring.getValue();
 	        String[] str = string.split("\n");
 	        String ws =  "\n"+whiteSpace.getValue();
@@ -927,18 +963,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	        	bf.append(ws);
 	        	bf.append(str[i]);
 	        }
-	        /*
-	        for (Character c: string.toCharArray()) {
-	        	bf.append(c);
-	        	if (c=='\n') {
-	        		bf.append(whiteSpace.getValue());
-	        	}
-	        }
-	        */
 	        output= bf.toString();
 	        }
 	        return output;	
 	    }
+  */ 
 		
 
 
@@ -984,6 +1013,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int compare(IString other) {
+			// System.out.println("Compare:"+this.getClass()+" "+other.getClass());
 			int result = expand().compare(other);
 			if (result == 0) {
 		        return 0;
@@ -999,8 +1029,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int charAt(int index) {
-			String str = expand().getValue();
-			return str.codePointAt(str.offsetByCodePoints(0, index));
+			return expand().charAt(index);
 		}
 
 

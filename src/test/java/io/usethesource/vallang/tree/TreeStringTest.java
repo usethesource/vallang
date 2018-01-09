@@ -496,40 +496,49 @@ public void testIndent() {
 
 @Test
 public void compareIndent()  {
-	int n  = 10000;
+	int n  = 100000;
 	String indent = "123";
-	IString start1 = vf.string("start");
-	IString start2 =  start1.indent(vf.string(indent));
+	// String start = "start"+"a🍕b";
+	String start = "start";
 	String step = "abc";
+	IString start1 = vf.string(start);
+	IString start2 =  start1.indent(vf.string(indent));
 	// IString step1 = vf.string("\n"+indent).concat(vf.string(step));
 	IString step2 = vf.string("\n"+step);
-	IString result1 = start1;
-	IString result2 = start2;
-	long startTime, estimatedTime;
-	startTime = System.nanoTime();
-	for (int i=0;i<n;i++) {
-	   result1 = result1.concat(vf.string("\n"+indent).concat(vf.string(step)));
-	   }
-	estimatedTime = (System.nanoTime() - startTime)/1000000;
-	System.out.println("Old:"+ estimatedTime + "ms");
-	startTime = System.nanoTime();
-	for (int i=0;i<n;i++) {
-	   result2 = result2.concat(step2);
-	   }
-	estimatedTime = (System.nanoTime() - startTime)/1000000;
-	System.out.println("New:"+ estimatedTime + "ms");
-	startTime = System.nanoTime();
-	work(result1);
-	estimatedTime = (System.nanoTime() - startTime)/1000000;
-	System.out.println("work old:"+ estimatedTime + "ms");
-	startTime = System.nanoTime();
-	work(result2);
-	estimatedTime = (System.nanoTime() - startTime)/1000000;
-	System.out.println("work new:"+ estimatedTime + "ms");
-	startTime = System.nanoTime();
-	assertEqual(result1, result2);
-	estimatedTime = (System.nanoTime() - startTime)/1000000;
-	System.out.println("Equals:"+ estimatedTime + "ms");
-    }
+	for (int i=0;i<2;i++) {
+		System.out.println("Round:"+i);
+		IString result1 = start1;
+		IString result2 = start2;
+		long startTime, estimatedTime;
+		startTime = System.nanoTime();
+		for (int j=0;j<n;j++) {
+		   result1 = result1.concat(vf.string("\n"+indent).concat(vf.string(step)));
+		   }
+		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("Old:"+ estimatedTime + "ms");
+		startTime = System.nanoTime();
+		for (int j=0;j<n;j++) {
+		   result2 = result2.concat(step2);
+		   }
+		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("New:"+ estimatedTime + "ms");
+	  startTime = System.nanoTime();
+	  work(result1);
+	  estimatedTime = (System.nanoTime() - startTime)/1000000;
+	  System.out.println("work old:"+ estimatedTime + "ms");
+	  startTime = System.nanoTime();
+	  work(result2);
+	  estimatedTime = (System.nanoTime() - startTime)/1000000;
+	  System.out.println("work new:"+ estimatedTime + "ms");
+	  startTime = System.nanoTime();
+	  assertEqual(result1, result2);
+	  estimatedTime = (System.nanoTime() - startTime)/1000000;
+	  System.out.println("Equals:"+ estimatedTime + "ms");
+	  startTime = System.nanoTime();
+	  assertEqual(result2, result1);
+	  estimatedTime = (System.nanoTime() - startTime)/1000000;
+	  System.out.println("Equals 2:"+ estimatedTime + "ms");
+      }
+   }
 }
 
