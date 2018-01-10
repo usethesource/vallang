@@ -223,27 +223,6 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 	    @Override
 	    public Type getConstructorType(){
-	        if (constructorType.getAbstractDataType().isParameterized()) {
-
-	            // this assures we always have the most concrete type for constructors.
-	            Type[] actualTypes = new Type[constructorType.getArity()];
-	            int i = 0;
-	            for (IValue child : this) {
-	                actualTypes[i++] = child.getType();
-	            }
-
-	            Map<Type,Type> bindings = new HashMap<Type,Type>();
-	            constructorType.getFieldTypes().match(TypeFactory.getInstance().tupleType(actualTypes), bindings);
-
-	            for (Type field : constructorType.getAbstractDataType().getTypeParameters()) {
-	                if (!bindings.containsKey(field)) {
-	                    bindings.put(field, TypeFactory.getInstance().voidType());
-	                }
-	            }
-
-	            return constructorType.instantiate(bindings);
-	        }
-
 	        return constructorType;
 	    }
 
@@ -298,6 +277,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
             return o == this;
         }
         
+        @SuppressWarnings("deprecation")
         @Override
         public boolean isEqual(IValue value) {
             if (value == this) {
@@ -831,6 +811,40 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	    }
 	}
 	
+	private static class TypeParameterizedConstructorN extends ConstructorN {
+	    private final Type uninstantiatedConstructorType;
+
+        public TypeParameterizedConstructorN(Type constructorType, IValue[] children) {
+            super(instantiate(constructorType, children), children);
+            assert constructorType.isParameterized();
+            this.uninstantiatedConstructorType = constructorType;
+        }
+
+        private static Type instantiate(Type constructorType, IValue[] children) {
+            Type[] actualTypes = new Type[constructorType.getArity()];
+            int i = 0;
+            for (IValue child : children) {
+                actualTypes[i++] = child.getType();
+            }
+
+            Map<Type,Type> bindings = new HashMap<Type,Type>();
+            constructorType.getFieldTypes().match(TypeFactory.getInstance().tupleType(actualTypes), bindings);
+
+            for (Type field : constructorType.getAbstractDataType().getTypeParameters()) {
+                if (!bindings.containsKey(field)) {
+                    bindings.put(field, TypeFactory.getInstance().voidType());
+                }
+            }
+
+            return constructorType.instantiate(bindings);
+        }
+        
+        @Override
+        public Type getUninstantiatedConstructorType() {
+            return uninstantiatedConstructorType;
+        }
+	}
+	
 	/**
 	 * As empty constructors are very common and are only based on a type that is already maximally shared we also maximally share the Constructor0 instances
 	 * 
@@ -839,16 +853,20 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
     private static final LoadingCache<Type, IConstructor> EMPTY_CONSTRUCTOR_SINGLETONS = Caffeine.newBuilder().build(Constructor0::new);
 
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
+	    if (constructorType.isParameterized()) {
+	        return new TypeParameterizedConstructorN(constructorType, children);
+	    }
+	    
 	    switch (children.length) {
-	    case 0: return EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType);
-	    case 1: return new Constructor1(constructorType, children[0]);
-	    case 2: return new Constructor2(constructorType, children[0], children[1]);
-	    case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
-	    case 4: return new Constructor4(constructorType, children[0], children[1], children[2], children[3]);
-	    case 5: return new Constructor5(constructorType, children[0], children[1], children[2], children[3], children[4]);
-	    case 6: return new Constructor6(constructorType, children[0], children[1], children[2], children[3], children[4], children[5]);
-	    case 7: return new Constructor7(constructorType, children[0], children[1], children[2], children[3], children[4], children[5], children[6]);
-	    default: return new ConstructorN(constructorType, children);
+	        case 0: return EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType);
+	        case 1: return new Constructor1(constructorType, children[0]);
+	        case 2: return new Constructor2(constructorType, children[0], children[1]);
+	        case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
+	        case 4: return new Constructor4(constructorType, children[0], children[1], children[2], children[3]);
+	        case 5: return new Constructor5(constructorType, children[0], children[1], children[2], children[3], children[4]);
+	        case 6: return new Constructor6(constructorType, children[0], children[1], children[2], children[3], children[4], children[5]);
+	        case 7: return new Constructor7(constructorType, children[0], children[1], children[2], children[3], children[4], children[5], children[6]);
+	        default: return new ConstructorN(constructorType, children);
 	    }
 	}
 
