@@ -725,7 +725,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public int compare(IString other) {
 		    IStringTreeNode o = (IStringTreeNode) other;
-
+		    // System.out.println("Compare:"+this.getClass()+" "+other.getClass());
 		    Iterator<Integer> it1 = this.iterator();
 		    Iterator<Integer> it2 = o.iterator();
 
@@ -889,7 +889,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		final private IString whiteSpace;
 		final private IString istring;
 		private IString expandedString;
-		static final private StringBuffer stringBuffer = new StringBuffer(10000);
+		static final private StringBuffer stringBuffer = new StringBuffer(100000);
 		int length = -1;
 		
 		
@@ -919,15 +919,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	            }
 	        else {
 	            String string = istring.getValue();
-	            String[] str = string.split("\n");
-	            String ws =  "\n"+whiteSpace.getValue();
-	            if (str.length>0) stringBuffer.append(str[0]);
-	            for (int i=1;i<str.length;i++) {
-	        	    stringBuffer.append(ws);
-	        	    stringBuffer.append(str[i]);
-	                }
-	            }
-			}		
+                for (Character c: string.toCharArray()) {
+            	stringBuffer.append(c);
+                    if (c=='\n') {
+                    	stringBuffer.append(whiteSpace.getValue());
+                    }      
+			     }
+	          }
+          }
         }
        
         @Override
@@ -1049,14 +1048,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				
 		@Override
         public Iterator<Integer> iterator() {
+			// System.out.println("Class:"+expandedString.getClass());
+			expand();
             return new Iterator<Integer> () {
                 private int cur = 0;
                 public boolean hasNext() {
-                    return cur < length();
+                    return cur < expandedString.length();
                 }
 
                 public Integer next() {
-                    return charAt(cur++);
+                    return expandedString.charAt(cur++);
                 }
 
                 public void remove() {
