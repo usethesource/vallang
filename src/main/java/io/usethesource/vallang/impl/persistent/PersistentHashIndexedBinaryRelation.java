@@ -23,6 +23,7 @@ import java.util.stream.StreamSupport;
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.SetMultimap;
+import io.usethesource.capsule.core.PersistentTrieSetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import io.usethesource.vallang.IMap;
@@ -37,6 +38,7 @@ import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
+import io.usethesource.vallang.util.EqualityUtils;
 
 import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
 import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
@@ -583,14 +585,13 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
         // TODO: replace by `inverse` API of subsequent capsule release
         if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1, 0))) {
-          // return SetFunctions.project(getValueFactory(), thisSet, fieldIndexes);
-
           final SetMultimap.Transient<IValue, IValue> builder =
-              SetMultimap.Transient.of(equivalenceEqualityComparator);
+                  PersistentTrieSetMultimap.transientOf(Object::equals);
 
           content.entryIterator().forEachRemaining(
               tuple -> builder.__insert(tuple.getValue(), tuple.getKey()));
 
+          
           return PersistentSetFactory.from(valTypeBag, keyTypeBag, builder.freeze());
         }
 
