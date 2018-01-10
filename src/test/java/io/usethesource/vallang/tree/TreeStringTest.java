@@ -515,6 +515,7 @@ public void compareIndent()  {
 		   result1 = result1.concat(vf.string("\n"+indent).concat(vf.string(step)));
 		   }
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		
 		System.out.println("Old:"+ estimatedTime + "ms");
 		startTime = System.nanoTime();
 		for (int j=0;j<n;j++) {
@@ -522,10 +523,14 @@ public void compareIndent()  {
 		   }
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
 		System.out.println("New:"+ estimatedTime + "ms");
+		
 	  startTime = System.nanoTime();
 	  work(result1);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("work old:"+ estimatedTime + "ms");
+	  
+	  // result2.iterator();
+	  
 	  startTime = System.nanoTime();
 	  work(result2);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
@@ -534,8 +539,9 @@ public void compareIndent()  {
 	  assertEqual(result1, result2);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("Equals:"+ estimatedTime + "ms");
+	  
 	  startTime = System.nanoTime();
-	  assertEqual(result2, result1);
+	  assertEqual(result2, result2);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("Equals 2:"+ estimatedTime + "ms");
       }
