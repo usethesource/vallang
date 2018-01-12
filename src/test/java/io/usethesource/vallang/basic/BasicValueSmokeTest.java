@@ -176,7 +176,9 @@ public final class BasicValueSmokeTest {
 		     randomLines[n] = newString;
 		  }
 		  
-		  checkIndent("  ", nl, randomLines);
+		  for (int n = 0; n < 20; n++) {
+			  checkIndent(RandomUtil.string(rnd, rnd.nextInt(20)), nl, randomLines);
+		  }
 	  }
   }
 
