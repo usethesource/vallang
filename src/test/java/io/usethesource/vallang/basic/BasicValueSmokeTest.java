@@ -1,15 +1,18 @@
 package io.usethesource.vallang.basic;
 
 import java.net.URISyntaxException;
+import java.util.Random;
 
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -120,6 +123,61 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("🍝y").replace(0, 1, 0, vf.string("🍝q")).isEqual(vf.string("🍝q🍝y")));
     assertTrue(vf.string("x🍝").replace(1, 1, 1, vf.string("🍝q")).isEqual(vf.string("x🍝q🍝")));
     assertTrue(vf.string("🍝y🍝").replace(1, 1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
+  }
+  
+  private static final String[] commonNewlines = new String[] { "\r\n", "\n"};
+  
+  
+  private void checkIndent(String indent, String newline, String... lines) {
+	  StringBuilder unindented = new StringBuilder();
+	  StringBuilder indented = new StringBuilder();
+	  IString concatTree = vf.string("");
+	  for (String l : lines) {
+		  unindented.append(l);
+		  unindented.append(newline);
+
+		  concatTree = concatTree.concat(vf.string(l));
+		  concatTree = concatTree.concat(vf.string(newline));
+		  
+		  indented.append(indent);
+		  indented.append(newline);
+		  indented.append(newline);
+	  }
+	  
+	  String expected = indented.toString();
+	  
+	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent));
+	  IString indentedConcatTree = concatTree.indent(vf.string(indent));
+
+	  assertEquals(expected, indentedDirect.toString());
+	  assertEquals(expected, indentedConcatTree.toString());
+	  assertEqual(indentedDirect, indentedConcatTree);
+	  assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
+  }
+  
+  
+
+  public void testStringIndent() {
+	  Random rnd = new Random();
+	  for (String nl: commonNewlines) {
+		  checkIndent(" ", nl, "a", "b", "c");
+		  checkIndent("\t", nl, "a", "b", "c");
+		  checkIndent("\t", nl, "a", "", "c");
+		  checkIndent("   ", nl, "a", "b", "c");
+		  checkIndent(" ", nl, " abcdef", " bcdefg", " cdefgh");
+		  checkIndent(" ", nl, "🍝", " b", " c");
+		  
+		  String[] randomLines = new String[10];
+		  for (int n = 0; n < randomLines.length; n++) {
+		     String newString = RandomUtil.string(rnd, rnd.nextInt(2000));
+		     for (String newL : commonNewlines) {
+		    	 newString = newString.replaceAll(newL, "_");
+		     }
+		     randomLines[n] = newString;
+		  }
+		  
+		  checkIndent("  ", nl, randomLines);
+	  }
   }
 
   @Test
