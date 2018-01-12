@@ -496,7 +496,7 @@ public void testIndent() {
 
 @Test
 public void compareIndent()  {
-	int n  = 100000;
+	int n  = 1000;
 	String indent = "123";
 	// String start = "start"+"a🍕b";
 	String start = "start";
@@ -523,25 +523,24 @@ public void compareIndent()  {
 		   }
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
 		System.out.println("New:"+ estimatedTime + "ms");
-		
 	  startTime = System.nanoTime();
 	  work(result1);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("work old:"+ estimatedTime + "ms");
 	  
 	  // result2.iterator();
-	  
 	  startTime = System.nanoTime();
 	  work(result2);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("work new:"+ estimatedTime + "ms");
+	  
 	  startTime = System.nanoTime();
 	  assertEqual(result1, result2);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("Equals:"+ estimatedTime + "ms");
 	  
 	  startTime = System.nanoTime();
-	  assertEqual(result2, result2);
+	  assertEqual(result2, result1);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("Equals 2:"+ estimatedTime + "ms");
       }
