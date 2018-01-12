@@ -43,6 +43,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private static int DEFAULT_MAX_FLAT_STRING = 512;
 	private static int MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
 	
+	private static int MAX_CACHE = 10000;
+	
 	private static int DEFAULT_MAX_UNBALANCE = 0;
 	private static int MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
 	
@@ -110,6 +112,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			}
 		}
 		return false;
+	}
+	
+	private static int newlineCoint(String str) {
+		int len = str.length();
+		int cnt  =0;
+		for (int i=0; i < len; i++) {
+		   if (str.charAt(i)=='\n') cnt++;
+		   }
+		return cnt;
 	}
 
 	private static class FullUnicodeString extends AbstractValue implements IString, IStringTreeNode {
@@ -457,6 +468,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	            };
 	        }
 	}
+
+	
 
 	/**
      * Concatenation must be fast when generating large strings (for example by a
@@ -888,8 +901,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		final private IString whiteSpace;
 		final private IString istring;
-		private IString expandedString;
-		static final private StringBuffer stringBuffer = new StringBuffer(100000);
+		static final private StringBuffer stringBuffer = new StringBuffer(10000);
+		int[] idx2char;
 		int length = -1;
 		
 		
@@ -902,16 +915,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         	return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));
         }
         
-        private IString expand() {
-        	if (expandedString==null) {
-        		expandedString= newString(this.getValue());
-        	    }
-        	return expandedString;
-        }
-        
         
         public void _getValue() {
-			if (expandedString==null) {
 	        if (this.istring instanceof BinaryBalancedLazyConcatString) {
 	        	IStringTreeNode treeNode = ((IStringTreeNode) this.istring);
 	        	new IndentedString(treeNode.left(), this.whiteSpace)._getValue();
@@ -925,17 +930,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                     	stringBuffer.append(whiteSpace.getValue());
                     }      
 			     }
-	          }
           }
         }
        
         @Override
 		public String getValue() {
-			if (expandedString!=null) return expandedString.getValue();
 			stringBuffer.setLength(0);
 			_getValue();
 			String string = stringBuffer.toString();
-			// expandedString = newString(string, false);
 			return string;		
         }
         
@@ -981,12 +983,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			String s = getValue();
 			return newString(s).reverse();
 		}
-
+		
+		IString expand() {
+			 return newString(getValue());
+		}
 
 		@Override
 		public int length() {
 			if (length>=0) return length;
-			if (expandedString!=null) {length = expandedString.length(); return length;}
 			int numberOfNewlines = 0;
 			for (int i=0;i<istring.length();i++) {
 				if (Character.toChars(istring.charAt(i))[0]=='\n') numberOfNewlines++;
@@ -1025,10 +1029,42 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    }		
 		}
 
-
+		private int _charAt(int index) {
+			int whiteSpaceIndex = -2;
+			int x = 0;
+			int result = -1;
+			for (int i=0;i<index;i++) {
+				if (index<MAX_CACHE) {
+					 if (whiteSpaceIndex>=0) result = whiteSpace.charAt(whiteSpaceIndex);
+					 else result = istring.charAt(x);
+					 idx2char[i] = result;
+				 }
+				 if (istring.charAt(x)=='\n') {
+                   whiteSpaceIndex=-1;
+				 }
+				 if (whiteSpaceIndex>=-1) whiteSpaceIndex++;
+				 if (whiteSpaceIndex ==whiteSpace.length()) {
+					 x -=whiteSpace.length();
+					 whiteSpaceIndex = -2;
+				 } 		 
+				 x++;
+			}
+		    if (whiteSpaceIndex>=0) result = whiteSpace.charAt(whiteSpaceIndex);
+		                       else result = istring.charAt(x);
+		    if (index<MAX_CACHE) idx2char[index] = result;
+		    return result;
+		}
+		
 		@Override
 		public int charAt(int index) {
-			return expand().charAt(index);
+			if (index<MAX_CACHE) {
+			    if (idx2char==null) {
+			    	  idx2char = new int[MAX_CACHE];
+			    	  _charAt(Math.min(MAX_CACHE-1, length()-1));
+			    } 
+			    return idx2char[index];
+			}
+			return _charAt(index);
 		}
 
 
@@ -1049,15 +1085,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
         public Iterator<Integer> iterator() {
 			// System.out.println("Class:"+expandedString.getClass());
-			expand();
             return new Iterator<Integer> () {
                 private int cur = 0;
                 public boolean hasNext() {
-                    return cur < expandedString.length();
+                    return cur < length();
                 }
 
                 public Integer next() {
-                    return expandedString.charAt(cur++);
+                    return charAt(cur++);
                 }
 
                 public void remove() {
