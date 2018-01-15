@@ -19,9 +19,9 @@ public class DirectByteBufferCache {
     private final CacheFactory<ByteBuffer> buffers = new CacheFactory<>(3, TimeUnit.SECONDS, DirectByteBufferCache::clear);
 
     
-    private static Boolean clear(ByteBuffer b) {
-        b.clear();
-        return true;
+    private static ByteBuffer clear(ByteBuffer b) {
+    	b.clear();
+        return b;
     }
     
     private static int roundSize(int size) {
