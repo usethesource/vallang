@@ -124,26 +124,23 @@ public class CacheFactory<T> {
 	}
 	
 	public T get(int size, Function<Integer, T> computeNew) {
-	    return computeIfAbsent(caches, size, cleaner, computeNew);
+        SoftPool<T> reads = caches.computeIfAbsent(size, i -> new SoftPool<>());
+        SoftReference<T> tracker;
+        while ((tracker = reads.poll()) != null) {
+            T result = tracker.get();
+            if (result != null) {
+            	return result;
+            }
+        }
+        return computeNew.apply(size);
 	}
 	
 	public void put(int size, T returned) {
 	    if (returned != null) {
+	    	returned = cleaner.apply(returned);
             SoftPool<T> entries = caches.computeIfAbsent(size, i -> new SoftPool<>());
             entries.push(returned);
             scheduleCleanups.release();
 	    }
 	}
-
-	private static <T> T computeIfAbsent(Map<Integer, SoftPool<T>> cache, int size, Function<T,T> cleaner, Function<Integer, T> constructNew) {
-        SoftPool<T> reads = cache.computeIfAbsent(size, i -> new SoftPool<>());
-        SoftReference<T> tracker;
-        while ((tracker = reads.poll()) != null) {
-            T result = tracker.get();
-            if (result != null) {
-            	return cleaner.apply(result);
-            }
-        }
-        return constructNew.apply(size);
-    }
 }
