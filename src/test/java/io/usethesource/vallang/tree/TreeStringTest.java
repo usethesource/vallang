@@ -496,7 +496,7 @@ public void testIndent() {
 
 @Test
 public void compareIndent()  {
-	int n  = 1000;
+	int n  = 200;
 	String indent = "123";
 	// String start = "start"+"a🍕b";
 	String start = "start";
