@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IString;
@@ -42,8 +43,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	
 	private static int DEFAULT_MAX_FLAT_STRING = 512;
 	private static int MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
-	
-	private static int MAX_CACHE = 10000;
 	
 	private static int DEFAULT_MAX_UNBALANCE = 0;
 	private static int MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
@@ -506,6 +505,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         default int depth() {
             return 1;
         }
+        
+        default int numberOfNewlines() {
+            return -1;
+        }
 
 		/** 
          * all tree nodes must always be almost fully balanced 
@@ -563,6 +566,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		private final IStringTreeNode right; /* must remain final for immutability's sake */
 		private final int length;
 		private final int depth;
+		private int numberOfNewlines = - 1;
 		private int hash = 0;
 
 		public static IStringTreeNode build(IStringTreeNode left, IStringTreeNode right) {
@@ -605,6 +609,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			this.right = right;
 			this.length = left.length() + right.length();
 			this.depth = Math.max(left.depth(), right.depth()) + 1;
+			// Integer[] newline2pos = {};
 		}
 
 		@Override
@@ -633,10 +638,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			}
 
 			IStringTreeNode o = (IStringTreeNode) other;
+			
 			if (length() != o.length()) {
 				return false;
-			}
-			
+			}		
 		    return this.compare(o) == 0;
 		}
 	
@@ -699,6 +704,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public IStringTreeNode right() {
 		    return right;
+		}
+		
+		@Override
+		public int numberOfNewlines() {
+		    return numberOfNewlines;
 		}
 		
 		@Override
@@ -771,6 +781,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			if (index < left.length()) {
 				return left.charAt(index);
 			} else {
+				// System.out.println("index="+index+" "+" length="+ left.length());
 				return right.charAt(index - left.length());
 			}
 		}
@@ -902,25 +913,61 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		final private IString whiteSpace;
 		final private IString istring;
 		static final private StringBuffer stringBuffer = new StringBuffer(10000);
-		int[] idx2char;
+		Integer[] newline2pos = {};
+		int numberOfNewlines = -1;
 		int length = -1;
+		
+		@Override
+		public int numberOfNewlines() {
+		    return numberOfNewlines;
+		}
 		
 		
         IndentedString(IString istring, IString whiteSpace) {
         	this.whiteSpace = whiteSpace;
         	this.istring = istring;
+        	Vector<Integer> buf = new Vector<Integer>();
+        	String string = istring.getValue();
+        	int pos  = 0;
+        	pos = string.indexOf('\n', pos);
+        	while (pos>=0) {
+        	   buf.add(pos);
+          	   pos = string.indexOf('\n', pos+1);
+        	}
+        	newline2pos = buf.toArray(newline2pos);
+        	numberOfNewlines = newline2pos.length;
+        	length = istring.length()+numberOfNewlines * whiteSpace.length();
+        	// System.out.println("Create: length:"+newline2pos.length);
+        }
+        
+        IString build() {return istring instanceof BinaryBalancedLazyConcatString?build(istring, whiteSpace):this;}
+        
+        IString build(IString s, IString whiteSpace) {
+        	 if (s instanceof BinaryBalancedLazyConcatString) {
+        		 BinaryBalancedLazyConcatString t = (BinaryBalancedLazyConcatString) s;
+        		 IStringTreeNode left = (IStringTreeNode) build(t.left, whiteSpace);
+        		 IStringTreeNode right = (IStringTreeNode) build(t.right, whiteSpace);
+        		 BinaryBalancedLazyConcatString result = new BinaryBalancedLazyConcatString(
+        				 (IStringTreeNode) build(left, whiteSpace),(IStringTreeNode) build(right, whiteSpace));
+        		 if (left.numberOfNewlines()>=0 && right.numberOfNewlines()>=0)
+        		    result.numberOfNewlines = left.numberOfNewlines() + right.numberOfNewlines();
+        		 return result;
+        	 }
+        	 return new IndentedString(s, whiteSpace);
         }
         
         public IString indent(IString whiteSpace) {
-        	return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));
+        	return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace)).build();
         }
         
         
         public void _getValue() {
 	        if (this.istring instanceof BinaryBalancedLazyConcatString) {
 	        	IStringTreeNode treeNode = ((IStringTreeNode) this.istring);
-	        	new IndentedString(treeNode.left(), this.whiteSpace)._getValue();
-	            new IndentedString(treeNode.right(),this.whiteSpace)._getValue();
+	        	//new IndentedString(treeNode.left(), this.whiteSpace)._getValue();
+	            //new IndentedString(treeNode.right(),this.whiteSpace)._getValue();
+	        	treeNode.left().getValue();
+	        	treeNode.right().getValue();
 	            }
 	        else {
 	            String string = istring.getValue();
@@ -974,7 +1021,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString concat(IString other) {
-			return new IndentedString(this.istring.concat(other), this.whiteSpace);
+			return new IndentedString(this.istring.concat(other), this.whiteSpace).build();
 		}
 
 
@@ -990,15 +1037,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int length() {
-			if (length>=0) return length;
-			int numberOfNewlines = 0;
-			for (int i=0;i<istring.length();i++) {
-				if (Character.toChars(istring.charAt(i))[0]=='\n') numberOfNewlines++;
-			}
-		    length =  this.istring.length()+numberOfNewlines * this.whiteSpace.length();
-		    return length;
+			return length;
 		}
-
 
 		@Override
 		public IString substring(int start, int end) {
@@ -1028,7 +1068,39 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        return 1;
 		    }		
 		}
-
+		
+		private int _charAt(int index) {
+			int whiteSpaceIndex = -2;
+			int x = 0;
+			int result = -1;
+			int posNewline = newline2pos.length-1;
+			while (posNewline>=0 && (newline2pos[posNewline]+posNewline*whiteSpace.length())>index) posNewline--;
+			
+			int startIndex = 0;
+			if (posNewline>=0) {
+				startIndex = newline2pos[posNewline]+posNewline*whiteSpace.length();
+				x = newline2pos[posNewline];			
+			}
+			// startIndex = 0; x  =0; 	
+			for (int i=startIndex;i<index;i++) {
+				 if (istring.charAt(x)=='\n') {
+                   whiteSpaceIndex=-1;
+				 }
+				 if (whiteSpaceIndex>=-1) whiteSpaceIndex++;
+				 if (whiteSpaceIndex ==whiteSpace.length()) {
+					 x -=whiteSpace.length();
+					 whiteSpaceIndex = -2;
+				 } 		 
+				 x++;
+			}
+			
+		    if (whiteSpaceIndex>=0) result = whiteSpace.charAt(whiteSpaceIndex);
+		                       else result = istring.charAt(x);
+		    //System.out.println("Help:"+posNewline+" "+startIndex+" "+ index+" x="+x+" result="+result+" length="
+		    //		+newline2pos.length);
+		    return result;
+		}
+        /*
 		private int _charAt(int index) {
 			int whiteSpaceIndex = -2;
 			int x = 0;
@@ -1054,16 +1126,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    if (index<MAX_CACHE) idx2char[index] = result;
 		    return result;
 		}
+		*/
 		
 		@Override
 		public int charAt(int index) {
-			if (index<MAX_CACHE) {
-			    if (idx2char==null) {
-			    	  idx2char = new int[MAX_CACHE];
-			    	  _charAt(Math.min(MAX_CACHE-1, length()-1));
-			    } 
-			    return idx2char[index];
-			}
 			return _charAt(index);
 		}
 
