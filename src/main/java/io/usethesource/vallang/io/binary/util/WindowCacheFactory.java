@@ -91,7 +91,7 @@ public class WindowCacheFactory {
     private <T> void doReturn(CacheFactory<T> target, T returned) {
         if (returned instanceof ClearableWindow) {
             int windowSize = ((ClearableWindow) returned).size();
-			if (windowSize >= 16*1024) {
+			if (windowSize >= 1000) {
             	target.put(windowSize, returned);
             }
         }
