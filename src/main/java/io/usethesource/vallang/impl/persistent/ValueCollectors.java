@@ -1,5 +1,6 @@
 package io.usethesource.vallang.impl.persistent;
 
+import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.stream.DefaultCollector;
@@ -40,6 +41,8 @@ public class ValueCollectors {
   }
 
   /**
+   * TODO: unify with {@link #toBinaryRelation}, just differs in factory method call
+   *
    * @param keyLabel optional label of first column
    * @param valueLabel optional label of second column
    */
@@ -68,6 +71,40 @@ public class ValueCollectors {
     return new DefaultCollector<>(SetMultimapStruct::new, accumulator,
         unsupportedCombiner(), struct -> PersistentSetFactory.from(struct.keyTypeBag,
             struct.valTypeBag, (SetMultimap.Immutable<IValue, IValue>) struct.map.freeze()),
+        UNORDERED);
+  }
+
+  /**
+   * TODO: unify with {@link #toSetMultimap}, just differs in factory method call
+   *
+   * @param keyLabel optional label of first column
+   * @param valueLabel optional label of second column
+   */
+  public static <T extends ITuple, K extends IValue, V extends IValue> Collector<T, ?, ISet> toBinaryRelation(
+      Optional<String> keyLabel, Function<? super T, ? extends K> keyMapper,
+      Optional<String> valueLabel, Function<? super T, ? extends V> valueMapper) {
+
+    class SetMultimapStruct {
+      AbstractTypeBag keyTypeBag = AbstractTypeBag.of(keyLabel.orElse(null));
+      AbstractTypeBag valTypeBag = AbstractTypeBag.of(valueLabel.orElse(null));
+      BinaryRelation.Transient<K, V> map =
+          BinaryRelation.Transient.of();
+    }
+
+    /** extract key/value from type {@code T} and insert into multimap */
+    final BiConsumer<SetMultimapStruct, T> accumulator = (struct, element) -> {
+      final K key = keyMapper.apply(element);
+      final V val = valueMapper.apply(element);
+
+      if (struct.map.__insert(key, val)) {
+        struct.keyTypeBag = struct.keyTypeBag.increase(key.getType());
+        struct.valTypeBag = struct.valTypeBag.increase(val.getType());
+      }
+    };
+
+    return new DefaultCollector<>(SetMultimapStruct::new, accumulator,
+        unsupportedCombiner(), struct -> PersistentSetFactory.from(struct.keyTypeBag,
+        struct.valTypeBag, (BinaryRelation.Immutable<IValue, IValue>) struct.map.freeze()),
         UNORDERED);
   }
 

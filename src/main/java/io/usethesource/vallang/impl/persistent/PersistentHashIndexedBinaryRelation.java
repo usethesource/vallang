@@ -13,7 +13,6 @@ package io.usethesource.vallang.impl.persistent;
 
 import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
 import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
-import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceEqualityComparator;
 import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
 
 import java.util.Arrays;
@@ -30,6 +29,7 @@ import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
+import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
@@ -41,8 +41,12 @@ import io.usethesource.vallang.impl.AbstractSet;
 import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
+import io.usethesource.vallang.util.EqualityUtils;
 
 public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
+
+  private static final EqualityComparator<Object> equivalenceComparator =
+      EqualityUtils.getEquivalenceComparator();
 
   private Type cachedRelationType;
   private final AbstractTypeBag keyTypeBag;
@@ -142,7 +146,8 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final IValue key = tuple.get(0);
     final IValue val = tuple.get(1);
 
-    final SetMultimap.Immutable<IValue, IValue> contentNew = content.__insert(key, val);
+    final SetMultimap.Immutable<IValue, IValue> contentNew =
+        content.__insertEquivalent(key, val, equivalenceComparator);
 
     if (content == contentNew) {
       return this;
@@ -164,7 +169,8 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final IValue key = tuple.get(0);
     final IValue val = tuple.get(1);
 
-    final SetMultimap.Immutable<IValue, IValue> contentNew = content.__remove(key, val);
+    final SetMultimap.Immutable<IValue, IValue> contentNew =
+        content.__removeEquivalent(key, val, equivalenceComparator);
 
     if (content == contentNew) {
       return this;
@@ -191,7 +197,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final IValue key = tuple.get(0);
     final IValue val = tuple.get(1);
 
-    return content.containsEntry(key, val);
+    return content.containsEntryEquivalent(key, val, equivalenceComparator);
   }
 
   @Override
@@ -300,7 +306,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
          * TODO: containsEntry in isEquals does not use equivalence explicitly here
          * content.containsEntryEquivalent(key, val, equivalenceComparator);
          */
-        if (!content.containsEntry(key, val)) {
+        if (!content.containsEntryEquivalent(key, val, equivalenceComparator)) {
           return false;
         }
       }
@@ -358,7 +364,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final IValue key = entry.getKey();
         final IValue val = entry.getValue();
 
-        if (tmp.__insert(key, val)) {
+        if (tmp.__insertEquivalent(key, val, equivalenceComparator)) {
           modified = true;
           keyTypeBagNew = keyTypeBagNew.increase(key.getType());
           valTypeBagNew = valTypeBagNew.increase(val.getType());
@@ -462,7 +468,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final IValue key = tuple.getKey();
         final IValue val = tuple.getValue();
 
-        if (tmp.__remove(key, val)) {
+        if (tmp.__removeEquivalent(key, val, equivalenceComparator)) {
           modified = true;
           keyTypeBagNew = keyTypeBagNew.decrease(key.getType());
           valTypeBagNew = valTypeBagNew.decrease(val.getType());
@@ -524,19 +530,19 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final SetMultimap.Transient<IValue, IValue> xz = xy.asTransient();
 
         for (IValue x : xy.keySet()) {
-          final Set.Immutable<IValue> ys = xy.get(x);
+          final Set.Immutable<IValue> ys = xy.getEquivalent(x, equivalenceComparator);
           // TODO: simplify expression with nullable data
           final Set.Immutable<IValue> zs = ys.stream()
-              .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(Set.Immutable::of).stream())
+              .flatMap(y -> Optional.ofNullable(yz.getEquivalent(y, equivalenceComparator)).orElseGet(Set.Immutable::of).stream())
               .collect(CapsuleCollectors.toSet());
 
           if (zs == null) {
-            xz.__remove(x);
+            xz.__removeEquivalent(x, equivalenceComparator);
           } else {
-            // xz.__put(x, zs); // TODO: requires node batch update support
+            // xz.__putEquivalent(x, zs, equivalenceComparator); // TODO: requires node batch update support
 
-            xz.__remove(x);
-            zs.forEach(z -> xz.__insert(x, z));
+            xz.__removeEquivalent(x, equivalenceComparator);
+            zs.forEach(z -> xz.__insertEquivalent(x, z, equivalenceComparator));
           }
         }
 
@@ -582,17 +588,8 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
           return thisSet;
         }
 
-        // TODO: replace by `inverse` API of subsequent capsule release
         if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1, 0))) {
-          // return SetFunctions.project(getValueFactory(), thisSet, fieldIndexes);
-
-          final SetMultimap.Transient<IValue, IValue> builder =
-              SetMultimap.Transient.of(equivalenceEqualityComparator);
-
-          content.entryIterator().forEachRemaining(
-              tuple -> builder.__insert(tuple.getValue(), tuple.getKey()));
-
-          return PersistentSetFactory.from(valTypeBag, keyTypeBag, builder.freeze());
+          return PersistentSetFactory.from(valTypeBag, keyTypeBag, content.inverse());
         }
 
         return SetFunctions.project(thisSet.getValueFactory(), thisSet, fieldIndexes);
@@ -671,7 +668,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
       @Override
       public ISet index(IValue key) {
-        Immutable<IValue> values = thisSet.content.get(key);
+        Immutable<IValue> values = thisSet.content.getEquivalent(key, equivalenceComparator);
         if (values == null) {
           return EmptySet.EMPTY_SET;
         }
