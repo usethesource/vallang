@@ -482,15 +482,15 @@ public void testIndent() {
 
 @Test
 public void compareIndent()  {
-	int n  = 10000;
+	int n  = 100000;
 	String indent = "123";
 	// String start = "start"+"a🍕b";
 	String start = "start";
-	String step = "abc";
+	String stepc1 = "abc";
+	String stepd1 = "abcd";
 	IString start1 = vf.string(start);
-	IString start2 =  start1.indent(vf.string(indent));
-	// IString step1 = vf.string("\n"+indent).concat(vf.string(step));
-	IString step2 = vf.string("\n"+step);
+	IString stepc2 = vf.string("\n"+stepc1);
+	IString stepd2 = vf.string("\n"+stepd1);
 	for (int i=0;i<2;i++) {
 		System.out.println("Round:"+i);
 		IString result1 = start1;
@@ -498,14 +498,14 @@ public void compareIndent()  {
 		long startTime, estimatedTime;
 		startTime = System.nanoTime();
 		for (int j=0;j<n;j++) {
-		   result1 = result1.concat(vf.string("\n"+indent).concat(vf.string(step)));
+		   result1 = result1.concat(vf.string("\n"+indent).concat(vf.string(j%2==0?stepc1:stepd1)));
 		   }
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
 		
 		System.out.println("Old:"+ estimatedTime + "ms");
 		startTime = System.nanoTime();
 		for (int j=0;j<n;j++) {
-		   result2 = result2.concat(step2);
+		   result2 = result2.concat(j%2==0?stepc2:stepd2);
 		   }
 		result2 = result2.indent(vf.string(indent));
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
@@ -516,8 +516,6 @@ public void compareIndent()  {
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("work old:"+ estimatedTime + "ms");
 	  
-	  
-	  // result2.iterator();
 	  startTime = System.nanoTime();
 	  work(result2);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
@@ -525,8 +523,7 @@ public void compareIndent()  {
 	  
 	  
 	  startTime = System.nanoTime();
-	  //System.out.println("HELP2:"+result2);
-	  //System.out.println("HELP1:"+result1);
+	  
 	  assertEqual(result1, result2);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("Equals:"+ estimatedTime + "ms");

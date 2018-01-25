@@ -900,7 +900,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public void collectLeafIterators(List<Iterator<Integer>> w) {
-			// System.out.println("Tree collectLeaf:"+this.getClass());
 		    left.collectLeafIterators(w);
 		    right.collectLeafIterators(w);;	
 		}
@@ -914,37 +913,73 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		final private IString whiteSpace;
 		final private IString istring;
-		List<IndentedString> leafs = new ArrayList<IndentedString>();
+		IndentedString[] leafs;
 		static final private StringBuffer stringBuffer = new StringBuffer(10000);
 		Integer[] newline2pos = {};
 		int numberOfNewlines = -1;
 		int length = -1;
+		int[] increasingLength; // Needed for lookup
+		int[] cache;
+		
 		
 		@Override
 		public int numberOfNewlines() {
 		    return numberOfNewlines;
 		}
 		
-		void getLeafs(BinaryBalancedLazyConcatString t) {
+		void getLeafs(List<IndentedString> leafs, BinaryBalancedLazyConcatString t) {
 			IStringTreeNode left = t.left;
 			IStringTreeNode right = t.right;
 	        if ((left instanceof BinaryBalancedLazyConcatString)) 
-	    	   getLeafs((BinaryBalancedLazyConcatString) left);
+	    	   getLeafs(leafs, (BinaryBalancedLazyConcatString) left);
 	         else
 	    	     leafs.add(new IndentedString(left, whiteSpace));
 	    if ((right instanceof BinaryBalancedLazyConcatString)) 
-	    	getLeafs((BinaryBalancedLazyConcatString) right);
+	    	getLeafs(leafs, (BinaryBalancedLazyConcatString) right);
 	    else
 	        leafs.add(new IndentedString(right, whiteSpace));
 		}
 		
+
+	    /**
+	     * Returns the index of the specified key in the specified array.
+	     *
+	     * @param  a the array of integers, must be sorted in ascending order
+	     * @param  key the search key
+	     * @return index of key in array {@code a} if present; {@code lowerbound} otherwise
+	     */
+	    public static int getLowerBound(int[] a, int key) {
+	        int lo = 0;
+	        int hi = a.length - 1;
+	        while (lo <= hi) {
+	            // Key is in a[lo..hi] or not present.
+	            int mid = lo + (hi - lo) / 2;
+	            if      (key < a[mid]) hi = mid - 1;
+	            else if (key > a[mid]) lo = mid + 1;
+	            else return mid;
+	        }
+	        return hi;
+	    }	
 		
         IndentedString(IString istring, IString whiteSpace) {
+        	List<IndentedString> leafs1 = new ArrayList<IndentedString>();
         	this.whiteSpace = whiteSpace;
         	this.istring = istring;
         	if (istring instanceof BinaryBalancedLazyConcatString) {
-        		System.out.println("getLeafs");
-        		getLeafs((BinaryBalancedLazyConcatString) istring);
+        		getLeafs(leafs1, (BinaryBalancedLazyConcatString) istring);
+        		leafs = new IndentedString[leafs1.size()];
+        		leafs = leafs1.toArray(leafs);
+        		for (IndentedString d:leafs) {
+        			 d.cache = new int[d.length()];
+        			 for (int i=0;i<d.cache.length;i++) d.cache[i] = -1;
+        		}
+        		increasingLength = new int[leafs.length];
+        		int sum = 0;
+        		for (int i = 0; i<increasingLength.length;i++)  {
+        			sum += leafs[i].length();
+        			increasingLength[i] = sum;
+        		}
+        		System.out.println("getLeafs:"+leafs.length);
         	}
         }
         
@@ -956,7 +991,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
         
         public void _getValue() {
-        	// System.out.println("_GETvALUE:"+this.istring.getClass());
 	        if (this.istring instanceof BinaryBalancedLazyConcatString) {
 	        	for (IStringTreeNode d:leafs) {
 	        		String string = ((IndentedString) d).istring.getValue();
@@ -985,44 +1019,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			_getValue();
 			String string = stringBuffer.toString();
 			return string;		
-        }
-        
-
- /*       
-		@Override
-		public String getValue() {
-			if (expandedString!=null) return expandedString.getValue();
-			String output;
-	        if (this.istring instanceof BinaryBalancedLazyConcatString) {
-	        	IStringTreeNode treeNode = ((IStringTreeNode) this.istring);
-	        	output = new IndentedString(treeNode.left(), this.whiteSpace).getValue()+
-	        			 new IndentedString(treeNode.right(),this.whiteSpace).getValue();
-	        }
-	        else
-	        {
-	        // StringBuffer bf = new StringBuffer(this.istring.length());
-	        StringBuffer bf = new StringBuffer(1000);
-	        String string = istring.getValue();
-	        String[] str = string.split("\n");
-	        String ws =  "\n"+whiteSpace.getValue();
-	        if (str.length>0) bf.append(str[0]);
-	        for (int i=1;i<str.length;i++) {
-	        	bf.append(ws);
-	        	bf.append(str[i]);
-	        }
-	        output= bf.toString();
-	        }
-	        return output;	
-	    }
-  */ 
-		
-
+        }	
 
 		@Override
 		public IString concat(IString other) {
 			IString result =  new IndentedString(this.istring.concat(other), this.whiteSpace);
-			// IString result =  this.istring.concat(other);
-			// System.out.println("Concat result="+result);
 			return result;
 		}
 
@@ -1083,9 +1084,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		private int _charAt(IndentedString t, int index) {
+			if (cache!=null && cache[index]>=0) return cache[index];
 			int whiteSpaceIndex = -2;
 			int x = 0;
-			int result = -1;
 			int posNewline = t.newline2pos.length-1;
 			while (posNewline>=0 && (t.newline2pos[posNewline]+posNewline*t.whiteSpace.length())>index) posNewline--;
 			
@@ -1094,8 +1095,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				startIndex = t.newline2pos[posNewline]+posNewline*t.whiteSpace.length();
 				x = t.newline2pos[posNewline];			
 			}
-			// int startIndex = 0; x  =0; 	
 			for (int i=startIndex;i<index;i++) {
+				if (cache!=null) {
+				   if (whiteSpaceIndex>=0) cache[i] = t.whiteSpace.charAt(whiteSpaceIndex);
+                   else cache[i] = t.istring.charAt(x);
+				   }
 				 if (t.istring.charAt(x)=='\n') {
                    whiteSpaceIndex=-1;
 				 }
@@ -1106,17 +1110,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				 } 		 
 				 x++;
 			}
-			
-		    if (whiteSpaceIndex>=0) result = t.whiteSpace.charAt(whiteSpaceIndex);
-		                       else result = t.istring.charAt(x);
-		    //System.out.println("Help:"+posNewline+" "+startIndex+" "+ index+" x="+x+" result="+result+" length="
-		    //		+newline2pos.length);
-		    return result;
+			if (index<t.length()) {
+		         return (whiteSpaceIndex>=0)? t.whiteSpace.charAt(whiteSpaceIndex):t.istring.charAt(x);
+			}
+			return -1;
 		}
 		
 		@Override
 		public int charAt(int index) {
 			if (istring instanceof BinaryBalancedLazyConcatString) {
+				/*
 				int length = 0;
 				int i = 0;
 				for (IStringTreeNode d:leafs) {
@@ -1128,7 +1131,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				  i++;
 				}
 				index -=  length;
-				return _charAt(leafs.get(i), index);
+				*/
+				int i = getLowerBound(increasingLength,  index);
+				if (i>=0) index -= increasingLength[i];
+				if (cache!=null) _charAt(leafs[i+1], leafs[i+1].length());
+				return _charAt(leafs[i+1], index);
 			}
 			return _charAt(this, index);
 		}
