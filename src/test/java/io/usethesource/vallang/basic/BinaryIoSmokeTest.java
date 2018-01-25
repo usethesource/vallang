@@ -91,7 +91,7 @@ public final class BinaryIoSmokeTest {
     Type name = RandomValues.addNameType(ts);
     Random r = new Random(42);
     for (int i = 0; i < 20; i++) {
-      IValue value = RandomValues.generate(name, ts, vf, r, 10);
+      IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
       ioRoundTrip(value, 42);
     }
   }
@@ -102,7 +102,7 @@ public final class BinaryIoSmokeTest {
     Type name = RandomValues.addNameType(ts);
     Random r = new Random(42);
     for (int i = 0; i < 20; i++) {
-      IValue value = RandomValues.generate(name, ts, vf, r, 10);
+      IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
       ioRoundTripFile(value, 42);
     }
   }
@@ -117,7 +117,7 @@ public final class BinaryIoSmokeTest {
     r.setSeed(seed);
     IListWriter writer = vf.listWriter();
     for (int i = 0; i < 5; i++) {
-        writer.append(RandomValues.generate(name, ts, vf, r, 10));      
+        writer.append(RandomValues.generate(name, ts, vf, r, 10, true));      
     }
     ioRoundTripFile(writer.done(), seed);
   }
@@ -131,7 +131,7 @@ public final class BinaryIoSmokeTest {
     r.setSeed(seed);
     IListWriter writer = vf.listWriter();
     for (int i = 0; i < 5; i++) {
-        writer.append(RandomValues.generate(name, ts, vf, r, 10));      
+        writer.append(RandomValues.generate(name, ts, vf, r, 10, true));      
     }
     ioRoundTripFile2(writer.done(), seed);
   }
@@ -205,7 +205,7 @@ public final class BinaryIoSmokeTest {
     TypeFactory tf = TypeFactory.getInstance();
     TypeStore ts = new TypeStore();
     Random r = new Random(seed);
-    RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6);
+    RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6, true);
     for (int i = 0; i < 1000; i++) {
         IValue val = gen.generate(tf.valueType(), ts, null);
         ioRoundTrip(val, seed);
@@ -223,7 +223,7 @@ public final class BinaryIoSmokeTest {
     Type name = RandomValues.addNameType(ts);
     Random r = new Random(42);
     for (int i = 0; i < 20; i++) {
-      IValue value = RandomValues.generate(name, ts, vf, r, 10);
+      IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
       ioRoundTripOld(value, 42);
     }
   }

@@ -100,7 +100,7 @@ public class StacklessStructuredVisitorTest {
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random();
         for (int i = 0; i < 10; i++) {
-            testVisitStructure(RandomValues.generate(tp, ts, vf, r, 10));
+            testVisitStructure(RandomValues.generate(tp, ts, vf, r, 10, true));
         }
     }
     @Test
@@ -109,7 +109,7 @@ public class StacklessStructuredVisitorTest {
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random();
         for (int i = 0; i < 10; i++) {
-            testVisitStructureSkipped(RandomValues.generate(tp, ts, vf, r, 10));
+            testVisitStructureSkipped(RandomValues.generate(tp, ts, vf, r, 10, true));
         }
     }
 
