@@ -350,7 +350,7 @@ private int work(IString str) {
 	// System.out.println("String:"+str);
 	int r = 0;
     for (Integer c : str) r+=c;
-    System.out.println("Work:"+r);
+    // System.out.println("Work:"+r);
     return r;
 }
 		
@@ -483,8 +483,8 @@ public void testIndent() {
 @Test
 public void compareIndent()  {
 	int n  = 100000;
-	String indent = "123";
-	// String start = "start"+"a🍕b";
+	String indent = "123123";
+	// String start = "start"+"a🍕🍕🍕🍕b";
 	String start = "start";
 	String stepc1 = "abc";
 	String stepd1 = "abcd";
@@ -502,14 +502,14 @@ public void compareIndent()  {
 		   }
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
 		
-		System.out.println("Old:"+ estimatedTime + "ms");
+		System.out.println("Old creation:"+ estimatedTime + "ms");
 		startTime = System.nanoTime();
 		for (int j=0;j<n;j++) {
 		   result2 = result2.concat(j%2==0?stepc2:stepd2);
 		   }
 		result2 = result2.indent(vf.string(indent));
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
-		System.out.println("New:"+ estimatedTime + "ms");
+		System.out.println("New creation:"+ estimatedTime + "ms");
 	  
 	  startTime = System.nanoTime();
 	  work(result1);
