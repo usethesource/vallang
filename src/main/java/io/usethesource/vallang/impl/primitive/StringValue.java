@@ -62,20 +62,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     static synchronized public void resetMaxUnbalance() {
         MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
     }
-    
-    
-    
-    
-    private static IStringTreeNode genString(int n) {
-        String[] s = {"a", "b", "c", "d", "e", "f"};
-        IString result = newString(s[0]);
-        for (int i=1;i<n; i++) {
-            result = result.concat(newString(s[i%6]));
-            // result = vf.string(s[i%6]).concat(result);
-        }
-        
-        return (IStringTreeNode) result;
-    }
 
 	public static IString newString(String value) {
 		if (value == null) {
@@ -108,15 +94,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			}
 		}
 		return false;
-	}
-	
-	private static int newlineCoint(String str) {
-		int len = str.length();
-		int cnt  =0;
-		for (int i=0; i < len; i++) {
-		   if (str.charAt(i)=='\n') cnt++;
-		   }
-		return cnt;
 	}
 
 	private static class FullUnicodeString extends AbstractValue implements  IStringTreeNode {
@@ -503,9 +480,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return 1;
         }
         
-        default int numberOfNewlines() {
-            return -1;
-        }
 
 		/** 
          * all tree nodes must always be almost fully balanced 
@@ -564,7 +538,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		private final IStringTreeNode right; /* must remain final for immutability's sake */
 		private final int length;
 		private final int depth;
-		private int numberOfNewlines = - 1;
 		private int hash = 0;
 		
 
@@ -705,11 +678,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public IStringTreeNode right() {
 		    return right;
-		}
-		
-		@Override
-		public int numberOfNewlines() {
-		    return numberOfNewlines;
 		}
 		
 		@Override
@@ -922,11 +890,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		int[] cache;
 		
 		
-		@Override
-		public int numberOfNewlines() {
-		    return numberOfNewlines;
-		}
-		
 		void getLeafs(List<IndentedString> leafs, BinaryBalancedLazyConcatString t) {
 			IStringTreeNode left = t.left;
 			IStringTreeNode right = t.right;
@@ -969,27 +932,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         		getLeafs(leafs1, (BinaryBalancedLazyConcatString) istring);
         		leafs = new IndentedString[leafs1.size()];
         		leafs = leafs1.toArray(leafs);
-        		for (IndentedString d:leafs) {
-        			 d.cache = new int[d.length()];
-        			 for (int i=0;i<d.cache.length;i++) d.cache[i] = -1;
-        		}
+        		//for (int i  =0; i< leafs.length; i++) {
+        		//	 leafs[i].cache = new int[leafs[i].length()];
+        		//	 for (int j=0;j<leafs[i].cache.length;j++) leafs[i].cache[j] = -1;
+        		// }
         		increasingLength = new int[leafs.length];
         		int sum = 0;
         		for (int i = 0; i<increasingLength.length;i++)  {
         			sum += leafs[i].length();
         			increasingLength[i] = sum;
         		}
-        		System.out.println("getLeafs:"+leafs.length);
         	}
         }
-        
-        
         
         public IString indent(IString whiteSpace) {
         	return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));
         }
-        
-        
+             
         public void _getValue() {
 	        if (this.istring instanceof BinaryBalancedLazyConcatString) {
 	        	for (IStringTreeNode d:leafs) {
@@ -1083,35 +1042,35 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    }		
 		}
 		
-		private int _charAt(IndentedString t, int index) {
+		private int _charAt(int index) {
 			if (cache!=null && cache[index]>=0) return cache[index];
 			int whiteSpaceIndex = -2;
+			int newLine = (int) '\n';
 			int x = 0;
-			int posNewline = t.newline2pos.length-1;
-			while (posNewline>=0 && (t.newline2pos[posNewline]+posNewline*t.whiteSpace.length())>index) posNewline--;
+			int posNewline = newline2pos.length-1;
+			while (posNewline>=0 && (newline2pos[posNewline]+posNewline*whiteSpace.length())>index) posNewline--;
 			
 			int startIndex = 0;
 			if (posNewline>=0) {
-				startIndex = t.newline2pos[posNewline]+posNewline*t.whiteSpace.length();
-				x = t.newline2pos[posNewline];			
+				startIndex = newline2pos[posNewline]+posNewline*whiteSpace.length();
+				x = newline2pos[posNewline];			
 			}
 			for (int i=startIndex;i<index;i++) {
-				if (cache!=null) {
-				   if (whiteSpaceIndex>=0) cache[i] = t.whiteSpace.charAt(whiteSpaceIndex);
-                   else cache[i] = t.istring.charAt(x);
-				   }
-				 if (t.istring.charAt(x)=='\n') {
-                   whiteSpaceIndex=-1;
+				//if (cache!=null) {
+				//   if (whiteSpaceIndex>=0) cache[i] = whiteSpace.charAt(whiteSpaceIndex);
+                //  else cache[i] = istring.charAt(x);
+				//   }
+				// System.out.println("_charAt: x="+x+" i="+i+" "+t.istring.charAt(x));
+				 if (istring.charAt(x)==newLine) {
+                   whiteSpaceIndex=-1; x++;
 				 }
-				 if (whiteSpaceIndex>=-1) whiteSpaceIndex++;
-				 if (whiteSpaceIndex ==t.whiteSpace.length()) {
-					 x -=t.whiteSpace.length();
+				 if (whiteSpaceIndex>=-1) whiteSpaceIndex++; else x++;
+				 if (whiteSpaceIndex ==whiteSpace.length()) {
 					 whiteSpaceIndex = -2;
-				 } 		 
-				 x++;
+				 } 
 			}
-			if (index<t.length()) {
-		         return (whiteSpaceIndex>=0)? t.whiteSpace.charAt(whiteSpaceIndex):t.istring.charAt(x);
+			if (index<length()) {
+		         return (whiteSpaceIndex>=0)? whiteSpace.charAt(whiteSpaceIndex):istring.charAt(x);
 			}
 			return -1;
 		}
@@ -1134,10 +1093,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				*/
 				int i = getLowerBound(increasingLength,  index);
 				if (i>=0) index -= increasingLength[i];
-				if (cache!=null) _charAt(leafs[i+1], leafs[i+1].length());
-				return _charAt(leafs[i+1], index);
+				//if (leafs[i+1].cache!=null && leafs[i+1].cache[0]==-1) 
+				//	    leafs[i+1]._charAt(leafs[i+1].length()-1);
+				return  leafs[i+1]._charAt(index);
+				
 			}
-			return _charAt(this, index);
+			return _charAt(index);
 		}
 
 		@Override
