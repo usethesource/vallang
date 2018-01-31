@@ -887,7 +887,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		int numberOfNewlines = -1;
 		int length = -1;
 		int[] increasingLength; // Needed for lookup
-		int[] cache;
+		int newline2posLo=-1;
+		int increasingLengthLo=-1;
+		// int[] cache;
 		
 		
 		void getLeafs(List<IndentedString> leafs, BinaryBalancedLazyConcatString t) {
@@ -911,24 +913,44 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	     * @param  key the search key
 	     * @return index of key in array {@code a} if present; {@code lowerbound} otherwise
 	     */
-	    public static int getLowerBound(int[] a, int key) {
+	    public int newline2posLowerBound(int key) {
+	    	if (newline2posLo>=0 && key>newline2pos[newline2posLo] && (newline2posLo==newline2pos.length-1 || key<newline2pos[newline2posLo+1])) 
+	    		     return newline2posLo;
 	        int lo = 0;
-	        int hi = a.length - 1;
+	        int hi = newline2pos.length - 1;
 	        while (lo <= hi) {
 	            // Key is in a[lo..hi] or not present.
 	            int mid = lo + (hi - lo) / 2;
-	            if      (key < a[mid]) hi = mid - 1;
-	            else if (key > a[mid]) lo = mid + 1;
+	            if      (key < newline2pos[mid]) hi = mid - 1;
+	            else if (key > newline2pos[mid]) lo = mid + 1;
 	            else return mid;
 	        }
+	        newline2posLo = hi; 
+	        return hi;
+	    }
+	    
+	    public int increasingLengthLowerBound(int key) {
+	    	if (increasingLengthLo>=0 && key>increasingLength[increasingLengthLo] && 
+	    			   (increasingLengthLo==increasingLength.length-1 ||  key<increasingLength[increasingLengthLo+1])) 
+	    		    return increasingLengthLo;
+	        int lo = 0;
+	        int hi = increasingLength.length - 1;
+	        while (lo <= hi) {
+	            // Key is in a[lo..hi] or not present.
+	            int mid = lo + (hi - lo) / 2;
+	            if      (key < increasingLength[mid]) hi = mid - 1;
+	            else if (key > increasingLength[mid]) lo = mid + 1;
+	            else return mid;
+	        }
+	        increasingLengthLo = hi; 
 	        return hi;
 	    }	
 		
         IndentedString(IString istring, IString whiteSpace) {
-        	List<IndentedString> leafs1 = new ArrayList<IndentedString>();
         	this.whiteSpace = whiteSpace;
         	this.istring = istring;
         	if (istring instanceof BinaryBalancedLazyConcatString) {
+        		List<IndentedString> leafs1 = new ArrayList<IndentedString>();
         		getLeafs(leafs1, (BinaryBalancedLazyConcatString) istring);
         		leafs = new IndentedString[leafs1.size()];
         		leafs = leafs1.toArray(leafs);
@@ -1000,11 +1022,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public int length() {
 			if (length>=0) return length;
-			Vector<Integer> buf = new Vector<Integer>();
+			ArrayList<Integer> buf = new ArrayList<Integer>();
         	String string = istring.getValue();
         	int pos = string.indexOf('\n', 0);
-        	while (pos>=0) {
-        	   buf.add(pos);
+        	for (int i=0;pos>=0;i++) {
+        	   buf.add(pos+i*whiteSpace.length());
           	   pos = string.indexOf('\n', pos+1);
         	}
         	newline2pos = buf.toArray(newline2pos);
@@ -1043,60 +1065,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		private int _charAt(int index) {
-			if (cache!=null && cache[index]>=0) return cache[index];
-			int whiteSpaceIndex = -2;
-			int newLine = (int) '\n';
-			int x = 0;
-			int posNewline = newline2pos.length-1;
-			while (posNewline>=0 && (newline2pos[posNewline]+posNewline*whiteSpace.length())>index) posNewline--;
-			
-			int startIndex = 0;
+			// if (cache!=null && cache[index]>=0) return cache[index];
+			int posNewline =  newline2posLowerBound(index);
 			if (posNewline>=0) {
-				startIndex = newline2pos[posNewline]+posNewline*whiteSpace.length();
-				x = newline2pos[posNewline];			
+				int startIndex = newline2pos[posNewline];			
+			    int index0 = index - startIndex;
+			    if (index0==0) return '\n';
+			    if (/*index0>0 && */ index0<=whiteSpace.length()) return whiteSpace.charAt(index0-1);	   
 			}
-			for (int i=startIndex;i<index;i++) {
-				//if (cache!=null) {
-				//   if (whiteSpaceIndex>=0) cache[i] = whiteSpace.charAt(whiteSpaceIndex);
-                //  else cache[i] = istring.charAt(x);
-				//   }
-				// System.out.println("_charAt: x="+x+" i="+i+" "+t.istring.charAt(x));
-				 if (istring.charAt(x)==newLine) {
-                   whiteSpaceIndex=-1; x++;
-				 }
-				 if (whiteSpaceIndex>=-1) whiteSpaceIndex++; else x++;
-				 if (whiteSpaceIndex ==whiteSpace.length()) {
-					 whiteSpaceIndex = -2;
-				 } 
-			}
-			if (index<length()) {
-		         return (whiteSpaceIndex>=0)? whiteSpace.charAt(whiteSpaceIndex):istring.charAt(x);
-			}
-			return -1;
+			return istring.charAt(index-(posNewline+1)*whiteSpace.length());
 		}
 		
 		@Override
 		public int charAt(int index) {
 			if (istring instanceof BinaryBalancedLazyConcatString) {
-				/*
-				int length = 0;
-				int i = 0;
-				for (IStringTreeNode d:leafs) {
-					length+=d.length();
-					if (length>index) {
-						length -= d.length();
-						break;
-					}
-				  i++;
-				}
-				index -=  length;
-				*/
-				int i = getLowerBound(increasingLength,  index);
+				int i = increasingLengthLowerBound(index);
 				if (i>=0) index -= increasingLength[i];
-				//if (leafs[i+1].cache!=null && leafs[i+1].cache[0]==-1) 
-				//	    leafs[i+1]._charAt(leafs[i+1].length()-1);
-				return  leafs[i+1]._charAt(index);
-				
+				return  leafs[i+1]._charAt(index);	
 			}
 			return _charAt(index);
 		}
