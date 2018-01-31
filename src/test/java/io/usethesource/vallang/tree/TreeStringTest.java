@@ -347,10 +347,9 @@ private IString genFixedString2(int n) {
    }
 
 private int work(IString str) {
-	// System.out.println("String:"+str);
 	int r = 0;
     for (Integer c : str) r+=c;
-    // System.out.println("Work:"+r);
+    System.out.println("Sum:"+r);
     return r;
 }
 		
@@ -421,7 +420,7 @@ public void testStringIterator1() {
 	        
 @Test
 public void testStringIterator2() {
-	    int  n =1000000;
+	    int  n =100000;
 		IString flatStr = genFlatString(n);
 	    for (int i=0;i<2;i++) {
 	    		 long startTime, estimatedTime;
@@ -479,59 +478,74 @@ public void testIndent() {
 	 assertEqual(vf.string("\naap").indent(vf.string("123")), vf.string("\n123aap"));
      }
 
+String simulateOld(String string, String indent) {
+	StringBuffer buf  = new StringBuffer();
+	String[] strings = string.split("\n");
+	buf.append(strings[0]);
+	for (int i=1;i<strings.length;i++) {
+		buf.append("\n");
+	    buf.append(indent);
+	    buf.append(strings[i]);
+	}
+	return buf.toString();
+}
+
 
 @Test
 public void compareIndent()  {
-	int n  = 100000;
+	int n  = 1000000;
 	String indent = "123123";
 	// String start = "start"+"a🍕🍕🍕🍕b";
 	String start = "start";
-	String stepc1 = "abc";
-	String stepd1 = "abcd";
-	IString start1 = vf.string(start);
-	IString stepc2 = vf.string("\n"+stepc1);
-	IString stepd2 = vf.string("\n"+stepd1);
+	String stepc = "abc";
+	String stepd = "abcd";
+	IString header = vf.string(start);
+	IString nextc = vf.string("\n"+stepc);
+	IString nextd = vf.string("\n"+stepd);
 	for (int i=0;i<2;i++) {
 		System.out.println("Round:"+i);
-		IString result1 = start1;
-		IString result2 = start1;
+		IString text = header;
 		long startTime, estimatedTime;
 		startTime = System.nanoTime();
 		for (int j=0;j<n;j++) {
-		   result1 = result1.concat(vf.string("\n"+indent).concat(vf.string(j%2==0?stepc1:stepd1)));
+		   text = text.concat(j%2==0?nextc:nextd);
 		   }
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("Basis creation:"+ estimatedTime + "ms");
 		
-		System.out.println("Old creation:"+ estimatedTime + "ms");
 		startTime = System.nanoTime();
-		for (int j=0;j<n;j++) {
-		   result2 = result2.concat(j%2==0?stepc2:stepd2);
-		   }
-		result2 = result2.indent(vf.string(indent));
+		IString oldString = vf.string(simulateOld(text.getValue(), indent));
 		estimatedTime = (System.nanoTime() - startTime)/1000000;
-		System.out.println("New creation:"+ estimatedTime + "ms");
+		System.out.println("Old indentation:"+ estimatedTime + "ms");
+		
+		startTime = System.nanoTime();
+		IString newString = text.indent(vf.string(indent));
+		estimatedTime = (System.nanoTime() - startTime)/1000000;
+		System.out.println("New indentation:"+ estimatedTime + "ms");
 	  
 	  startTime = System.nanoTime();
-	  work(result1);
+	  int oldWork = work(oldString);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("work old:"+ estimatedTime + "ms");
 	  
 	  startTime = System.nanoTime();
-	  work(result2);
+	  int newWork = work(newString);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("work new:"+ estimatedTime + "ms");
 	  
 	  
 	  startTime = System.nanoTime();
 	  
-	  assertEqual(result1, result2);
+	  assertEqual(oldString, newString);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("Equals:"+ estimatedTime + "ms");
 	  
 	  startTime = System.nanoTime();
-	  assertEqual(result2, result1);
+	  assertEqual(newString, oldString);
 	  estimatedTime = (System.nanoTime() - startTime)/1000000;
 	  System.out.println("Equals 2:"+ estimatedTime + "ms");
+	  
+	  assertEqual(vf.integer(oldWork), vf.integer(newWork));
 	  
       }
    }
