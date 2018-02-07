@@ -548,6 +548,6 @@ public void compareIndent()  {
 	  assertEqual(vf.integer(oldWork), vf.integer(newWork));
 	  
       }
-   }
+}
 }
 
