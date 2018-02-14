@@ -90,19 +90,25 @@ public class WindowCacheFactory {
     
     private <T> void doReturn(CacheFactory<T> target, T returned) {
         if (returned instanceof ClearableWindow) {
-            target.put(((ClearableWindow)returned).size(), returned);
+            int windowSize = ((ClearableWindow) returned).size();
+			if (windowSize >= 1000) {
+            	target.put(windowSize, returned);
+            }
         }
     }
 
-    private static Boolean clear(Object c) {
+    private static TrackLastRead<Object> clear(TrackLastRead<Object> c) {
         if (c instanceof ClearableWindow) {
-            ClearableWindow clearable = (ClearableWindow)c;
-            if (clearable.size() >= 1000) {
-                clearable.clear();
-                return true;
-            }
+            ((ClearableWindow)c).clear();
         }
-        return false;
+        return c;
+    }
+
+    private static TrackLastWritten<Object> clear(TrackLastWritten<Object> c) {
+        if (c instanceof ClearableWindow) {
+            ((ClearableWindow)c).clear();
+        }
+        return c;
     }
 
 }

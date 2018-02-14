@@ -19,9 +19,9 @@ public class DirectByteBufferCache {
     private final CacheFactory<ByteBuffer> buffers = new CacheFactory<>(3, TimeUnit.SECONDS, DirectByteBufferCache::clear);
 
     
-    private static Boolean clear(ByteBuffer b) {
-        b.clear();
-        return true;
+    private static ByteBuffer clear(ByteBuffer b) {
+    	b.clear();
+        return b;
     }
     
     private static int roundSize(int size) {
@@ -33,13 +33,12 @@ public class DirectByteBufferCache {
     }
     
     public void put(ByteBuffer returned) {
-//        System.out.println("returned:" + returned);
-        buffers.put(returned.capacity(), returned);
+    	if (returned.capacity() > (8*1024)) {
+    		buffers.put(returned.capacity(), returned);
+    	}
     }
 
     public ByteBuffer getExact(int size) {
-        ByteBuffer result = buffers.get(size, ByteBuffer::allocateDirect);
-//        System.out.println("getting: " + result);
-        return result;
+        return buffers.get(size, ByteBuffer::allocateDirect);
     }
 }

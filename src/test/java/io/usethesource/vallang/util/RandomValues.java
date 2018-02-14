@@ -74,7 +74,7 @@ public class RandomValues {
 	    return Name;
 	}
 
-    public static IValue generate(Type tp, TypeStore ts, IValueFactory vf, Random rand, int maxDepth) {
-        return new RandomValueGenerator(vf, rand, maxDepth, maxDepth * 2).generate(tp, ts, new HashMap<>());
+    public static IValue generate(Type tp, TypeStore ts, IValueFactory vf, Random rand, int maxDepth, boolean generateAnnotations) {
+        return new RandomValueGenerator(vf, rand, maxDepth, maxDepth * 2, generateAnnotations).generate(tp, ts, new HashMap<>());
     }
 }

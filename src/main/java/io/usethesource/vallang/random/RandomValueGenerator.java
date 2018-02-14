@@ -46,7 +46,8 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     protected final Random random;
     protected final int maxDepth;
     protected final RandomTypeGenerator rt;
-    protected int maxWidth;
+    protected final boolean generateAnnotations;
+    protected final int maxWidth;
     
     protected int currentDepth;
     protected TypeStore currentStore;
@@ -54,7 +55,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     
     
 
-    public RandomValueGenerator(IValueFactory vf, Random random, int maxDepth, int maxWidth) {
+    public RandomValueGenerator(IValueFactory vf, Random random, int maxDepth, int maxWidth, boolean generateAnnotations) {
         if (maxDepth <= 0) {
             throw new IllegalArgumentException("maxDepth is supposed to be 1 or higher");
         }
@@ -62,6 +63,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         this.random = random;
         this.maxDepth = maxDepth;
         this.maxWidth = maxWidth;
+        this.generateAnnotations = generateAnnotations;
         this.rt = new RandomTypeGenerator(random);
 
         this.currentStore = null;
@@ -426,7 +428,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
             return vf.constructor(type, args, generateMappedArgs(kwParamsType));
         }
 
-        if (annoType.size() > 0 && oneEvery(5) && depthLeft() > 0) {
+        if (generateAnnotations && annoType.size() > 0 && oneEvery(5) && depthLeft() > 0) {
             return vf.constructor(type, generateMappedArgs(annoType), args);
         }
 

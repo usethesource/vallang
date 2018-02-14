@@ -1,26 +1,30 @@
 node {
   try { 
-    def mvnHome = tool 'M3'
-    env.JAVA_HOME="${tool 'jdk-oracle-8'}"
-    env.PATH="${env.JAVA_HOME}/bin:${mvnHome}/bin:${env.PATH}"
+    stage('Clone') {
+        checkout scm
+    }
     
-    stage 'Clone'
-    checkout scm
+    withMaven(maven: 'M3', jdk: 'jdk-oracle-8', options: [artifactsPublisher(disabled: true), junitPublisher(disabled: false)] ) {
+        stage('Build and Test') {
+           sh "mvn clean install"
+        }
+
+        stage('Report code coverage') {
+            sh "curl -L https://codecov.io/bash | bash -s - -K -t d32f974b-1db9-4b8e-b1d5-9bd68bb6c107"
+        }
     
-    stage 'Build and Test'
-    sh "mvn -B clean install"
-    
-    stage 'Deploy'
-    if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
-        sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
+        stage('Deploy') {
+            if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
+                sh "mvn -DskipTests deploy"
+            }
+        }
     }
     
     if (currentBuild.previousBuild.result == "FAILURE") { 
-  	  slackSend (color: '#5cb85c', message: "BUILD BACK TO NORMAL:  <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
+  	  slackSend (color: '#5cb85c', channel: "#usethesource", message: "BUILD BACK TO NORMAL:  <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
     }
-    sh "curl -L https://codecov.io/bash | bash -s - -K -t d32f974b-1db9-4b8e-b1d5-9bd68bb6c107"
   } catch(e) {
-  	  slackSend (color: '#d9534f', message: "FAILED: <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
+  	  slackSend (color: '#d9534f', channel: "#usethesource", message: "FAILED: <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
       throw e
   }
 }

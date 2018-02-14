@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -82,9 +83,9 @@ public class CacheFactory<T> {
 
 	private final Semaphore scheduleCleanups = new Semaphore(0);
 	private final Map<Integer, SoftPool<T>> caches = new ConcurrentHashMap<>();
-	private final Function<T, Boolean> cleaner;
+	private final Function<T, T> cleaner;
 	
-	public CacheFactory(int expireAfter, TimeUnit unit, Function<T, Boolean> clearer) {
+	public CacheFactory(int expireAfter, TimeUnit unit, Function<T, T> clearer) {
 	    this.cleaner = clearer;
         Thread t = new Thread(new Runnable() {
             @Override
@@ -123,32 +124,23 @@ public class CacheFactory<T> {
 	}
 	
 	public T get(int size, Function<Integer, T> computeNew) {
-	    return computeIfAbsent(caches, size, computeNew);
-	}
-	
-	public void put(int size, T returned) {
-	    if (returned != null) {
-	        clearAndReturn(caches, size, returned);
-	    }
-	}
-    
-    private void clearAndReturn(Map<Integer, SoftPool<T>> cache, int size, T returned) {
-        if (cleaner.apply(returned)) {
-            SoftPool<T> entries = cache.computeIfAbsent(size, i -> new SoftPool<>());
-            entries.push(returned);
-            scheduleCleanups.release();
-        }
-    }
-
-    private static <T> T computeIfAbsent(Map<Integer, SoftPool<T>> cache, int size, Function<Integer, T> constructNew) {
-        SoftPool<T> reads = cache.computeIfAbsent(size, i -> new SoftPool<>());
+        SoftPool<T> reads = caches.computeIfAbsent(size, i -> new SoftPool<>());
         SoftReference<T> tracker;
         while ((tracker = reads.poll()) != null) {
             T result = tracker.get();
             if (result != null) {
-                return result;
+            	return result;
             }
         }
-        return constructNew.apply(size);
-    }
+        return computeNew.apply(size);
+	}
+	
+	public void put(int size, T returned) {
+	    if (returned != null) {
+	    	returned = cleaner.apply(returned);
+            SoftPool<T> entries = caches.computeIfAbsent(size, i -> new SoftPool<>());
+            entries.push(returned);
+            scheduleCleanups.release();
+	    }
+	}
 }
