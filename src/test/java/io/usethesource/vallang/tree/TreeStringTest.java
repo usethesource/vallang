@@ -348,8 +348,11 @@ private IString genFixedString2(int n) {
 
 private int work(IString str) {
 	int r = 0;
-    for (Integer c : str) r+=c;
-    System.out.println("Sum:"+r);
+    for (Integer c : str) {
+       	// System.out.print(Character.toChars(c));
+    	    r+=c;
+     }
+    System.out.println("Sum:"+r);  
     return r;
 }
 		
@@ -474,7 +477,7 @@ public void testIndent() {
 	IString s = vf.string("start\naap").indent(vf.string("123")).concat((vf.string("\nnoot\nteun").indent(vf.string("456")))).concat(vf.string("\nmies"));
 	 System.out.println(s.getValue());
 	 for (int i=0;i<40;i++)
-	      System.out.println(Character.toChars(s.charAt(i)));
+	      System.out.print(Character.toChars(s.charAt(i)));
 	 assertEqual(vf.string("\naap").indent(vf.string("123")), vf.string("\n123aap"));
      }
 
