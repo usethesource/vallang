@@ -432,7 +432,7 @@ public void testStringIterator2() {
 	    	        	StringValue.setMaxFlatString(512);
 	    	        	StringValue.setMaxUnbalance(0);
 	    	        	IString str = genFixedString2(n);
-	    	        	startTime = System.nanoTime();
+	    	        	startTime = System.nanoTime();	
 	    	        	work(str);
 	    	        	estimatedTime = (System.nanoTime() - startTime)/1000000;
 	    	        	System.out.println("Fully Balanced:"+ estimatedTime + "ms");
@@ -474,10 +474,11 @@ public void testStringIterator2() {
 
 @Test
 public void testIndent() {
-	IString s = vf.string("start\naap").indent(vf.string("123")).concat((vf.string("\nnoot\nteun").indent(vf.string("456")))).concat(vf.string("\nmies"));
-	 System.out.println(s.getValue());
-	 for (int i=0;i<40;i++)
+	 IString s = vf.string("start\naap").indent(vf.string("123")).concat((vf.string("\nnoot\nteun").indent(vf.string("456")))).concat(vf.string("\nmies"));
+	 System.out.println(s.getValue()+" "+s.length());
+	  for (int i=0;i<10;i++)
 	      System.out.print(Character.toChars(s.charAt(i)));
+	 System.out.println(""+vf.string("\naap").indent(vf.string("123"))+"=="+vf.string("\n123aap"));
 	 assertEqual(vf.string("\naap").indent(vf.string("123")), vf.string("\n123aap"));
      }
 
