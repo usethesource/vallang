@@ -140,7 +140,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				buffer.append(value);
 				buffer.append(other.getValue());
 
-				return StringValue.newString(buffer.toString(), true); 
+				return StringValue.newString(buffer.toString(), true);
 			} else {
 				return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other);
 			}
@@ -209,13 +209,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int length() {
 			return value.codePointCount(0, value.length());
 		}
-		
-	
+
 		@Override
 		public int indentedLength(IString whiteSpace) {
 			String string = getValue();
 			int numberOfNewlines = 0;
-			int pos = string.indexOf('\n', 0);	
+			int pos = string.indexOf('\n', 0);
 			while (pos >= 0) {
 				pos = string.indexOf('\n', pos + 1);
 				numberOfNewlines++;
@@ -241,21 +240,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int charAt(int index) {
 			return codePointAt(value, index);
 		}
-		
+
 		@Override
 		public int indentedCharAt(int index, IString whiteSpace) {
 			String string = this.getValue();
 			int startIndex = string.indexOf('\n', 0);
-			if (index<startIndex) return this.charAt(index);
+			if (index < startIndex)
+				return this.charAt(index);
 			int offset = 0;
 			int posLastNewline = -1;
-			while (startIndex>=0  && (startIndex +offset)< index) {
+			while (startIndex >= 0 && (startIndex + offset) < index) {
 				posLastNewline = startIndex;
 				startIndex = string.indexOf('\n', startIndex + 1);
 				offset += whiteSpace.length();
 			}
 			offset -= whiteSpace.length();
-			if ((posLastNewline +offset)==index) return '\n';
+			if ((posLastNewline + offset) == index)
+				return '\n';
 			int index0 = index - offset;
 			if (index0 - (posLastNewline + 1) < whiteSpace.length())
 				return whiteSpace.charAt(index0 - (posLastNewline + 1));
@@ -440,8 +441,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return value.length();
 		}
 
-		
-
 		@Override
 		public int charAt(int index) {
 			return value.charAt(index);
@@ -460,19 +459,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public IString reverse() {
 			return newString(new StringBuilder(value).reverse().toString(), false);
-		}
-
-		@Override
-		public IString concat(IString other) {
-			if (length() + other.length() <= MAX_FLAT_STRING) {
-				StringBuilder buffer = new StringBuilder();
-				buffer.append(value);
-				buffer.append(other.getValue());
-
-				return StringValue.newString(buffer.toString()); // Correct
-			} else {
-				return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other);
-			}
 		}
 
 		@Override
@@ -748,8 +734,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int indentedLength(IString whitespace) {
-			if (ilength<0)
-			ilength = left.indentedLength(whitespace) + right.indentedLength(whitespace);
+			if (ilength < 0)
+				ilength = left.indentedLength(whitespace) + right.indentedLength(whitespace);
 			return ilength;
 		}
 
@@ -995,6 +981,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public String getValue() {
 			return indentedGetValue(whiteSpace);
+			// return istring.getValue();
 		}
 
 		@Override
@@ -1112,7 +1099,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int indentedLength(IString whitespace) {
-			// System.out.println("IndentedLength:"+istring.getClass()+" "+istring.getValue());
+			// System.out.println("IndentedLength:"+istring.getClass()+"
+			// "+istring.getValue());
 			return ((IStringTreeNode) istring).indentedLength(concatWhitespace(whitespace, istring));
 		}
 
@@ -1124,6 +1112,5 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			length = indentedLength(this.whiteSpace);
 			return length;
 		}
-
 	}
 }
