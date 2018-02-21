@@ -83,7 +83,7 @@ Finally, **vallang** is a JVM library because that is where we needed it for Ras
 
 #### Vallang values are symbolic and immutable.
 
-We think software analysis is complex enough to be confusing to even the most experienced programmers. Manipulating huge stores of hierarchical and relational data about softwar easily goes wrong; trivial bugs due to aliasing and sharing data between different stages of an analysis or transformation can take weeks to resolve, or worse: will never even be diagnosed. 
+We think software analysis is complex enough to be confusing to even the most experienced programmers. Manipulating huge stores of hierarchical and relational data about software easily goes wrong; trivial bugs due to aliasing and sharing data between different stages of an analysis or transformation can take weeks to resolve, or worse: will never even be diagnosed. 
 
 Since our goal is to provide many more variants of all kind of software analyses, we wish to focus on the interesting algorithmic details rather than the trivial mistakes we make. Therefore, **vallang** values are _immutable_. Sharing of values or parts of values is allowed under-the-hood but is not observable. The library is implemented using persistent and/or maximally shared data structures for reasons of efficiency. 
 
