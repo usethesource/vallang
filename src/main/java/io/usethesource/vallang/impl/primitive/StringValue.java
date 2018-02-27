@@ -119,6 +119,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public String getValue() {
 			return value;
 		}
+		
+		@Override
+		public String getCompactValue() {
+			return value;
+		}
 
 		@Override
 		public String indentedGetValue(IString whiteSpace) {
@@ -240,18 +245,31 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int charAt(int index) {
 			return codePointAt(value, index);
 		}
+		
+		static int codePointIndexOf(String s, int codePoint, int from) {
+		    int n = 0;
+		    for (int i = 0; i < s.length(); ) {
+		        int cp = s.codePointAt(i);
+		        if (cp == codePoint && n>=from) {
+		            return n;
+		        }
+		        i += Character.charCount(cp);
+		        ++n;
+		    }
+		    return -1;
+		}
 
 		@Override
 		public int indentedCharAt(int index, IString whiteSpace) {
 			String string = this.getValue();
-			int startIndex = string.indexOf('\n', 0);
+			int startIndex = codePointIndexOf(string, '\n', 0);
 			if (index < startIndex)
 				return this.charAt(index);
 			int offset = 0;
 			int posLastNewline = -1;
 			while (startIndex >= 0 && (startIndex + offset) < index) {
 				posLastNewline = startIndex;
-				startIndex = string.indexOf('\n', startIndex + 1);
+				startIndex = codePointIndexOf(string, '\n', startIndex + 1);
 				offset += whiteSpace.length();
 			}
 			offset -= whiteSpace.length();
@@ -445,6 +463,28 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int charAt(int index) {
 			return value.charAt(index);
 		}
+		
+		@Override
+		public int indentedCharAt(int index, IString whiteSpace) {
+			String string = this.getValue();
+			int startIndex = string.indexOf('\n', 0);
+			if (index < startIndex)
+				return this.charAt(index);
+			int offset = 0;
+			int posLastNewline = -1;
+			while (startIndex >= 0 && (startIndex + offset) < index) {
+				posLastNewline = startIndex;
+				startIndex = string.indexOf('\n', startIndex + 1);
+				offset += whiteSpace.length();
+			}
+			offset -= whiteSpace.length();
+			if ((posLastNewline + offset) == index)
+				return '\n';
+			int index0 = index - offset;
+			if (index0 - (posLastNewline + 1) < whiteSpace.length())
+				return whiteSpace.charAt(index0 - (posLastNewline + 1));
+			return this.charAt(index0 - whiteSpace.length());
+		}
 
 		@Override
 		public IString substring(int start) {
@@ -583,6 +623,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		default public String indentedGetValue(IString whiteSpace) {
 			throw new UnsupportedOperationException();
 		}
+		
 	}
 
 	private static class BinaryBalancedLazyConcatString extends AbstractValue implements IStringTreeNode {
@@ -704,6 +745,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				// this will not happen with a StringWriter
 				return "";
 			}
+		}
+		
+		@Override
+		public String getCompactValue() {
+			return getValue();
 		}
 
 		@Override
@@ -982,6 +1028,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public String getValue() {
 			return indentedGetValue(whiteSpace);
 			// return istring.getValue();
+		}
+		
+		@Override
+		public String getCompactValue() {
+			return istring.getValue();
 		}
 
 		@Override
