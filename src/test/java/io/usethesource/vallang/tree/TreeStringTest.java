@@ -345,8 +345,8 @@ public final class TreeStringTest {
 		return r;
 	}
 
-	private String work1(IString str) {
-		return str.getValue();
+	private String work1(IString str, Boolean compact) {
+		return compact?str.getCompactValue():str.getValue();
 	}
 
 	@Test
@@ -487,7 +487,7 @@ public final class TreeStringTest {
 		int n = 1000000;
 		String indent = "123123";
 		// String start = "start"+"a🍕🍕🍕🍕b";
-		String start = "start";
+		String start = "start"+"ab12345678";
 		String stepc = "abc";
 		String stepd = "abcd";
 		IString header = vf.string(start);
@@ -513,6 +513,11 @@ public final class TreeStringTest {
 			IString newString = text.indent(vf.string(indent));
 			estimatedTime = (System.nanoTime() - startTime) / 1000000;
 			System.out.println("New indentation:" + estimatedTime + "ms");
+			
+			startTime = System.nanoTime();
+			assertEqual(newString, oldString);
+			estimatedTime = (System.nanoTime() - startTime) / 1000000;
+			System.out.println("oldString==newString:" + estimatedTime + "ms");
 
 			startTime = System.nanoTime();
 			int oldWork = work(oldString);
@@ -527,26 +532,24 @@ public final class TreeStringTest {
 			assertEqual(vf.integer(oldWork), vf.integer(newWork));
 
 			startTime = System.nanoTime();
-			String newWork1 = work1(newString);
+			String newWork1 = work1(newString, true);
+			estimatedTime = (System.nanoTime() - startTime) / 1000000;
+			System.out.println("getCompactValue new:" + estimatedTime + "ms");
+
+			startTime = System.nanoTime();
+			String oldWork1 = work1(oldString, false);
+			estimatedTime = (System.nanoTime() - startTime) / 1000000;
+			System.out.println("getValue old:" + estimatedTime + "ms");
+			
+			startTime = System.nanoTime();
+			newWork1 = work1(newString, false);
 			estimatedTime = (System.nanoTime() - startTime) / 1000000;
 			System.out.println("getValue new:" + estimatedTime + "ms");
 
 			startTime = System.nanoTime();
-			String oldWork1 = work1(oldString);
-			estimatedTime = (System.nanoTime() - startTime) / 1000000;
-			System.out.println("getValue old:" + estimatedTime + "ms");
-
-			startTime = System.nanoTime();
 			assertEqual(vf.string(oldWork1), vf.string(newWork1));
-
-			assertEqual(oldString, newString);
 			estimatedTime = (System.nanoTime() - startTime) / 1000000;
-			System.out.println("Equals:" + estimatedTime + "ms");
-
-			startTime = System.nanoTime();
-			assertEqual(newString, oldString);
-			estimatedTime = (System.nanoTime() - startTime) / 1000000;
-			System.out.println("Equals 2:" + estimatedTime + "ms");
+			System.out.println("Equals getValue:" + estimatedTime + "ms");		
 		}
 	}
 }
