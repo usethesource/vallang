@@ -170,7 +170,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return v.visitString(this);
 		}
 
-		public boolean equals(Object o) {
+		public boolean equals(Object o) {	
 			if (o == null) {
 				return false;
 			}
@@ -178,7 +178,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				return true;
 			}
 
-			if (o.getClass() == getClass()) {
+			if (o instanceof FullUnicodeString) {
 				FullUnicodeString otherString = (FullUnicodeString) o;
 				return value.equals(otherString.value);
 			}
@@ -1023,6 +1023,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public IString indent(IString whiteSpace) {
 			return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));
 		}
+
 
 		@Override
 		public String getValue() {

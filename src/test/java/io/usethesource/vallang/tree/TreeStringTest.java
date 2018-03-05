@@ -26,7 +26,7 @@ public final class TreeStringTest {
 		return Setup.valueFactories();
 	}
 
-	private IString example;
+	private IString example, example1;
 
 	private final IValueFactory vf;
 
@@ -35,6 +35,7 @@ public final class TreeStringTest {
 	public TreeStringTest(final IValueFactory vf) {
 		this.vf = vf;
 		this.example = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
+		this.example1 = vf.string("abcdef\nxyz").indent(vf.string("123"));
 	}
 
 	private IString genString(int max) {
@@ -138,22 +139,36 @@ public final class TreeStringTest {
 
 	@Test
 	public void testStringCharAt() {
-		assertTrue(example.charAt(0) == 'a');
-		assertTrue(example.charAt(1) == 'b');
-		assertTrue(example.charAt(2) == 'c');
-		assertTrue(example.charAt(3) == 'd');
-		assertTrue(example.charAt(4) == 'e');
-		assertTrue(example.charAt(5) == 'f');
+		assertTrue(example1.charAt(0) == 'a');
+		assertTrue(example1.charAt(1) == 'b');
+		assertTrue(example1.charAt(2) == 'c');
+		assertTrue(example1.charAt(3) == 'd');
+		assertTrue(example1.charAt(4) == 'e');
+		assertTrue(example1.charAt(5) == 'f');
+		assertTrue(example1.charAt(6) == '\n');
+		assertTrue(example1.charAt(7) == '1');
+		assertTrue(example1.charAt(8) == '2');
+		assertTrue(example1.charAt(9) == '3');
+		assertTrue(example1.charAt(10) == 'x');
+		assertTrue(example1.charAt(11) == 'y');
+		assertTrue(example1.charAt(12) == 'z');
 	}
 
 	@Test
 	public void testStringSubString() {
-		assertEqual(example.substring(0, 1), vf.string("a"));
-		assertEqual(example.substring(0, 2), vf.string("ab"));
-		assertEqual(example.substring(0, 3), vf.string("abc"));
-		assertEqual(example.substring(0, 4), vf.string("abcd"));
-		assertEqual(example.substring(0, 5), vf.string("abcde"));
-		assertEqual(example.substring(0, 6), vf.string("abcdef"));
+		assertEqual(example1.substring(0, 1), vf.string("a"));
+		assertEqual(example1.substring(0, 2), vf.string("ab"));
+		assertEqual(example1.substring(0, 3), vf.string("abc"));
+		assertEqual(example1.substring(0, 4), vf.string("abcd"));
+		assertEqual(example1.substring(0, 5), vf.string("abcde"));
+		assertEqual(example1.substring(0, 6), vf.string("abcdef"));
+		assertEqual(example1.substring(0, 7), vf.string("abcdef\n"));
+		assertEqual(example1.substring(0, 8), vf.string("abcdef\n1"));
+		assertEqual(example1.substring(0, 9), vf.string("abcdef\n12"));
+		assertEqual(example1.substring(0, 10), vf.string("abcdef\n123"));
+		assertEqual(example1.substring(0, 11), vf.string("abcdef\n123x"));
+		assertEqual(example1.substring(0, 12), vf.string("abcdef\n123xy"));
+		assertEqual(example1.substring(0, 13), vf.string("abcdef\n123xyz"));
 	}
 
 	@Test
