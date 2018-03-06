@@ -21,7 +21,6 @@ import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IString;
@@ -170,7 +169,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return v.visitString(this);
 		}
 
-		public boolean equals(Object o) {	
+		public boolean equals(Object o) {
 			if (o == null) {
 				return false;
 			}
@@ -442,8 +441,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				return false;
 			if (this == o)
 				return true;
-			if (o.getClass() == getClass()) {
-				SimpleUnicodeString otherString = (SimpleUnicodeString) o;
+			if (o instanceof FullUnicodeString) {
+				FullUnicodeString otherString = (FullUnicodeString) o;
 				return value.equals(otherString.value);
 			}
 			if (o.getClass() == BinaryBalancedLazyConcatString.class || o.getClass() == IndentedString.class) {
@@ -1069,8 +1068,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int compare(IString other) {
-			// System.out.println("Compare:"+this.getClass()+" "+other.getClass()+"
-			// "+expand());
+			//System.out.println("Compare:"+this.getClass()+" "+other.getClass()+
+			// "|"+expand());
 			int result = expand().compare(other);
 			if (result == 0) {
 				return 0;
