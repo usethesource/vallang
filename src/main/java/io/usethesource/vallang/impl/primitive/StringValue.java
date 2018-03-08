@@ -139,7 +139,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString concat(IString other) {
-			if (length() + other.length() <= MAX_FLAT_STRING) {
+			// if (other instanceof IndentedString) return new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
+			if (length() + other.length() <= MAX_FLAT_STRING)
+					 {
 				StringBuilder buffer = new StringBuilder();
 				buffer.append(value);
 				buffer.append(other.getValue());
@@ -1039,7 +1041,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public IString concat(IString other) {
 			return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other);
 		}
-
+        
+		@Override
 		public String indentedGetValue(IString whitespace) {
 			return ((IStringTreeNode) istring).indentedGetValue(concatWhitespace(whitespace, istring));
 		}
@@ -1083,6 +1086,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public int charAt(int index) {
 			return ((IStringTreeNode) this.istring).indentedCharAt(index, this.whiteSpace);
+		}
+		
+		@Override
+		public int indentedCharAt(int index, IString whitespace) {
+			return ((IStringTreeNode) istring).indentedCharAt(index, concatWhitespace(whitespace, istring));
 		}
 
 		@Override
