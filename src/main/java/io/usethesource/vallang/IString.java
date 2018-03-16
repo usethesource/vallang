@@ -26,6 +26,11 @@ public interface IString extends IValue, Iterable<Integer> {
 	 * @return the Java string without indentation that this string represents
 	 */
     String getCompactValue();
+    
+    /**
+     * Returns ADT
+     */
+    String getStructure();
 
     /**
      * Concatenates two strings

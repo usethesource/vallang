@@ -123,6 +123,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public String getCompactValue() {
 			return value;
 		}
+		
+		@Override
+		public String getStructure() {
+			return "v("+this.value+")";
+		}
 
 		@Override
 		public String indentedGetValue(IString whiteSpace) {
@@ -139,7 +144,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString concat(IString other) {
-			// if (other instanceof IndentedString) return new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
+			if (other instanceof IndentedString) {
+				// System.err.println("concat:Bingo1");
+				return new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
+			}
 			if (length() + other.length() <= MAX_FLAT_STRING)
 					 {
 				StringBuilder buffer = new StringBuilder();
@@ -402,6 +410,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public void indentedWrite(Writer w, IString whitespace) throws IOException {
+			// System.err.println("Indented write V:"+whitespace.length());
 			w.write(indentedGetValue(whitespace));
 		}
 
@@ -752,6 +761,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public String getCompactValue() {
 			return getValue();
 		}
+		
+		@Override
+		public String getStructure() {
+			return "b("+left.getStructure()+","+right.getStructure()+")";
+		}
 
 		@Override
 		public String indentedGetValue(IString whitespace) {
@@ -912,6 +926,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public void indentedWrite(Writer w, IString whitespace) throws IOException {
 			// System.out.println("write:"+left.getClass()+" "+right.getClass());
+			// System.err.println("Indented write B:"+whitespace.length());
 			left.indentedWrite(w, whitespace);
 			right.indentedWrite(w, whitespace);
 		}
@@ -1024,12 +1039,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public IString indent(IString whiteSpace) {
 			return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));
 		}
+		
+		@Override
+		public String getStructure() {
+			return "i("+whiteSpace.length()+","+istring.getStructure()+")";
+		}
 
 
 		@Override
 		public String getValue() {
-			return indentedGetValue(whiteSpace);
-			// return istring.getValue();
+			return ((IStringTreeNode) istring).indentedGetValue(whiteSpace);
 		}
 		
 		@Override
@@ -1044,7 +1063,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
 		@Override
 		public String indentedGetValue(IString whitespace) {
-			return ((IStringTreeNode) istring).indentedGetValue(concatWhitespace(whitespace, istring));
+			return ((IStringTreeNode) istring).indentedGetValue(concatWhitespace(whitespace));
 		}
 
 		@Override
@@ -1090,7 +1109,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public int indentedCharAt(int index, IString whitespace) {
-			return ((IStringTreeNode) istring).indentedCharAt(index, concatWhitespace(whitespace, istring));
+			return ((IStringTreeNode) istring).indentedCharAt(index, concatWhitespace(whitespace));
 		}
 
 		@Override
@@ -1103,12 +1122,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public void write(Writer w) throws IOException {
-			indentedWrite(w, whiteSpace);
+			((IStringTreeNode) istring).indentedWrite(w, this.whiteSpace);
 		}
 
 		@Override
 		public void indentedWrite(Writer w, IString whitespace) throws IOException {
-			((IStringTreeNode) istring).indentedWrite(w, concatWhitespace(whitespace, istring));
+			// System.err.println("Indented write I:"+whitespace.length()+" "+concatWhitespace(whitespace).length());
+			((IStringTreeNode) istring).indentedWrite(w, concatWhitespace(whitespace));
 		}
 
 		@Override
@@ -1150,17 +1170,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return v.visitString(this);
 		}
 
+		/*
 		IString concatWhitespace(IString whiteSpace, IString other) {
 			if (other instanceof IndentedString)
 				return whiteSpace.concat(((IndentedString) other).whiteSpace);
 			return whiteSpace;
+		}
+		*/
+		
+		IString concatWhitespace(IString whiteSpace) {
+				return whiteSpace.concat(this.whiteSpace);
 		}
 
 		@Override
 		public int indentedLength(IString whitespace) {
 			// System.out.println("IndentedLength:"+istring.getClass()+"
 			// "+istring.getValue());
-			return ((IStringTreeNode) istring).indentedLength(concatWhitespace(whitespace, istring));
+			return ((IStringTreeNode) istring).indentedLength(concatWhitespace(whitespace));
 		}
 
 		@Override
@@ -1168,7 +1194,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			// TODO Auto-generated method stub
 			if (length >= 0)
 				return length;
-			length = indentedLength(this.whiteSpace);
+			length = ((IStringTreeNode) istring).indentedLength(this.whiteSpace);
 			return length;
 		}
 	}
