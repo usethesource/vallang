@@ -27,10 +27,6 @@ public interface IString extends IValue, Iterable<Integer> {
 	 */
     String getCompactValue();
     
-    /**
-     * Returns ADT
-     */
-    String getStructure();
 
     /**
      * Concatenates two strings

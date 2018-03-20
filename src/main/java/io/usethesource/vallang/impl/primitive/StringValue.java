@@ -124,10 +124,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return value;
 		}
 		
-		@Override
-		public String getStructure() {
-			return "v("+this.value+")";
-		}
+//		@Override
+//		public String getStructure() {
+//			return "v("+this.value+")";
+//		}
 
 		@Override
 		public String indentedGetValue(IString whiteSpace) {
@@ -762,10 +762,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return getValue();
 		}
 		
-		@Override
-		public String getStructure() {
-			return "b("+left.getStructure()+","+right.getStructure()+")";
-		}
+//		@Override
+//		public String getStructure() {
+//			return "b("+left.getStructure()+","+right.getStructure()+")";
+//		}
 
 		@Override
 		public String indentedGetValue(IString whitespace) {
@@ -1040,10 +1040,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));
 		}
 		
-		@Override
-		public String getStructure() {
-			return "i("+whiteSpace.length()+","+istring.getStructure()+")";
-		}
+//		@Override
+//		public String getStructure() {
+//			return "i("+whiteSpace.length()+","+istring.getStructure()+")";
+//		}
 
 
 		@Override
