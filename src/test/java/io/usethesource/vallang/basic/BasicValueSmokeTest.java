@@ -1,6 +1,7 @@
 package io.usethesource.vallang.basic;
 
 import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.Random;
 
 import io.usethesource.vallang.IDateTime;
@@ -131,7 +132,9 @@ public final class BasicValueSmokeTest {
   private void checkIndent(String indent, String newline, String... lines) {
 	  StringBuilder unindented = new StringBuilder();
 	  StringBuilder indented = new StringBuilder();
+	  StringBuilder indentedTwice = new StringBuilder();
 	  IString concatTree = vf.string("");
+	  boolean first = true;
 	  for (String l : lines) {
 		  unindented.append(l);
 		  unindented.append(newline);
@@ -139,24 +142,60 @@ public final class BasicValueSmokeTest {
 		  concatTree = concatTree.concat(vf.string(l));
 		  concatTree = concatTree.concat(vf.string(newline));
 		  
-		  indented.append(indent);
+		  if (!first) {
+			  indented.append(indent);
+		  }
+		  indented.append(l);
 		  indented.append(newline);
-		  indented.append(newline);
+
+		  if (!first) {
+              indentedTwice.append("first" + indent);
+              indentedTwice.append(indent);
+		  }
+		  indentedTwice.append(l);
+		  indentedTwice.append(newline);
+		  
+		  first = false;
 	  }
 	  
 	  String expected = indented.toString();
+	  String expectedTwice = indentedTwice.toString();
 	  
 	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent));
 	  IString indentedConcatTree = concatTree.indent(vf.string(indent));
 
-	  assertEquals(expected, indentedDirect.toString());
-	  assertEquals(expected, indentedConcatTree.toString());
+	  IString indentedDirectTwice = indentedDirect.indent(vf.string("first" + indent));
+	  IString indentedConcatTreeTwice = indentedConcatTree.indent(vf.string("first" + indent));
+
+	  assertEquals(expected, indentedDirect.getValue());
+	  assertEquals(expected, indentedConcatTree.getValue());
+	  assertSimilarIteration(vf.string(expected), indentedDirect);
+	  assertSimilarIteration(vf.string(expected), indentedConcatTree);
 	  assertEqual(indentedDirect, indentedConcatTree);
 	  assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
+
+	  
+	  assertEquals(expectedTwice, indentedDirectTwice.getValue());
+	  assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
+	  assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
+	  assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
+	  assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
+	  assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
+  }
+  
+  private static void assertSimilarIteration(IString ref, IString target) {
+	  Iterator<Integer> refIterator = ref.iterator();
+	  Iterator<Integer> targetIterator = target.iterator();
+	  while (refIterator.hasNext()) {
+		  assertTrue(targetIterator.hasNext());
+		  assertEquals(refIterator.next(), targetIterator.next());
+	  }
+	  
   }
   
   
 
+  @Test
   public void testStringIndent() {
 	  Random rnd = new Random();
 	  for (String nl: commonNewlines) {
@@ -169,7 +208,7 @@ public final class BasicValueSmokeTest {
 		  
 		  String[] randomLines = new String[10];
 		  for (int n = 0; n < randomLines.length; n++) {
-		     String newString = RandomUtil.string(rnd, rnd.nextInt(2000));
+		     String newString = RandomUtil.string(rnd, rnd.nextInt(200));
 		     for (String newL : commonNewlines) {
 		    	 newString = newString.replaceAll(newL, "_");
 		     }
