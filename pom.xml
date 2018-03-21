@@ -93,6 +93,7 @@
 				<configuration>
                     <argLine>
                         @{argLine} 
+                        -Xmx2G
 						-ea
 						-Dio.usethesource.vallang.Setup.valueFactory=FAST,PERSISTENT
 					</argLine>
