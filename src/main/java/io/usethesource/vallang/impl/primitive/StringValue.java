@@ -19,6 +19,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,10 +33,24 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
- * Implementations of IString.
+ * Fine here the implementations of IString, which all are (must be) sub-classes of StringValue.DefaultString
+ * as an internal design invariant.
+ * 
+ * The challenges solved by this implementation:
+ *   - cater for and optimize for the normal case of strings containing only normal ASCII characters, while
+ *     still allowing all 24-bit unicode characters
+ *   - optimize string concatenation and the streaming of large concatenated strings to a writer
+ *   - optimize the indentation operation and streaming recursively indented strings to a writer
+ *   - allow non-canonical representations of the same string, in particular making sure that equals() and hashCode() works 
+ *     well across and between different representations of (accidentally) the same string.
+ *     
+ * The 'normal' case is defined by what people normally do in Rascal, i.e. using string template expanders a lot,
+ * and reading and writing to text files, searching through strings. The other operations on strings are implemented,
+ * but less optimally. They're traded for the optimization of concat and indent. 
  */
 /* package */ public class StringValue {
-	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
+	private static final char NEWLINE = '\n';
+    private static final Type STRING_TYPE = TypeFactory.getInstance().stringType();
 
 	private static int DEFAULT_MAX_FLAT_STRING = 512;
 	private static int MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
@@ -63,145 +78,170 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 
 	public static IString newString(String value) {
-		if (value == null) {
-			value = "";
+		if (value == null || value.isEmpty()) {
+			return EmptyString.getInstance();
 		}
+		
+		// we do not reuse newString(String value, boolean fullUnicode),
+		// or vice versa, because we want to run over the string only once
+		// to collect the count and the containsSurrogatePairs
 
-		return newString(value, containsSurrogatePairs(value));
+		boolean containsSurrogatePairs = false;
+		int count = 0;
+		
+        int len = value.length();
+        for (int i = 0; i < len; i++) {
+            if (containsSurrogatePairs || (i > 0 && Character.isSurrogatePair(value.charAt(i - 1), value.charAt(i)))) {
+                containsSurrogatePairs = true;
+            }
+            
+            if (value.charAt(i) == NEWLINE && (i == 0 || value.charAt(i - 1) != NEWLINE)) {
+                count++;
+            }
+        }
+        
+		return newString(value, containsSurrogatePairs, count);
 	}
+	
+	public static IString newString(String value, boolean fullUnicode) {
+	    if (value == null || value.isEmpty()) {
+            return EmptyString.getInstance();
+        }
 
-	/* package */ static IString newString(String value, boolean fullUnicode) {
-		if (value == null) {
-			value = "";
+        int count = 0;
+        
+        int len = value.length();
+        for (int i = 0; i < len; i++) {
+            if (value.charAt(i) == NEWLINE && (i == 0 || value.charAt(i - 1) != NEWLINE)) {
+                count++;
+            }
+        }
+        
+        return newString(value, fullUnicode, count);
+    }
+
+	/* package */ static IString newString(String value, boolean fullUnicode, int nonEmptyLineCount) {
+		if (value == null || value.isEmpty()) {
+			return EmptyString.getInstance();
 		}
 
 		if (fullUnicode) {
-			return new FullUnicodeString(value);
+			return new FullUnicodeString(value, nonEmptyLineCount);
 		}
 
-		return new SimpleUnicodeString(value);
+		return new SimpleUnicodeString(value, nonEmptyLineCount);
 	}
 
-	private static boolean containsSurrogatePairs(String str) {
-		if (str == null) {
-			return false;
-		}
-		int len = str.length();
-		for (int i = 1; i < len; i++) {
-			if (Character.isSurrogatePair(str.charAt(i - 1), str.charAt(i))) {
-				return true;
-			}
-		}
-		return false;
-	}
+	private static class EmptyString extends DefaultString {
+	    private static class InstanceHolder {
+	        public static EmptyString instance = new EmptyString();
+	    }
 
-	private static class FullUnicodeString extends AbstractValue implements IStringTreeNode {
+	    public static EmptyString getInstance() {
+	        return InstanceHolder.instance;
+	    }
+	    
+	    private EmptyString() { }
+	    
+	    @Override
+	    public int hashCode() {
+	        return 0;
+	    }
+	    
+	    @Override
+	    public boolean equals(Object other) {
+	        return other == this;
+	    }
+	    
+        @Override
+        public IString reverse() {
+           return this;
+        }
+
+        @Override
+        public int length() {
+            return 0;
+        }
+
+        @Override
+        public IString substring(int start, int end) {
+            return this;
+        }
+
+        @Override
+        public int charAt(int index) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        @Override
+        public IString replace(int first, int second, int end, IString repl) {
+            return this;
+        }
+
+        @Override
+        public void write(Writer w) throws IOException {
+        }
+
+        @Override
+        public Iterator<Integer> iterator() {
+            return Collections.<Integer>emptyIterator();
+        }
+
+        @Override
+        public int nonEmptyLineCount() {
+            return 0;
+        }
+
+        @Override
+        public boolean isNewlineTerminated() {
+            return false;
+        }
+	}
+	
+	private static class FullUnicodeString extends DefaultString {
 		protected final String value;
+        protected final int nonEmptyLineCount;
 
-		private FullUnicodeString(String value) {
+		private FullUnicodeString(String value, int nonEmptyLineCount) {
 			super();
 
 			this.value = value;
+			this.nonEmptyLineCount = nonEmptyLineCount;
 		}
 
 		@Override
-		public int depth() {
-			return 1;
-		}
-
+        public String getValue() {
+		    return value;
+        }
+		
 		@Override
-		public Type getType() {
-			return STRING_TYPE;
-		}
-
-		@Override
-		public String getValue() {
-			return value;
+		public boolean isNewlineTerminated() {
+		    return value.isEmpty() ? false : value.charAt(value.length() - 1) == NEWLINE;
 		}
 		
 		@Override
-		public String getCompactValue() {
-			return value;
+		public int nonEmptyLineCount() {
+		    return nonEmptyLineCount;
 		}
 		
-//		@Override
-//		public String getStructure() {
-//			return "v("+this.value+")";
-//		}
-
-		@Override
-		public String indentedGetValue(IString whiteSpace) {
-			String string = getValue();
-			StringBuffer stringBuffer = new StringBuffer(10000);
-			for (Character c : string.toCharArray()) {
-				stringBuffer.append(c);
-				if (c == '\n') {
-					stringBuffer.append(whiteSpace.getValue());
-				}
-			}
-			return stringBuffer.toString();
-		}
-
 		@Override
 		public IString concat(IString other) {
-			if (other instanceof IndentedString) {
-				// System.err.println("concat:Bingo1");
-				return new BinaryBalancedLazyConcatString(this, (IStringTreeNode) other);
-			}
-			if (length() + other.length() <= MAX_FLAT_STRING)
-					 {
+			if (length() + other.length() <= MAX_FLAT_STRING) {
 				StringBuilder buffer = new StringBuilder();
 				buffer.append(value);
 				buffer.append(other.getValue());
+				DefaultString o = (DefaultString) other;
 
-				return StringValue.newString(buffer.toString(), true);
+				return StringValue.newString(buffer.toString(), true, nonEmptyLineCount - (isNewlineTerminated()?1:0) + o.nonEmptyLineCount());
 			} else {
-				return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other);
+				return BinaryBalancedLazyConcatString.build(this, (DefaultString) other);
 			}
-		}
-
-		@Override
-		public int compare(IString other) {
-			int result = value.compareTo(other.getValue());
-
-			if (result > 0) {
-				return 1;
-			}
-			if (result < 0) {
-				return -1;
-			}
-
-			return 0;
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-			return v.visitString(this);
-		}
-
-		public boolean equals(Object o) {
-			if (o == null) {
-				return false;
-			}
-			if (this == o) {
-				return true;
-			}
-
-			if (o instanceof FullUnicodeString) {
-				FullUnicodeString otherString = (FullUnicodeString) o;
-				return value.equals(otherString.value);
-			}
-			if (o.getClass() == BinaryBalancedLazyConcatString.class || o.getClass() == IndentedString.class) {
-				return o.equals(this);
-			}
-
-			return false;
 		}
 
 		@Override
 		/**
 		 * Note that this algorithm can not be changed, unless you also have change
-		 * BinaryBalancedTreeNode.hashCode() (to not break the hashCode/equals
+		 * BinaryBalancedTreeNode.hashCode() and DefaultString.hashCode() (to not break the hashCode/equals
 		 * contract).
 		 */
 		public int hashCode() {
@@ -209,31 +249,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public boolean isEqual(IValue value) {
-			return equals(value);
-		}
-
-		@Override
 		public IString reverse() {
-			StringBuilder b = new StringBuilder(value);
-			return newString(b.reverse().toString(), true);
+			return newString(new StringBuilder(value).reverse().toString(), true, nonEmptyLineCount);
 		}
 
 		@Override
 		public int length() {
 			return value.codePointCount(0, value.length());
-		}
-
-		@Override
-		public int indentedLength(IString whiteSpace) {
-			String string = getValue();
-			int numberOfNewlines = 0;
-			int pos = string.indexOf('\n', 0);
-			while (pos >= 0) {
-				pos = string.indexOf('\n', pos + 1);
-				numberOfNewlines++;
-			}
-			return this.length() + numberOfNewlines * whiteSpace.length();
 		}
 
 		private int codePointAt(java.lang.String str, int i) {
@@ -255,41 +277,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return codePointAt(value, index);
 		}
 		
-		static int codePointIndexOf(String s, int codePoint, int from) {
-		    int n = 0;
-		    for (int i = 0; i < s.length(); ) {
-		        int cp = s.codePointAt(i);
-		        if (cp == codePoint && n>=from) {
-		            return n;
-		        }
-		        i += Character.charCount(cp);
-		        ++n;
-		    }
-		    return -1;
-		}
-
-		@Override
-		public int indentedCharAt(int index, IString whiteSpace) {
-			String string = this.getValue();
-			int startIndex = codePointIndexOf(string, '\n', 0);
-			if (index < startIndex)
-				return this.charAt(index);
-			int offset = 0;
-			int posLastNewline = -1;
-			while (startIndex >= 0 && (startIndex + offset) < index) {
-				posLastNewline = startIndex;
-				startIndex = codePointIndexOf(string, '\n', startIndex + 1);
-				offset += whiteSpace.length();
-			}
-			offset -= whiteSpace.length();
-			if ((posLastNewline + offset) == index)
-				return '\n';
-			int index0 = index - offset;
-			if (index0 - (posLastNewline + 1) < whiteSpace.length())
-				return whiteSpace.charAt(index0 - (posLastNewline + 1));
-			return this.charAt(index0 - whiteSpace.length());
-		}
-
 		private int nextCP(CharBuffer cbuf) {
 			int cp = Character.codePointAt(cbuf, 0);
 			if (cbuf.position() < cbuf.capacity()) {
@@ -409,9 +396,37 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public void indentedWrite(Writer w, IString whitespace) throws IOException {
-			// System.err.println("Indented write V:"+whitespace.length());
-			w.write(indentedGetValue(whitespace));
+		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
+		    // this implementation tries to quickly find the next newline using indexOf, and streams
+		    // line by line to optimize copying the characters onto the stream in bigger blobs than 1 character.
+		    for (int pos = value.indexOf(NEWLINE), prev = 0, count = 0; ; prev = pos, pos = value.indexOf(NEWLINE, pos), count++) {
+		        // if pos is the last character, print it an bail out:
+		        if (pos == value.length() - 1) {
+		            w.write(NEWLINE);
+		            return;
+		        }
+		        
+		        // if pos is an empty line, print it and continue:
+		        if (value.charAt(pos + 1) == NEWLINE) {
+		            w.write(NEWLINE);
+		            continue;
+		        }
+		        
+		        // otherwise we can write the indentation, skipping the first line if needed
+		        if (count > 0 && indentFirstLine) {
+		            whitespace.write(w);
+		        }
+                
+		        if (pos == -1) {
+		            // no more newlines, so write the entire line
+		           w.write(value, prev, value.length() - prev);
+		           return;
+		        }
+		        else {
+		            // write until the currently found newline
+		            w.write(value, prev, pos - prev);
+		        }
+		    }
 		}
 
 		@Override
@@ -432,38 +447,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				}
 			};
 		}
-
-		@Override
-		public IString indent(IString whiteSpace) {
-			return new IndentedString(this, whiteSpace);
-
-		}
 	}
 
+	/**
+	 * This class knows its contents do not contain any higher surrogate pairs,
+	 * allowing it to implement some indexing functions a lot faster, i.e. in O(1)
+	 * as opposed to in O(n).
+	 *
+	 */
 	private static class SimpleUnicodeString extends FullUnicodeString {
-
-		public SimpleUnicodeString(String value) {
-			super(value);
+		public SimpleUnicodeString(String value, int nonEmptyLineCount) {
+			super(value, nonEmptyLineCount);
 		}
 
-		@Override
-		public boolean equals(Object o) {
-			if (o == null)
-				return false;
-			if (this == o)
-				return true;
-			if (o instanceof FullUnicodeString) {
-				FullUnicodeString otherString = (FullUnicodeString) o;
-				return value.equals(otherString.value);
-			}
-			if (o.getClass() == BinaryBalancedLazyConcatString.class || o.getClass() == IndentedString.class) {
-				return o.equals(this);
-			}
-
-			return false;
-		}
-
-		// Common operations which do not need to be slow
 		@Override
 		public int length() {
 			return value.length();
@@ -475,40 +471,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public int indentedCharAt(int index, IString whiteSpace) {
-			String string = this.getValue();
-			int startIndex = string.indexOf('\n', 0);
-			if (index < startIndex)
-				return this.charAt(index);
-			int offset = 0;
-			int posLastNewline = -1;
-			while (startIndex >= 0 && (startIndex + offset) < index) {
-				posLastNewline = startIndex;
-				startIndex = string.indexOf('\n', startIndex + 1);
-				offset += whiteSpace.length();
-			}
-			offset -= whiteSpace.length();
-			if ((posLastNewline + offset) == index)
-				return '\n';
-			int index0 = index - offset;
-			if (index0 - (posLastNewline + 1) < whiteSpace.length())
-				return whiteSpace.charAt(index0 - (posLastNewline + 1));
-			return this.charAt(index0 - whiteSpace.length());
-		}
-
-		@Override
-		public IString substring(int start) {
-			return newString(value.substring(start), false);
-		}
-
-		@Override
 		public IString substring(int start, int end) {
 			return newString(value.substring(start, end), false);
 		}
 
 		@Override
 		public IString reverse() {
-			return newString(new StringBuilder(value).reverse().toString(), false);
+			return newString(new StringBuilder(value).reverse().toString(), false, nonEmptyLineCount);
 		}
 
 		@Override
@@ -531,7 +500,94 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 	}
 
+    /**
+     * About Lazy indentation 
+     * ---
+     * 
+     * The next expensive operation on larger strings is indentation. The {@link #indent(IString)}
+     * method should take every non-empty line of the current string and indent it with a given
+     * string of whitespace characters.
+     * 
+     * This operation is a bottleneck, after the concatenation bottleneck, since it requires
+     * duplicating the entire input in memory if done naively, and that several times depending on the
+     * nesting depth of indentation. A typical expanded string template would require making a number 
+     * of copies in O(d * n), where d is the nesting depth and n is the length of the original string. 
+     * 
+     * A lazy implementation simply remembers that indentation has to be done (in O(1)), and streams the
+     * indented value on request directly to a writer (in O(1)). Since large generated strings are bound to be
+     * streamed and not further analyzed, this is beneficial for the typical use. 
+     * 
+     * However, all other operations must still work, so relatively complex "indented" versions of 
+     * all IStringimplementations are distributed over the implementation classes of IString. These
+     * operations are slower than their non-indented counterparts since they have to discover where
+     * the newlines are over and over again. For example {@link #charAt(int)} goes from being in O(1)
+     * to O(n) since we have to find all exact positions of newline characters. 
+     * 
+     * Always caching these positions would have too much of a
+     * memory overhead. There might be something to say for caching these values for very large
+     * strings, while recomputing them on-the-fly for smaller strings, in the future.
+     * 
+     */
+	private interface IIndentableString extends IString {
+	   
+        /**
+         * The non-empty lines are the ones which would be indented. This
+         * exists to be able to quickly compute the exact length of an indented string,
+         * and to be able to blt buffers of single lines directly to the underlying
+         * I/O buffer. 
+         * 
+         * @return the number of _non-empty_ lines in a string.
+         */
+        int nonEmptyLineCount();
+        
+        /**
+         * When concatenating indentable strings, the {@link #nonEmptyLineCount()} can
+         * be computed exactly in O(1) by knowing if the left string does or does not
+         * end in a newline:<br>
+         * 
+         * Example:<br>
+         * concat("#####\n", "@@@@@@") has two lines, <br>
+         *    because both consituents have a single line and the left ends in a newline.<br>
+         * concat("#####", "@@@@@@") has a single line, even though both consituents have<br>
+         *    already a single line, concatenated they still form a single line. <br>
+         *         <br>
+         * @return true iff the last character of this string is a \n character.
+         */
+        boolean isNewlineTerminated();
+        
+       
+        
+//        default int indentedCharAt(int index, IString whiteSpace) {
+//            throw new UnsupportedOperationException();
+//        }
+//
+//        default public int indentedLength(IString whiteSpace) {
+//            throw new UnsupportedOperationException();
+//        }
+//
+        /**
+         * Specialized (hopefully optimized) implementations of streaming an indented version
+         * of an IString. Implementations should avoid allocating memory and try to write as many
+         * bytes as possible in one block into the writer. 
+         * 
+         * @param w                writer to write to
+         * @param whiteSpace       the whitespace to write before non-empty lines
+         * @param indentFirstLine  whether or not to indent the first line
+         * @throws IOException
+         */
+        default public void indentedWrite(Writer w, IString whiteSpace, boolean indentFirstLine) throws IOException {
+            throw new UnsupportedOperationException();
+        }
+//        
+//        default public String indentedGetValue(IString whiteSpace) {
+//            throw new UnsupportedOperationException();
+//        }
+    }
+
 	/**
+	 * About balanced concat trees
+	 * --- 
+	 * 
 	 * Concatenation must be fast when generating large strings (for example by a
 	 * Rascal program which uses `+` and template expansion. With the basic
 	 * implementation the left-hand side of the concat would always need to be
@@ -558,6 +614,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	 * Note that an implementation with a destructively updated linked list would be
 	 * much faster, but due to immutability and lots of sharing of IStrings this is
 	 * not feasible.
+	 * 
+	
 	 */
 	private static interface IStringTreeNode extends IString {
 		/**
@@ -585,7 +643,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 * Should be overridden by the binary node and never called on the leaf nodes
 		 * because they are not out of balance.
 		 */
-		default IStringTreeNode left() {
+		default DefaultString left() {
 			throw new UnsupportedOperationException();
 		}
 
@@ -593,58 +651,192 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 * Should be overridden by the binary node and never called on the leaf nodes
 		 * because they are not out of balance.
 		 */
-		default IStringTreeNode right() {
+		default DefaultString right() {
 			throw new UnsupportedOperationException();
 		}
 
-		default IStringTreeNode rotateRight() {
-			return this;
+		default DefaultString rotateRight() {
+			return (DefaultString) this;
 		}
 
-		default IStringTreeNode rotateLeft() {
-			return this;
+		default DefaultString rotateLeft() {
+			return (DefaultString) this;
 		}
 
-		default IStringTreeNode rotateRightLeft() {
-			return this;
+		default DefaultString rotateRightLeft() {
+			return (DefaultString) this;
 		}
 
-		default IStringTreeNode rotateLeftRight() {
-			return this;
+		default DefaultString rotateLeftRight() {
+			return (DefaultString) this;
 		}
 
 		default void collectLeafIterators(List<Iterator<Integer>> w) {
-			// System.out.println("collectLeafIterators:"+this.getClass());
 			w.add(iterator());
 		}
-
-		default int indentedCharAt(int index, IString whiteSpace) {
-			throw new UnsupportedOperationException();
-		}
-
-		default public int indentedLength(IString whiteSpace) {
-			throw new UnsupportedOperationException();
-		}
-
-		default public void indentedWrite(Writer w, IString whiteSpace) throws IOException {
-			throw new UnsupportedOperationException();
-		}
-
-		default public String indentedGetValue(IString whiteSpace) {
-			throw new UnsupportedOperationException();
-		}
-		
 	}
+	
+	private abstract static class DefaultString extends AbstractValue implements IString, IStringTreeNode, IIndentableString {
+	    @Override
+        public Type getType() {
+            return STRING_TYPE;
+        }
 
-	private static class BinaryBalancedLazyConcatString extends AbstractValue implements IStringTreeNode {
-		private final IStringTreeNode left; /* must remain final for immutability's sake */
-		private final IStringTreeNode right; /* must remain final for immutability's sake */
+        @Override
+        public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+            return v.visitString(this);
+        }
+        
+        @Override
+        public boolean isEqual(IValue value) {
+            return this.equals(value);
+        }
+        
+        @Override
+        public IString concat(IString other) {
+            return BinaryBalancedLazyConcatString.build((DefaultString) this, (DefaultString) other);
+        }
+        
+        @Override
+        public IString indent(IString whiteSpace) {
+            return new IndentedString((DefaultString) this, whiteSpace);
+        }
+        
+        @Override
+        public boolean match(IValue other) {
+            return isEqual(other);
+        }
+
+        @Override
+        public boolean isAnnotatable() {
+            return false;
+        }
+
+        @Override
+        public IAnnotatable<? extends IValue> asAnnotatable() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean mayHaveKeywordParameters() {
+            return false;
+        }
+
+        @Override
+        public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public String getValue() {
+            // the IString.length() under-estimates the size of the string if the string
+            // contains many surrogate pairs, but that does not happen a lot in 
+            // most of what we see, so we decided to go for a tight estimate for
+            // "normal" ASCII strings
+            
+            try (StringWriter w = new StringWriter(length())) {
+                write(w);
+                return w.toString();
+            } catch (IOException e) {
+                // this will not happen with a StringWriter
+                return "";
+            }
+        }
+        
+        @Override
+        public IString substring(int start) {
+            return substring(start, length());
+        }
+
+        @Override
+        public int compare(IString other) {
+            Iterator<Integer> it1 = this.iterator();
+            Iterator<Integer> it2 = other.iterator();
+
+            while (it1.hasNext() && it2.hasNext()) {
+                Integer c1 = it1.next();
+                Integer c2 = it2.next();
+
+                int diff = c1 - c2;
+                if (diff != 0) {
+                    return diff < 0 ? -1 : 1;
+                }
+            }
+
+            int result = this.length() - other.length();
+
+            if (result == 0) {
+                return 0;
+            } else if (result < 0) {
+                return -1;
+            } else { // result > 0
+                return 1;
+            }
+        }
+        
+        @Override
+        public boolean equals(Object other) {
+            if (other == this) {
+                return true;
+            }
+            
+            if (!(other instanceof DefaultString)) {
+                return false;
+            }
+            
+            DefaultString o = (DefaultString) other;
+            
+            if (o.length() != length()) {
+                return false;
+            }
+            
+            Iterator<Integer> it1 = this.iterator();
+            Iterator<Integer> it2 = o.iterator();
+
+            while (it1.hasNext() && it2.hasNext()) {
+                Integer c1 = it1.next();
+                Integer c2 = it2.next();
+
+                if (c1 != c2) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        
+        @Override
+        /**
+         * Note that we used the hashcode algorithm for java.lang.String here, which is
+         * necessary because that is also used by the specialized implementations of IString,
+         * namely FullUnicodeString and its subclasses, 
+         * which must implement together with this class the hashCode/equals contract.
+         */
+        public int hashCode() {
+            int h = 0;
+            
+            for (Integer c : this) {
+                if (!Character.isBmpCodePoint(c)) {
+                    h = 31 * h + Character.highSurrogate(c);
+                    h = 31 * h + Character.lowSurrogate(c);
+                } else {
+                    h = 31 * h + c;
+                }
+            }
+
+            return h;
+        }
+	}
+	
+	private static class BinaryBalancedLazyConcatString extends DefaultString {
+		private final DefaultString left; /* must remain final for immutability's sake */
+		private final DefaultString right; /* must remain final for immutability's sake */
 		private final int length;
-		int ilength = -1;
 		private final int depth;
+		private final int nonEmptyLineCount;
 		private int hash = 0;
 
-		public static IStringTreeNode build(IStringTreeNode left, IStringTreeNode right) {
+		public static IStringTreeNode build(DefaultString left, DefaultString right) {
 			assert left.invariant();
 			assert right.invariant();
 
@@ -656,9 +848,38 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 			return result;
 		}
-
-		private static IStringTreeNode balance(IStringTreeNode left, IStringTreeNode right) {
-			IStringTreeNode result = new BinaryBalancedLazyConcatString(left, right);
+		
+		 /**
+         * Note that we used the hashcode algorithm for java.lang.String here, which is
+         * necessary because that is also used by the specialized implementations of IString,
+         * namely FullUnicodeString and its subclasses, 
+         * which must implement together with this class the hashCode/equals contract.
+         */
+		@Override
+		public int hashCode() {
+		    if (hash == 0) {
+		        int h = left.hashCode();
+		        
+		        // see how the hashcode is computed from left-to-right?
+		        // that is why we can continue with the hashcode of the left
+		        // tree without having to start from the beginning of the left.
+		        for (Integer c : right) {
+	                if (!Character.isBmpCodePoint(c)) {
+	                    h = 31 * h + Character.highSurrogate(c);
+	                    h = 31 * h + Character.lowSurrogate(c);
+	                } else {
+	                    h = 31 * h + c;
+	                }
+	            }
+		        
+		        hash = h;
+		    }
+		    
+		    return hash;
+		}
+		
+		private static DefaultString balance(DefaultString left, DefaultString right) {
+		    DefaultString result = new BinaryBalancedLazyConcatString(left, right);
 
 			while (result.balanceFactor() - 1 > MAX_UNBALANCE) {
 				if (result.right().balanceFactor() < 0) {
@@ -679,110 +900,25 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return result;
 		}
 
-		private BinaryBalancedLazyConcatString(IStringTreeNode left, IStringTreeNode right) {
+		private BinaryBalancedLazyConcatString(DefaultString left, DefaultString right) {
 			this.left = left;
 			this.right = right;
 			this.length = left.length() + right.length();
 			this.depth = Math.max(left.depth(), right.depth()) + 1;
-
-			// Integer[] newline2pos = {};
+			this.nonEmptyLineCount = left.nonEmptyLineCount() - (left.isNewlineTerminated() ? 1 : 0) + right.nonEmptyLineCount();
 		}
 
+		
 		@Override
-		public Type getType() {
-			return STRING_TYPE;
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-			return v.visitString(this);
-		}
-
-		@Override
-		public boolean isEqual(IValue value) {
-			return this.equals(value);
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (!(other instanceof IStringTreeNode)) {
-				return false;
-			}
-
-			if (other == this) {
-				return true;
-			}
-
-			IStringTreeNode o = (IStringTreeNode) other;
-
-			if (length() != o.length()) {
-				return false;
-			}
-			return this.compare(o) == 0;
-		}
-
-		@Override
-		public boolean match(IValue other) {
-			return isEqual(other);
-		}
-
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends IValue> asAnnotatable() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean mayHaveKeywordParameters() {
-			return false;
-		}
-
-		@Override
-		public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public String getValue() {
-			try (StringWriter w = new StringWriter((int) (length * 1.5 /* leave some room for surrogate pairs */))) {
-				write(w);
-				return w.toString();
-			} catch (IOException e) {
-				// this will not happen with a StringWriter
-				return "";
-			}
+		public int nonEmptyLineCount() {
+		    return nonEmptyLineCount;
 		}
 		
 		@Override
-		public String getCompactValue() {
-			return getValue();
+		public boolean isNewlineTerminated() {
+		    return right.length() == 0 ? left.isNewlineTerminated() : right.isNewlineTerminated();
 		}
 		
-//		@Override
-//		public String getStructure() {
-//			return "b("+left.getStructure()+","+right.getStructure()+")";
-//		}
-
-		@Override
-		public String indentedGetValue(IString whitespace) {
-			try (StringWriter w = new StringWriter((int) (length * 1.5 /* leave some room for surrogate pairs */))) {
-				indentedWrite(w, whitespace);
-				return w.toString();
-			} catch (IOException e) {
-				// this will not happen with a StringWriter
-				return "";
-			}
-		}
-
-		@Override
-		public IString concat(IString other) {
-			return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other);
-		}
-
 		@Override
 		public IString reverse() {
 			return right.reverse().concat(left.reverse());
@@ -794,19 +930,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public int indentedLength(IString whitespace) {
-			if (ilength < 0)
-				ilength = left.indentedLength(whitespace) + right.indentedLength(whitespace);
-			return ilength;
-		}
-
-		@Override
-		public IStringTreeNode left() {
+		public DefaultString left() {
 			return left;
 		}
 
 		@Override
-		public IStringTreeNode right() {
+		public DefaultString right() {
 			return right;
 		}
 
@@ -824,7 +953,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public IString substring(int start, int end) {
 			assert end >= start;
 
-			if (end <= left.length()) { // Bert
+			if (end <= left.length()) {
 				// left, right: <-------><------>
 				// slice: <--->
 				return left.substring(start, end);
@@ -840,62 +969,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public IString substring(int start) {
-			return substring(start, length);
-		}
-
-		@Override
-		public int compare(IString other) {
-			IStringTreeNode o = (IStringTreeNode) other;
-			// System.out.println("Compare:"+this.getClass()+" "+other.getClass());
-			Iterator<Integer> it1 = this.iterator();
-			Iterator<Integer> it2 = o.iterator();
-
-			while (it1.hasNext() && it2.hasNext()) {
-				Integer c1 = it1.next();
-				Integer c2 = it2.next();
-
-				int diff = c1 - c2;
-				if (diff != 0) {
-					return diff < 0 ? -1 : 1;
-				}
-			}
-
-			int result = this.length() - other.length();
-
-			if (result == 0) {
-				return 0;
-			} else if (result < 0) {
-				return -1;
-			} else { // result > 0
-				return 1;
-			}
-		}
-
-		@Override
-		// TODO: this needs a unit test
 		public int charAt(int index) {
 			if (index < left.length()) {
 				return left.charAt(index);
 			} else {
-				// System.out.println("index="+index+" "+" length="+ left.length());
 				return right.charAt(index - left.length());
 			}
 		}
 
 		@Override
-		// TODO: this needs a unit test
-		public int indentedCharAt(int index, IString whitespace) {
-			if (index < left.indentedLength(whitespace)) {
-				return left.indentedCharAt(index, whitespace);
-			} else {
-				// System.out.println("right: index="+index+" "+" length="+ left.length());
-				return right.indentedCharAt(index - left.indentedLength(whitespace), whitespace);
-			}
-		}
-
-		@Override
-		// TODO this needs a unit test
 		public IString replace(int first, int second, int end, IString repl) {
 			if (end < left.length()) {
 				// left, right: <-------><------>
@@ -918,68 +1000,42 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public void write(Writer w) throws IOException {
-			// System.out.println("write:"+left.getClass()+" "+right.getClass());
 			left.write(w);
 			right.write(w);
 		}
 
 		@Override
-		public void indentedWrite(Writer w, IString whitespace) throws IOException {
-			// System.out.println("write:"+left.getClass()+" "+right.getClass());
-			// System.err.println("Indented write B:"+whitespace.length());
-			left.indentedWrite(w, whitespace);
-			right.indentedWrite(w, whitespace);
+		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
+			left.indentedWrite(w, whitespace, indentFirstLine);
+			right.indentedWrite(w, whitespace, (left.length() == 0 && indentFirstLine) || left.isNewlineTerminated());
 		}
 
 		@Override
-		public IStringTreeNode rotateRight() {
+		public DefaultString rotateRight() {
 			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(left().right(), right());
 			p = (BinaryBalancedLazyConcatString) balance(p.left, p.right);
 			return new BinaryBalancedLazyConcatString(left().left(), p);
 		}
 
 		@Override
-		public IStringTreeNode rotateLeft() {
+		public DefaultString rotateLeft() {
 			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(left(), right().left());
-			p = (BinaryBalancedLazyConcatString) balance(p.left, p.right);
-			return new BinaryBalancedLazyConcatString(p, right().right());
+			return new BinaryBalancedLazyConcatString(balance(p.left, p.right), right().right());
 		}
 
 		@Override
-		public IStringTreeNode rotateRightLeft() {
+		public DefaultString rotateRightLeft() {
 			IStringTreeNode rotateRight = new BinaryBalancedLazyConcatString(left(), right().rotateRight());
 			return rotateRight.rotateLeft();
 		}
 
 		@Override
-		public IStringTreeNode rotateLeftRight() {
+		public DefaultString rotateLeftRight() {
 			IStringTreeNode rotateLeft = new BinaryBalancedLazyConcatString(left().rotateLeft(), right());
 			return rotateLeft.rotateRight();
 		}
 
-		@Override
-		/**
-		 * Note that we used the hashcode algorithm for java.lang.String here, which is
-		 * necessary because that is also used by the other implementations of IString
-		 * which must implement together with this class the hashCode/equals contract.
-		 */
-		public int hashCode() {
-			int h = hash;
-			if (h == 0) {
-				for (Integer c : this) {
-					if (!Character.isBmpCodePoint(c)) {
-						h = 31 * h + Character.highSurrogate(c);
-						h = 31 * h + Character.lowSurrogate(c);
-					} else {
-						h = 31 * h + c;
-					}
-				}
-
-				hash = h;
-			}
-
-			return h;
-		}
+		
 
 		@Override
 		public Iterator<Integer> iterator() {
@@ -1016,186 +1072,123 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public void collectLeafIterators(List<Iterator<Integer>> w) {
 			left.collectLeafIterators(w);
 			right.collectLeafIterators(w);
-			;
-		}
-
-		@Override
-		public IString indent(IString whiteSpace) {
-			return new IndentedString(this, whiteSpace);
 		}
 	}
 
-	private static class IndentedString extends AbstractValue implements IString, IStringTreeNode {
+	private static class IndentedString extends DefaultString {
+		private final IString indent;
+		private final DefaultString wrapped;
 
-		final private IString whiteSpace;
-		final private IString istring;
-		int length = -1;
-
-		IndentedString(IString istring, IString whiteSpace) {
-			this.whiteSpace = whiteSpace;
-			this.istring = istring;
-		}
-
-		public IString indent(IString whiteSpace) {
-			return new IndentedString(this.istring, this.whiteSpace.concat(whiteSpace));
-		}
-		
-//		@Override
-//		public String getStructure() {
-//			return "i("+whiteSpace.length()+","+istring.getStructure()+")";
-//		}
-
-
-		@Override
-		public String getValue() {
-			return ((IStringTreeNode) istring).indentedGetValue(whiteSpace);
-		}
-		
-		@Override
-		public String getCompactValue() {
-			return istring.getValue();
+		IndentedString(DefaultString istring, IString whiteSpace) {
+			this.indent = whiteSpace;
+			this.wrapped = istring;
 		}
 
 		@Override
-		public IString concat(IString other) {
-			return BinaryBalancedLazyConcatString.build(this, (IStringTreeNode) other);
+		public IString indent(IString indent) {
+		    // this special case flattens directly nested concats 
+			return new IndentedString(wrapped, this.indent.concat(indent));
 		}
-        
+
+		/**
+		 * This is the basic implementation of indentation, while iterating
+		 * over the string we insert the indent before every non-empty line.
+		 */
 		@Override
-		public String indentedGetValue(IString whitespace) {
-			return ((IStringTreeNode) istring).indentedGetValue(concatWhitespace(whitespace));
+		public Iterator<Integer> iterator() {
+		    return new Iterator<Integer>() {
+		        final Iterator<Integer> output = wrapped.iterator();
+		        Iterator<Integer> whitespace = indent.iterator();
+		        int prev = 0;
+		        
+		        @Override
+		        public boolean hasNext() {
+		            return output.hasNext();
+		        }
+
+		        @Override
+		        public Integer next() {
+		            if (whitespace.hasNext()) {
+		                return whitespace.next();
+		            }
+
+		            // done with indenting, so continue with the content
+		            int cur = output.next();
+		            if (cur == NEWLINE && prev != NEWLINE && output.hasNext()) {
+		                // this is a non-empty, non-last line, so we start a new indentation iterator
+		                whitespace = indent.iterator();
+		            }
+		            prev = cur;
+		            return cur;
+		        }
+		    };
 		}
 
 		@Override
 		public IString reverse() {
-			String s = getValue();
-			return newString(s).reverse();
-		}
-
-		IString expand() {
-			return newString(getValue());
+			return newString(getValue()).reverse();
 		}
 
 		@Override
 		public IString substring(int start, int end) {
-			String value = this.getValue();
-			return newString(value.substring(value.offsetByCodePoints(0, start), value.offsetByCodePoints(0, end)));
-		}
-
-		@Override
-		public IString substring(int start) {
-			String value = this.getValue();
-			return newString(value.substring(value.offsetByCodePoints(0, start)));
-		}
-
-		@Override
-		public int compare(IString other) {
-			//System.out.println("Compare:"+this.getClass()+" "+other.getClass()+
-			// "|"+expand());
-			int result = expand().compare(other);
-			if (result == 0) {
-				return 0;
-			} else if (result < 0) {
-				return -1;
-			} else { // result > 0
-				return 1;
-			}
+			Iterator<Integer> it = iterator();
+            int counter;
+            int ch = 0;
+            
+            // skip to the start using the iterator
+            for (counter = 0; it.hasNext() && counter < start; ch = it.next());
+            
+            // collect all the characters to the end, again using the iterator
+            StringBuilder b = new StringBuilder();
+            for (; it.hasNext() && counter < end; ch = it.next()) {
+                b.appendCodePoint(ch);
+            }
+            
+            return newString(b.toString());
 		}
 
 		@Override
 		public int charAt(int index) {
-			return ((IStringTreeNode) this.istring).indentedCharAt(index, this.whiteSpace);
+		    int counter = 0;
+		    for (int ch : this) {
+		        // let the iterator solve it.
+		        if (counter++ == index) {
+		            return ch;
+		        }
+		    }
+		    
+		    throw new IndexOutOfBoundsException();
 		}
 		
 		@Override
-		public int indentedCharAt(int index, IString whitespace) {
-			return ((IStringTreeNode) istring).indentedCharAt(index, concatWhitespace(whitespace));
-		}
-
-		@Override
 		public IString replace(int first, int second, int end, IString repl) {
-			if (repl instanceof IndentedString)
-				repl = ((IndentedString) repl).expand();
-			IString result = this.expand();
-			return result.replace(first, second, end, repl);
-		};
+			return newString(getValue()).replace(first, second, end, repl);
+		}
 
 		@Override
 		public void write(Writer w) throws IOException {
-			((IStringTreeNode) istring).indentedWrite(w, this.whiteSpace);
+			wrapped.indentedWrite(w, this.indent, true);
 		}
 
 		@Override
-		public void indentedWrite(Writer w, IString whitespace) throws IOException {
-			// System.err.println("Indented write I:"+whitespace.length()+" "+concatWhitespace(whitespace).length());
-			((IStringTreeNode) istring).indentedWrite(w, concatWhitespace(whitespace));
-		}
-
-		@Override
-		public Iterator<Integer> iterator() {
-			return new Iterator<Integer>() {
-				private int cur = 0;
-
-				public boolean hasNext() {
-					return cur < length();
-				}
-
-				public Integer next() {
-					return charAt(cur++);
-				}
-
-				public void remove() {
-					throw new UnsupportedOperationException();
-				}
-			};
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (other == this) {
-				return true;
-			}
-			if (!(other instanceof IString))
-				return false;
-			return this.compare((IString) other) == 0;
-		}
-
-		@Override
-		public boolean isEqual(IValue value) {
-			return this.equals(value);
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-			return v.visitString(this);
-		}
-
-		/*
-		IString concatWhitespace(IString whiteSpace, IString other) {
-			if (other instanceof IndentedString)
-				return whiteSpace.concat(((IndentedString) other).whiteSpace);
-			return whiteSpace;
-		}
-		*/
-		
-		IString concatWhitespace(IString whiteSpace) {
-				return whiteSpace.concat(this.whiteSpace);
-		}
-
-		@Override
-		public int indentedLength(IString whitespace) {
-			// System.out.println("IndentedLength:"+istring.getClass()+"
-			// "+istring.getValue());
-			return ((IStringTreeNode) istring).indentedLength(concatWhitespace(whitespace));
+		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
+			wrapped.indentedWrite(w, whitespace.concat(this.indent), indentFirstLine);
 		}
 
 		@Override
 		public int length() {
-			// TODO Auto-generated method stub
-			if (length >= 0)
-				return length;
-			length = ((IStringTreeNode) istring).indentedLength(this.whiteSpace);
-			return length;
+		    // for every non-empty line an indent would be added to the total number of characters
+		    return wrapped.length() + wrapped.nonEmptyLineCount() * indent.length();
+		}
+		
+		@Override
+		public int nonEmptyLineCount() {
+		    return wrapped.nonEmptyLineCount();
+		}
+		
+		@Override
+		public boolean isNewlineTerminated() {
+		    return wrapped.isNewlineTerminated();
 		}
 	}
 }
