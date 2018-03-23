@@ -126,7 +126,7 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("🍝y🍝").replace(1, 1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
   }
   
-  private static final String[] commonNewlines = new String[] { "\r\n", "\n"};
+  private static final String[] commonNewlines = new String[] { "\n"};
   
   
   private void checkIndent(String indent, String newline, String... lines) {
