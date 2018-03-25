@@ -20,7 +20,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
@@ -455,19 +454,32 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public PrimitiveIterator.OfInt iterator() {
-			return new PrimitiveIterator.OfInt() {
-				private int cur = 0;
+		    return new PrimitiveIterator.OfInt() {
+		        int cur = 0;
 
-				@Override
-				public boolean hasNext() {
-					return cur < length();
-				}
+		        public boolean hasNext() {
+		            return cur < length();
+		        }
 
-				@Override
-				public int nextInt() {
-					return charAt(cur++);
-				}
-			};
+		        public int nextInt() {
+		            final int length = value.length();
+		            final String val = value;
+
+		            if (cur >= length) {
+		                throw new NoSuchElementException();
+		            }
+		            
+		            char c1 = val.charAt(cur++);
+		            if (Character.isHighSurrogate(c1) && cur < length) {
+		                char c2 = val.charAt(cur);
+		                if (Character.isLowSurrogate(c2)) {
+		                    cur++;
+		                    return Character.toCodePoint(c1, c2);
+		                }
+		            }
+		            return c1;
+		        }
+		    };
 		}
 	}
 
