@@ -94,7 +94,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		// to collect the count and the containsSurrogatePairs
 
 		boolean containsSurrogatePairs = false;
-		int count = 0;
+		int count = 1;
 		
         int len = value.length();
         for (int i = 0; i < len; i++) {
@@ -115,7 +115,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return EmptyString.getInstance();
         }
 
-        int count = 0;
+        int count = 1;
         
         int len = value.length();
         for (int i = 0; i < len; i++) {
@@ -274,7 +274,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				buffer.append(other.getValue());
 				
 
-				return StringValue.newString(buffer.toString(), true, nonEmptyLineCount - (isNewlineTerminated()?1:0) + o.nonEmptyLineCount());
+				return StringValue.newString(buffer.toString(), true, nonEmptyLineCount - (isNewlineTerminated()?0:1) + o.nonEmptyLineCount());
 			} else {
 				return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
 			}
@@ -764,6 +764,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
         @Override
         public IString concat(IString other) {
+            if (length() == 0) {
+                return other;
+            }
+            if (other.length() == 0) {
+                return this;
+            }
             return BinaryBalancedLazyConcatString.build((AbstractString) this, (AbstractString) other);
         }
         
@@ -960,7 +966,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			this.right = right;
 			this.length = left.length() + right.length();
 			this.depth = Math.max(left.depth(), right.depth()) + 1;
-			this.nonEmptyLineCount = left.nonEmptyLineCount() - (left.isNewlineTerminated() ? 1 : 0) + right.nonEmptyLineCount();
+			this.nonEmptyLineCount = left.nonEmptyLineCount() - (left.isNewlineTerminated() ? 0 : 1) + right.nonEmptyLineCount();
 		}
 
 		
