@@ -417,7 +417,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public void write(Writer w) throws IOException {
-			w.write(value);
+		    w.write(value);
 		}
 
 		@Override
@@ -442,22 +442,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    // otherwise we have to find the newline characters one-by-one. 
 		    // this implementation tries to quickly find the next newline using indexOf, and streams
             // line by line to optimize copying the characters onto the stream in bigger blobs than 1 character.
-		    for (int pos = value.indexOf(NEWLINE), prev = 0; ; prev = pos, pos = value.indexOf(NEWLINE, pos)) {
-                // Caveat: these conditionals are order-dependent.
+		    for (int pos = value.indexOf(NEWLINE), next = 0; ; next = pos + 1, pos = value.indexOf(NEWLINE, next)) {
 		        if (pos == -1) {
 		           // no more newlines, so write the entire line
-		           w.write(value, prev, value.length() - prev);
+		            if (next != value.length()) {
+		                w.write(value, next, value.length() - next + 1);
+		            }
 		           // and we are done
 		           return;
 		        }
 		        else {
 		            // write until the currently found newline
 		            // and continue to find the next newline.
-		            w.write(value, prev, pos - prev);
+		            w.write(value, next, pos - next + 1);
 
 		            // write the indent for the next line, unless
 		            // that is an empty line
-		            if (value.charAt(pos + 1) != NEWLINE && pos < value.length() - 1) {
+		            if (pos < value.length() - 1 && value.charAt(pos + 1) != NEWLINE) {
 		                whitespace.write(w);
 		            }
 		        }
