@@ -53,7 +53,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  * but less optimally. They're traded for the optimization of {@link IString#concat(IString)} and {@link IString#indent(IString)}.
  * 
  * TODO: make a faster path for short strings (i.e. English words) which do not contain high surrogate pairs
- * TODO: optimize iterator of {@link FullUnicodeString} to avoid use of the slow {@link String#codePointAt(int)} method.
  */
 /* package */ public class StringValue {
 	private static final char NEWLINE = '\n';
@@ -281,10 +280,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return value.codePointCount(0, value.length());
 		}
 
-		private int codePointAt(java.lang.String str, int i) {
-			return str.codePointAt(str.offsetByCodePoints(0, i));
-		}
-
 		@Override
 		public IString substring(int start, int end) {
 			return newString(value.substring(value.offsetByCodePoints(0, start), value.offsetByCodePoints(0, end)));
@@ -297,7 +292,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public int charAt(int index) {
-			return codePointAt(value, index);
+			return value.codePointAt(value.offsetByCodePoints(0, index));
 		}
 		
 		private int nextCP(CharBuffer cbuf) {
