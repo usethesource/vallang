@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2017 CWI
+ * Copyright (c) 2009-2018 CWI, SWAT.engineering
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,9 @@
  *
  *   * Arnold Lankamp - interfaces and implementation - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
- *   * Jurgen Vinju - lazy concat - CWI
- *   * Bert Lisser - balanced trees - CWI
+ *   * Jurgen Vinju - balanced trees and lazy indent - CWI
+ *   * Bert Lisser - balanced trees and lazy indent - CWI
+ *   * Davy Landman - smart unicode implementations - CWI, SWAT.engineering 
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
@@ -19,9 +20,10 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.PrimitiveIterator;
 
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IString;
@@ -33,20 +35,26 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
- * Fine here the implementations of IString, which all are (must be) sub-classes of StringValue.DefaultString
+ * Find here the implementations of IString, which all are (must be) sub-classes of  {@link AbstractString}
  * as an internal design invariant.
  * 
  * The challenges solved by this implementation:
  *   - cater for and optimize for the normal case of strings containing only normal ASCII characters, while
- *     still allowing all 24-bit unicode characters
- *   - optimize string concatenation and the streaming of large concatenated strings to a writer
- *   - optimize the indentation operation and streaming recursively indented strings to a writer
+ *     still allowing all 24-bit unicode characters, see {@link FullUnicodeString} and {@link SimpleUnicodeString}
+ *   - optimize string {@link IString#concat(IString)} method, in combination with {@link IString#write(Writer)} and {@link IString#iterator()},
+ *     see {@link IStringTreeNode} and {@link BinaryBalancedLazyConcatString}.
+ *   - optimize the {@link IString#indent(IString)} method, in combination with {@link IString#write(Writer)} and {@link IString#iterator()}, 
+ *     see {@link IIndentableString} and {@link IndentedString}
  *   - allow non-canonical representations of the same string, in particular making sure that equals() and hashCode() works 
- *     well across and between different representations of (accidentally) the same string.
+ *     well across and between different representations of (accidentally) the same string, see {@link AbstractString#hashCode()},
+ *     and {@link AbstractString#equals()} and their overrides. 
  *     
  * The 'normal' case is defined by what people normally do in Rascal, i.e. using string template expanders a lot,
  * and reading and writing to text files, searching through strings. The other operations on strings are implemented,
- * but less optimally. They're traded for the optimization of concat and indent. 
+ * but less optimally. They're traded for the optimization of {@link IString#concat(IString)} and {@link IString#indent(IString)}.
+ * 
+ * TODO: make a faster path for short strings (i.e. English words) which do not contain high surrogate pairs
+ * TODO: optimize iterator of {@link FullUnicodeString} to avoid use of the slow {@link String#codePointAt(int)} method.
  */
 /* package */ public class StringValue {
 	private static final char NEWLINE = '\n';
@@ -132,7 +140,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new SimpleUnicodeString(value, nonEmptyLineCount);
 	}
 
-	private static class EmptyString extends DefaultString {
+	/**
+	 * Empty strings are so ubiquitous that we (a) make only one instance and specialize all
+	 * of its operations for speed.
+	 *
+	 */
+	private static class EmptyString extends AbstractString {
 	    private static class InstanceHolder {
 	        public static EmptyString instance = new EmptyString();
 	    }
@@ -183,8 +196,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public Iterator<Integer> iterator() {
-            return Collections.<Integer>emptyIterator();
+        public PrimitiveIterator.OfInt iterator() {
+            return new PrimitiveIterator.OfInt() {
+
+                @Override
+                public boolean hasNext() {
+                    return false;
+                }
+
+                @Override
+                public int nextInt() {
+                    throw new NoSuchElementException();
+                }
+            };
         }
 
         @Override
@@ -198,7 +222,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 	}
 	
-	private static class FullUnicodeString extends DefaultString {
+	private static class FullUnicodeString extends AbstractString {
 		protected final String value;
         protected final int nonEmptyLineCount;
 
@@ -230,11 +254,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				StringBuilder buffer = new StringBuilder();
 				buffer.append(value);
 				buffer.append(other.getValue());
-				DefaultString o = (DefaultString) other;
+				AbstractString o = (AbstractString) other;
 
 				return StringValue.newString(buffer.toString(), true, nonEmptyLineCount - (isNewlineTerminated()?1:0) + o.nonEmptyLineCount());
 			} else {
-				return BinaryBalancedLazyConcatString.build(this, (DefaultString) other);
+				return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
 			}
 		}
 
@@ -430,20 +454,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public Iterator<Integer> iterator() {
-			return new Iterator<Integer>() {
+		public PrimitiveIterator.OfInt iterator() {
+			return new PrimitiveIterator.OfInt() {
 				private int cur = 0;
 
+				@Override
 				public boolean hasNext() {
 					return cur < length();
 				}
 
-				public Integer next() {
+				@Override
+				public int nextInt() {
 					return charAt(cur++);
-				}
-
-				public void remove() {
-					throw new UnsupportedOperationException();
 				}
 			};
 		}
@@ -481,20 +503,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public Iterator<Integer> iterator() {
-			return new Iterator<Integer>() {
+		public PrimitiveIterator.OfInt iterator() {
+			return new PrimitiveIterator.OfInt() {
 				private int cur = 0;
 
+				@Override
 				public boolean hasNext() {
 					return cur < value.length();
 				}
 
-				public Integer next() {
+				@Override
+				public int nextInt() {
 					return (int) value.charAt(cur++);
-				}
-
-				public void remove() {
-					throw new UnsupportedOperationException();
 				}
 			};
 		}
@@ -555,16 +575,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          */
         boolean isNewlineTerminated();
         
-       
-        
-//        default int indentedCharAt(int index, IString whiteSpace) {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        default public int indentedLength(IString whiteSpace) {
-//            throw new UnsupportedOperationException();
-//        }
-//
         /**
          * Specialized (hopefully optimized) implementations of streaming an indented version
          * of an IString. Implementations should avoid allocating memory and try to write as many
@@ -578,10 +588,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         default public void indentedWrite(Writer w, IString whiteSpace, boolean indentFirstLine) throws IOException {
             throw new UnsupportedOperationException();
         }
-//        
-//        default public String indentedGetValue(IString whiteSpace) {
-//            throw new UnsupportedOperationException();
-//        }
     }
 
 	/**
@@ -643,7 +649,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 * Should be overridden by the binary node and never called on the leaf nodes
 		 * because they are not out of balance.
 		 */
-		default DefaultString left() {
+		default AbstractString left() {
 			throw new UnsupportedOperationException();
 		}
 
@@ -651,32 +657,32 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 * Should be overridden by the binary node and never called on the leaf nodes
 		 * because they are not out of balance.
 		 */
-		default DefaultString right() {
+		default AbstractString right() {
 			throw new UnsupportedOperationException();
 		}
 
-		default DefaultString rotateRight() {
-			return (DefaultString) this;
+		default AbstractString rotateRight() {
+			return (AbstractString) this;
 		}
 
-		default DefaultString rotateLeft() {
-			return (DefaultString) this;
+		default AbstractString rotateLeft() {
+			return (AbstractString) this;
 		}
 
-		default DefaultString rotateRightLeft() {
-			return (DefaultString) this;
+		default AbstractString rotateRightLeft() {
+			return (AbstractString) this;
 		}
 
-		default DefaultString rotateLeftRight() {
-			return (DefaultString) this;
+		default AbstractString rotateLeftRight() {
+			return (AbstractString) this;
 		}
 
-		default void collectLeafIterators(List<Iterator<Integer>> w) {
+		default void collectLeafIterators(List<PrimitiveIterator.OfInt> w) {
 			w.add(iterator());
 		}
 	}
 	
-	private abstract static class DefaultString extends AbstractValue implements IString, IStringTreeNode, IIndentableString {
+	private abstract static class AbstractString extends AbstractValue implements IString, IStringTreeNode, IIndentableString {
 	    @Override
         public Type getType() {
             return STRING_TYPE;
@@ -694,12 +700,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
         @Override
         public IString concat(IString other) {
-            return BinaryBalancedLazyConcatString.build((DefaultString) this, (DefaultString) other);
+            return BinaryBalancedLazyConcatString.build((AbstractString) this, (AbstractString) other);
         }
         
         @Override
         public IString indent(IString whiteSpace) {
-            return new IndentedString((DefaultString) this, whiteSpace);
+            return new IndentedString((AbstractString) this, whiteSpace);
         }
         
         @Override
@@ -750,12 +756,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public int compare(IString other) {
-            Iterator<Integer> it1 = this.iterator();
-            Iterator<Integer> it2 = other.iterator();
+            PrimitiveIterator.OfInt  it1 = this.iterator();
+            PrimitiveIterator.OfInt  it2 = other.iterator();
 
             while (it1.hasNext() && it2.hasNext()) {
-                Integer c1 = it1.next();
-                Integer c2 = it2.next();
+                int c1 = it1.nextInt();
+                int c2 = it2.nextInt();
 
                 int diff = c1 - c2;
                 if (diff != 0) {
@@ -780,22 +786,22 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 return true;
             }
             
-            if (!(other instanceof DefaultString)) {
+            if (!(other instanceof AbstractString)) {
                 return false;
             }
             
-            DefaultString o = (DefaultString) other;
+            AbstractString o = (AbstractString) other;
             
             if (o.length() != length()) {
                 return false;
             }
             
-            Iterator<Integer> it1 = this.iterator();
-            Iterator<Integer> it2 = o.iterator();
+            PrimitiveIterator.OfInt  it1 = this.iterator();
+            PrimitiveIterator.OfInt  it2 = o.iterator();
 
             while (it1.hasNext() && it2.hasNext()) {
-                Integer c1 = it1.next();
-                Integer c2 = it2.next();
+                int c1 = it1.nextInt();
+                int c2 = it2.nextInt();
 
                 if (c1 != c2) {
                     return false;
@@ -813,8 +819,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          * which must implement together with this class the hashCode/equals contract.
          */
         public int hashCode() {
-            int h = 0;
-            
+            return hashCode(0);
+        }
+        
+        /**
+         * This can be used to continue the computation of a string hashCode from left to right
+         */
+        protected int hashCode(int h) {
             for (Integer c : this) {
                 if (!Character.isBmpCodePoint(c)) {
                     h = 31 * h + Character.highSurrogate(c);
@@ -823,20 +834,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                     h = 31 * h + c;
                 }
             }
-
+            
             return h;
         }
 	}
 	
-	private static class BinaryBalancedLazyConcatString extends DefaultString {
-		private final DefaultString left; /* must remain final for immutability's sake */
-		private final DefaultString right; /* must remain final for immutability's sake */
+	private static class BinaryBalancedLazyConcatString extends AbstractString {
+		private final AbstractString left; /* must remain final for immutability's sake */
+		private final AbstractString right; /* must remain final for immutability's sake */
 		private final int length;
 		private final int depth;
 		private final int nonEmptyLineCount;
 		private int hash = 0;
 
-		public static IStringTreeNode build(DefaultString left, DefaultString right) {
+		public static IStringTreeNode build(AbstractString left, AbstractString right) {
 			assert left.invariant();
 			assert right.invariant();
 
@@ -849,37 +860,17 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return result;
 		}
 		
-		 /**
-         * Note that we used the hashcode algorithm for java.lang.String here, which is
-         * necessary because that is also used by the specialized implementations of IString,
-         * namely FullUnicodeString and its subclasses, 
-         * which must implement together with this class the hashCode/equals contract.
-         */
 		@Override
 		public int hashCode() {
 		    if (hash == 0) {
-		        int h = left.hashCode();
-		        
-		        // see how the hashcode is computed from left-to-right?
-		        // that is why we can continue with the hashcode of the left
-		        // tree without having to start from the beginning of the left.
-		        for (Integer c : right) {
-	                if (!Character.isBmpCodePoint(c)) {
-	                    h = 31 * h + Character.highSurrogate(c);
-	                    h = 31 * h + Character.lowSurrogate(c);
-	                } else {
-	                    h = 31 * h + c;
-	                }
-	            }
-		        
-		        hash = h;
+		        hash = hashCode(left.hashCode());
 		    }
 		    
 		    return hash;
 		}
 		
-		private static DefaultString balance(DefaultString left, DefaultString right) {
-		    DefaultString result = new BinaryBalancedLazyConcatString(left, right);
+		private static AbstractString balance(AbstractString left, AbstractString right) {
+		    AbstractString result = new BinaryBalancedLazyConcatString(left, right);
 
 			while (result.balanceFactor() - 1 > MAX_UNBALANCE) {
 				if (result.right().balanceFactor() < 0) {
@@ -900,7 +891,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return result;
 		}
 
-		private BinaryBalancedLazyConcatString(DefaultString left, DefaultString right) {
+		private BinaryBalancedLazyConcatString(AbstractString left, AbstractString right) {
 			this.left = left;
 			this.right = right;
 			this.length = left.length() + right.length();
@@ -930,12 +921,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public DefaultString left() {
+		public AbstractString left() {
 			return left;
 		}
 
 		@Override
-		public DefaultString right() {
+		public AbstractString right() {
 			return right;
 		}
 
@@ -1011,35 +1002,33 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public DefaultString rotateRight() {
+		public AbstractString rotateRight() {
 			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(left().right(), right());
 			p = (BinaryBalancedLazyConcatString) balance(p.left, p.right);
 			return new BinaryBalancedLazyConcatString(left().left(), p);
 		}
 
 		@Override
-		public DefaultString rotateLeft() {
+		public AbstractString rotateLeft() {
 			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(left(), right().left());
 			return new BinaryBalancedLazyConcatString(balance(p.left, p.right), right().right());
 		}
 
 		@Override
-		public DefaultString rotateRightLeft() {
+		public AbstractString rotateRightLeft() {
 			IStringTreeNode rotateRight = new BinaryBalancedLazyConcatString(left(), right().rotateRight());
 			return rotateRight.rotateLeft();
 		}
 
 		@Override
-		public DefaultString rotateLeftRight() {
+		public AbstractString rotateLeftRight() {
 			IStringTreeNode rotateLeft = new BinaryBalancedLazyConcatString(left().rotateLeft(), right());
 			return rotateLeft.rotateRight();
 		}
 
-		
-
 		@Override
-		public Iterator<Integer> iterator() {
-			final List<Iterator<Integer>> leafs = new ArrayList<>(
+		public PrimitiveIterator.OfInt iterator() {
+			final List<PrimitiveIterator.OfInt> leafs = new ArrayList<>(
 					this.length / (StringValue.DEFAULT_MAX_FLAT_STRING / 2));
 
 			/**
@@ -1049,7 +1038,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			 */
 			collectLeafIterators(leafs);
 
-			return new Iterator<Integer>() {
+			return new PrimitiveIterator.OfInt() {
 				int current = 0;
 
 				@Override
@@ -1061,25 +1050,25 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 					return current < leafs.size();
 				}
 
-				@Override
-				public Integer next() {
-					return leafs.get(current).next();
-				}
+                @Override
+                public int nextInt() {
+                    return leafs.get(current).nextInt();
+                }
 			};
 		};
 
 		@Override
-		public void collectLeafIterators(List<Iterator<Integer>> w) {
+		public void collectLeafIterators(List<PrimitiveIterator.OfInt> w) {
 			left.collectLeafIterators(w);
 			right.collectLeafIterators(w);
 		}
 	}
 
-	private static class IndentedString extends DefaultString {
+	private static class IndentedString extends AbstractString {
 		private final IString indent;
-		private final DefaultString wrapped;
+		private final AbstractString wrapped;
 
-		IndentedString(DefaultString istring, IString whiteSpace) {
+		IndentedString(AbstractString istring, IString whiteSpace) {
 			this.indent = whiteSpace;
 			this.wrapped = istring;
 		}
@@ -1095,10 +1084,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 * over the string we insert the indent before every non-empty line.
 		 */
 		@Override
-		public Iterator<Integer> iterator() {
-		    return new Iterator<Integer>() {
-		        final Iterator<Integer> output = wrapped.iterator();
-		        Iterator<Integer> whitespace = indent.iterator();
+		public PrimitiveIterator.OfInt iterator() {
+		    return new PrimitiveIterator.OfInt() {
+		        final PrimitiveIterator.OfInt output = wrapped.iterator();
+		        PrimitiveIterator.OfInt whitespace = indent.iterator();
 		        int prev = 0;
 		        
 		        @Override
@@ -1106,21 +1095,21 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		            return output.hasNext();
 		        }
 
-		        @Override
-		        public Integer next() {
-		            if (whitespace.hasNext()) {
-		                return whitespace.next();
-		            }
+                @Override
+                public int nextInt() {
+                    if (whitespace.hasNext()) {
+                        return whitespace.nextInt();
+                    }
 
-		            // done with indenting, so continue with the content
-		            int cur = output.next();
-		            if (cur == NEWLINE && prev != NEWLINE && output.hasNext()) {
-		                // this is a non-empty, non-last line, so we start a new indentation iterator
-		                whitespace = indent.iterator();
-		            }
-		            prev = cur;
-		            return cur;
-		        }
+                    // done with indenting, so continue with the content
+                    int cur = output.nextInt();
+                    if (cur == NEWLINE && prev != NEWLINE && output.hasNext()) {
+                        // this is a non-empty, non-last line, so we start a new indentation iterator
+                        whitespace = indent.iterator();
+                    }
+                    prev = cur;
+                    return cur;
+                }
 		    };
 		}
 
@@ -1131,16 +1120,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString substring(int start, int end) {
-			Iterator<Integer> it = iterator();
+		    PrimitiveIterator.OfInt  it = iterator();
             int counter;
             int ch = 0;
             
             // skip to the start using the iterator
-            for (counter = 0; it.hasNext() && counter < start; ch = it.next());
+            for (counter = 0; it.hasNext() && counter < start; ch = it.nextInt());
             
             // collect all the characters to the end, again using the iterator
             StringBuilder b = new StringBuilder();
-            for (; it.hasNext() && counter < end; ch = it.next()) {
+            for (; it.hasNext() && counter < end; ch = it.nextInt()) {
                 b.appendCodePoint(ch);
             }
             
