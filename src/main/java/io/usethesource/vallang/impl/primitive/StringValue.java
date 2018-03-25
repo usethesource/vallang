@@ -1165,6 +1165,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          * we've done this by setting {@link #indent} to null.
          */
         private void applyIndentation() {
+            // TODO: this is not thread-safe
             if (indent != null) {
                 indent = null;
                 wrapped = (AbstractString) newString(getValue());
