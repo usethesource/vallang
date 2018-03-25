@@ -427,39 +427,40 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        // single lines can be streamed immediately.
 		        // this is a hot and fast path since most indented strings are build from
 		        // templates which are concatenated line-by-line
+		        whitespace.write(w);
 		        w.write(value);
 		        return;
+		    }
+		    
+		    if (value.isEmpty()) {
+		        return;
+		    }
+		    
+		    if (indentFirstLine) {
+		        whitespace.write(w);
 		    }
 		    
 		    // otherwise we have to find the newline characters one-by-one. 
 		    // this implementation tries to quickly find the next newline using indexOf, and streams
             // line by line to optimize copying the characters onto the stream in bigger blobs than 1 character.
-		    for (int pos = value.indexOf(NEWLINE), prev = 0, count = 0; ; prev = pos, pos = value.indexOf(NEWLINE, pos), count++) {
-		        // if pos is the last character, print it an bail out:
-		        if (pos == value.length() - 1) {
-		            w.write(NEWLINE);
-		            return;
-		        }
-		        
-		        // if pos is an empty line, print it and continue:
-		        if (value.charAt(pos + 1) == NEWLINE) {
-		            w.write(NEWLINE);
-		            continue;
-		        }
-		        
-		        // otherwise we can write the indentation, skipping the first line if needed
-		        if (count > 0 || indentFirstLine) {
-		            whitespace.write(w);
-		        }
-                
+		    for (int pos = value.indexOf(NEWLINE), prev = 0; ; prev = pos, pos = value.indexOf(NEWLINE, pos)) {
+                // Caveat: these conditionals are order-dependent.
 		        if (pos == -1) {
-		            // no more newlines, so write the entire line
+		           // no more newlines, so write the entire line
 		           w.write(value, prev, value.length() - prev);
+		           // and we are done
 		           return;
 		        }
 		        else {
 		            // write until the currently found newline
+		            // and continue to find the next newline.
 		            w.write(value, prev, pos - prev);
+
+		            // write the indent for the next line, unless
+		            // that is an empty line
+		            if (value.charAt(pos + 1) != NEWLINE && pos < value.length() - 1) {
+		                whitespace.write(w);
+		            }
 		        }
 		    }
 		}
