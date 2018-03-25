@@ -1093,7 +1093,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    // if indent == null, then wrapped contains an eagerly indented value already.
 	    // if indent != null, then wrapped is the string to be indented.
 	    // clients can not set indent to null.
-		private IString indent; 
+		private volatile IString indent; 
 		private final AbstractString wrapped;
 
 		IndentedString(AbstractString istring, IString whiteSpace) {
@@ -1165,10 +1165,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          * we've done this by setting {@link #indent} to null.
          */
         private void applyIndentation() {
-            // TODO: this is not thread-safe
-            if (indent != null) {
-                indent = null;
-                wrapped = (AbstractString) newString(getValue());
+            synchronized (indent) {
+                if (indent != null) {
+                    indent = null;
+                    wrapped = (AbstractString) newString(getValue());
+                }
             }
         }
 
