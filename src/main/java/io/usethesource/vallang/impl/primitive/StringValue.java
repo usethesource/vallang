@@ -29,7 +29,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.impl.AbstractValue;
-import io.usethesource.vallang.impl.primitive.StringValue.IIndentableString;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -1094,7 +1093,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    // if indent != null, then wrapped is the string to be indented.
 	    // clients can not set indent to null.
 		private volatile IString indent; 
-		private final AbstractString wrapped;
+		private AbstractString wrapped;
 
 		IndentedString(AbstractString istring, IString whiteSpace) {
 		    assert istring != null && whiteSpace != null;
