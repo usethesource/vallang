@@ -431,7 +431,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        }
 		        
 		        // otherwise we can write the indentation, skipping the first line if needed
-		        if (count > 0 && indentFirstLine) {
+		        if (count > 0 || indentFirstLine) {
 		            whitespace.write(w);
 		        }
                 
