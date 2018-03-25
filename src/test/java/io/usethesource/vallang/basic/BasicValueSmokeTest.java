@@ -134,7 +134,7 @@ public final class BasicValueSmokeTest {
 	  StringBuilder indented = new StringBuilder();
 	  StringBuilder indentedTwice = new StringBuilder();
 	  IString concatTree = vf.string("");
-	  boolean first = true;
+
 	  for (String l : lines) {
 		  unindented.append(l);
 		  unindented.append(newline);
@@ -142,20 +142,14 @@ public final class BasicValueSmokeTest {
 		  concatTree = concatTree.concat(vf.string(l));
 		  concatTree = concatTree.concat(vf.string(newline));
 		  
-		  if (!first) {
-			  indented.append(indent);
-		  }
+		  indented.append(indent);
 		  indented.append(l);
 		  indented.append(newline);
 
-		  if (!first) {
-              indentedTwice.append("first" + indent);
-              indentedTwice.append(indent);
-		  }
+		  indentedTwice.append("first" + indent);
+		  indentedTwice.append(indent);
 		  indentedTwice.append(l);
 		  indentedTwice.append(newline);
-		  
-		  first = false;
 	  }
 	  
 	  String expected = indented.toString();

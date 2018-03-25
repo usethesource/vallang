@@ -56,6 +56,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  */
 /* package */ public class StringValue {
 	private static final char NEWLINE = '\n';
+	private static final char RETURN = '\r';
     private static final Type STRING_TYPE = TypeFactory.getInstance().stringType();
 
 	private static int DEFAULT_MAX_FLAT_STRING = 512;
@@ -192,6 +193,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public void write(Writer w) throws IOException {
         }
+        
+        @Override
+        public void indentedWrite(Writer w, IString whiteSpace, boolean indentFirstLine) {
+        }
 
         @Override
         public PrimitiveIterator.OfInt iterator() {
@@ -221,7 +226,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	private static class FullUnicodeString extends AbstractString {
-		protected final String value;
+		
+        protected final String value;
         protected final int nonEmptyLineCount;
 
 		private FullUnicodeString(String value, int nonEmptyLineCount) {
@@ -248,6 +254,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public IString concat(IString other) {
+		    if (length() == 0) {
+		        return other;
+		    }
+		    if (other.length() == 0) {
+		        return this;
+		    }
+		    
 		    // We fuse the strings, but only if this does not introduce strings with multiple newlines,
 		    // and only the string would not grow beyond MAX_FLAT_STRING.
 		    // The reason for the first is that single line strings flush faster to the write buffers.
@@ -458,8 +471,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		            // write the indent for the next line, unless
 		            // that is an empty line
-		            if (pos < value.length() - 1 && value.charAt(pos + 1) != NEWLINE) {
-		                whitespace.write(w);
+		            if (pos < value.length() - 1) {
+		                int nextChar = value.charAt(pos + 1);
+		                
+		                if (nextChar != NEWLINE) {
+		                    whitespace.write(w);
+		                }
 		            }
 		        }
 		    }
