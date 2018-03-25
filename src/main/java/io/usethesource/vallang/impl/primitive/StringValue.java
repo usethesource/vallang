@@ -435,22 +435,33 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
-		    if (nonEmptyLineCount <= 1) {
-		        // single lines can be streamed immediately.
-		        // this is a hot and fast path since most indented strings are build from
-		        // templates which are concatenated line-by-line
-		        whitespace.write(w);
-		        w.write(value);
-		        return;
-		    }
-		    
 		    if (value.isEmpty()) {
 		        return;
 		    }
 		    
 		    if (indentFirstLine) {
-		        whitespace.write(w);
+		        // only it this line is non-empty
+		        char first = value.charAt(0);
+		        
+		        if (first == RETURN && value.length() > 1) {
+		            char second = value.charAt(1);
+		            
+		            if (second != NEWLINE) {
+		                whitespace.write(w);
+		            }
+		        }
+		        else if (first != NEWLINE) {
+		            whitespace.write(w);
+		        }
 		    }
+		    
+		    if (nonEmptyLineCount <= 1) {
+                // single lines can be streamed immediately.
+                // this is a hot and fast path since most indented strings are build from
+                // templates which are concatenated line-by-line
+                w.write(value);
+                return;
+            }
 		    
 		    // otherwise we have to find the newline characters one-by-one. 
 		    // this implementation tries to quickly find the next newline using indexOf, and streams
@@ -474,9 +485,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		            if (pos < value.length() - 1) {
 		                int nextChar = value.charAt(pos + 1);
 		                
-		                if (nextChar != NEWLINE) {
-		                    whitespace.write(w);
+		                if (nextChar == NEWLINE) {
+                            continue;
+                        }
+		                else if (nextChar == RETURN) {
+		                    if (pos < value.length() - 2) {
+		                        int nnextChar = value.charAt(pos + 2);
+		                        
+		                        if (nnextChar == NEWLINE) {
+		                            continue;
+		                        }
+		                    }
 		                }
+		                
+		                whitespace.write(w);
 		            }
 		        }
 		    }
