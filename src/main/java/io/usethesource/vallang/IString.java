@@ -15,6 +15,7 @@ package io.usethesource.vallang;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
+import java.util.PrimitiveIterator;
 
 public interface IString extends IValue, Iterable<Integer> {
 	/**
@@ -91,7 +92,17 @@ public interface IString extends IValue, Iterable<Integer> {
      * @see Character for more information on Unicode UTF-32 codepoints.
      */
     @Override
-    Iterator<Integer> iterator();
+    PrimitiveIterator.OfInt iterator();
     
-    IString indent(IString whiteSpace);
+    /**
+     * Indent all the non-empty lines in this string with the given whitespace. That means that
+     * after every newline character which is not immediately followed by another newline character
+     * or the end of string, the whitespace string is inserted into the string. 
+     * 
+     * Implementations of IString should ensure that indent itself is in O(1) and the constructed string
+     * will {@link #write(Writer)} in O(n) where n is the length of the string. 
+     * @param whiteSpace
+     * @return the current string indented with the given whitespace
+     */
+    IString indent(IString whitespace);
 }
