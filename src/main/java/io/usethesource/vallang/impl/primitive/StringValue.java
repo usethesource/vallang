@@ -29,6 +29,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.impl.AbstractValue;
+import io.usethesource.vallang.impl.primitive.StringValue.IIndentableString;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -248,11 +249,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public IString concat(IString other) {
-			if (length() + other.length() <= MAX_FLAT_STRING) {
+		    // We fuse the strings, but only if this does not introduce strings with multiple newlines,
+		    // and only the string would not grow beyond MAX_FLAT_STRING.
+		    // The reason for the first is that single line strings flush faster to the write buffers.
+		    // The reason for the second is that longer strings require in O(n) codepoint access, while the
+		    // balanced trees amortize access time to in O(log^2(n)).
+		    AbstractString o = (AbstractString) other;
+		    
+			if (length() + other.length() <= MAX_FLAT_STRING && (nonEmptyLineCount > 1 || o.nonEmptyLineCount() > 1)) {
 				StringBuilder buffer = new StringBuilder();
 				buffer.append(value);
 				buffer.append(other.getValue());
-				AbstractString o = (AbstractString) other;
+				
 
 				return StringValue.newString(buffer.toString(), true, nonEmptyLineCount - (isNewlineTerminated()?1:0) + o.nonEmptyLineCount());
 			} else {
@@ -415,8 +423,17 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
+		    if (nonEmptyLineCount <= 1) {
+		        // single lines can be streamed immediately.
+		        // this is a hot and fast path since most indented strings are build from
+		        // templates which are concatenated line-by-line
+		        w.write(value);
+		        return;
+		    }
+		    
+		    // otherwise we have to find the newline characters one-by-one. 
 		    // this implementation tries to quickly find the next newline using indexOf, and streams
-		    // line by line to optimize copying the characters onto the stream in bigger blobs than 1 character.
+            // line by line to optimize copying the characters onto the stream in bigger blobs than 1 character.
 		    for (int pos = value.indexOf(NEWLINE), prev = 0, count = 0; ; prev = pos, pos = value.indexOf(NEWLINE, pos), count++) {
 		        // if pos is the last character, print it an bail out:
 		        if (pos == value.length() - 1) {
