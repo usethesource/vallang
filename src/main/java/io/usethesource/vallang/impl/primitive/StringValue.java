@@ -94,16 +94,44 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		// to collect the count and the containsSurrogatePairs
 
 		boolean containsSurrogatePairs = false;
-		int count = 1;
+		int count;
+		
+		// how to count the first line:
+		if (value.charAt(0) == NEWLINE) {
+		    count = 0;
+		}
+		else if (value.charAt(0) == RETURN) {
+		    if (value.length() > 1 && value.charAt(1) == NEWLINE) {
+		        count = 0;
+		    }
+		    else {
+		        count = 1;
+		    }
+		}
+		else {
+		    count = 1;
+		}
 		
         int len = value.length();
         for (int i = 0; i < len; i++) {
-            if (containsSurrogatePairs || (i > 0 && Character.isSurrogatePair(value.charAt(i - 1), value.charAt(i)))) {
+            char cur = value.charAt(i);
+            if (containsSurrogatePairs || (i > 0 && Character.isSurrogatePair(value.charAt(i - 1), cur))) {
                 containsSurrogatePairs = true;
             }
             
-            if (value.charAt(i) == NEWLINE && (i == 0 || value.charAt(i - 1) != NEWLINE)) {
+            // every \n counts a new line, unless immediately preceded by \n, or if its the last line
+            if (cur == NEWLINE && (i == 0 || value.charAt(i - 1) != NEWLINE) && i + 1 != len) {
                 count++;
+                continue;
+            }
+            
+            // and a \r\n also counts as a new line, unless preceded by a \n, or if its the last line
+            if (cur == RETURN && cur + 1 != len
+                    && value.charAt(i + 1) == NEWLINE
+                    && cur + 2 != len
+                    && (i == 0 || value.charAt(i - 1) != NEWLINE)) {
+                count++;
+                continue;
             }
         }
         
@@ -274,7 +302,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				buffer.append(other.getValue());
 				
 
-				return StringValue.newString(buffer.toString(), true, nonEmptyLineCount - (isNewlineTerminated()?0:1) + o.nonEmptyLineCount());
+				return StringValue.newString(buffer.toString(), true, nonEmptyLineCount - (isNewlineTerminated()? 0 : 1) + o.nonEmptyLineCount());
 			} else {
 				return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
 			}
@@ -863,6 +891,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             AbstractString o = (AbstractString) other;
             
             if (o.length() != length()) {
+                return false;
+            }
+            
+            if (o.nonEmptyLineCount() != nonEmptyLineCount()) {
+                // another quick way to bail without having to iterate.
                 return false;
             }
             
