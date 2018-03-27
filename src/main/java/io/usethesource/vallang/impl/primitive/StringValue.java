@@ -1258,6 +1258,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 */
 		@Override
 		public PrimitiveIterator.OfInt iterator() {
+		    // TODO: this is still wrong 
+		    
 		    if (indent != null) {
 		        return new PrimitiveIterator.OfInt() {
 		            final PrimitiveIterator.OfInt output = wrapped.iterator();
