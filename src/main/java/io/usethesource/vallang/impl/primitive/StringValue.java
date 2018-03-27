@@ -1253,7 +1253,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public IString indent(IString indent) {
 		    if (indent != null) {
 		        // this special case flattens directly nested concats 
-		        return new IndentedString(wrapped, this.indent.concat(indent));
+		        return new IndentedString(wrapped, indent.concat(this.indent));
 		    }
 		    else {
 		        return new IndentedString(wrapped, indent);
