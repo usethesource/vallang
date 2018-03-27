@@ -94,45 +94,35 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		// to collect the count and the containsSurrogatePairs
 
 		boolean containsSurrogatePairs = false;
-		int count;
-		
-		// how to count the first line:
-		if (value.charAt(0) == NEWLINE) {
-		    count = 0;
-		}
-		else if (value.charAt(0) == RETURN) {
-		    if (value.length() > 1 && value.charAt(1) == NEWLINE) {
-		        count = 0;
-		    }
-		    else {
-		        count = 1;
-		    }
-		}
-		else {
-		    count = 1;
-		}
-		
+		int count = 0;
         int len = value.length();
+        
         for (int i = 0; i < len; i++) {
             char cur = value.charAt(i);
             if (containsSurrogatePairs || (i > 0 && Character.isSurrogatePair(value.charAt(i - 1), cur))) {
                 containsSurrogatePairs = true;
             }
             
-            // every \n counts a new line, unless immediately preceded by \n, or if its the last line
-            if (cur == NEWLINE && (i == 0 || value.charAt(i - 1) != NEWLINE) && i + 1 != len) {
+            // every \n counts a new line, unless immediately preceded by \n or the start of the string
+            if (cur == NEWLINE && (i != 0) && value.charAt(i - 1) != NEWLINE) {
                 count++;
                 continue;
             }
             
-            // and a \r\n also counts as a new line, unless preceded by a \n, or if its the last line
-            if (cur == RETURN && cur + 1 != len
+            // and a \r\n also counts as a new line, unless preceded by a \n or the start of the string,
+            if (cur == RETURN 
+                    && (i != 0)
                     && value.charAt(i + 1) == NEWLINE
-                    && cur + 2 != len
-                    && (i == 0 || value.charAt(i - 1) != NEWLINE)) {
+                    && value.charAt(i - 1) != NEWLINE) {
                 count++;
                 continue;
             }
+        }
+        
+        // end-of-file counts as a line terminator, unless the line was empty we should count it
+        // note that empty strings are taken care of above
+        if (value.charAt(len - 1) != NEWLINE) {
+            count++;
         }
         
 		return newString(value, containsSurrogatePairs, count);
@@ -143,29 +133,31 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return EmptyString.getInstance();
         }
 
-        int count;
-        
-        // how to count the first line:
-        if (value.charAt(0) == NEWLINE) {
-            count = 0;
-        }
-        else if (value.charAt(0) == RETURN) {
-            if (value.length() > 1 && value.charAt(1) == NEWLINE) {
-                count = 0;
-            }
-            else {
-                count = 1;
-            }
-        }
-        else {
-            count = 1;
-        }
+        int count = 0;
         
         int len = value.length();
         for (int i = 0; i < len; i++) {
-            if (value.charAt(i) == NEWLINE && (i == 0 || value.charAt(i - 1) != NEWLINE)) {
+            char cur = value.charAt(i);
+            
+            // every \n counts a new line, unless immediately preceded by \n or the start of the string
+            if (cur == NEWLINE && (i != 0) && value.charAt(i - 1) != NEWLINE) {
                 count++;
+                continue;
             }
+            
+            // and a \r\n also counts as a new line, unless preceded by a \n or the start of the string,
+            if (cur == RETURN 
+                    && (i != 0)
+                    && value.charAt(i + 1) == NEWLINE
+                    && value.charAt(i - 1) != NEWLINE) {
+                count++;
+                continue;
+            }
+        }
+        
+        if (value.charAt(len - 1) != NEWLINE) {
+            // the last line was not terminated, but it still counts since it is EOF-terminated.
+            count++;
         }
         
         return newString(value, fullUnicode, count);
