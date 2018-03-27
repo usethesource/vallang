@@ -143,7 +143,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return EmptyString.getInstance();
         }
 
-        int count = 1;
+        int count;
+        
+        // how to count the first line:
+        if (value.charAt(0) == NEWLINE) {
+            count = 0;
+        }
+        else if (value.charAt(0) == RETURN) {
+            if (value.length() > 1 && value.charAt(1) == NEWLINE) {
+                count = 0;
+            }
+            else {
+                count = 1;
+            }
+        }
+        else {
+            count = 1;
+        }
         
         int len = value.length();
         for (int i = 0; i < len; i++) {
@@ -295,14 +311,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    // The reason for the second is that longer strings require in O(n) codepoint access, while the
 		    // balanced trees amortize access time to in O(log^2(n)).
 		    AbstractString o = (AbstractString) other;
+		    int newLineCount = concatNonEmptyLineCount(this, o);
 		    
-			if (length() + other.length() <= MAX_FLAT_STRING && (nonEmptyLineCount > 1 || o.nonEmptyLineCount() > 1)) {
+			if (length() + other.length() <= MAX_FLAT_STRING && newLineCount > 1) {
 				StringBuilder buffer = new StringBuilder();
 				buffer.append(value);
 				buffer.append(other.getValue());
 				
 
-				return StringValue.newString(buffer.toString(), true, nonEmptyLineCount - (isNewlineTerminated()? 0 : 1) + o.nonEmptyLineCount());
+				return StringValue.newString(buffer.toString(), true, concatNonEmptyLineCount(this, o));
 			} else {
 				return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
 			}
@@ -654,6 +671,25 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
         /**
          * When concatenating indentable strings, the {@link #nonEmptyLineCount()} can
+         * be computed exactly in O(1) by knowing if the right string does or does not
+         * start immediately with a newline:<br>
+         * 
+         * Example:<br>
+         * concat("#####\n", "@@@@@@") has two lines, <br>
+         *    because both consituents have a single line and the left ends in a newline.<br>
+         * concat("#####", "@@@@@@") has a single line, even though both consituents have<br>
+         *    already a single line, concatenated they still form a single line. <br>
+         *         <br>
+         * @return true iff the last character of this string is a \n character.
+         */
+        default boolean isNewlineStarted() {
+            return length() != 0 
+                && (charAt(0) == NEWLINE
+                    || ((length() > 1) && charAt(0) == RETURN && charAt(1) == NEWLINE));  
+        }
+        
+        /**
+         * When concatenating indentable strings, the {@link #nonEmptyLineCount()} can
          * be computed exactly in O(1) by knowing if the left string does or does not
          * end in a newline:<br>
          * 
@@ -665,7 +701,32 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          *         <br>
          * @return true iff the last character of this string is a \n character.
          */
-        boolean isNewlineTerminated();
+        default boolean isNewlineTerminated() {
+            return length() != 0 && charAt(length() - 1) == NEWLINE;
+        }
+        
+        default int concatNonEmptyLineCount(IIndentableString left, IIndentableString right) {
+            // \n          : has 0 non-empty lines
+            // \na         : has 1 non-empty lines
+            //
+            // #### + \n   : has 1 non-empty line.
+            // #### + a\n  : has 1 non-empty line.
+            // #### + a\nb : has 2 non-empty lines.
+            // #### + a\nb\n : has 2 non-empty lines.
+            //
+            // ####\n + \n  : has 1 non-empty line.
+            // ####\n + \na : has 2 non-empty lines.
+            //
+            // so: - if the left is newline-terminated, then we can simply add the two counts
+            //        - except right starts with a newline because that would be an empty line.
+            //     - if the left is not newline terminated, we have to subtract 1 line from the total,
+            //          because the last line of left is merged with the first line of the right,
+            //        - except if the right starts with a newline because that would terminate the
+            //          last line of the left and before it would be an empty line
+              
+
+            return left.nonEmptyLineCount() - (left.isNewlineTerminated() ? 0 : (right.isNewlineStarted() ? 0 : 1)) + right.nonEmptyLineCount(); 
+        }
         
         /**
          * Specialized (hopefully optimized) implementations of streaming an indented version
@@ -999,7 +1060,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			this.right = right;
 			this.length = left.length() + right.length();
 			this.depth = Math.max(left.depth(), right.depth()) + 1;
-			this.nonEmptyLineCount = left.nonEmptyLineCount() - (left.isNewlineTerminated() ? 0 : 1) + right.nonEmptyLineCount();
+			this.nonEmptyLineCount = concatNonEmptyLineCount(left, right);
+			
+			assert this.length() == newString(getValue()).length();
+			assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
+			assert this.equals(newString(getValue()));
 		}
 
 		
@@ -1178,6 +1243,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    assert istring != null && whiteSpace != null;
 			this.indent = whiteSpace;
 			this.wrapped = istring;
+			
+			assert this.length() == newString(getValue()).length();
+            assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
+            assert this.equals(newString(getValue()));
 		}
 
 		@Override
