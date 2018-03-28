@@ -152,8 +152,9 @@ public final class BasicValueSmokeTest {
 		  indentedTwice.append(newline);
 	  }
 	  
-	  String expected = indented.toString();
-	  String expectedTwice = indentedTwice.toString();
+      // remove empty line indentations
+	  String expected = indented.toString().replaceAll(newline + indent + newline, newline + newline);
+	  String expectedTwice = indentedTwice.toString().replaceAll(newline + "first" + indent + indent + newline, newline + newline);
 	  
 	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent));
 	  IString indentedConcatTree = concatTree.indent(vf.string(indent));
@@ -164,6 +165,8 @@ public final class BasicValueSmokeTest {
 	  assertEquals(expected, indentedDirect.getValue());
 	  assertEquals(expected, indentedConcatTree.getValue());
 	  assertSimilarIteration(vf.string(expected), indentedDirect);
+//	  assertEqualCharAt(vf.string(expected), indentedDirect);
+//	  assertEqualSubstring(vf.string(expected), indentedDirect);
 	  assertSimilarIteration(vf.string(expected), indentedConcatTree);
 	  assertEqual(indentedDirect, indentedConcatTree);
 	  assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
@@ -172,12 +175,39 @@ public final class BasicValueSmokeTest {
 	  assertEquals(expectedTwice, indentedDirectTwice.getValue());
 	  assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
 	  assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
+//	  assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
+//	  assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
 	  assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
+//    assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
+//	  assertEqualSubstring(vf.string(expectedTwice), indentedConcatTreeTwice);
+  
 	  assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
+	  assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
+//	  assertEqualCharAt(indentedDirectTwice, indentedConcatTreeTwice);
+//	  assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
+      
 	  assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
   }
   
-  private static void assertSimilarIteration(IString ref, IString target) {
+  private void assertEqualCharAt(IString one, IString two) {
+      assertEqual(one, two);
+      
+      for (int i = 0; i < one.length(); i++) {
+          assertEquals(one.charAt(i), two.charAt(i));
+      }
+  }
+  
+  private void assertEqualSubstring(IString one, IString two) {
+      assertEqual(one, two);
+      
+      for (int i = 0; i < one.length(); i++) {
+          for (int j = one.length() - 1; i >= 0; i--) {
+              assertEquals(one.substring(i,j), two.substring(i,j));
+          }
+      }
+  }
+
+private static void assertSimilarIteration(IString ref, IString target) {
 	  Iterator<Integer> refIterator = ref.iterator();
 	  Iterator<Integer> targetIterator = target.iterator();
 	  while (refIterator.hasNext()) {
