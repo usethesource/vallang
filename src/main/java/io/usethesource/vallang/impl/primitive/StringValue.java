@@ -1258,13 +1258,46 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 */
 		@Override
 		public PrimitiveIterator.OfInt iterator() {
-		    // TODO: this is still wrong 
+		    final class BackLog implements PrimitiveIterator.OfInt {
+		        int first = -1;
+		        int second = -1;
+		        
+		        public void add(int ch) {
+		            if (first == -1) {
+		                assert second == -1;
+		                first = ch;
+		            }
+		            else {
+		                assert second == -1;
+		                second = ch;
+		            }
+		        }
+
+                @Override
+                public boolean hasNext() {
+                    return first != -1 || second != -1;
+                }
+
+                @Override
+                public int nextInt() {
+                    if (first != -1) {
+                        int ch = first;
+                        first = -1;
+                        return ch;
+                    }
+                    else {
+                        int ch = second;
+                        second = -1;
+                        return ch;
+                    }
+                }
+		    }
 		    
 		    if (indent != null) {
 		        return new PrimitiveIterator.OfInt() {
 		            final PrimitiveIterator.OfInt output = wrapped.iterator();
 		            PrimitiveIterator.OfInt whitespace = indent.iterator();
-		            int prev = 0;
+		            BackLog backlog = new BackLog();
 
 		            @Override
 		            public boolean hasNext() {
@@ -1273,17 +1306,40 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		            @Override
 		            public int nextInt() {
+		                // if it is time to print whitespace, we exhaust this first
 		                if (whitespace.hasNext()) {
 		                    return whitespace.nextInt();
 		                }
-
+		                
 		                // done with indenting, so continue with the content
-		                int cur = output.nextInt();
-		                if (cur == NEWLINE && prev != NEWLINE && output.hasNext()) {
-		                    // this is a non-empty, non-last line, so we start a new indentation iterator
-		                    whitespace = indent.iterator();
+		                int cur = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
+		                if (cur == NEWLINE && output.hasNext()) {
+		                    // peek at the next character
+		                    int next = output.next();
+		                    backlog.add(next);
+		                    
+		                    if (next == NEWLINE) {
+		                        // and empty line, so no indentation
+		                        return cur;
+		                    }
+		                    else if (next == RETURN && output.hasNext()) {
+		                        // might be an empty line
+		                        // peek at the next character
+		                        int following = output.nextInt();
+		                        backlog.add(following);
+		                        
+		                        if (following == NEWLINE) {
+		                            // indeed an empty line, so no indentation
+		                            return cur;
+		                        }
+		                    }
+		                    
+		                    // otherwise we have to indent the next time around
+		                    // but note that any backlog will first be returned
+ 		                    whitespace = indent.iterator();
 		                }
-		                prev = cur;
+		                
+		                // the current character, NEWLINE or not, will first be printed
 		                return cur;
 		            }
 		        };
@@ -1316,19 +1372,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString substring(int start, int end) {
-		    applyIndentation(); // substring would be too expensive
+		    applyIndentation(); // substring would be too expensive to do more than once, and the first time is almost as expensive as flattening
 		    return wrapped.substring(start, end);
 		}
 
 		@Override
 		public int charAt(int index) {
-		    applyIndentation(); // charAt would be too expensive
+		    applyIndentation(); // charAt would be too expensive to do more than once, and it is expected to be called more than once. 
 		    return wrapped.charAt(index);
 		}
 		
 		@Override
 		public IString replace(int first, int second, int end, IString repl) {
-		    applyIndentation(); // replace would be too expensive
+		    applyIndentation(); // replace would be almost as expensive as flattening.
 		    return wrapped.replace(first, second, end, repl);
 		}
 
@@ -1345,6 +1401,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
 		    if (indent != null) {
+		        // TODO: this concat on whitespace is worrying for longer files which consist of about 40% of indentation.
+		        // for those files this concat is particular quadratic since the strings are short and they
+		        // are copied over and over again.
 		        wrapped.indentedWrite(w, whitespace.concat(this.indent), indentFirstLine);
 		    }
 		    else {
