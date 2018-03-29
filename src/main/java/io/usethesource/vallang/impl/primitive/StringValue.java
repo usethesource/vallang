@@ -232,6 +232,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public IString replace(int first, int second, int end, IString repl) {
+            if (first == 0 && end == 0) {
+                return repl;
+            }
             return this;
         }
 
