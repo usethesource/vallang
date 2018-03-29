@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
+import java.util.PrimitiveIterator.OfInt;
 
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IString;
@@ -189,7 +190,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	        return InstanceHolder.instance;
 	    }
 	    
-	    private EmptyString() { }
+	    private EmptyString() { 
+	     // the contract is that all String implementations use the same hashCode algorithm as java.lang.String
+            assert hashCode() == getValue().hashCode();
+	    }
+	    
+	    @Override
+	    public String getValue() {
+	        return "";
+	    }
 	    
 	    @Override
 	    public int hashCode() {
@@ -271,6 +280,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 			this.value = value;
 			this.nonEmptyLineCount = nonEmptyLineCount;
+			
+			// the contract is that all String implementations use the same hashCode algorithm as java.lang.String
+            assert hashCode() == getValue().hashCode();
 		}
 
 		@Override
@@ -828,6 +840,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	private abstract static class AbstractString extends AbstractValue implements IString, IStringTreeNode, IIndentableString {
+	    
 	    @Override
         public Type getType() {
             return STRING_TYPE;
@@ -981,13 +994,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         /**
          * This can be used to continue the computation of a string hashCode from left to right
          */
-        protected int hashCode(int h) {
-            for (Integer c : this) {
+        protected final int hashCode(int prefixCode) {
+            int h = prefixCode;
+            OfInt it = iterator();
+            
+            while (it.hasNext()) {
+                int c = it.nextInt();
+                
                 if (!Character.isBmpCodePoint(c)) {
                     h = 31 * h + Character.highSurrogate(c);
                     h = 31 * h + Character.lowSurrogate(c);
                 } else {
-                    h = 31 * h + c;
+                    h = 31 * h + ((char) c);
                 }
             }
             
@@ -1019,7 +1037,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public int hashCode() {
 		    if (hash == 0) {
-		        hash = hashCode(left.hashCode());
+		        hash = right.hashCode(left.hashCode());
 		    }
 		    
 		    return hash;
@@ -1056,7 +1074,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			
 			assert this.length() == newString(getValue()).length();
 			assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
-			assert this.equals(newString(getValue()));
+			
+			int hash = hashCode();
+			int valueHash = getValue().hashCode();
+			// the contract is that all String implementations use the same hashCode algorithm as java.lang.String
+            assert hash == valueHash;
+            
+            // and all (lazy) string implementations are `equal` to their flat counter-parts 
+            assert equals(newString(getValue()));
 		}
 
 		
@@ -1238,7 +1263,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			
 			assert this.length() == newString(getValue()).length();
             assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
-            assert this.equals(newString(getValue()));
+            
+            // the contract is that all String implementations use the same hashCode algorithm as java.lang.String
+            assert hashCode() == getValue().hashCode();
+            
+            // and all (lazy) string implementations are `equal` to their flat counter-parts 
+            assert equals(newString(getValue()));
 		}
 
 		@Override
@@ -1315,7 +1345,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                int cur = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
 		                if (cur == NEWLINE && output.hasNext()) {
 		                    // peek at the next character
-		                    int next = output.next();
+		                    int next = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
 		                    backlog.add(next);
 		                    
 		                    if (next == NEWLINE) {
@@ -1325,7 +1355,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                    else if (next == RETURN && output.hasNext()) {
 		                        // might be an empty line
 		                        // peek at the next character
-		                        int following = output.nextInt();
+		                        int following = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
 		                        backlog.add(following);
 		                        
 		                        if (following == NEWLINE) {
