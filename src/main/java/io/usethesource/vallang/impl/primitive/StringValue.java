@@ -872,6 +872,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
         @Override
         public IString indent(IString whiteSpace) {
+            assert !whiteSpace.getValue().contains("\n");
+            
             return new IndentedString((AbstractString) this, whiteSpace);
         }
         
@@ -1270,6 +1272,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString indent(IString indent) {
+		    assert !indent.getValue().contains("\n");
+		    
 		    if (indent != null) {
 		        // this special case flattens directly nested concats 
 		        return new IndentedString(wrapped, indent.concat(this.indent));
