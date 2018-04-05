@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.PrimitiveIterator;
+import java.util.PrimitiveIterator.OfInt;
 
 public interface IString extends IValue, Iterable<Integer> {
 	/**
@@ -92,7 +93,7 @@ public interface IString extends IValue, Iterable<Integer> {
      * @see Character for more information on Unicode UTF-32 codepoints.
      */
     @Override
-    PrimitiveIterator.OfInt iterator();
+    OfInt iterator();
     
     /**
      * Indent all the non-empty lines in this string with the given whitespace. That means that

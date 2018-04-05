@@ -1276,49 +1276,52 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    }
 		}
 
+		/** 
+		 * Helper class for the iterator() method
+		 */
+		final private static class TwoCharacterIteratorBuffer implements PrimitiveIterator.OfInt {
+            int first = -1;
+            int second = -1;
+            
+            public void add(int ch) {
+                if (first == -1) {
+                    assert second == -1;
+                    first = ch;
+                }
+                else {
+                    assert second == -1;
+                    second = ch;
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                return first != -1 || second != -1;
+            }
+
+            @Override
+            public int nextInt() {
+                if (first != -1) {
+                    int ch = first;
+                    first = -1;
+                    return ch;
+                }
+                else {
+                    int ch = second;
+                    second = -1;
+                    return ch;
+                }
+            }
+        }
+		
 		/**
 		 * This is the basic implementation of indentation, while iterating
 		 * over the string we insert the indent before every non-empty line.
 		 */
 		@Override
-		public PrimitiveIterator.OfInt iterator() {
-		    final class TwoCharacterIteratorBuffer implements PrimitiveIterator.OfInt {
-		        int first = -1;
-		        int second = -1;
-		        
-		        public void add(int ch) {
-		            if (first == -1) {
-		                assert second == -1;
-		                first = ch;
-		            }
-		            else {
-		                assert second == -1;
-		                second = ch;
-		            }
-		        }
-
-                @Override
-                public boolean hasNext() {
-                    return first != -1 || second != -1;
-                }
-
-                @Override
-                public int nextInt() {
-                    if (first != -1) {
-                        int ch = first;
-                        first = -1;
-                        return ch;
-                    }
-                    else {
-                        int ch = second;
-                        second = -1;
-                        return ch;
-                    }
-                }
-		    }
-		    
+		public OfInt iterator() {
 		    if (indent != null) {
-		        return new PrimitiveIterator.OfInt() {
+		        return new OfInt() {
 		            final OfInt content = wrapped.iterator();
 		            final TwoCharacterIteratorBuffer lookahead = new TwoCharacterIteratorBuffer();
 		            OfInt nextIndentation = indent.iterator();
