@@ -3,6 +3,7 @@ package io.usethesource.vallang.basic;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
@@ -153,8 +154,8 @@ public final class BasicValueSmokeTest {
 	  }
 	  
       // remove empty line indentations
-	  String expected = indented.toString().replaceAll(newline + indent + newline, newline + newline);
-	  String expectedTwice = indentedTwice.toString().replaceAll(newline + "first" + indent + indent + newline, newline + newline);
+	  String expected = indented.toString().replaceAll(Pattern.quote(newline + indent + newline), newline + newline);
+	  String expectedTwice = indentedTwice.toString().replaceAll(Pattern.quote(newline + "first" + indent + indent + newline), newline + newline);
 	  
 	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent));
 	  IString indentedConcatTree = concatTree.indent(vf.string(indent));
@@ -234,13 +235,13 @@ public final class BasicValueSmokeTest {
 		  for (int n = 0; n < randomLines.length; n++) {
 		     String newString = RandomUtil.string(rnd, rnd.nextInt(200));
 		     for (String newL : commonNewlines) {
-		    	 newString = newString.replaceAll(newL, "_");
+		    	 newString = newString.replaceAll(Pattern.quote(newL), "_");
 		     }
 		     randomLines[n] = newString;
 		  }
 		  
 		  for (int n = 0; n < 20; n++) {
-			  checkIndent(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_"), nl, randomLines);
+			  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, randomLines);
 		  }
 	  }
   }
