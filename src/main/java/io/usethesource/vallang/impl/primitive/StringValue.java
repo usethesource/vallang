@@ -562,7 +562,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        int cur = 0;
 
 		        public boolean hasNext() {
-		            return cur < length();
+		            return cur < value.length();
 		        }
 
 		        public int nextInt() {
@@ -1266,12 +1266,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			
 			assert this.length() == newString(getValue()).length();
             assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
-            
-            // the contract is that all String implementations use the same hashCode algorithm as java.lang.String
-            assert hashCode() == getValue().hashCode();
-            
-            // and all (lazy) string implementations are `equal` to their flat counter-parts 
-            assert equals(newString(getValue()));
 		}
 
 		@Override
@@ -1334,7 +1328,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		            @Override
 		            public boolean hasNext() {
-		                return output.hasNext();
+		                return backlog.hasNext() || output.hasNext();
 		            }
 
 		            @Override
@@ -1346,7 +1340,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                
 		                // done with indenting, so continue with the content
 		                int cur = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
-		                if (cur == NEWLINE && output.hasNext()) {
+		                if (cur == NEWLINE && (output.hasNext() || backlog.hasNext())) {
 		                    // peek at the next character
 		                    int next = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
 		                    backlog.add(next);
@@ -1355,7 +1349,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                        // and empty line, so no indentation
 		                        return cur;
 		                    }
-		                    else if (next == RETURN && output.hasNext()) {
+		                    else if (next == RETURN && (output.hasNext() || backlog.hasNext())) {
 		                        // might be an empty line
 		                        // peek at the next character
 		                        int following = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
