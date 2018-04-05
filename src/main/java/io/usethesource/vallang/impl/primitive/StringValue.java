@@ -112,8 +112,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             
             // and a \r\n also counts as a new line, unless preceded by a \n or the start of the string,
             if (cur == RETURN 
-                    && (i != 0)
+                    && (i + 1 < len)
                     && value.charAt(i + 1) == NEWLINE
+                    && (i - 1 >= 0)
                     && value.charAt(i - 1) != NEWLINE) {
                 count++;
                 continue;
