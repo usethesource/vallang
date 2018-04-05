@@ -1289,7 +1289,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 */
 		@Override
 		public PrimitiveIterator.OfInt iterator() {
-		    final class BackLog implements PrimitiveIterator.OfInt {
+		    final class TwoCharacterIteratorBuffer implements PrimitiveIterator.OfInt {
 		        int first = -1;
 		        int second = -1;
 		        
@@ -1328,11 +1328,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        return new PrimitiveIterator.OfInt() {
 		            final PrimitiveIterator.OfInt output = wrapped.iterator();
 		            PrimitiveIterator.OfInt whitespace = indent.iterator();
-		            BackLog backlog = new BackLog();
+		            TwoCharacterIteratorBuffer lookahead = new TwoCharacterIteratorBuffer();
 
 		            @Override
 		            public boolean hasNext() {
-		                return backlog.hasNext() || output.hasNext();
+		                return lookahead.hasNext() || output.hasNext();
 		            }
 
 		            @Override
@@ -1343,21 +1343,21 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                }
 		                
 		                // done with indenting, so continue with the content
-		                int cur = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
-		                if (cur == NEWLINE && (output.hasNext() || backlog.hasNext())) {
+		                int cur = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
+		                if (cur == NEWLINE && hasNext()) {
 		                    // peek at the next character
-		                    int next = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
-		                    backlog.add(next);
+		                    int next = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
+		                    lookahead.add(next);
 		                    
 		                    if (next == NEWLINE) {
 		                        // and empty line, so no indentation
 		                        return cur;
 		                    }
-		                    else if (next == RETURN && (output.hasNext() || backlog.hasNext())) {
+		                    else if (next == RETURN && hasNext()) {
 		                        // might be an empty line
 		                        // peek at the next character
-		                        int following = backlog.hasNext() ? backlog.nextInt() : output.nextInt();
-		                        backlog.add(following);
+		                        int following = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
+		                        lookahead.add(following);
 		                        
 		                        if (following == NEWLINE) {
 		                            // indeed an empty line, so no indentation
