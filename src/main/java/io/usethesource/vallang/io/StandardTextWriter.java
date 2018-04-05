@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.PrimitiveIterator.OfInt;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -509,7 +510,10 @@ public class StandardTextWriter implements IValueTextWriter {
 
         public IValue visitString(IString o) throws IOException {
             append('\"');
-            for (int ch : o) {
+            OfInt it = o.iterator();
+            while (it.hasNext()) {
+                int ch = it.nextInt();
+                
                 switch (ch) {
                     case '\"':
                         append('\\');
