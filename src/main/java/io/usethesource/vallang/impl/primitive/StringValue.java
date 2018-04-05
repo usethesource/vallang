@@ -1318,24 +1318,26 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    
 		    if (indent != null) {
 		        return new PrimitiveIterator.OfInt() {
-		            final PrimitiveIterator.OfInt output = wrapped.iterator();
-		            PrimitiveIterator.OfInt whitespace = indent.iterator();
-		            TwoCharacterIteratorBuffer lookahead = new TwoCharacterIteratorBuffer();
+		            final OfInt content = wrapped.iterator();
+		            final TwoCharacterIteratorBuffer lookahead = new TwoCharacterIteratorBuffer();
+		            OfInt nextIndentation = indent.iterator();
 
 		            @Override
 		            public boolean hasNext() {
-		                return lookahead.hasNext() || output.hasNext();
+		                return lookahead.hasNext() || content.hasNext();
 		            }
 
 		            @Override
 		            public int nextInt() {
 		                // if it is time to print whitespace, we exhaust this first
-		                if (whitespace.hasNext()) {
-		                    return whitespace.nextInt();
+		                if (nextIndentation.hasNext()) {
+		                    return nextIndentation.nextInt();
 		                }
 		                
 		                // done with indenting, so continue with the content
-		                int cur = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
+		                int cur = get();
+		                
+		                // detect if we have to start indenting (only after a newline, and if this new line is not empty)
 		                if (cur == NEWLINE && hasNext()) {
 		                    // peek at the next character
 		                    int next = peek();
@@ -1345,8 +1347,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                        return cur;
 		                    }
 		                    else if (next == RETURN && hasNext()) {
-		                        // might be an empty line
-		                        // peek at the next character
+		                        // might be an empty line, so peek at the next character
 		                        int following = peek();
 		                        
 		                        if (following == NEWLINE) {
@@ -1357,15 +1358,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                    
 		                    // otherwise we have to indent the next time around
 		                    // but note that any lookahead will first be returned
- 		                    whitespace = indent.iterator();
+ 		                    nextIndentation = indent.iterator();
 		                }
 		                
 		                // the current character, NEWLINE or not, will first be printed
 		                return cur;
 		            }
 
+                    private int get() {
+                        int cur = lookahead.hasNext() ? lookahead.nextInt() : content.nextInt();
+                        return cur;
+                    }
+
                     private int peek() {
-                        int next = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
+                        int next = get();
                         lookahead.add(next);
                         return next;
                     }
