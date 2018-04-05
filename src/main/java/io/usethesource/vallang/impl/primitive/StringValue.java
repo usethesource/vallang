@@ -1079,14 +1079,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			
 			assert this.length() == newString(getValue()).length();
 			assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
-			
-			int hash = hashCode();
-			int valueHash = getValue().hashCode();
-			// the contract is that all String implementations use the same hashCode algorithm as java.lang.String
-            assert hash == valueHash;
-            
-            // and all (lazy) string implementations are `equal` to their flat counter-parts 
-            assert equals(newString(getValue()));
 		}
 
 		
@@ -1346,8 +1338,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                int cur = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
 		                if (cur == NEWLINE && hasNext()) {
 		                    // peek at the next character
-		                    int next = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
-		                    lookahead.add(next);
+		                    int next = peek();
 		                    
 		                    if (next == NEWLINE) {
 		                        // and empty line, so no indentation
@@ -1356,8 +1347,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                    else if (next == RETURN && hasNext()) {
 		                        // might be an empty line
 		                        // peek at the next character
-		                        int following = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
-		                        lookahead.add(following);
+		                        int following = peek();
 		                        
 		                        if (following == NEWLINE) {
 		                            // indeed an empty line, so no indentation
@@ -1366,13 +1356,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		                    }
 		                    
 		                    // otherwise we have to indent the next time around
-		                    // but note that any backlog will first be returned
+		                    // but note that any lookahead will first be returned
  		                    whitespace = indent.iterator();
 		                }
 		                
 		                // the current character, NEWLINE or not, will first be printed
 		                return cur;
 		            }
+
+                    private int peek() {
+                        int next = lookahead.hasNext() ? lookahead.nextInt() : output.nextInt();
+                        lookahead.add(next);
+                        return next;
+                    }
 		        };
 		    }
 		    else {
