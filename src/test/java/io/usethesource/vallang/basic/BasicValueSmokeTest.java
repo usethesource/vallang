@@ -154,8 +154,8 @@ public final class BasicValueSmokeTest {
 	  }
 	  
       // remove empty line indentations
-	  String expected = indented.toString().replaceAll(Pattern.quote(newline + indent + newline), newline + newline);
-	  String expectedTwice = indentedTwice.toString().replaceAll(Pattern.quote(newline + "first" + indent + indent + newline), newline + newline);
+	  String expected = removeEmptyIndentedLines(indent, newline, indented.toString());
+	  String expectedTwice = removeEmptyIndentedLines("first" + indent + indent, newline, indentedTwice.toString());
 	  
 	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent));
 	  IString indentedConcatTree = concatTree.indent(vf.string(indent));
@@ -190,7 +190,17 @@ public final class BasicValueSmokeTest {
       
 	  assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
   }
-  
+
+  private String removeEmptyIndentedLines(String indent, String newline, String indented) {
+      String emptyIndentedLine = newline + indent + newline;
+      String quoted = Pattern.quote(emptyIndentedLine);
+      while (indented.contains(emptyIndentedLine)) {
+          indented = indented.replaceAll(quoted, newline + newline);
+      }
+      
+      return indented;
+  }
+
   private void assertEqualCharAt(IString one, IString two) {
       assertEqual(one, two);
       
@@ -227,6 +237,8 @@ public final class BasicValueSmokeTest {
 		  checkIndent(" ", nl, "a", "b", "c");
 		  checkIndent("\t", nl, "a", "b", "c");
 		  checkIndent("\t", nl, "a", "", "c");
+		  checkIndent("\t", nl, "a", "", "", "c");
+		  checkIndent("\t", nl, "a", "", "\r", "\rc");
 		  checkIndent("   ", nl, "a", "b", "c");
 		  checkIndent(" ", nl, " abcdef", " bcdefg", " cdefgh");
 		  checkIndent(" ", nl, "🍝", " b", " c");
