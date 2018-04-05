@@ -868,14 +868,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             if (other.length() == 0) {
                 return this;
             }
-            return BinaryBalancedLazyConcatString.build((AbstractString) this, (AbstractString) other);
+            return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
         }
         
         @Override
         public IString indent(IString whiteSpace) {
             assert !whiteSpace.getValue().contains("\n");
             
-            return new IndentedString((AbstractString) this, whiteSpace);
+            return new IndentedString(this, whiteSpace);
         }
         
         @Override
@@ -1259,8 +1259,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			this.indent = whiteSpace;
 			this.wrapped = istring;
 			
+			assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
 			assert this.length() == newString(getValue()).length();
-            assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
 		}
 
 		@Override
