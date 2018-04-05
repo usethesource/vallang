@@ -168,6 +168,7 @@ public final class BasicValueSmokeTest {
 //	  assertEqualCharAt(vf.string(expected), indentedDirect);
 //	  assertEqualSubstring(vf.string(expected), indentedDirect);
 	  assertSimilarIteration(vf.string(expected), indentedConcatTree);
+	  assertSimilarIteration(indentedDirect, indentedConcatTree);
 	  assertEqual(indentedDirect, indentedConcatTree);
 	  assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
 
@@ -207,14 +208,13 @@ public final class BasicValueSmokeTest {
       }
   }
 
-private static void assertSimilarIteration(IString ref, IString target) {
-	  Iterator<Integer> refIterator = ref.iterator();
-	  Iterator<Integer> targetIterator = target.iterator();
-	  while (refIterator.hasNext()) {
-		  assertTrue(targetIterator.hasNext());
-		  assertEquals(refIterator.next(), targetIterator.next());
-	  }
-	  
+  private static void assertSimilarIteration(IString ref, IString target) {
+      Iterator<Integer> refIterator = ref.iterator();
+      Iterator<Integer> targetIterator = target.iterator();
+      while (refIterator.hasNext()) {
+          assertTrue(targetIterator.hasNext());
+          assertEquals(refIterator.next(), targetIterator.next());
+      }
   }
   
   
@@ -240,7 +240,7 @@ private static void assertSimilarIteration(IString ref, IString target) {
 		  }
 		  
 		  for (int n = 0; n < 20; n++) {
-			  checkIndent(RandomUtil.string(rnd, rnd.nextInt(20)), nl, randomLines);
+			  checkIndent(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_"), nl, randomLines);
 		  }
 	  }
   }
