@@ -1,9 +1,17 @@
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.regex.Pattern;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
@@ -14,15 +22,9 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.impl.primitive.StringValue;
 import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public final class BasicValueSmokeTest {
@@ -170,7 +172,7 @@ public final class BasicValueSmokeTest {
 	  assertEquals(expected, indentedDirect.getValue());
 	  assertEquals(expected, indentedConcatTree.getValue());
 	  assertSimilarIteration(vf.string(expected), indentedDirect);
-//	  assertEqualCharAt(vf.string(expected), indentedDirect);
+	  assertEqualCharAt(vf.string(expected), indentedDirect);
 //	  assertEqualSubstring(vf.string(expected), indentedDirect);
 	  assertSimilarIteration(vf.string(expected), indentedConcatTree);
 	  assertSimilarIteration(indentedDirect, indentedConcatTree);
@@ -181,15 +183,15 @@ public final class BasicValueSmokeTest {
 	  assertEquals(expectedTwice, indentedDirectTwice.getValue());
 	  assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
 	  assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
-//	  assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
+	  assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
 //	  assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
 	  assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
-//    assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
+//	  assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
 //	  assertEqualSubstring(vf.string(expectedTwice), indentedConcatTreeTwice);
   
 	  assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
 	  assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
-//	  assertEqualCharAt(indentedDirectTwice, indentedConcatTreeTwice);
+	  assertEqualCharAt(indentedDirectTwice, indentedConcatTreeTwice);
 //	  assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
       
 	  assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
@@ -226,7 +228,6 @@ public final class BasicValueSmokeTest {
 
   @Test
   public void testStringIndent() {
-	  Random rnd = new Random();
 	  for (String nl: commonNewlines) {
 		  checkIndent(" ", nl, "a", "b", "c");
 		  checkIndent("\t", nl, "a", "b", "c");
@@ -239,20 +240,56 @@ public final class BasicValueSmokeTest {
 		  checkIndent("   ", nl, "a", "b", "c");
 		  checkIndent(" ", nl, " abcdef", " bcdefg", " cdefgh");
 		  checkIndent(" ", nl, "🍝", " b", " c");
-		  
-		  String[] randomLines = new String[10];
-		  for (int n = 0; n < randomLines.length; n++) {
-		     String newString = RandomUtil.string(rnd, rnd.nextInt(200));
-		     for (String newL : commonNewlines) {
-		    	 newString = newString.replaceAll(Pattern.quote(newL), "_");
-		     }
-		     randomLines[n] = newString;
-		  }
-		  
-		  for (int n = 0; n < 20; n++) {
-			  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, randomLines);
-		  }
 	  }
+  }
+  
+  @Test
+  public void testStringIndentRandomDefault() {
+      Random rnd = new Random();
+      for (String nl: commonNewlines) {
+          String[] randomLines = new String[10];
+          for (int n = 0; n < randomLines.length; n++) {
+             String newString = RandomUtil.string(rnd, rnd.nextInt(200));
+             for (String newL : commonNewlines) {
+                 newString = newString.replaceAll(Pattern.quote(newL), "_");
+             }
+             randomLines[n] = newString;
+          }
+
+          StringValue.resetMaxUnbalance();
+          StringValue.resetMaxFlatString();
+
+          for (int n = 0; n < 20; n++) {
+              checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, randomLines);
+          }
+      }
+  }
+  
+  @Test
+  public void testStringIndentRandomShortConcats() {
+      Random rnd = new Random();
+      for (String nl: commonNewlines) {
+          String[] randomLines = new String[10];
+          for (int n = 0; n < randomLines.length; n++) {
+             String newString = RandomUtil.string(rnd, rnd.nextInt(200));
+             for (String newL : commonNewlines) {
+                 newString = newString.replaceAll(Pattern.quote(newL), "_");
+             }
+             randomLines[n] = newString;
+          }
+          
+          try {
+              StringValue.setMaxFlatString(5);
+              StringValue.setMaxUnbalance(5);
+              for (int n = 0; n < 20; n++) {
+                  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, randomLines);
+              }
+          }
+          finally {
+              StringValue.resetMaxUnbalance();
+              StringValue.resetMaxFlatString();
+          }
+      }
   }
 
   @Test
