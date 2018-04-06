@@ -100,10 +100,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
         for (int i = 0; i < len; i++) {
             char cur = value.charAt(i);
-            if (containsSurrogatePairs || (i > 0 && Character.isSurrogatePair(value.charAt(i - 1), cur))) {
-                containsSurrogatePairs = true;
-            }
-            
+            containsSurrogatePairs |= i > 0 && Character.isSurrogatePair(value.charAt(i - 1), cur);
+
             // every \n counts a new line, unless immediately preceded by \n or the start of the string
             if (cur == NEWLINE && (i != 0) && value.charAt(i - 1) != NEWLINE) {
                 count++;
