@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation, 2017 Centrum Wiskunde & Informatica
+* Copyright (c) 2007 IBM Corporation, 2008-2018 Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -14,8 +14,6 @@ package io.usethesource.vallang;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Iterator;
-import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
 
 public interface IString extends IValue, Iterable<Integer> {
@@ -102,7 +100,7 @@ public interface IString extends IValue, Iterable<Integer> {
      * 
      * Implementations of IString should ensure that indent itself is in O(1) and the constructed string
      * will {@link #write(Writer)} in O(n) where n is the length of the string. 
-     * @param whiteSpace a string which certainly does not contain any \n characters, and expectedly only whitespace characters such as spaces and tabs
+     * @param whiteSpace a non-empty string which certainly does not contain any \n characters, and expectedly only whitespace characters such as spaces and tabs
      * @return the current string indented with the given whitespace
      */
     IString indent(IString whitespace);

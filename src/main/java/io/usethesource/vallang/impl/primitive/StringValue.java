@@ -890,10 +890,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         
         @Override
-        public IString indent(IString whiteSpace) {
-            assert !whiteSpace.getValue().contains("\n");
+        public IString indent(IString whitespace) {
+            assert !whitespace.getValue().contains("\n");
+            assert whitespace.length() > 0;
             
-            return new IndentedString(this, whiteSpace);
+            return new IndentedString(this, whitespace);
         }
         
         @Override
@@ -926,9 +927,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             // the IString.length() under-estimates the size of the string if the string
             // contains many surrogate pairs, but that does not happen a lot in 
             // most of what we see, so we decided to go for a tight estimate for
-            // "normal" ASCII strings
+            // "normal" ASCII strings which contain around 10% non BMP code points. 
             
-            try (StringWriter w = new StringWriter(length())) {
+            try (StringWriter w = new StringWriter(length() + length() / 10 /* take care not too overflow int easily */)) {
                 write(w);
                 return w.toString();
             } catch (IOException e) {
@@ -1276,8 +1277,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    // if indent == null, then wrapped contains an eagerly indented value already.
 	    // if indent != null, then wrapped is the string to be indented.
 	    // clients can not set indent to null.
-		private volatile IString indent; 
+		private IString indent; 
 		private AbstractString wrapped;
+		private volatile AbstractString flattened = null;
 
 		IndentedString(AbstractString istring, IString whiteSpace) {
 		    assert istring != null && whiteSpace != null;
@@ -1286,23 +1288,26 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			
 			assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
 			assert this.length() == newString(getValue()).length();
+			assert indent.length() > 0;
+			assert flattened == null;
 		}
 		
 		@Override
 		protected boolean hasNonBMPCodePoints() {
-		    return wrapped.hasNonBMPCodePoints();
+		    return flattened != null ? flattened.hasNonBMPCodePoints() : wrapped.hasNonBMPCodePoints();
 		}
 
 		@Override
 		public IString indent(IString indent) {
 		    assert !indent.getValue().contains("\n");
+		    assert indent.length() > 0;
 		    
-		    if (indent != null) {
+		    if (flattened == null) {
 		        // this special case flattens directly nested concats 
 		        return new IndentedString(wrapped, indent.concat(this.indent));
 		    }
 		    else {
-		        return new IndentedString(wrapped, indent);
+		        return new IndentedString(flattened, indent);
 		    }
 		}
 
@@ -1350,74 +1355,77 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		 */
 		@Override
 		public OfInt iterator() {
-		    if (indent != null) {
-		        return new OfInt() {
-		            final OfInt content = wrapped.iterator();
-		            final TwoCharacterIteratorBuffer lookahead = new TwoCharacterIteratorBuffer();
-		            OfInt nextIndentation = indent.iterator();
+		    if (flattened != null) {
+		        return flattened.iterator();
+		    }
+		    
+		    return new OfInt() {
+		        final OfInt content = wrapped.iterator();
+		        final TwoCharacterIteratorBuffer lookahead = new TwoCharacterIteratorBuffer();
+		        OfInt nextIndentation = indent.iterator();
 
-		            @Override
-		            public boolean hasNext() {
-		                return lookahead.hasNext() || content.hasNext();
+		        @Override
+		        public boolean hasNext() {
+		            return lookahead.hasNext() || content.hasNext();
+		        }
+
+		        @Override
+		        public int nextInt() {
+		            // if it is time to print whitespace, we exhaust this first
+		            if (nextIndentation.hasNext()) {
+		                return nextIndentation.nextInt();
 		            }
 
-		            @Override
-		            public int nextInt() {
-		                // if it is time to print whitespace, we exhaust this first
-		                if (nextIndentation.hasNext()) {
-		                    return nextIndentation.nextInt();
+		            // done with indenting, so continue with the content
+		            int cur = get();
+
+		            // detect if we have to start indenting (only after a newline, and if this new line is not empty)
+		            if (cur == NEWLINE && hasNext()) {
+		                // peek at the next character
+		                int next = peek();
+
+		                if (next == NEWLINE) {
+		                    // and empty line, so no indentation
+		                    return cur;
 		                }
-		                
-		                // done with indenting, so continue with the content
-		                int cur = get();
-		                
-		                // detect if we have to start indenting (only after a newline, and if this new line is not empty)
-		                if (cur == NEWLINE && hasNext()) {
-		                    // peek at the next character
-		                    int next = peek();
-		                    
-		                    if (next == NEWLINE) {
-		                        // and empty line, so no indentation
+		                else if (next == RETURN && hasNext()) {
+		                    // might be an empty line, so peek at the next character
+		                    int following = peek();
+
+		                    if (following == NEWLINE) {
+		                        // indeed an empty line, so no indentation
 		                        return cur;
 		                    }
-		                    else if (next == RETURN && hasNext()) {
-		                        // might be an empty line, so peek at the next character
-		                        int following = peek();
-		                        
-		                        if (following == NEWLINE) {
-		                            // indeed an empty line, so no indentation
-		                            return cur;
-		                        }
-		                    }
-		                    
-		                    // otherwise we have to indent the next time around
-		                    // but note that any lookahead will first be returned
- 		                    nextIndentation = indent.iterator();
 		                }
-		                
-		                // the current character, NEWLINE or not, will first be printed
-		                return cur;
+
+		                // otherwise we have to indent the next time around
+		                // but note that any lookahead will first be returned
+		                nextIndentation = indent.iterator();
 		            }
 
-                    private int get() {
-                        int cur = lookahead.hasNext() ? lookahead.nextInt() : content.nextInt();
-                        return cur;
-                    }
+		            // the current character, NEWLINE or not, will first be printed
+		            return cur;
+		        }
 
-                    private int peek() {
-                        int next = get();
-                        lookahead.add(next);
-                        return next;
-                    }
-		        };
-		    }
-		    else {
-		        return wrapped.iterator();
-		    }
+		        private int get() {
+		            int cur = lookahead.hasNext() ? lookahead.nextInt() : content.nextInt();
+		            return cur;
+		        }
+
+		        private int peek() {
+		            int next = get();
+		            lookahead.add(next);
+		            return next;
+		        }
+		    };
 		}
 
 		@Override
 		public IString reverse() {
+		    if (flattened != null) {
+		        return flattened.reverse();
+		    }
+		    
 			return newString(getValue()).reverse();
 		}
 
@@ -1425,78 +1433,85 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          * When the indented string is used in an non-optimal way, say
          * by calling substring, charAt and replace, on it then we flatten it
          * to a normal string by applying the indent, and store the
-         * eagerly indented string in the wrapped value, and signal that
-         * we've done this by setting {@link #indent} to null.
+         * eagerly indented string in the volatile `flattened` field.
          */
         private void applyIndentation() {
-            synchronized (indent) {
-                if (indent != null) {
-                    indent = null;
-                    wrapped = (AbstractString) newString(getValue());
-                }
+            if (flattened == null) {
+                flattened = (AbstractString) newString(getValue());
+                
+                // the following might help the GC, otherwise it's unnecessary.
+                // please do not move this code above the assignment to the `volatile flattened` field 
+                // because that would introduce a hard to debug race condition
+                wrapped = null;
+                indent = null;
             }
         }
 
 		@Override
 		public IString substring(int start, int end) {
 		    applyIndentation(); // substring would be too expensive to do more than once, and the first time is almost as expensive as flattening
-		    return wrapped.substring(start, end);
+		    return flattened.substring(start, end);
 		}
 
 		@Override
 		public int charAt(int index) {
 		    applyIndentation(); // charAt would be too expensive to do more than once, and it is expected to be called more than once. 
-		    return wrapped.charAt(index);
+		    return flattened.charAt(index);
 		}
 		
 		@Override
 		public IString replace(int first, int second, int end, IString repl) {
 		    applyIndentation(); // replace would be almost as expensive as flattening.
-		    return wrapped.replace(first, second, end, repl);
+		    return flattened.replace(first, second, end, repl);
 		}
 
 		@Override
 		public void write(Writer w) throws IOException {
-		    if (indent != null) {
+		    if (flattened == null) {
 		        wrapped.indentedWrite(w, this.indent, true);
 		    }
 		    else {
-		        wrapped.write(w);
+		        flattened.write(w);
 		    }
 		}
 
 		@Override
 		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
-		    if (indent != null) {
+		    if (flattened == null) {
 		        // TODO: this concat on whitespace is worrying for longer files which consist of about 40% of indentation.
 		        // for those files this concat is particular quadratic since the strings are short and they
 		        // are copied over and over again.
 		        wrapped.indentedWrite(w, whitespace.concat(this.indent), indentFirstLine);
 		    }
 		    else {
-		        wrapped.indentedWrite(w, whitespace, indentFirstLine);
+		        flattened.indentedWrite(w, whitespace, indentFirstLine);
 		    }
 		}
 
 		@Override
 		public int length() {
-		    if (indent != null) {
+		    if (flattened == null) {
 		        // for every non-empty line an indent would be added to the total number of characters
 		        return wrapped.length() + wrapped.nonEmptyLineCount() * indent.length();
 		    }
 		    else {
-		        return wrapped.length();
+		        return flattened.length();
 		    }
 		}
 		
 		@Override
 		public int nonEmptyLineCount() {
-		    return wrapped.nonEmptyLineCount();
+		    return flattened == null ? wrapped.nonEmptyLineCount() : flattened.nonEmptyLineCount();
 		}
 		
 		@Override
 		public boolean isNewlineTerminated() {
-		    return wrapped.isNewlineTerminated();
+		    return flattened == null ? wrapped.isNewlineTerminated() : flattened.isNewlineTerminated();
+		}
+		
+		@Override
+		public boolean isNewlineStarted() {
+		    return flattened == null ? wrapped.isNewlineStarted() : flattened.isNewlineStarted();
 		}
 	}
 }
