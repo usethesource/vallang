@@ -221,7 +221,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public IString substring(int start, int end) {
-            return this;
+            if (start == 0 && end == 0) {
+                return this;
+            }
+            
+            throw new IndexOutOfBoundsException();
         }
 
         @Override
@@ -234,7 +238,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             if (first == 0 && end == 0) {
                 return repl;
             }
-            return this;
+            
+            throw new IndexOutOfBoundsException();
         }
 
         @Override
