@@ -143,19 +143,23 @@ public final class BasicValueSmokeTest {
 		  concatTree = concatTree.concat(vf.string(l));
 		  concatTree = concatTree.concat(vf.string(newline));
 		  
-		  indented.append(indent);
+		  if (!l.isEmpty()) {
+		    indented.append(indent);
+		  }
 		  indented.append(l);
 		  indented.append(newline);
 
-		  indentedTwice.append("first" + indent);
-		  indentedTwice.append(indent);
+		  if (!l.isEmpty()) {
+		      indentedTwice.append("first" + indent);
+		      indentedTwice.append(indent);
+		  }
 		  indentedTwice.append(l);
 		  indentedTwice.append(newline);
 	  }
 	  
       // remove empty line indentations
-	  String expected = removeEmptyIndentedLines(indent, newline, indented.toString());
-	  String expectedTwice = removeEmptyIndentedLines("first" + indent + indent, newline, indentedTwice.toString());
+	  String expected = indented.toString();
+	  String expectedTwice = indentedTwice.toString();
 	  
 	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent));
 	  IString indentedConcatTree = concatTree.indent(vf.string(indent));
@@ -189,16 +193,6 @@ public final class BasicValueSmokeTest {
 //	  assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
       
 	  assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
-  }
-
-  private String removeEmptyIndentedLines(String indent, String newline, String indented) {
-      String emptyIndentedLine = newline + indent + newline;
-      String quoted = Pattern.quote(emptyIndentedLine);
-      while (indented.contains(emptyIndentedLine)) {
-          indented = indented.replaceAll(quoted, newline + newline);
-      }
-      
-      return indented;
   }
 
   private void assertEqualCharAt(IString one, IString two) {
@@ -241,7 +235,7 @@ public final class BasicValueSmokeTest {
 // these are some hard tests containing spurious carriage return characters:		  
 //		  checkIndent("\t", nl, "a", "", "\r", "c");
 //		  checkIndent("\t", nl, "a\r", "", "c");
-//		  checkIndent("\t", nl, "a", "", "\rc");
+		  checkIndent("\t", nl, "a", "", "\rc");
 		  checkIndent("   ", nl, "a", "b", "c");
 		  checkIndent(" ", nl, " abcdef", " bcdefg", " cdefgh");
 		  checkIndent(" ", nl, "🍝", " b", " c");
