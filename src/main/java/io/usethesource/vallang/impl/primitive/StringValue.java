@@ -195,6 +195,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    }
 	    
 	    @Override
+	    boolean hasNonBMPCodePoints() {
+	        return false;
+	    }
+	    
+	    @Override
 	    public String getValue() {
 	        return "";
 	    }
@@ -293,6 +298,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
+		protected boolean hasNonBMPCodePoints() {
+		    return true;
+		}
+		
+		@Override
         public String getValue() {
 		    return value;
         }
@@ -330,7 +340,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				buffer.append(other.getValue());
 				
 
-				return StringValue.newString(buffer.toString(), true, concatNonEmptyLineCount(this, o));
+				return StringValue.newString(buffer.toString(), hasNonBMPCodePoints() || o.hasNonBMPCodePoints(), newLineCount);
 			} else {
 				return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
 			}
@@ -600,6 +610,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private static class SimpleUnicodeString extends FullUnicodeString {
 		public SimpleUnicodeString(String value, int nonEmptyLineCount) {
 			super(value, nonEmptyLineCount);
+		}
+		
+		@Override
+		protected boolean hasNonBMPCodePoints() {
+		    return false;
 		}
 
 		@Override
@@ -1020,6 +1035,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             
             return h;
         }
+        
+        abstract boolean hasNonBMPCodePoints();
 	}
 	
 	private static class BinaryBalancedLazyConcatString extends AbstractString {
@@ -1041,6 +1058,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			assert result.right().invariant();
 
 			return result;
+		}
+		
+		@Override
+		protected boolean hasNonBMPCodePoints() {
+		    return left.hasNonBMPCodePoints() || right.hasNonBMPCodePoints();
 		}
 		
 		@Override
@@ -1264,6 +1286,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			
 			assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
 			assert this.length() == newString(getValue()).length();
+		}
+		
+		@Override
+		protected boolean hasNonBMPCodePoints() {
+		    return wrapped.hasNonBMPCodePoints();
 		}
 
 		@Override
