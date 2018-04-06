@@ -99,21 +99,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         int len = value.length();
         
         for (int i = 0; i < len; i++) {
+            char prev = (i != 0) ? value.charAt(i - 1) : 0;
             char cur = value.charAt(i);
-            containsSurrogatePairs |= i > 0 && Character.isSurrogatePair(value.charAt(i - 1), cur);
+            char next = (i + 1 < len) ? value.charAt(i + 1) : 0;
+            
+            containsSurrogatePairs |= i > 0 && Character.isSurrogatePair(prev, cur);
 
             // every \n counts a new line, unless immediately preceded by \n or the start of the string
-            if (cur == NEWLINE && (i != 0) && value.charAt(i - 1) != NEWLINE) {
+            if (cur == NEWLINE && (i != 0) && prev != NEWLINE) {
                 count++;
                 continue;
             }
             
             // and a \r\n also counts as a new line, unless preceded by a \n or the start of the string,
-            if (cur == RETURN 
-                    && (i + 1 < len)
-                    && value.charAt(i + 1) == NEWLINE
-                    && (i - 1 >= 0)
-                    && value.charAt(i - 1) != NEWLINE) {
+            if (cur == RETURN && next == NEWLINE && prev != NEWLINE) {
                 count++;
                 continue;
             }
@@ -121,7 +120,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
         // end-of-file counts as a line terminator, unless the line was empty we should count it
         // note that empty strings are taken care of above
-        if (value.charAt(len - 1) != NEWLINE) {
+        char last = value.charAt(len - 1) ;
+        if (last != NEWLINE) {
             count++;
         }
         
@@ -137,25 +137,25 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         
         int len = value.length();
         for (int i = 0; i < len; i++) {
+            char prev = (i != 0) ? value.charAt(i - 1) : 0;
             char cur = value.charAt(i);
+            char next = (i + 1 < len) ? value.charAt(i + 1) : 0;
             
             // every \n counts a new line, unless immediately preceded by \n or the start of the string
-            if (cur == NEWLINE && (i != 0) && value.charAt(i - 1) != NEWLINE) {
+            if (cur == NEWLINE && prev != NEWLINE) {
                 count++;
                 continue;
             }
             
             // and a \r\n also counts as a new line, unless preceded by a \n or the start of the string,
-            if (cur == RETURN 
-                    && (i != 0)
-                    && value.charAt(i + 1) == NEWLINE
-                    && value.charAt(i - 1) != NEWLINE) {
+            if (cur == RETURN && next == NEWLINE && prev != NEWLINE) {
                 count++;
                 continue;
             }
         }
         
-        if (value.charAt(len - 1) != NEWLINE) {
+        char last = value.charAt(len - 1);
+        if (last != NEWLINE) {
             // the last line was not terminated, but it still counts since it is EOF-terminated.
             count++;
         }
