@@ -151,16 +151,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         return newString(value, fullUnicode, count);
     }
 
-	/* package */ static IString newString(String value, boolean fullUnicode, int nonEmptyLineCount) {
+	/* package */ static IString newString(String value, boolean fullUnicode, int lineCount) {
 		if (value == null || value.isEmpty()) {
 			return EmptyString.getInstance();
 		}
 
 		if (fullUnicode) {
-			return new FullUnicodeString(value, nonEmptyLineCount);
+			return new FullUnicodeString(value, lineCount);
 		}
 
-		return new SimpleUnicodeString(value, nonEmptyLineCount);
+		return new SimpleUnicodeString(value, lineCount);
 	}
 
 	/**
@@ -275,11 +275,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         protected final String value;
         protected final int lineCount;
 
-		private FullUnicodeString(String value, int nonEmptyLineCount) {
+		private FullUnicodeString(String value, int lineCount) {
 			super();
 
 			this.value = value;
-			this.lineCount = nonEmptyLineCount;
+			this.lineCount = lineCount;
 			
 			// the contract is that all String implementations use the same hashCode algorithm as java.lang.String
             assert hashCode() == getValue().hashCode();
@@ -541,8 +541,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	 *
 	 */
 	private static class SimpleUnicodeString extends FullUnicodeString {
-		public SimpleUnicodeString(String value, int nonEmptyLineCount) {
-			super(value, nonEmptyLineCount);
+		public SimpleUnicodeString(String value, int lineCount) {
+			super(value, lineCount);
 		}
 		
 		@Override
@@ -844,7 +844,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             AbstractString o = (AbstractString) other;
             int newLineCount;
             
-            if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = concatLineCount(this, o)) > 1) {
+            if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = concatLineCount(this, o)) <= 1) {
                 StringBuilder buffer = new StringBuilder();
                 buffer.append(getValue());
                 buffer.append(other.getValue());
@@ -963,7 +963,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		private final AbstractString right; /* must remain final for immutability's sake */
 		private final int length;
 		private final int depth;
-		private final int nonEmptyLineCount;
+		private final int lineCount;
 		private int hash = 0;
 
 		public static IStringTreeNode build(AbstractString left, AbstractString right) {
@@ -1020,7 +1020,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			this.right = right;
 			this.length = left.length() + right.length();
 			this.depth = Math.max(left.depth(), right.depth()) + 1;
-			this.nonEmptyLineCount = concatLineCount(left, right);
+			this.lineCount = concatLineCount(left, right);
 			
 			assert this.length() == newString(getValue()).length();
 			assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
@@ -1029,7 +1029,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public int lineCount() {
-		    return nonEmptyLineCount;
+		    return lineCount;
 		}
 		
 		@Override
