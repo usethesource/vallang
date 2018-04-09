@@ -173,7 +173,7 @@ public final class BasicValueSmokeTest {
 	  assertEquals(expected, indentedConcatTree.getValue());
 	  assertSimilarIteration(vf.string(expected), indentedDirect);
 	  assertEqualCharAt(vf.string(expected), indentedDirect);
-//	  assertEqualSubstring(vf.string(expected), indentedDirect);
+	  assertEqualSubstring(vf.string(expected), indentedDirect);
 	  assertSimilarIteration(vf.string(expected), indentedConcatTree);
 	  assertSimilarIteration(indentedDirect, indentedConcatTree);
 	  assertEqual(indentedDirect, indentedConcatTree);
@@ -184,15 +184,15 @@ public final class BasicValueSmokeTest {
 	  assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
 	  assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
 	  assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
-//	  assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
+	  assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
 	  assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
-//	  assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
-//	  assertEqualSubstring(vf.string(expectedTwice), indentedConcatTreeTwice);
+	  assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
+	  assertEqualSubstring(vf.string(expectedTwice), indentedConcatTreeTwice);
   
 	  assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
 	  assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
 	  assertEqualCharAt(indentedDirectTwice, indentedConcatTreeTwice);
-//	  assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
+	  assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
       
 	  assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
   }
@@ -208,8 +208,13 @@ public final class BasicValueSmokeTest {
   private void assertEqualSubstring(IString one, IString two) {
       assertEqual(one, two);
       
-      for (int i = 0; i < one.length(); i++) {
-          for (int j = one.length() - 1; i >= 0; i--) {
+      Random rnd = new Random();
+      for (int c = 0; c < 10; c++) {
+          int j = rnd.nextInt(one.length());
+          
+          if (j > 0) {
+              int i = rnd.nextInt(j);
+
               assertEquals(one.substring(i,j), two.substring(i,j));
           }
       }
@@ -224,8 +229,6 @@ public final class BasicValueSmokeTest {
       }
   }
   
-  
-
   @Test
   public void testStringIndent() {
 	  for (String nl: commonNewlines) {
