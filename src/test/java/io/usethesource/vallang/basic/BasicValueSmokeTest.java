@@ -169,32 +169,53 @@ public final class BasicValueSmokeTest {
 	  IString indentedDirectTwice = indentedDirect.indent(vf.string("first" + indent));
 	  IString indentedConcatTreeTwice = indentedConcatTree.indent(vf.string("first" + indent));
 
+	  // basic tests showing lazy versus eager indentation should have the same semantics:
 	  assertEquals(expected, indentedDirect.getValue());
 	  assertEquals(expected, indentedConcatTree.getValue());
 	  assertSimilarIteration(vf.string(expected), indentedDirect);
-	  assertEqualCharAt(vf.string(expected), indentedDirect);
-	  assertEqualSubstring(vf.string(expected), indentedDirect);
 	  assertSimilarIteration(vf.string(expected), indentedConcatTree);
 	  assertSimilarIteration(indentedDirect, indentedConcatTree);
 	  assertEqual(indentedDirect, indentedConcatTree);
-	  assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
+      assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
 
-	  
+      // these modify internal structure as a side-effect, so after this we test the above again!
+	  assertEqualCharAt(vf.string(expected), indentedDirect);
+      assertEqualSubstring(vf.string(expected), indentedDirect);
+      
+      // retest after internal structure modifications
+      assertEquals(expected, indentedDirect.getValue());
+      assertEquals(expected, indentedConcatTree.getValue());
+      assertSimilarIteration(vf.string(expected), indentedDirect);
+      assertSimilarIteration(vf.string(expected), indentedConcatTree);
+      assertSimilarIteration(indentedDirect, indentedConcatTree);
+      assertEqual(indentedDirect, indentedConcatTree);
+      assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
+      
+      // basic tests showing lazy versus eager indentation should have the same semantics:
 	  assertEquals(expectedTwice, indentedDirectTwice.getValue());
 	  assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
 	  assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
-	  assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
-	  assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
 	  assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
-	  assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
-	  assertEqualSubstring(vf.string(expectedTwice), indentedConcatTreeTwice);
-  
 	  assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
-	  assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
+      assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
+      assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
+      
+      // these modify internal structure as a side-effect, so after this we test the above again!
+	  assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
+      assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
+      assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
+      assertEqualSubstring(vf.string(expectedTwice), indentedConcatTreeTwice);
 	  assertEqualCharAt(indentedDirectTwice, indentedConcatTreeTwice);
 	  assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
       
-	  assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
+	  // retest after internal structure modifications
+	  assertEquals(expectedTwice, indentedDirectTwice.getValue());
+      assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
+      assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
+      assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
+      assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
+      assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
+      assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
   }
 
   private void assertEqualCharAt(IString one, IString two) {
