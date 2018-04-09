@@ -98,28 +98,27 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		int count = 0;
         int len = value.length();
         
+        char prev = '\0'; // make sure Character.isSurrogatePair(prev, cur) is not true for the first char
+        
         for (int i = 0; i < len; i++) {
-            char prev = (i != 0) ? value.charAt(i - 1) : 0;
             char cur = value.charAt(i);
-            char next = (i + 1 < len) ? value.charAt(i + 1) : 0;
+            
+            if (cur == RETURN) {
+                continue;
+            }
             
             containsSurrogatePairs |= i > 0 && Character.isSurrogatePair(prev, cur);
 
             // every \n counts a new line, unless immediately preceded by \n or the start of the string
-            if (cur == NEWLINE && (i != 0) && prev != NEWLINE) {
+            if (cur == NEWLINE) {
                 count++;
-                continue;
             }
-            
-            // and a \r\n also counts as a new line, unless preceded by a \n or the start of the string,
-            if (cur == RETURN && next == NEWLINE && prev != NEWLINE) {
-                count++;
-                continue;
-            }
+
+            prev = cur;
         }
         
-        // end-of-file counts as a line terminator, unless the line was empty we should count it
-        // note that empty strings are taken care of above
+        // end-of-file counts as a line terminator, unless we terminated the string with a newline,
+        // we should count this last line too:
         char last = value.charAt(len - 1) ;
         if (last != NEWLINE) {
             count++;
@@ -272,7 +271,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public int nonEmptyLineCount() {
+        public int lineCount() {
             return 0;
         }
 
@@ -285,13 +284,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private static class FullUnicodeString extends AbstractString {
 		
         protected final String value;
-        protected final int nonEmptyLineCount;
+        protected final int lineCount;
 
 		private FullUnicodeString(String value, int nonEmptyLineCount) {
 			super();
 
 			this.value = value;
-			this.nonEmptyLineCount = nonEmptyLineCount;
+			this.lineCount = nonEmptyLineCount;
 			
 			// the contract is that all String implementations use the same hashCode algorithm as java.lang.String
             assert hashCode() == getValue().hashCode();
@@ -313,38 +312,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public int nonEmptyLineCount() {
-		    return nonEmptyLineCount;
+		public int lineCount() {
+		    return lineCount;
 		}
 		
-		@Override
-		public IString concat(IString other) {
-		    if (length() == 0) {
-		        return other;
-		    }
-		    if (other.length() == 0) {
-		        return this;
-		    }
-		    
-		    // We fuse the strings, but only if this does not introduce strings with multiple newlines,
-		    // and only the string would not grow beyond MAX_FLAT_STRING.
-		    // The reason for the first is that single line strings flush faster to the write buffers.
-		    // The reason for the second is that longer strings require in O(n) codepoint access, while the
-		    // balanced trees amortize access time to in O(log^2(n)).
-		    AbstractString o = (AbstractString) other;
-		    int newLineCount = concatNonEmptyLineCount(this, o);
-		    
-			if (length() + other.length() <= MAX_FLAT_STRING && newLineCount > 1) {
-				StringBuilder buffer = new StringBuilder();
-				buffer.append(value);
-				buffer.append(other.getValue());
-				
-
-				return StringValue.newString(buffer.toString(), hasNonBMPCodePoints() || o.hasNonBMPCodePoints(), newLineCount);
-			} else {
-				return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
-			}
-		}
+		
 
 		@Override
 		/**
@@ -358,7 +330,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString reverse() {
-			return newString(new StringBuilder(value).reverse().toString(), true, nonEmptyLineCount);
+			return newString(new StringBuilder(value).reverse().toString(), true, lineCount);
 		}
 
 		@Override
@@ -506,22 +478,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    }
 		    
 		    if (indentFirstLine) {
-		        // only it this line is non-empty
-		        char first = value.charAt(0);
-		        
-		        if (first == RETURN && value.length() > 1) {
-		            char second = value.charAt(1);
-		            
-		            if (second != NEWLINE) {
-		                whitespace.write(w);
-		            }
-		        }
-		        else if (first != NEWLINE) {
-		            whitespace.write(w);
-		        }
+		        whitespace.write(w);
 		    }
 		    
-		    if (nonEmptyLineCount <= 1) {
+		    if (lineCount <= 1) {
                 // single lines can be streamed immediately.
                 // this is a hot and fast path since most indented strings are build from
                 // templates which are concatenated line-by-line
@@ -546,24 +506,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		            // and continue to find the next newline.
 		            w.write(value, next, pos - next + 1);
 
-		            // write the indent for the next line, unless
-		            // that is an empty line
+		            // write the indent for the next line
 		            if (pos < value.length() - 1) {
-		                int nextChar = value.charAt(pos + 1);
-		                
-		                if (nextChar == NEWLINE) {
-                            continue;
-                        }
-		                else if (nextChar == RETURN) {
-		                    if (pos < value.length() - 2) {
-		                        int nnextChar = value.charAt(pos + 2);
-		                        
-		                        if (nnextChar == NEWLINE) {
-		                            continue;
-		                        }
-		                    }
-		                }
-		                
 		                whitespace.write(w);
 		            }
 		        }
@@ -634,7 +578,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString reverse() {
-			return newString(new StringBuilder(value).reverse().toString(), false, nonEmptyLineCount);
+			return newString(new StringBuilder(value).reverse().toString(), false, lineCount);
 		}
 
 		@Override
@@ -693,29 +637,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          * 
          * @return the number of _non-empty_ lines in a string.
          */
-        int nonEmptyLineCount();
+        int lineCount();
         
         /**
-         * When concatenating indentable strings, the {@link #nonEmptyLineCount()} can
-         * be computed exactly in O(1) by knowing if the right string does or does not
-         * start immediately with a newline:<br>
-         * 
-         * Example:<br>
-         * concat("#####\n", "@@@@@@") has two lines, <br>
-         *    because both consituents have a single line and the left ends in a newline.<br>
-         * concat("#####", "@@@@@@") has a single line, even though both consituents have<br>
-         *    already a single line, concatenated they still form a single line. <br>
-         *         <br>
-         * @return true iff the last character of this string is a \n character.
-         */
-        default boolean isNewlineStarted() {
-            return length() != 0 
-                && (charAt(0) == NEWLINE
-                    || ((length() > 1) && charAt(0) == RETURN && charAt(1) == NEWLINE));  
-        }
-        
-        /**
-         * When concatenating indentable strings, the {@link #nonEmptyLineCount()} can
+         * When concatenating indentable strings, the {@link #lineCount()} can
          * be computed exactly in O(1) by knowing if the left string does or does not
          * end in a newline:<br>
          * 
@@ -731,27 +656,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return length() != 0 && charAt(length() - 1) == NEWLINE;
         }
         
-        default int concatNonEmptyLineCount(IIndentableString left, IIndentableString right) {
-            // \n          : has 0 non-empty lines
-            // \na         : has 1 non-empty lines
-            //
-            // #### + \n   : has 1 non-empty line.
-            // #### + a\n  : has 1 non-empty line.
-            // #### + a\nb : has 2 non-empty lines.
-            // #### + a\nb\n : has 2 non-empty lines.
-            //
-            // ####\n + \n  : has 1 non-empty line.
-            // ####\n + \na : has 2 non-empty lines.
-            //
-            // so: - if the left is newline-terminated, then we can simply add the two counts
-            //        - except right starts with a newline because that would be an empty line.
-            //     - if the left is not newline terminated, we have to subtract 1 line from the total,
-            //          because the last line of left is merged with the first line of the right,
-            //        - except if the right starts with a newline because that would terminate the
-            //          last line of the left and before it would be an empty line
-              
-
-            return left.nonEmptyLineCount() - (left.isNewlineTerminated() ? 0 : (right.isNewlineStarted() ? 0 : 1)) + right.nonEmptyLineCount(); 
+        default int concatLineCount(IIndentableString left, IIndentableString right) {
+            return left.lineCount() - (left.isNewlineTerminated() ? 0 : 1) + right.lineCount(); 
         }
         
         /**
@@ -879,19 +785,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         
         @Override
-        public IString concat(IString other) {
-            if (length() == 0) {
-                return other;
-            }
-            if (other.length() == 0) {
-                return this;
-            }
-            return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
-        }
-        
-        @Override
         public IString indent(IString whitespace) {
-            assert !whitespace.getValue().contains("\n");
+            assert !whitespace.getValue().contains("\n") && !whitespace.getValue().contains("\r");
             assert whitespace.length() > 0;
             
             return new IndentedString(this, whitespace);
@@ -923,18 +818,52 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         
         @Override
+        /**
+         * sub-classes that have direct access to a wrapped String should override this
+         */
         public String getValue() {
             // the IString.length() under-estimates the size of the string if the string
             // contains many surrogate pairs, but that does not happen a lot in 
             // most of what we see, so we decided to go for a tight estimate for
             // "normal" ASCII strings which contain around 10% non BMP code points. 
             
-            try (StringWriter w = new StringWriter(length() + length() / 10 /* take care not too overflow int easily */)) {
+            int len = length();
+            
+            try (StringWriter w = new StringWriter(len + len / 10 /* take care not too overflow int easily */)) {
                 write(w);
                 return w.toString();
             } catch (IOException e) {
                 // this will not happen with a StringWriter
                 return "";
+            }
+        }
+        
+        @Override
+        public final IString concat(IString other) {
+            if (length() == 0) {
+                return other;
+            }
+            if (other.length() == 0) {
+                return this;
+            }
+            
+            // We fuse the strings, but only if this does not introduce strings with multiple newlines,
+            // and only the string would not grow beyond MAX_FLAT_STRING.
+            // The reason for the first is that single line strings flush faster to the write buffers.
+            // The reason for the second is that longer strings require in O(n) codepoint access, while the
+            // balanced trees amortize access time to in O(log^2(n)).
+            AbstractString o = (AbstractString) other;
+            int newLineCount;
+            
+            if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = concatLineCount(this, o)) > 1) {
+                StringBuilder buffer = new StringBuilder();
+                buffer.append(getValue());
+                buffer.append(other.getValue());
+                
+
+                return StringValue.newString(buffer.toString(), hasNonBMPCodePoints() || o.hasNonBMPCodePoints(), newLineCount);
+            } else {
+                return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
             }
         }
         
@@ -985,7 +914,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 return false;
             }
             
-            if (o.nonEmptyLineCount() != nonEmptyLineCount()) {
+            if (o.lineCount() != lineCount()) {
                 // another quick way to bail without having to iterate.
                 return false;
             }
@@ -1102,15 +1031,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			this.right = right;
 			this.length = left.length() + right.length();
 			this.depth = Math.max(left.depth(), right.depth()) + 1;
-			this.nonEmptyLineCount = concatNonEmptyLineCount(left, right);
+			this.nonEmptyLineCount = concatLineCount(left, right);
 			
 			assert this.length() == newString(getValue()).length();
-			assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
+			assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
 		}
 
 		
 		@Override
-		public int nonEmptyLineCount() {
+		public int lineCount() {
 		    return nonEmptyLineCount;
 		}
 		
@@ -1286,7 +1215,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			this.indent = whiteSpace;
 			this.wrapped = istring;
 			
-			assert this.nonEmptyLineCount() == ((AbstractString) newString(getValue())).nonEmptyLineCount();
+			assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
 			assert this.length() == newString(getValue()).length();
 			assert indent.length() > 0;
 			assert flattened == null;
@@ -1311,43 +1240,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    }
 		}
 
-		/** 
-		 * Helper class for the iterator() method
-		 */
-		final private static class TwoCharacterIteratorBuffer implements PrimitiveIterator.OfInt {
-            int first = -1;
-            int second = -1;
-            
-            public void add(int ch) {
-                if (first == -1) {
-                    assert second == -1;
-                    first = ch;
-                }
-                else {
-                    assert second == -1;
-                    second = ch;
-                }
-            }
-
-            @Override
-            public boolean hasNext() {
-                return first != -1 || second != -1;
-            }
-
-            @Override
-            public int nextInt() {
-                if (first != -1) {
-                    int ch = first;
-                    first = -1;
-                    return ch;
-                }
-                else {
-                    int ch = second;
-                    second = -1;
-                    return ch;
-                }
-            }
-        }
 		
 		/**
 		 * This is the basic implementation of indentation, while iterating
@@ -1361,12 +1253,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    
 		    return new OfInt() {
 		        final OfInt content = wrapped.iterator();
-		        final TwoCharacterIteratorBuffer lookahead = new TwoCharacterIteratorBuffer();
 		        OfInt nextIndentation = indent.iterator();
 
 		        @Override
 		        public boolean hasNext() {
-		            return lookahead.hasNext() || content.hasNext();
+		            return content.hasNext();
 		        }
 
 		        @Override
@@ -1377,45 +1268,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		            }
 
 		            // done with indenting, so continue with the content
-		            int cur = get();
+		            int cur = content.nextInt();
 
-		            // detect if we have to start indenting (only after a newline, and if this new line is not empty)
-		            if (cur == NEWLINE && hasNext()) {
-		                // peek at the next character
-		                int next = peek();
-
-		                if (next == NEWLINE) {
-		                    // and empty line, so no indentation
-		                    return cur;
-		                }
-		                else if (next == RETURN && hasNext()) {
-		                    // might be an empty line, so peek at the next character
-		                    int following = peek();
-
-		                    if (following == NEWLINE) {
-		                        // indeed an empty line, so no indentation
-		                        return cur;
-		                    }
-		                }
-
-		                // otherwise we have to indent the next time around
-		                // but note that any lookahead will first be returned
+		            // detect if we have to start indenting 
+		            if (cur == NEWLINE) {
 		                nextIndentation = indent.iterator();
 		            }
 
-		            // the current character, NEWLINE or not, will first be printed
 		            return cur;
-		        }
-
-		        private int get() {
-		            int cur = lookahead.hasNext() ? lookahead.nextInt() : content.nextInt();
-		            return cur;
-		        }
-
-		        private int peek() {
-		            int next = get();
-		            lookahead.add(next);
-		            return next;
 		        }
 		    };
 		}
@@ -1492,7 +1352,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public int length() {
 		    if (flattened == null) {
 		        // for every non-empty line an indent would be added to the total number of characters
-		        return wrapped.length() + wrapped.nonEmptyLineCount() * indent.length();
+		        return wrapped.length() + wrapped.lineCount() * indent.length();
 		    }
 		    else {
 		        return flattened.length();
@@ -1500,18 +1360,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public int nonEmptyLineCount() {
-		    return flattened == null ? wrapped.nonEmptyLineCount() : flattened.nonEmptyLineCount();
+		public int lineCount() {
+		    return flattened == null ? wrapped.lineCount() : flattened.lineCount();
 		}
 		
 		@Override
 		public boolean isNewlineTerminated() {
 		    return flattened == null ? wrapped.isNewlineTerminated() : flattened.isNewlineTerminated();
-		}
-		
-		@Override
-		public boolean isNewlineStarted() {
-		    return flattened == null ? wrapped.isNewlineStarted() : flattened.isNewlineStarted();
 		}
 	}
 }
