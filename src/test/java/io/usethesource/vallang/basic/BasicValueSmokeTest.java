@@ -1,17 +1,13 @@
 package io.usethesource.vallang.basic;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.net.URISyntaxException;
-import java.util.Iterator;
 import java.util.PrimitiveIterator.OfInt;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import org.junit.Assert;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -156,16 +152,12 @@ public final class BasicValueSmokeTest {
 		  concatTree = concatTree.concat(vf.string(l));
 		  concatTree = concatTree.concat(vf.string(newline));
 		  
-		  if (!l.isEmpty()) {
-		    indented.append(indent);
-		  }
+		  indented.append(indent);
 		  indented.append(l);
 		  indented.append(newline);
 
-		  if (!l.isEmpty()) {
-		      indentedTwice.append("first" + indent);
-		      indentedTwice.append(indent);
-		  }
+		  indentedTwice.append("first" + indent);
+		  indentedTwice.append(indent);
 		  indentedTwice.append(l);
 		  indentedTwice.append(newline);
 	  }
@@ -274,14 +266,16 @@ public final class BasicValueSmokeTest {
 		  checkIndent("\t", nl, "a", "b", "c");
 		  checkIndent("\t", nl, "a", "", "c");
 		  checkIndent("\t", nl, "a", "", "", "c");
-// these are some hard tests containing spurious carriage return characters:		  
-//		  checkIndent("\t", nl, "a", "", "\r", "c");
-//		  checkIndent("\t", nl, "a", "", "\r\r\r", "c");
-//		  checkIndent("\t", nl, "a\r", "", "c");
-		  checkIndent("\t", nl, "a", "", "\rc");
 		  checkIndent("   ", nl, "a", "b", "c");
-		  checkIndent(" ", nl, " abcdef", " bcdefg", " cdefgh");
-		  checkIndent(" ", nl, "🍝", " b", " c");
+          checkIndent(" ", nl, " abcdef", " bcdefg", " cdefgh");
+          checkIndent(" ", nl, "🍝", " b", " c");
+          
+// these are some hard tests containing spurious carriage return characters:
+		  checkIndent("\t", nl, "a", "\r", "", "c");
+		  checkIndent("\t", nl, "a", "", "\r", "c");
+		  checkIndent("\t", nl, "a", "", "\r\r\r", "c");
+		  checkIndent("\t", nl, "a\r", "", "c");
+		  checkIndent("\t", nl, "a", "", "\rc");
 	  }
   }
   
