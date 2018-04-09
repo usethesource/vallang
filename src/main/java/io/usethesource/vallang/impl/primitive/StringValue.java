@@ -102,7 +102,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         for (int i = 0; i < len; i++) {
             char cur = value.charAt(i);
             
-            containsSurrogatePairs |= i > 0 && Character.isSurrogatePair(prev, cur);
+            containsSurrogatePairs |= Character.isSurrogatePair(prev, cur);
 
             // every \n counts a new line, unless immediately preceded by \n or the start of the string
             if (cur == NEWLINE) {
