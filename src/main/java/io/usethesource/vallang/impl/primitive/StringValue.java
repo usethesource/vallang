@@ -57,7 +57,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  */
 /* package */ public class StringValue {
 	private static final char NEWLINE = '\n';
-	private static final char RETURN = '\r';
     private static final Type STRING_TYPE = TypeFactory.getInstance().stringType();
 
 	private static int DEFAULT_MAX_FLAT_STRING = 512;
@@ -103,10 +102,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         for (int i = 0; i < len; i++) {
             char cur = value.charAt(i);
             
-            if (cur == RETURN) {
-                continue;
-            }
-            
             containsSurrogatePairs |= i > 0 && Character.isSurrogatePair(prev, cur);
 
             // every \n counts a new line, unless immediately preceded by \n or the start of the string
@@ -135,29 +130,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         int count = 0;
         
         int len = value.length();
+        
         for (int i = 0; i < len; i++) {
-            char prev = (i != 0) ? value.charAt(i - 1) : 0;
             char cur = value.charAt(i);
-            char next = (i + 1 < len) ? value.charAt(i + 1) : 0;
             
             // every \n counts a new line, unless immediately preceded by \n or the start of the string
-            if (cur == NEWLINE && prev != NEWLINE) {
+            if (cur == NEWLINE) {
                 count++;
-                continue;
-            }
-            
-            // and a \r\n also counts as a new line, unless preceded by a \n or the start of the string,
-            if (cur == RETURN && next == NEWLINE && prev != NEWLINE) {
-                count++;
-                continue;
             }
         }
         
-        char last = value.charAt(len - 1);
+        // end-of-file counts as a line terminator, unless we terminated the string with a newline,
+        // we should count this last line too:
+        char last = value.charAt(len - 1) ;
         if (last != NEWLINE) {
-            // the last line was not terminated, but it still counts since it is EOF-terminated.
             count++;
         }
+        
         
         return newString(value, fullUnicode, count);
     }
