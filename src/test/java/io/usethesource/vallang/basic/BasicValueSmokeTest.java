@@ -3,12 +3,16 @@ package io.usethesource.vallang.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.net.URISyntaxException;
 import java.util.Iterator;
+import java.util.PrimitiveIterator.OfInt;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import org.junit.Assert;
+import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -131,6 +135,13 @@ public final class BasicValueSmokeTest {
   
   private static final String[] commonNewlines = new String[] { "\n"};
   
+  private static void assertEquals(Object expected, Object actual) {
+      if (expected.equals(actual)) {
+          return;
+      } else  {
+          throw new ComparisonFailure("objects not equal", expected.toString(), actual.toString());
+      }
+  }
   
   private void checkIndent(String indent, String newline, String... lines) {
 	  StringBuilder unindented = new StringBuilder();
@@ -242,11 +253,17 @@ public final class BasicValueSmokeTest {
   }
 
   private static void assertSimilarIteration(IString ref, IString target) {
-      Iterator<Integer> refIterator = ref.iterator();
-      Iterator<Integer> targetIterator = target.iterator();
-      while (refIterator.hasNext()) {
+      OfInt refIterator = ref.iterator();
+      OfInt targetIterator = target.iterator();
+
+      for (int i = 0; refIterator.hasNext(); i++) {
           assertTrue(targetIterator.hasNext());
-          assertEquals(refIterator.next(), targetIterator.next());
+          int a = refIterator.nextInt();
+          int b = targetIterator.nextInt();
+          
+          if (a != b) {
+              throw new ComparisonFailure("string iterators produce different values at index " + i + " (" + a + " != " + b + ")", ref.toString(), target.toString());
+          }
       }
   }
   
@@ -259,6 +276,7 @@ public final class BasicValueSmokeTest {
 		  checkIndent("\t", nl, "a", "", "", "c");
 // these are some hard tests containing spurious carriage return characters:		  
 //		  checkIndent("\t", nl, "a", "", "\r", "c");
+//		  checkIndent("\t", nl, "a", "", "\r\r\r", "c");
 //		  checkIndent("\t", nl, "a\r", "", "c");
 		  checkIndent("\t", nl, "a", "", "\rc");
 		  checkIndent("   ", nl, "a", "b", "c");
@@ -274,9 +292,7 @@ public final class BasicValueSmokeTest {
           String[] randomLines = new String[10];
           for (int n = 0; n < randomLines.length; n++) {
              String newString = RandomUtil.string(rnd, rnd.nextInt(200));
-             for (String newL : commonNewlines) {
-                 newString = newString.replaceAll(Pattern.quote(newL), "_");
-             }
+             newString = newString.replaceAll("[\\r\\n]", "_");
              randomLines[n] = newString;
           }
 
