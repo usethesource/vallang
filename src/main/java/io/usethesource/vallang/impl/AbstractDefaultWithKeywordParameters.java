@@ -78,11 +78,10 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	public T unsetParameter(String label) {
 		io.usethesource.capsule.Map.Immutable<String, IValue> removed = parameters.__remove(label);
 		
-		if (removed.size() == 0) {
+		if (removed.isEmpty()) {
 			return content;
-		} else {
-			return wrap(content, removed);
 		}
+		return wrap(content, removed);
 	}
 	
 	@Override
@@ -97,7 +96,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
 	@Override
 	public boolean hasParameters() {
-		return parameters.size() > 0;
+		return !parameters.isEmpty();
 	}
 
 	@Override
@@ -163,6 +162,9 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
 	@Override
 	public T setParameters(Map<String, IValue> params) {
+		if (params.isEmpty()) {
+			return content;
+		}
 		return wrap(content, AbstractSpecialisedImmutableMap.mapOf(params));
 	}
 	

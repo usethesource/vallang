@@ -11,6 +11,7 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl;
 
+import io.usethesource.capsule.Map.Immutable;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IValue;
@@ -101,7 +102,11 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 
 	@Override
 	public T removeAnnotation(String label) {
-		return wrap(content, annotations.__remove(label));
+		Immutable<String, IValue> newAnnotations = annotations.__remove(label);
+		if (newAnnotations.isEmpty()) {
+			return content;
+		}
+		return wrap(content, newAnnotations);
 	}
 
 	@Override
@@ -114,7 +119,11 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 
 	@Override
 	public T joinAnnotations(Map<String, IValue> otherAnnotations) {
-		return wrap(content, annotations.__putAll(otherAnnotations));
+		Immutable<String, IValue> finalAnnotations = annotations.__putAll(otherAnnotations);
+		if (finalAnnotations.isEmpty()) {
+			return content;
+		}
+		return wrap(content, finalAnnotations);
 	}
 
 	@Override
