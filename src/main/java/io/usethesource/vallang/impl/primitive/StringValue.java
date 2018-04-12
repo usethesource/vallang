@@ -23,8 +23,8 @@ import java.lang.management.ThreadMXBean;
 import java.nio.CharBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
@@ -787,10 +787,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		default AbstractString rotateLeftRight() {
 			return (AbstractString) this;
 		}
-
-		default void collectLeafIterators(List<PrimitiveIterator.OfInt> w) {
-			w.add(iterator());
-		}
 	}
 	
 	private abstract static class AbstractString extends AbstractValue implements IString, IStringTreeNode, IIndentableString {
@@ -1176,39 +1172,45 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public PrimitiveIterator.OfInt iterator() {
-			final List<PrimitiveIterator.OfInt> leafs = new ArrayList<>(
-					this.length / (StringValue.DEFAULT_MAX_FLAT_STRING / 2));
-
-			/**
-			 * Because the trees can be quite unbalanced and therefore very deep, allocating
-			 * an iterator for every depth becomes quite expensive. We collect here the
-			 * necessary iterators of the leaf nodes only.
-			 */
-			collectLeafIterators(leafs);
-
 			return new PrimitiveIterator.OfInt() {
-				int current = 0;
+			    final Deque<AbstractString> todo = new ArrayDeque<>(depth);
+				OfInt currentLeaf = leftmostLeafIterator(BinaryBalancedLazyConcatString.this);
 
 				@Override
 				public boolean hasNext() {
-					while (current < leafs.size() && !leafs.get(current).hasNext()) {
-						current++;
-					}
-
-					return current < leafs.size();
+				    return currentLeaf.hasNext(); /* || !todo.isEmpty() is unnecessary due to post-condition of nextInt() */
 				}
 
                 @Override
                 public int nextInt() {
-                    return leafs.get(current).nextInt();
+                    int next = currentLeaf.nextInt();
+                    
+                    if (!currentLeaf.hasNext() && !todo.isEmpty()) {
+                        // now we back track to the previous node we went left from,
+                        // take the right branch and continue with its first leaf:
+                        currentLeaf = leftmostLeafIterator(todo.pop());
+                    }
+                    
+                    assert currentLeaf.hasNext() || todo.isEmpty();
+                    return next;
+                }
+
+                /*
+                 * We find the left-most leaf of the tree, and collect
+                 * the path of nodes to this leaf as a side-effect in the todo 
+                 * stack.
+                 */
+                private OfInt leftmostLeafIterator(IStringTreeNode start) {
+                    IStringTreeNode cur = start;
+                    
+                    while (cur.depth() > 1) {
+                        todo.push(cur.right());
+                        cur = cur.left();
+                    }
+                    
+                    return cur.iterator();
                 }
 			};
-		};
-
-		@Override
-		public void collectLeafIterators(List<PrimitiveIterator.OfInt> w) {
-			left.collectLeafIterators(w);
-			right.collectLeafIterators(w);
 		}
 	}
 
