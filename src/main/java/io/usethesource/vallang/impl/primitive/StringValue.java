@@ -1255,7 +1255,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public IString indent(IString indent) {
-		    assert !indent.getValue().contains("\n");
+		    assert !indent.getValue().contains("\n") && !indent.getValue().contains("\r");
 		    assert indent.length() > 0;
 		    
 		    if (flattened == null) {
@@ -1285,6 +1285,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        @Override
 		        public boolean hasNext() {
 		            return content.hasNext();
+		            // || !nextIndentation.isEmpty() is not needed because if we are out of content we should not indent anyway
+		            // so this makes sure that after a terminating \n no superfluous whitespace is printed before EOF. 
 		        }
 
 		        @Override
@@ -1301,7 +1303,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		            if (cur == NEWLINE) {
 		                nextIndentation = indent.iterator();
 		            }
-
+		            
 		            return cur;
 		        }
 		    };
