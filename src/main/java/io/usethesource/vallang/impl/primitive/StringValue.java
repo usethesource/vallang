@@ -111,7 +111,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             
             containsSurrogatePairs |= Character.isSurrogatePair(prev, cur);
 
-            // every \n counts a new line, unless immediately preceded by \n or the start of the string
             if (cur == NEWLINE) {
                 count++;
             }
@@ -141,7 +140,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         for (int i = 0; i < len; i++) {
             char cur = value.charAt(i);
             
-            // every \n counts a new line, unless immediately preceded by \n or the start of the string
             if (cur == NEWLINE) {
                 count++;
             }
