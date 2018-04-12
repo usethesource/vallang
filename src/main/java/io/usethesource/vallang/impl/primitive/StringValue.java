@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
@@ -246,7 +247,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         
         @Override
-        public void indentedWrite(Writer w, IString whiteSpace, boolean indentFirstLine) {
+        public void indentedWrite(Writer w, Deque<IString> whiteSpace, boolean indentFirstLine) {
         }
 
         @Override
@@ -498,13 +499,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
+		public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
 		    if (value.isEmpty()) {
 		        return;
 		    }
 		    
 		    if (indentFirstLine) {
-		        whitespace.write(w);
+		        writeWhitespace(w, whitespace);
 		    }
 		    
 		    if (lineCount <= 1) {
@@ -534,11 +535,17 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		            // write the indent for the next line
 		            if (pos < value.length() - 1) {
-		                whitespace.write(w);
+		                writeWhitespace(w, whitespace);
 		            }
 		        }
 		    }
 		}
+
+        private void writeWhitespace(Writer w, Deque<IString> whitespace) throws IOException {
+            for (Iterator<IString> it = whitespace.descendingIterator(); it.hasNext(); ) {
+                it.next().write(w);
+            }
+        }
 
 		@Override
 		public PrimitiveIterator.OfInt iterator() {
@@ -696,7 +703,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          * @param indentFirstLine  whether or not to indent the first line
          * @throws IOException
          */
-        default public void indentedWrite(Writer w, IString whiteSpace, boolean indentFirstLine) throws IOException {
+        default public void indentedWrite(Writer w, Deque<IString> indentStack, boolean indentFirstLine) throws IOException {
             throw new UnsupportedOperationException();
         }
     }
@@ -1140,7 +1147,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
+		public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
 			left.indentedWrite(w, whitespace, indentFirstLine);
 			right.indentedWrite(w, whitespace, left.isNewlineTerminated());
 		}
@@ -1343,7 +1350,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public void write(Writer w) throws IOException {
 		    if (flattened == null) {
-		        wrapped.indentedWrite(w, this.indent, true);
+		        Deque<IString> indents = new ArrayDeque<>(10);
+		        indents.push(indent);
+		        wrapped.indentedWrite(w, indents, true);
+		        indents.pop();
+		        assert indents.isEmpty();
 		    }
 		    else {
 		        flattened.write(w);
@@ -1351,12 +1362,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
+		public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
 		    if (flattened == null) {
 		        // TODO: this concat on whitespace is worrying for longer files which consist of about 40% of indentation.
 		        // for those files this concat is particular quadratic since the strings are short and they
 		        // are copied over and over again.
-		        wrapped.indentedWrite(w, whitespace.concat(this.indent), indentFirstLine);
+		        whitespace.push(indent);
+		        wrapped.indentedWrite(w, whitespace, indentFirstLine);
+		        whitespace.pop();
 		    }
 		    else {
 		        flattened.indentedWrite(w, whitespace, indentFirstLine);
@@ -1413,64 +1426,59 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    public static void main(String[] args) throws IOException {
             System.err.println("Benchmarking StringValue implementation...");
             long lazyTime = 0L, eagerTime = 0L;
-            boolean runLazy = true, runEager =false;
+            boolean runLazy = true, runEager =true;
             
             System.in.read();
             
+            warmup();
             if (runLazy) {
-                
-                try {
-                    for (int i = 0; i < 500; i++) {
-//                        long start = bean.getCurrentThreadCpuTime();
-                        IString value = buildLargeLazyValue();
+                long start = bean.getCurrentThreadCpuTime();
+                IString value = buildLargeLazyValue();
 
-//                        long afterBuild = bean.getCurrentThreadCpuTime();
-//                        System.err.println("LAZY BUILD        :" + Duration.of(afterBuild - start, ChronoUnit.NANOS).toString());
+                long afterBuild = bean.getCurrentThreadCpuTime();
+                System.err.println("LAZY BUILD        :" + Duration.of(afterBuild - start, ChronoUnit.NANOS).toString());
 
-                        value.write(new NullWriter());
-//                        long afterWrite = bean.getCurrentThreadCpuTime();
+                value.write(new NullWriter());
+                long afterWrite = bean.getCurrentThreadCpuTime();
 
-//                        lazyTime = afterWrite - start;
+                lazyTime = afterWrite - start;
 
-                        //                    System.err.println("LAZY         WRITE:" + Duration.of(afterWrite - afterBuild, ChronoUnit.NANOS).toString());
-                        //                    System.err.println("LAZY BUILD + WRITE:" + Duration.of(afterWrite - start, ChronoUnit.NANOS).toString());
-                        //                    System.err.println("STRING LENGTH      :" + value.length());
+                System.err.println("LAZY         WRITE:" + Duration.of(afterWrite - afterBuild, ChronoUnit.NANOS).toString());
+                System.err.println("LAZY BUILD + WRITE:" + Duration.of(afterWrite - start, ChronoUnit.NANOS).toString());
+                System.err.println("STRING LENGTH      :" + value.length());
 
-                        value = null;
-                        System.gc();
-                    }
-                }
-                catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                value = null;
+                System.gc();
             }
             
             if (runEager) {
-                try {
-                    long start = bean.getCurrentThreadCpuTime();
-                    IString value = buildLargeEagerValue();
-                    
-                    long afterBuild = bean.getCurrentThreadCpuTime();
-                    System.err.println("EAGER BUILD        :" + Duration.of(afterBuild - start, ChronoUnit.NANOS).toString());
-                    
-                    value.write(new NullWriter());
-                    long afterWrite = bean.getCurrentThreadCpuTime();
+                long start = bean.getCurrentThreadCpuTime();
+                IString value = buildLargeEagerValue();
 
-                    eagerTime = afterWrite - start;
-                    System.err.println("EAGER         WRITE:" + Duration.of(afterWrite - afterBuild, ChronoUnit.NANOS).toString());
-                    System.err.println("EAGER BUILD + WRITE:" + Duration.of(eagerTime, ChronoUnit.NANOS).toString());
-                    System.err.println("STRING LENGTH      :" + value.length());
-                    value = null;
-                    System.gc();
-                }
-                catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                long afterBuild = bean.getCurrentThreadCpuTime();
+                System.err.println("EAGER BUILD        :" + Duration.of(afterBuild - start, ChronoUnit.NANOS).toString());
+
+                value.write(new NullWriter());
+                long afterWrite = bean.getCurrentThreadCpuTime();
+
+                eagerTime = afterWrite - start;
+                System.err.println("EAGER         WRITE:" + Duration.of(afterWrite - afterBuild, ChronoUnit.NANOS).toString());
+                System.err.println("EAGER BUILD + WRITE:" + Duration.of(eagerTime, ChronoUnit.NANOS).toString());
+                System.err.println("STRING LENGTH      :" + value.length());
+                value = null;
+                System.gc();
             }
             
             if (runEager && runLazy) {
                 System.err.println("LAZY is " + Math.round((lazyTime * 1.0) / (eagerTime * 1.0) * 100) + "% of EAGER\n\n");
             }
+        }
+
+        private static void warmup() throws IOException {
+            for (int i = 0; i < 5; i++) {
+                buildLargeLazyValue().write(new NullWriter());
+            }
+            System.gc();
         }
 
         private static IString buildLargeEagerValue() {
