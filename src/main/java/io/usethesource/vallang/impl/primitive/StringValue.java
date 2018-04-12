@@ -18,7 +18,11 @@ package io.usethesource.vallang.impl.primitive;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.nio.CharBuffer;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -28,8 +32,10 @@ import java.util.PrimitiveIterator.OfInt;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.impl.AbstractValue;
+import io.usethesource.vallang.impl.persistent.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -59,10 +65,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private static final char NEWLINE = '\n';
     private static final Type STRING_TYPE = TypeFactory.getInstance().stringType();
 
-	private static int DEFAULT_MAX_FLAT_STRING = 512;
+	private static final int DEFAULT_MAX_FLAT_STRING = 512; /* typical buffer size maximum */
 	private static int MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
 
-	private static int DEFAULT_MAX_UNBALANCE = 0;
+	private static final int DEFAULT_MAX_UNBALANCE = 250;
 	private static int MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
 
 	/** for testing purposes we can set the max flat string value */
@@ -268,6 +274,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         public boolean isNewlineTerminated() {
             return false;
         }
+        
+        @Override
+        public IString concat(IString other) {
+            return other;
+        }
 	}
 	
 	private static class FullUnicodeString extends AbstractString {
@@ -305,7 +316,33 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    return lineCount;
 		}
 		
-		
+		@Override
+		public IString concat(IString other) {
+		    if (other.length() == 0) {
+		        return this;
+		    }
+
+		    // We fuse the strings, but only if this does not introduce strings with multiple newlines,
+		    // and only the string would not grow beyond MAX_FLAT_STRING.
+		    // The reason for the first is that single line strings flush faster to the write buffers.
+		    // The reason for the second is that longer strings require in O(n) codepoint access, while the
+		    // balanced trees amortize access time to in O(log^2(n)).
+		    AbstractString o = (AbstractString) other;
+		    int newLineCount;
+
+		    if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = concatLineCount(this, o)) <= 1) {
+		        StringBuilder buffer = new StringBuilder();
+		        buffer.append(getValue());
+		        buffer.append(other.getValue());
+
+
+		        return StringValue.newString(buffer.toString(), hasNonBMPCodePoints() || o.hasNonBMPCodePoints(), newLineCount);
+		    } else {
+		        // For longer strings with many newlines it's usually better to concatenate lazily 
+		        // This makes concatenation in O(1) as opposed to O(n) where n is the length of the resulting string. 
+		        return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
+		    }
+		}
 
 		@Override
 		/**
@@ -827,34 +864,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
         }
         
-        @Override
-        public final IString concat(IString other) {
-            if (length() == 0) {
-                return other;
-            }
-            if (other.length() == 0) {
-                return this;
-            }
-            
-            // We fuse the strings, but only if this does not introduce strings with multiple newlines,
-            // and only the string would not grow beyond MAX_FLAT_STRING.
-            // The reason for the first is that single line strings flush faster to the write buffers.
-            // The reason for the second is that longer strings require in O(n) codepoint access, while the
-            // balanced trees amortize access time to in O(log^2(n)).
-            AbstractString o = (AbstractString) other;
-            int newLineCount;
-            
-            if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = concatLineCount(this, o)) <= 1) {
-                StringBuilder buffer = new StringBuilder();
-                buffer.append(getValue());
-                buffer.append(other.getValue());
-                
-
-                return StringValue.newString(buffer.toString(), hasNonBMPCodePoints() || o.hasNonBMPCodePoints(), newLineCount);
-            } else {
-                return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
-            }
-        }
+       
         
         @Override
         public IString substring(int start) {
@@ -964,6 +974,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		private final int length;
 		private final int depth;
 		private final int lineCount;
+		private final boolean terminated;
 		private int hash = 0;
 
 		public static IStringTreeNode build(AbstractString left, AbstractString right) {
@@ -979,6 +990,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return result;
 		}
 		
+		@Override
+		public IString concat(IString other) {
+		    if (other.length() == 0) {
+		        return this;
+		    }
+
+		    return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
+		}
+
 		@Override
 		protected boolean hasNonBMPCodePoints() {
 		    return left.hasNonBMPCodePoints() || right.hasNonBMPCodePoints();
@@ -1021,6 +1041,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			this.length = left.length() + right.length();
 			this.depth = Math.max(left.depth(), right.depth()) + 1;
 			this.lineCount = concatLineCount(left, right);
+			this.terminated = right.isNewlineTerminated();
 			
 			assert this.length() == newString(getValue()).length();
 			assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
@@ -1034,7 +1055,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		@Override
 		public boolean isNewlineTerminated() {
-		    return right.length() == 0 ? left.isNewlineTerminated() : right.isNewlineTerminated();
+		    return terminated;
 		}
 		
 		@Override
@@ -1125,7 +1146,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public void indentedWrite(Writer w, IString whitespace, boolean indentFirstLine) throws IOException {
 			left.indentedWrite(w, whitespace, indentFirstLine);
-			right.indentedWrite(w, whitespace, (left.length() == 0 && indentFirstLine) || left.isNewlineTerminated());
+			right.indentedWrite(w, whitespace, left.isNewlineTerminated());
 		}
 
 		@Override
@@ -1216,6 +1237,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
+		public IString concat(IString other) {
+		    if (other.length() == 0) {
+		        return this;
+		    }
+		    return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
+		}
+		
+		@Override
 		public IString indent(IString indent) {
 		    assert !indent.getValue().contains("\n");
 		    assert indent.length() > 0;
@@ -1271,11 +1300,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public IString reverse() {
-		    if (flattened != null) {
-		        return flattened.reverse();
-		    }
-		    
-			return newString(getValue()).reverse();
+		    return applyIndentation().reverse();
 		}
 
 		/**
@@ -1284,7 +1309,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
          * to a normal string by applying the indent, and store the
          * eagerly indented string in the volatile `flattened` field.
          */
-        private void applyIndentation() {
+        private IString applyIndentation() {
             if (flattened == null) {
                 flattened = (AbstractString) newString(getValue());
                 
@@ -1294,24 +1319,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 wrapped = null;
                 indent = null;
             }
+            
+            return flattened;
         }
 
 		@Override
 		public IString substring(int start, int end) {
-		    applyIndentation(); // substring would be too expensive to do more than once, and the first time is almost as expensive as flattening
-		    return flattened.substring(start, end);
+		    return applyIndentation().substring(start,end); 
 		}
 
 		@Override
 		public int charAt(int index) {
-		    applyIndentation(); // charAt would be too expensive to do more than once, and it is expected to be called more than once. 
-		    return flattened.charAt(index);
+		    return applyIndentation().charAt(index); 
 		}
 		
 		@Override
 		public IString replace(int first, int second, int end, IString repl) {
-		    applyIndentation(); // replace would be almost as expensive as flattening.
-		    return flattened.replace(first, second, end, repl);
+		    return applyIndentation().replace(first, second, end, repl); 
 		}
 
 		@Override
@@ -1357,5 +1381,156 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public boolean isNewlineTerminated() {
 		    return flattened == null ? wrapped.isNewlineTerminated() : flattened.isNewlineTerminated();
 		}
+	}
+	
+	/**
+	 * This embedded class is used to fine tune parameters of the string indentation feature. 
+	 * 
+	 * NB! make sure to run with asserts disabled.
+	 */
+	public static class IndentationBenchmarkTool {
+	    private static IValueFactory vf = ValueFactory.getInstance();
+	    private static ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+            
+	    /**
+	     * Comparing between lazy and eager implementations of indent, we did not observe
+	     * a significant effect on the differential diagnostics while testing with real 
+	     * files as opposed to this (faster) null writer. 
+	     */
+	    private static class NullWriter extends Writer {
+            @Override
+            public void write(char[] cbuf, int off, int len) throws IOException { }
+
+            @Override
+            public void flush() throws IOException { }
+
+            @Override
+            public void close() throws IOException { }
+	    }
+	    
+	    public static void main(String[] args) throws IOException {
+            System.err.println("Benchmarking StringValue implementation...");
+            long lazyTime = 0L, eagerTime = 0L;
+            boolean runLazy = true, runEager =false;
+            
+            System.in.read();
+            
+            if (runLazy) {
+                
+                try {
+                    for (int i = 0; i < 500; i++) {
+//                        long start = bean.getCurrentThreadCpuTime();
+                        IString value = buildLargeLazyValue();
+
+//                        long afterBuild = bean.getCurrentThreadCpuTime();
+//                        System.err.println("LAZY BUILD        :" + Duration.of(afterBuild - start, ChronoUnit.NANOS).toString());
+
+                        value.write(new NullWriter());
+//                        long afterWrite = bean.getCurrentThreadCpuTime();
+
+//                        lazyTime = afterWrite - start;
+
+                        //                    System.err.println("LAZY         WRITE:" + Duration.of(afterWrite - afterBuild, ChronoUnit.NANOS).toString());
+                        //                    System.err.println("LAZY BUILD + WRITE:" + Duration.of(afterWrite - start, ChronoUnit.NANOS).toString());
+                        //                    System.err.println("STRING LENGTH      :" + value.length());
+
+                        value = null;
+                        System.gc();
+                    }
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+            if (runEager) {
+                try {
+                    long start = bean.getCurrentThreadCpuTime();
+                    IString value = buildLargeEagerValue();
+                    
+                    long afterBuild = bean.getCurrentThreadCpuTime();
+                    System.err.println("EAGER BUILD        :" + Duration.of(afterBuild - start, ChronoUnit.NANOS).toString());
+                    
+                    value.write(new NullWriter());
+                    long afterWrite = bean.getCurrentThreadCpuTime();
+
+                    eagerTime = afterWrite - start;
+                    System.err.println("EAGER         WRITE:" + Duration.of(afterWrite - afterBuild, ChronoUnit.NANOS).toString());
+                    System.err.println("EAGER BUILD + WRITE:" + Duration.of(eagerTime, ChronoUnit.NANOS).toString());
+                    System.err.println("STRING LENGTH      :" + value.length());
+                    value = null;
+                    System.gc();
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+            if (runEager && runLazy) {
+                System.err.println("LAZY is " + Math.round((lazyTime * 1.0) / (eagerTime * 1.0) * 100) + "% of EAGER\n\n");
+            }
+        }
+
+        private static IString buildLargeEagerValue() {
+            IString ws = vf.string("    ");
+            IString base = vf.string("if ( .. ) then if while bla bla bla aap noot mies x { ... } \n");
+            IString result = vf.string("");
+            
+            for (int l = 0; l < 5; l++) {
+                IString outer2 = vf.string("");
+                
+                for (int k = 0; k < 100; k++) {
+                    IString outer = vf.string("");
+
+                    for (int j = 0; j < 100; j++) {
+                        IString block = base;
+
+                        for (int i = 0; i < 100; i++) {
+                            block = block.concat(newString(base.indent(ws).getValue()));
+                        }
+
+                        outer = outer.concat(newString(block.indent(ws).getValue()));
+                    }
+
+                    outer2 = outer2.concat(newString(outer.indent(ws).getValue()));
+                }
+                
+                result = result.concat(newString(outer2.indent(ws).getValue()));
+            }
+            
+            return result;
+        }
+
+        /**
+         * Generates 388650000 characters, which is around 400Mb when written to disk in UTF8, and 800Mb in memory. 
+         */
+        private static IString buildLargeLazyValue() {
+            IString ws = vf.string("    ");
+            IString base = vf.string("if ( .. ) then if while bla bla bla aap noot mies x { ... } \n");
+            IString result = vf.string("");
+            
+            for (int l = 0; l < 5; l++) {
+                IString outer2 = vf.string("");
+                for (int k = 0; k < 100; k++) {
+                    IString outer = vf.string("");
+
+                    for (int j = 0; j < 100; j++) {
+                        IString block = base;
+
+                        for (int i = 0; i < 100; i++) {
+                            block = block.concat(base.indent(ws));
+                        }
+
+                        outer = outer.concat(block.indent(ws));
+                    }
+
+                    outer2 = outer2.concat(outer.indent(ws));
+                }
+                
+                result = result.concat(outer2.indent(ws));
+            }
+            
+            return result;
+        }
 	}
 }
