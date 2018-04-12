@@ -93,7 +93,7 @@ public interface IString extends IValue, Iterable<Integer> {
     @Override
     OfInt iterator();
     
-    /**
+    /** 
      * Indent all the non-empty lines in this string with the given whitespace. That means that
      * after every newline character which is not immediately followed by another newline character
      * or the end of string, the whitespace string is inserted into the string. 
