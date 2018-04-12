@@ -49,7 +49,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  *   - cater for and optimize for the normal case of strings containing only normal ASCII characters, while
  *     still allowing all 24-bit unicode characters, see {@link FullUnicodeString} and {@link SimpleUnicodeString}
  *   - optimize string {@link IString#concat(IString)} method, in combination with {@link IString#write(Writer)} and {@link IString#iterator()},
- *     see {@link IStringTreeNode} and {@link BinaryBalancedLazyConcatString}.
+ *     see {@link IStringTreeNode} and {@link LazyConcatString}.
  *   - optimize the {@link IString#indent(IString)} method, in combination with {@link IString#write(Writer)} and {@link IString#iterator()}, 
  *     see {@link IIndentableString} and {@link IndentedString}
  *   - allow non-canonical representations of the same string, in particular making sure that equals() and hashCode() works 
@@ -341,7 +341,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    } else {
 		        // For longer strings with many newlines it's usually better to concatenate lazily 
 		        // This makes concatenation in O(1) as opposed to O(n) where n is the length of the resulting string. 
-		        return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
+		        return LazyConcatString.build(this, (AbstractString) other);
 		    }
 		}
 
@@ -971,7 +971,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         abstract boolean hasNonBMPCodePoints();
 	}
 	
-	private static class BinaryBalancedLazyConcatString extends AbstractString {
+	private static class LazyConcatString extends AbstractString {
 		private final AbstractString left; /* must remain final for immutability's sake */
 		private final AbstractString right; /* must remain final for immutability's sake */
 		private final int length;
@@ -999,7 +999,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		        return this;
 		    }
 
-		    return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
+		    return LazyConcatString.build(this, (AbstractString) other);
 		}
 
 		@Override
@@ -1017,7 +1017,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		private static AbstractString balance(AbstractString left, AbstractString right) {
-		    AbstractString result = new BinaryBalancedLazyConcatString(left, right);
+		    AbstractString result = new LazyConcatString(left, right);
 
 			while (result.balanceFactor() - 1 > MAX_UNBALANCE) {
 				if (result.right().balanceFactor() < 0) {
@@ -1038,7 +1038,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return result;
 		}
 
-		private BinaryBalancedLazyConcatString(AbstractString left, AbstractString right) {
+		private LazyConcatString(AbstractString left, AbstractString right) {
 			this.left = left;
 			this.right = right;
 			this.length = left.length() + right.length();
@@ -1154,34 +1154,34 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		@Override
 		public AbstractString rotateRight() {
-			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(left().right(), right());
-			p = (BinaryBalancedLazyConcatString) balance(p.left, p.right);
-			return new BinaryBalancedLazyConcatString(left().left(), p);
+			LazyConcatString p = new LazyConcatString(left().right(), right());
+			p = (LazyConcatString) balance(p.left, p.right);
+			return new LazyConcatString(left().left(), p);
 		}
 
 		@Override
 		public AbstractString rotateLeft() {
-			BinaryBalancedLazyConcatString p = new BinaryBalancedLazyConcatString(left(), right().left());
-			return new BinaryBalancedLazyConcatString(balance(p.left, p.right), right().right());
+			LazyConcatString p = new LazyConcatString(left(), right().left());
+			return new LazyConcatString(balance(p.left, p.right), right().right());
 		}
 
 		@Override
 		public AbstractString rotateRightLeft() {
-			IStringTreeNode rotateRight = new BinaryBalancedLazyConcatString(left(), right().rotateRight());
+			IStringTreeNode rotateRight = new LazyConcatString(left(), right().rotateRight());
 			return rotateRight.rotateLeft();
 		}
 
 		@Override
 		public AbstractString rotateLeftRight() {
-			IStringTreeNode rotateLeft = new BinaryBalancedLazyConcatString(left().rotateLeft(), right());
+			IStringTreeNode rotateLeft = new LazyConcatString(left().rotateLeft(), right());
 			return rotateLeft.rotateRight();
 		}
 
 		@Override
-		public PrimitiveIterator.OfInt iterator() {
-			return new PrimitiveIterator.OfInt() {
+		public OfInt iterator() {
+			return new OfInt() {
 			    final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-				OfInt currentLeaf = leftmostLeafIterator(BinaryBalancedLazyConcatString.this);
+				OfInt currentLeaf = leftmostLeafIterator(LazyConcatString.this);
 
 				@Override
 				public boolean hasNext() {
@@ -1250,7 +1250,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		    if (other.length() == 0) {
 		        return this;
 		    }
-		    return BinaryBalancedLazyConcatString.build(this, (AbstractString) other);
+		    return LazyConcatString.build(this, (AbstractString) other);
 		}
 		
 		@Override
