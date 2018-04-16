@@ -69,7 +69,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     private static final int DEFAULT_MAX_FLAT_STRING = 512; /* typical buffer size maximum */
     private static int MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
 
-    private static final int DEFAULT_MAX_UNBALANCE = 250;
+    private static final int DEFAULT_MAX_UNBALANCE = 0;
     private static int MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
 
     /** for testing purposes we can set the max flat string value */
@@ -1248,6 +1248,17 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             if (other.length() == 0) {
                 return this;
             }
+            
+            if (other instanceof IndentedString) {
+                IndentedString o = (IndentedString) other;
+                
+                if (o.indent == this.indent) {
+                    // we factor out the duplicate identical indentation which has two effects:
+                    // (a) fewer indentation nodes and (b) longer indentation nodes because we
+                    // generate directly nested indentation which is flattened/concatenated (see this.indent)
+                    return LazyConcatString.build(this.wrapped, o.wrapped).indent(this.indent);
+                }
+            }
             return LazyConcatString.build(this, (AbstractString) other);
         }
 
@@ -1424,21 +1435,28 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         public static void main(String[] args) throws IOException {
-            System.err.println("Benchmarking StringValue implementation...");
+          
             long lazyTime = 0L, eagerTime = 0L;
             boolean runLazy = true, runEager =true;
 
-            System.in.read();
+
 
             warmup();
+            
             if (runLazy) {
+                System.err.println("Benchmarking lazy implementation... press enter");
+                System.in.read();
                 long start = bean.getCurrentThreadCpuTime();
                 IString value = buildLargeLazyValue();
 
                 long afterBuild = bean.getCurrentThreadCpuTime();
                 System.err.println("LAZY BUILD        :" + Duration.of(afterBuild - start, ChronoUnit.NANOS).toString());
 
-                value.write(new NullWriter());
+
+                for (int i = 0; i < 100; i++) {
+                    value.write(new NullWriter());
+                }
+                
                 long afterWrite = bean.getCurrentThreadCpuTime();
 
                 lazyTime = afterWrite - start;
@@ -1452,13 +1470,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             if (runEager) {
+                System.err.println("Benchmarking eager implementation... press enter");
+                System.in.read();
+                
                 long start = bean.getCurrentThreadCpuTime();
                 IString value = buildLargeEagerValue();
 
                 long afterBuild = bean.getCurrentThreadCpuTime();
                 System.err.println("EAGER BUILD        :" + Duration.of(afterBuild - start, ChronoUnit.NANOS).toString());
 
-                value.write(new NullWriter());
+                for (int i = 0; i < 100; i++) {
+                    value.write(new NullWriter());
+                }
+                
                 long afterWrite = bean.getCurrentThreadCpuTime();
 
                 eagerTime = afterWrite - start;
