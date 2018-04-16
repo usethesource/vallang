@@ -160,19 +160,22 @@ public final class LazyStringOperationsTest {
 
 	@Test
 	public void testStringSubString() {
-		assertEqual(example1.substring(0, 1), vf.string("a"));
-		assertEqual(example1.substring(0, 2), vf.string("ab"));
-		assertEqual(example1.substring(0, 3), vf.string("abc"));
-		assertEqual(example1.substring(0, 4), vf.string("abcd"));
-		assertEqual(example1.substring(0, 5), vf.string("abcde"));
-		assertEqual(example1.substring(0, 6), vf.string("abcdef"));
-		assertEqual(example1.substring(0, 7), vf.string("abcdef\n"));
-		assertEqual(example1.substring(0, 8), vf.string("abcdef\n1"));
-		assertEqual(example1.substring(0, 9), vf.string("abcdef\n12"));
-		assertEqual(example1.substring(0, 10), vf.string("abcdef\n123"));
-		assertEqual(example1.substring(0, 11), vf.string("abcdef\n123x"));
-		assertEqual(example1.substring(0, 12), vf.string("abcdef\n123xy"));
-		assertEqual(example1.substring(0, 13), vf.string("abcdef\n123xyz"));
+	    assertEqual(example1.substring(0, 1), vf.string("1"));
+	    assertEqual(example1.substring(0, 2), vf.string("12"));
+	    assertEqual(example1.substring(0, 3), vf.string("123"));
+		assertEqual(example1.substring(0, 4), vf.string("123a"));
+		assertEqual(example1.substring(0, 5), vf.string("123ab"));
+		assertEqual(example1.substring(0, 6), vf.string("123abc"));
+		assertEqual(example1.substring(0, 7), vf.string("123abcd"));
+		assertEqual(example1.substring(0, 8), vf.string("123abcde"));
+		assertEqual(example1.substring(0, 9), vf.string("123abcdef"));
+		assertEqual(example1.substring(0, 10), vf.string("123abcdef\n"));
+		assertEqual(example1.substring(0, 11), vf.string("123abcdef\n1"));
+		assertEqual(example1.substring(0, 12), vf.string("123abcdef\n12"));
+		assertEqual(example1.substring(0, 13), vf.string("123abcdef\n123"));
+		assertEqual(example1.substring(0, 14), vf.string("123abcdef\n123x"));
+		assertEqual(example1.substring(0, 15), vf.string("123abcdef\n123xy"));
+		assertEqual(example1.substring(0, 16), vf.string("123abcdef\n123xyz"));
 	}
 
 	@Test
