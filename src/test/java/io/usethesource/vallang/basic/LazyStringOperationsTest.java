@@ -139,19 +139,22 @@ public final class LazyStringOperationsTest {
 
 	@Test
 	public void testStringCharAt() {
-		assertTrue(example1.charAt(0) == 'a');
-		assertTrue(example1.charAt(1) == 'b');
-		assertTrue(example1.charAt(2) == 'c');
-		assertTrue(example1.charAt(3) == 'd');
-		assertTrue(example1.charAt(4) == 'e');
-		assertTrue(example1.charAt(5) == 'f');
-		assertTrue(example1.charAt(6) == '\n');
-		assertTrue(example1.charAt(7) == '1');
-		assertTrue(example1.charAt(8) == '2');
-		assertTrue(example1.charAt(9) == '3');
-		assertTrue(example1.charAt(10) == 'x');
-		assertTrue(example1.charAt(11) == 'y');
-		assertTrue(example1.charAt(12) == 'z');
+	    assertTrue(example1.charAt(0) == '1');
+	    assertTrue(example1.charAt(1) == '2');
+	    assertTrue(example1.charAt(2) == '3');
+		assertTrue(example1.charAt(3) == 'a');
+		assertTrue(example1.charAt(4) == 'b');
+		assertTrue(example1.charAt(5) == 'c');
+		assertTrue(example1.charAt(6) == 'd');
+		assertTrue(example1.charAt(7) == 'e');
+		assertTrue(example1.charAt(8) == 'f');
+		assertTrue(example1.charAt(9) == '\n');
+		assertTrue(example1.charAt(10) == '1');
+		assertTrue(example1.charAt(11) == '2');
+		assertTrue(example1.charAt(12) == '3');
+		assertTrue(example1.charAt(13) == 'x');
+		assertTrue(example1.charAt(14) == 'y');
+		assertTrue(example1.charAt(15) == 'z');
 	}
 
 	@Test
@@ -242,7 +245,7 @@ public final class LazyStringOperationsTest {
 	 */
 
 	public void testBalanceFactor(int maxFlatString) {
-		int n = 10000;
+		int n = 10;
 		for (int i = 0; i < 2; i++) {
 			long startTime, estimatedTime;
 			try {
@@ -366,7 +369,7 @@ public final class LazyStringOperationsTest {
 
 	@Test
 	public void testStringIterator1() {
-		int n = 1000000;
+		int n = 10;
 		IString flatStr = genFlatString(n);
 		for (int i = 0; i < 2; i++) {
 			long startTime, estimatedTime;
@@ -420,7 +423,7 @@ public final class LazyStringOperationsTest {
 
 	@Test
 	public void testStringIterator2() {
-		int n = 100000;
+		int n = 10;
 		IString flatStr = genFlatString(n);
 		for (int i = 0; i < 2; i++) {
 			long startTime, estimatedTime;
@@ -470,8 +473,8 @@ public final class LazyStringOperationsTest {
 		System.out.println(s.getValue() + " " + s.length());
 		for (int i = 0; i < 10; i++)
 			System.out.print(Character.toChars(s.charAt(i)));
-		System.out.println("" + vf.string("\naap").indent(vf.string("123")) + "==" + vf.string("\n123aap"));
-		assertEqual(vf.string("\naap").indent(vf.string("123")), vf.string("\n123aap"));
+		System.out.println("" + vf.string("\naap").indent(vf.string("123")) + "==" + vf.string("123\n123aap"));
+		assertEqual(vf.string("\naap").indent(vf.string("123")), vf.string("123\n123aap"));
 	}
 
 	// String simulateOld(String string, String indent) {
@@ -499,7 +502,7 @@ public final class LazyStringOperationsTest {
 
 	@Test
 	public void compareIndent() {
-		int n = 1000000;
+		int n = 50;
 		String indent = "123123";
 		// String start = "start"+"a🍕🍕🍕🍕b";
 		String start = "start"+"ab12345678";
@@ -545,26 +548,6 @@ public final class LazyStringOperationsTest {
 			System.out.println("work new:" + estimatedTime + "ms");
 
 			assertEqual(vf.integer(oldWork), vf.integer(newWork));
-
-//			startTime = System.nanoTime();
-//			String newWork1 = work1(newString, true);
-//			estimatedTime = (System.nanoTime() - startTime) / 1000000;
-//			System.out.println("getCompactValue new:" + estimatedTime + "ms");
-
-//			startTime = System.nanoTime();
-//			String oldWork1 = work1(oldString, false);
-//			estimatedTime = (System.nanoTime() - startTime) / 1000000;
-//			System.out.println("getValue old:" + estimatedTime + "ms");
-			
-//			startTime = System.nanoTime();
-//			newWork1 = work1(newString, false);
-//			estimatedTime = (System.nanoTime() - startTime) / 1000000;
-//			System.out.println("getValue new:" + estimatedTime + "ms");
-
-//			startTime = System.nanoTime();
-//			assertEqual(vf.string(oldWork1), vf.string(newWork1));
-//			estimatedTime = (System.nanoTime() - startTime) / 1000000;
-//			System.out.println("Equals getValue:" + estimatedTime + "ms");		
 		}
 	}
 }
