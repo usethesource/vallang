@@ -1,4 +1,4 @@
-package io.usethesource.vallang.tree;
+package io.usethesource.vallang.basic;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -19,7 +19,7 @@ import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
 
 @RunWith(Parameterized.class)
-public final class TreeStringTest {
+public final class LazyStringOperationsTest {
 
 	@Parameterized.Parameters
 	public static Iterable<? extends Object> data() {
@@ -32,7 +32,7 @@ public final class TreeStringTest {
 
 	private final Random rnd = new Random();
 
-	public TreeStringTest(final IValueFactory vf) {
+	public LazyStringOperationsTest(final IValueFactory vf) {
 		this.vf = vf;
 		this.example = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
 		this.example1 = vf.string("abcdef\nxyz").indent(vf.string("123"));
