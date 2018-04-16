@@ -3,6 +3,7 @@ package io.usethesource.vallang.basic;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Random;
 
@@ -199,7 +200,7 @@ public final class LazyStringOperationsTest {
 
 	@Test
 	public void neverRunOutOfStack() {
-		int outofStack = 200000;
+		int outofStack = 30000;
 
 		// first we have to know for sure that we would run out of stack with @see
 		// outOfStack iterations:
@@ -213,11 +214,14 @@ public final class LazyStringOperationsTest {
 			}
 
 			try {
-				new StringWriter().write(v.toString());
+			    v.write(new StringWriter());
 				fail("this should run out of stack");
 			} catch (StackOverflowError e) {
 				// yes, that is what is expected
-			}
+			} catch (IOException e) {
+                // TODO Auto-generated catch block
+               fail("unexpected IO:" + e);
+            }
 		} finally {
 			StringValue.resetMaxFlatString();
 			StringValue.resetMaxUnbalance();
