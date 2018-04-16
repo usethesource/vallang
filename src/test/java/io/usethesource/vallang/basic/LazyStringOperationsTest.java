@@ -481,32 +481,23 @@ public final class LazyStringOperationsTest {
 		assertEqual(vf.string("\naap").indent(vf.string("123")), vf.string("123\n123aap"));
 	}
 
-	// String simulateOld(String string, String indent) {
-	// StringBuffer buf = new StringBuffer();
-	// String[] strings = string.split("\n");
-	// buf.append(strings[0]);
-	// for (int i=1;i<strings.length;i++) {
-	// buf.append("\n");
-	// buf.append(indent);
-	// buf.append(strings[i]);
-	// }
-	// return buf.toString();
-	// }
-
 	IString simulateOld(String string, String indent) {
-		// StringBuffer buf = new StringBuffer();
+		StringBuffer buf = new StringBuffer();
 		String[] strings = string.split("\n");
-		IString result = vf.string(strings[0]);
-		String indent1 = "\n" + indent;
-		for (int i = 1; i < strings.length; i++) {
-			result = result.concat(vf.string(indent1 + strings[i]));
+		for (int i = 0; i < strings.length; i++) {
+			buf.append(indent);
+			buf.append(strings[i]);
+			
+			if (i != strings.length - 1 || string.charAt(string.length() - 1) == '\n') {
+			    buf.append('\n');
+			}
 		}
-		return result;
+		return vf.string(buf.toString());
 	}
 
 	@Test
 	public void compareIndent() {
-		int n = 50;
+		int n = 1;
 		String indent = "123123";
 		// String start = "start"+"a🍕🍕🍕🍕b";
 		String start = "start"+"ab12345678";
