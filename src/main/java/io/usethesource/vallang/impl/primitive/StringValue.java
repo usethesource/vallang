@@ -1044,8 +1044,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             this.lineCount = concatLineCount(left, right);
             this.terminated = right.isNewlineTerminated();
 
-            assert this.length() == newString(getValue()).length();
-            assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
+//          great but really expensive asserts. good for debugging, but not for testing
+//          assert this.length() == newString(getValue()).length();
+//          assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
         }
 
 
@@ -1232,10 +1233,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             this.indent = whiteSpace;
             this.wrapped = istring;
 
-            assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
-            assert this.length() == newString(getValue()).length();
-            assert indent.length() > 0;
-            assert flattened == null;
+//            great but really expensive asserts. good for debugging, but not for testing
+//            assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
+//            assert this.length() == newString(getValue()).length();
+//            assert indent.length() > 0;
+//            assert flattened == null;
         }
 
         @Override
