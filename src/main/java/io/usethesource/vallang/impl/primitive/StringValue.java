@@ -521,7 +521,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 if (pos == -1) {
                     // no more newlines, so write the entire line
                     if (next != value.length()) {
-                        w.write(value, next, value.length() - next + 1);
+                        w.write(value, next, value.length() - next);
                     }
                     // and we are done
                     return;
@@ -1427,6 +1427,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             @Override
             public void write(char[] cbuf, int off, int len) throws IOException { }
 
+            
+            @Override
+            public void write(String str) throws IOException { }
+            
+            @Override
+            public void write(String str, int off, int len) throws IOException { }
+            
+            @Override
+            public void write(char[] cbuf) throws IOException {  }
+            
+            @Override
+            public void write(int c) throws IOException { }
+            
             @Override
             public void flush() throws IOException { }
 
