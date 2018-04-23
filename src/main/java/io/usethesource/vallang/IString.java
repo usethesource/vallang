@@ -101,7 +101,8 @@ public interface IString extends IValue, Iterable<Integer> {
      * Implementations of IString should ensure that indent itself is in O(1) and the constructed string
      * will {@link #write(Writer)} in O(n) where n is the length of the string. 
      * @param whiteSpace a non-empty string which certainly does not contain any \n characters, and expectedly only whitespace characters such as spaces and tabs
+     * @param indentFirstLine indicates whether or not to indent the first line of the string. If true the line will be indented. 
      * @return the current string indented with the given whitespace
      */
-    IString indent(IString whitespace);
+    IString indent(IString whitespace, boolean indentFirstLine);
 }

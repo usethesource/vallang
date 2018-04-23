@@ -166,11 +166,11 @@ public final class BasicValueSmokeTest {
 	  String expected = indented.toString();
 	  String expectedTwice = indentedTwice.toString();
 	  
-	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent));
-	  IString indentedConcatTree = concatTree.indent(vf.string(indent));
+	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent), true);
+	  IString indentedConcatTree = concatTree.indent(vf.string(indent), true);
 
-	  IString indentedDirectTwice = indentedDirect.indent(vf.string("first" + indent));
-	  IString indentedConcatTreeTwice = indentedConcatTree.indent(vf.string("first" + indent));
+	  IString indentedDirectTwice = indentedDirect.indent(vf.string("first" + indent), true);
+	  IString indentedConcatTreeTwice = indentedConcatTree.indent(vf.string("first" + indent), true);
 
 	  // basic tests showing lazy versus eager indentation should have the same semantics:
 	  assertEquals(expected, indentedDirect.getValue());
