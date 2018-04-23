@@ -36,7 +36,7 @@ public final class LazyStringOperationsTest {
 	public LazyStringOperationsTest(final IValueFactory vf) {
 		this.vf = vf;
 		this.example = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
-		this.example1 = vf.string("abcdef\nxyz").indent(vf.string("123"));
+		this.example1 = vf.string("abcdef\nxyz").indent(vf.string("123"), true);
 	}
 
 	private IString genString(int max) {
@@ -388,13 +388,13 @@ public final class LazyStringOperationsTest {
 
 	@Test
 	public void testIndent() {
-		IString s = vf.string("start\naap").indent(vf.string("123"))
-				.concat((vf.string("\nnoot\nteun").indent(vf.string("456")))).concat(vf.string("\nmies"));
+		IString s = vf.string("start\naap").indent(vf.string("123"), true)
+				.concat((vf.string("\nnoot\nteun").indent(vf.string("456"), true))).concat(vf.string("\nmies"));
 		System.out.println(s.getValue() + " " + s.length());
 		for (int i = 0; i < 10; i++)
 			System.out.print(Character.toChars(s.charAt(i)));
-		System.out.println("" + vf.string("\naap").indent(vf.string("123")) + "==" + vf.string("123\n123aap"));
-		assertEqual(vf.string("\naap").indent(vf.string("123")), vf.string("123\n123aap"));
+		System.out.println("" + vf.string("\naap").indent(vf.string("123"), true) + "==" + vf.string("123\n123aap"));
+		assertEqual(vf.string("\naap").indent(vf.string("123"), true), vf.string("123\n123aap"));
 	}
 
 	IString simulateOld(String string, String indent) {
@@ -439,7 +439,7 @@ public final class LazyStringOperationsTest {
 			System.out.println("Old indentation:" + estimatedTime + "ms");
 
 			startTime = System.nanoTime();
-			IString newString = text.indent(vf.string(indent));
+			IString newString = text.indent(vf.string(indent), true);
 			estimatedTime = (System.nanoTime() - startTime) / 1000000;
 			System.out.println("New indentation:" + estimatedTime + "ms");
 			

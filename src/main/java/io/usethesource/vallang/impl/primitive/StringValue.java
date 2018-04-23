@@ -263,6 +263,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                 }
             };
         }
+        
+        @Override
+        public IString indent(IString whitespace, boolean indentFirstLine) {
+            return !indentFirstLine ? this : whitespace;
+        }
 
         @Override
         public int lineCount() {
@@ -812,11 +817,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IString indent(IString whitespace) {
+        public IString indent(IString whitespace, boolean indentFirstLine) {
             assert !whitespace.getValue().contains("\n") && !whitespace.getValue().contains("\r");
-            assert whitespace.length() > 0;
 
-            return new IndentedString(this, whitespace);
+            if (whitespace.length() == 0) {
+                return this;
+            }
+            
+            if (!indentFirstLine && lineCount() <= 1) {
+                return this;
+            }
+            
+            return new IndentedString(this, whitespace, indentFirstLine);
         }
 
         @Override
@@ -1227,11 +1239,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         private IString indent; 
         private AbstractString wrapped;
         private volatile AbstractString flattened = null;
+        private final boolean indentFirstLine;
 
-        IndentedString(AbstractString istring, IString whiteSpace) {
+        IndentedString(AbstractString istring, IString whiteSpace, boolean indentFirstLine) {
             assert istring != null && whiteSpace != null;
             this.indent = whiteSpace;
             this.wrapped = istring;
+            this.indentFirstLine = indentFirstLine;
 
 //            great but really expensive asserts. good for debugging, but not for testing
 //            assert this.lineCount() == ((AbstractString) newString(getValue())).lineCount();
@@ -1258,23 +1272,26 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                     // we factor out the duplicate identical indentation which has two effects:
                     // (a) fewer indentation nodes and (b) longer indentation nodes because we
                     // generate directly nested indentation which is flattened/concatenated (see this.indent)
-                    return LazyConcatString.build(this.wrapped, o.wrapped).indent(this.indent);
+                    return LazyConcatString.build(this.wrapped, o.wrapped).indent(this.indent, indentFirstLine);
                 }
             }
             return LazyConcatString.build(this, (AbstractString) other);
         }
 
         @Override
-        public IString indent(IString indent) {
+        public IString indent(IString indent, boolean indentFirstLine) {
             assert !indent.getValue().contains("\n") && !indent.getValue().contains("\r");
-            assert indent.length() > 0;
 
+            if (indent.length() == 0) {
+                return this;
+            }
+            
             if (flattened == null) {
                 // this special case flattens directly nested concats 
-                return new IndentedString(wrapped, indent.concat(this.indent));
+                return new IndentedString(wrapped, indent.concat(this.indent), indentFirstLine);
             }
             else {
-                return new IndentedString(flattened, indent);
+                return new IndentedString(flattened, indent, indentFirstLine);
             }
         }
 
@@ -1291,7 +1308,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
             return new OfInt() {
                 final OfInt content = wrapped.iterator();
-                OfInt nextIndentation = indent.iterator();
+                OfInt nextIndentation = indentFirstLine ? indent.iterator() : EmptyString.getInstance().iterator();
 
                 @Override
                 public boolean hasNext() {
@@ -1365,7 +1382,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             if (flattened == null) {
                 Deque<IString> indents = new ArrayDeque<>(10);
                 indents.push(indent);
-                wrapped.indentedWrite(w, indents, true);
+                wrapped.indentedWrite(w, indents, indentFirstLine);
                 indents.pop();
                 assert indents.isEmpty();
             }
@@ -1535,16 +1552,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                         IString block = base;
 
                         for (int i = 0; i < 100; i++) {
-                            block = block.concat(newString(base.indent(ws).getValue()));
+                            block = block.concat(newString(base.indent(ws, true).getValue()));
                         }
 
-                        outer = outer.concat(newString(block.indent(ws).getValue()));
+                        outer = outer.concat(newString(block.indent(ws, true).getValue()));
                     }
 
-                    outer2 = outer2.concat(newString(outer.indent(ws).getValue()));
+                    outer2 = outer2.concat(newString(outer.indent(ws, true).getValue()));
                 }
 
-                result = result.concat(newString(outer2.indent(ws).getValue()));
+                result = result.concat(newString(outer2.indent(ws, true).getValue()));
             }
 
             return result;
@@ -1567,16 +1584,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
                         IString block = base;
 
                         for (int i = 0; i < 100; i++) {
-                            block = block.concat(base.indent(ws));
+                            block = block.concat(base.indent(ws, true));
                         }
 
-                        outer = outer.concat(block.indent(ws));
+                        outer = outer.concat(block.indent(ws, true));
                     }
 
-                    outer2 = outer2.concat(outer.indent(ws));
+                    outer2 = outer2.concat(outer.indent(ws, true));
                 }
 
-                result = result.concat(outer2.indent(ws));
+                result = result.concat(outer2.indent(ws, true));
             }
 
             return result;
