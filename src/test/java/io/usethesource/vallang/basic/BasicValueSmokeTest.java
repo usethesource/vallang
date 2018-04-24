@@ -173,12 +173,13 @@ public final class BasicValueSmokeTest {
       }
   }
   
-  private void checkIndent(String indent, String newline, String... lines) {
+  private void checkIndent(String indent, String newline, boolean indentFirstLine, String... lines) {
 	  StringBuilder unindented = new StringBuilder();
 	  StringBuilder indented = new StringBuilder();
 	  StringBuilder indentedTwice = new StringBuilder();
 	  IString concatTree = vf.string("");
 
+	  boolean first = true;
 	  for (String l : lines) {
 		  unindented.append(l);
 		  unindented.append(newline);
@@ -186,38 +187,49 @@ public final class BasicValueSmokeTest {
 		  concatTree = concatTree.concat(vf.string(l));
 		  concatTree = concatTree.concat(vf.string(newline));
 		  
-		  indented.append(indent);
+		  if (indentFirstLine || !first) {
+		      indented.append(indent);
+		  }
 		  indented.append(l);
 		  indented.append(newline);
 
-		  indentedTwice.append("first" + indent);
-		  indentedTwice.append(indent);
+		  if (indentFirstLine || !first) {
+		      indentedTwice.append("first" + indent);
+		      indentedTwice.append(indent);
+		  }
+		  
 		  indentedTwice.append(l);
 		  indentedTwice.append(newline);
+		  
+		  first = false;
 	  }
 	  
       // remove empty line indentations
 	  String expected = indented.toString();
 	  String expectedTwice = indentedTwice.toString();
 	  
-	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent), true);
-	  IString indentedConcatTree = concatTree.indent(vf.string(indent), true);
+	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent), indentFirstLine);
+	  IString indentedConcatTree = concatTree.indent(vf.string(indent), indentFirstLine);
 
-	  IString indentedDirectTwice = indentedDirect.indent(vf.string("first" + indent), true);
-	  IString indentedConcatTreeTwice = indentedConcatTree.indent(vf.string("first" + indent), true);
+	  IString indentedDirectTwice = indentedDirect.indent(vf.string("first" + indent), indentFirstLine);
+	  IString indentedConcatTreeTwice = indentedConcatTree.indent(vf.string("first" + indent), indentFirstLine);
 
 	  // basic tests showing lazy versus eager indentation should have the same semantics:
 	  assertEquals(expected, indentedDirect.getValue());
 	  assertEquals(expected, indentedConcatTree.getValue());
 	  assertSimilarIteration(vf.string(expected), indentedDirect);
+	  assertEqualLength(vf.string(expected), indentedDirect);
 	  assertSimilarIteration(vf.string(expected), indentedConcatTree);
+	  assertEqualLength(vf.string(expected), indentedConcatTree);
 	  assertSimilarIteration(indentedDirect, indentedConcatTree);
+	  assertEqualLength(indentedDirect, indentedConcatTree);
 	  assertEqual(indentedDirect, indentedConcatTree);
       assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
 
       // these modify internal structure as a side-effect, so after this we test the above again!
 	  assertEqualCharAt(vf.string(expected), indentedDirect);
       assertEqualSubstring(vf.string(expected), indentedDirect);
+      assertEqualLength(vf.string(expected), indentedDirect);
       
       // retest after internal structure modifications
       assertEquals(expected, indentedDirect.getValue());
@@ -240,10 +252,13 @@ public final class BasicValueSmokeTest {
       // these modify internal structure as a side-effect, so after this we test the above again!
 	  assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
       assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
+      assertEqualLength(vf.string(expectedTwice), indentedDirectTwice);
       assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
       assertEqualSubstring(vf.string(expectedTwice), indentedConcatTreeTwice);
+      assertEqualLength(vf.string(expectedTwice), indentedConcatTreeTwice);
 	  assertEqualCharAt(indentedDirectTwice, indentedConcatTreeTwice);
 	  assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
+	  assertEqualLength(indentedDirectTwice, indentedConcatTreeTwice);
       
 	  // retest after internal structure modifications
 	  assertEquals(expectedTwice, indentedDirectTwice.getValue());
@@ -256,7 +271,7 @@ public final class BasicValueSmokeTest {
   }
 
   private void assertEqualCharAt(IString one, IString two) {
-      assertEqual(one, two);
+      assertEquals(one, two);
       
       for (int i = 0; i < one.length(); i++) {
           assertEquals(one.charAt(i), two.charAt(i));
@@ -278,6 +293,10 @@ public final class BasicValueSmokeTest {
       }
   }
 
+  private static void assertEqualLength(IString ref, IString target) {
+      assertEquals(ref.length(), target.length());
+  }
+  
   private static void assertSimilarIteration(IString ref, IString target) {
       OfInt refIterator = ref.iterator();
       OfInt targetIterator = target.iterator();
@@ -295,22 +314,24 @@ public final class BasicValueSmokeTest {
   
   @Test
   public void testStringIndent() {
-	  for (String nl: commonNewlines) {
-		  checkIndent(" ", nl, "a", "b", "c");
-		  checkIndent("\t", nl, "a", "b", "c");
-		  checkIndent("\t", nl, "a", "", "c");
-		  checkIndent("\t", nl, "a", "", "", "c");
-		  checkIndent("   ", nl, "a", "b", "c");
-          checkIndent(" ", nl, " abcdef", " bcdefg", " cdefgh");
-          checkIndent(" ", nl, "🍝", " b", " c");
-          
-// these are some hard tests containing spurious carriage return characters:
-		  checkIndent("\t", nl, "a", "\r", "", "c");
-		  checkIndent("\t", nl, "a", "", "\r", "c");
-		  checkIndent("\t", nl, "a", "", "\r\r\r", "c");
-		  checkIndent("\t", nl, "a\r", "", "c");
-		  checkIndent("\t", nl, "a", "", "\rc");
-	  }
+      for (boolean firstLine : new Boolean[] { true, false}) {
+          for (String nl: commonNewlines) {
+              checkIndent(" ", nl, firstLine, "a", "b", "c");
+              checkIndent("\t", nl, firstLine, "a", "b", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "", "c");
+              checkIndent("   ", nl, firstLine, "a", "b", "c");
+              checkIndent(" ", nl, firstLine, " abcdef", " bcdefg", " cdefgh");
+              checkIndent(" ", nl, firstLine, "🍝", " b", " c");
+
+              // these are some hard tests containing spurious carriage return characters:
+              checkIndent("\t", nl, firstLine, "a", "\r", "", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "\r", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "\r\r\r", "c");
+              checkIndent("\t", nl, firstLine, "a\r", "", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "\rc");
+          }
+      }
   }
   
   @Test
@@ -327,8 +348,10 @@ public final class BasicValueSmokeTest {
           StringValue.resetMaxUnbalance();
           StringValue.resetMaxFlatString();
 
-          for (int n = 0; n < 20; n++) {
-              checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, randomLines);
+          for (boolean first : new Boolean[] { true, true} ) {
+              for (int n = 0; n < 20; n++) {
+                  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, first, randomLines);
+              }
           }
       }
   }
@@ -350,7 +373,7 @@ public final class BasicValueSmokeTest {
               StringValue.setMaxFlatString(5);
               StringValue.setMaxUnbalance(5);
               for (int n = 0; n < 20; n++) {
-                  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, randomLines);
+                  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, true, randomLines);
               }
           }
           finally {
