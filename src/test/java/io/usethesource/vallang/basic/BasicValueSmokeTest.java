@@ -2,7 +2,10 @@ package io.usethesource.vallang.basic;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.PrimitiveIterator.OfInt;
 import java.util.Random;
@@ -83,6 +86,37 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("🍝🍝").substring(0, 1).isEqual(vf.string("🍝")));
     assertTrue(vf.string("🍝x🍝").substring(1, 2).isEqual(vf.string("x")));
     assertTrue(vf.string("🍝x🍝").substring(1, 3).isEqual(vf.string("x🍝")));
+  }
+  
+
+  @Test
+  public void testStringWrite() {
+      Random rnd = new Random();
+      
+      for (int i = 0; i < 1000; i++) {
+          IString testString = vf.string(RandomUtil.string(rnd, rnd.nextInt(200)));
+          StringWriter w = new StringWriter();
+          try {
+              testString.write(w);
+          } catch (IOException e) {
+              fail(e.getMessage());
+          }
+          
+          assertEqual(testString, vf.string(w.toString()));
+      }
+  }
+  
+  @Test
+  public void testStringEmptyWrite() {
+      IString testString = vf.string("");
+      StringWriter w = new StringWriter();
+      try {
+          testString.write(w);
+      } catch (IOException e) {
+          fail(e.getMessage());
+      }
+
+      assertEqual(testString, vf.string(""));
   }
 
   @Test
