@@ -1410,7 +1410,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         public int length() {
             if (flattened == null) {
                 // for every non-empty line an indent would be added to the total number of characters
-                return wrapped.length() + wrapped.lineCount() * indent.length();
+                return wrapped.length() + (wrapped.lineCount() - (indentFirstLine?0:1)) * indent.length();
             }
             else {
                 return flattened.length();
