@@ -1,23 +1,33 @@
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.util.PrimitiveIterator.OfInt;
+import java.util.Random;
+import java.util.regex.Pattern;
+
+import org.junit.ComparisonFailure;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.impl.primitive.StringValue;
+import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public final class BasicValueSmokeTest {
@@ -77,6 +87,37 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("🍝x🍝").substring(1, 2).isEqual(vf.string("x")));
     assertTrue(vf.string("🍝x🍝").substring(1, 3).isEqual(vf.string("x🍝")));
   }
+  
+
+  @Test
+  public void testStringWrite() {
+      Random rnd = new Random();
+      
+      for (int i = 0; i < 1000; i++) {
+          IString testString = vf.string(RandomUtil.string(rnd, rnd.nextInt(200)));
+          StringWriter w = new StringWriter();
+          try {
+              testString.write(w);
+          } catch (IOException e) {
+              fail(e.getMessage());
+          }
+          
+          assertEqual(testString, vf.string(w.toString()));
+      }
+  }
+  
+  @Test
+  public void testStringEmptyWrite() {
+      IString testString = vf.string("");
+      StringWriter w = new StringWriter();
+      try {
+          testString.write(w);
+      } catch (IOException e) {
+          fail(e.getMessage());
+      }
+
+      assertEqual(testString, vf.string(""));
+  }
 
   @Test
   public void testStringCharAt() {
@@ -120,6 +161,226 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("🍝y").replace(0, 1, 0, vf.string("🍝q")).isEqual(vf.string("🍝q🍝y")));
     assertTrue(vf.string("x🍝").replace(1, 1, 1, vf.string("🍝q")).isEqual(vf.string("x🍝q🍝")));
     assertTrue(vf.string("🍝y🍝").replace(1, 1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
+  }
+  
+  private static final String[] commonNewlines = new String[] { "\n"};
+  
+  private static void assertEquals(Object expected, Object actual) {
+      if (expected.equals(actual)) {
+          return;
+      } else  {
+          throw new ComparisonFailure("objects not equal", expected.toString(), actual.toString());
+      }
+  }
+  
+  private void checkIndent(String indent, String newline, boolean indentFirstLine, String... lines) {
+	  StringBuilder unindented = new StringBuilder();
+	  StringBuilder indented = new StringBuilder();
+	  StringBuilder indentedTwice = new StringBuilder();
+	  IString concatTree = vf.string("");
+
+	  boolean first = true;
+	  for (String l : lines) {
+		  unindented.append(l);
+		  unindented.append(newline);
+
+		  concatTree = concatTree.concat(vf.string(l));
+		  concatTree = concatTree.concat(vf.string(newline));
+		  
+		  if (indentFirstLine || !first) {
+		      indented.append(indent);
+		  }
+		  indented.append(l);
+		  indented.append(newline);
+
+		  if (indentFirstLine || !first) {
+		      indentedTwice.append("first" + indent);
+		      indentedTwice.append(indent);
+		  }
+		  
+		  indentedTwice.append(l);
+		  indentedTwice.append(newline);
+		  
+		  first = false;
+	  }
+	  
+      // remove empty line indentations
+	  String expected = indented.toString();
+	  String expectedTwice = indentedTwice.toString();
+	  
+	  IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent), indentFirstLine);
+	  IString indentedConcatTree = concatTree.indent(vf.string(indent), indentFirstLine);
+
+	  IString indentedDirectTwice = indentedDirect.indent(vf.string("first" + indent), indentFirstLine);
+	  IString indentedConcatTreeTwice = indentedConcatTree.indent(vf.string("first" + indent), indentFirstLine);
+
+	  // basic tests showing lazy versus eager indentation should have the same semantics:
+	  assertEquals(expected, indentedDirect.getValue());
+	  assertEquals(expected, indentedConcatTree.getValue());
+	  assertSimilarIteration(vf.string(expected), indentedDirect);
+	  assertEqualLength(vf.string(expected), indentedDirect);
+	  assertSimilarIteration(vf.string(expected), indentedConcatTree);
+	  assertEqualLength(vf.string(expected), indentedConcatTree);
+	  assertSimilarIteration(indentedDirect, indentedConcatTree);
+	  assertEqualLength(indentedDirect, indentedConcatTree);
+	  assertEqual(indentedDirect, indentedConcatTree);
+      assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
+
+      // these modify internal structure as a side-effect, so after this we test the above again!
+	  assertEqualCharAt(vf.string(expected), indentedDirect);
+      assertEqualSubstring(vf.string(expected), indentedDirect);
+      assertEqualLength(vf.string(expected), indentedDirect);
+      
+      // retest after internal structure modifications
+      assertEquals(expected, indentedDirect.getValue());
+      assertEquals(expected, indentedConcatTree.getValue());
+      assertSimilarIteration(vf.string(expected), indentedDirect);
+      assertSimilarIteration(vf.string(expected), indentedConcatTree);
+      assertSimilarIteration(indentedDirect, indentedConcatTree);
+      assertEqual(indentedDirect, indentedConcatTree);
+      assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
+      
+      // basic tests showing lazy versus eager indentation should have the same semantics:
+	  assertEquals(expectedTwice, indentedDirectTwice.getValue());
+	  assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
+	  assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
+	  assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
+	  assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
+      assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
+      assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
+      
+      // these modify internal structure as a side-effect, so after this we test the above again!
+	  assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
+      assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
+      assertEqualLength(vf.string(expectedTwice), indentedDirectTwice);
+      assertEqualCharAt(vf.string(expectedTwice), indentedConcatTreeTwice);
+      assertEqualSubstring(vf.string(expectedTwice), indentedConcatTreeTwice);
+      assertEqualLength(vf.string(expectedTwice), indentedConcatTreeTwice);
+	  assertEqualCharAt(indentedDirectTwice, indentedConcatTreeTwice);
+	  assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
+	  assertEqualLength(indentedDirectTwice, indentedConcatTreeTwice);
+      
+	  // retest after internal structure modifications
+	  assertEquals(expectedTwice, indentedDirectTwice.getValue());
+      assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
+      assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
+      assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
+      assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
+      assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
+      assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
+  }
+
+  private void assertEqualCharAt(IString one, IString two) {
+      assertEquals(one, two);
+      
+      for (int i = 0; i < one.length(); i++) {
+          assertEquals(one.charAt(i), two.charAt(i));
+      }
+  }
+  
+  private void assertEqualSubstring(IString one, IString two) {
+      assertEqual(one, two);
+      
+      Random rnd = new Random();
+      for (int c = 0; c < 10; c++) {
+          int j = rnd.nextInt(one.length());
+          
+          if (j > 0) {
+              int i = rnd.nextInt(j);
+
+              assertEquals(one.substring(i,j), two.substring(i,j));
+          }
+      }
+  }
+
+  private static void assertEqualLength(IString ref, IString target) {
+      assertEquals(ref.length(), target.length());
+  }
+  
+  private static void assertSimilarIteration(IString ref, IString target) {
+      OfInt refIterator = ref.iterator();
+      OfInt targetIterator = target.iterator();
+
+      for (int i = 0; refIterator.hasNext(); i++) {
+          assertTrue(targetIterator.hasNext());
+          int a = refIterator.nextInt();
+          int b = targetIterator.nextInt();
+          
+          if (a != b) {
+              throw new ComparisonFailure("string iterators produce different values at index " + i + " (" + a + " != " + b + ")", ref.toString(), target.toString());
+          }
+      }
+  }
+  
+  @Test
+  public void testStringIndent() {
+      for (boolean firstLine : new Boolean[] { true, false}) {
+          for (String nl: commonNewlines) {
+              checkIndent(" ", nl, firstLine, "a", "b", "c");
+              checkIndent("\t", nl, firstLine, "a", "b", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "", "c");
+              checkIndent("   ", nl, firstLine, "a", "b", "c");
+              checkIndent(" ", nl, firstLine, " abcdef", " bcdefg", " cdefgh");
+              checkIndent(" ", nl, firstLine, "🍝", " b", " c");
+
+              // these are some hard tests containing spurious carriage return characters:
+              checkIndent("\t", nl, firstLine, "a", "\r", "", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "\r", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "\r\r\r", "c");
+              checkIndent("\t", nl, firstLine, "a\r", "", "c");
+              checkIndent("\t", nl, firstLine, "a", "", "\rc");
+          }
+      }
+  }
+  
+  @Test
+  public void testStringIndentRandomDefault() {
+      Random rnd = new Random();
+      for (String nl: commonNewlines) {
+          String[] randomLines = new String[10];
+          for (int n = 0; n < randomLines.length; n++) {
+             String newString = RandomUtil.string(rnd, rnd.nextInt(200));
+             newString = newString.replaceAll("[\\r\\n]", "_");
+             randomLines[n] = newString;
+          }
+
+          StringValue.resetMaxUnbalance();
+          StringValue.resetMaxFlatString();
+
+          for (boolean first : new Boolean[] { true, true} ) {
+              for (int n = 0; n < 20; n++) {
+                  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, first, randomLines);
+              }
+          }
+      }
+  }
+  
+  @Test
+  public void testStringIndentRandomShortConcats() {
+      Random rnd = new Random();
+      for (String nl: commonNewlines) {
+          String[] randomLines = new String[10];
+          for (int n = 0; n < randomLines.length; n++) {
+             String newString = RandomUtil.string(rnd, rnd.nextInt(200));
+             for (String newL : commonNewlines) {
+                 newString = newString.replaceAll(Pattern.quote(newL), "_");
+             }
+             randomLines[n] = newString;
+          }
+          
+          try {
+              StringValue.setMaxFlatString(5);
+              StringValue.setMaxUnbalance(5);
+              for (int n = 0; n < 20; n++) {
+                  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, true, randomLines);
+              }
+          }
+          finally {
+              StringValue.resetMaxUnbalance();
+              StringValue.resetMaxFlatString();
+          }
+      }
   }
 
   @Test

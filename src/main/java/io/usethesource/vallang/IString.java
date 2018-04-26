@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation, 2017 Centrum Wiskunde & Informatica
+* Copyright (c) 2007 IBM Corporation, 2008-2018 Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -14,14 +14,14 @@ package io.usethesource.vallang;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Iterator;
+import java.util.PrimitiveIterator.OfInt;
 
 public interface IString extends IValue, Iterable<Integer> {
 	/**
 	 * @return the Java string that this string represents
 	 */
     String getValue();
-
+    
     /**
      * Concatenates two strings
      */
@@ -91,5 +91,18 @@ public interface IString extends IValue, Iterable<Integer> {
      * @see Character for more information on Unicode UTF-32 codepoints.
      */
     @Override
-    Iterator<Integer> iterator();
+    OfInt iterator();
+    
+    /** 
+     * Indent all the non-empty lines in this string with the given whitespace. That means that
+     * after every newline character which is not immediately followed by another newline character
+     * or the end of string, the whitespace string is inserted into the string. 
+     * 
+     * Implementations of IString should ensure that indent itself is in O(1) and the constructed string
+     * will {@link #write(Writer)} in O(n) where n is the length of the string. 
+     * @param whiteSpace a non-empty string which certainly does not contain any \n characters, and expectedly only whitespace characters such as spaces and tabs
+     * @param indentFirstLine indicates whether or not to indent the first line of the string. If true the line will be indented. 
+     * @return the current string indented with the given whitespace
+     */
+    IString indent(IString whitespace, boolean indentFirstLine);
 }
