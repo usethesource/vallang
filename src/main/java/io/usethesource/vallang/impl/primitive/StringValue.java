@@ -1268,7 +1268,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             if (other instanceof IndentedString) {
                 IndentedString o = (IndentedString) other;
                 
-                if (o.indent == this.indent) {
+                if (o.indent.equals(this.indent)) {
                     // we factor out the duplicate identical indentation which has two effects:
                     // (a) fewer indentation nodes and (b) longer indentation nodes because we
                     // generate directly nested indentation which is flattened/concatenated (see this.indent)
