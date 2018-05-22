@@ -18,6 +18,8 @@ import java.lang.ref.WeakReference;
 public class WeakReferenceFlyweightCache<T> {
 	private WeakEntry<T>[] table;
 	private int count;
+	private int shrinkMark;
+	private int growMark;
 	private final ReferenceQueue<T> cleared;
 
 	private static final int INITIAL_CAPACITY = 32;
@@ -26,6 +28,8 @@ public class WeakReferenceFlyweightCache<T> {
 	@SuppressWarnings("unchecked")
 	public WeakReferenceFlyweightCache() {
 		table = new WeakEntry[INITIAL_CAPACITY];
+		shrinkMark = -1;
+		growMark = (int) (INITIAL_CAPACITY * 0.8);
 		count = 0;
 		cleared = new ReferenceQueue<>();
 	}
@@ -34,7 +38,7 @@ public class WeakReferenceFlyweightCache<T> {
 		return hash % table.length;
 	}
 	
-	public T getFlyweight(T key) {
+	public synchronized T getFlyweight(T key) {
 		cleanup();
 		int hash = key.hashCode();
 		int bucket = bucket(hash);
@@ -64,7 +68,6 @@ public class WeakReferenceFlyweightCache<T> {
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
 		WeakEntry<T> entry;
-		int clearCount = 0;
 		while ((entry = (WeakEntry<T>) cleared.poll()) != null) {
 			int bucket = bucket(entry.hash);
 			WeakEntry<T> prev = null;
@@ -81,42 +84,33 @@ public class WeakReferenceFlyweightCache<T> {
 				prev.next = entry.next;
 			}
 			count--;
-			clearCount++;
 		}
-		if (clearCount > 0) {
-			System.err.println("Cleared: " + clearCount);
-			System.err.flush();
+		if (count < shrinkMark) {
+			resize();
 		}
 	}
 
 	private boolean resize() {
 		int newSize = table.length;
-		int count = this.count;
-		// improve performance of the capacity calculation
-		if ((count + 1) > (newSize * 0.8)) {
+		int newCount = this.count + 1;
+		if (newCount > growMark) {
 			newSize = newSize * 2;
 		}
-		else if (newSize > INITIAL_CAPACITY && ((count + 1) < ((newSize / 2) * 0.7))) {
-			// we can clear space
+		else if (newCount < shrinkMark) {
 			newSize = INITIAL_CAPACITY;
-			while ((count + 1) > (newSize * 0.8)) {
+			while (newCount > (newSize * 0.8)) {
 				newSize *= 2;
 			}
 		}
-
-		if (0 >= newSize || newSize > MAX_CAPACITY) {
+		if (newSize <= 0 || newSize > MAX_CAPACITY) {
 			newSize = MAX_CAPACITY;
 		}
+
 		if (newSize != table.length) {
 			WeakEntry<T>[] oldTable = table;
 			@SuppressWarnings("unchecked")
 			WeakEntry<T>[] newTable = new WeakEntry[newSize];
-			int moved = 0;
 			for (WeakEntry<T> rootEntry : oldTable) {
-				if (moved == count) {
-					// don't have to iterate through rest of the table
-					break;
-				}
 				WeakEntry<T> cur = rootEntry;
 				while (cur != null) {
 					WeakEntry<T> oldNext = cur.next; // store the current next part of the chain
@@ -125,12 +119,13 @@ public class WeakReferenceFlyweightCache<T> {
 					int newBucket = cur.hash % newSize;
 					cur.next = newTable[newBucket];
 					newTable[newBucket] = cur;
-					moved++;
 
 					cur = oldNext; // move to the next part of the old chain
 				}
 			}
 			table = newTable;
+			shrinkMark = (int) ((newSize / 2) * 0.8);
+			growMark = (int) ((newSize * 2) * 0.8);
 			return true;
 		}
 		return false;

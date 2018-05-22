@@ -13,10 +13,19 @@
 package io.usethesource.vallang.util;
 
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -172,4 +181,77 @@ public class FlyweightCacheTest {
 		return objects;
 	}
 
+	
+	@Test
+	public void clearMostAndQueryRest() throws InterruptedException, CloneNotSupportedException {
+		FixedHashEquals[] objects = createTestObjects(1024*1024, 64);
+		
+		// store them 
+		for (FixedHashEquals o : objects) {
+			assertSame(o, target.getFlyweight(o));
+		}
+		
+		for (int i=0; i < objects.length - 10; i++) {
+			objects[i] = null;
+		}
+		System.gc();
+		// wait for GC and reference queue to finish
+		Thread.sleep(1000);
+		
+		for (int i=objects.length - 10; i < objects.length; i++) {
+			assertSame(objects[i],  target.getFlyweight((FixedHashEquals) objects[i].clone()));
+		}
+	}
+	
+	private static class Tuple<X, Y> { 
+		public final X x; 
+		public final Y y; 
+		public Tuple(X x, Y y) { 
+			this.x = x; 
+			this.y = y; 
+		} 
+	} 
+	private static final int THREAD_COUNT = 4;
+	@Test
+	public void multithreadedAccess() throws InterruptedException, BrokenBarrierException {
+		FixedHashEquals[] objects = createTestObjects(1024, 64);
+		CyclicBarrier startRunning = new CyclicBarrier(THREAD_COUNT + 1);
+		Semaphore doneRunning = new Semaphore(0);
+		ConcurrentLinkedDeque<Tuple<FixedHashEquals, FixedHashEquals>> failures = new ConcurrentLinkedDeque<>();
+		
+		for (int i = 0; i < THREAD_COUNT; i++) {
+			Random r = new Random(i);
+            new Thread(() -> {
+                try {
+                    List<FixedHashEquals> objects2 = Arrays.asList(objects);
+                    Collections.shuffle(objects2);
+                    startRunning.await();
+                    for (FixedHashEquals o : objects2) {
+                    	FixedHashEquals result = target.getFlyweight(o);
+                    	if (o != result) {
+                    		failures.push(new Tuple<>(o, result));
+                    	}
+                    }
+                    for (FixedHashEquals o : objects2) {
+                    	FixedHashEquals result = target.getFlyweight((FixedHashEquals) o.clone());
+                    	if (o != result) {
+                    		failures.push(new Tuple<>(o, result));
+                    	}
+                    }
+                } catch (InterruptedException | BrokenBarrierException | CloneNotSupportedException e) {
+                }
+                finally {
+                    doneRunning.release();
+                }
+            }).start();
+		}
+		
+		startRunning.await();
+		
+		doneRunning.acquire(THREAD_COUNT);
+		if (!failures.isEmpty()) {
+			Tuple<FixedHashEquals, FixedHashEquals> first = failures.pop();
+			assertSame(first.x, first.y);
+		}
+	}
 }
