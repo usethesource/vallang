@@ -14,6 +14,10 @@ package io.usethesource.vallang.util;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class WeakReferenceFlyweightCache<T> {
 	private WeakEntry<T>[] table;
@@ -21,6 +25,7 @@ public class WeakReferenceFlyweightCache<T> {
 	private int shrinkMark;
 	private int growMark;
 	private final ReferenceQueue<T> cleared;
+	private final ReadWriteLock lock;
 
 	private static final int INITIAL_CAPACITY = 32;
 	private static final int MAX_CAPACITY = 1 << 30;
@@ -32,61 +37,101 @@ public class WeakReferenceFlyweightCache<T> {
 		growMark = (int) (INITIAL_CAPACITY * 0.8);
 		count = 0;
 		cleared = new ReferenceQueue<>();
+		lock = new ReentrantReadWriteLock(true);
 	}
 	
 	private int bucket(int hash) {
 		return hash % table.length;
 	}
 	
-	public synchronized T getFlyweight(T key) {
+	public T getFlyweight(T key) {
+		if (key == null) {
+			throw new IllegalArgumentException();
+		}
 		cleanup();
 		int hash = key.hashCode();
+		lock.readLock().lock();
+		try {
+            T result = lookup(key, hash);
+            if (result != null) {
+            	return result;
+            }
+		}
+		finally {
+			lock.readLock().unlock();
+		}
+
+		lock.writeLock().lock();
+		try {
+			// try again, maybe someone else beat us to the write lock
+            T result = lookup(key, hash);
+            if (result != null) {
+            	return result;
+            }
+            resize();
+            int bucket = bucket(hash);
+			// put them in front of the chain
+			table[bucket] = new WeakEntry<>(key, hash, table[bucket], cleared);
+			count++;
+			return key;
+		}
+		finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+	private T lookup(T key, int hash) {
 		int bucket = bucket(hash);
 		WeakEntry<T>[] table = this.table;
 		WeakEntry<T> cur = table[bucket];
 		while (cur != null) {
-			if (cur.hash == hash) {
-				T result = cur.get();
-				if (result != null && result.equals(key)) {
-					return result;
-				}
-			}
-			cur = cur.next;
+		    if (cur.hash == hash) {
+		        T result = cur.get();
+		        if (result != null && result.equals(key)) {
+		            return result;
+		        }
+		    }
+		    cur = cur.next;
 		}
-		// end of the chain reached, so inserting
-		if (resize()) {
-			// in this case, we have to re-find our insertion spot:
-			bucket = bucket(hash);
-			table = this.table;
-		}
-		// put them in front of the chain
-		table[bucket] = new WeakEntry<>(key, hash, table[bucket], cleared);
-		count++;
-		return key;
+		return null;
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
-		WeakEntry<T> entry;
-		while ((entry = (WeakEntry<T>) cleared.poll()) != null) {
-			int bucket = bucket(entry.hash);
-			WeakEntry<T> prev = null;
-			WeakEntry<T> cur = table[bucket];
-			while (cur != entry) {
-				prev = cur;
-				cur = cur.next;
-				assert cur != null; // we have to find entry in this bucket
+		WeakEntry<T> entry = (WeakEntry<T>) cleared.poll();
+		if (entry != null) {
+			lock.writeLock().lock();
+			try {
+				// quickly consumed the whole cleared pool: to avoid too many threads also waiting for the same write lock
+				List<WeakEntry<T>> toClear = new ArrayList<>();
+				while (entry != null) {
+					toClear.add(entry);
+                    entry = (WeakEntry<T>) cleared.poll();
+				}
+				for (WeakEntry<T> e: toClear) {
+                    int bucket = bucket(e.hash);
+                    WeakEntry<T> prev = null;
+                    WeakEntry<T> cur = table[bucket];
+                    while (cur != e) {
+                        prev = cur;
+                        cur = cur.next;
+                        assert cur != null; // we have to find entry in this bucket
+                    }
+                    if (prev == null) {
+                        table[bucket] = e.next;
+                    }
+                    else {
+                        prev.next = e.next;
+                    }
+                    count--;
+                }
+                if (count < shrinkMark) {
+                    resize();
+                }
 			}
-			if (prev == null) {
-				table[bucket] = entry.next;
-			}
-			else {
-				prev.next = entry.next;
-			}
-			count--;
-		}
-		if (count < shrinkMark) {
-			resize();
+            finally {
+            	lock.writeLock().unlock();
+            }
 		}
 	}
 

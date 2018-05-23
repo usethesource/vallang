@@ -211,19 +211,23 @@ public class FlyweightCacheTest {
 			this.y = y; 
 		} 
 	} 
-	private static final int THREAD_COUNT = 4;
+	private static final int THREAD_COUNT = 8;
 	@Test
 	public void multithreadedAccess() throws InterruptedException, BrokenBarrierException {
-		FixedHashEquals[] objects = createTestObjects(1024, 64);
+		FixedHashEquals[] objects = createTestObjects(64*1024, 1024);
 		CyclicBarrier startRunning = new CyclicBarrier(THREAD_COUNT + 1);
+		CyclicBarrier startQuerying = new CyclicBarrier(THREAD_COUNT);
 		Semaphore doneRunning = new Semaphore(0);
 		ConcurrentLinkedDeque<Tuple<FixedHashEquals, FixedHashEquals>> failures = new ConcurrentLinkedDeque<>();
 		
 		for (int i = 0; i < THREAD_COUNT; i++) {
-			Random r = new Random(i);
+			List<FixedHashEquals> objects2 =  new ArrayList<>(objects.length);
+			for (FixedHashEquals o: objects) {
+				objects2.add(o);
+			}
+		
             new Thread(() -> {
                 try {
-                    List<FixedHashEquals> objects2 = Arrays.asList(objects);
                     Collections.shuffle(objects2);
                     startRunning.await();
                     for (FixedHashEquals o : objects2) {
@@ -232,6 +236,11 @@ public class FlyweightCacheTest {
                     		failures.push(new Tuple<>(o, result));
                     	}
                     }
+                    objects2.removeIf(h -> h.hash > 30);
+                    System.gc();
+                    Thread.sleep(100);
+
+                    startQuerying.await();
                     for (FixedHashEquals o : objects2) {
                     	FixedHashEquals result = target.getFlyweight((FixedHashEquals) o.clone());
                     	if (o != result) {
@@ -246,6 +255,8 @@ public class FlyweightCacheTest {
             }).start();
 		}
 		
+		Arrays.fill(objects, null);
+		objects = null;
 		startRunning.await();
 		
 		doneRunning.acquire(THREAD_COUNT);
