@@ -16,14 +16,18 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class WeakReferenceFlyweightCache<T> {
-	private WeakEntry<T>[] table;
-	private int count;
-	private int shrinkMark;
-	private int growMark;
-	private final ReferenceQueue<T> cleared;
+
+public class WeakReferenceFlyweightCache<K,V> {
+
+	private volatile AtomicReferenceArray<Entry<K,V>> table;
+	private volatile int count;
+	private final ReferenceQueue<Object> cleared;
 	private final StampedLock lock;
 
 	private static final int INITIAL_CAPACITY = 32;
@@ -31,75 +35,80 @@ public class WeakReferenceFlyweightCache<T> {
 
 	@SuppressWarnings("unchecked")
 	public WeakReferenceFlyweightCache() {
-		table = new WeakEntry[INITIAL_CAPACITY];
-		shrinkMark = -1;
-		growMark = (int) (INITIAL_CAPACITY * 0.8);
+		table = new AtomicReferenceArray<>(INITIAL_CAPACITY);
 		count = 0;
 		cleared = new ReferenceQueue<>();
 		lock = new StampedLock();
 	}
 	
-	private int bucket(int hash) {
-		return hash % table.length;
+	private int bucket(AtomicReferenceArray<?> table,int hash) {
+		return (hash ^ (hash >> 16)) & (table.length() - 1);
 	}
 	
-	public T getFlyweight(T key) {
+	public V getFlyweight(K key, Function<K, V> generateValue) {
 		if (key == null) {
 			throw new IllegalArgumentException();
 		}
-		cleanup();
+		//cleanup();
 		int hash = key.hashCode();
-		long currentLock = lock.readLock();
-		try {
-            T result = lookup(key, hash);
-            if (result != null) {
-            	return result;
-            }
+		AtomicReferenceArray<Entry<K,V>> table = this.table;
+		int bucket = bucket(table, hash);
+		Entry<K, V> bucketHead = table.get(bucket); // just so we k
+		V found = lookup(key, hash, bucketHead);
+		if (found != null) {
+			return found;
+		}
 
-            long newLock = lock.tryConvertToWriteLock(currentLock);
-            if (newLock == 0) {
-            	// not the fast path, we have to aquire and probe again
-            	// since someone else was waiting for a write lock
-            	// so after we get the write lock, someone might have already
-            	// written the key
-            	lock.unlockRead(currentLock);
-            	currentLock = lock.writeLock();
-                result = lookup(key, hash);
-                if (result != null) {
+		// not found
+		resize();
+		return insertIfPossible(key, hash, bucketHead, generateValue.apply(key));
+	}
+
+	private V insertIfPossible(final K key, final int hash, Entry<K, V> notFoundIn, final V result) {
+		final Entry<K, V> toInsert = new Entry<>(key, result, hash, cleared);
+		while (true) {
+			final AtomicReferenceArray<Entry<K, V>> table = this.table;
+			int bucket = bucket(table, hash);
+			Entry<K, V> currentBucketHead = table.get(bucket);
+			if (currentBucketHead != notFoundIn) {
+				V otherResult = lookup(key, hash, currentBucketHead);
+				if (otherResult != null) {
+					return otherResult;
+				}
+				notFoundIn = currentBucketHead;
+			}
+			toInsert.next.set(currentBucketHead);
+			
+			long stamp = lock.readLock(); // we get a read lock on the table, so we can put something in it, to protect against a table resize in process
+			try {
+                if (table == this.table && table.compareAndSet(bucket, currentBucketHead, toInsert)) {
+                	count++;
                     return result;
                 }
-            }
-            else {
-            	currentLock = newLock;
-            }
-            resize();
-            int bucket = bucket(hash);
-			// put them in front of the chain
-			table[bucket] = new WeakEntry<>(key, hash, table[bucket], cleared);
-			count++;
-			return key;
-		}
-		finally {
-			lock.unlock(currentLock);
+			}
+			finally {
+				lock.unlockRead(stamp);
+			}
 		}
 	}
 
-	private T lookup(T key, int hash) {
-		int bucket = bucket(hash);
-		WeakEntry<T>[] table = this.table;
-		WeakEntry<T> cur = table[bucket];
-		while (cur != null) {
-		    if (cur.hash == hash) {
-		        T result = cur.get();
-		        if (result != null && result.equals(key)) {
-		            return result;
-		        }
-		    }
-		    cur = cur.next;
+	private V lookup(K key, int hash, Entry<K, V> bucketEntry) {
+		while (bucketEntry != null) {
+			if (bucketEntry.hash == hash) {
+				Object other = bucketEntry.key.get();
+				if (other != null && key.equals(other)) {
+					V result = (V) bucketEntry.value.get();
+					if (result != null) {
+						return result;
+					}
+				}
+			}
+			bucketEntry = bucketEntry.next.get();
 		}
 		return null;
 	}
 	
+	/*
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
 		WeakEntry<T> entry = (WeakEntry<T>) cleared.poll();
@@ -138,56 +147,85 @@ public class WeakReferenceFlyweightCache<T> {
             }
 		}
 	}
+	*/
 
-	private boolean resize() {
-		int newSize = table.length;
-		int newCount = this.count + 1;
-		if (newCount > growMark) {
-			newSize = newSize * 2;
-		}
-		else if (newCount < shrinkMark) {
-			newSize = INITIAL_CAPACITY;
-			while (newCount > (newSize * 0.8)) {
-				newSize *= 2;
+	private void resize() {
+		final AtomicReferenceArray<Entry<K, V>> table = this.table;
+		int newSize = calculateNewSize(table);
+
+		if (newSize != table.length()) {
+			// We have to grow, so we have to lock the table against new inserts.
+			long stamp = lock.writeLock();
+			try {
+				final AtomicReferenceArray<Entry<K, V>> oldTable = this.table;
+				final int oldLength = oldTable.length();
+				if (oldTable != table) {
+					// someone else already changed the table
+					newSize = calculateNewSize(oldTable);
+					if (newSize == oldLength) {
+						return;
+					}
+				}
+				final AtomicReferenceArray<Entry<K,V>> newTable = new AtomicReferenceArray<>(newSize);
+				for (int i = 0; i < oldLength; i++) {
+					Entry<K,V> current = oldTable.get(i);
+					while (current != null) {
+						int newBucket = bucket(newTable, current.hash);
+						newTable.set(newBucket, new Entry<>(current.key, current.value, current.hash, newTable.get(newBucket)));
+						current = current.next.get();
+					}
+				}
+				this.table = newTable;
 			}
+			finally {
+				lock.unlockWrite(stamp);
+			}
+		}
+	}
+
+	private int calculateNewSize(final AtomicReferenceArray<Entry<K, V>> table) {
+		int newSize = table.length();
+		int newCount = this.count + 1;
+		if (newCount > newSize * 0.8) {
+			newSize = newSize * 2;
 		}
 		if (newSize <= 0 || newSize > MAX_CAPACITY) {
 			newSize = MAX_CAPACITY;
 		}
-
-		if (newSize != table.length) {
-			WeakEntry<T>[] oldTable = table;
-			@SuppressWarnings("unchecked")
-			WeakEntry<T>[] newTable = new WeakEntry[newSize];
-			for (WeakEntry<T> rootEntry : oldTable) {
-				WeakEntry<T> cur = rootEntry;
-				while (cur != null) {
-					WeakEntry<T> oldNext = cur.next; // store the current next part of the chain
-
-					// put the entry at the front of the bucket
-					int newBucket = cur.hash % newSize;
-					cur.next = newTable[newBucket];
-					newTable[newBucket] = cur;
-
-					cur = oldNext; // move to the next part of the old chain
-				}
-			}
-			table = newTable;
-			shrinkMark = (int) ((newSize / 2) * 0.8);
-			growMark = (int) ((newSize * 2) * 0.8);
-			return true;
-		}
-		return false;
+		return newSize;
 	}
 
-	private static final class WeakEntry<T> extends WeakReference<T> {
-		private final int hash;
-		private WeakEntry<T> next;
+	private static final class WeakWrap<P> extends WeakReference<Object> {
+		private volatile P parent;
 
-		public WeakEntry(T referent, int hash, WeakEntry<T> next, ReferenceQueue<? super T> q) {
+		public WeakWrap(Object referent, P parent, ReferenceQueue<? super Object> q) {
 			super(referent, q);
+			this.parent = parent;
+		}
+	}
+
+	private static final class Entry<K, V> {
+		private final int hash;
+
+		private final AtomicReference<Entry<K,V>> next;
+
+		private final WeakWrap<Entry<K,V>> key;
+		private final WeakWrap<Entry<K,V>> value;
+
+		public Entry(K key, V value, int hash, ReferenceQueue<? super Object> q) {
 			this.hash = hash;
-			this.next = next;
+			this.key = new WeakWrap<>(key, this, q);
+			this.value = new WeakWrap<>(value, this, q);
+			this.next = new AtomicReference<>(null);
+		}
+
+		public Entry(WeakWrap<Entry<K,V>> key, WeakWrap<Entry<K,V>> value, int hash, Entry<K,V> next) {
+			this.hash = hash;
+			this.key = key;
+			this.value = value;
+			this.next = new AtomicReference<>(next);
+			key.parent = this;
+			value.parent = this;
 		}
 	}
 }
