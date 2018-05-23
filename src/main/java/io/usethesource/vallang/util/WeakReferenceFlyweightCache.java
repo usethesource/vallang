@@ -16,8 +16,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.StampedLock;
 
 public class WeakReferenceFlyweightCache<T> {
 	private WeakEntry<T>[] table;
@@ -25,7 +24,7 @@ public class WeakReferenceFlyweightCache<T> {
 	private int shrinkMark;
 	private int growMark;
 	private final ReferenceQueue<T> cleared;
-	private final ReadWriteLock lock;
+	private final StampedLock lock;
 
 	private static final int INITIAL_CAPACITY = 32;
 	private static final int MAX_CAPACITY = 1 << 30;
@@ -37,7 +36,7 @@ public class WeakReferenceFlyweightCache<T> {
 		growMark = (int) (INITIAL_CAPACITY * 0.8);
 		count = 0;
 		cleared = new ReferenceQueue<>();
-		lock = new ReentrantReadWriteLock(true);
+		lock = new StampedLock();
 	}
 	
 	private int bucket(int hash) {
@@ -50,23 +49,28 @@ public class WeakReferenceFlyweightCache<T> {
 		}
 		cleanup();
 		int hash = key.hashCode();
-		lock.readLock().lock();
+		long currentLock = lock.readLock();
 		try {
             T result = lookup(key, hash);
             if (result != null) {
             	return result;
             }
-		}
-		finally {
-			lock.readLock().unlock();
-		}
 
-		lock.writeLock().lock();
-		try {
-			// try again, maybe someone else beat us to the write lock
-            T result = lookup(key, hash);
-            if (result != null) {
-            	return result;
+            long newLock = lock.tryConvertToWriteLock(currentLock);
+            if (newLock == 0) {
+            	// not the fast path, we have to aquire and probe again
+            	// since someone else was waiting for a write lock
+            	// so after we get the write lock, someone might have already
+            	// written the key
+            	lock.unlockRead(currentLock);
+            	currentLock = lock.writeLock();
+                result = lookup(key, hash);
+                if (result != null) {
+                    return result;
+                }
+            }
+            else {
+            	currentLock = newLock;
             }
             resize();
             int bucket = bucket(hash);
@@ -76,7 +80,7 @@ public class WeakReferenceFlyweightCache<T> {
 			return key;
 		}
 		finally {
-			lock.writeLock().unlock();
+			lock.unlock(currentLock);
 		}
 	}
 
@@ -100,7 +104,7 @@ public class WeakReferenceFlyweightCache<T> {
 	private void cleanup() {
 		WeakEntry<T> entry = (WeakEntry<T>) cleared.poll();
 		if (entry != null) {
-			lock.writeLock().lock();
+			long currentLock = lock.writeLock();
 			try {
 				// quickly consumed the whole cleared pool: to avoid too many threads also waiting for the same write lock
 				List<WeakEntry<T>> toClear = new ArrayList<>();
@@ -130,7 +134,7 @@ public class WeakReferenceFlyweightCache<T> {
                 }
 			}
             finally {
-            	lock.writeLock().unlock();
+            	lock.unlockWrite(currentLock);
             }
 		}
 	}
