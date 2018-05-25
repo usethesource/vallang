@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 
 public class WeakReferenceFlyweightCache<K,V> {
@@ -33,7 +32,6 @@ public class WeakReferenceFlyweightCache<K,V> {
 	private static final int INITIAL_CAPACITY = 32;
 	private static final int MAX_CAPACITY = 1 << 30;
 
-	@SuppressWarnings("unchecked")
 	public WeakReferenceFlyweightCache() {
 		table = new AtomicReferenceArray<>(INITIAL_CAPACITY);
 		count = 0;
@@ -41,18 +39,18 @@ public class WeakReferenceFlyweightCache<K,V> {
 		lock = new StampedLock();
 	}
 	
-	private int bucket(AtomicReferenceArray<?> table,int hash) {
-		return (hash ^ (hash >> 16)) & (table.length() - 1);
+	private int bucket(int tableLength,int hash) {
+		return (hash ^ (hash >> 16)) & (tableLength - 1);
 	}
 	
 	public V getFlyweight(K key, Function<K, V> generateValue) {
 		if (key == null) {
 			throw new IllegalArgumentException();
 		}
-		//cleanup();
+		cleanup();
 		int hash = key.hashCode();
 		AtomicReferenceArray<Entry<K,V>> table = this.table;
-		int bucket = bucket(table, hash);
+		int bucket = bucket(table.length(), hash);
 		Entry<K, V> bucketHead = table.get(bucket); // just so we k
 		V found = lookup(key, hash, bucketHead);
 		if (found != null) {
@@ -68,9 +66,10 @@ public class WeakReferenceFlyweightCache<K,V> {
 		final Entry<K, V> toInsert = new Entry<>(key, result, hash, cleared);
 		while (true) {
 			final AtomicReferenceArray<Entry<K, V>> table = this.table;
-			int bucket = bucket(table, hash);
+			int bucket = bucket(table.length(), hash);
 			Entry<K, V> currentBucketHead = table.get(bucket);
 			if (currentBucketHead != notFoundIn) {
+				// the head of the chain has changed, so it might be that now the key is there, so we have to lookup again
 				V otherResult = lookup(key, hash, currentBucketHead);
 				if (otherResult != null) {
 					return otherResult;
@@ -97,6 +96,7 @@ public class WeakReferenceFlyweightCache<K,V> {
 			if (bucketEntry.hash == hash) {
 				Object other = bucketEntry.key.get();
 				if (other != null && key.equals(other)) {
+					@SuppressWarnings("unchecked")
 					V result = (V) bucketEntry.value.get();
 					if (result != null) {
 						return result;
@@ -108,46 +108,74 @@ public class WeakReferenceFlyweightCache<K,V> {
 		return null;
 	}
 	
-	/*
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
-		WeakEntry<T> entry = (WeakEntry<T>) cleared.poll();
-		if (entry != null) {
-			long currentLock = lock.writeLock();
+		WeakWrap<Entry<K,V>> clearedReference = (WeakWrap<Entry<K,V>>) cleared.poll();
+		if (clearedReference != null) {
+			int totalCleared = 0;
+			long stamp = lock.readLock(); // we get a read lock on the table, so we can remove some stuff, to protect against a table resize in process
 			try {
-				// quickly consumed the whole cleared pool: to avoid too many threads also waiting for the same write lock
-				List<WeakEntry<T>> toClear = new ArrayList<>();
-				while (entry != null) {
-					toClear.add(entry);
-                    entry = (WeakEntry<T>) cleared.poll();
+				// quickly consumed the whole cleared pool: to avoid too many threads trying to do a cleanup 
+				List<WeakWrap<Entry<K,V>>> toClear = new ArrayList<>();
+				while (clearedReference != null) {
+					toClear.add(clearedReference);
+					clearedReference = (WeakWrap<Entry<K,V>>) cleared.poll();
 				}
-				for (WeakEntry<T> e: toClear) {
-                    int bucket = bucket(e.hash);
-                    WeakEntry<T> prev = null;
-                    WeakEntry<T> cur = table[bucket];
-                    while (cur != e) {
-                        prev = cur;
-                        cur = cur.next;
-                        assert cur != null; // we have to find entry in this bucket
-                    }
-                    if (prev == null) {
-                        table[bucket] = e.next;
-                    }
-                    else {
-                        prev.next = e.next;
-                    }
-                    count--;
-                }
-                if (count < shrinkMark) {
-                    resize();
-                }
+
+				final AtomicReferenceArray<Entry<K, V>> table = this.table;
+				final int currentLength = table.length();
+				for (WeakWrap<Entry<K,V>> e: toClear) {
+					Entry<K, V> mapNode = e.parent;
+					if (mapNode != null) {
+                        // avoid multiple threads clearing the same entry (for example the key and value both got cleared)
+						synchronized (mapNode) {
+							mapNode = e.parent; // make sure it wasn't cleared since we got the lock
+							if (mapNode != null) {
+
+								int bucket = bucket(currentLength, mapNode.hash);
+								while (true) {
+                                    Entry<K,V> prev = null;
+                                    Entry<K,V> cur = table.get(bucket);
+                                    while (cur != mapNode) {
+                                        prev = cur;
+                                        cur = cur.next.get();
+                                        assert cur != null; // we have to find entry in this bucket
+                                    }
+                                    if (prev == null) {
+                                        // at the head, so we can just replace the head
+                                        if (table.compareAndSet(bucket, mapNode, mapNode.next.get())) {
+                                        	break; // we replaced the head, so continue
+                                        }
+                                    }
+                                    else {
+                                    	if (prev.next.compareAndSet(mapNode, mapNode.next.get())) {
+                                    		break; // managed to replace the next pointer in the chain 
+                                    	}
+                                    }
+								}
+								count--;
+								totalCleared++;
+								// keep the next pointer intact, in case someone is following this chain.
+								// we do clear the rest
+								e.parent = null;
+								mapNode.key.clear();
+								mapNode.value.clear();
+							}
+
+						}
+
+					}
+				}
 			}
-            finally {
-            	lock.unlockWrite(currentLock);
-            }
+			finally {
+				lock.unlockRead(stamp);
+			}
+			if (totalCleared > 1024) {
+				// let's check for a resize
+				resize();
+			}
 		}
 	}
-	*/
 
 	private void resize() {
 		final AtomicReferenceArray<Entry<K, V>> table = this.table;
@@ -170,7 +198,7 @@ public class WeakReferenceFlyweightCache<K,V> {
 				for (int i = 0; i < oldLength; i++) {
 					Entry<K,V> current = oldTable.get(i);
 					while (current != null) {
-						int newBucket = bucket(newTable, current.hash);
+						int newBucket = bucket(newSize, current.hash);
 						newTable.set(newBucket, new Entry<>(current.key, current.value, current.hash, newTable.get(newBucket)));
 						current = current.next.get();
 					}
@@ -187,10 +215,19 @@ public class WeakReferenceFlyweightCache<K,V> {
 		int newSize = table.length();
 		int newCount = this.count + 1;
 		if (newCount > newSize * 0.8) {
-			newSize = newSize * 2;
+			newSize <<= 1;
 		}
-		if (newSize <= 0 || newSize > MAX_CAPACITY) {
+		else if (newSize != INITIAL_CAPACITY && newCount < (newSize >> 2)) {
+			// shrank quite a bit, so it makes sens to resize
+			// find the smallest next power for the 
+			newSize = Integer.highestOneBit(newCount - 1) << 1;
+		}
+
+		if (newSize < 0 || newSize > MAX_CAPACITY) {
 			newSize = MAX_CAPACITY;
+		}
+		else if (newSize == 0) {
+			newSize = INITIAL_CAPACITY;
 		}
 		return newSize;
 	}
@@ -215,7 +252,7 @@ public class WeakReferenceFlyweightCache<K,V> {
 		public Entry(K key, V value, int hash, ReferenceQueue<? super Object> q) {
 			this.hash = hash;
 			this.key = new WeakWrap<>(key, this, q);
-			this.value = new WeakWrap<>(value, this, q);
+			this.value = key == value ? this.key : new WeakWrap<>(value, this, q); // safe a reference in case of identity cache
 			this.next = new AtomicReference<>(null);
 		}
 
