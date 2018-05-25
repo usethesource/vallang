@@ -60,6 +60,10 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string(new String(Character.toChars(0x1F35D))).isEqual(vf.string("🍝")));
   }
 
+  @Test public void testRascalIssue1192() {
+      assertTrue(vf.integer("-2147483648").subtract(vf.integer("2147483648")).isEqual(vf.integer("-4294967296")));
+  }
+  
   @Test
   public void testStringLength() {
     assertTrue(vf.string("\uD83C\uDF5D").length() == 1);
