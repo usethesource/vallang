@@ -52,17 +52,19 @@ public class WeakReferenceCache<K,V> {
 
 	private static final int MINIMAL_CAPACITY = 1 << 4;
 	private static final int MAX_CAPACITY = 1 << 30;
-	private final boolean weakValues;
+	private final EntryChildConstructor<Entry<K,V>> keyBuilder;
+	private final EntryChildConstructor<Entry<K,V>> valueBuilder;
 
 	public WeakReferenceCache() {
-		this(true);
+		this(true, true);
 	}
-	public WeakReferenceCache(boolean weakValues) {
-		this.weakValues = weakValues;
+	public WeakReferenceCache(boolean weakKeys, boolean weakValues) {
 		table = new AtomicReferenceArray<>(MINIMAL_CAPACITY);
 		count = 0;
 		cleared = new ReferenceQueue<>();
 		lock = new StampedLock();
+		keyBuilder = weakKeys ? WeakChild::new : StrongChild::new;
+		valueBuilder = weakValues ? WeakChild::new : StrongChild::new;
 	}
 	
 	public V get(K key, Function<K, V> generateValue) {
@@ -90,7 +92,7 @@ public class WeakReferenceCache<K,V> {
 	}
 
 	private V insertIfPossible(final K key, final int hash, Entry<K, V> notFoundIn, final V result) {
-		final Entry<K, V> toInsert = new Entry<>(key, result, hash, weakValues, cleared);
+		final Entry<K, V> toInsert = new Entry<>(key, result, hash, keyBuilder, valueBuilder, cleared);
 		while (true) {
 			final AtomicReferenceArray<Entry<K, V>> table = this.table;
 			int bucket = bucket(table.length(), hash);
@@ -184,9 +186,10 @@ public class WeakReferenceCache<K,V> {
 								totalCleared++;
 								// keep the next pointer intact, in case someone is following this chain.
 								// we do clear the rest
-								e.parent = null;
 								mapNode.key.clear();
+								mapNode.key.setParent(null); // marks the fact that the node has been cleared already
 								mapNode.value.clear();
+								mapNode.value.setParent(null);
 							}
 
 						}
@@ -268,6 +271,10 @@ public class WeakReferenceCache<K,V> {
 	}
 
 	
+	@FunctionalInterface
+	interface EntryChildConstructor<P> {
+		EntryChild<P> construct(Object reference, P parent, ReferenceQueue<? super Object> clearQue);
+	}
 
 	
 	private static final class WeakChild<P> extends WeakReference<Object> implements EntryChild<P>  {
@@ -292,7 +299,7 @@ public class WeakReferenceCache<K,V> {
 	private static final class StrongChild<P> implements EntryChild<P> {
 		private volatile Object ref;
 
-		public StrongChild(Object referent) {
+		public StrongChild(Object referent, P parent, ReferenceQueue<? super Object> q) {
 			this.ref = referent;
 		}
 		
@@ -324,15 +331,10 @@ public class WeakReferenceCache<K,V> {
 		private final EntryChild<Entry<K,V>> key;
 		private final EntryChild<Entry<K,V>> value;
 
-		public Entry(K key, V value, int hash, boolean weakValues, ReferenceQueue<? super Object> q) {
+		public Entry(K key, V value, int hash, EntryChildConstructor<Entry<K,V>> keyBuilder, EntryChildConstructor<Entry<K,V>> valueBuilder, ReferenceQueue<? super Object> q) {
 			this.hash = hash;
-			this.key = new WeakChild<>(key, this, q);
-			if (weakValues) {
-				this.value = key == value ? this.key : new WeakChild<>(value, this, q); // safe a reference in case of identity cache
-			}
-			else {
-				this.value = new StrongChild<>(value);
-			}
+			this.key = keyBuilder.construct(key, this, q);
+			this.value = (key == value) && (keyBuilder == valueBuilder) ? this.key : valueBuilder.construct(value, this, q); // safe a reference in case of identity cache
 			this.next = new AtomicReference<>(null);
 		}
 
