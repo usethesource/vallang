@@ -269,4 +269,121 @@ public class FlyweightCacheTest {
 			assertSame(first.x, first.y);
 		}
 	}
+	
+	private static final int TEST_SIZE = 32 << 10;
+
+	@Test
+	public void multithreadedNothingIsLostDuringResizes() throws InterruptedException, BrokenBarrierException {
+		CyclicBarrier startRunning = new CyclicBarrier(THREAD_COUNT + 1);
+		CyclicBarrier startQuerying = new CyclicBarrier(THREAD_COUNT);
+		Semaphore doneRunning = new Semaphore(0);
+		ConcurrentLinkedDeque<Tuple<FixedHashEquals, FixedHashEquals>> failures = new ConcurrentLinkedDeque<>();
+
+		List<FixedHashEquals> objects =  new ArrayList<>(TEST_SIZE);
+		for (FixedHashEquals o: createTestObjects(TEST_SIZE, TEST_SIZE >> 2)) {
+			objects.add(o);
+		}
+		Collections.shuffle(objects, new Random(42));
+
+		
+		int chunkSize = objects.size() / THREAD_COUNT;
+		for (int i = 0; i < THREAD_COUNT; i++) {
+			final List<FixedHashEquals> mySlice = objects.subList(i*chunkSize, (i + 1) * chunkSize);
+		
+            new Thread(() -> {
+                try {
+                    startRunning.await();
+                    for (FixedHashEquals o : mySlice) {
+                    	FixedHashEquals result = identityFlyweight(o);
+                    	if (o != result) {
+                    		failures.push(new Tuple<>(o, result));
+                    	}
+                    }
+                    startQuerying.await();
+                    for (FixedHashEquals o : objects.subList(0, THREAD_COUNT * chunkSize)) {
+                    	FixedHashEquals result = identityFlyweight((FixedHashEquals) o.clone());
+                    	if (o != result) {
+                    		failures.push(new Tuple<>(o, result));
+                    	}
+                    }
+                } catch (InterruptedException | BrokenBarrierException | CloneNotSupportedException e) {
+                }
+                finally {
+                    doneRunning.release();
+                }
+            }).start();
+		}
+		startRunning.await();
+		
+		doneRunning.acquire(THREAD_COUNT);
+		if (!failures.isEmpty()) {
+			Tuple<FixedHashEquals, FixedHashEquals> first = failures.pop();
+			assertSame(first.x, first.y);
+		}
+	}
+
+	@Test
+	public void multithreadedNothingIsLostDuringGCCollects() throws InterruptedException, BrokenBarrierException {
+		CyclicBarrier startRunning = new CyclicBarrier(THREAD_COUNT + 1);
+		CyclicBarrier stoppedInserting = new CyclicBarrier(THREAD_COUNT + 1);
+		CyclicBarrier startQuerying = new CyclicBarrier(THREAD_COUNT + 1);
+		Semaphore doneRunning = new Semaphore(0);
+		ConcurrentLinkedDeque<Tuple<FixedHashEquals, FixedHashEquals>> failures = new ConcurrentLinkedDeque<>();
+
+		List<FixedHashEquals> objects =  new ArrayList<>(TEST_SIZE);
+		for (FixedHashEquals o: createTestObjects(TEST_SIZE, TEST_SIZE >> 2)) {
+			objects.add(o);
+		}
+		Collections.shuffle(objects, new Random(42));
+
+		// we keep a small selection to query afterwards
+		List<FixedHashEquals> toKeep = new ArrayList<>();
+		Random r = new Random(42 * 42);
+		for (int i = 0; i < TEST_SIZE >> 4; i++) {
+			toKeep.add(objects.get(r.nextInt(objects.size())));
+		}
+
+		
+		int chunkSize = objects.size() / THREAD_COUNT;
+		for (int i = 0; i < THREAD_COUNT; i++) {
+            List<FixedHashEquals> mySlice = objects.subList(i*chunkSize, (i + 1) * chunkSize);
+            new Thread(() -> {
+                try {
+                    startRunning.await();
+                    for (FixedHashEquals o : mySlice) {
+                    	FixedHashEquals result = identityFlyweight(o);
+                    	if (o != result) {
+                    		failures.push(new Tuple<>(o, result));
+                    	}
+                    }
+                    stoppedInserting.await();
+                    System.gc();
+                    startQuerying.await();
+                    for (FixedHashEquals o : toKeep) {
+                    	FixedHashEquals result = identityFlyweight((FixedHashEquals) o.clone());
+                    	if (o != result) {
+                    		failures.push(new Tuple<>(o, result));
+                    	}
+                    }
+                } catch (InterruptedException | BrokenBarrierException | CloneNotSupportedException e) {
+                }
+                finally {
+                    doneRunning.release();
+                }
+            }).start();
+		}
+		startRunning.await();
+		stoppedInserting.await();
+		objects.clear();
+		System.gc();
+		Thread.sleep(300);
+		startQuerying.await();
+
+		
+		doneRunning.acquire(THREAD_COUNT);
+		if (!failures.isEmpty()) {
+			Tuple<FixedHashEquals, FixedHashEquals> first = failures.pop();
+			assertSame(first.x, first.y);
+		}
+	}
 }
