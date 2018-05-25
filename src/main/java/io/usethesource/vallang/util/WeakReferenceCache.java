@@ -24,7 +24,7 @@ import java.util.function.Function;
 
 /**
  * <p>
- *     A cache that stores both the Key and Value in weak references, so after nobody uses one of the two references, the entry dropped from the cache.
+ *     A cache that stores the key as a weak reference, and optionally also the value. After either one of the references is cleared, the entry is dropped from the cache.
  *     The cache is thread safe, meaning the {@link #get} method can be called without any locking requirements.
  *     With the following guarantees: 
  * <p>
@@ -52,8 +52,13 @@ public class WeakReferenceCache<K,V> {
 
 	private static final int MINIMAL_CAPACITY = 1 << 4;
 	private static final int MAX_CAPACITY = 1 << 30;
+	private final boolean weakValues;
 
 	public WeakReferenceCache() {
+		this(true);
+	}
+	public WeakReferenceCache(boolean weakValues) {
+		this.weakValues = weakValues;
 		table = new AtomicReferenceArray<>(MINIMAL_CAPACITY);
 		count = 0;
 		cleared = new ReferenceQueue<>();
@@ -85,7 +90,7 @@ public class WeakReferenceCache<K,V> {
 	}
 
 	private V insertIfPossible(final K key, final int hash, Entry<K, V> notFoundIn, final V result) {
-		final Entry<K, V> toInsert = new Entry<>(key, result, hash, cleared);
+		final Entry<K, V> toInsert = new Entry<>(key, result, hash, weakValues, cleared);
 		while (true) {
 			final AtomicReferenceArray<Entry<K, V>> table = this.table;
 			int bucket = bucket(table.length(), hash);
@@ -132,26 +137,26 @@ public class WeakReferenceCache<K,V> {
 	
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
-		WeakWrap<Entry<K,V>> clearedReference = (WeakWrap<Entry<K,V>>) cleared.poll();
+		WeakChild<Entry<K,V>> clearedReference = (WeakChild<Entry<K, V>>) cleared.poll();
 		if (clearedReference != null) {
 			int totalCleared = 0;
 			long stamp = lock.readLock(); // we get a read lock on the table, so we can remove some stuff, to protect against a table resize in process
 			try {
 				// quickly consumed the whole cleared pool: to avoid too many threads trying to do a cleanup 
-				List<WeakWrap<Entry<K,V>>> toClear = new ArrayList<>();
+				List<WeakChild<Entry<K,V>>> toClear = new ArrayList<>();
 				while (clearedReference != null) {
 					toClear.add(clearedReference);
-					clearedReference = (WeakWrap<Entry<K,V>>) cleared.poll();
+					clearedReference = (WeakChild<Entry<K,V>>) cleared.poll();
 				}
 
 				final AtomicReferenceArray<Entry<K, V>> table = this.table;
 				final int currentLength = table.length();
-				for (WeakWrap<Entry<K,V>> e: toClear) {
-					Entry<K, V> mapNode = e.parent;
+				for (WeakChild<Entry<K,V>> e: toClear) {
+					Entry<K, V> mapNode = e.getParent();
 					if (mapNode != null) {
                         // avoid multiple threads clearing the same entry (for example the key and value both got cleared)
 						synchronized (mapNode) {
-							mapNode = e.parent; // make sure it wasn't cleared since we got the lock
+							mapNode = e.getParent(); // make sure it wasn't cleared since we got the lock
 							if (mapNode != null) {
 
 								int bucket = bucket(currentLength, mapNode.hash);
@@ -254,37 +259,90 @@ public class WeakReferenceCache<K,V> {
 		return newSize;
 	}
 
-	private static final class WeakWrap<P> extends WeakReference<Object> {
+	
+	private abstract static interface EntryChild<P> {
+		Object get();
+		void clear();
+		P getParent();
+		void setParent(P parent);
+	}
+
+	
+
+	
+	private static final class WeakChild<P> extends WeakReference<Object> implements EntryChild<P>  {
 		private volatile P parent;
 
-		public WeakWrap(Object referent, P parent, ReferenceQueue<? super Object> q) {
+		public WeakChild(Object referent, P parent, ReferenceQueue<? super Object> q) {
 			super(referent, q);
 			this.parent = parent;
 		}
+
+		@Override
+		public P getParent() {
+			return parent;
+		}
+
+		@Override
+		public void setParent(P parent) {
+			this.parent = parent;
+		}
 	}
+
+	private static final class StrongChild<P> implements EntryChild<P> {
+		private volatile Object ref;
+
+		public StrongChild(Object referent) {
+			this.ref = referent;
+		}
+		
+		@Override
+		public Object get() {
+			return ref;
+		}
+		
+		@Override
+		public void clear() {
+			ref = null;
+		}
+		@Override
+		public P getParent() {
+			throw new RuntimeException("Should never be called");
+		}
+		@Override
+		public void setParent(P parent) {
+			// noop to make the code simpeler
+		}
+	}
+	
 
 	private static final class Entry<K, V> {
 		private final int hash;
 
 		private final AtomicReference<Entry<K,V>> next;
 
-		private final WeakWrap<Entry<K,V>> key;
-		private final WeakWrap<Entry<K,V>> value;
+		private final EntryChild<Entry<K,V>> key;
+		private final EntryChild<Entry<K,V>> value;
 
-		public Entry(K key, V value, int hash, ReferenceQueue<? super Object> q) {
+		public Entry(K key, V value, int hash, boolean weakValues, ReferenceQueue<? super Object> q) {
 			this.hash = hash;
-			this.key = new WeakWrap<>(key, this, q);
-			this.value = key == value ? this.key : new WeakWrap<>(value, this, q); // safe a reference in case of identity cache
+			this.key = new WeakChild<>(key, this, q);
+			if (weakValues) {
+				this.value = key == value ? this.key : new WeakChild<>(value, this, q); // safe a reference in case of identity cache
+			}
+			else {
+				this.value = new StrongChild<>(value);
+			}
 			this.next = new AtomicReference<>(null);
 		}
 
-		public Entry(WeakWrap<Entry<K,V>> key, WeakWrap<Entry<K,V>> value, int hash, Entry<K,V> next) {
+		public Entry(EntryChild<Entry<K,V>> key, EntryChild<Entry<K,V>> value, int hash, Entry<K,V> next) {
 			this.hash = hash;
 			this.key = key;
 			this.value = value;
 			this.next = new AtomicReference<>(next);
-			key.parent = this;
-			value.parent = this;
+			key.setParent(this);
+			value.setParent(this);
 		}
 	}
 }
