@@ -30,7 +30,7 @@ import java.util.concurrent.Semaphore;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FlyweightCacheTest {
+public class WeakReferenceCacheTest {
 	
 	private final class FixedHashEquals {
 		private final int hash;
@@ -66,54 +66,54 @@ public class FlyweightCacheTest {
 		
 	}
 	
-	private WeakReferenceFlyweightCache<FixedHashEquals, FixedHashEquals> target;
+	private WeakReferenceCache<FixedHashEquals, FixedHashEquals> target;
 	
-	private FixedHashEquals identityFlyweight(FixedHashEquals key) {
-		return target.getFlyweight(key, x -> x);
+	private FixedHashEquals identityCacheGet(FixedHashEquals key) {
+		return target.get(key, x -> x);
 	}
 
 	@Before
 	public void constructData() {
-		target = new WeakReferenceFlyweightCache<>();
+		target = new WeakReferenceCache<>();
 	}
 	
 	@Test
 	public void restoreSameReference() {
 		FixedHashEquals a = new FixedHashEquals(1,1);
-		assertSame(a, identityFlyweight(a));
-		assertSame(a, identityFlyweight(a));
+		assertSame(a, identityCacheGet(a));
+		assertSame(a, identityCacheGet(a));
 	}
 
 	@Test
 	public void restoreDifferentReference() {
 		FixedHashEquals a = new FixedHashEquals(1,1);
 		FixedHashEquals b = new FixedHashEquals(1,2);
-		assertSame(a, identityFlyweight(a));
-		assertSame(b, identityFlyweight(b));
+		assertSame(a, identityCacheGet(a));
+		assertSame(b, identityCacheGet(b));
 
-		assertSame(a, identityFlyweight(a));
+		assertSame(a, identityCacheGet(a));
 	}
 
 	@Test
 	public void restoreOldReference() {
 		FixedHashEquals a = new FixedHashEquals(1,1);
 		FixedHashEquals b = new FixedHashEquals(1,1);
-		assertSame(a, identityFlyweight(a));
-		assertSame(a, identityFlyweight(b));
-		assertSame(a, identityFlyweight(a));
+		assertSame(a, identityCacheGet(a));
+		assertSame(a, identityCacheGet(b));
+		assertSame(a, identityCacheGet(a));
 	}
 	
 	@Test
 	public void looseReference() throws InterruptedException {
 		FixedHashEquals a = new FixedHashEquals(1,1);
-		assertSame(a, identityFlyweight(a));
+		assertSame(a, identityCacheGet(a));
 		a = null;
 		System.gc();
 		Thread.sleep(10); // wait for the GC to finish
 
 		// a new reference, the target should not have kept the old reference
 		a = new FixedHashEquals(1,1);
-		assertSame(a, identityFlyweight(a));
+		assertSame(a, identityCacheGet(a));
 	}
 	
 	
@@ -126,12 +126,12 @@ public class FlyweightCacheTest {
 		
 		// store them 
 		for (FixedHashEquals o : objects) {
-			assertSame(o, identityFlyweight(o));
+			assertSame(o, identityCacheGet(o));
 		}
 
 		// and then again, to see that they are all in there
 		for (FixedHashEquals o : objects) {
-			assertSame(o, identityFlyweight(o));
+			assertSame(o, identityCacheGet(o));
 		}
 	}
 	
@@ -145,7 +145,7 @@ public class FlyweightCacheTest {
 		
 		// store them 
 		for (FixedHashEquals o : objects) {
-			assertSame(o, identityFlyweight(o));
+			assertSame(o, identityCacheGet(o));
 		}
 		
 		FixedHashEquals a = (FixedHashEquals) objects[0].clone();
@@ -158,7 +158,7 @@ public class FlyweightCacheTest {
 		
 
 		// check if the clone won't return the old reference
-		assertSame(a, identityFlyweight(a));
+		assertSame(a, identityCacheGet(a));
 	}
 	
 
@@ -168,12 +168,12 @@ public class FlyweightCacheTest {
 		
 		// store them 
 		for (FixedHashEquals o : objects) {
-			assertSame(o, identityFlyweight(o));
+			assertSame(o, identityCacheGet(o));
 		}
 		
 		// look up
 		for (int i = 0; i < objects.length; i ++) {
-			assertSame(objects[i],  identityFlyweight((FixedHashEquals) objects[i].clone()));
+			assertSame(objects[i],  identityCacheGet((FixedHashEquals) objects[i].clone()));
 		}
 	}
 
@@ -192,7 +192,7 @@ public class FlyweightCacheTest {
 		
 		// store them 
 		for (FixedHashEquals o : objects) {
-			assertSame(o, identityFlyweight(o));
+			assertSame(o, identityCacheGet(o));
 		}
 		
 		for (int i=0; i < objects.length - 10; i++) {
@@ -203,7 +203,7 @@ public class FlyweightCacheTest {
 		Thread.sleep(1000);
 		
 		for (int i=objects.length - 10; i < objects.length; i++) {
-			assertSame(objects[i],  identityFlyweight((FixedHashEquals) objects[i].clone()));
+			assertSame(objects[i],  identityCacheGet((FixedHashEquals) objects[i].clone()));
 		}
 	}
 	
@@ -235,7 +235,7 @@ public class FlyweightCacheTest {
                     Collections.shuffle(objects2);
                     startRunning.await();
                     for (FixedHashEquals o : objects2) {
-                    	FixedHashEquals result = identityFlyweight(o);
+                    	FixedHashEquals result = identityCacheGet(o);
                     	if (o != result) {
                     		failures.push(new Tuple<>(o, result));
                     	}
@@ -246,7 +246,7 @@ public class FlyweightCacheTest {
 
                     startQuerying.await();
                     for (FixedHashEquals o : objects2) {
-                    	FixedHashEquals result = identityFlyweight((FixedHashEquals) o.clone());
+                    	FixedHashEquals result = identityCacheGet((FixedHashEquals) o.clone());
                     	if (o != result) {
                     		failures.push(new Tuple<>(o, result));
                     	}
@@ -294,14 +294,14 @@ public class FlyweightCacheTest {
                 try {
                     startRunning.await();
                     for (FixedHashEquals o : mySlice) {
-                    	FixedHashEquals result = identityFlyweight(o);
+                    	FixedHashEquals result = identityCacheGet(o);
                     	if (o != result) {
                     		failures.push(new Tuple<>(o, result));
                     	}
                     }
                     startQuerying.await();
                     for (FixedHashEquals o : objects.subList(0, THREAD_COUNT * chunkSize)) {
-                    	FixedHashEquals result = identityFlyweight((FixedHashEquals) o.clone());
+                    	FixedHashEquals result = identityCacheGet((FixedHashEquals) o.clone());
                     	if (o != result) {
                     		failures.push(new Tuple<>(o, result));
                     	}
@@ -351,7 +351,7 @@ public class FlyweightCacheTest {
                 try {
                     startRunning.await();
                     for (FixedHashEquals o : mySlice) {
-                    	FixedHashEquals result = identityFlyweight(o);
+                    	FixedHashEquals result = identityCacheGet(o);
                     	if (o != result) {
                     		failures.push(new Tuple<>(o, result));
                     	}
@@ -360,7 +360,7 @@ public class FlyweightCacheTest {
                     System.gc();
                     startQuerying.await();
                     for (FixedHashEquals o : toKeep) {
-                    	FixedHashEquals result = identityFlyweight((FixedHashEquals) o.clone());
+                    	FixedHashEquals result = identityCacheGet((FixedHashEquals) o.clone());
                     	if (o != result) {
                     		failures.push(new Tuple<>(o, result));
                     	}

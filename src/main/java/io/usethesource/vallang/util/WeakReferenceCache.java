@@ -16,34 +16,51 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Function;
 
-
-public class WeakReferenceFlyweightCache<K,V> {
+/**
+ * <p>
+ *     A cache that stores both the Key and Value in weak references, so after nobody uses one of the two references, the entry dropped from the cache.
+ *     The cache is thread safe, meaning the {@link #get} method can be called without any locking requirements.
+ *     With the following guarantees: 
+ * <p>
+ * <ul>
+ *    <li> As long as there are strong references to both the key and the value, all calls to {@link #get} will return the value reference for something that {@link Object#equals} key (not just reference equality, as Caffeine and WeakHashMap do)
+ *    <li> There will only be one entry for a given key, there is no point in time where you can get two different values for the same key (as long as there was a strong reference to key between two calls)
+ *    <li> If the key is in the cache, getting the value will rarely block (it can block in case the cache is being resized and at the same time some keys/values were cleared).
+ * </ul>
+ * 
+ * <p>
+ *     Warning: use this class only if you know that both the key and value will also be kept around somewhere. 
+ *     Also check the {@link WeakHashMap} that keeps a strong reference to the Value, however it uses reference equality on the key.
+ * </p>
+ * @author Davy Landman
+ *
+ * @param <K>
+ * @param <V>
+ */
+public class WeakReferenceCache<K,V> {
 
 	private volatile AtomicReferenceArray<Entry<K,V>> table;
 	private volatile int count;
 	private final ReferenceQueue<Object> cleared;
 	private final StampedLock lock;
 
-	private static final int INITIAL_CAPACITY = 32;
+	private static final int MINIMAL_CAPACITY = 1 << 4;
 	private static final int MAX_CAPACITY = 1 << 30;
 
-	public WeakReferenceFlyweightCache() {
-		table = new AtomicReferenceArray<>(INITIAL_CAPACITY);
+	public WeakReferenceCache() {
+		table = new AtomicReferenceArray<>(MINIMAL_CAPACITY);
 		count = 0;
 		cleared = new ReferenceQueue<>();
 		lock = new StampedLock();
 	}
 	
-	private int bucket(int tableLength,int hash) {
-		return (hash ^ (hash >> 16)) & (tableLength - 1);
-	}
-	
-	public V getFlyweight(K key, Function<K, V> generateValue) {
+	public V get(K key, Function<K, V> generateValue) {
 		if (key == null) {
 			throw new IllegalArgumentException();
 		}
@@ -60,6 +77,11 @@ public class WeakReferenceFlyweightCache<K,V> {
 		// not found
 		resize();
 		return insertIfPossible(key, hash, bucketHead, generateValue.apply(key));
+	}
+
+	private int bucket(int tableLength,int hash) {
+		// since we are only using the last bits, take the msb and add them to the mix
+		return (hash ^ (hash >> 16)) & (tableLength - 1);
 	}
 
 	private V insertIfPossible(final K key, final int hash, Entry<K, V> notFoundIn, final V result) {
@@ -217,7 +239,7 @@ public class WeakReferenceFlyweightCache<K,V> {
 		if (newCount > newSize * 0.8) {
 			newSize <<= 1;
 		}
-		else if (newSize != INITIAL_CAPACITY && newCount < (newSize >> 2)) {
+		else if (newSize != MINIMAL_CAPACITY && newCount < (newSize >> 2)) {
 			// shrank quite a bit, so it makes sens to resize
 			// find the smallest next power for the 
 			newSize = Integer.highestOneBit(newCount - 1) << 1;
@@ -227,7 +249,7 @@ public class WeakReferenceFlyweightCache<K,V> {
 			newSize = MAX_CAPACITY;
 		}
 		else if (newSize == 0) {
-			newSize = INITIAL_CAPACITY;
+			newSize = MINIMAL_CAPACITY;
 		}
 		return newSize;
 	}
