@@ -76,7 +76,7 @@ public class WeakReferenceCache<K,V> {
 		AtomicReferenceArray<Entry<K,V>> table = this.table;
 		int bucket = bucket(table.length(), hash);
 		Entry<K, V> bucketHead = table.get(bucket); // just so we k
-		V found = lookup(key, hash, bucketHead);
+		V found = lookup(key, hash, bucketHead, null);
 		if (found != null) {
 			return found;
 		}
@@ -98,8 +98,8 @@ public class WeakReferenceCache<K,V> {
 			int bucket = bucket(table.length(), hash);
 			Entry<K, V> currentBucketHead = table.get(bucket);
 			if (currentBucketHead != notFoundIn) {
-				// the head of the chain has changed, so it might be that now the key is there, so we have to lookup again
-				V otherResult = lookup(key, hash, currentBucketHead);
+				// the head of the chain has changed, so it might be that now the key is there, so we have to lookup again, but we stop when we find the head again (or null)
+				V otherResult = lookup(key, hash, currentBucketHead, notFoundIn);
 				if (otherResult != null) {
 					return otherResult;
 				}
@@ -120,8 +120,8 @@ public class WeakReferenceCache<K,V> {
 		}
 	}
 
-	private V lookup(K key, int hash, Entry<K, V> bucketEntry) {
-		while (bucketEntry != null) {
+	private V lookup(K key, int hash, Entry<K, V> bucketEntry, Entry<K,V> stopAfter) {
+		while (bucketEntry != null && bucketEntry != stopAfter) {
 			if (bucketEntry.hash == hash) {
 				Object other = bucketEntry.key.get();
 				if (other != null && key.equals(other)) {
