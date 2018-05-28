@@ -263,7 +263,7 @@ public class WeakReferenceCache<K,V> {
 	}
 
 	
-	private abstract static interface EntryChild<P> {
+	private static interface EntryChild<P> {
 		Object get();
 		void clear();
 		P getParent();
