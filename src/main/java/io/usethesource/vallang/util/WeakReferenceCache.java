@@ -12,12 +12,9 @@
  */ 
 package io.usethesource.vallang.util;
 
-import java.io.PrintStream;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -61,6 +58,7 @@ public class WeakReferenceCache<K,V> {
 	 * </p>
 	 */
 	private volatile AtomicReferenceArray<Entry<K,V>> table = new AtomicReferenceArray<>(MINIMAL_CAPACITY);
+
 	/**
 	 * Read write lock around the reference to the table. Read lock when you want to insert stuff into the table, write lock when you want to change the reference of the table (only happens during resize).
 	 */
@@ -70,8 +68,9 @@ public class WeakReferenceCache<K,V> {
 	 * Keeps track of how many items are in the table, can temporarily be out of sync with the table.
 	 */
 	private volatile int count = 0;
+
 	/**
-	 * The GC notifies us about references that are cleared via this queue. Polling is cheap (fast and lock-free) if it is empty.
+	 * The GC notifies us about references that are cleared via this queue. Polling is cheap (just a volatile read) if it is empty.
 	 * We use Object here so that we can share the queue between key and value.
 	 */
 	private final ReferenceQueue<Object> cleared = new ReferenceQueue<>();
@@ -101,7 +100,7 @@ public class WeakReferenceCache<K,V> {
 	public WeakReferenceCache(boolean weakKeys, boolean weakValues) {
 		keyBuilder = weakKeys ? WeakChild::new : StrongChild::new;
 		valueBuilder = weakValues ? WeakChild::new : StrongChild::new;
-		Cleanup.addCache(this);
+		Cleanup.register(this);
 	}
 	
 	/**
@@ -123,8 +122,7 @@ public class WeakReferenceCache<K,V> {
 			return found;
 		}
 
-		// not found, so before trying to insert it resize if needed
-		resize();
+		// not found, so let's try to insert it 
 		return insert(key, hash, bucketHead, generateValue.apply(key));
 	}
 
@@ -145,6 +143,7 @@ public class WeakReferenceCache<K,V> {
 		if (value == null) {
 			throw new IllegalArgumentException("The new value to insert cannot be null");
 		}
+		resize(); // check if we might need to grow or shrink
 		final Entry<K, V> toInsert = new Entry<>(key, value, hash, keyBuilder, valueBuilder, cleared);
 		while (true) {
 			final AtomicReferenceArray<Entry<K, V>> table = this.table; // we copy the table field once per iteration, the read lock at the end checks if it has changed since then
@@ -193,9 +192,51 @@ public class WeakReferenceCache<K,V> {
 		}
 		return null;
 	}
+
+	/**
+	 * Try to see if there is enough space in the table, or if it should be grown/shrunk.
+	 * Only lock when we need to resize.
+	 */
+	private void resize() {
+		final AtomicReferenceArray<Entry<K, V>> table = this.table;
+		int newSize = calculateNewSize(table);
+
+		if (newSize != table.length()) {
+			// We have to grow, so we have to get an exclusive lock on the table, so nobody is inserting/cleaning.
+			long stamp = lock.writeLock();
+			try {
+				// now it could be that another thread also triggered a resize, so we have to make sure we are not too late
+				final AtomicReferenceArray<Entry<K, V>> oldTable = this.table;
+				final int oldLength = oldTable.length();
+				if (oldTable != table) {
+					// someone else already changed the table, so recalculate the size, see if we still need to resize
+					newSize = calculateNewSize(oldTable);
+					if (newSize == oldLength) {
+						return;
+					}
+				}
+				final AtomicReferenceArray<Entry<K,V>> newTable = new AtomicReferenceArray<>(newSize);
+				for (int i = 0; i < oldLength; i++) {
+					Entry<K,V> current = oldTable.get(i);
+					while (current != null) {
+						int newBucket = bucket(current.hash, newSize);
+						// we cannot change the old entry, as the lookups are still happening on them (as intended)
+						// so we build a new entry, that replaces the old entry for the aspect of the reference queue.
+						newTable.set(newBucket, new Entry<>(current.key, current.value, current.hash, newTable.get(newBucket)));
+						current = current.next.get();
+					}
+				}
+				this.table = newTable;
+			}
+			finally {
+				lock.unlockWrite(stamp);
+			}
+		}
+	}
+	
 	
 	/**
-	 * Should only be called from a single thread (the cleanup thread)
+	 * Should only be called from the cleanup thread
 	 */
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
@@ -253,50 +294,15 @@ public class WeakReferenceCache<K,V> {
 			}
 		}
 	}
-
+	
+	
 	/**
-	 * Try to see if there is enough space in the table, or if it should be grown/shrunk.
-	 * Only lock when we need to resize.
+	 * A special class that takes care to periodically cleanup any references that are cleared.
+	 * 
+	 * The reason it's in a seperate thread is to avoid having the {@link #get} invocations block due to cleanup.
+	 * The alternative approach of only cleaning up during insertion can leave the cache quite full with stale entries if no new entries are added anymore.
+	 *
 	 */
-	private void resize() {
-		final AtomicReferenceArray<Entry<K, V>> table = this.table;
-		int newSize = calculateNewSize(table);
-
-		if (newSize != table.length()) {
-			// We have to grow, so we have to get an exclusive lock on the table, so nobody is inserting/cleaning.
-			long stamp = lock.writeLock();
-			try {
-				// now it could be that another thread also triggered a resize, so we have to make sure we are not too late
-				final AtomicReferenceArray<Entry<K, V>> oldTable = this.table;
-				final int oldLength = oldTable.length();
-				if (oldTable != table) {
-					// someone else already changed the table, so recalculate the size, see if we still need to resize
-					newSize = calculateNewSize(oldTable);
-					if (newSize == oldLength) {
-						return;
-					}
-				}
-				final AtomicReferenceArray<Entry<K,V>> newTable = new AtomicReferenceArray<>(newSize);
-				for (int i = 0; i < oldLength; i++) {
-					Entry<K,V> current = oldTable.get(i);
-					while (current != null) {
-						int newBucket = bucket(current.hash, newSize);
-						// we cannot change the old entry, as the lookups are still happening on them (as intended)
-						// so we build a new entry, that replaces the old entry for the aspect of the reference queue.
-						newTable.set(newBucket, new Entry<>(current.key, current.value, current.hash, newTable.get(newBucket)));
-						current = current.next.get();
-					}
-				}
-				this.table = newTable;
-			}
-			finally {
-				lock.unlockWrite(stamp);
-			}
-		}
-	}
-	
-	
-	
 	private static class Cleanup extends Thread {
 		private final ConcurrentLinkedDeque<WeakReference<WeakReferenceCache<?,?>>> caches;
 
@@ -311,12 +317,8 @@ public class WeakReferenceCache<K,V> {
 			static final Cleanup INSTANCE = new Cleanup();
 		}
 		
-		public static void addCache(WeakReferenceCache<?, ?> toClean) {
-			InstanceHolder.INSTANCE.add(toClean);
-		}
-
-		private void add(WeakReferenceCache<?, ?> toClean) {
-			caches.add(new WeakReference<>(toClean));
+		public static void register(WeakReferenceCache<?, ?> cache) {
+			InstanceHolder.INSTANCE.caches.add(new WeakReference<>(cache));
 		}
 		
 		@Override
