@@ -57,7 +57,7 @@ public class WeakReferenceCache<K,V> {
 	 *		New entries are only added to the head of the bucket, so by comparing the reference at the head of the bucket, you know the chain has not been extended (cleanup can remove intermediate nodes, but that is not a problem for lookup or insertion) 
 	 * </p>
 	 */
-	private volatile AtomicReferenceArray<Entry<K,V>> table = new AtomicReferenceArray<>(MINIMAL_CAPACITY);
+	private volatile AtomicReferenceArray<Node<K,V>> table = new AtomicReferenceArray<>(MINIMAL_CAPACITY);
 
 	/**
 	 * Read write lock around the reference to the table. Read lock when you want to insert stuff into the table, write lock when you want to change the reference of the table (only happens during resize).
@@ -81,12 +81,12 @@ public class WeakReferenceCache<K,V> {
 	/**
 	 * Constructor to store the reference to the key
 	 */
-	private final EntryChildConstructor<Entry<K,V>> keyBuilder;
+	private final ReferenceConstructor<Node<K,V>> keyBuilder;
 
 	/**
 	 * Constructor to store the reference to the value
 	 */
-	private final EntryChildConstructor<Entry<K,V>> valueBuilder;
+	private final ReferenceConstructor<Node<K,V>> valueBuilder;
 
 	public WeakReferenceCache() {
 		this(true, true);
@@ -98,8 +98,8 @@ public class WeakReferenceCache<K,V> {
 	 * @param weakValues if the values should be stored as weak references
 	 */
 	public WeakReferenceCache(boolean weakKeys, boolean weakValues) {
-		keyBuilder = weakKeys ? WeakChild::new : StrongChild::new;
-		valueBuilder = weakValues ? WeakChild::new : StrongChild::new;
+		keyBuilder = weakKeys ? WeakChildReference::new : StrongChildReference::new;
+		valueBuilder = weakValues ? WeakChildReference::new : StrongChildReference::new;
 		Cleanup.register(this);
 	}
 	
@@ -114,9 +114,9 @@ public class WeakReferenceCache<K,V> {
 			throw new IllegalArgumentException("No null arguments allowed");
 		}
 		int hash = key.hashCode();
-		AtomicReferenceArray<Entry<K,V>> table = this.table; // read the table once, to assure that the next operations all work on the same table
+		AtomicReferenceArray<Node<K,V>> table = this.table; // read the table once, to assure that the next operations all work on the same table
 		int bucket = bucket(hash, table.length());
-		Entry<K, V> bucketHead = table.get(bucket); 
+		Node<K, V> bucketHead = table.get(bucket); 
 		V found = lookup(key, hash, bucketHead, null);
 		if (found != null) {
 			return found;
@@ -139,16 +139,16 @@ public class WeakReferenceCache<K,V> {
 	 * @param value new value to insert
 	 * @return value that is now in the hash table
 	 */
-	private V insert(final K key, final int hash, Entry<K, V> notFoundIn, final V value) {
+	private V insert(final K key, final int hash, Node<K, V> notFoundIn, final V value) {
 		if (value == null) {
 			throw new IllegalArgumentException("The new value to insert cannot be null");
 		}
 		resize(); // check if we might need to grow or shrink
-		final Entry<K, V> toInsert = new Entry<>(key, value, hash, keyBuilder, valueBuilder, cleared);
+		final Node<K, V> toInsert = new Node<>(key, value, hash, keyBuilder, valueBuilder, cleared);
 		while (true) {
-			final AtomicReferenceArray<Entry<K, V>> table = this.table; // we copy the table field once per iteration, the read lock at the end checks if it has changed since then
+			final AtomicReferenceArray<Node<K, V>> table = this.table; // we copy the table field once per iteration, the read lock at the end checks if it has changed since then
 			int bucket = bucket(hash, table.length());
-			Entry<K, V> currentBucketHead = table.get(bucket);
+			Node<K, V> currentBucketHead = table.get(bucket);
 			if (currentBucketHead != notFoundIn) {
 				// the head of the chain has changed, so it might be that now the key is there, so we have to lookup again, but we stop when we find the old head again (or null)
 				V otherResult = lookup(key, hash, currentBucketHead, notFoundIn);
@@ -176,7 +176,7 @@ public class WeakReferenceCache<K,V> {
 		}
 	}
 
-	private V lookup(K key, int hash, Entry<K, V> bucketEntry, Entry<K,V> stopAfter) {
+	private V lookup(K key, int hash, Node<K, V> bucketEntry, Node<K,V> stopAfter) {
 		while (bucketEntry != null && bucketEntry != stopAfter) {
 			if (bucketEntry.hash == hash) {
 				Object other = bucketEntry.key.get();
@@ -198,7 +198,7 @@ public class WeakReferenceCache<K,V> {
 	 * Only lock when we need to resize.
 	 */
 	private void resize() {
-		final AtomicReferenceArray<Entry<K, V>> table = this.table;
+		final AtomicReferenceArray<Node<K, V>> table = this.table;
 		int newSize = calculateNewSize(table);
 
 		if (newSize != table.length()) {
@@ -206,7 +206,7 @@ public class WeakReferenceCache<K,V> {
 			long stamp = lock.writeLock();
 			try {
 				// now it could be that another thread also triggered a resize, so we have to make sure we are not too late
-				final AtomicReferenceArray<Entry<K, V>> oldTable = this.table;
+				final AtomicReferenceArray<Node<K, V>> oldTable = this.table;
 				final int oldLength = oldTable.length();
 				if (oldTable != table) {
 					// someone else already changed the table, so recalculate the size, see if we still need to resize
@@ -215,14 +215,14 @@ public class WeakReferenceCache<K,V> {
 						return;
 					}
 				}
-				final AtomicReferenceArray<Entry<K,V>> newTable = new AtomicReferenceArray<>(newSize);
+				final AtomicReferenceArray<Node<K,V>> newTable = new AtomicReferenceArray<>(newSize);
 				for (int i = 0; i < oldLength; i++) {
-					Entry<K,V> current = oldTable.get(i);
+					Node<K,V> current = oldTable.get(i);
 					while (current != null) {
 						int newBucket = bucket(current.hash, newSize);
 						// we cannot change the old entry, as the lookups are still happening on them (as intended)
 						// so we build a new entry, that replaces the old entry for the aspect of the reference queue.
-						newTable.set(newBucket, new Entry<>(current.key, current.value, current.hash, newTable.get(newBucket)));
+						newTable.set(newBucket, new Node<>(current.key, current.value, current.hash, newTable.get(newBucket)));
 						current = current.next.get();
 					}
 				}
@@ -240,21 +240,21 @@ public class WeakReferenceCache<K,V> {
 	 */
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
-		WeakChild<Entry<K,V>> clearedReference = (WeakChild<Entry<K, V>>) cleared.poll();
+		WeakChildReference<Node<K,V>> clearedReference = (WeakChildReference<Node<K, V>>) cleared.poll();
 		if (clearedReference != null) {
 			int totalCleared = 0;
 			long stamp = lock.readLock(); // we get a read lock on the table, so we can remove some stuff, to protect against a table resize in process
 			try {
-				final AtomicReferenceArray<Entry<K, V>> table = this.table;
+				final AtomicReferenceArray<Node<K, V>> table = this.table;
 				final int currentLength = table.length();
 
 				while (clearedReference != null) {
-					Entry<K, V> mapNode = clearedReference.getParent();
+					Node<K, V> mapNode = clearedReference.getParent();
 					if (mapNode != null) {
 						int bucket = bucket(mapNode.hash, currentLength);
 						while (true) {
-							Entry<K,V> prev = null;
-							Entry<K,V> cur = table.get(bucket);
+							Node<K,V> prev = null;
+							Node<K,V> cur = table.get(bucket);
 							while (cur != mapNode) {
 								prev = cur;
 								cur = cur.next.get();
@@ -282,7 +282,7 @@ public class WeakReferenceCache<K,V> {
 						mapNode.value.setParent(null);
 					}
 
-					clearedReference = (WeakChild<Entry<K,V>>) cleared.poll();
+					clearedReference = (WeakChildReference<Node<K,V>>) cleared.poll();
 				}
 			}
 			finally {
@@ -352,7 +352,7 @@ public class WeakReferenceCache<K,V> {
 		
 	}
 
-	private int calculateNewSize(final AtomicReferenceArray<Entry<K, V>> table) {
+	private int calculateNewSize(final AtomicReferenceArray<Node<K, V>> table) {
 		int newSize = table.length();
 		int newCount = this.count + 1;
 		if (newCount > newSize * 0.8) {
@@ -374,7 +374,11 @@ public class WeakReferenceCache<K,V> {
 	}
 
 	
-	private static interface EntryChild<P> {
+	/**
+	 * Common interface between weak reference and strong references around the key van value fields in the nodes. 
+	 * @param <P> type of the node where the reference is part of. Needed to find back the node in the table after a reference is cleared by the GC.
+	 */
+	private static interface ChildReference<P> {
 		Object get();
 		void clear();
 		P getParent();
@@ -382,16 +386,23 @@ public class WeakReferenceCache<K,V> {
 	}
 
 	
+	/**
+	 * Interface to abstract over which constructor to execute to build a new reference for the key or value object
+	 * @param <P> type of the parent node. see {@link ChildReference}
+	 */
 	@FunctionalInterface
-	interface EntryChildConstructor<P> {
-		EntryChild<P> construct(Object reference, P parent, ReferenceQueue<? super Object> clearQue);
+	interface ReferenceConstructor<P> {
+		ChildReference<P> construct(Object reference, P parent, ReferenceQueue<? super Object> clearQue);
 	}
 
 	
-	private static final class WeakChild<P> extends WeakReference<Object> implements EntryChild<P>  {
+	/**
+	 * A weak reference that also keeps track of the parent node
+	 */
+	private static final class WeakChildReference<P> extends WeakReference<Object> implements ChildReference<P>  {
 		private volatile P parent;
 
-		public WeakChild(Object referent, P parent, ReferenceQueue<? super Object> q) {
+		public WeakChildReference(Object referent, P parent, ReferenceQueue<? super Object> q) {
 			super(referent, q);
 			this.parent = parent;
 		}
@@ -407,10 +418,13 @@ public class WeakReferenceCache<K,V> {
 		}
 	}
 
-	private static final class StrongChild<P> implements EntryChild<P> {
+	/**
+	 * A normal strong reference, that doesn't keep track of the parent, as strong references can not be cleared by the GC.
+	 */
+	private static final class StrongChildReference<P> implements ChildReference<P> {
 		private volatile Object ref;
 
-		public StrongChild(Object referent, P parent, ReferenceQueue<? super Object> q) {
+		public StrongChildReference(Object referent, P parent, ReferenceQueue<? super Object> q) {
 			this.ref = referent;
 		}
 		
@@ -434,22 +448,28 @@ public class WeakReferenceCache<K,V> {
 	}
 	
 
-	private static final class Entry<K, V> {
+	/**
+	 * Main node of the hash table, next field constructs the overloaded chain.
+	 */
+	private static final class Node<K, V> {
 		private final int hash;
 
-		private final AtomicReference<Entry<K,V>> next;
+		private final AtomicReference<Node<K,V>> next;
 
-		private final EntryChild<Entry<K,V>> key;
-		private final EntryChild<Entry<K,V>> value;
+		private final ChildReference<Node<K,V>> key;
+		private final ChildReference<Node<K,V>> value;
 
-		public Entry(K key, V value, int hash, EntryChildConstructor<Entry<K,V>> keyBuilder, EntryChildConstructor<Entry<K,V>> valueBuilder, ReferenceQueue<? super Object> q) {
+		public Node(K key, V value, int hash, ReferenceConstructor<Node<K,V>> keyBuilder, ReferenceConstructor<Node<K,V>> valueBuilder, ReferenceQueue<? super Object> q) {
 			this.hash = hash;
 			this.key = keyBuilder.construct(key, this, q);
 			this.value = (key == value) && (keyBuilder == valueBuilder) ? this.key : valueBuilder.construct(value, this, q); // safe a reference in case of identity cache
 			this.next = new AtomicReference<>(null);
 		}
 
-		public Entry(EntryChild<Entry<K,V>> key, EntryChild<Entry<K,V>> value, int hash, Entry<K,V> next) {
+		/**
+		 * During a resize, we construct a new Node, but reuse the references from the old node
+		 */
+		public Node(ChildReference<Node<K,V>> key, ChildReference<Node<K,V>> value, int hash, Node<K,V> next) {
 			this.hash = hash;
 			this.key = key;
 			this.value = value;
