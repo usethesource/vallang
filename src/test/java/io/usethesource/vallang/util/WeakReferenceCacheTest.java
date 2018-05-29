@@ -29,6 +29,9 @@ import org.junit.Test;
 
 public class WeakReferenceCacheTest {
 	
+	/**
+	 * Class that allows fine grained control on the equality contract and makes it easier to control hash collisions
+	 */
 	private final class FixedHashEquals {
 		private final int hash;
 		private final int equals;
@@ -70,7 +73,7 @@ public class WeakReferenceCacheTest {
 	}
 
 	@Before
-	public void constructData() {
+	public void constructTarget() {
 		target = new WeakReferenceCache<>(true, true);
 	}
 	
@@ -106,7 +109,7 @@ public class WeakReferenceCacheTest {
 		assertSame(a, identityCacheGet(a));
 		a = null;
 		System.gc();
-		Thread.sleep(10); // wait for the GC to finish
+		Thread.sleep(1100); // wait for the GC to finish and the cleanup to have been run
 
 		// a new reference, the target should not have kept the old reference
 		a = new FixedHashEquals(1,1);
@@ -151,7 +154,7 @@ public class WeakReferenceCacheTest {
 		objects = null;
 		System.gc();
 		// wait for GC and reference queue to finish
-		Thread.sleep(200);
+		Thread.sleep(1200);
 		
 
 		// check if the clone won't return the old reference
@@ -168,7 +171,7 @@ public class WeakReferenceCacheTest {
 			assertSame(o, identityCacheGet(o));
 		}
 		
-		// look up
+		// look up with a clone of them
 		for (int i = 0; i < objects.length; i ++) {
 			assertSame(objects[i],  identityCacheGet((FixedHashEquals) objects[i].clone()));
 		}
@@ -212,7 +215,12 @@ public class WeakReferenceCacheTest {
 			this.y = y; 
 		} 
 	} 
-	private static final int THREAD_COUNT = 8;
+
+	private static final int THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 2;
+
+	/**
+	 * Test many concurrent threads putting in the same object, and getting the same one out of there
+	 */
 	@Test
 	public void multithreadedAccess() throws InterruptedException, BrokenBarrierException {
 		FixedHashEquals[] objects = createTestObjects(64*1024, 1024);
@@ -239,7 +247,7 @@ public class WeakReferenceCacheTest {
                     }
                     objects2.removeIf(h -> h.hash > 30);
                     System.gc();
-                    Thread.sleep(100);
+                    Thread.sleep(1100);
 
                     startQuerying.await();
                     for (FixedHashEquals o : objects2) {
@@ -267,8 +275,13 @@ public class WeakReferenceCacheTest {
 		}
 	}
 	
-	private static final int TEST_SIZE = 32 << 10;
+	private static final int TEST_SIZE = 16 << 10; // base size is 16, so test 10 resizes
 
+	/**
+	 * Generate enough data to trigger at least 10 resize events. Then have multiple threads all inserting every object exacty once.
+	 * 
+	 * Then query the cache from all threads to see if they are all in there (but take a clone of the object, to make sure we are getting the one we expected, and not the one we just passed in
+	 */
 	@Test
 	public void multithreadedNothingIsLostDuringResizes() throws InterruptedException, BrokenBarrierException {
 		CyclicBarrier startRunning = new CyclicBarrier(THREAD_COUNT + 1);
@@ -297,6 +310,7 @@ public class WeakReferenceCacheTest {
                     	}
                     }
                     startQuerying.await();
+                    // query, and make sure we are not getting a fresh entry, but getting the one that was inserted before, by any of the threads
                     for (FixedHashEquals o : objects.subList(0, THREAD_COUNT * chunkSize)) {
                     	FixedHashEquals result = identityCacheGet((FixedHashEquals) o.clone());
                     	if (o != result) {
@@ -319,6 +333,9 @@ public class WeakReferenceCacheTest {
 		}
 	}
 
+	/**
+	 * Add a lot of data (from multiple threads), causing multiple resizes. Then clear almost all, and see if after the cleanup of the collection has happened, if ones that were left over, still return the same value.
+	 */
 	@Test
 	public void multithreadedNothingIsLostDuringGCCollects() throws InterruptedException, BrokenBarrierException {
 		CyclicBarrier startRunning = new CyclicBarrier(THREAD_COUNT + 1);
@@ -373,9 +390,8 @@ public class WeakReferenceCacheTest {
 		stoppedInserting.await();
 		objects.clear();
 		System.gc();
-		Thread.sleep(300);
+		Thread.sleep(1100);
 		startQuerying.await();
-
 		
 		doneRunning.acquire(THREAD_COUNT);
 		if (!failures.isEmpty()) {
