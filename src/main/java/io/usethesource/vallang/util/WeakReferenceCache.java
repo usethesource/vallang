@@ -12,12 +12,15 @@
  */ 
 package io.usethesource.vallang.util;
 
+import java.io.PrintStream;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.StampedLock;
@@ -98,6 +101,7 @@ public class WeakReferenceCache<K,V> {
 	public WeakReferenceCache(boolean weakKeys, boolean weakValues) {
 		keyBuilder = weakKeys ? WeakChild::new : StrongChild::new;
 		valueBuilder = weakValues ? WeakChild::new : StrongChild::new;
+		Cleanup.addCache(this);
 	}
 	
 	/**
@@ -119,8 +123,7 @@ public class WeakReferenceCache<K,V> {
 			return found;
 		}
 
-		// not found, so before trying to insert it, lets cleanup and resize if needed
-		cleanup();
+		// not found, so before trying to insert it resize if needed
 		resize();
 		return insert(key, hash, bucketHead, generateValue.apply(key));
 	}
@@ -191,6 +194,9 @@ public class WeakReferenceCache<K,V> {
 		return null;
 	}
 	
+	/**
+	 * Should only be called from a single thread (the cleanup thread)
+	 */
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
 		WeakChild<Entry<K,V>> clearedReference = (WeakChild<Entry<K, V>>) cleared.poll();
@@ -198,57 +204,44 @@ public class WeakReferenceCache<K,V> {
 			int totalCleared = 0;
 			long stamp = lock.readLock(); // we get a read lock on the table, so we can remove some stuff, to protect against a table resize in process
 			try {
-				// quickly consumed the whole cleared pool: to avoid too many threads trying to do a cleanup 
-				List<WeakChild<Entry<K,V>>> toClear = new ArrayList<>();
-				while (clearedReference != null) {
-					toClear.add(clearedReference);
-					clearedReference = (WeakChild<Entry<K,V>>) cleared.poll();
-				}
-
 				final AtomicReferenceArray<Entry<K, V>> table = this.table;
 				final int currentLength = table.length();
-				for (WeakChild<Entry<K,V>> e: toClear) {
-					Entry<K, V> mapNode = e.getParent();
+
+				while (clearedReference != null) {
+					Entry<K, V> mapNode = clearedReference.getParent();
 					if (mapNode != null) {
-                        // avoid multiple threads clearing the same entry (for example the key and value both got cleared)
-						synchronized (mapNode) {
-							mapNode = e.getParent(); // make sure it wasn't cleared since we got the lock
-							if (mapNode != null) {
-
-								int bucket = bucket(mapNode.hash, currentLength);
-								while (true) {
-                                    Entry<K,V> prev = null;
-                                    Entry<K,V> cur = table.get(bucket);
-                                    while (cur != mapNode) {
-                                        prev = cur;
-                                        cur = cur.next.get();
-                                        assert cur != null; // we have to find entry in this bucket
-                                    }
-                                    if (prev == null) {
-                                        // at the head, so we can just replace the head
-                                        if (table.compareAndSet(bucket, mapNode, mapNode.next.get())) {
-                                        	break; // we replaced the head, so continue
-                                        }
-                                    }
-                                    else {
-                                    	if (prev.next.compareAndSet(mapNode, mapNode.next.get())) {
-                                    		break; // managed to replace the next pointer in the chain 
-                                    	}
-                                    }
-								}
-								count--;
-								totalCleared++;
-								// keep the next pointer intact, in case someone is following this chain.
-								// we do clear the rest
-								mapNode.key.clear();
-								mapNode.key.setParent(null); // marks the fact that the node has been cleared already
-								mapNode.value.clear();
-								mapNode.value.setParent(null);
+						int bucket = bucket(mapNode.hash, currentLength);
+						while (true) {
+							Entry<K,V> prev = null;
+							Entry<K,V> cur = table.get(bucket);
+							while (cur != mapNode) {
+								prev = cur;
+								cur = cur.next.get();
+								assert cur != null; // we have to find entry in this bucket
 							}
-
+							if (prev == null) {
+								// at the head, so we can just replace the head
+								if (table.compareAndSet(bucket, mapNode, mapNode.next.get())) {
+									break; // we replaced the head, so continue
+								}
+							}
+							else {
+								if (prev.next.compareAndSet(mapNode, mapNode.next.get())) {
+									break; // managed to replace the next pointer in the chain 
+								}
+							}
 						}
-
+						count--;
+						totalCleared++;
+						// keep the next pointer intact, in case someone is following this chain.
+						// we do clear the rest
+						mapNode.key.clear();
+						mapNode.key.setParent(null); // marks the fact that the node has been cleared already
+						mapNode.value.clear();
+						mapNode.value.setParent(null);
 					}
+
+					clearedReference = (WeakChild<Entry<K,V>>) cleared.poll();
 				}
 			}
 			finally {
@@ -300,6 +293,61 @@ public class WeakReferenceCache<K,V> {
 				lock.unlockWrite(stamp);
 			}
 		}
+	}
+	
+	
+	
+	private static class Cleanup extends Thread {
+		private final ConcurrentLinkedDeque<WeakReference<WeakReferenceCache<?,?>>> caches;
+
+		private Cleanup() { 
+			caches = new ConcurrentLinkedDeque<>();
+			setDaemon(true);
+			setName("Cleanup Thread for " + WeakReferenceCache.class.getName());
+			start();
+		}
+		
+		private static class InstanceHolder {
+			static final Cleanup INSTANCE = new Cleanup();
+		}
+		
+		public static void addCache(WeakReferenceCache<?, ?> toClean) {
+			InstanceHolder.INSTANCE.add(toClean);
+		}
+
+		private void add(WeakReferenceCache<?, ?> toClean) {
+			caches.add(new WeakReference<>(toClean));
+		}
+		
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					return;
+				}
+				try {
+					Iterator<WeakReference<WeakReferenceCache<?, ?>>> it = caches.iterator();
+					while (it.hasNext()) {
+						WeakReferenceCache<?, ?> cur = it.next().get();
+						if (cur == null) {
+							it.remove();
+						}
+						else {
+							cur.cleanup();
+						}
+					}
+				}
+				catch (Throwable e) {
+					System.err.println("Cleanup thread failed with: " + e.getMessage());
+					e.printStackTrace(System.err);
+				}
+			}
+		}
+		
+		
+		
 	}
 
 	private int calculateNewSize(final AtomicReferenceArray<Entry<K, V>> table) {
