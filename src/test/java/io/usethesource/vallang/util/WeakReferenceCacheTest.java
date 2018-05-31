@@ -12,18 +12,19 @@
  */ 
 package io.usethesource.vallang.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -397,6 +398,53 @@ public class WeakReferenceCacheTest {
         if (!failures.isEmpty()) {
             Tuple<FixedHashEquals, FixedHashEquals> first = failures.pop();
             assertSame(first.x, first.y);
+        }
+    }
+
+    /**
+     * Test the first two guarantee: for every get there is only one result, across threads. 
+     * 
+     * We test this by inserting clones of the same objects (in the same sequnce) from a lot of threads, and then check if only one result was returned
+     */
+    @Test
+    public void insertMultipleCopiesAllReturnSameInstance() throws InterruptedException, BrokenBarrierException {
+        CyclicBarrier startRunning = new CyclicBarrier((THREAD_COUNT * 2) + 1);
+        Semaphore doneRunning = new Semaphore(0);
+        ConcurrentLinkedDeque<FixedHashEquals> results = new ConcurrentLinkedDeque<>();
+
+        List<FixedHashEquals> objects =  new ArrayList<>(TEST_SIZE / 4);
+        for (FixedHashEquals o: createTestObjects(TEST_SIZE / 4, (TEST_SIZE / 4) >> 2)) {
+            objects.add(o);
+        }
+        Collections.shuffle(objects, new Random(42 * 42));
+
+
+        for (int i = 0; i < (THREAD_COUNT * 2); i++) {
+            new Thread(() -> {
+                try {
+                    startRunning.await();
+                    for (FixedHashEquals o : objects) {
+                        results.push(identityCacheGet((FixedHashEquals) o.clone()));
+                    }
+                } catch (InterruptedException | BrokenBarrierException | CloneNotSupportedException e) {
+                }
+                finally {
+                    doneRunning.release();
+                }
+            }).start();
+        }
+        startRunning.await();
+
+        doneRunning.acquire(THREAD_COUNT * 2);
+        Map<FixedHashEquals, FixedHashEquals> seen = new HashMap<>(objects.size());
+        for (FixedHashEquals e : results) {
+            if (seen.containsKey(e)) {
+                assertSame("We expect the same reference to be returned everythin for something that is equal", e, seen.get(e));
+            }
+            else {
+                seen.put(e, e);
+            }
+            
         }
     }
 }

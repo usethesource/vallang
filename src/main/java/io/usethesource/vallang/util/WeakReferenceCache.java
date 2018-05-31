@@ -31,7 +31,7 @@ import java.util.function.Function;
  * <p>
  * <ul>
  *    <li> As long as there are strong references to both the key and the value, all calls to {@link #get} will return the value reference for something that {@link Object#equals} key (not just reference equality, as Caffeine and WeakHashMap do)
- *    <li> There will only be one entry for a given key, there is no point in time where you can get two different values for the same key (as the entry wasn't cleared because there was no strong reference to the key or the value between two calls)
+ *    <li> There will only be one entry for a given key, there is no point in time where you can get two different values for the same key (as long as the entry wasn't cleared because there was no strong reference to the key or the value between those two calls)
  *    <li> If the key is in the cache, retrieving the value will not block the code.
  *    <li> If the key is *not* in the cache, the function to generate a value will be called once per concurrent {@link #get} call, and only one of those results will be the reference stored in the cache, and returned to all these concurrent calls.
  *    <li> If the key is *not* in the cache, the {@link #get} rarely blocks, only in case of a resize (which happens at 80% fill rate, and grows exponentially)
@@ -118,6 +118,11 @@ public class WeakReferenceCache<K,V> {
         if (key == null || generateValue == null) {
             throw new IllegalArgumentException("No null arguments allowed");
         }
+
+        // We do a dirty read on the table, it could be that it's being resized, but that doesn't matter.
+        // We are just doing a quick lookup first, to try to see if it is the current table, 
+        // even during resizes, the current table remains valid to read from, inserting during resize is not supported
+       
         int hash = key.hashCode();
         AtomicReferenceArray<Node<K,V>> table = this.table; // read the table once, to assure that the next operations all work on the same table
         int bucket = bucket(hash, table.length());
@@ -127,7 +132,8 @@ public class WeakReferenceCache<K,V> {
             return found;
         }
 
-        // not found, so let's try to insert it 
+        // not found, so let's try to insert it, this will acquire a read lock on the table, so it can block if on another thread a resizes is happening.
+        // otherwise, nothing wrong, multiple inserts can happen next to each other
         return insert(key, hash, bucketHead, generateValue.apply(key));
     }
 
