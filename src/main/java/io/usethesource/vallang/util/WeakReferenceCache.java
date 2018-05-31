@@ -57,7 +57,7 @@ public class WeakReferenceCache<K,V> {
      *		New entries are only added to the head of the bucket, so by comparing the reference at the head of the bucket, you know the chain has not been extended (cleanup can remove intermediate nodes, but that is not a problem for lookup or insertion) 
      * </p>
      */
-    private volatile AtomicReferenceArray<Node<K,V>> table = new AtomicReferenceArray<>(MINIMAL_CAPACITY);
+    private volatile AtomicReferenceArray<Node<K,V>> table;
 
     /**
      * Read write lock around the reference to the table. Read lock when you want to insert stuff into the table, write lock when you want to change the reference of the table (only happens during resize).
@@ -89,20 +89,25 @@ public class WeakReferenceCache<K,V> {
     private final ReferenceConstructor<Node<K,V>> valueBuilder;
 
     public WeakReferenceCache() {
-        this(true, true);
+        this(true, true, MINIMAL_CAPACITY);
     }
     /**
      * Construct a new WeakReference cache. 
      * <strong>Passing false for both keys and values turns this into a (memory) expensive hashmap</strong>
      * @param weakKeys if the keys should be stored as weak references
      * @param weakValues if the values should be stored as weak references
+     * @param initialCapacity the size of the cache to start with. will be rounded up towards the closest power of two.
      */
-    public WeakReferenceCache(boolean weakKeys, boolean weakValues) {
+    public WeakReferenceCache(boolean weakKeys, boolean weakValues, int initialCapacity) {
+        table = new AtomicReferenceArray<>(closestPowerOfTwo(initialCapacity));
         keyBuilder = weakKeys ? WeakChildReference::new : StrongChildReference::new;
         valueBuilder = weakValues ? WeakChildReference::new : StrongChildReference::new;
         Cleanup.register(this);
     }
 
+    private static int closestPowerOfTwo(int capacity) {
+        return Integer.highestOneBit(capacity - 1) << 1;
+    }
     /**
      * Lookup key in the cache.
      * @param key lookup something that is equal to this key in the cache.

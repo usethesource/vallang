@@ -74,7 +74,7 @@ public class WeakReferenceCacheTest {
 
     @Before
     public void constructTarget() {
-        target = new WeakReferenceCache<>(true, true);
+        target = new WeakReferenceCache<>(true, true, 16);
     }
 
     @Test

@@ -55,7 +55,7 @@ public class TypeFactory {
 	/**
 	 * Caches all types to implement canonicalization
 	 */
-	private final WeakReferenceCache<Type, Type> fCache = new WeakReferenceCache<Type, Type>(true, true);
+	private final WeakReferenceCache<Type, Type> fCache = new WeakReferenceCache<Type, Type>(true, true, 8*1024);
     private TypeValues typeValues;
     
 	private static class InstanceHolder {
