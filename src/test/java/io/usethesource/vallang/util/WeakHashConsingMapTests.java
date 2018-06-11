@@ -12,10 +12,10 @@
  */ 
 package io.usethesource.vallang.util;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,15 +25,29 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
+import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
-public class WeakReferenceCacheTest {
+@RunWith(Parameterized.class)
+public class WeakHashConsingMapTests {
+    
+    @Parameters
+    public static Collection<Supplier<HashConsingMap<FixedHashEquals>>> data() {
+        List<Supplier<HashConsingMap<FixedHashEquals>>> result = new ArrayList<>();
+        result.add(() -> new WeakBarelyLockingHashConsingMap<>(16));
+        result.add(() -> new WeakConcurrentHashConsingMap<>());
+        return result;
+    }
 
     /**
      * Class that allows fine grained control on the equality contract and makes it easier to control hash collisions
      */
-    private final class FixedHashEquals {
+    private static final class FixedHashEquals {
         private final int hash;
         private final int equals;
 
@@ -67,54 +81,53 @@ public class WeakReferenceCacheTest {
 
     }
 
-    private WeakReferenceCache<FixedHashEquals, FixedHashEquals> target;
+    @Parameter
+    public Supplier<HashConsingMap<FixedHashEquals>> generator;
+    private HashConsingMap<FixedHashEquals> target;
 
-    private FixedHashEquals identityCacheGet(FixedHashEquals key) {
-        return target.get(key, x -> x);
-    }
 
     @Before
     public void constructTarget() {
-        target = new WeakReferenceCache<>(true, true, 16);
+        target = generator.get();
     }
 
     @Test
     public void restoreSameReference() {
         FixedHashEquals a = new FixedHashEquals(1,1);
-        assertSame(a, identityCacheGet(a));
-        assertSame(a, identityCacheGet(a));
+        assertSame(a, target.get(a));
+        assertSame(a, target.get(a));
     }
 
     @Test
     public void restoreDifferentReference() {
         FixedHashEquals a = new FixedHashEquals(1,1);
         FixedHashEquals b = new FixedHashEquals(1,2);
-        assertSame(a, identityCacheGet(a));
-        assertSame(b, identityCacheGet(b));
+        assertSame(a, target.get(a));
+        assertSame(b, target.get(b));
 
-        assertSame(a, identityCacheGet(a));
+        assertSame(a, target.get(a));
     }
 
     @Test
     public void restoreOldReference() {
         FixedHashEquals a = new FixedHashEquals(1,1);
         FixedHashEquals b = new FixedHashEquals(1,1);
-        assertSame(a, identityCacheGet(a));
-        assertSame(a, identityCacheGet(b));
-        assertSame(a, identityCacheGet(a));
+        assertSame(a, target.get(a));
+        assertSame(a, target.get(b));
+        assertSame(a, target.get(a));
     }
 
     @Test
     public void looseReference() throws InterruptedException {
         FixedHashEquals a = new FixedHashEquals(1,1);
-        assertSame(a, identityCacheGet(a));
+        assertSame(a, target.get(a));
         a = null;
         System.gc();
         Thread.sleep(1100); // wait for the GC to finish and the cleanup to have been run
 
         // a new reference, the target should not have kept the old reference
         a = new FixedHashEquals(1,1);
-        assertSame(a, identityCacheGet(a));
+        assertSame(a, target.get(a));
     }
 
 
@@ -127,12 +140,12 @@ public class WeakReferenceCacheTest {
 
         // store them 
         for (FixedHashEquals o : objects) {
-            assertSame(o, identityCacheGet(o));
+            assertSame(o, target.get(o));
         }
 
         // and then again, to see that they are all in there
         for (FixedHashEquals o : objects) {
-            assertSame(o, identityCacheGet(o));
+            assertSame(o, target.get(o));
         }
     }
 
@@ -146,7 +159,7 @@ public class WeakReferenceCacheTest {
 
         // store them 
         for (FixedHashEquals o : objects) {
-            assertSame(o, identityCacheGet(o));
+            assertSame(o, target.get(o));
         }
 
         FixedHashEquals a = (FixedHashEquals) objects[0].clone();
@@ -159,7 +172,7 @@ public class WeakReferenceCacheTest {
 
 
         // check if the clone won't return the old reference
-        assertSame(a, identityCacheGet(a));
+        assertSame(a, target.get(a));
     }
 
 
@@ -169,12 +182,12 @@ public class WeakReferenceCacheTest {
 
         // store them 
         for (FixedHashEquals o : objects) {
-            assertSame(o, identityCacheGet(o));
+            assertSame(o, target.get(o));
         }
 
         // look up with a clone of them
         for (int i = 0; i < objects.length; i ++) {
-            assertSame(objects[i],  identityCacheGet((FixedHashEquals) objects[i].clone()));
+            assertSame(objects[i],  target.get((FixedHashEquals) objects[i].clone()));
         }
     }
 
@@ -193,7 +206,7 @@ public class WeakReferenceCacheTest {
 
         // store them 
         for (FixedHashEquals o : objects) {
-            assertSame(o, identityCacheGet(o));
+            assertSame(o, target.get(o));
         }
 
         for (int i=0; i < objects.length - 10; i++) {
@@ -204,7 +217,7 @@ public class WeakReferenceCacheTest {
         Thread.sleep(1000);
 
         for (int i=objects.length - 10; i < objects.length; i++) {
-            assertSame(objects[i],  identityCacheGet((FixedHashEquals) objects[i].clone()));
+            assertSame(objects[i],  target.get((FixedHashEquals) objects[i].clone()));
         }
     }
 
@@ -241,7 +254,7 @@ public class WeakReferenceCacheTest {
                     Collections.shuffle(objects2);
                     startRunning.await();
                     for (FixedHashEquals o : objects2) {
-                        FixedHashEquals result = identityCacheGet(o);
+                        FixedHashEquals result = target.get(o);
                         if (o != result) {
                             failures.push(new Tuple<>(o, result));
                         }
@@ -252,7 +265,7 @@ public class WeakReferenceCacheTest {
 
                     startQuerying.await();
                     for (FixedHashEquals o : objects2) {
-                        FixedHashEquals result = identityCacheGet((FixedHashEquals) o.clone());
+                        FixedHashEquals result = target.get((FixedHashEquals) o.clone());
                         if (o != result) {
                             failures.push(new Tuple<>(o, result));
                         }
@@ -305,7 +318,7 @@ public class WeakReferenceCacheTest {
                 try {
                     startRunning.await();
                     for (FixedHashEquals o : mySlice) {
-                        FixedHashEquals result = identityCacheGet(o);
+                        FixedHashEquals result = target.get(o);
                         if (o != result) {
                             failures.push(new Tuple<>(o, result));
                         }
@@ -313,7 +326,7 @@ public class WeakReferenceCacheTest {
                     startQuerying.await();
                     // query, and make sure we are not getting a fresh entry, but getting the one that was inserted before, by any of the threads
                     for (FixedHashEquals o : objects.subList(0, THREAD_COUNT * chunkSize)) {
-                        FixedHashEquals result = identityCacheGet((FixedHashEquals) o.clone());
+                        FixedHashEquals result = target.get((FixedHashEquals) o.clone());
                         if (o != result) {
                             failures.push(new Tuple<>(o, result));
                         }
@@ -366,7 +379,7 @@ public class WeakReferenceCacheTest {
                 try {
                     startRunning.await();
                     for (FixedHashEquals o : mySlice) {
-                        FixedHashEquals result = identityCacheGet(o);
+                        FixedHashEquals result = target.get(o);
                         if (o != result) {
                             failures.push(new Tuple<>(o, result));
                         }
@@ -375,7 +388,7 @@ public class WeakReferenceCacheTest {
                     System.gc();
                     startQuerying.await();
                     for (FixedHashEquals o : toKeep) {
-                        FixedHashEquals result = identityCacheGet((FixedHashEquals) o.clone());
+                        FixedHashEquals result = target.get((FixedHashEquals) o.clone());
                         if (o != result) {
                             failures.push(new Tuple<>(o, result));
                         }
@@ -424,7 +437,7 @@ public class WeakReferenceCacheTest {
                 try {
                     startRunning.await();
                     for (FixedHashEquals o : objects) {
-                        results.push(identityCacheGet((FixedHashEquals) o.clone()));
+                        results.push(target.get((FixedHashEquals) o.clone()));
                     }
                 } catch (InterruptedException | BrokenBarrierException | CloneNotSupportedException e) {
                 }

@@ -41,7 +41,8 @@ import io.usethesource.vallang.exceptions.IllegalFieldNameException;
 import io.usethesource.vallang.exceptions.IllegalFieldTypeException;
 import io.usethesource.vallang.exceptions.IllegalIdentifierException;
 import io.usethesource.vallang.exceptions.NullTypeException;
-import io.usethesource.vallang.util.WeakReferenceCache;
+import io.usethesource.vallang.util.HashConsingMap;
+import io.usethesource.vallang.util.WeakBarelyLockingHashConsingMap;
 
 /**
  * Use this class to produce any kind of {@link Type}, after which the make
@@ -55,7 +56,7 @@ public class TypeFactory {
 	/**
 	 * Caches all types to implement canonicalization
 	 */
-	private final WeakReferenceCache<Type, Type> fCache = new WeakReferenceCache<Type, Type>(true, true, 8*1024);
+	private final HashConsingMap<Type> fCache = new WeakBarelyLockingHashConsingMap<Type>(8*1024);
     private TypeValues typeValues;
     
 	private static class InstanceHolder {
@@ -107,7 +108,7 @@ public class TypeFactory {
 	}
 
 	private Type getFromCache(Type t) {
-		return fCache.get(t, t2 -> t2);
+		return fCache.get(t);
 	}
 
 	/**
