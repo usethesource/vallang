@@ -39,6 +39,7 @@ public class WeakHashConsingMapTests {
     @Parameters
     public static Collection<Supplier<HashConsingMap<FixedHashEquals>>> data() {
         List<Supplier<HashConsingMap<FixedHashEquals>>> result = new ArrayList<>();
+        result.add(() -> new WeakReferenceTrieCache<>());
         result.add(() -> new WeakBarelyLockingHashConsingMap<>(16));
         result.add(() -> new WeakConcurrentHashConsingMap<>());
         return result;
