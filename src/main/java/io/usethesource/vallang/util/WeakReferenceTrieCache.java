@@ -79,27 +79,30 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
 
     }
 
-    private static final int BITS_PER_LEVEL = 5;
-    private static final int BOTTOM_LEVEL = (32 / BITS_PER_LEVEL) + 1;
-    private static int index(int hash, int level) {
-        return (hash >>> (BITS_PER_LEVEL * level)) & ((1 << (BITS_PER_LEVEL))- 1);
-    }
-
-    private static int offsetIfSet(int bitmap, int index) {
-        int bitmapChunk = index == 31 ? bitmap : bitmap & ((1 << (index+1)) - 1);
-        int isSet = bitmapChunk & (0b1 << index);
-        if (isSet != 0) {
-            return Integer.bitCount(bitmapChunk) - 1;
-        }
-        else {
-            return -1;
-        }
-    }
     
     private static class NormalNode<T> implements TrieNode<T> {
         private final int bitmap;
         private final IntermediateNode<T>[] data;
         
+        static final int BITS_PER_LEVEL = 5;
+        static final int LEVEL_MASK = ((1 << (BITS_PER_LEVEL))- 1);
+        static final int BOTTOM_LEVEL = (32 / BITS_PER_LEVEL) + 1;
+
+        static int index(int hash, int level) {
+            return (hash >>> (BITS_PER_LEVEL * level)) & LEVEL_MASK;
+        }
+
+        static int offsetIfSet(int bitmap, int index) {
+            assert index >= 0 && index <= 31;
+            int isSet = bitmap & (0b1 << index);
+            if (isSet != 0) {
+                int bitmapChunk = bitmap & ((int) ((1L << (index+1)) - 1));
+                return Integer.bitCount(bitmapChunk) - 1;
+            }
+            else {
+                return -1;
+            }
+        }
         
         public NormalNode(int bitmap, IntermediateNode<T>[] data) {
             this.bitmap = bitmap;
