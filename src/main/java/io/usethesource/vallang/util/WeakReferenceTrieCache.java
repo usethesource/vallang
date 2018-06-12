@@ -22,12 +22,13 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
     @Override
     public T get(T key) {
         int hash = key.hashCode();
-        return root.get().getOrInsert(key, hash, 0, root, cleared);
+        return root.get().getOrInsert(key, hash, hash, 0, root, cleared);
     }
     
     
     private static interface TrieNode<T> {
-        T getOrInsert(T key, int hash, int level, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared);
+        T getOrInsert(T key, int hash, int hashLevel, int level, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared);
+        TrieNode<T> grow(LeafNode<T> newChild, int index, int level);
     }
     
     private static class LeafNode<T> implements TrieNode<T>  {
@@ -40,7 +41,7 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
         }
         
         @Override
-        public T getOrInsert(T key, int hash, int level, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared) {
+        public T getOrInsert(T key, int hash, int level, int hashLevel, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared) {
             return get(key, hash);
         }
 
@@ -54,6 +55,20 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
             return null;
         }
         
+        @SuppressWarnings("unchecked")
+        @Override
+        public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
+            if (this.hash == newChild.hash) {
+                if (this.key.get() == null) {
+                    return newChild;
+                }
+                return new CollisionNode<>((LeafNode<T>[])new LeafNode[] { this, newChild });
+            }
+            else {
+                return NormalNode.build(this, newChild, level + 1);
+            }
+        }
+        
     }
 
     private static class CollisionNode<T> implements TrieNode<T> {
@@ -65,7 +80,7 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
         }
 
         @Override
-        public T getOrInsert(T key, int hash, int level, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared) {
+        public T getOrInsert(T key, int hash, int hashLevel, int level, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared) {
             for (LeafNode<T> n : entries) {
                 T result = n.get(key, hash);
                 if (result != null) {
@@ -75,9 +90,11 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
             return null;
         }
 
-        public TrieNode<T> appendCollision(LeafNode<T> newEntry) {
+        
+        @Override
+        public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
             LeafNode<T>[] newEntries = Arrays.copyOf(entries, entries.length + 1);
-            newEntries[newEntries.length - 1] = newEntry;
+            newEntries[newEntries.length - 1] = newChild;
             return new CollisionNode<>(newEntries);
         }
 
@@ -143,50 +160,42 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
             }
         }
 
-        public static <T> TrieNode<T> grow(NormalNode<T> old, LeafNode<T> newNode, int newIndex) {
+        @Override
+        public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
             @SuppressWarnings("unchecked")
-            AtomicReference<TrieNode<T>>[] newData = new AtomicReference[old.data.length + 1];
-            int newBitmap = old.bitmap | 1 << newIndex;
-            int newOffset = offsetIfSet(newBitmap, newIndex);
+            AtomicReference<TrieNode<T>>[] newData = new AtomicReference[this.data.length + 1];
+            int newBitmap = this.bitmap | 1 << index;
+            int newOffset = offsetIfSet(newBitmap, index);
             if (newOffset > 0) {
-                System.arraycopy(old.data, 0, newData, 0, newOffset);
+                System.arraycopy(this.data, 0, newData, 0, newOffset);
             }
-            newData[newOffset] = new AtomicReference<>(newNode);
+            newData[newOffset] = new AtomicReference<>(newChild);
             if (newOffset + 1 < newData.length) {
-                System.arraycopy(old.data, newOffset, newData, newOffset + 1, old.data.length - newOffset);
+                System.arraycopy(this.data, newOffset, newData, newOffset + 1, this.data.length - newOffset);
             }
             return new NormalNode<>(newBitmap, newData);
         }
 
         
         @Override
-        public T getOrInsert(T key, int hash, int level, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared) {
-            int index = index(hash, level);
+        public T getOrInsert(T key, int hash, int hashLevel, int level, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared) {
+            int index = hashLevel & LEVEL_MASK;
             int offset = offsetIfSet(bitmap, index);
             if (offset != -1) {
-                AtomicReference<TrieNode<T>> currentNode = data[offset];
-                TrieNode<T> oldLeafNode = currentNode.get();
-                T result = oldLeafNode.getOrInsert(key, hash, level + 1, currentNode, cleared);
+                AtomicReference<TrieNode<T>> currentIntermediateNode = data[offset];
+                TrieNode<T> currentRealNode = currentIntermediateNode.get();
+                T result = currentRealNode.getOrInsert(key, hash, hashLevel >>> BITS_PER_LEVEL, level + 1, currentIntermediateNode, cleared);
                 if (result == null) {
                     // we have to insert it, and we have reached a leaf node (or a collision node), so we can expand it to either a new trie node, or a collision node
                     LeafNode<T> newLeafNode = new LeafNode<>(key, hash, cleared);
-                    TrieNode<T> newTree;
-                    if (oldLeafNode instanceof LeafNode) {
-                        newTree = build((LeafNode<T>)oldLeafNode, newLeafNode, level + 1);
-                    }
-                    else if (oldLeafNode instanceof CollisionNode) {
-                        newTree = ((CollisionNode<T>)oldLeafNode).appendCollision(newLeafNode);
-                    }
-                    else {
-                        throw new RuntimeException("Unexpected leaf: " + oldLeafNode);
-                    }
-                    if (currentNode.compareAndSet(oldLeafNode, newTree)) {
+                    TrieNode<T> newTree = currentRealNode.grow(newLeafNode, index, level);
+                    if (currentIntermediateNode.compareAndSet(currentRealNode, newTree)) {
                         return key;
                     }
                     else {
                         // failed since the tree was updated, so let's retry
                         newLeafNode.key.clear();
-                        return getOrInsert(key, hash, level, parent, cleared);
+                        return getOrInsert(key, hash, hashLevel, level, parent, cleared);
                     }
                 }
                 return result;
@@ -194,14 +203,14 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
             else {
                 // not in this level, so we replace ourself with a node that does have it 
                 LeafNode<T> newLeafNode = new LeafNode<>(key, hash, cleared);
-                TrieNode<T> newTree = grow(this, newLeafNode, index);
+                TrieNode<T> newTree = grow(newLeafNode, index, level);
                 if (parent.compareAndSet(this, newTree)) {
                     return key;
                 }
                 else {
                     // failed since the tree was updated, so let's retry
                     newLeafNode.key.clear();
-                    return parent.get().getOrInsert(key, hash, level, parent, cleared);
+                    return parent.get().getOrInsert(key, hash, hashLevel, level, parent, cleared);
                 }
             }
         }
