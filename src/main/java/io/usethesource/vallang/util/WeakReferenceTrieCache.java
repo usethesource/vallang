@@ -13,12 +13,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
     
 
-    @SuppressWarnings("unchecked")
-    private final AtomicReference<TrieNode<T>> root = new AtomicReference<>(new NormalNode<T>(0, (AtomicReference<TrieNode<T>>[]) new AtomicReference[0]));
+    private final AtomicReference<TrieNode<T>> root = new AtomicReference<>(new NormalNode0<T>());
     private final ReferenceQueue<Object> cleared = new ReferenceQueue<>();
     
-    
-
     @Override
     public T get(T key) {
         int hash = key.hashCode();
@@ -109,16 +106,15 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
             else {
                 // we are a non bottom level collision node, and we find a non collision node
                 // we have to expand to fill again
-                return NormalNode.build(this, newChild, level);
+                return NormalNode.build(this, newChild, level - 1);
             }
         }
 
     }
 
     
-    private static class NormalNode<T> implements TrieNode<T> {
-        private final int bitmap;
-        private final AtomicReference<TrieNode<T>>[] data;
+    private static abstract class NormalNode<T> implements TrieNode<T> {
+        protected final int bitmap;
         
         static final int BITS_PER_LEVEL = 5;
         static final int LEVEL_MASK = ((1 << (BITS_PER_LEVEL))- 1);
@@ -140,9 +136,8 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
             }
         }
         
-        public NormalNode(int bitmap, AtomicReference<TrieNode<T>>[] data) {
+        public NormalNode(int bitmap) {
             this.bitmap = bitmap;
-            this.data = data;
         }
         
         
@@ -150,54 +145,28 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
         public static <T> TrieNode<T> build(LeafNode<T> first, LeafNode<T> second, int level) {
             int firstIndex = index(first.hash, level);
             int secondIndex = index(second.hash, level);
-            AtomicReference<TrieNode<T>>[] data;
+            int newBitmap = 1 << firstIndex | 1 << secondIndex;
             if (firstIndex < secondIndex) {
-                data = new AtomicReference[2];
-                data[0] = new AtomicReference<>(first);
-                data[1] = new AtomicReference<>(second);
+            	return new NormalNode2<>(newBitmap, new AtomicReference<>(first), new AtomicReference<>(second));
             }
             else if (firstIndex > secondIndex) {
-                data = new AtomicReference[2];
-                data[0] = new AtomicReference<>(second);
-                data[1] = new AtomicReference<>(first);
+            	return new NormalNode2<>(newBitmap, new AtomicReference<>(second), new AtomicReference<>(first));
             }
             else{
                 // same index at this level
-                if (first.hash == second.hash) {
-                    // don't build a deep tree just for colision nodes
-                    return new CollisionNode<>(first.hash, new LeafNode[] { first, second });
-                }
-                else {
-                    data = new AtomicReference[1];
-                    data[0] = new AtomicReference<>(build(first, second, level + 1));
-                }
+            	return new NormalNode1<>(newBitmap, new AtomicReference<>(build(first, second, level + 1)));
             }
-            return new NormalNode<>(1 << firstIndex | 1 << secondIndex, data);
         }
 
-        @Override
-        public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
-            @SuppressWarnings("unchecked")
-            AtomicReference<TrieNode<T>>[] newData = new AtomicReference[this.data.length + 1];
-            int newBitmap = this.bitmap | 1 << index;
-            int newOffset = offsetIfSet(newBitmap, index);
-            if (newOffset > 0) {
-                System.arraycopy(this.data, 0, newData, 0, newOffset);
-            }
-            newData[newOffset] = new AtomicReference<>(newChild);
-            if (newOffset + 1 < newData.length) {
-                System.arraycopy(this.data, newOffset, newData, newOffset + 1, this.data.length - newOffset);
-            }
-            return new NormalNode<>(newBitmap, newData);
-        }
 
         
         @Override
         public T getOrInsert(T key, int hash, int hashLevel, int level, AtomicReference<TrieNode<T>> parent, ReferenceQueue<? super T> cleared) {
+        	assert level < 8;
             int index = hashLevel & LEVEL_MASK;
             int offset = offsetIfSet(bitmap, index);
             if (offset != -1) {
-                AtomicReference<TrieNode<T>> currentIntermediateNode = data[offset];
+                AtomicReference<TrieNode<T>> currentIntermediateNode = get(offset);
                 TrieNode<T> currentRealNode = currentIntermediateNode.get();
                 T result = currentRealNode.getOrInsert(key, hash, hashLevel >>> BITS_PER_LEVEL, level + 1, currentIntermediateNode, cleared);
                 if (result == null) {
@@ -228,6 +197,117 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
                     return parent.get().getOrInsert(key, hash, hashLevel, level, parent, cleared);
                 }
             }
+        }
+
+		protected abstract AtomicReference<TrieNode<T>> get(int offset);
+    }
+    
+    private static class NormalNode0<T> extends NormalNode<T> {
+    	
+    	public NormalNode0() {
+    		super(0);
+		}
+
+		@Override
+		public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
+			return new NormalNode1<>(1 << index, new AtomicReference<>(newChild));
+		}
+
+		@Override
+		protected AtomicReference<TrieNode<T>> get(int offset) {
+			throw new ArrayIndexOutOfBoundsException(offset);
+		}
+    }
+
+    private static class NormalNode1<T> extends NormalNode<T> {
+    	private final AtomicReference<TrieNode<T>> entry;
+
+		public NormalNode1(int bitmap, AtomicReference<TrieNode<T>> entry) {
+    		super(bitmap);
+			this.entry = entry;
+		}
+		
+		@Override
+		public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
+			int newBitmap = bitmap | 1 << index;
+			int newOffset = offsetIfSet(newBitmap, index);
+			if (newOffset == 0) {
+				return new NormalNode2<>(newBitmap, new AtomicReference<>(newChild), entry);
+			}
+			else {
+				return new NormalNode2<>(newBitmap, entry, new AtomicReference<>(newChild));
+			}
+		}
+		
+		@Override
+		protected AtomicReference<TrieNode<T>> get(int offset) {
+			return entry;
+		}
+    }
+    
+    private static class NormalNode2<T> extends NormalNode<T> {
+    	private final AtomicReference<TrieNode<T>> first;
+    	private final AtomicReference<TrieNode<T>> second;
+
+		public NormalNode2(int newBitmap, AtomicReference<TrieNode<T>> first, AtomicReference<TrieNode<T>> second) {
+    		super(newBitmap);
+			this.first = first;
+			this.second = second;
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
+			int newBitmap = bitmap | 1 << index;
+			int newOffset = offsetIfSet(newBitmap, index);
+			AtomicReference<TrieNode<T>> newChildRef = new AtomicReference<>(newChild);
+			switch (newOffset) {
+				case 0: return new NormalNodeN<>(newBitmap, new AtomicReference[] { newChildRef, first, second });
+				case 1: return new NormalNodeN<>(newBitmap, new AtomicReference[] { first, newChildRef, second });
+				case 2: return new NormalNodeN<>(newBitmap, new AtomicReference[] { first, second, newChildRef });
+				default: throw new ArrayIndexOutOfBoundsException(newOffset);
+			}
+		}
+		
+		
+		@Override
+		protected AtomicReference<TrieNode<T>> get(int offset) {
+			switch (offset) {
+				case 0: return first;
+				case 1: return second;
+				default: throw new ArrayIndexOutOfBoundsException(offset);
+			}
+		}
+    }
+    
+    
+    private static class NormalNodeN<T> extends NormalNode<T> {
+        private final AtomicReference<TrieNode<T>>[] data;
+        
+        public NormalNodeN(int bitmap, AtomicReference<TrieNode<T>>[] data) {
+        	super(bitmap);
+        	this.data = data;
+		}
+
+        @Override
+        public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
+            @SuppressWarnings("unchecked")
+            AtomicReference<TrieNode<T>>[] newData = new AtomicReference[this.data.length + 1];
+            int newBitmap = this.bitmap | 1 << index;
+            int newOffset = offsetIfSet(newBitmap, index);
+            if (newOffset > 0) {
+                System.arraycopy(this.data, 0, newData, 0, newOffset);
+            }
+            newData[newOffset] = new AtomicReference<>(newChild);
+            if (newOffset + 1 < newData.length) {
+                System.arraycopy(this.data, newOffset, newData, newOffset + 1, this.data.length - newOffset);
+            }
+            return new NormalNodeN<>(newBitmap, newData);
+        }
+        
+        @Override
+        protected AtomicReference<TrieNode<T>> get(int offset) {
+        	return data[offset];
         }
     }
 }

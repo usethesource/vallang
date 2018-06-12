@@ -13,6 +13,7 @@
 package io.usethesource.vallang.util;
 
 import static org.junit.Assert.assertSame;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -122,9 +123,12 @@ public class WeakHashConsingMapTests {
     public void looseReference() throws InterruptedException {
         FixedHashEquals a = new FixedHashEquals(1,1);
         assertSame(a, target.get(a));
+        WeakReference<FixedHashEquals> ref = new WeakReference<>(a);
         a = null;
-        System.gc();
-        Thread.sleep(1100); // wait for the GC to finish and the cleanup to have been run
+        while (ref.get() != null) {
+        	System.gc();
+        	Thread.sleep(100); // wait for the GC to finish and the cleanup to have been run
+        }
 
         // a new reference, the target should not have kept the old reference
         a = new FixedHashEquals(1,1);
