@@ -92,7 +92,14 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
                     return result;
                 }
             }
-            return null;
+            // a new node we have to add to this collision node.
+            SingleLeafNode<T> newChildNode = new SingleLeafNode<>(key, hash, cleared);
+            TrieNode<T> newNode = grow(newChildNode, NormalNode.index(hash, level), level);
+            if (parent.compareAndSet(this, newNode)) {
+            	return key;
+            }
+            newChildNode.key.clear();
+            return parent.get().getOrInsert(key, hash, hashLevel, level, parent, cleared);
         }
 
         
@@ -106,7 +113,7 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
             else {
                 // we are a non bottom level collision node, and we find a non collision node
                 // we have to expand to fill again
-                return NormalNode.build(this, newChild, level - 1);
+                return NormalNode.build(this, newChild, level);
             }
         }
 
@@ -153,6 +160,9 @@ public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
             	return new NormalNode2<>(newBitmap, new AtomicReference<>(second), new AtomicReference<>(first));
             }
             else{
+            	if (first.hash == second.hash) {
+            		return new CollisionNode<>(first.hash, new LeafNode[] { first, second});
+            	}
                 // same index at this level
             	return new NormalNode1<>(newBitmap, new AtomicReference<>(build(first, second, level + 1)));
             }
