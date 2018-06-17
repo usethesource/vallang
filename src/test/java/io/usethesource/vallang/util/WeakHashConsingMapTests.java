@@ -68,11 +68,11 @@ public class WeakHashConsingMapTests {
         List<ConsingTestParameters> result = new ArrayList<>();
         int[] threads = new int[] { 1, 2, 8 };
         int[] collisions = new int[] { 1, 2, 4 };
-        ConsingTestParameters.generate(result, threads, collisions, WeakReferenceTrieCache::new);
-        ConsingTestParameters.generate(result, threads, collisions, WeakFullBlockingHashMap::new);
-        ConsingTestParameters.generate(result, threads, collisions, WeakDoubleCheckingHashConsingMap::new);
-        ConsingTestParameters.generate(result, threads, collisions, WeakBarelyLockingHashConsingMap::new);
-        ConsingTestParameters.generate(result, threads, collisions, WeakConcurrentHashConsingMap::new);
+        ConsingTestParameters.generate(result, threads, collisions, WeakLockFreeHashConsingTrie::new);
+        ConsingTestParameters.generate(result, threads, collisions, WeakAlwaysLockingHashConsingMap::new);
+        ConsingTestParameters.generate(result, threads, collisions, WeakWriteLockingHashConsingMap::new);
+        ConsingTestParameters.generate(result, threads, collisions, WeakBarelyLockingHashConsingSet::new);
+        ConsingTestParameters.generate(result, threads, collisions, WeakLockFreeHashConsingMap::new);
         return result;
     }
 

@@ -2,12 +2,12 @@ package io.usethesource.vallang.util;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentMap;
 
-public class WeakFullBlockingHashMap<T> implements HashConsingMap<T> {
+public class WeakLockFreeHashConsingMap<T> implements HashConsingMap<T> {
     private static class WeakReferenceWrap<T> extends WeakReference<T> {
         private final int hash;
 
@@ -43,52 +43,46 @@ public class WeakFullBlockingHashMap<T> implements HashConsingMap<T> {
     }
     
 
-    private final Map<WeakReferenceWrap<T>,WeakReferenceWrap<T>> data = new HashMap<>();
+    private final ConcurrentMap<WeakReferenceWrap<T>,WeakReferenceWrap<T>> data = new ConcurrentHashMap<>();
     private final ReferenceQueue<T> cleared = new ReferenceQueue<>();
     
     
-    public WeakFullBlockingHashMap() {
+    public WeakLockFreeHashConsingMap() {
         Cleanup.register(this);
     }
     
 
     @Override
     public T get(T key) {
-    	int hash = key.hashCode();
-    	WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(hash, key, cleared);
-    	while (true) {
-    		synchronized (this) {
-    			WeakReferenceWrap<T> result = data.merge(keyLookup, keyLookup, (oldValue, newValue) -> oldValue.get() != null ? oldValue : newValue);
-    			T actualResult = result.get();
-    			if (actualResult != null) {
-    				if (result != keyLookup) {
-    					keyLookup.clear();
-    				}
-    				return actualResult;
-    			}
-    		}
-    	}
-    }
-
-    private void cleanup() {
-        WeakReferenceWrap<?> c = (WeakReferenceWrap<?>) cleared.poll();
-        if (c != null) {
-        	synchronized (this) {
-        		while (c != null) {
-                    data.remove(c);
-        			c = (WeakReferenceWrap<?>) cleared.poll();
+        int hash = key.hashCode();
+        WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(hash, key, cleared);
+        while (true) {
+            WeakReferenceWrap<T> result = data.merge(keyLookup, keyLookup, (oldValue, newValue) -> oldValue.get() != null ? oldValue : newValue);
+            T actualResult = result.get();
+            if (actualResult != null) {
+                if (result != keyLookup) {
+                    keyLookup.clear();
                 }
-			}
+                return actualResult;
+            }
         }
     }
 
+    private void cleanup() {
+        WeakReferenceWrap<?> c;
+        while ((c = (WeakReferenceWrap<?>) cleared.poll()) != null) {
+            data.remove(c);
+        }
+        
+    }
+
     private static class Cleanup extends Thread {
-        private final ConcurrentLinkedDeque<WeakReference<WeakFullBlockingHashMap<?>>> caches;
+        private final ConcurrentLinkedDeque<WeakReference<WeakLockFreeHashConsingMap<?>>> caches;
 
         private Cleanup() { 
             caches = new ConcurrentLinkedDeque<>();
             setDaemon(true);
-            setName("Cleanup Thread for " + WeakFullBlockingHashMap.class.getName());
+            setName("Cleanup Thread for " + WeakLockFreeHashConsingMap.class.getName());
             start();
         }
 
@@ -96,7 +90,7 @@ public class WeakFullBlockingHashMap<T> implements HashConsingMap<T> {
             static final Cleanup INSTANCE = new Cleanup();
         }
 
-        public static void register(WeakFullBlockingHashMap<?> cache) {
+        public static void register(WeakLockFreeHashConsingMap<?> cache) {
             InstanceHolder.INSTANCE.caches.add(new WeakReference<>(cache));
         }
 
@@ -109,9 +103,9 @@ public class WeakFullBlockingHashMap<T> implements HashConsingMap<T> {
                     return;
                 }
                 try {
-                    Iterator<WeakReference<WeakFullBlockingHashMap<?>>> it = caches.iterator();
+                    Iterator<WeakReference<WeakLockFreeHashConsingMap<?>>> it = caches.iterator();
                     while (it.hasNext()) {
-                        WeakFullBlockingHashMap<?> cur = it.next().get();
+                        WeakLockFreeHashConsingMap<?> cur = it.next().get();
                         if (cur == null) {
                             it.remove();
                         }

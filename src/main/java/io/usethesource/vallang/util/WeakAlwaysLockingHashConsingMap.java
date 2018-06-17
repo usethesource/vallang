@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-public class WeakDoubleCheckingHashConsingMap<T> implements HashConsingMap<T> {
+public class WeakAlwaysLockingHashConsingMap<T> implements HashConsingMap<T> {
     private static class WeakReferenceWrap<T> extends WeakReference<T> {
         private final int hash;
 
@@ -47,35 +47,27 @@ public class WeakDoubleCheckingHashConsingMap<T> implements HashConsingMap<T> {
     private final ReferenceQueue<T> cleared = new ReferenceQueue<>();
     
     
-    public WeakDoubleCheckingHashConsingMap() {
+    public WeakAlwaysLockingHashConsingMap() {
         Cleanup.register(this);
     }
     
 
     @Override
     public T get(T key) {
-        int hash = key.hashCode();
-        WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(hash, key, cleared);
-        WeakReferenceWrap<T> result = data.get(keyLookup);
-        if (result != null) {
-        	T actualResult = result.get();
-        	if (actualResult != null) {
-                keyLookup.clear();
-                return actualResult;
-        	}
-        }
-        synchronized (this) {
-            while (true) {
-                result = data.merge(keyLookup, keyLookup, (oldValue, newValue) -> oldValue.get() != null ? oldValue : newValue);
-                T actualResult = result.get();
-                if (actualResult != null) {
-                    if (result != keyLookup) {
-                        keyLookup.clear();
-                    }
-                    return actualResult;
-                }
-            }
-		}
+    	int hash = key.hashCode();
+    	WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(hash, key, cleared);
+    	while (true) {
+    		synchronized (this) {
+    			WeakReferenceWrap<T> result = data.merge(keyLookup, keyLookup, (oldValue, newValue) -> oldValue.get() != null ? oldValue : newValue);
+    			T actualResult = result.get();
+    			if (actualResult != null) {
+    				if (result != keyLookup) {
+    					keyLookup.clear();
+    				}
+    				return actualResult;
+    			}
+    		}
+    	}
     }
 
     private void cleanup() {
@@ -91,12 +83,12 @@ public class WeakDoubleCheckingHashConsingMap<T> implements HashConsingMap<T> {
     }
 
     private static class Cleanup extends Thread {
-        private final ConcurrentLinkedDeque<WeakReference<WeakDoubleCheckingHashConsingMap<?>>> caches;
+        private final ConcurrentLinkedDeque<WeakReference<WeakAlwaysLockingHashConsingMap<?>>> caches;
 
         private Cleanup() { 
             caches = new ConcurrentLinkedDeque<>();
             setDaemon(true);
-            setName("Cleanup Thread for " + WeakDoubleCheckingHashConsingMap.class.getName());
+            setName("Cleanup Thread for " + WeakAlwaysLockingHashConsingMap.class.getName());
             start();
         }
 
@@ -104,7 +96,7 @@ public class WeakDoubleCheckingHashConsingMap<T> implements HashConsingMap<T> {
             static final Cleanup INSTANCE = new Cleanup();
         }
 
-        public static void register(WeakDoubleCheckingHashConsingMap<?> cache) {
+        public static void register(WeakAlwaysLockingHashConsingMap<?> cache) {
             InstanceHolder.INSTANCE.caches.add(new WeakReference<>(cache));
         }
 
@@ -117,9 +109,9 @@ public class WeakDoubleCheckingHashConsingMap<T> implements HashConsingMap<T> {
                     return;
                 }
                 try {
-                    Iterator<WeakReference<WeakDoubleCheckingHashConsingMap<?>>> it = caches.iterator();
+                    Iterator<WeakReference<WeakAlwaysLockingHashConsingMap<?>>> it = caches.iterator();
                     while (it.hasNext()) {
-                        WeakDoubleCheckingHashConsingMap<?> cur = it.next().get();
+                        WeakAlwaysLockingHashConsingMap<?> cur = it.next().get();
                         if (cur == null) {
                             it.remove();
                         }

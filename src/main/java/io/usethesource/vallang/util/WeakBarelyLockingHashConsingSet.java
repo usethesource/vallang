@@ -16,36 +16,29 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
 import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.StampedLock;
 
 /**
  * <p>
- *     A cache that stores the either the key or the value (or both) as a weak reference. If either one of the references is cleared (in case of a weak reference), the entry is dropped from the cache.
+ * 	   A container specifically designed for hash consing, entries are tracked with WeakReferences, to avoid leaking memory.
  *     The cache is thread safe, meaning the {@link #get} method can be called without any locking requirements.
+ * 	   Multiple insertions can occur concurrently while atomicity is guaranteed. The container only locks over all threads during a resize.
  *     With the following guarantees: 
- * <p>
  * <ul>
- *    <li> As long as there are strong references to both the key and the value, all calls to {@link #get} will return the value reference for something that {@link Object#equals} key (not just reference equality, as Caffeine and WeakHashMap do)
- *    <li> There will only be one entry for a given key, there is no point in time where you can get two different values for the same key (as long as the entry wasn't cleared because there was no strong reference to the key or the value between those two calls)
- *    <li> If the key is in the cache, retrieving the value will not block the code.
- *    <li> If the key is *not* in the cache, the function to generate a value will be called once per concurrent {@link #get} call, and only one of those results will be the reference stored in the cache, and returned to all these concurrent calls.
- *    <li> If the key is *not* in the cache, the {@link #get} rarely blocks, only in case of a resize (which happens at 80% fill rate, and grows exponentially)
+ *    <li> As long as there are strong references to the key, all calls to {@link #get} will return the same reference for something that {@link Object#equals} key (not just reference equality, as Caffeine and WeakHashMap do)
+ *    <li> There will only be one entry for a given key, there is no point in time where you can get two different references for the same key (as long as the entry wasn't cleared because there was no strong reference to the key between those two calls)
+ *    <li> If the key is in the cache, retrieving the value will never block the code.
+ *    <li> If the key is *not* in the cache, and multiple threads call {@link #get} for the same key, one of those references will be added and that reference returned to all these concurrent calls.
+ *    <li> If the key is *not* in the cache, the {@link #get} rarely blocks, only in case of a resize (which happens at 80% fill rate, and grows/shrinks exponentially)
  * </ul>
- * 
- * <p>
- *     Warning: only use this class if you want to clear the entry after either the value or the key has been cleared, if you do not want this behavior, use a regular {@link Map}.
- *     Also check the {@link WeakHashMap} that keeps a strong reference to the Value, however it uses reference equality on the key.
- * </p>
  * @author Davy Landman
- *
- * @param <K>
- * @param <V>
  */
-public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
+public class WeakBarelyLockingHashConsingSet<T> implements HashConsingMap<T> {
 
     /**
      * <p>
@@ -70,7 +63,6 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
 
     /**
      * The GC notifies us about references that are cleared via this queue. Polling is cheap (just a volatile read) if it is empty.
-     * We use Object here so that we can share the queue between key and value.
      */
     private final ReferenceQueue<T> cleared = new ReferenceQueue<>();
 
@@ -78,39 +70,35 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
     private static final int MAX_CAPACITY = 1 << 30;
 
 
-    public WeakBarelyLockingHashConsingMap() {
+    public WeakBarelyLockingHashConsingSet() {
         this(MINIMAL_CAPACITY);
     }
     /**
      * Construct a new WeakReference cache. 
-     * <strong>Passing false for both keys and values turns this into a (memory) expensive hashmap</strong>
-     * @param weakKeys if the keys should be stored as weak references
-     * @param weakValues if the values should be stored as weak references
      * @param initialCapacity the size of the cache to start with. will be rounded up towards the closest power of two.
      */
-    public WeakBarelyLockingHashConsingMap(int initialCapacity) {
-        table = new AtomicReferenceArray<>(closestPowerOfTwo(initialCapacity));
+    public WeakBarelyLockingHashConsingSet(int initialCapacity) {
+        table = new AtomicReferenceArray<>(nextPowerOfTwo(initialCapacity));
         Cleanup.register(this);
     }
 
-    private static int closestPowerOfTwo(int capacity) {
+    private static int nextPowerOfTwo(int capacity) {
         return Integer.highestOneBit(capacity - 1) << 1;
     }
     /**
-     * Lookup key in the cache.
+     * Lookup key in the cache, if it's not in there, put it there, atomically. 
      * @param key lookup something that is equal to this key in the cache.
-     * @param generateValue function that will generate a value when the key is not in the cache. Warning, there is no guarantee that when this function is called, the result of the get method will be the same.
-     * @return the value for this key
+     * @return the stored entry for this key, or this key
      */
     @Override
     public T get(T key) {
         if (key == null) {
-            throw new IllegalArgumentException("No null arguments allowed");
+            throw new IllegalArgumentException("No null keys allowed");
         }
 
         // We do a dirty read on the table, it could be that it's being resized, but that doesn't matter.
         // We are just doing a quick lookup first, to try to see if it is the current table, 
-        // even during resizes, the current table remains valid to read from, inserting during resize is not supported
+        // Even during resizes, the current table remains valid to read from, it's only inserting that's not supported during resize.
        
         int hash = key.hashCode();
         AtomicReferenceArray<WeakNode<T>> table = this.table; // read the table once, to assure that the next operations all work on the same table
@@ -126,7 +114,7 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
         return insert(key, hash, bucketHead);
     }
 
-    private int bucket(int hash, int tableLength) {
+    private static int bucket(int hash, int tableLength) {
         // since we are only using the last bits, take the msb and add them to the mix
         return (hash ^ (hash >> 16)) % tableLength;
     }
@@ -151,6 +139,7 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
                 T otherResult = lookup(key, hash, currentBucketHead, notFoundIn);
                 if (otherResult != null) {
                     // we lost the race
+                	toInsert.key.clear(); // release unused WeakNode
                     return otherResult;
                 }
                 notFoundIn = currentBucketHead;
@@ -175,8 +164,9 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
 
     private T lookup(T key, int hash, WeakNode<T> bucketEntry, WeakNode<T> stopAfter) {
         while (bucketEntry != null && bucketEntry != stopAfter) {
-            if (bucketEntry.hash == hash) {
-                T other = bucketEntry.key.get();
+            WeakChildReference<T> ref = bucketEntry.key;
+			if (ref.hash == hash) {
+                T other = ref.get();
                 if (other != null && key.equals(other)) {
                     return other;
                 }
@@ -212,10 +202,10 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
                 for (int i = 0; i < oldLength; i++) {
                     WeakNode<T> current = oldTable.get(i);
                     while (current != null) {
-                        int newBucket = bucket(current.hash, newSize);
+                        int newBucket = bucket(current.key.hash, newSize);
                         // we cannot change the old entry, as the lookups are still happening on them (as intended)
                         // so we build a new entry, that replaces the old entry for the aspect of the reference queue.
-                        newTable.set(newBucket, new WeakNode<>(current.key, current.hash, newTable.get(newBucket)));
+                        newTable.set(newBucket, new WeakNode<>(current.key, newTable.get(newBucket)));
                         current = current.next.get();
                     }
                 }
@@ -233,7 +223,7 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
      */
     @SuppressWarnings("unchecked")
     private void cleanup() {
-        WeakChildReference<WeakNode<T>, T> clearedReference = (WeakChildReference<WeakNode<T>, T>) cleared.poll();
+        WeakChildReference<T> clearedReference = (WeakChildReference<T>) cleared.poll();
         if (clearedReference != null) {
             int totalCleared = 0;
             long stamp = lock.readLock(); // we get a read lock on the table, so we can remove some stuff, to protect against a table resize in process
@@ -242,38 +232,30 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
                 final int currentLength = table.length();
 
                 while (clearedReference != null) {
-                    WeakNode<T> mapNode = clearedReference.getParent();
-                    if (mapNode != null) {
-                        int bucket = bucket(mapNode.hash, currentLength);
-                        while (true) {
-                            WeakNode<T> prev = null;
-                            WeakNode<T> cur = table.get(bucket);
-                            while (cur != mapNode) {
-                                prev = cur;
-                                cur = cur.next.get();
-                                assert cur != null; // we have to find entry in this bucket
-                            }
-                            if (prev == null) {
-                                // at the head, so we can just replace the head
-                                if (table.compareAndSet(bucket, mapNode, mapNode.next.get())) {
-                                    break; // we replaced the head, so continue
-                                }
-                            }
-                            else {
-                                if (prev.next.compareAndSet(mapNode, mapNode.next.get())) {
-                                    break; // managed to replace the next pointer in the chain 
-                                }
-                            }
-                        }
-                        count--;
-                        totalCleared++;
-                        // keep the next pointer intact, in case someone is following this chain.
-                        // we do clear the rest
-                        mapNode.key.clear();
-                        mapNode.key.setParent(null); // marks the fact that the node has been cleared already
-                    }
-
-                    clearedReference = (WeakChildReference<WeakNode<T>, T>) cleared.poll();
+                	int bucket = bucket(clearedReference.hash, currentLength);
+                	while (true) {
+                		WeakNode<T> prev = null;
+                		WeakNode<T> cur = table.get(bucket);
+                		while (cur.key != clearedReference) {
+                			prev = cur;
+                			cur = cur.next.get();
+                			assert cur != null; // we have to find entry in this bucket
+                		}
+                		if (prev == null) {
+                			// at the head, so we can just replace the head
+                			if (table.compareAndSet(bucket, cur, cur.next.get())) {
+                				break; // we replaced the head, so continue
+                			}
+                		}
+                		else {
+                			if (prev.next.compareAndSet(cur, cur.next.get())) {
+                				break; // managed to replace the next pointer in the chain 
+                			}
+                		}
+                	}
+                	count--;
+                	totalCleared++;
+                    clearedReference = (WeakChildReference<T>) cleared.poll();
                 }
             }
             finally {
@@ -295,20 +277,21 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
      *
      */
     private static class Cleanup extends Thread {
-        private final ConcurrentLinkedDeque<WeakReference<WeakBarelyLockingHashConsingMap<?>>> caches;
+        private final Queue<WeakReference<WeakBarelyLockingHashConsingSet<?>>> caches;
 
         private Cleanup() { 
-            caches = new ConcurrentLinkedDeque<>();
+            caches = new ConcurrentLinkedQueue<>();
             setDaemon(true);
-            setName("Cleanup Thread for " + WeakBarelyLockingHashConsingMap.class.getName());
+            setName("Cleanup Thread for " + WeakBarelyLockingHashConsingSet.class.getName());
             start();
         }
 
+        // Lazy initialized singleton
         private static class InstanceHolder {
             static final Cleanup INSTANCE = new Cleanup();
         }
 
-        public static void register(WeakBarelyLockingHashConsingMap<?> cache) {
+        public static void register(WeakBarelyLockingHashConsingSet<?> cache) {
             InstanceHolder.INSTANCE.caches.add(new WeakReference<>(cache));
         }
 
@@ -321,9 +304,9 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
                     return;
                 }
                 try {
-                    Iterator<WeakReference<WeakBarelyLockingHashConsingMap<?>>> it = caches.iterator();
+                    Iterator<WeakReference<WeakBarelyLockingHashConsingSet<?>>> it = caches.iterator();
                     while (it.hasNext()) {
-                        WeakBarelyLockingHashConsingMap<?> cur = it.next().get();
+                        WeakBarelyLockingHashConsingSet<?> cur = it.next().get();
                         if (cur == null) {
                             it.remove();
                         }
@@ -366,22 +349,14 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
 
 
     /**
-     * A weak reference that also keeps track of the parent node
+     * A weak reference that stores the hash, so we can remove it when it's cleared
      */
-    private static final class WeakChildReference<P, T> extends WeakReference<T>  {
-        private volatile P parent;
+    private static final class WeakChildReference<T> extends WeakReference<T>  {
+        private final int hash;
 
-        public WeakChildReference(T referent, P parent, ReferenceQueue<? super T> q) {
+        public WeakChildReference(T referent, int hash, ReferenceQueue<? super T> q) {
             super(referent, q);
-            this.parent = parent;
-        }
-
-        public P getParent() {
-            return parent;
-        }
-
-        public void setParent(P parent) {
-            this.parent = parent;
+			this.hash = hash;
         }
     }
 
@@ -390,26 +365,22 @@ public class WeakBarelyLockingHashConsingMap<T> implements HashConsingMap<T> {
      * Main node of the hash table, next field constructs the overloaded chain.
      */
     private static final class WeakNode<T> {
-        private final int hash;
 
         private final AtomicReference<WeakNode<T>> next;
 
-        private final WeakChildReference<WeakNode<T>, T> key;
+        private final WeakChildReference<T> key;
 
         public WeakNode(T key, int hash, ReferenceQueue<? super T> q) {
-            this.hash = hash;
-            this.key = new WeakChildReference<>(key, this, q);
+            this.key = new WeakChildReference<>(key, hash, q);
             this.next = new AtomicReference<>(null);
         }
 
         /**
          * During a resize, we construct a new Node, but reuse the references from the old node
          */
-        public WeakNode(WeakChildReference<WeakNode<T>, T> key, int hash, WeakNode<T> next) {
-            this.hash = hash;
+        public WeakNode(WeakChildReference<T> key, WeakNode<T> next) {
             this.key = key;
             this.next = new AtomicReference<>(next);
-            key.setParent(this);
         }
     }
 }

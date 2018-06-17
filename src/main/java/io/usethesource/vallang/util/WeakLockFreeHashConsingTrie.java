@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Davy
  *
  */
-public class WeakReferenceTrieCache<T> implements HashConsingMap<T> {
+public class WeakLockFreeHashConsingTrie<T> implements HashConsingMap<T> {
     
 
     private final AtomicReference<TrieNode<T>> root = new AtomicReference<>(new NormalNode0<T>());
