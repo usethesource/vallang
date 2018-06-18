@@ -15,13 +15,11 @@ package io.usethesource.vallang.util;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Queue;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.StampedLock;
+import sun.misc.Unsafe;
 
 /**
  * <p>
@@ -144,7 +142,7 @@ public class WeakBarelyLockingHashConsingSet<T> implements HashConsingMap<T> {
                 }
                 notFoundIn = currentBucketHead;
             }
-            toInsert.next.set(currentBucketHead); // we prepare our entry to be at the head of the chain
+            toInsert.next = currentBucketHead; // we prepare our entry to be at the head of the chain
 
             long stamp = lock.readLock(); // we get a read lock on the table, so we can put something in it, to protect against a table resize in process
             try {
@@ -171,7 +169,7 @@ public class WeakBarelyLockingHashConsingSet<T> implements HashConsingMap<T> {
                     return other;
                 }
             }
-            bucketEntry = bucketEntry.next.get();
+            bucketEntry = bucketEntry.next;
         }
         return null;
     }
@@ -206,7 +204,7 @@ public class WeakBarelyLockingHashConsingSet<T> implements HashConsingMap<T> {
                         // we cannot change the old entry, as the lookups are still happening on them (as intended)
                         // so we build a new entry, that replaces the old entry for the aspect of the reference queue.
                         newTable.set(newBucket, new WeakNode<>(current.key, newTable.get(newBucket)));
-                        current = current.next.get();
+                        current = current.next;
                     }
                 }
                 this.table = newTable;
@@ -238,17 +236,17 @@ public class WeakBarelyLockingHashConsingSet<T> implements HashConsingMap<T> {
                 		WeakNode<T> cur = table.get(bucket);
                 		while (cur.key != clearedReference) {
                 			prev = cur;
-                			cur = cur.next.get();
+                			cur = cur.next;
                 			assert cur != null; // we have to find entry in this bucket
                 		}
                 		if (prev == null) {
                 			// at the head, so we can just replace the head
-                			if (table.compareAndSet(bucket, cur, cur.next.get())) {
+                			if (table.compareAndSet(bucket, cur, cur.next)) {
                 				break; // we replaced the head, so continue
                 			}
                 		}
                 		else {
-                			if (prev.next.compareAndSet(cur, cur.next.get())) {
+                			if (prev.compareAndSetNext(cur, cur.next)) {
                 				break; // managed to replace the next pointer in the chain 
                 			}
                 		}
@@ -366,13 +364,13 @@ public class WeakBarelyLockingHashConsingSet<T> implements HashConsingMap<T> {
      */
     private static final class WeakNode<T> {
 
-        private final AtomicReference<WeakNode<T>> next;
+        private volatile WeakNode<T> next;
 
         private final WeakChildReference<T> key;
 
         public WeakNode(T key, int hash, ReferenceQueue<? super T> q) {
             this.key = new WeakChildReference<>(key, hash, q);
-            this.next = new AtomicReference<>(null);
+            this.next = null;
         }
 
         /**
@@ -380,7 +378,22 @@ public class WeakBarelyLockingHashConsingSet<T> implements HashConsingMap<T> {
          */
         public WeakNode(WeakChildReference<T> key, WeakNode<T> next) {
             this.key = key;
-            this.next = new AtomicReference<>(next);
+            this.next = next;
+        }
+
+        /*
+         * Instead of having a AtomicReference per weak node, we import the atomic reference code to change the next pointer with a CAS when needed
+         */
+        private static final Unsafe unsafe = Unsafe.getUnsafe();
+        private static final long nextOffset;
+        static {
+        	try {
+        		nextOffset = unsafe.objectFieldOffset(WeakNode.class.getDeclaredField("next"));
+        	} catch (Exception ex) { throw new Error(ex); }
+        }
+
+        private boolean compareAndSetNext(WeakNode<T> expect, WeakNode<T> update) {
+        	return unsafe.compareAndSwapObject(this, nextOffset, expect, update);
         }
     }
 }
