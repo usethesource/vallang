@@ -14,6 +14,7 @@ package io.usethesource.vallang.util;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -384,7 +385,27 @@ public class WeakBarelyLockingHashConsingSet<T> implements HashConsingMap<T> {
         /*
          * Instead of having a AtomicReference per weak node, we import the atomic reference code to change the next pointer with a CAS when needed
          */
-        private static final Unsafe unsafe = Unsafe.getUnsafe();
+        private static final Unsafe unsafe = getUnsafe();
+        
+        @SuppressWarnings("restriction")
+        // source: https://stackoverflow.com/questions/13003871/how-do-i-get-the-instance-of-sun-misc-unsafe
+        private static final Unsafe getUnsafe() {
+        	try {
+        		Field singleoneInstanceField = Unsafe.class.getDeclaredField("theUnsafe");
+        		singleoneInstanceField.setAccessible(true);
+        		return (Unsafe) singleoneInstanceField.get(null);
+
+        	} catch (IllegalArgumentException e) {
+        		throw new RuntimeException(e);
+        	} catch (SecurityException e) {
+        		throw new RuntimeException(e);
+        	} catch (NoSuchFieldException e) {
+        		throw new RuntimeException(e);
+        	} catch (IllegalAccessException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+        
         private static final long nextOffset;
         static {
         	try {
