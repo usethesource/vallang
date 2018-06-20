@@ -14,6 +14,8 @@ public class ConstructorFunctions {
         if (value instanceof IConstructor){
             IConstructor otherTree = (IConstructor) value;
 
+            // TODO: should this not be `current.getConstructorType() != otherTree.getConstructorType()` for the sake of efficiency?
+            // TODO: this expensive test might be a left-over from a previous workaround...
             if(!current.getConstructorType().comparable(otherTree.getConstructorType())) {
               return false;
             }
