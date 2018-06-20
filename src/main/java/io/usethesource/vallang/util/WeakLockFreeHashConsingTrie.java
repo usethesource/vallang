@@ -148,7 +148,6 @@ public class WeakLockFreeHashConsingTrie<T> implements HashConsingMap<T> {
         }
         
         
-        @SuppressWarnings("unchecked")
         public static <T> TrieNode<T> build(LeafNode<T> first, LeafNode<T> second, int level) {
             int firstIndex = index(first.hash, level);
             int secondIndex = index(second.hash, level);
@@ -160,9 +159,6 @@ public class WeakLockFreeHashConsingTrie<T> implements HashConsingMap<T> {
             	return new NormalNode2<>(newBitmap, new AtomicReference<>(second), new AtomicReference<>(first));
             }
             else{
-            	if (first.hash == second.hash) {
-            		return new CollisionNode<>(first.hash, new LeafNode[] { first, second});
-            	}
                 // same index at this level
             	return new NormalNode1<>(newBitmap, new AtomicReference<>(build(first, second, level + 1)));
             }
@@ -265,16 +261,15 @@ public class WeakLockFreeHashConsingTrie<T> implements HashConsingMap<T> {
 			this.second = second;
 		}
 		
-		@SuppressWarnings("unchecked")
 		@Override
 		public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
 			int newBitmap = bitmap | 1 << index;
 			int newOffset = offsetIfSet(newBitmap, index);
 			AtomicReference<TrieNode<T>> newChildRef = new AtomicReference<>(newChild);
 			switch (newOffset) {
-				case 0: return new NormalNodeN<>(newBitmap, new AtomicReference[] { newChildRef, first, second });
-				case 1: return new NormalNodeN<>(newBitmap, new AtomicReference[] { first, newChildRef, second });
-				case 2: return new NormalNodeN<>(newBitmap, new AtomicReference[] { first, second, newChildRef });
+				case 0: return new NormalNode3<>(newBitmap, newChildRef, first, second);
+				case 1: return new NormalNode3<>(newBitmap, first, newChildRef, second);
+				case 2: return new NormalNode3<>(newBitmap, first, second, newChildRef);
 				default: throw new ArrayIndexOutOfBoundsException(newOffset);
 			}
 		}
@@ -285,6 +280,87 @@ public class WeakLockFreeHashConsingTrie<T> implements HashConsingMap<T> {
 			switch (offset) {
 				case 0: return first;
 				case 1: return second;
+				default: throw new ArrayIndexOutOfBoundsException(offset);
+			}
+		}
+    }
+
+    private static class NormalNode3<T> extends NormalNode<T> {
+    	private final AtomicReference<TrieNode<T>> first;
+    	private final AtomicReference<TrieNode<T>> second;
+    	private final AtomicReference<TrieNode<T>> third;
+
+		public NormalNode3(int newBitmap, AtomicReference<TrieNode<T>> first, AtomicReference<TrieNode<T>> second, AtomicReference<TrieNode<T>> third) {
+    		super(newBitmap);
+			this.first = first;
+			this.second = second;
+			this.third = third;
+		}
+		
+		@Override
+		public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
+			int newBitmap = bitmap | 1 << index;
+			int newOffset = offsetIfSet(newBitmap, index);
+			AtomicReference<TrieNode<T>> newChildRef = new AtomicReference<>(newChild);
+			switch (newOffset) {
+				case 0: return new NormalNode4<>(newBitmap, newChildRef, first, second, third);
+				case 1: return new NormalNode4<>(newBitmap, first, newChildRef, second, third);
+				case 2: return new NormalNode4<>(newBitmap, first, second, newChildRef, third);
+				case 3: return new NormalNode4<>(newBitmap, first, second, third, newChildRef);
+				default: throw new ArrayIndexOutOfBoundsException(newOffset);
+			}
+		}
+		
+		
+		@Override
+		protected AtomicReference<TrieNode<T>> get(int offset) {
+			switch (offset) {
+				case 0: return first;
+				case 1: return second;
+				case 2: return third;
+				default: throw new ArrayIndexOutOfBoundsException(offset);
+			}
+		}
+    }
+
+    private static class NormalNode4<T> extends NormalNode<T> {
+    	private final AtomicReference<TrieNode<T>> first;
+    	private final AtomicReference<TrieNode<T>> second;
+    	private final AtomicReference<TrieNode<T>> third;
+    	private final AtomicReference<TrieNode<T>> fourth;
+
+		public NormalNode4(int newBitmap, AtomicReference<TrieNode<T>> first, AtomicReference<TrieNode<T>> second, AtomicReference<TrieNode<T>> third, AtomicReference<TrieNode<T>> fourth) {
+    		super(newBitmap);
+			this.first = first;
+			this.second = second;
+			this.third = third;
+			this.fourth = fourth;
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public TrieNode<T> grow(LeafNode<T> newChild, int index, int level) {
+			int newBitmap = bitmap | 1 << index;
+			int newOffset = offsetIfSet(newBitmap, index);
+			AtomicReference<TrieNode<T>> newChildRef = new AtomicReference<>(newChild);
+			switch (newOffset) {
+				case 0: return new NormalNodeN<>(newBitmap, new AtomicReference[] { newChildRef, first, second, third, fourth });
+				case 1: return new NormalNodeN<>(newBitmap, new AtomicReference[] { first, newChildRef,  second, third, fourth });
+				case 2: return new NormalNodeN<>(newBitmap, new AtomicReference[] { first, second, newChildRef, third, fourth });
+				case 3: return new NormalNodeN<>(newBitmap, new AtomicReference[] { first, second, third, newChildRef, fourth });
+				case 4: return new NormalNodeN<>(newBitmap, new AtomicReference[] { first, second, third, fourth, newChildRef });
+				default: throw new ArrayIndexOutOfBoundsException(newOffset);
+			}
+		}
+		
+		
+		@Override
+		protected AtomicReference<TrieNode<T>> get(int offset) {
+			switch (offset) {
+				case 0: return first;
+				case 1: return second;
+				case 2: return third;
+				case 3: return fourth;
 				default: throw new ArrayIndexOutOfBoundsException(offset);
 			}
 		}
