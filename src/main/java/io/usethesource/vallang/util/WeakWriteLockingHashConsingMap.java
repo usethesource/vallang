@@ -54,17 +54,15 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
 
     @Override
     public T get(T key) {
-        int hash = key.hashCode();
-        WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(hash, key, cleared);
-        WeakReferenceWrap<T> result = data.get(keyLookup);
+        WeakReferenceWrap<T> result = data.get(key);
         if (result != null) {
         	T actualResult = result.get();
         	if (actualResult != null) {
-                keyLookup.clear();
                 return actualResult;
         	}
         }
         synchronized (this) {
+        	WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(key.hashCode(), key, cleared);
             while (true) {
                 result = data.merge(keyLookup, keyLookup, (oldValue, newValue) -> oldValue.get() != null ? oldValue : newValue);
                 T actualResult = result.get();
