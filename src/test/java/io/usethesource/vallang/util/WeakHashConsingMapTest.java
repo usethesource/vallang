@@ -36,7 +36,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class WeakHashConsingMapTests {
+public class WeakHashConsingMapTest {
 	
 	public static final class ConsingTestParameters {
 		private final int threadCount;
