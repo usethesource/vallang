@@ -221,7 +221,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	
 	@Override
 	public IInteger negate(){
-		return IntegerValue.newInteger(value.negate());
+		return new BigIntegerValue(value.negate());
 	}
 	
 	@Override
