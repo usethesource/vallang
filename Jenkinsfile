@@ -6,7 +6,7 @@ node {
     
     withMaven(maven: 'M3', jdk: 'jdk-oracle-8', options: [artifactsPublisher(disabled: true), junitPublisher(disabled: false)] ) {
         stage('Build and Test') {
-           sh "mvn clean install"
+            sh "mvn clean test"
         }
 
         stage('Report code coverage') {
