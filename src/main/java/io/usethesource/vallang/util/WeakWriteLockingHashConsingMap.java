@@ -62,22 +62,21 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         	}
         }
         synchronized (this) {
-        	WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(key.hashCode(), key, cleared);
-        	WeakReferenceWrap<T> oldResult = data.put(keyLookup, keyLookup);
-        	if (oldResult == null) {
-        		return key;
-        	}
-        	// else there was something there, so it might be that we got the lock after it was already added
-        	T actualResult = oldResult.get();
-        	if (actualResult != null) {
-        		// we should not have replaced it, put it back, and clear the other weak reference!
-        		keyLookup.clear();
-        		data.put(oldResult, oldResult);
-        		return actualResult;
-        	}
-        	else {
-        		// edge case, between the put and the get, the reference was cleared
-        		return key;
+            WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(key.hashCode(), key, cleared);
+        	while (true) {
+        		result = data.merge(keyLookup, keyLookup, (oldValue, newValue) -> oldValue.get() == null ? newValue : oldValue);
+        		if (result == keyLookup) {
+        			// a regular put
+        			return key;
+        		}
+        		else {
+        			T actualResult = result.get();
+        			if (actualResult != null) {
+        				// value was already in there, and also still held a reference (which is true for most cases)
+        				keyLookup.clear(); // avoid getting a cleared reference in the queue
+        				return actualResult;
+        			}
+        		}
         	}
 		}
     }
