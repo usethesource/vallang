@@ -23,23 +23,44 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         @SuppressWarnings("unchecked")
         @Override
         public boolean equals(Object obj) {
-            if (obj == null || hash != obj.hashCode() ) {
+            if (obj == null || obj.hashCode() != hash) {
                 return false;
             }
-            // same hash, so have to get the reference
             T self = get();
             if (self == null) {
-                return false;
+            	return false;
             }
             T other;
             if ((obj instanceof WeakReferenceWrap<?>)) {
                 other = ((WeakReferenceWrap<T>) obj).get();
             }
             else {
-                other = (T) obj;
+            	other = ((LookupWrapper<T>)obj).ref;
             }
             return other != null && other.equals(self);
         }
+    }
+    
+    private static final class LookupWrapper<T> {
+    	private final int hash;
+		private final T ref;
+    	public LookupWrapper(int hash, T ref) {
+			this.hash = hash;
+			this.ref = ref;
+		}
+    	
+    	@Override
+    	public int hashCode() {
+    		return hash;
+    	}
+    	
+    	@Override
+    	public boolean equals(Object obj) {
+    		if (obj instanceof WeakReferenceWrap<?>) {
+    			return obj.equals(this);
+    		}
+    		return false;
+    	}
     }
     
 
@@ -54,19 +75,20 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
 
     @Override
     public T get(T key) {
-    	WeakReferenceWrap<T> keyLookup = new WeakReferenceWrap<>(key.hashCode(), key, cleared);
-        WeakReferenceWrap<T> result = data.get(keyLookup);
+    	LookupWrapper<T> keyLookup = new LookupWrapper<>(key.hashCode(), key);
+        @SuppressWarnings("unlikely-arg-type")
+		WeakReferenceWrap<T> result = data.get(keyLookup);
         if (result != null) {
         	T actualResult = result.get();
         	if (actualResult != null) {
-        		keyLookup.clear();
                 return actualResult;
         	}
         }
         synchronized (this) {
+        	WeakReferenceWrap<T> keyPut = new WeakReferenceWrap<>(keyLookup.hash, key, cleared);
         	while (true) {
-        		result = data.merge(keyLookup, keyLookup, (oldValue, newValue) -> oldValue.get() == null ? newValue : oldValue);
-        		if (result == keyLookup) {
+        		result = data.merge(keyPut, keyPut, (oldValue, newValue) -> oldValue.get() == null ? newValue : oldValue);
+        		if (result == keyPut) {
         			// a regular put
         			return key;
         		}
@@ -74,7 +96,7 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         			T actualResult = result.get();
         			if (actualResult != null) {
         				// value was already in there, and also still held a reference (which is true for most cases)
-        				keyLookup.clear(); // avoid getting a cleared reference in the queue
+        				keyPut.clear(); // avoid getting a cleared reference in the queue
         				return actualResult;
         			}
         		}
