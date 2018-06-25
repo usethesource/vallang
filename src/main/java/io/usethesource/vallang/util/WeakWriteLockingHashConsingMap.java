@@ -17,14 +17,23 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
+ * <p>
  * A Hash Consing implementation that only acquires a lock when the key is not in the connection.
  * It is safe to use in a multi-threaded context, and will always return the same reference, even in a race between multiple threads.
+ * </p>
+ * 
+ * <p>
+ * It keeps the key inside a weak-reference, so the entries are cleared as soon as there are no more strong references to it.
+ * </p>
  * @author Davy Landman
  */
 public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
+	/**
+	 * Class that adds the hash-code-equals contract on top of a weak reference
+	 */
     private static class WeakReferenceWrap<T> extends WeakReference<T> {
         private final int hash;
 
@@ -55,6 +64,10 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         }
     }
     
+    /**
+     * Special wrapper that is used for lookup, so that we don't have to create a weak-reference when we don't need it.
+     * It would be nicer if we could use the normal equals method of the target object, but that won't be able to work together with the WeakReferenceWrap.
+     */
     private static final class LookupWrapper<T> {
     	private final int hash;
 		private final T ref;
@@ -83,11 +96,16 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
     }
     
 
-    private final Map<WeakReferenceWrap<T>,WeakReferenceWrap<T>> data = new HashMap<>();
+    private final Map<WeakReferenceWrap<T>,WeakReferenceWrap<T>> data;
     private final ReferenceQueue<T> cleared = new ReferenceQueue<>();
     
     
     public WeakWriteLockingHashConsingMap() {
+    	this(16);
+    }
+
+    public WeakWriteLockingHashConsingMap(int size) {
+    	data = new HashMap<>(size);
         Cleanup.register(this);
     }
     
@@ -135,11 +153,16 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         }
     }
 
+    /**
+     * A special thread that tries to cleanup the containers once every second
+     * 
+     * This way, a get is never blocked for a long time, just to cleanup some old references.
+     */
     private static class Cleanup extends Thread {
-        private final ConcurrentLinkedDeque<WeakReference<WeakWriteLockingHashConsingMap<?>>> caches;
+        private final ConcurrentLinkedQueue<WeakReference<WeakWriteLockingHashConsingMap<?>>> caches;
 
         private Cleanup() { 
-            caches = new ConcurrentLinkedDeque<>();
+            caches = new ConcurrentLinkedQueue<>();
             setDaemon(true);
             setName("Cleanup Thread for " + WeakWriteLockingHashConsingMap.class.getName());
             start();
