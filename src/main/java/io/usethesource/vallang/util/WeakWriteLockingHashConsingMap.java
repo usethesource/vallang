@@ -20,24 +20,22 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         public int hashCode() {
             return hash;
         }
+
         @SuppressWarnings("unchecked")
         @Override
         public boolean equals(Object obj) {
-            if (obj == null || obj.hashCode() != hash) {
-                return false;
+    		assert obj instanceof WeakReferenceWrap<?> && obj != null;
+    		@SuppressWarnings("unchecked")
+    		WeakReferenceWrap<T> wrappedObj = (WeakReferenceWrap<T>) obj;
+            if (wrappedObj.hash == hash) {
+                T self = get();
+                if (self == null) {
+                    return false;
+                }
+				T other = wrappedObj.get();
+                return other != null && self.equals(other);
             }
-            T self = get();
-            if (self == null) {
-            	return false;
-            }
-            T other;
-            if ((obj instanceof WeakReferenceWrap<?>)) {
-                other = ((WeakReferenceWrap<T>) obj).get();
-            }
-            else {
-            	other = ((LookupWrapper<T>)obj).ref;
-            }
-            return other != null && other.equals(self);
+            return false;
         }
     }
     
@@ -56,10 +54,15 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
     	
     	@Override
     	public boolean equals(Object obj) {
-    		if (obj instanceof WeakReferenceWrap<?>) {
-    			return obj.equals(this);
-    		}
-    		return false;
+    		// only internal use of this class
+    		assert obj instanceof WeakReferenceWrap<?> && obj != null;
+    		@SuppressWarnings("unchecked")
+    		WeakReferenceWrap<T> wrappedObj = (WeakReferenceWrap<T>) obj;
+            if (wrappedObj.hash == hash) {
+				T other = wrappedObj.get();
+                return other != null && ref.equals(other);
+            }
+            return false;
     	}
     }
     
