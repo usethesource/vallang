@@ -103,6 +103,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 	private final static Cache<URI, ISourceLocation> locationCache = Caffeine.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(1000)
+            .weakKeys() // loose entries quickly, and force reference equality, such that URI's are only compared based on instance, not on contents (as their equality is case-insensitive)
             .build();
 	
 	/*package*/ static ISourceLocation newSourceLocation(URI uri) throws URISyntaxException {
