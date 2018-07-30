@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -68,11 +67,7 @@ public class WeakHashConsingMapTest {
         List<ConsingTestParameters> result = new ArrayList<>();
         int[] threads = new int[] { 1, 8 };
         int[] collisions = new int[] { 1, 4 };
-        ConsingTestParameters.generate(result, threads, collisions, WeakLockFreeHashConsingTrie::new);
-        ConsingTestParameters.generate(result, threads, collisions, WeakAlwaysLockingHashConsingMap::new);
         ConsingTestParameters.generate(result, threads, collisions, WeakWriteLockingHashConsingMap::new);
-        ConsingTestParameters.generate(result, threads, collisions, WeakBarelyLockingHashConsingSet::new);
-        ConsingTestParameters.generate(result, threads, collisions, WeakLockFreeHashConsingMap::new);
         return result;
     }
 
