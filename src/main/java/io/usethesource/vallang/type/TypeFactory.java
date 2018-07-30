@@ -29,7 +29,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
@@ -41,6 +40,8 @@ import io.usethesource.vallang.exceptions.IllegalFieldNameException;
 import io.usethesource.vallang.exceptions.IllegalFieldTypeException;
 import io.usethesource.vallang.exceptions.IllegalIdentifierException;
 import io.usethesource.vallang.exceptions.NullTypeException;
+import io.usethesource.vallang.util.HashConsingMap;
+import io.usethesource.vallang.util.WeakWriteLockingHashConsingMap;
 
 /**
  * Use this class to produce any kind of {@link Type}, after which the make
@@ -54,7 +55,7 @@ public class TypeFactory {
 	/**
 	 * Caches all types to implement canonicalization
 	 */
-	private final Map<Type, Type> fCache = new HashMap<Type, Type>();
+	private final HashConsingMap<Type> fCache = new WeakWriteLockingHashConsingMap<>(8*1024);
     private TypeValues typeValues;
     
 	private static class InstanceHolder {
@@ -106,16 +107,7 @@ public class TypeFactory {
 	}
 
 	private Type getFromCache(Type t) {
-		synchronized (fCache) {
-			Type result = fCache.get(t);
-
-			if (result == null) {
-				fCache.put(t, t);
-				return t;
-			}
-
-			return result;
-		}
+		return fCache.get(t);
 	}
 
 	/**

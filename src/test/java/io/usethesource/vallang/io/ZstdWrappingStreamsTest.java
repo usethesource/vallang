@@ -23,10 +23,10 @@ import io.usethesource.vallang.io.binary.util.DirectZstdInputStream;
 import io.usethesource.vallang.io.binary.util.FileChannelDirectInputStream;
 import io.usethesource.vallang.io.binary.util.FileChannelDirectOutputStream;
 
-public class ZstdWrappingStreams {
+public class ZstdWrappingStreamsTest {
     
     private static File getTempFile(String name) throws IOException {
-        File result = File.createTempFile(ZstdWrappingStreams.class.getName(), "temp-file-" + name);
+        File result = File.createTempFile(ZstdWrappingStreamsTest.class.getName(), "temp-file-" + name);
         result.deleteOnExit();
         return result;
     }
