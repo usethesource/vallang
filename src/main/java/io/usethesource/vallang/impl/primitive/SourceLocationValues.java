@@ -96,13 +96,27 @@ import com.github.benmanes.caffeine.cache.Caffeine;
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(1000)
             .build();
+
+	/**
+	 * As the parser is always calling the URI constructor, we cache the result, as not to unpack it all the time.
+	 */
+	private final static Cache<URI, ISourceLocation> locationCache = Caffeine.newBuilder()
+            .expireAfterAccess(5, TimeUnit.MINUTES)
+            .maximumSize(1000)
+            .weakKeys() // loose entries quickly, and force reference equality, such that URI's are only compared based on instance, not on contents (as their equality is case-insensitive)
+            .build();
 	
 	/*package*/ static ISourceLocation newSourceLocation(URI uri) throws URISyntaxException {
 		if (uri.isOpaque()) {
 			throw new UnsupportedOperationException("Opaque URI schemes are not supported; the scheme-specific part must start with a / character.");
 		}
-		
-		return newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
+		return locationCache.get(uri, (u) -> {
+			try {
+				return newSourceLocation(u.getScheme(), u.getAuthority(), u.getPath(), u.getQuery(), u.getFragment());
+			} catch (URISyntaxException e) {
+				throw new RuntimeException("We can't get a URISyntaxException when we start with an URI");
+			}
+		});
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
