@@ -1,21 +1,21 @@
 package io.usethesource.vallang.impl.persistent;
 
-import io.usethesource.capsule.Set;
-import io.usethesource.capsule.SetMultimap;
-import io.usethesource.capsule.util.stream.DefaultCollector;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.util.AbstractTypeBag;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ITuple;
-
+import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
+import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceEqualityComparator;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
-
-import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
-import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceEqualityComparator;
+import io.usethesource.capsule.Set;
+import io.usethesource.capsule.SetMultimap;
+import io.usethesource.capsule.util.stream.DefaultCollector;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.util.AbstractTypeBag;
 
 public class ValueCollectors {
 
@@ -38,6 +38,12 @@ public class ValueCollectors {
             (Set.Immutable<IValue>) struct.set.freeze()),
         UNORDERED);
   }
+  
+  public static <T extends IValue> Collector<T, ?, IList> toList() {
+    return new DefaultCollector<>(ValueFactory.getInstance()::listWriter, (w,e) -> { w.append(e); }, 
+    		unsupportedCombiner(), w -> w.done(), Collections.emptySet()); 
+  }
+  
 
   /**
    * @param keyLabel optional label of first column
