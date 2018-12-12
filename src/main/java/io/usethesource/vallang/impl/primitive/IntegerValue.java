@@ -43,15 +43,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private final static int TWENTYTHREE_BITS_MASK = 0x007fffff;
 
 	private final static IInteger[] smallValues; 
+	private final static BigInteger[] smallBigIntegerValues; 
 	private final static int minSmallValue = -100;
 	private final static int maxSmallValue = 100;
 	public final static IInteger INTEGER_ONE;
 	static {
-	    smallValues = new IInteger[(maxSmallValue - minSmallValue) + 1];
-	    for (int i = minSmallValue; i <= maxSmallValue; i++) {
-	        smallValues[i - minSmallValue] = new IntegerValue(i);
-	    }
-	    INTEGER_ONE = smallValues[1 - minSmallValue];
+		smallValues = new IInteger[(maxSmallValue - minSmallValue) + 1];
+		smallBigIntegerValues = new BigInteger[(maxSmallValue - minSmallValue) + 1];
+		for (int i = minSmallValue; i <= maxSmallValue; i++) {
+			smallValues[i - minSmallValue] = new IntegerValue(i);
+			smallBigIntegerValues[i - minSmallValue] = new BigInteger("" + i);
+		}
+		INTEGER_ONE = smallValues[1 - minSmallValue];
 	}
 	protected final int value;
 
@@ -180,12 +183,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	
 	@Override
 	public BigInteger toBigInteger(){
+		if (minSmallValue <= value && value <= maxSmallValue) {
+			return smallBigIntegerValues[value - minSmallValue];
+		}
 		return new BigInteger(getTwosComplementRepresentation());
 	}
 	
 	@Override
 	public boolean isEqual(IValue other) {
-	  return equals(other);
+		return equals(other);
 	}
 	
 	@Override
