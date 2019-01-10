@@ -119,7 +119,7 @@ public interface IValue {
     /**
      * Creates a view that exposes the {@link IWithKeywordParameters} annotation API. 
      * 
-     * @return an {@link IAnnotatable} view on this {@link IValue} object 
+     * @return an {@link IWithKeywordParameters} view on this {@link IValue} object 
      */
     public IWithKeywordParameters<? extends IValue> asWithKeywordParameters();
 }
