@@ -14,14 +14,14 @@ package io.usethesource.vallang.io.binary.util;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -81,46 +81,34 @@ public class CacheFactory<T> {
         }
 	}
 
-	private final Semaphore scheduleCleanups = new Semaphore(0);
 	private final Map<Integer, SoftPool<T>> caches = new ConcurrentHashMap<>();
 	private final Function<T, T> cleaner;
+	private final long expireNanos;
 	
 	public CacheFactory(int expireAfter, TimeUnit unit, Function<T, T> clearer) {
-	    this.cleaner = clearer;
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        // we either wait at max the EXPIRE_AFTER time, or we have enough updates to the maps that some cleaning might be nice
-                        scheduleCleanups.tryAcquire(1000, expireAfter, unit);
-                        cleanMap(caches);
-                    }
-                }
-                catch (InterruptedException e) {
-                }
-            }
+	    this.expireNanos = unit.toNanos(expireAfter);
+		this.cleaner = clearer;
+		Cleanup.Instance.register(this);
+	}
 
-            private void cleanMap(Map<Integer, SoftPool<T>> cache) {
-                long cleanBefore = System.nanoTime() - unit.toNanos(expireAfter);
-                for (SoftPool<T> v : cache.values()) {
-                    Iterator<LastUsedTracker<T>> it = v.descendingIterator();
-                    while (it.hasNext()) {
-                        LastUsedTracker<T> current = it.next();
-                        if (current.clearIfOlderThan(cleanBefore)) {
-                            it.remove();
-                        }
-                        else {
-                            break; // end of the chain of outdated stuff reached
-                        }
-                    }
-                    v.performHouseKeeping();
-                }
-            }
-        });
-        t.setName("Cleanup caches: " + this);
-        t.setDaemon(true);
-        t.start();
+	/**
+	 * Private internal function, to be called from the cleanup thread
+	 */
+	private void cleanup() {
+		long cleanBefore = System.nanoTime() - expireNanos;
+		for (SoftPool<T> v : caches.values()) {
+			Iterator<LastUsedTracker<T>> it = v.descendingIterator();
+			while (it.hasNext()) {
+				LastUsedTracker<T> current = it.next();
+				if (current.clearIfOlderThan(cleanBefore)) {
+					it.remove();
+				}
+				else {
+					break; // end of the chain of outdated stuff reached
+				}
+			}
+			v.performHouseKeeping();
+		}
 	}
 	
 	public T get(int size, Function<Integer, T> computeNew) {
@@ -140,7 +128,69 @@ public class CacheFactory<T> {
 	    	returned = cleaner.apply(returned);
             SoftPool<T> entries = caches.computeIfAbsent(size, i -> new SoftPool<>());
             entries.push(returned);
-            scheduleCleanups.release();
 	    }
 	}
+	
+	
+    /**
+     * Cleanup singleton that wraps {@linkplain CleanupThread}
+     */
+    private static enum Cleanup {
+        Instance;
+
+        private final CleanupThread thread;
+        private Cleanup() {
+            thread = new CleanupThread();
+        }
+        public void register(CacheFactory<?> cache) {
+            thread.register(cache);
+        }
+
+    }
+
+    /**
+    * A special thread that tries to cleanup the containers once every second
+    * 
+    * This way, a get is never blocked for a long time, just to cleanup some old references.
+    */
+    private static class CleanupThread extends Thread {
+        private final ConcurrentLinkedQueue<WeakReference<CacheFactory<?>>> caches = new ConcurrentLinkedQueue<>();
+        
+        private CleanupThread() { 
+            setDaemon(true);
+            setName("Cleanup Thread for " + CacheFactory.class.getName());
+            start();
+        }
+
+        public void register(CacheFactory<?> cache) {
+            caches.add(new WeakReference<>(cache));
+        }
+        
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                try {
+                    Iterator<WeakReference<CacheFactory<?>>> it = caches.iterator();
+                    while (it.hasNext()) {
+                        CacheFactory<?> cur = it.next().get();
+                        if (cur == null) {
+                            it.remove();
+                        }
+                        else {
+                            cur.cleanup();
+                        }
+                    }
+                }
+                catch (Throwable e) {
+                    System.err.println("Cleanup thread failed with: " + e.getMessage());
+                    e.printStackTrace(System.err);
+                }
+            }
+        }
+    }
 }
