@@ -12,6 +12,10 @@ node {
         stage('Report code coverage') {
             sh "curl -L https://codecov.io/bash | bash -s - -K -t d32f974b-1db9-4b8e-b1d5-9bd68bb6c107"
         }
+
+        stage ('sonar cloud') {
+            sh "mvn -DskipTests sonar:sonar -Dsonar.projectKey=usethesource_vallang -Dsonar.organization=usethesource  -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${VALLANG_SONAR_CLOUD}"
+        }
     
         stage('Deploy') {
             if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
