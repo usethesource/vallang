@@ -47,6 +47,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private final static int minSmallValue = -100;
 	private final static int maxSmallValue = 100;
 	public final static IInteger INTEGER_ONE;
+	public final static IInteger INTEGER_ZERO;
 	static {
 		smallValues = new IInteger[(maxSmallValue - minSmallValue) + 1];
 		smallBigIntegerValues = new BigInteger[(maxSmallValue - minSmallValue) + 1];
@@ -55,7 +56,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			smallBigIntegerValues[i - minSmallValue] = new BigInteger("" + i);
 		}
 		INTEGER_ONE = smallValues[1 - minSmallValue];
+		INTEGER_ZERO = smallValues[0 - minSmallValue];
 	}
+	
 	protected final int value;
 
 	/*
@@ -344,16 +347,24 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	 }
 	
 	@Override
-	public IInteger divide(IInteger other){
-		if(value == 0)
+	public IInteger divide(IInteger other) {
+		if (other.isEqual(INTEGER_ZERO)) {
+			throw new ArithmeticException("/ by zero");
+		}
+		
+		if (value == 0) {
 			return this;
-		if(other instanceof BigIntegerValue){
+		}
+		
+		if (other instanceof BigIntegerValue){
 			return IntegerValue.newInteger(toBigInteger().divide(((ICanBecomeABigInteger) other).toBigInteger()));
 		}
 		
 		int otherIntValue = other.intValue();
-		if(otherIntValue == 1)
+		if (otherIntValue == 1) {
 			return this;
+		}
+		
 		return IntegerValue.newInteger(value / otherIntValue);
 	}
 	

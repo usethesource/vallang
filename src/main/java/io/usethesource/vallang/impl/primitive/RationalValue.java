@@ -134,6 +134,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 	@Override
 	public IRational divide(IInteger other) {
+		if (other.isEqual(IntegerValue.INTEGER_ZERO)) {
+			throw new ArithmeticException("/ by zero");
+		}
+		
 		return toRational(num, denom.multiply(other));
 	}
 

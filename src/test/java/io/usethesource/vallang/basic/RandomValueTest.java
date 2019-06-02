@@ -55,6 +55,7 @@ import io.usethesource.vallang.type.Type;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Implements random testing of algebraic properties of the PDB values numeric types (aka
@@ -477,6 +478,15 @@ public final class RandomValueTest {
       return N * 10;
   }
 
+  public void axiomDivByZero(INumber a) {
+	  try {
+		  a.divide(INT_ZERO, 10);
+		  fail("divide by zero should throw ArithmeticException");
+	  }
+	  catch (ArithmeticException e) {
+		  // this is good
+	  }
+  }
   /**
    * Relationship between compare() and the comparison functions, and between the various
    * comparisons.
