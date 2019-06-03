@@ -11,6 +11,11 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
+import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
+import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
+import static io.usethesource.vallang.impl.persistent.ValueCollectors.toSet;
+import static io.usethesource.vallang.impl.persistent.ValueCollectors.toSetMultimap;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.Stream;
@@ -23,11 +28,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractSet;
 import io.usethesource.vallang.impl.DefaultRelationViewOnSet;
 import io.usethesource.vallang.type.Type;
-
-import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
-import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
-import static io.usethesource.vallang.impl.persistent.ValueCollectors.toSet;
-import static io.usethesource.vallang.impl.persistent.ValueCollectors.toSetMultimap;
 
 public final class EmptySet extends AbstractSet {
 

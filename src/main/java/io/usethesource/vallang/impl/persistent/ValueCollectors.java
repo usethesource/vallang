@@ -2,12 +2,14 @@ package io.usethesource.vallang.impl.persistent;
 
 import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
 import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceEqualityComparator;
+
 import java.util.Collections;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
+
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.stream.DefaultCollector;

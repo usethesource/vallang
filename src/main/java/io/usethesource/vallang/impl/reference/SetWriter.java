@@ -24,9 +24,9 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
-import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.impl.AbstractWriter;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class SetWriter extends AbstractWriter implements ISetWriter {
     protected final HashSet<IValue> setContent;

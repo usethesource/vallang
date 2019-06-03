@@ -11,13 +11,13 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl;
 
+import java.util.Map;
+
 import io.usethesource.capsule.Map.Immutable;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-
-import java.util.Map;
 
 /**
  * A generic wrapper for an {@link IValue} that associates annotations to it.

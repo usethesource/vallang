@@ -16,20 +16,20 @@ package io.usethesource.vallang.impl.reference;
 import java.util.Objects;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
+import io.usethesource.vallang.impl.primitive.AbstractPrimitiveValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.impl.primitive.AbstractPrimitiveValueFactory;
 
 /**
  * This is a reference implementation for an @{link IValueFactory}. It uses

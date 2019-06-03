@@ -15,8 +15,8 @@ package io.usethesource.vallang.io;
 import java.io.IOException;
 import java.io.Writer;
 
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeStore;
 
 /**
  * An instance of IValueTextWriter can serialize all types of IValues as characters

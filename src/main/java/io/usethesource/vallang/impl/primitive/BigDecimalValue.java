@@ -20,6 +20,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
@@ -28,7 +29,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.util.BigDecimalCalculations;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*

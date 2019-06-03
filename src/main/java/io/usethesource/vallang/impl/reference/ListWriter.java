@@ -19,14 +19,14 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.LinkedList;
 
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
-import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.impl.AbstractWriter;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * This class does not guarantee thread-safety. Users must lock the writer object for thread safety.

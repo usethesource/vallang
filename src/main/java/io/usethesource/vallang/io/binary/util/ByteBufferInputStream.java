@@ -1,6 +1,5 @@
 package io.usethesource.vallang.io.binary.util;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;

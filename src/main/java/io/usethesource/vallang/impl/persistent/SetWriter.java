@@ -12,7 +12,6 @@
 package io.usethesource.vallang.impl.persistent;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -24,7 +23,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;

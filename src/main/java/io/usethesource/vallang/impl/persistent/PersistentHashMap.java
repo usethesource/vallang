@@ -11,20 +11,19 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Objects;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractMap;
 import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
 
 public final class PersistentHashMap extends AbstractMap {

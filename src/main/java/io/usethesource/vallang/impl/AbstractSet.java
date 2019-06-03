@@ -15,11 +15,11 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class AbstractSet extends AbstractValue implements ISet {
 

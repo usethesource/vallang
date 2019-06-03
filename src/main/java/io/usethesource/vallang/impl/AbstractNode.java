@@ -12,6 +12,7 @@
 package io.usethesource.vallang.impl;
 
 import io.usethesource.capsule.Map;
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
@@ -22,8 +23,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-
-import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 public abstract class AbstractNode extends AbstractValue implements INode {
 

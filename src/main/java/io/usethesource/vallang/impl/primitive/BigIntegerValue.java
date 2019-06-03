@@ -15,11 +15,11 @@ package io.usethesource.vallang.impl.primitive;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;

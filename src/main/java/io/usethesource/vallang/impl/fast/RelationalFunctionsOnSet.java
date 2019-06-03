@@ -18,7 +18,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;

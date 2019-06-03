@@ -13,11 +13,11 @@ package io.usethesource.vallang.impl.fast;
 import java.util.Iterator;
 
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.IListWriter;
 
 // TODO Add checking.
 /**

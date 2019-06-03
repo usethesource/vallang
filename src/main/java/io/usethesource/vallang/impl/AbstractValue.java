@@ -14,11 +14,11 @@ package io.usethesource.vallang.impl;
 
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.visitors.IValueVisitor;
 import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class AbstractValue implements IValue {
 

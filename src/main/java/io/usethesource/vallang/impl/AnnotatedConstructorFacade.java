@@ -14,16 +14,16 @@ package io.usethesource.vallang.impl;
 import java.util.Iterator;
 
 import io.usethesource.capsule.Map;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class AnnotatedConstructorFacade implements IConstructor {

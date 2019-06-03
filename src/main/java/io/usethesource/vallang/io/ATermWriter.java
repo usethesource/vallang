@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IExternalValue;
@@ -33,7 +34,6 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import io.usethesource.vallang.IBool;
 
 /**
  * This class implements the ATerm readable syntax for {@link IValue}'s.

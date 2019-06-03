@@ -14,13 +14,13 @@ package io.usethesource.vallang.impl.fast;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.util.collections.ShareableValuesHashMap;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.impl.util.collections.ShareableValuesHashMap;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 // TODO Add checking.
 /**

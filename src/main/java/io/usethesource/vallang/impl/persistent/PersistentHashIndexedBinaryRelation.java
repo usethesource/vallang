@@ -11,6 +11,10 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
+import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
+import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
+import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,7 +30,6 @@ import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.core.PersistentTrieSetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.ITuple;
@@ -34,16 +37,9 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.AbstractSet;
-import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
-import io.usethesource.vallang.util.EqualityUtils;
-
-import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
-import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
-import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceEqualityComparator;
-import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
 
 public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 

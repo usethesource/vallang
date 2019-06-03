@@ -15,9 +15,9 @@ import java.util.Iterator;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IAnnotatable;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextWriter;

@@ -11,16 +11,16 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
+import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
+import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
+
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.SetMultimap;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-
-import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
-import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
+import io.usethesource.vallang.util.AbstractTypeBag;
 
 /**
  * Smart constructors for choosing (or converting to) the most appropriate representations based on

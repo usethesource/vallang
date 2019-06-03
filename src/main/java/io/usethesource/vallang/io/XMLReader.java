@@ -19,23 +19,24 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.UnsupportedTypeException;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.IMapWriter;
-import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.exceptions.FactParseError;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactParseError;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.exceptions.UnsupportedTypeException;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 /**
  * This IValueReader parses and validates certain forms of XML and deserializes

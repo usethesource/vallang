@@ -1,11 +1,7 @@
 package io.usethesource.vallang.impl;
 
-import java.util.function.Function;
-
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListRelation;
-import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.func.ListFunctions;

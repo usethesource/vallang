@@ -15,8 +15,8 @@ package io.usethesource.vallang.impl.primitive;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.AbstractValue;
-import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ abstract class BoolValue extends AbstractValue implements IBool {

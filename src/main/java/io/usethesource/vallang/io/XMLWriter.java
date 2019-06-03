@@ -23,6 +23,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
@@ -38,9 +42,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.UnsupportedTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * This IValueWriter serializes values to XML documents.  

@@ -15,16 +15,15 @@ package io.usethesource.vallang.impl.reference;
 import java.util.Iterator;
 import java.util.Map;
 
+import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.impl.AbstractNode;
 import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import io.usethesource.vallang.impl.AbstractNode;
-
-import io.usethesource.capsule.util.iterator.ArrayIterator;
 
 /**
  * Naive implementation of an untyped tree node, using array of children.

@@ -12,9 +12,9 @@
  *******************************************************************************/
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 /**
  * Typed node representation. An IConstructor is a specific kind of INode, namely one

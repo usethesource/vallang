@@ -13,6 +13,7 @@
 
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 

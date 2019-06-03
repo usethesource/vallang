@@ -15,11 +15,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-
-import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 
 /**

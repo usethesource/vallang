@@ -13,16 +13,16 @@ package io.usethesource.vallang.visitors;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 /**
  * This visitor will apply another visitor in a bottom-up fashion to an IValue 

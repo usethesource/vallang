@@ -16,7 +16,6 @@ import java.util.Objects;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.NodeWithKeywordParametersFacade;
 
 public class EqualityUtils {
 

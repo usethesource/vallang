@@ -22,26 +22,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactParseError;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.exceptions.OverloadingNotSupportedException;
 import io.usethesource.vallang.exceptions.UnexpectedTypeException;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.INode;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.OverloadingNotSupportedException;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 
 /**
  * This class implements the standard readable syntax for {@link IValue}'s.

@@ -17,11 +17,11 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.func.ListFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
 
 public abstract class AbstractList extends AbstractValue implements IList {
 

@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IRational;
@@ -29,7 +30,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.util.ShareableHashMap;
-import io.usethesource.vallang.IBool;
 
 /**
  * Base value factory with optimized representations of primitive values.

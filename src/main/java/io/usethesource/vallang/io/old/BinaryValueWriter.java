@@ -16,10 +16,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.IValueBinaryWriter;
 import io.usethesource.vallang.io.IValueTextWriter;
+import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.type.TypeStore;
 
 /**

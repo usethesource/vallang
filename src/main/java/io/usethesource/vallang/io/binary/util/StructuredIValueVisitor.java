@@ -24,8 +24,8 @@ import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
 
 public interface StructuredIValueVisitor<E extends Throwable> {
     

@@ -12,7 +12,6 @@
 package io.usethesource.vallang.impl.persistent;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -20,12 +19,12 @@ import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
+import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.type.Type;
 
 final class MapWriter implements IMapWriter {
 

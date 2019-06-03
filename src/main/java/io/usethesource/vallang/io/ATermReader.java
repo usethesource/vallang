@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -30,8 +32,6 @@ import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.ISetWriter;
 
 // TODO: add support for values of type Value, for this we need overloading resolving
 public class ATermReader extends AbstractBinaryReader {

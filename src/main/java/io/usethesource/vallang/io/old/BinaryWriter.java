@@ -19,28 +19,28 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IReal;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.io.binary.message.IValueWriter;
-import io.usethesource.vallang.type.ExternalType;
-import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.util.IndexedSet;
-import io.usethesource.vallang.IAnnotatable;
-import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.io.binary.message.IValueWriter;
+import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.util.IndexedSet;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 // TODO Change this thing so it doesn't use recursion.

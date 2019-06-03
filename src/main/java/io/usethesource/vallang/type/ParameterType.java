@@ -17,9 +17,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;

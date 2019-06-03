@@ -4,17 +4,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+
+import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
-
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.

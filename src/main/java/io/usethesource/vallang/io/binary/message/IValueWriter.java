@@ -15,30 +15,31 @@ package io.usethesource.vallang.io.binary.message;
 import java.io.IOException;
 import java.util.HashSet;
 
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
+import io.usethesource.vallang.io.binary.util.StacklessStructuredVisitor;
+import io.usethesource.vallang.io.binary.util.StructuredIValueVisitor;
 import io.usethesource.vallang.io.binary.util.TrackLastWritten;
 import io.usethesource.vallang.io.binary.util.WindowCacheFactory;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.INode;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.binary.util.StacklessStructuredVisitor;
-import io.usethesource.vallang.io.binary.util.StructuredIValueVisitor;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.type.ITypeVisitor;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 
 /**
  * An utility class for the {@link IValueOutputStream}. Only directly use methods in this class if you have nested IValues in an exisiting {@link IWireOutputStream}.

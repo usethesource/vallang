@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.ISetWriter;
 
 /*package*/class SetType extends DefaultSubtypeOfValue {
 	protected final Type fEltType;

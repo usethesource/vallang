@@ -14,14 +14,14 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.impl.AbstractValue;
+import io.usethesource.vallang.impl.func.TupleFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.impl.AbstractValue;
-import io.usethesource.vallang.impl.func.TupleFunctions;
 
 class Tuple extends AbstractValue implements ITuple {
 

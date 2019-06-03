@@ -20,6 +20,8 @@ import java.util.Objects;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
+import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
@@ -34,10 +36,7 @@ import io.usethesource.vallang.impl.func.ConstructorFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.visitors.IValueVisitor;
-
-import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
  * Implementation of IConstructor.

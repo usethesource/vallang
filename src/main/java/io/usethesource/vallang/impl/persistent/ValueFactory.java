@@ -14,10 +14,10 @@ package io.usethesource.vallang.impl.persistent;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.ISetWriter;
 
 public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory {
 

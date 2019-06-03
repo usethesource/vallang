@@ -17,18 +17,18 @@ import java.util.Random;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.AbstractValue;
+import io.usethesource.vallang.impl.func.ListFunctions;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.impl.func.ListFunctions;
 
 /**
  * Implementation of IList.

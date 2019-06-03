@@ -15,11 +15,11 @@ package io.usethesource.vallang.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 
 /**
  * An instance of IValueReader can parse a serialized representation of IValues.

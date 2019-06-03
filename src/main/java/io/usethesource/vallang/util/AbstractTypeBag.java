@@ -11,6 +11,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.util;
 
+import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
+
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -21,8 +23,6 @@ import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.stream.DefaultCollector;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-
-import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
 
 /**
  * Stores mapping (Type -> Integer) to keep track of a collection's element types. The least upper

@@ -18,16 +18,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.func.ConstructorFunctions;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class ConstructorWithKeywordParametersFacade implements IConstructor {

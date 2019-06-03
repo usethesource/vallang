@@ -18,11 +18,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.ISetWriter;
 
 /**
  * This class is the abstract implementation for all types. Types are ordered in

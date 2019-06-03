@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
@@ -28,8 +29,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-
-import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
  * IExternalValue, together with {@link ExternalType} offer a limited form of extensibility
