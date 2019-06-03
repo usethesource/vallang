@@ -123,8 +123,8 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         }
 
         if (oneEvery(20) && depthLeft() > 1) {
-            BigDecimal r = new BigDecimal(random.nextDouble()).multiply(new BigDecimal(random.nextInt(10000)));
-            r = r.multiply(new BigDecimal(random.nextInt()).add(new BigDecimal(1000)));
+            BigDecimal r = BigDecimal.valueOf(random.nextDouble()).multiply(BigDecimal.valueOf(random.nextInt(10000)));
+            r = r.multiply(BigDecimal.valueOf(random.nextInt()).add(BigDecimal.valueOf(1000)));
             return vf.real(r.toString());
         }
         
