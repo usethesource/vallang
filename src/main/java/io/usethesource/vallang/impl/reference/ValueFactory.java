@@ -25,10 +25,8 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.impl.primitive.AbstractPrimitiveValueFactory;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * This is a reference implementation for an @{link IValueFactory}. It uses
@@ -84,15 +82,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		IListWriter lw =  listWriter();
 		lw.append(rest);
 		return lw.done();
-	}
-
-	private Type lub(IValue... elems) {
-		checkNull((Object[]) elems);
-		Type elementType = TypeFactory.getInstance().voidType();
-		for (IValue elem : elems) {
-			elementType = elementType.lub(elem.getType());
-		}
-		return elementType;
 	}
 
 	@Override
@@ -184,38 +173,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		return new MapWriter();
 	}
 
-	@Override
-	public IListWriter listRelationWriter(Type tupleType) {
-		checkNull(tupleType);
-		return new ListWriter(tupleType);
-	}
-
-	@Override
-	public IListWriter listRelationWriter() {
-		return new ListWriter();
-	}
-
-	@Override
-	public IList listRelation(Type tupleType) {
-		checkNull(tupleType);
-		return listWriter().done();
-	}
-
-	@Override
-	public IList listRelation(IValue... tuples) {
-		checkNull((Object[]) tuples);
-		Type elementType = lub(tuples);
-	
-		if (!elementType.isFixedWidth()) {
-			TypeFactory tf = TypeFactory.getInstance();
-			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
-		}
-		
-		IListWriter rw = listRelationWriter(elementType);
-		rw.append(tuples);
-		return rw.done();
-	}
-	
 	@Override
 	public String toString() {
 		return "VF_PDB_REFERENCE";

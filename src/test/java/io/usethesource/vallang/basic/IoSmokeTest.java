@@ -82,7 +82,7 @@ public final class IoSmokeTest {
             vf.list(vf.constructor(True), vf.constructor(False), vf.constructor(True))),
         vf.constructor(Friends, vf.list(name("Hans"), name("Bob"))),
         vf.constructor(Or, vf.list()), vf.constructor(Couples,
-            vf.listRelation(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))};
+            vf.list(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))};
   }
 
   private String[] testXML = {"<true/>", "<and><true/><false/></and>",

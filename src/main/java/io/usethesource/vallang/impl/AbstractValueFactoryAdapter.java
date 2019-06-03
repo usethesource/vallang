@@ -298,26 +298,6 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public IList listRelation(Type tupleType) {
-        return adapted.listRelation(tupleType);
-    }
-
-    @Override
-    public IList listRelation(IValue... elems) {
-        return adapted.listRelation(elems);
-    }
-
-    @Override
-    public IListWriter listRelationWriter(Type type) {
-        return adapted.listRelationWriter(type);
-    }
-
-    @Override
-    public IListWriter listRelationWriter() {
-        return adapted.listRelationWriter();
-    }
-
-    @Override
     public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children)
             throws FactTypeUseException {
         return adapted.constructor(constructor, annotations, children);

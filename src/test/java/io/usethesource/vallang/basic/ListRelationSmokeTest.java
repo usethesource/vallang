@@ -77,7 +77,7 @@ public class ListRelationSmokeTest {
       lw2.insert(iv);
     }
     listOfDoubles = lw2.done();
-    IListWriter rw = vf.listRelationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+    IListWriter rw = vf.listWriter();
     integerTuples = new ITuple[integers.length * integers.length];
 
     for (int i = 0; i < integers.length; i++) {
@@ -89,7 +89,7 @@ public class ListRelationSmokeTest {
     }
     integerListRelation = rw.done();
 
-    IListWriter rw2 = vf.listRelationWriter(tf.tupleType(tf.realType(), tf.realType()));
+    IListWriter rw2 = vf.listWriter();
     doubleTuples = new ITuple[doubles.length * doubles.length];
 
     for (int i = 0; i < doubles.length; i++) {
@@ -108,11 +108,11 @@ public class ListRelationSmokeTest {
       fail("integerRelation is not empty");
     }
 
-    if (!vf.listRelation(tf.tupleType(tf.integerType())).isEmpty()) {
+    if (!vf.list().isEmpty()) {
       fail("this relation should be empty");
     }
 
-    IList emptyRel = vf.listRelation();
+    IList emptyRel = vf.list();
     if (!emptyRel.isEmpty()) {
       fail("empty relation is not empty?");
     }
@@ -174,7 +174,7 @@ public class ListRelationSmokeTest {
 
     try {
       ITuple t1 = vf.tuple(integers[0], integers[1]);
-      IList rel = vf.listRelation(t1);
+      IList rel = vf.list(t1);
 
       rel.asRelation().closure();
     } catch (FactTypeUseException e) {
@@ -189,7 +189,7 @@ public class ListRelationSmokeTest {
       ITuple t5 = vf.tuple(integers[1], integers[3]);
       ITuple t6 = vf.tuple(integers[0], integers[3]);
 
-      IList test = vf.listRelation(t1, t2, t3);
+      IList test = vf.list(t1, t2, t3);
       IList closed = test.asRelation().closure();
 
       if (closed.asRelation().arity() != test.asRelation().arity()) {
@@ -234,20 +234,20 @@ public class ListRelationSmokeTest {
       ITuple t1 = vf.tuple(integers[0], doubles[0]);
       ITuple t2 = vf.tuple(integers[1], doubles[1]);
       ITuple t3 = vf.tuple(integers[2], doubles[2]);
-      IList rel1 = vf.listRelation(t1, t2, t3);
+      IList rel1 = vf.list(t1, t2, t3);
 
       ITuple t4 = vf.tuple(doubles[0], integers[0]);
       ITuple t5 = vf.tuple(doubles[1], integers[1]);
       ITuple t6 = vf.tuple(doubles[2], integers[2]);
-      IList rel2 = vf.listRelation(t4, t5, t6);
+      IList rel2 = vf.list(t4, t5, t6);
 
       ITuple t7 = vf.tuple(integers[0], integers[0]);
       ITuple t8 = vf.tuple(integers[1], integers[1]);
       ITuple t9 = vf.tuple(integers[2], integers[2]);
-      IList rel3 = vf.listRelation(t7, t8, t9);
+      IList rel3 = vf.list(t7, t8, t9);
 
       try {
-        vf.listRelation(vf.tuple(doubles[0], doubles[0])).asRelation().compose(rel1.asRelation());
+        vf.list(vf.tuple(doubles[0], doubles[0])).asRelation().compose(rel1.asRelation());
         fail("relations should not be composable");
       } catch (FactTypeUseException e) {
         // this should happen
@@ -285,7 +285,7 @@ public class ListRelationSmokeTest {
       // fail("insert into a relation of an existing tuple should not change the relation");
       // }
 
-      IListWriter relw3 = vf.listRelationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+      IListWriter relw3 = vf.listWriter();
       relw3.insertAll(integerListRelation);
       IList rel3 = relw3.done();
 
@@ -307,8 +307,8 @@ public class ListRelationSmokeTest {
 
   @Test
   public void testIntersectIRelation() {
-    IList empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
-    IList empty2 = vf.listRelation(tf.tupleType(tf.realType()));
+    IList empty1 = vf.list();
+    IList empty2 = vf.list();
 
     try {
       final IList intersection = empty1.intersect(empty2);
@@ -329,9 +329,9 @@ public class ListRelationSmokeTest {
         fail("non-intersecting relations should produce empty intersections");
       }
 
-      IList oneTwoThree = vf.listRelation(integerTuples[0], integerTuples[1], integerTuples[2]);
-      IList threeFourFive = vf.listRelation(integerTuples[2], integerTuples[3], integerTuples[4]);
-      IList result = vf.listRelation(integerTuples[2]);
+      IList oneTwoThree = vf.list(integerTuples[0], integerTuples[1], integerTuples[2]);
+      IList threeFourFive = vf.list(integerTuples[2], integerTuples[3], integerTuples[4]);
+      IList result = vf.list(integerTuples[2]);
 
       if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
         fail("intersection failed");
@@ -340,7 +340,7 @@ public class ListRelationSmokeTest {
         fail("intersection should be commutative");
       }
 
-      if (!oneTwoThree.intersect(vf.listRelation(tf.tupleType(tf.integerType(), tf.integerType())))
+      if (!oneTwoThree.intersect(vf.list())
           .isEmpty()) {
         fail("intersection with empty set should produce empty");
       }
@@ -352,7 +352,7 @@ public class ListRelationSmokeTest {
 
   @Test
   public void testIntersectIList() {
-    IList empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
+    IList empty1 = vf.list();
     IList empty2 = vf.list();
 
     try {
@@ -374,9 +374,9 @@ public class ListRelationSmokeTest {
         fail("non-intersecting relations should produce empty intersections");
       }
 
-      IList oneTwoThree = vf.listRelation(integerTuples[0], integerTuples[1], integerTuples[2]);
+      IList oneTwoThree = vf.list(integerTuples[0], integerTuples[1], integerTuples[2]);
       IList threeFourFive = vf.list(integerTuples[2], integerTuples[3], integerTuples[4]);
-      IList result = vf.listRelation(integerTuples[2]);
+      IList result = vf.list(integerTuples[2]);
 
       if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
         fail("intersection failed");
@@ -385,7 +385,7 @@ public class ListRelationSmokeTest {
         fail("intersection should be commutative");
       }
 
-      if (!oneTwoThree.intersect(vf.listRelation(tf.tupleType(tf.integerType(), tf.integerType())))
+      if (!oneTwoThree.intersect(vf.list())
           .isEmpty()) {
         fail("intersection with empty list should produce empty");
       }
@@ -397,8 +397,8 @@ public class ListRelationSmokeTest {
 
   @Test
   public void testConcatIListRelation() {
-    IList empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
-    IList empty2 = vf.listRelation(tf.tupleType(tf.realType()));
+    IList empty1 = vf.list();
+    IList empty2 = vf.list();
 
     try {
       final IList concat = (IList) empty1.concat(empty2);
@@ -421,11 +421,11 @@ public class ListRelationSmokeTest {
             "non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
       }
 
-      IList oneTwoThree = vf.listRelation(integerTuples[0], integerTuples[1], integerTuples[2]);
-      IList threeFourFive = vf.listRelation(integerTuples[3], integerTuples[4]);
-      IList result1 = vf.listRelation(integerTuples[0], integerTuples[1], integerTuples[2],
+      IList oneTwoThree = vf.list(integerTuples[0], integerTuples[1], integerTuples[2]);
+      IList threeFourFive = vf.list(integerTuples[3], integerTuples[4]);
+      IList result1 = vf.list(integerTuples[0], integerTuples[1], integerTuples[2],
           integerTuples[3], integerTuples[4]);
-      IList result2 = vf.listRelation(integerTuples[3], integerTuples[4], integerTuples[0],
+      IList result2 = vf.list(integerTuples[3], integerTuples[4], integerTuples[0],
           integerTuples[1], integerTuples[2]);
 
       if (!oneTwoThree.concat(threeFourFive).isEqual(result1)) {
@@ -435,7 +435,7 @@ public class ListRelationSmokeTest {
         fail("concat 2 failed");
       }
 
-      if (!oneTwoThree.concat(vf.listRelation(tf.tupleType(tf.integerType(), tf.integerType())))
+      if (!oneTwoThree.concat(vf.list())
           .isEqual(oneTwoThree)) {
         fail("concat with empty set should produce same set");
       }
@@ -479,7 +479,7 @@ public class ListRelationSmokeTest {
       ITuple t1 = vf.tuple(integers[0], doubles[0]);
       ITuple t2 = vf.tuple(integers[1], doubles[1]);
       ITuple t3 = vf.tuple(integers[2], doubles[2]);
-      IList rel1 = vf.listRelation(t1, t2, t3);
+      IList rel1 = vf.list(t1, t2, t3);
 
       IList carrier1 = rel1.asRelation().carrier();
 
