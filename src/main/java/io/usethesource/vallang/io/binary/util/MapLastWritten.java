@@ -32,7 +32,7 @@ public class MapLastWritten<T> implements TrackLastWritten<T> {
         @Override
         @SuppressWarnings("unchecked")
         public boolean equals(Object obj) {
-            return ((IdentityWrapper<T>)obj).wrapped == wrapped;
+            return getClass().equals(obj.getClass()) && ((IdentityWrapper<T>)obj).wrapped == wrapped;
         }
     }
     private final Map<IdentityWrapper<T>, Long> lookupData;
