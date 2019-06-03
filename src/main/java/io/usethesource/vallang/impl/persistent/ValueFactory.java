@@ -15,7 +15,6 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory {
 
@@ -31,38 +30,16 @@ public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory
 		return InstanceKeeper.instance;
 	}
 
-	public ISetWriter setWriter(Type upperBoundType) {
-		return new SetWriter(upperBoundType, (a,b) -> tuple(a,b));
-	}
-
+	@Override
 	public ISetWriter setWriter() {
 		return new SetWriter((a,b) -> tuple(a,b));
 	}
 
-	public ISetWriter relationWriter(Type upperBoundType) {
-		return setWriter(upperBoundType);
-	}
-
-	public ISetWriter relationWriter() {
-		return new SetWriter((a,b) -> tuple(a,b));
-	}
-
-	public ISet set(Type elementType) {
-		return setWriter().done();
-	}
-
+	@Override
 	public ISet set(IValue... elements) {
 		ISetWriter setWriter = setWriter();
 		setWriter.insert(elements);
 		return setWriter.done();
-	}
-
-	public ISet relation(Type tupleType) {
-		return relationWriter(tupleType).done();
-	}
-
-	public ISet relation(IValue... elements) {
-		return set(elements);
 	}
 
 	@Override
@@ -74,5 +51,4 @@ public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory
 	public String toString() {
 		return "VF_PDB_PERSISTENT";
 	}
-
 }
