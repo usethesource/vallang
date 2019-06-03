@@ -11,13 +11,11 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory {
 
@@ -68,28 +66,8 @@ public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory
 	}
 
 	@Override
-	public IMapWriter mapWriter(Type keyType, Type valueType) {
-		return mapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
-	}
-
-	@Override
-	public IMapWriter mapWriter(Type mapType) {
-		return new MapWriter(mapType);
-	}
-
-	@Override
 	public IMapWriter mapWriter() {
 		return new MapWriter();
-	}
-
-	@Override
-	public IMap map(Type mapType) {
-		return mapWriter(mapType).done();
-	}
-
-	@Override
-	public IMap map(Type keyType, Type valueType) {
-		return mapWriter(keyType, valueType).done();
 	}
 
 	@Override
