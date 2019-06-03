@@ -172,7 +172,7 @@ public class CacheFactory<T> {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    return;
+                    Thread.interrupted();
                 }
                 try {
                     Iterator<WeakReference<CacheFactory<?>>> it = caches.iterator();
