@@ -681,11 +681,11 @@ public class BinaryReader implements Closeable {
 	}
 	
 	private ISet readSet(int header) throws IOException{
-		Type elementType = readType(header);
+		/* forget */ readType(header);
 		
 		int length = parseInteger();
 		
-		ISetWriter setWriter = valueFactory.setWriter(elementType);
+		ISetWriter setWriter = valueFactory.setWriter();
 		for(int i = 0; i < length; i++){
 			setWriter.insert(deserialize());
 		}

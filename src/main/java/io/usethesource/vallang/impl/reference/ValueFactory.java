@@ -68,16 +68,19 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	@Override
 	public ISet relation(IValue... tuples) {
 		checkNull((Object[]) tuples);
-		Type elementType = lub(tuples);
-	
-		if (!elementType.isFixedWidth()) {
-			TypeFactory tf = TypeFactory.getInstance();
-			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
+		
+		ISetWriter rw = setWriter();
+		rw.insert(tuples);
+		
+		ISet result = rw.done();
+		
+		if (!result.getType().isRelation()) {
+		    // this happens when not all the elements have the same tuple arity
+		    TypeFactory tf = TypeFactory.getInstance();
+		    throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), result.getType());
 		}
 		
-		ISetWriter rw = setWriter(elementType);
-		rw.insert(tuples);
-		return rw.done();
+		return result;
 	}
 	
 	@Override
@@ -92,18 +95,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 
 	@Override
-	public ISet set(Type eltType){
-		checkNull(eltType);
-		return setWriter(eltType).done();
-	}
-	
-	@Override
-	public ISetWriter setWriter(Type eltType) {
-		checkNull(eltType);
-		return new SetWriter(eltType);
-	}
-	
-	@Override
 	public ISetWriter setWriter() {
 		return new SetWriter();
 	}
@@ -111,9 +102,8 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	@Override
 	public ISet set(IValue... elems) throws FactTypeUseException {
 		checkNull((Object[]) elems);
-		Type elementType = lub(elems);
 		
-		ISetWriter sw = setWriter(elementType);
+		ISetWriter sw = setWriter();
 		sw.insert(elems);
 		return sw.done();
 	}

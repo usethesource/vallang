@@ -62,7 +62,7 @@ public final class SetSmokeTest {
       doubles[i] = vf.real(i);
     }
 
-    ISetWriter w = vf.setWriter(tf.integerType());
+    ISetWriter w = vf.setWriter();
 
     try {
       for (IValue v : integers) {
@@ -77,7 +77,7 @@ public final class SetSmokeTest {
 
   @Test
   public void testInsert() {
-    ISet set1 = vf.set(tf.integerType());
+    ISet set1 = vf.set();
     ISet set2;
 
     try {
@@ -95,7 +95,7 @@ public final class SetSmokeTest {
       fail("type checking error:" + e1);
     }
 
-    ISetWriter numberSet = vf.setWriter(tf.valueType());
+    ISetWriter numberSet = vf.setWriter();
 
     try {
       numberSet.insert(integers[0]);
@@ -130,8 +130,8 @@ public final class SetSmokeTest {
 
   @Test
   public void testIntersect() {
-    ISet set1 = vf.set(tf.integerType());
-    ISet set2 = vf.set(tf.integerType());
+    ISet set1 = vf.set();
+    ISet set2 = vf.set();
     ISet set3 = vf.set(integers[0], integers[1], integers[2]);
     ISet set4 = vf.set(integers[2], integers[3], integers[4]);
     ISet set5 = vf.set(integers[3], integers[4], integers[5]);
@@ -181,14 +181,14 @@ public final class SetSmokeTest {
       fail("an empty universe is not so cosy");
     }
 
-    if (!vf.set(tf.integerType()).isEmpty()) {
+    if (!vf.set().isEmpty()) {
       fail("what's in an empty set?");
     }
   }
 
   @Test
   public void testSize() {
-    if (vf.set(tf.integerType()).size() != 0) {
+    if (vf.set().size() != 0) {
       fail("empty sets have size 0");
     }
 
@@ -203,8 +203,8 @@ public final class SetSmokeTest {
 
   @Test
   public void testSubtract() {
-    ISet set1 = vf.set(tf.integerType());
-    ISet set2 = vf.set(tf.integerType());
+    ISet set1 = vf.set();
+    ISet set2 = vf.set();
     ISet set3 = vf.set(integers[0], integers[1], integers[2]);
     ISet set4 = vf.set(integers[2], integers[3], integers[4]);
     ISet set5 = vf.set(integers[3], integers[4], integers[5]);
@@ -250,8 +250,8 @@ public final class SetSmokeTest {
 
   @Test
   public void testUnion() {
-    ISet set1 = vf.set(tf.integerType());
-    ISet set2 = vf.set(tf.integerType());
+    ISet set1 = vf.set();
+    ISet set2 = vf.set();
     ISet set3 = vf.set(integers[0], integers[1], integers[2]);
     ISet set4 = vf.set(integers[2], integers[3], integers[4]);
     ISet set5 = vf.set(integers[3], integers[4], integers[5]);

@@ -10,7 +10,6 @@ import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IRational;
@@ -144,16 +143,8 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
         return adapted.relationWriter();
     }
 
-    public ISet set(Type eltType) {
-        return adapted.set(eltType);
-    }
-
     public ISet set(IValue... elems) {
         return adapted.set(elems);
-    }
-
-    public ISetWriter setWriter(Type eltType) {
-        return adapted.setWriter(eltType);
     }
 
     public ISetWriter setWriter() {

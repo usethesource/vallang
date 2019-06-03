@@ -12,33 +12,33 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IReal;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.StandardTextReader;
-import io.usethesource.vallang.type.TypeStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
-import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import io.usethesource.vallang.type.TypeStore;
 
 @RunWith(Parameterized.class)
 public final class ValueFactorySmokeTest {
@@ -69,9 +69,7 @@ public final class ValueFactorySmokeTest {
   @Test
   public void testRelationNamedType() {
     try {
-      Type type =
-          ft.aliasType(new TypeStore(), "myType2", ft.relType(ft.integerType(), ft.integerType()));
-      ISet r = vf.set(type.getElementType());
+      ISet r = vf.set();
 
       if (!r.getType().isRelation()) {
         fail("relation does not have a relation type");
@@ -164,7 +162,7 @@ public final class ValueFactorySmokeTest {
 
   @Test
   public void testSetType() {
-    ISet s = vf.set(ft.realType());
+    ISet s = vf.set();
 
     if (s.size() != 0) {
       fail("empty set is not empty");
@@ -381,7 +379,7 @@ public final class ValueFactorySmokeTest {
   }
 
   private ISetWriter createSomeValues() throws FactTypeUseException, MalformedURLException {
-    ISetWriter basicW = vf.setWriter(ft.valueType());
+    ISetWriter basicW = vf.setWriter();
 
     // TODO add tests for locations and constructors again
     basicW.insert(vf.integer(0), vf.real(0.0),
@@ -389,7 +387,7 @@ public final class ValueFactorySmokeTest {
         vf.bool(true), vf.bool(false), vf.node("hello"));
 
     ISet basic = basicW.done();
-    ISetWriter extended = vf.setWriter(ft.valueType());
+    ISetWriter extended = vf.setWriter();
 
     // TypeStore ts = new TypeStore();
     // Type adt = ft.abstractDataType(ts, "E");

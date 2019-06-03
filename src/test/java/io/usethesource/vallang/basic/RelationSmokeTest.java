@@ -60,7 +60,7 @@ public final class RelationSmokeTest {
     tf = TypeFactory.getInstance();
 
     integers = new IValue[5];
-    ISetWriter sw = vf.setWriter(tf.integerType());
+    ISetWriter sw = vf.setWriter();
 
     for (int i = 0; i < integers.length; i++) {
       IValue iv = vf.integer(i);
@@ -70,7 +70,7 @@ public final class RelationSmokeTest {
     setOfIntegers = sw.done();
 
     doubles = new IValue[10];
-    ISetWriter sw2 = vf.setWriter(tf.realType());
+    ISetWriter sw2 = vf.setWriter();
 
     for (int i = 0; i < doubles.length; i++) {
       IValue iv = vf.real(i);
@@ -79,7 +79,7 @@ public final class RelationSmokeTest {
     }
     setOfDoubles = sw2.done();
 
-    ISetWriter rw = vf.setWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+    ISetWriter rw = vf.setWriter();
     integerTuples = new ITuple[integers.length * integers.length];
 
     for (int i = 0; i < integers.length; i++) {
@@ -91,7 +91,7 @@ public final class RelationSmokeTest {
     }
     integerRelation = rw.done();
 
-    ISetWriter rw2 = vf.setWriter(tf.tupleType(tf.realType(), tf.realType()));
+    ISetWriter rw2 = vf.setWriter();
     doubleTuples = new ITuple[doubles.length * doubles.length];
 
     for (int i = 0; i < doubles.length; i++) {
@@ -110,7 +110,7 @@ public final class RelationSmokeTest {
       fail("integerRelation is not empty");
     }
 
-    if (!vf.set(tf.tupleType(tf.integerType())).isEmpty()) {
+    if (!vf.set().isEmpty()) {
       fail("this relation should be empty");
     }
 
@@ -175,7 +175,7 @@ public final class RelationSmokeTest {
     }
 
     try {
-      ISet rel = vf.set(tf.tupleType(tf.integerType(), tf.integerType()));
+      ISet rel = vf.set();
       rel.asRelation().closure();
     } catch (FactTypeUseException e) {
       fail("reflexivity with subtyping is allowed");
@@ -279,7 +279,7 @@ public final class RelationSmokeTest {
         fail("insert into a relation of an existing tuple should not change the relation");
       }
 
-      ISetWriter relw3 = vf.setWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+      ISetWriter relw3 = vf.setWriter();
       relw3.insertAll(integerRelation);
       ISet rel3 = relw3.done();
 
@@ -318,7 +318,7 @@ public final class RelationSmokeTest {
         fail("intersection should be commutative");
       }
 
-      if (!oneTwoThree.intersect(vf.set(tf.tupleType(tf.integerType(), tf.integerType())))
+      if (!oneTwoThree.intersect(vf.set())
           .isEmpty()) {
         fail("intersection with empty set should produce empty");
       }
@@ -330,8 +330,8 @@ public final class RelationSmokeTest {
 
   @Test
   public void testIntersectISet() {
-    ISet empty1 = vf.set(tf.tupleType(tf.integerType()));
-    ISet empty2 = vf.set(tf.tupleType(tf.realType()));
+    ISet empty1 = vf.set();
+    ISet empty2 = vf.set();
 
     try {
       final ISet intersection = empty1.intersect(empty2);
@@ -363,7 +363,7 @@ public final class RelationSmokeTest {
         fail("intersection should be commutative");
       }
 
-      if (!oneTwoThree.intersect(vf.set(tf.tupleType(tf.integerType(), tf.integerType())))
+      if (!oneTwoThree.intersect(vf.set())
           .isEmpty()) {
         fail("intersection with empty set should produce empty");
       }
@@ -375,8 +375,8 @@ public final class RelationSmokeTest {
 
   @Test
   public void testSubtractIRelation() {
-    ISet empty1 = vf.set(tf.tupleType(tf.integerType()));
-    ISet empty2 = vf.set(tf.tupleType(tf.realType()));
+    ISet empty1 = vf.set();
+    ISet empty2 = vf.set();
 
     try {
       final ISet diff = empty1.subtract(empty2);
@@ -401,7 +401,7 @@ public final class RelationSmokeTest {
         fail("subtraction failed");
       }
 
-      ISet empty3 = vf.set(tf.tupleType(tf.integerType(), tf.integerType()));
+      ISet empty3 = vf.set();
       if (!empty3.subtract(threeFourFive).isEmpty()) {
         fail("subtracting from empty set should produce empty");
       }
@@ -413,8 +413,8 @@ public final class RelationSmokeTest {
 
   @Test
   public void testSubtractISet() {
-    ISet empty1 = vf.set(tf.tupleType(tf.integerType()));
-    ISet empty2 = vf.set(tf.tupleType(tf.realType()));
+    ISet empty1 = vf.set();
+    ISet empty2 = vf.set();
 
     try {
       final ISet diff = empty1.subtract(empty2);
@@ -435,7 +435,7 @@ public final class RelationSmokeTest {
         fail("subtraction failed");
       }
 
-      ISet empty3 = vf.set(tf.tupleType(tf.integerType(), tf.integerType()));
+      ISet empty3 = vf.set();
       if (!empty3.subtract(threeFourFive).isEmpty()) {
         fail("subtracting from empty set should produce empty");
       }
@@ -466,7 +466,7 @@ public final class RelationSmokeTest {
         fail("union should be commutative");
       }
 
-      if (!oneTwoThree.union(vf.set(tf.tupleType(tf.integerType(), tf.integerType())))
+      if (!oneTwoThree.union(vf.set())
           .isEqual(oneTwoThree)) {
         fail("union with empty set should produce same set");
       }
@@ -479,7 +479,6 @@ public final class RelationSmokeTest {
   @Test
   public void testEmptySetIsARelation() {
     assertTrue(vf.set().getType().isRelation());
-    assertTrue(vf.set(tf.integerType()).getType().isRelation());
 
     ISet r = vf.set().insert(vf.tuple(vf.integer(1), vf.integer(2)));
     r = r.subtract(r);
@@ -511,7 +510,7 @@ public final class RelationSmokeTest {
         fail("union should be commutative");
       }
 
-      if (!oneTwoThree.union(vf.set(tf.tupleType(tf.integerType(), tf.integerType())))
+      if (!oneTwoThree.union(vf.set())
           .isEqual(oneTwoThree)) {
         fail("union with empty set should produce same set");
       }

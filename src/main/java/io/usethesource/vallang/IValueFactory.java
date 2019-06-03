@@ -499,28 +499,6 @@ public interface IValueFactory {
       throws FactTypeUseException;
 
 	/**
-	 * Construct an empty unmodifiable set. If the element type is a tuple type,
-	 * this will actually construct a relation.
-	 * 
-	 * @param eltType
-	 *            type of set elements
-	 * @return an empty set of SetType set[eltType]
-	 */
-	public ISet set(Type eltType);
-
-	/**
-	 * Get a set writer for a specific kind of set. If the element type is a
-	 * tuple type, this will return a writer for a relation.
-	 * 
-	 * @param eltType
-	 *            the type of the elements of the set
-	 * @return a set writer
-	 * @deprecated will be replaced by a setWriter().checkBound(Type t)
-	 */
-	@Deprecated
-	public ISetWriter setWriter(Type eltType);
-
-	/**
 	 * Get a set writer of which the element type will be the least upper bound
 	 * of the element types
 	 * 

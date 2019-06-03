@@ -66,14 +66,16 @@ public final class EqualitySmokeTest {
   @Test
   public void testEmptyCollectionsAreVoid() {
     assertTrue(vf.list(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
-    assertTrue(vf.set(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
-    assertTrue(vf.mapWriter().done().getKeyType().isSubtypeOf(tf.voidType()));
-    assertTrue(vf.mapWriter().done().getValueType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.set().getElementType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.map().getKeyType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.map().getValueType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.relation(tf.tupleType(tf.integerType(), tf.integerType())).getElementType()
         .isSubtypeOf(tf.voidType()));
 
     assertTrue(vf.listWriter(tf.integerType()).done().getElementType().isSubtypeOf(tf.voidType()));
-    assertTrue(vf.setWriter(tf.integerType()).done().getElementType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.setWriter().done().getElementType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.mapWriter().done().getKeyType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.mapWriter().done().getValueType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType())).done()
         .getElementType().isSubtypeOf(tf.voidType()));
   }
@@ -94,16 +96,12 @@ public final class EqualitySmokeTest {
 
   @Test
   public void testSet() {
-    assertTrue("element types are comparable",
-        vf.set(tf.voidType()).isEqual(vf.set(tf.integerType())));
-    assertTrue("empty sets are always equal",
-        vf.set(tf.realType()).isEqual(vf.set(tf.integerType())));
+    assertTrue("empty sets are always equal", vf.set().isEqual(vf.set()));
 
     assertTrue(vf.set(vf.integer(1)).isEqual(vf.set(vf.integer(1))));
     assertFalse(vf.set(vf.integer(1)).isEqual(vf.set(vf.integer(0))));
 
-    assertTrue(vf.set(vf.set(tf.voidType())).isEqual(vf.set(vf.set(tf.integerType()))));
-    assertTrue(vf.set(vf.set(tf.realType())).isEqual(vf.set(vf.set(tf.integerType()))));
+    assertTrue(vf.set(vf.set()).isEqual(vf.set(vf.set())));
   }
 
   /**
