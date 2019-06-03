@@ -61,8 +61,9 @@ public class BinaryValueReader implements IValueBinaryReader {
 	}
 	
 	private IValue doRead(IValueFactory valueFactory, TypeStore typeStore, InputStream inputStream) throws IOException{
-		BinaryReader binaryReader = new BinaryReader(valueFactory, typeStore, inputStream);
-		return binaryReader.deserialize();
+		try (BinaryReader binaryReader = new BinaryReader(valueFactory, typeStore, inputStream)) {
+		    return binaryReader.deserialize();
+		}
 	}
 	
 	/**
@@ -79,20 +80,8 @@ public class BinaryValueReader implements IValueBinaryReader {
 	 *            Thrown when something goes wrong.
 	 */
 	public static IValue readValueFromFile(IValueFactory valueFactory, TypeStore typeStore, File file) throws IOException{
-		IValue result;
-		
-		InputStream fis = null;
-		try{
-			fis = new BufferedInputStream(new FileInputStream(file));
-			
-			BinaryReader binaryReader = new BinaryReader(valueFactory, typeStore, fis);
-			result = binaryReader.deserialize();
-		}finally{
-			if(fis != null){
-				fis.close();
-			}
+		try (InputStream fis = new BufferedInputStream(new FileInputStream(file)); BinaryReader binaryReader = new BinaryReader(valueFactory, typeStore, fis)) {
+			return binaryReader.deserialize();
 		}
-		
-		return result;
 	}
 }
