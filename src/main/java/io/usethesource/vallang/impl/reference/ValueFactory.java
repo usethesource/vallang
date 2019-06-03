@@ -109,18 +109,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 
 	@Override
-	public IList list(Type eltType) {
-		checkNull(eltType);
-		return listWriter(eltType).done();
-	}
-	
-	@Override
-	public IListWriter listWriter(Type eltType) {
-		checkNull(eltType);
-		return new ListWriter(eltType);
-	}
-	
-	@Override
 	public IListWriter listWriter() {
 		return new ListWriter();
 	}
@@ -128,8 +116,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	@Override
 	public IList list(IValue... rest) {
 		checkNull((Object[]) rest);
-		Type eltType = lub(rest);
-		IListWriter lw =  listWriter(eltType);
+		IListWriter lw =  listWriter();
 		lw.append(rest);
 		return lw.done();
 	}
@@ -246,7 +233,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	@Override
 	public IList listRelation(Type tupleType) {
 		checkNull(tupleType);
-		return listWriter(tupleType).done();
+		return listWriter().done();
 	}
 
 	@Override

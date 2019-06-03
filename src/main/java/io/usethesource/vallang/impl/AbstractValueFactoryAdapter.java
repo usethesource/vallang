@@ -42,129 +42,150 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
         this.adapted = adapted;
     }
 
+    @Override
     public IBool bool(boolean value) {
         return adapted.bool(value);
     }
 
+    @Override
     public IConstructor constructor(Type constructor) {
         return adapted.constructor(constructor);
     }
 
+    @Override
     public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException {
         return adapted.constructor(constructor, children);
     }
 
+    @Override
     public IDateTime date(int year, int month, int day) {
         return adapted.date(year, month, day);
     }
 
+    @Override
     public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond) {
         return adapted.datetime(year, month, day, hour, minute, second, millisecond);
     }
 
+    @Override
     public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond,
             int hourOffset, int minuteOffset) {
         return adapted.datetime(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
     }
 
+    @Override
     public IDateTime datetime(long instant) {
         return adapted.datetime(instant);
     }
 
+    @Override
     public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes) {
         return adapted.datetime(instant, timezoneHours, timezoneMinutes);
     }
 
+    @Override
     public IInteger integer(String i) throws NumberFormatException {
         return adapted.integer(i);
     }
-
+    
+    @Override
     public IInteger integer(int i) {
         return adapted.integer(i);
     }
 
+    @Override
     public IInteger integer(long i) {
         return adapted.integer(i);
     }
 
+    @Override
     public IInteger integer(byte[] a) {
         return adapted.integer(a);
     }
 
-    public IList list(Type eltType) {
-        return adapted.list(eltType);
-    }
-
+    @Override
     public IList list(IValue... elems) {
         return adapted.list(elems);
     }
 
-    public IListWriter listWriter(Type eltType) {
-        return adapted.listWriter(eltType);
-    }
-
+    @Override
     public IListWriter listWriter() {
         return adapted.listWriter();
     }
 
+    @Override
     public IMapWriter mapWriter() {
         return adapted.mapWriter();
     }
 
+    @Override
     public INode node(String name) {
         return adapted.node(name);
     }
 
+    @Override
     public INode node(String name, IValue... children) {
         return adapted.node(name, children);
     }
 
+    @Override
     public IReal real(String s) throws NumberFormatException {
         return adapted.real(s);
     }
 
+    @Override
     public IReal real(double d) {
         return adapted.real(d);
     }
 
+    @Override
     public ISet relation(Type tupleType) {
         return adapted.relation(tupleType);
     }
 
+    @Override
     public ISet relation(IValue... elems) {
         return adapted.relation(elems);
     }
 
+    @Override
     public ISetWriter relationWriter(Type type) {
         return adapted.relationWriter(type);
     }
 
+    @Override
     public ISetWriter relationWriter() {
         return adapted.relationWriter();
     }
 
+    @Override
     public ISet set(IValue... elems) {
         return adapted.set(elems);
     }
 
+    @Override
     public ISetWriter setWriter() {
         return adapted.setWriter();
     }
 
+    @Override
     public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol,
             int endCol) {
         return adapted.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
     }
 
+    @Override
     public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol,
             int endCol) {
         return adapted.sourceLocation(path, offset, length, beginLine, endLine, beginCol, endCol);
     }
 
+    @Override
     public ISourceLocation sourceLocation(URI uri) {
         return adapted.sourceLocation(uri);
     }
 
+    @Override
     public ISourceLocation sourceLocation(String path) {
         return adapted.sourceLocation(path);
     }
@@ -191,22 +212,27 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
         return adapted.sourceLocation(scheme, authority, path, query, fragment);
     }
 
+    @Override
     public IString string(String s) {
         return adapted.string(s);
     }
 
+    @Override
     public IDateTime time(int hour, int minute, int second, int millisecond) {
         return adapted.time(hour, minute, second, millisecond);
     }
 
+    @Override
     public IDateTime time(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
         return adapted.time(hour, minute, second, millisecond, hourOffset, minuteOffset);
     }
 
+    @Override
     public ITuple tuple() {
         return adapted.tuple();
     }
 
+    @Override
     public ITuple tuple(IValue... args) {
         return adapted.tuple(args);
     }

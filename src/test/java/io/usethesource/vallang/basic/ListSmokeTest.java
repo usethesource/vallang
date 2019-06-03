@@ -54,7 +54,7 @@ public final class ListSmokeTest {
   @Before
   public void setUp() throws Exception {
     integers = new IValue[20];
-    IListWriter w = vf.listWriter(tf.integerType());
+    IListWriter w = vf.listWriter();
 
     for (int i = 0; i < integers.length; i++) {
       integers[i] = vf.integer(i);
@@ -66,7 +66,7 @@ public final class ListSmokeTest {
 
     integerList = w.done();
 
-    emptyIntegerList = vf.listWriter(tf.integerType()).done();
+    emptyIntegerList = vf.listWriter().done();
   }
 
   @Test
@@ -141,7 +141,7 @@ public final class ListSmokeTest {
 
   @Test
   public void testLength() {
-    if (vf.list(tf.integerType()).length() != 0) {
+    if (vf.list().length() != 0) {
       fail("empty list should be size 0");
     }
 
@@ -233,21 +233,21 @@ public final class ListSmokeTest {
   @Test
   public void testSubList() {
     // Front
-    IListWriter flw = vf.listWriter(tf.integerType());
+    IListWriter flw = vf.listWriter();
     for (int i = 0; i < 20; i++) {
       flw.append(vf.integer(i));
     }
     IList fList = flw.done();
 
     // Back
-    IListWriter blw = vf.listWriter(tf.integerType());
+    IListWriter blw = vf.listWriter();
     for (int i = 19; i >= 0; i--) {
       blw.insert(vf.integer(i));
     }
     IList bList = blw.done();
 
     // Overlap
-    IListWriter olw = vf.listWriter(tf.integerType());
+    IListWriter olw = vf.listWriter();
     for (int i = 9; i >= 0; i--) {
       olw.insert(vf.integer(i));
     }
@@ -299,7 +299,7 @@ public final class ListSmokeTest {
 
   @Test
   public void testIsSubListOf() {
-    IListWriter w = vf.listWriter(tf.integerType());
+    IListWriter w = vf.listWriter();
 
     for (int i = integers.length - 1; i >= 0; i -= 2) {
       w.insert(vf.integer(i));
@@ -307,7 +307,7 @@ public final class ListSmokeTest {
 
     IList even = w.done();
 
-    w = vf.listWriter(tf.integerType());
+    w = vf.listWriter();
 
     for (int i = integers.length - 2; i >= 0; i -= 2) {
       w.insert(vf.integer(i));

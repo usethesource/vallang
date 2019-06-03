@@ -234,7 +234,7 @@ public final class ValueFactorySmokeTest {
 
   @Test
   public void testListType() {
-    IList l = vf.list(ft.realType());
+    IList l = vf.list();
 
     if (l.length() != 0) {
       fail("empty list is not empty");

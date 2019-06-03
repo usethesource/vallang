@@ -59,7 +59,7 @@ public class ListRelationSmokeTest {
     tf = TypeFactory.getInstance();
 
     integers = new IValue[5];
-    IListWriter lw = vf.listWriter(tf.integerType());
+    IListWriter lw = vf.listWriter();
 
     for (int i = 0; i < integers.length; i++) {
       IValue iv = vf.integer(i);
@@ -69,7 +69,7 @@ public class ListRelationSmokeTest {
     listOfIntegers = lw.done();
 
     doubles = new IValue[10];
-    IListWriter lw2 = vf.listWriter(tf.realType());
+    IListWriter lw2 = vf.listWriter();
 
     for (int i = 0; i < doubles.length; i++) {
       IValue iv = vf.real(i);
@@ -353,7 +353,7 @@ public class ListRelationSmokeTest {
   @Test
   public void testIntersectIList() {
     IList empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
-    IList empty2 = vf.list(tf.tupleType(tf.realType()));
+    IList empty2 = vf.list();
 
     try {
       final IList intersection = empty1.intersect(empty2);

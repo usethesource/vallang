@@ -12,31 +12,32 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import io.usethesource.vallang.Setup;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
-import io.usethesource.vallang.io.StandardTextWriter;
-import io.usethesource.vallang.io.XMLWriter;
-import io.usethesource.vallang.io.binary.SerializableValue;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.io.XMLReader;
+import io.usethesource.vallang.io.XMLWriter;
+import io.usethesource.vallang.io.binary.SerializableValue;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public final class IoSmokeTest {
@@ -80,7 +81,7 @@ public final class IoSmokeTest {
         vf.constructor(Or,
             vf.list(vf.constructor(True), vf.constructor(False), vf.constructor(True))),
         vf.constructor(Friends, vf.list(name("Hans"), name("Bob"))),
-        vf.constructor(Or, vf.list(Boolean)), vf.constructor(Couples,
+        vf.constructor(Or, vf.list()), vf.constructor(Couples,
             vf.listRelation(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))};
   }
 

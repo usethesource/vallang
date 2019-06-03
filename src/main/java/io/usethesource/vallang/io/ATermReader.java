@@ -275,9 +275,9 @@ public class ATermReader extends AbstractBinaryReader {
 			c = reader.readSkippingWS();
 
 			if (expected.isList()) {
-				result = vf.list(expected.getElementType());
+				result = vf.list();
 			} else if (expected.equivalent(TypeFactory.getInstance().valueType())) {
-				result = vf.list(tf.valueType());
+				result = vf.list();
 			}
 			else {
 				throw new FactParseError("Did not expect a list, rather a "

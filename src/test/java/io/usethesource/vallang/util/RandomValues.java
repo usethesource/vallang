@@ -56,7 +56,7 @@ public class RandomValues {
 			vf.constructor(TwoTups, vf.tuple(vf.constructor(True), vf.constructor(False)),vf.tuple(vf.constructor(True), vf.constructor(False))),
 			vf.constructor(Or, vf.list(vf.constructor(True), vf.constructor(False), vf.constructor(True))),
 			vf.constructor(Friends, vf.list(name(vf, "Hans").asWithKeywordParameters().setParameter("listName", vf.list(name(vf,"Hansie"))), name(vf, "Bob"))),
-			vf.constructor(Or, vf.list(Boolean)).asAnnotatable().setAnnotation("boolAnno", vf.bool(true)),
+			vf.constructor(Or, vf.list()).asAnnotatable().setAnnotation("boolAnno", vf.bool(true)),
 			vf.constructor(Couples, vf.list(vf.tuple(name(vf, "A"), name(vf, "B")), vf.tuple(name(vf, "C"), name(vf, "D")))),
 			vf.integer(0),
 			vf.integer(1),

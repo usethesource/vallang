@@ -65,14 +65,14 @@ public final class EqualitySmokeTest {
 
   @Test
   public void testEmptyCollectionsAreVoid() {
-    assertTrue(vf.list(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.list().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.set().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.map().getKeyType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.map().getValueType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.relation(tf.tupleType(tf.integerType(), tf.integerType())).getElementType()
         .isSubtypeOf(tf.voidType()));
 
-    assertTrue(vf.listWriter(tf.integerType()).done().getElementType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.listWriter().done().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.setWriter().done().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.mapWriter().done().getKeyType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.mapWriter().done().getValueType().isSubtypeOf(tf.voidType()));
@@ -82,16 +82,13 @@ public final class EqualitySmokeTest {
 
   @Test
   public void testList() {
-    assertTrue("element types are comparable",
-        vf.list(tf.voidType()).isEqual(vf.list(tf.integerType())));
     assertTrue("empty lists are always equal",
-        vf.list(tf.realType()).isEqual(vf.list(tf.integerType())));
+        vf.list().isEqual(vf.list()));
 
     assertTrue(vf.list(vf.integer(1)).isEqual(vf.list(vf.integer(1))));
     assertFalse(vf.list(vf.integer(1)).isEqual(vf.list(vf.integer(0))));
 
-    assertTrue(vf.list(vf.list(tf.voidType())).isEqual(vf.list(vf.list(tf.integerType()))));
-    assertTrue(vf.list(vf.list(tf.realType())).isEqual(vf.list(vf.list(tf.integerType()))));
+    assertTrue(vf.list(vf.list()).isEqual(vf.list(vf.list())));
   }
 
   @Test

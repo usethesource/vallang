@@ -668,11 +668,11 @@ public class BinaryReader implements Closeable {
 	}
 	
 	private IList readList(int header) throws IOException{
-		Type elementType = readType(header);
+		/*forget*/ readType(header);
 		
 		int length = parseInteger();
 		
-		IListWriter listWriter = valueFactory.listWriter(elementType);
+		IListWriter listWriter = valueFactory.listWriter();
 		for(int i = 0; i < length; i++){
 			listWriter.append(deserialize());
 		}

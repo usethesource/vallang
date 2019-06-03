@@ -517,25 +517,6 @@ public interface IValueFactory {
 	public ISet set(IValue... elems);
 
 	/**
-	 * Construct an empty still unmodifiable list.
-	 * 
-	 * @param eltType
-	 * @return an empty list of ListType list[eltType]
-	 */
-	public IList list(Type eltType);
-
-	/**
-	 * Get a list writer for a specific kind of list
-	 * 
-	 * @param eltType
-	 *            the type of the elements of the list
-	 * @return a list writer
-	 * @deprecated will be replaced by a listWriter().checkBound(Type t)
-	 */
-	@Deprecated
-	public IListWriter listWriter(Type eltType);
-
-	/**
 	 * Get a list writer of which the element type will be the least upper bound
 	 * of the element types
 	 * 
