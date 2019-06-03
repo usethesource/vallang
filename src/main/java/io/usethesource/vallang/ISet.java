@@ -44,30 +44,6 @@ public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
      */
     public ISet insert(IValue element);
 
-//    /**
-//     * Computes the union of two sets
-//     * @param <SetOrRel> ISet when the result will be a set, IRelation when it will be a relation.
-//     * @param element
-//     * @return a relation if the element type is a tuple type, a set otherwise
-//     */
-//    public ISet union(ISet set);
-//    
-//    /**
-//     * Computes the intersection of two sets
-//     * @param <SetOrRel> ISet when the result will be a set, IRelation when it will be a relation.
-//     * @param element
-//     * @return a relation if the element type is a tuple type, a set otherwise
-//     */
-//    public ISet intersect(ISet set);
-//    
-//    /**
-//     * Subtracts one set from the other
-//     * @param <SetOrRel>
-//     * @param set
-//     * @return a relation if the element type is a tuple type, a set otherwise
-//     */
-//    public ISet subtract(ISet set);
-    
     /**
      * Delete one element from the set.
      * @param <SetOrRel>
