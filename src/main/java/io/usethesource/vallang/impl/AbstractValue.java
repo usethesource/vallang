@@ -53,11 +53,6 @@ public abstract class AbstractValue implements IValue {
 	}
 
 	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public boolean isEqual(IValue other) {
 		return equals(other);
 	}

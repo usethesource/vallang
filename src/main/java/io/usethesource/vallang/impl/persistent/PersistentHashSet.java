@@ -18,11 +18,12 @@ import io.usethesource.capsule.Set;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractSet;
 import io.usethesource.vallang.impl.DefaultRelationViewOnSet;
-import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
@@ -63,6 +64,11 @@ public final class PersistentHashSet extends AbstractSet {
     boolean expectedTypesEqual = expectedElementTypeBag.equals(elementTypeBag);
 
     return expectedTypesEqual;
+  }
+  
+  @Override
+  public ISetWriter writer() {
+      return ValueFactory.getInstance().setWriter();
   }
 
   @Override
@@ -141,7 +147,7 @@ public final class PersistentHashSet extends AbstractSet {
   public int hashCode() {
     return content.hashCode();
   }
-
+  
   @Override
   public boolean equals(Object other) {
     if (other == this)
@@ -213,14 +219,10 @@ public final class PersistentHashSet extends AbstractSet {
   }
   
   @Override
-  public boolean match(IValue other) {
-      if (!(other instanceof ISet)) {
-          return false;
-      }
-      return SetFunctions.match(getValueFactory(), this, other);
+  public ITuple tuple(IValue... elems) {
+      return ValueFactory.getInstance().tuple(elems);
   }
-
-
+  
   @Override
   public ISet union(ISet other) {
     if (other == this)

@@ -15,10 +15,11 @@ import java.util.Iterator;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.AbstractValue;
-import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -53,6 +54,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		this.setType = typeFactory.setType(this.elementType);
 				
 		this.data = data;
+	}
+	
+	@Override
+	public ITuple tuple(IValue... elems) {
+	    return ValueFactory.getInstance().tuple(elems);
+	}
+	
+	@Override
+	public ISetWriter writer() {
+	    return ValueFactory.getInstance().setWriter();
 	}
 	
 	public Type getType(){
@@ -238,7 +249,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return data.isEqual(otherSet.data);
 		}
 		else if (value instanceof ISet) {
-			return SetFunctions.isEqual(ValueFactory.getInstance(), this, (ISet) value);
+			return isEqual((ISet) value);
 		}
 		
 		return false;
@@ -255,16 +266,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return data.match(otherSet.data);
         }
         else if (value instanceof ISet) {
-            return SetFunctions.match(ValueFactory.getInstance(), this, (ISet) value);
+            return match((ISet) value);
         }
         
         return false;
     }
-
-	@Override
-	public boolean isRelation() {
-		return getType().isRelation();
-	}
 
 	@Override
 	public ISetRelation<ISet> asRelation() {

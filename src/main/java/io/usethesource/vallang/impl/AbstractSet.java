@@ -16,10 +16,8 @@ import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class AbstractSet extends AbstractValue implements ISet {
 
@@ -66,51 +64,6 @@ public abstract class AbstractSet extends AbstractValue implements ISet {
     return getType().getElementType();
   }
 
-  @Override
-  public ISet insert(IValue e) {
-    return SetFunctions.insert(getValueFactory(), this, e);
-  }
-
-  @Override
-  public ISet union(ISet that) {
-    return SetFunctions.union(getValueFactory(), this, that);
-  }
-
-  @Override
-  public ISet intersect(ISet that) {
-    return SetFunctions.intersect(getValueFactory(), this, that);
-  }
-
-  @Override
-  public ISet subtract(ISet that) {
-    return SetFunctions.subtract(getValueFactory(), this, that);
-  }
-
-  @Override
-  public ISet delete(IValue e) {
-    return SetFunctions.delete(getValueFactory(), this, e);
-  }
-
-  @Override
-  public ISet product(ISet that) {
-    return SetFunctions.product(getValueFactory(), this, that);
-  }
-
-  @Override
-  public boolean isSubsetOf(ISet that) {
-    return SetFunctions.isSubsetOf(getValueFactory(), this, that);
-  }
-
-  @Override
-  public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-    return v.visitSet(this);
-  }
-
-  @Override
-  public boolean isRelation() {
-    return getType().isRelation();
-  }
-
   protected static final void validateIsRelation(ISet set) {
     if (!set.isRelation()) {
       throw new IllegalOperationException("Cannot be viewed as a relation.", set.getType());
@@ -122,5 +75,9 @@ public abstract class AbstractSet extends AbstractValue implements ISet {
     validateIsRelation(this);
     return new DefaultRelationViewOnSet(getValueFactory(), this);
   }
-
+  
+  @Override
+  public boolean match(IValue other) {
+      return ISet.super.match(other);
+  }
 }

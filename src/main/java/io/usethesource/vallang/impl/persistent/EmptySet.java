@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -52,9 +53,19 @@ public final class EmptySet extends AbstractSet {
   }
 
   @Override
+  public ITuple tuple(IValue... elems) {
+      return ValueFactory.getInstance().tuple(elems);
+  }
+  
+  @Override
   public ISetRelation<ISet> asRelation() {
     validateIsRelation(this);
     return new DefaultRelationViewOnSet(getValueFactory(), this);
+  }
+  
+  @Override
+  public ISetWriter writer() {
+      return ValueFactory.getInstance().setWriter();
   }
 
   @Override

@@ -32,6 +32,7 @@ import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -69,6 +70,11 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     assert USE_MULTIMAP_BINARY_RELATIONS && checkDynamicType(keyTypeBag, valTypeBag, content);
   }
 
+  @Override
+  public ITuple tuple(IValue... elems) {
+      return ValueFactory.getInstance().tuple(elems);
+  }
+  
   private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       final AbstractTypeBag valTypeBag, final SetMultimap.Immutable<IValue, IValue> content) {
 
@@ -88,6 +94,11 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     boolean valTypesEqual = expectedValTypeBag.equals(valTypeBag);
 
     return keyTypesEqual && valTypesEqual;
+  }
+  
+  @Override
+  public ISetWriter writer() {
+      return ValueFactory.getInstance().setWriter();
   }
 
   @Override
@@ -310,14 +321,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     return false;
   }
   
-  @Override
-  public boolean match(IValue other) {
-      if (!(other instanceof ISet)) {
-          return false;
-      }
-      return SetFunctions.match(getValueFactory(), this, other);
-  }
-
   @Override
   public ISet union(ISet other) {
     if (other == this) {
