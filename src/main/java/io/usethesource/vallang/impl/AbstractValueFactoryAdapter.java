@@ -139,26 +139,6 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public ISet relation(Type tupleType) {
-        return adapted.relation(tupleType);
-    }
-
-    @Override
-    public ISet relation(IValue... elems) {
-        return adapted.relation(elems);
-    }
-
-    @Override
-    public ISetWriter relationWriter(Type type) {
-        return adapted.relationWriter(type);
-    }
-
-    @Override
-    public ISetWriter relationWriter() {
-        return adapted.relationWriter();
-    }
-
-    @Override
     public ISet set(IValue... elems) {
         return adapted.set(elems);
     }

@@ -573,44 +573,6 @@ public interface IValueFactory {
 	public IListWriter listRelationWriter();
 
 	/**
-	 * Constructs an new empty unmodifiable relation, using the provided tuple
-	 * type as a schema
-	 * 
-	 * @param tupleType
-	 *            of type TupleType &lt;t1,...,tn&gt;
-	 * @return an empty relation of type RelationType rel[t1,...,tn]
-	 */
-	@Deprecated
-	public ISet relation(Type tupleType);
-
-	/**
-	 * Constructs a relation writer, using the provided tuple type as a schema
-	 * 
-	 * @param type
-	 *            of type TupleType &lt;t1,...,tn&gt;
-	 * @return an empty relation of type RelationType rel[t1,...,tn]
-	 */
-	@Deprecated
-	public ISetWriter relationWriter(Type type);
-
-	/**
-	 * Constructs a relation writer, which infers its type from the tuples given
-	 * while writing to the relation.
-	 */
-	@Deprecated
-	public ISetWriter relationWriter();
-
-	/**
-	 * Construct a relation with a fixed number of tuples in it
-	 * 
-	 * @param elems
-	 *            an array or variable length argument list of tuples
-	 * @return a relation containing a number of elements
-	 */
-	@Deprecated
-	public ISet relation(IValue... elems);
-
-	/**
 	 * Get a map writer of which the key and value types will be the least upper
 	 * bound of the keys and values that are put in.
 	 * 

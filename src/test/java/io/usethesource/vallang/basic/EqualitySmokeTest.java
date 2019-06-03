@@ -69,15 +69,11 @@ public final class EqualitySmokeTest {
     assertTrue(vf.set().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.map().getKeyType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.map().getValueType().isSubtypeOf(tf.voidType()));
-    assertTrue(vf.relation(tf.tupleType(tf.integerType(), tf.integerType())).getElementType()
-        .isSubtypeOf(tf.voidType()));
 
     assertTrue(vf.listWriter().done().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.setWriter().done().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.mapWriter().done().getKeyType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.mapWriter().done().getValueType().isSubtypeOf(tf.voidType()));
-    assertTrue(vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType())).done()
-        .getElementType().isSubtypeOf(tf.voidType()));
   }
 
   @Test

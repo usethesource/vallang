@@ -93,7 +93,7 @@ public final class ValueFactorySmokeTest {
 
   @Test
   public void testRelationTupleType() {
-    ISet r = vf.relation(ft.tupleType(ft.integerType()));
+    ISet r = vf.set();
 
     if (r.size() != 0) {
       fail("empty set is not empty");
@@ -114,14 +114,14 @@ public final class ValueFactorySmokeTest {
     }
 
     try {
-      relations[0] = vf.relation(tuples[0]);
-      relations[1] = vf.relation(tuples[0], tuples[1]);
-      relations[2] = vf.relation(tuples[0], tuples[1], tuples[2]);
-      relations[3] = vf.relation(tuples[0], tuples[1], tuples[2], tuples[3]);
-      relations[4] = vf.relation(tuples[0], tuples[1], tuples[2], tuples[3], tuples[4]);
-      relations[5] = vf.relation(tuples[0], tuples[1], tuples[2], tuples[3], tuples[4], tuples[5]);
+      relations[0] = vf.set(tuples[0]);
+      relations[1] = vf.set(tuples[0], tuples[1]);
+      relations[2] = vf.set(tuples[0], tuples[1], tuples[2]);
+      relations[3] = vf.set(tuples[0], tuples[1], tuples[2], tuples[3]);
+      relations[4] = vf.set(tuples[0], tuples[1], tuples[2], tuples[3], tuples[4]);
+      relations[5] = vf.set(tuples[0], tuples[1], tuples[2], tuples[3], tuples[4], tuples[5]);
       relations[6] =
-          vf.relation(tuples[0], tuples[1], tuples[2], tuples[3], tuples[4], tuples[5], tuples[6]);
+          vf.set(tuples[0], tuples[1], tuples[2], tuples[3], tuples[4], tuples[5], tuples[6]);
 
       for (int i = 0; i < 7; i++) {
         for (int j = 0; j < i; j++) {
@@ -404,7 +404,7 @@ public final class ValueFactorySmokeTest {
       extended.insert(map.put(w, w));
       ITuple tuple = vf.tuple(w, w);
       extended.insert(tuple);
-      extended.insert(vf.relation(tuple, tuple));
+      extended.insert(vf.set(tuple, tuple));
       extended.insert(vf.node("hi", w));
       // extended.insert(vf.constructor(cons0));
       // extended.insert(vf.constructor(cons1, w));

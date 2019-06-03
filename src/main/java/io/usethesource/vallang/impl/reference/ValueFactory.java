@@ -60,41 +60,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 
 	@Override
-	public ISet relation(Type tupleType) {
-		checkNull(tupleType);
-		return relationWriter(tupleType).done();
-	}
-	
-	@Override
-	public ISet relation(IValue... tuples) {
-		checkNull((Object[]) tuples);
-		
-		ISetWriter rw = setWriter();
-		rw.insert(tuples);
-		
-		ISet result = rw.done();
-		
-		if (!result.getType().isRelation()) {
-		    // this happens when not all the elements have the same tuple arity
-		    TypeFactory tf = TypeFactory.getInstance();
-		    throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), result.getType());
-		}
-		
-		return result;
-	}
-	
-	@Override
-	public ISetWriter relationWriter(Type tupleType) {
-		checkNull(tupleType);
-		return new SetWriter(tupleType);
-	}
-	
-	@Override
-	public ISetWriter relationWriter() {
-		return new SetWriter();
-	}
-
-	@Override
 	public ISetWriter setWriter() {
 		return new SetWriter();
 	}

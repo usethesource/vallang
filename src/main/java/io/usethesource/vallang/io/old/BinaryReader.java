@@ -694,11 +694,11 @@ public class BinaryReader implements Closeable {
 	}
 	
 	private ISet readRelation(int header) throws IOException{
-		Type elementType = readType(header);
+		/*forget*/ readType(header);
 		
 		int length = parseInteger();
 		
-		ISetWriter relationWriter = valueFactory.relationWriter(elementType);
+		ISetWriter relationWriter = valueFactory.setWriter();
 		for(int i = 0; i < length; i++){
 			relationWriter.insert(deserialize());
 		}
