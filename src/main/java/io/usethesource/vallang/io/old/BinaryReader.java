@@ -707,11 +707,11 @@ public class BinaryReader implements Closeable {
 	}
 	
 	private IMap readMap(int header) throws IOException{
-		Type mapType = readType(header);
+		/*forget*/ readType(header);
 
 		int length = parseInteger();
 		
-		IMapWriter mapWriter = valueFactory.mapWriter(mapType);
+		IMapWriter mapWriter = valueFactory.mapWriter();
 		for(int i = 0; i < length; i++){
 			IValue key = deserialize();
 			IValue value = deserialize();

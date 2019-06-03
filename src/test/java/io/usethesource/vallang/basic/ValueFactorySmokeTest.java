@@ -402,7 +402,7 @@ public final class ValueFactorySmokeTest {
       extended.insert(vf.list(w));
       extended.insert(vf.set());
       extended.insert(vf.set(w));
-      IMap map = vf.map(w.getType(), w.getType());
+      IMap map = vf.mapWriter().done();
       extended.insert(map.put(w, w));
       ITuple tuple = vf.tuple(w, w);
       extended.insert(tuple);

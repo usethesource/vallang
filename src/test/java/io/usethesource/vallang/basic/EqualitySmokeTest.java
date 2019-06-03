@@ -67,18 +67,13 @@ public final class EqualitySmokeTest {
   public void testEmptyCollectionsAreVoid() {
     assertTrue(vf.list(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.set(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
-    assertTrue(vf.map(tf.integerType(), tf.integerType()).getKeyType().isSubtypeOf(tf.voidType()));
-    assertTrue(
-        vf.map(tf.integerType(), tf.integerType()).getValueType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.mapWriter().done().getKeyType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.mapWriter().done().getValueType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.relation(tf.tupleType(tf.integerType(), tf.integerType())).getElementType()
         .isSubtypeOf(tf.voidType()));
 
     assertTrue(vf.listWriter(tf.integerType()).done().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.setWriter(tf.integerType()).done().getElementType().isSubtypeOf(tf.voidType()));
-    assertTrue(vf.mapWriter(tf.integerType(), tf.integerType()).done().getKeyType()
-        .isSubtypeOf(tf.voidType()));
-    assertTrue(vf.mapWriter(tf.integerType(), tf.integerType()).done().getValueType()
-        .isSubtypeOf(tf.voidType()));
     assertTrue(vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType())).done()
         .getElementType().isSubtypeOf(tf.voidType()));
   }

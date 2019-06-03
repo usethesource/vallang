@@ -652,60 +652,19 @@ public interface IValueFactory {
 	public ISet relation(IValue... elems);
 
 	/**
-	 * Creates an empty unmodifiable map.
-	 * 
-	 * @param key
-	 *            type to use for keys
-	 * @param value
-	 *            type to use for values
-	 * @return an empty map
-	 * @deprecated will be replaced by a mapWriter().checkBounds(Type k, Type v)
-	 */
-	@Deprecated
-	public IMap map(Type key, Type value);
-
-	/**
-	 * Creates an empty unmodifiable map.
-	 * 
-	 * @param mapType
-	 *            the type of the map
-	 * @return an empty map
-	 * @deprecated will be replaced by a mapWriter().checkBounds(Type k, Type v)
-	 */
-	@Deprecated
-	public IMap map(Type mapType);
-
-	/**
-	 * Create a map writer
-	 * 
-	 * @param mapType
-	 *            the type of the map
-	 * @return a map writer
-	 * @deprecated will be replaced by a mapWriter().checkBounds(Type k, Type v)
-	 */
-	@Deprecated
-	public IMapWriter mapWriter(Type mapType);
-
-	/**
-	 * Create a map writer
-	 * 
-	 * @param key
-	 *            the type of the keys in the map
-	 * @param value
-	 *            the type of the values in the map
-	 * @return a map writer
-	 * @deprecated will be replaced by a mapWriter().checkBounds(Type k, Type v)
-	 */
-	@Deprecated
-	public IMapWriter mapWriter(Type key, Type value);
-
-	/**
 	 * Get a map writer of which the key and value types will be the least upper
 	 * bound of the keys and values that are put in.
 	 * 
 	 * @return a list writer
 	 */
 	public IMapWriter mapWriter();
+	
+	/**
+	 * @return an empty map
+	 */
+	public default IMap map() {
+	    return mapWriter().done();
+	}
 
 	/**
 	 * Create a boolean with a certain value

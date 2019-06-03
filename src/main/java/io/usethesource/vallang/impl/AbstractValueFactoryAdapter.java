@@ -26,329 +26,310 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 
 /**
- * This class provides a default way of easily reusing existing implementations of IValueFactory without having
- * to extend them again and again using inheritance. Clients extend this class and override the methods that need 
+ * This class provides a default way of easily reusing existing implementations
+ * of IValueFactory without having to extend them again and again using
+ * inheritance. Clients extend this class and override the methods that need
  * special handling.
  * 
- * Note: this class is intended to be sub-classed. It should not be abstract because we want the compiler to 
- * check that it provides a facade for the full IValueFactory interface.
+ * Note: this class is intended to be sub-classed. It should not be abstract
+ * because we want the compiler to check that it provides a facade for the full
+ * IValueFactory interface.
  */
 @SuppressWarnings("deprecation")
-public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
-	protected final IValueFactory adapted;
-	
-	public AbstractValueFactoryAdapter(IValueFactory adapted) {
-		this.adapted = adapted;
-	}
-	
-	public IBool bool(boolean value) {
-		return adapted.bool(value);
-	}
-	
+public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory {
+    protected final IValueFactory adapted;
 
-	public IConstructor constructor(Type constructor) {
-		return adapted.constructor(constructor);
-	}
+    public AbstractValueFactoryAdapter(IValueFactory adapted) {
+        this.adapted = adapted;
+    }
 
-	public IConstructor constructor(Type constructor, IValue... children)
-			throws FactTypeUseException {
-		return adapted.constructor(constructor, children);
-	}
+    public IBool bool(boolean value) {
+        return adapted.bool(value);
+    }
 
-	public IDateTime date(int year, int month, int day) {
-		return adapted.date(year, month, day);
-	}
+    public IConstructor constructor(Type constructor) {
+        return adapted.constructor(constructor);
+    }
 
-	public IDateTime datetime(int year, int month, int day, int hour,
-			int minute, int second, int millisecond) {
-		return adapted.datetime(year, month, day, hour, minute, second, millisecond);
-	}
+    public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException {
+        return adapted.constructor(constructor, children);
+    }
 
-	public IDateTime datetime(int year, int month, int day, int hour,
-			int minute, int second, int millisecond, int hourOffset,
-			int minuteOffset) {
-		return adapted.datetime(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
-	}
+    public IDateTime date(int year, int month, int day) {
+        return adapted.date(year, month, day);
+    }
 
-	public IDateTime datetime(long instant) {
-		return adapted.datetime(instant);
-	}
-	
-	public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes) {
-		return adapted.datetime(instant, timezoneHours, timezoneMinutes);
-	}
+    public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond) {
+        return adapted.datetime(year, month, day, hour, minute, second, millisecond);
+    }
 
-	public IInteger integer(String i) throws NumberFormatException {
-		return adapted.integer(i);
-	}
+    public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond,
+            int hourOffset, int minuteOffset) {
+        return adapted.datetime(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
+    }
 
-	public IInteger integer(int i) {
-		return adapted.integer(i);
-	}
+    public IDateTime datetime(long instant) {
+        return adapted.datetime(instant);
+    }
 
-	public IInteger integer(long i) {
-		return adapted.integer(i);
-	}
+    public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes) {
+        return adapted.datetime(instant, timezoneHours, timezoneMinutes);
+    }
 
-	public IInteger integer(byte[] a) {
-		return adapted.integer(a);
-	}
+    public IInteger integer(String i) throws NumberFormatException {
+        return adapted.integer(i);
+    }
 
-	public IList list(Type eltType) {
-		return adapted.list(eltType);
-	}
+    public IInteger integer(int i) {
+        return adapted.integer(i);
+    }
 
-	public IList list(IValue... elems) {
-		return adapted.list(elems);
-	}
+    public IInteger integer(long i) {
+        return adapted.integer(i);
+    }
 
-	public IListWriter listWriter(Type eltType) {
-		return adapted.listWriter(eltType);
-	}
+    public IInteger integer(byte[] a) {
+        return adapted.integer(a);
+    }
 
-	public IListWriter listWriter() {
-		return adapted.listWriter();
-	}
+    public IList list(Type eltType) {
+        return adapted.list(eltType);
+    }
 
-	public IMap map(Type key, Type value) {
-		return adapted.map(key, value);
-	}
+    public IList list(IValue... elems) {
+        return adapted.list(elems);
+    }
 
-	public IMapWriter mapWriter(Type key, Type value) {
-		return adapted.mapWriter(key, value);
-	}
+    public IListWriter listWriter(Type eltType) {
+        return adapted.listWriter(eltType);
+    }
 
-	public IMapWriter mapWriter() {
-		return adapted.mapWriter();
-	}
+    public IListWriter listWriter() {
+        return adapted.listWriter();
+    }
 
-	public INode node(String name) {
-		return adapted.node(name);
-	}
+    public IMapWriter mapWriter() {
+        return adapted.mapWriter();
+    }
 
-	public INode node(String name, IValue... children) {
-		return adapted.node(name, children);
-	}
+    public INode node(String name) {
+        return adapted.node(name);
+    }
 
-	public IReal real(String s) throws NumberFormatException {
-		return adapted.real(s);
-	}
+    public INode node(String name, IValue... children) {
+        return adapted.node(name, children);
+    }
 
-	public IReal real(double d) {
-		return adapted.real(d);
-	}
+    public IReal real(String s) throws NumberFormatException {
+        return adapted.real(s);
+    }
 
-	public ISet relation(Type tupleType) {
-		return adapted.relation(tupleType);
-	}
+    public IReal real(double d) {
+        return adapted.real(d);
+    }
 
-	public ISet relation(IValue... elems) {
-		return adapted.relation(elems);
-	}
+    public ISet relation(Type tupleType) {
+        return adapted.relation(tupleType);
+    }
 
-	public ISetWriter relationWriter(Type type) {
-		return adapted.relationWriter(type);
-	}
+    public ISet relation(IValue... elems) {
+        return adapted.relation(elems);
+    }
 
-	public ISetWriter relationWriter() {
-		return adapted.relationWriter();
-	}
+    public ISetWriter relationWriter(Type type) {
+        return adapted.relationWriter(type);
+    }
 
-	public ISet set(Type eltType) {
-		return adapted.set(eltType);
-	}
+    public ISetWriter relationWriter() {
+        return adapted.relationWriter();
+    }
 
-	public ISet set(IValue... elems) {
-		return adapted.set(elems);
-	}
+    public ISet set(Type eltType) {
+        return adapted.set(eltType);
+    }
 
-	public ISetWriter setWriter(Type eltType) {
-		return adapted.setWriter(eltType);
-	}
+    public ISet set(IValue... elems) {
+        return adapted.set(elems);
+    }
 
-	public ISetWriter setWriter() {
-		return adapted.setWriter();
-	}
+    public ISetWriter setWriter(Type eltType) {
+        return adapted.setWriter(eltType);
+    }
 
-	public ISourceLocation sourceLocation(URI uri, int offset, int length,
-                                        int beginLine, int endLine, int beginCol, int endCol) {
-		return adapted.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
-	}
+    public ISetWriter setWriter() {
+        return adapted.setWriter();
+    }
 
-	public ISourceLocation sourceLocation(String path, int offset, int length,
-			int beginLine, int endLine, int beginCol, int endCol) {
-		return adapted.sourceLocation(path, offset, length, beginLine, endLine, beginCol, endCol);
-	}
+    public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol,
+            int endCol) {
+        return adapted.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+    }
 
-	public ISourceLocation sourceLocation(URI uri) {
-		return adapted.sourceLocation(uri);
-	}
+    public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol,
+            int endCol) {
+        return adapted.sourceLocation(path, offset, length, beginLine, endLine, beginCol, endCol);
+    }
 
-	public ISourceLocation sourceLocation(String path) {
-		return adapted.sourceLocation(path);
-	}
-	
-	@Override
-	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
-		return adapted.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
-	}
-	
-	@Override
-	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length)  {
-		return adapted.sourceLocation(loc, offset, length);
-	}
-	
-	@Override
-	public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException {
-		return adapted.sourceLocation(scheme, authority, path);
-	}
-	
-	@Override
-	public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
-		return adapted.sourceLocation(scheme, authority, path, query, fragment);
-	}
+    public ISourceLocation sourceLocation(URI uri) {
+        return adapted.sourceLocation(uri);
+    }
 
-	public IString string(String s) {
-		return adapted.string(s);
-	}
+    public ISourceLocation sourceLocation(String path) {
+        return adapted.sourceLocation(path);
+    }
 
-	public IDateTime time(int hour, int minute, int second, int millisecond) {
-		return adapted.time(hour, minute, second, millisecond);
-	}
+    @Override
+    public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine,
+            int beginCol, int endCol) {
+        return adapted.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
+    }
 
-	public IDateTime time(int hour, int minute, int second, int millisecond,
-			int hourOffset, int minuteOffset) {
-		return adapted.time(hour, minute, second, millisecond, hourOffset, minuteOffset);
-	}
+    @Override
+    public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length) {
+        return adapted.sourceLocation(loc, offset, length);
+    }
 
-	public ITuple tuple() {
-		return adapted.tuple();
-	}
+    @Override
+    public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException {
+        return adapted.sourceLocation(scheme, authority, path);
+    }
 
-	public ITuple tuple(IValue... args) {
-		return adapted.tuple(args);
-	}
-	
-	@Override
-	public IRational rational(int a, int b) {
-	 return adapted.rational(a,b);
-	}
+    @Override
+    public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment)
+            throws URISyntaxException {
+        return adapted.sourceLocation(scheme, authority, path, query, fragment);
+    }
 
-	@Override
-	public IRational rational(long a, long b) {
-	 return adapted.rational(a, b);
-	}
+    public IString string(String s) {
+        return adapted.string(s);
+    }
 
-	@Override
-	public IRational rational(IInteger a, IInteger b) {
-	 return adapted.rational(a, b);
-	}
+    public IDateTime time(int hour, int minute, int second, int millisecond) {
+        return adapted.time(hour, minute, second, millisecond);
+    }
 
-	@Override
-	public IRational rational(String rat) throws NumberFormatException {
-	  return adapted.rational(rat);
-	}
+    public IDateTime time(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
+        return adapted.time(hour, minute, second, millisecond, hourOffset, minuteOffset);
+    }
 
-	@Override
-	public IReal real(String s, int p) throws NumberFormatException {
-	  return adapted.real(s, p);
-	}
+    public ITuple tuple() {
+        return adapted.tuple();
+    }
 
-	@Override
-	public IReal real(double d, int p) {
-	  return adapted.real(d, p);
-	}
+    public ITuple tuple(IValue... args) {
+        return adapted.tuple(args);
+    }
 
-	@Override
-	public int getPrecision() {
-	  return adapted.getPrecision();
-	}
+    @Override
+    public IRational rational(int a, int b) {
+        return adapted.rational(a, b);
+    }
 
-	@Override
-	public int setPrecision(int p) {
-	  return adapted.setPrecision(p);
-	}
+    @Override
+    public IRational rational(long a, long b) {
+        return adapted.rational(a, b);
+    }
 
-	@Override
-	public IReal pi(int precision) {
-	  return adapted.pi(precision);
-	}
+    @Override
+    public IRational rational(IInteger a, IInteger b) {
+        return adapted.rational(a, b);
+    }
 
-	@Override
-	public IReal e(int precision) {
-	  return adapted.e(precision);
-	}
+    @Override
+    public IRational rational(String rat) throws NumberFormatException {
+        return adapted.rational(rat);
+    }
 
-	@Override
-	public IString string(int[] chars) throws IllegalArgumentException {
-	  return adapted.string(chars);
-	}
+    @Override
+    public IReal real(String s, int p) throws NumberFormatException {
+        return adapted.real(s, p);
+    }
 
-	@Override
-	public IString string(int ch) throws IllegalArgumentException {
-	  return adapted.string(ch);
-	}
+    @Override
+    public IReal real(double d, int p) {
+        return adapted.real(d, p);
+    }
 
-	@Override
-	public ISourceLocation sourceLocation(URI uri, int offset, int length) {
-	  return adapted.sourceLocation(uri, offset, length);
-	}
+    @Override
+    public int getPrecision() {
+        return adapted.getPrecision();
+    }
 
-	@Override
-	public ITuple tuple(Type type, IValue... args) {
-	  return adapted.tuple(type, args);
-	}
+    @Override
+    public int setPrecision(int p) {
+        return adapted.setPrecision(p);
+    }
 
-	@Override
-	public INode node(String name, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
-	  return adapted.node(name, annotations, children);
-	}
+    @Override
+    public IReal pi(int precision) {
+        return adapted.pi(precision);
+    }
 
-	@Override
-	public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) throws FactTypeUseException {
-	  return adapted.node(name, children, keyArgValues);
-	}
+    @Override
+    public IReal e(int precision) {
+        return adapted.e(precision);
+    }
 
-	@Override
-	public IList listRelation(Type tupleType) {
-	  return adapted.listRelation(tupleType);
-	}
+    @Override
+    public IString string(int[] chars) throws IllegalArgumentException {
+        return adapted.string(chars);
+    }
 
-	@Override
-	public IList listRelation(IValue... elems) {
-	  return adapted.listRelation(elems);
-	}
+    @Override
+    public IString string(int ch) throws IllegalArgumentException {
+        return adapted.string(ch);
+    }
 
-	@Override
-	public IListWriter listRelationWriter(Type type) {
-	  return adapted.listRelationWriter(type);
-	}
+    @Override
+    public ISourceLocation sourceLocation(URI uri, int offset, int length) {
+        return adapted.sourceLocation(uri, offset, length);
+    }
 
-	@Override
-	public IListWriter listRelationWriter() {
-	  return adapted.listRelationWriter();
-	}
+    @Override
+    public ITuple tuple(Type type, IValue... args) {
+        return adapted.tuple(type, args);
+    }
 
-	@Override
-	public IMap map(Type mapType) {
-	  return adapted.map(mapType);
-	}
+    @Override
+    public INode node(String name, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
+        return adapted.node(name, annotations, children);
+    }
 
-	@Override
-	public IMapWriter mapWriter(Type mapType) {
-	 return adapted.mapWriter(mapType);
-	}
+    @Override
+    public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) throws FactTypeUseException {
+        return adapted.node(name, children, keyArgValues);
+    }
 
-  @Override
-  public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children)
-      throws FactTypeUseException {
-   return adapted.constructor(constructor, annotations, children);
-  }
-  
-  @Override
-  public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams)
-      throws FactTypeUseException {
-   return adapted.constructor(constructor, children, kwParams);
-  }
+    @Override
+    public IList listRelation(Type tupleType) {
+        return adapted.listRelation(tupleType);
+    }
+
+    @Override
+    public IList listRelation(IValue... elems) {
+        return adapted.listRelation(elems);
+    }
+
+    @Override
+    public IListWriter listRelationWriter(Type type) {
+        return adapted.listRelationWriter(type);
+    }
+
+    @Override
+    public IListWriter listRelationWriter() {
+        return adapted.listRelationWriter();
+    }
+
+    @Override
+    public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children)
+            throws FactTypeUseException {
+        return adapted.constructor(constructor, annotations, children);
+    }
+
+    @Override
+    public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams)
+            throws FactTypeUseException {
+        return adapted.constructor(constructor, children, kwParams);
+    }
 
 }

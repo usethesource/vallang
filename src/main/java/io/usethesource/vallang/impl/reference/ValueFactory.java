@@ -18,7 +18,6 @@ import java.util.Objects;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
@@ -236,31 +235,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		checkNull(constructorType);
 		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);		
 		return new Constructor(instantiatedType);
-	}
-
-	@Override
-	public IMap map(Type keyType, Type valueType) {
-		checkNull(keyType);
-		checkNull(valueType);
-		return mapWriter(keyType, valueType).done();
-	}
-	
-	@Override
-	public IMap map(Type mapType) {
-		checkNull(mapType);
-		return mapWriter(mapType).done();
-	}
-	@Override
-	public IMapWriter mapWriter(Type keyType, Type valueType) {
-		checkNull(keyType);
-		checkNull(valueType);
-		return new MapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
-	}
-	
-	@Override
-	public IMapWriter mapWriter(Type mapType) {
-		checkNull(mapType);
-		return new MapWriter(mapType);
 	}
 
 	@Override
