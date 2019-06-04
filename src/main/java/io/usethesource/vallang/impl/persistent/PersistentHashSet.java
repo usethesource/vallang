@@ -16,10 +16,9 @@ import java.util.Objects;
 
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.util.EqualityComparator;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractSet;
@@ -72,9 +71,9 @@ public final class PersistentHashSet extends AbstractSet {
   }
 
   @Override
-  public ISetRelation<ISet> asRelation() {
+  public IRelation<ISet> asRelation() {
     validateIsRelation(this);
-    return new DefaultRelationViewOnSet(getValueFactory(), this);
+    return new DefaultRelationViewOnSet(this);
   }
 
   @Override
@@ -216,11 +215,6 @@ public final class PersistentHashSet extends AbstractSet {
     }
 
     return false;
-  }
-  
-  @Override
-  public ITuple tuple(IValue... elems) {
-      return ValueFactory.getInstance().tuple(elems);
   }
   
   @Override

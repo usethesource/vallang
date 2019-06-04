@@ -14,32 +14,17 @@ package io.usethesource.vallang;
 
 import java.util.Iterator;
 
-import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
-public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
-	/**
-	 * @return the type of the elements in this set
-	 */
-	public Type getElementType();
+public interface ISet extends ICollection<ISet> {
 	
-	/**
-	 * @return true if this set has no elements
-	 */
-    public boolean isEmpty();
-
-    /**
-     * @return the arity of the set, the number of elements in the set
-     */
-    public int size();
-
     /**
      * Add an element to the set. 
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
     public default ISet insert(IValue element) {
-        ISetWriter sw = writer();
+        IWriter<ISet> sw = writer();
         sw.insertAll(this);
         sw.insert(element);
         return sw.done();
@@ -51,7 +36,7 @@ public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
      * @return a set with one element removed, if present.
      */
     public default ISet delete(IValue elem) {
-        ISetWriter w = writer();
+        IWriter<ISet> w = writer();
 
         boolean deleted = false;
         for (Iterator<IValue> iterator = iterator(); iterator.hasNext();) {
@@ -72,12 +57,11 @@ public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
      * @return a relation representing the Cartesian product
      */
     public default ISet product(ISet that) {
-        ISetWriter w = writer();
+        IWriter<ISet> w = writer();
 
         for (IValue t1 : this) {
             for (IValue t2 : that) {
-                ITuple t3 = tuple(t1, t2);
-                w.insert(t3);
+                w.insertTuple(t1, t2);
             }
         }
 
@@ -159,7 +143,7 @@ public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
             return this;
         }
 
-        ISetWriter w = writer();
+        IWriter<ISet> w = writer();
         w.insertAll(this);
         w.insertAll(that);
         return w.done();
@@ -183,7 +167,7 @@ public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
             return that;
         }
 
-        ISetWriter w = writer();
+        IWriter<ISet> w = writer();
 
         for (IValue v : this) {
             if (that.contains(v)) {
@@ -213,7 +197,7 @@ public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
             return this;
         }
 
-        ISetWriter sw = writer();
+        IWriter<ISet> sw = writer();
         for (IValue a : this) {
             if (!that.contains(a)) {
                 sw.insert(a);
@@ -316,17 +300,9 @@ public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
         return getType().isRelation();
     }
     
-    public ISetRelation<ISet> asRelation();
+    public IRelation<ISet> asRelation();
     
-    /**
-     * @return a new ISetWriter, initialized at empty.
-     */
-    public ISetWriter writer();
     
-    /**
-     * @return a tuple compatible with the current ISet implementation.
-     */
-    public ITuple tuple(IValue... elems);
     
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {

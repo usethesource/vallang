@@ -34,44 +34,6 @@ public class ShareableValuesList extends ShareableList<IValue> {
 		super(shareableValuesList, offset, length);
 	}
 	
-	public boolean isEqual(ShareableValuesList otherShareableValuesList){
-		if(otherShareableValuesList == null) return false;
-		if(otherShareableValuesList.size() != size()) return false;
-		
-		if(otherShareableValuesList.isEmpty()) return true;
-		
-		Iterator<IValue> thisListIterator = iterator();
-		Iterator<IValue> otherListIterator = otherShareableValuesList.iterator();
-		while(thisListIterator.hasNext()){
-			IValue thisValue = thisListIterator.next();
-			IValue otherValue = otherListIterator.next();
-			if(!thisValue.isEqual(otherValue)){
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	public boolean match(ShareableValuesList otherShareableValuesList){
-        if(otherShareableValuesList == null) return false;
-        if(otherShareableValuesList.size() != size()) return false;
-        
-        if(otherShareableValuesList.isEmpty()) return true;
-        
-        Iterator<IValue> thisListIterator = iterator();
-        Iterator<IValue> otherListIterator = otherShareableValuesList.iterator();
-        while(thisListIterator.hasNext()){
-            IValue thisValue = thisListIterator.next();
-            IValue otherValue = otherListIterator.next();
-            if(!thisValue.match(otherValue)){
-                return false;
-            }
-        }
-        
-        return true;
-    }
-	
 	public boolean contains(IValue value){
 		Iterator<IValue> valuesIterator = iterator();
 		while(valuesIterator.hasNext()){

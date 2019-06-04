@@ -18,8 +18,10 @@ import java.util.Objects;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.impl.AbstractMap;
 import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
@@ -341,5 +343,25 @@ public final class PersistentHashMap extends AbstractMap {
 		// TODO Auto-generated method stub
 		return super.isSubMap(that);
 	}
+
+    @Override
+    public Type getElementType() {
+        return keyTypeBag.lub();
+    }
+
+    @Override
+    public IMap empty() {
+        return writer().done();
+    }
+
+    @Override
+    public IWriter<IMap> writer() {
+        return new MapWriter();
+    }
+
+    @Override
+    public IRelation<IMap> asRelation() {
+        throw new UnsupportedOperationException();
+    }
 
 }

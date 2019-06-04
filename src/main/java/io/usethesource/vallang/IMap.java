@@ -17,16 +17,7 @@ import java.util.Map.Entry;
 
 import io.usethesource.vallang.type.Type;
 
-public interface IMap extends Iterable<IValue>, IValue {
-	/**
-	 * @return true iff the map is empty
-	 */
-    public boolean isEmpty();
-
-    /**
-     * @return the number of keys that have a mapped value in this map
-     */
-    public int size();
+public interface IMap extends ICollection<IMap> {
 
     /**
      * Adds a new entry to the map, mapping the key to value. If the

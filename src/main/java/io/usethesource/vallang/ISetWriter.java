@@ -12,11 +12,6 @@
 
 package io.usethesource.vallang;
 
-import io.usethesource.vallang.exceptions.FactTypeUseException;
+public interface ISetWriter extends IWriter<ISet> {
 
-
-public interface ISetWriter extends IWriter {
-    void insert(IValue... v) throws FactTypeUseException;
-    void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
-    ISet done();
 }

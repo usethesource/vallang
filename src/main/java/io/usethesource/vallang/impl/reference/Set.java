@@ -20,7 +20,6 @@ package io.usethesource.vallang.impl.reference;
 import java.util.Iterator;
 
 import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractSet;
@@ -37,11 +36,6 @@ import io.usethesource.vallang.type.Type;
 		this.content = content;
 	}
 
-	@Override
-	public ITuple tuple(IValue... elems) {
-	    return ValueFactory.getInstance().tuple(elems);
-	}
-	
 	@Override
 	public Type getType() {
 		return type;

@@ -8,7 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *******************************************************************************/
-package io.usethesource.vallang.impl.fast;
+package io.usethesource.vallang.impl.persistent;
 
 import java.util.Iterator;
 
@@ -19,7 +19,6 @@ import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
-// TODO Add checking.
 /**
  * Implementation of IListWriter.
  * 
@@ -54,6 +53,11 @@ import io.usethesource.vallang.type.TypeFactory;
 		constructedList = null;
 	}
 	
+	@Override
+	public Iterator<IValue> iterator() {
+	    return data.iterator();
+	}
+	
 	/*package*/ ListWriter(Type elementType, ShareableValuesList data){
 		super();
 		
@@ -62,6 +66,11 @@ import io.usethesource.vallang.type.TypeFactory;
 		this.data = data;
 		
 		constructedList = null;
+	}
+	
+	@Override
+	public void insertTuple(IValue... fields) {
+	    insert(Tuple.newTuple(fields));
 	}
 	
 	public void append(IValue element){

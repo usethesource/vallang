@@ -18,7 +18,6 @@ import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class AbstractValue implements IValue {
 

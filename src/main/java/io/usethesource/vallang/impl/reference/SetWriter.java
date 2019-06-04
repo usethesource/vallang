@@ -18,17 +18,17 @@
 package io.usethesource.vallang.impl.reference;
 
 import java.util.HashSet;
+import java.util.Iterator;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
-import io.usethesource.vallang.impl.AbstractWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
-/*package*/ class SetWriter extends AbstractWriter implements ISetWriter {
+/*package*/ class SetWriter implements ISetWriter {
     protected final HashSet<IValue> setContent;
     protected final boolean inferred;
     protected Type eltType;
@@ -49,6 +49,11 @@ import io.usethesource.vallang.type.TypeFactory;
         setContent = new HashSet<>();
     }
 
+    @Override
+    public Iterator<IValue> iterator() {
+        return setContent.iterator();
+    }
+    
     private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException {
         Type type = elem.getType();
         if (!type.isSubtypeOf(eltType)) {
@@ -68,6 +73,11 @@ import io.usethesource.vallang.type.TypeFactory;
         }
     }
 
+    @Override
+    public void insertTuple(IValue... fields) {
+        insert(ValueFactory.getInstance().tuple(fields));
+    }
+    
     @Override
 	public void insert(IValue... elems) throws FactTypeUseException {
         checkMutation();

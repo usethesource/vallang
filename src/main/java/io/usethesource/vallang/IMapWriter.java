@@ -17,9 +17,10 @@ import java.util.Map;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 
-public interface IMapWriter extends IWriter {
+public interface IMapWriter extends IWriter<IMap> {
     void put(IValue key, IValue value) throws FactTypeUseException ;
     void putAll(IMap map)  throws FactTypeUseException;
     void putAll(Map<IValue, IValue> map) throws FactTypeUseException;
+    IValue get(IValue key);
     IMap done();
 }

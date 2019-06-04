@@ -8,7 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *******************************************************************************/
-package io.usethesource.vallang.impl.fast;
+package io.usethesource.vallang.impl.persistent;
 
 import java.util.Arrays;
 import java.util.Collections;

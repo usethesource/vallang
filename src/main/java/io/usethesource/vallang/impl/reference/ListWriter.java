@@ -17,6 +17,7 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.reference;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import io.usethesource.vallang.IList;
@@ -24,7 +25,6 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
-import io.usethesource.vallang.impl.AbstractWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -32,7 +32,7 @@ import io.usethesource.vallang.type.TypeFactory;
  * This class does not guarantee thread-safety. Users must lock the writer object for thread safety.
  * It is thread-friendly however.
  */
-/*package*/ class ListWriter extends AbstractWriter implements IListWriter {
+/*package*/ class ListWriter implements IListWriter {
     protected Type eltType;
     protected final java.util.List<IValue> listContent;
 
@@ -57,6 +57,11 @@ import io.usethesource.vallang.type.TypeFactory;
         listContent = new LinkedList<>();
 
         constructedList = null;
+    }
+    
+    @Override
+    public Iterator<IValue> iterator() {
+        return listContent.iterator();
     }
 
     private void checkMutation(){
@@ -186,6 +191,11 @@ import io.usethesource.vallang.type.TypeFactory;
     @Override
     public int length() {
     	return listContent.size();
+    }
+
+    @Override
+    public void insertTuple(IValue... fields) {
+        insert(ValueFactory.getInstance().tuple(fields));
     }
 
 }

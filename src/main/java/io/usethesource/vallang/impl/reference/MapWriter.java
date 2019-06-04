@@ -18,6 +18,7 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.reference;
 
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import io.usethesource.vallang.IMap;
@@ -27,11 +28,10 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedMapKeyTypeException;
 import io.usethesource.vallang.exceptions.UnexpectedMapValueTypeException;
-import io.usethesource.vallang.impl.AbstractWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
-/*package*/ class MapWriter extends AbstractWriter implements IMapWriter {
+/*package*/ class MapWriter implements IMapWriter {
 	private Type staticMapType;
 	private Type staticKeyType;
 	private Type staticValueType;
@@ -65,6 +65,25 @@ import io.usethesource.vallang.type.TypeFactory;
 		this.inferred = false;
 		
 		mapContent = new java.util.HashMap<>();
+	}
+	
+	@Override
+	public Iterator<IValue> iterator() {
+	    return mapContent.keySet().iterator();
+	}
+	
+	@Override
+	public IValue get(IValue key) {
+	    return mapContent.get(key);
+	}
+	
+	@Override
+	public void insertTuple(IValue... fields) {
+	    if (fields.length != 2) {
+	        throw new IllegalArgumentException("can only insert tuples of arity 2 into a map");
+	    }
+	    
+	    put(fields[0], fields[1]);
 	}
 	
 	private static void check(Type key, Type value, Type keyType, Type valueType)

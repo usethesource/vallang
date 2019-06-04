@@ -148,4 +148,19 @@ final class MapWriter implements IMapWriter {
 
 		return constructedMap;
 	}
+
+    @Override
+    public void insertTuple(IValue... fields) {
+        insert(ValueFactory.getInstance().tuple(fields));
+    }
+
+    @Override
+    public Iterator<IValue> iterator() {
+        return mapContent.keyIterator();
+    }
+
+    @Override
+    public IValue get(IValue key) {
+        return mapContent.get(key);
+    }
 }

@@ -30,15 +30,14 @@ import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.core.PersistentTrieSetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.AbstractSet;
-import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 
@@ -70,11 +69,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     assert USE_MULTIMAP_BINARY_RELATIONS && checkDynamicType(keyTypeBag, valTypeBag, content);
   }
 
-  @Override
-  public ITuple tuple(IValue... elems) {
-      return ValueFactory.getInstance().tuple(elems);
-  }
-  
   private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       final AbstractTypeBag valTypeBag, final SetMultimap.Immutable<IValue, IValue> content) {
 
@@ -493,75 +487,74 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   }
 
   @Override
-  public ISetRelation<ISet> asRelation() {
+  public IRelation<ISet> asRelation() {
+      
     final PersistentHashIndexedBinaryRelation thisSet = this;
 
-    return new ISetRelation<ISet>() {
+    return new IRelation<ISet>() {
 
-      @Override
-      public ISet compose(ISetRelation<ISet> otherSetRelation) {
-        if (otherSetRelation.getClass() != this.getClass()) {
-          return SetFunctions.compose(getValueFactory(), this.asSet(), otherSetRelation.asSet());
+        @Override
+        public ISet asContainer() {
+            return thisSet;
         }
 
-        final PersistentHashIndexedBinaryRelation thatSet =
-            (PersistentHashIndexedBinaryRelation) otherSetRelation.asSet();
+        @Override
+        public ISet compose(IRelation<ISet> otherSetRelation) {
+            if (otherSetRelation.getClass() != this.getClass()) {
+                return IRelation.super.compose(otherSetRelation);
+            }
+            
+            // Here we can optimize the compose operation because we have already an index in memory
+            // for both relations
 
-        final SetMultimap.Immutable<IValue, IValue> xy = thisSet.content;
-        final SetMultimap.Immutable<IValue, IValue> yz = thatSet.content;
+            final PersistentHashIndexedBinaryRelation thatSet =
+                    (PersistentHashIndexedBinaryRelation) otherSetRelation.asContainer();
 
-        /**
-         * The code below is still sub-optimal because it operates on the logical (rather than the structural) level.
-         *
-         * TODO: nodes should get proper support for stream processing such that the following template can be used:
-         *
-         *    // @formatter:off
-         *    final Stream<BiConsumer<IValue, IValue>> localStream = null;
-         *    final Node updatedNode = localStream
-         *    .filter((x, y) -> yz.containsKey(y))
-         *    .mapValues(y -> yz.get(y))
-         *    .collect(toNode());
-         *    // @formatter:on
-         */
-        final SetMultimap.Transient<IValue, IValue> xz = xy.asTransient();
+            final SetMultimap.Immutable<IValue, IValue> xy = thisSet.content;
+            final SetMultimap.Immutable<IValue, IValue> yz = thatSet.content;
 
-        for (IValue x : xy.keySet()) {
-          final Set.Immutable<IValue> ys = xy.get(x);
-          // TODO: simplify expression with nullable data
-          final Set.Immutable<IValue> zs = ys.stream()
-              .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(Set.Immutable::of).stream())
-              .collect(CapsuleCollectors.toSet());
+            /**
+             * The code below is still sub-optimal because it operates on the logical (rather than the structural) level.
+             *
+             * TODO: nodes should get proper support for stream processing such that the following template can be used:
+             *
+             *    // @formatter:off
+             *    final Stream<BiConsumer<IValue, IValue>> localStream = null;
+             *    final Node updatedNode = localStream
+             *    .filter((x, y) -> yz.containsKey(y))
+             *    .mapValues(y -> yz.get(y))
+             *    .collect(toNode());
+             *    // @formatter:on
+             */
+            final SetMultimap.Transient<IValue, IValue> xz = xy.asTransient();
 
-          if (zs == null) {
-            xz.__remove(x);
-          } else {
-            // xz.__put(x, zs); // TODO: requires node batch update support
+            for (IValue x : xy.keySet()) {
+                final Set.Immutable<IValue> ys = xy.get(x);
+                // TODO: simplify expression with nullable data
+                final Set.Immutable<IValue> zs = ys.stream()
+                        .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(Set.Immutable::of).stream())
+                        .collect(CapsuleCollectors.toSet());
 
-            xz.__remove(x);
-            zs.forEach(z -> xz.__insert(x, z));
-          }
+                if (zs == null) {
+                    xz.__remove(x);
+                } else {
+                    // xz.__put(x, zs); // TODO: requires node batch update support
+
+                    xz.__remove(x);
+                    zs.forEach(z -> xz.__insert(x, z));
+                }
+            }
+
+            final SetMultimap.Immutable<IValue, IValue> data = xz.freeze();
+
+            final AbstractTypeBag keyTypeBag = data.entrySet().stream().map(Map.Entry::getKey)
+                    .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+
+            final AbstractTypeBag valTypeBag = data.entrySet().stream().map(Map.Entry::getValue)
+                    .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+
+            return PersistentSetFactory.from(keyTypeBag, valTypeBag, data);
         }
-
-        final SetMultimap.Immutable<IValue, IValue> data = xz.freeze();
-
-        final AbstractTypeBag keyTypeBag = data.entrySet().stream().map(Map.Entry::getKey)
-            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
-
-        final AbstractTypeBag valTypeBag = data.entrySet().stream().map(Map.Entry::getValue)
-            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
-
-        return PersistentSetFactory.from(keyTypeBag, valTypeBag, data);
-      }
-
-      @Override
-      public ISet closure() {
-        return SetFunctions.closure(getValueFactory(), thisSet);
-      }
-
-      @Override
-      public ISet closureStar() {
-        return SetFunctions.closureStar(getValueFactory(), thisSet);
-      }
 
       @Override
       public int arity() {
@@ -612,11 +605,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         return project(fieldIndices);
       }
 
-      @Override
-      public ISet carrier() {
-        return thisSet.asRelation().domain().union(thisSet.asRelation().range());
-      }
-
       /**
        * Flattening Set[Tuple[Tuple[K, V]], _] to Multimap[K, V].
        *
@@ -656,11 +644,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       @Override
       public ISet range() {
         return thisSet.content.values().stream().collect(ValueCollectors.toSet());
-      }
-
-      @Override
-      public ISet asSet() {
-        return thisSet;
       }
 
       @Override

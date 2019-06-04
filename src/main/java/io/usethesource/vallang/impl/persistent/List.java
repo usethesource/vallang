@@ -9,21 +9,20 @@
 *    Arnold Lankamp - interfaces and implementation
 *    Paul Klint - added new methods and SubList
 *******************************************************************************/
-package io.usethesource.vallang.impl.fast;
+package io.usethesource.vallang.impl.persistent;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListRelation;
 import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.AbstractValue;
-import io.usethesource.vallang.impl.func.ListFunctions;
+import io.usethesource.vallang.impl.DefaultRelationViewOnList;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
@@ -62,6 +61,21 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 				
 		this.data = data;
 		
+	}
+	
+	@Override
+	public IListWriter writer() {
+	    return new ListWriter();
+	}
+	
+	@Override
+	public IList empty() {
+	    return writer().done();
+	}
+	
+	@Override
+	public int size() {
+	    return length();
 	}
 	
 	/*package*/ static ListWriter createListWriter(Type eltType){
@@ -288,143 +302,34 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		if(o == this) return true;
 		if(o == null) return false;
 		
-		if(o instanceof List) {
-			List otherList = (List) o;
-			
-			if (getType() != otherList.getType()) return false;
-			
-			if (hashCode() != otherList.hashCode()) return false;
-			
-			if (listType != otherList.listType) return false;
-			
-			return data.equals(otherList.data);
-		}
-		
-		if(o instanceof SubList){
-			IList otherList = (SubList) o;
-			if (getType() != otherList.getType()) return false;
-			
-			if (hashCode() != otherList.hashCode()) return false;
-			
-			if (listType != otherList.getType()) return false;
-			 	
-			return ListFunctions.equals(ValueFactory.getInstance(), this, otherList);
+		if (o instanceof IList) {
+		    IList otherList = (IList) o;
+		    
+		    if (getType() != otherList.getType()) return false;
+
+
+		    if(otherList instanceof List) {
+		        List oList = (List) o;
+
+		        if (hashCode != oList.hashCode) return false;
+
+		        return data.equals(oList.data);
+		    }
+		    else {
+		        return defaultEquals(otherList);
+		    }
 		}
 		
 		return false;
 	}
 
 	@Override
-	public boolean isEqual(IValue value){
-		if(value == this) return true;
-		if(value == null) return false;
-		
-		if(value instanceof List){
-			List otherList = (List) value;
-			
-			return data.isEqual(otherList.data);
-		}
-		else if (value instanceof IList) {
-			return ListFunctions.isEqual(ValueFactory.getInstance(), this, value);
-		}
-		
-		return false;
-	}
-	
-	@Override
-	public boolean match(IValue value){
-        if(value == this) return true;
-        if(value == null) return false;
-        
-        if(value instanceof List){
-            List otherList = (List) value;
-            
-            return data.match(otherList.data);
-        }
-        else if (value instanceof IList) {
-            return ListFunctions.match(ValueFactory.getInstance(), this, value);
-        }
-        
-        return false;
-    }
-	
-	public IList product(IList lst){
-		ListWriter w = new ListWriter();
-
-		for(IValue t1 : this){
-			for(IValue t2 : lst){
-				IValue vals[] = {t1, t2};
-				ITuple t3 = Tuple.newTuple(vals);
-				w.insert(t3);
-			}
+	public IRelation<IList> asRelation() {
+		if (!isRelation()) {
+			throw new IllegalOperationException("Cannot be viewed as a relation.", getType());
 		}
 
-		return (IList) w.done();
-	}
-
-	public IList intersect(IList other) {
-		IListWriter w = ValueFactory.getInstance().listWriter();
-
-		if(other instanceof List){
-			List o = (List) other;
-
-			for(IValue v : data){
-				if(o.data.contains(v)){
-					w.append(v);
-				}
-			}
-
-			return w.done();
-		}
-		IList o = (IList) other;
-
-		for(IValue v : data){
-			if(o.contains(v)){
-				w.append(v);
-			}
-		}
-		return w.done();
-	}
-	
-	public IList subtract(IList lst) {
-		IListWriter w = ValueFactory.getInstance().listWriter();
-		for (IValue v: this.data) {
-			if (lst.contains(v)) {
-				lst = lst.delete(v);
-			} else
-				w.append(v);
-		}
-		return w.done();
-	}
-
-	public boolean isSubListOf(IList lst) {
-		int j = 0;
-		nextchar:
-			for(IValue elm : this.data){
-				while(j < lst.length()){
-					if(elm.isEqual(lst.get(j))){
-						j++;
-						continue nextchar;
-					} else
-						j++;
-				}
-				return false;
-			}
-		return true;
-	}
-
-	@Override
-	public boolean isRelation() {
-		return getType().isListRelation();
-	}
-
-	@Override
-	public IListRelation<IList> asRelation() {
-		if (!isRelation())
-			throw new IllegalOperationException(
-					"Cannot be viewed as a relation.", getType());
-
-		return new RelationViewOnList(this);
+		return new DefaultRelationViewOnList(this);
 	}
 }
 
@@ -490,16 +395,17 @@ class SubList extends AbstractValue implements IList {
 	
 	public int hashCode(){
 		if (hashCode == 0) {
-			hashCode = ListFunctions.hashCode( ValueFactory.getInstance(), this);
+			hashCode = defaultHashCode();
 		}
 		return hashCode;
 	}
 	
-	public boolean equals(Object o){
+	@SuppressWarnings("unlikely-arg-type")
+    public boolean equals(Object o){
 		if(o == this) return true;
 		if(o == null) return false;
 		
-		if(o instanceof List) {			
+		if(o instanceof List) {		
 			return ((List) o).equals(this);
 		}
 		
@@ -523,7 +429,7 @@ class SubList extends AbstractValue implements IList {
 			return otherList.isEqual(this);
 		}
 		else if (value instanceof IList) {
-			return ListFunctions.isEqual(ValueFactory.getInstance(), this, value);
+			return isEqual(value);
 		}
 		
 		return false;
@@ -555,7 +461,7 @@ class SubList extends AbstractValue implements IList {
 	}
 
 	@Override
-	public IListRelation<IList> asRelation() {
+	public IRelation<IList> asRelation() {
 		return materialize().asRelation();
 	}
 
@@ -710,7 +616,7 @@ class SubList extends AbstractValue implements IList {
 
 	@Override
 	public IList subtract(IList lst) {
-		IListWriter w = ValueFactory.getInstance().listWriter();
+		IListWriter w = writer();
 		int end = offset + length;
 		for(int i = offset; i < end; i++){
 			IValue v = base.get(i);
@@ -721,6 +627,23 @@ class SubList extends AbstractValue implements IList {
 		}
 		return w.done();
 	}
+
+    @Override
+    public IList empty() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int size() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public IListWriter writer() {
+        return new ListWriter();
+    }
 }
 
 final class SubListIterator implements Iterator<IValue> {

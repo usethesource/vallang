@@ -9,7 +9,7 @@
 *    Arnold Lankamp - interfaces and implementation
 *    Paul Klint - Implemented replace
 *******************************************************************************/
-package io.usethesource.vallang.impl.fast;
+package io.usethesource.vallang.impl.persistent;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -90,7 +90,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 	@Override
 	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
+		return io.usethesource.vallang.impl.persistent.ValueFactory.getInstance();
 	}
 
 	@Override

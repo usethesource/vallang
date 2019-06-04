@@ -16,6 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.impl.persistent.ValueFactory;
 
 /**
  * A specialized version of the ShareableSet, specifically meant for storing values.
@@ -130,6 +131,10 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		if(load > threshold){
 			rehash();
 		}
+	}
+	
+	public boolean addTuple(IValue... fields) {
+	    return add(ValueFactory.getInstance().tuple(fields));
 	}
 	
 	public boolean add(IValue value){

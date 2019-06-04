@@ -14,11 +14,10 @@ package io.usethesource.vallang.impl;
 import java.util.Random;
 
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.func.ListFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -68,90 +67,7 @@ public abstract class AbstractList extends AbstractValue implements IList {
         return getType().getElementType();
     }
 
-    @Override
-    public IList reverse() {
-        return ListFunctions.reverse(getValueFactory(), this);
-    }
     
-    @Override
-    public IList shuffle(Random rand) {
-        return ListFunctions.shuffle(getValueFactory(), this, rand);
-    }
-
-    @Override
-    public IList append(IValue e) {
-        return ListFunctions.append(getValueFactory(), this, e);
-    }
-
-    @Override
-    public IList insert(IValue e) {
-        return ListFunctions.insert(getValueFactory(), this, e);
-    }
-
-    @Override
-    public IList concat(IList that) {
-        return ListFunctions.concat(getValueFactory(), this, that);
-    }
-
-    @Override
-    public IList put(int i, IValue e) {
-        return ListFunctions.put(getValueFactory(), this, i, e);
-    }
-
-    @Override
-    public IList replace(int first, int second, int end, IList repl) {
-        return ListFunctions.replace(getValueFactory(), this, first, second, end, repl);
-    }
-
-    @Override
-    public IList sublist(int offset, int length) {
-        return ListFunctions.sublist(getValueFactory(), this, offset, length);
-    }
-
-    @Override
-    public boolean contains(IValue e) {
-        return ListFunctions.contains(getValueFactory(), this, e);
-    }
-
-    @Override
-    public IList delete(IValue e) {
-        return ListFunctions.delete(getValueFactory(), this, e);
-    }
-
-    @Override
-    public IList delete(int i) {
-        return ListFunctions.delete(getValueFactory(), this, i);
-
-    }
-
-    @Override
-    public IList product(IList that) {
-        return ListFunctions.product(getValueFactory(), this, that);
-    }
-
-    @Override
-    public IList intersect(IList that) {
-        return ListFunctions.intersect(getValueFactory(), this, that);
-    }
-
-    @Override
-    public IList subtract(IList that) {
-        return ListFunctions.subtract(getValueFactory(), this, that);
-    }
-
-    @Override
-    public boolean isSubListOf(IList that) {
-        return ListFunctions.isSubListOf(getValueFactory(), this, that);
-    }
-
-    @Override
-    public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-        if (getElementType().isFixedWidth()) {
-            return v.visitListRelation(this);
-        } else {
-            return v.visitList(this);
-        }
-    }
 
 	@Override
 	public boolean isRelation() {
@@ -159,12 +75,12 @@ public abstract class AbstractList extends AbstractValue implements IList {
 	}
 
 	@Override
-	public IListRelation<IList> asRelation() {
-		if (!isRelation())
-			throw new IllegalOperationException(
-					"Cannot be viewed as a relation.", getType());
+	public IRelation<IList> asRelation() {
+		if (!isRelation()) {
+			throw new IllegalOperationException("Cannot be viewed as a relation.", getType());
+		}
 
-		return new DefaultRelationViewOnList(getValueFactory(), this);
+		return new DefaultRelationViewOnList(this);
 	}    
     
 }

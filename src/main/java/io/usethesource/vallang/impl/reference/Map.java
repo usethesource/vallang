@@ -20,8 +20,11 @@ package io.usethesource.vallang.impl.reference;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.impl.AbstractMap;
 import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
@@ -96,4 +99,25 @@ import io.usethesource.vallang.type.Type;
 	public int hashCode() {
 		return MapFunctions.hashCode(getValueFactory(), this);
 	}
+
+    @Override
+    public Type getElementType() {
+        // the iterator iterates over the keys
+        return type.getKeyType();
+    }
+
+    @Override
+    public IMap empty() {
+        return writer().done();
+    }
+
+    @Override
+    public IWriter<IMap> writer() {
+        return new MapWriter();
+    }
+
+    @Override
+    public IRelation<IMap> asRelation() {
+        throw new UnsupportedOperationException();
+    }
 }

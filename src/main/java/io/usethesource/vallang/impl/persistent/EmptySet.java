@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
@@ -53,14 +53,9 @@ public final class EmptySet extends AbstractSet {
   }
 
   @Override
-  public ITuple tuple(IValue... elems) {
-      return ValueFactory.getInstance().tuple(elems);
-  }
-  
-  @Override
-  public ISetRelation<ISet> asRelation() {
+  public IRelation<ISet> asRelation() {
     validateIsRelation(this);
-    return new DefaultRelationViewOnSet(getValueFactory(), this);
+    return new DefaultRelationViewOnSet(this);
   }
   
   @Override

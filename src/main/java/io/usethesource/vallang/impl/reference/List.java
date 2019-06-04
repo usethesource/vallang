@@ -13,10 +13,13 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractList;
-import io.usethesource.vallang.impl.func.ListFunctions;
+import io.usethesource.vallang.impl.DefaultRelationViewOnList;
 import io.usethesource.vallang.type.Type;
 
 /*package*/ class List extends AbstractList {
@@ -65,19 +68,28 @@ import io.usethesource.vallang.type.Type;
 		return content.hashCode();
 	}
 
-	@Override
 	public boolean equals(Object that) {
-		return ListFunctions.equals(getValueFactory(), this, that);
+		return defaultEquals(that);
 	}
 
-	@Override
-	public boolean isEqual(IValue that) {
-		return ListFunctions.isEqual(getValueFactory(), this, that);
-	}
-	
     @Override
-    public boolean match(IValue that) {
-        return ListFunctions.match(getValueFactory(), this, that);
+    public IRelation<IList> asRelation() {
+        return new DefaultRelationViewOnList(this);
+    }
+
+    @Override
+    public IList empty() {
+        return writer().done();
+    }
+
+    @Override
+    public IListWriter writer() {
+        return new ListWriter();
+    }
+
+    @Override
+    public int size() {
+        return content.size();
     }
 
 }

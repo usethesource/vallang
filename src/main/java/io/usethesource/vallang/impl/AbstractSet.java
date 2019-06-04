@@ -11,8 +11,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl;
 
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
@@ -25,6 +25,11 @@ public abstract class AbstractSet extends AbstractValue implements ISet {
     super();
   }
 
+  @Override
+  public ISet empty() {
+      return (ISet) writer().done();
+  }
+  
   protected static TypeFactory getTypeFactory() {
     return TypeFactory.getInstance();
   }
@@ -71,9 +76,9 @@ public abstract class AbstractSet extends AbstractValue implements ISet {
   }
 
   @Override
-  public ISetRelation<ISet> asRelation() {
+  public IRelation<ISet> asRelation() {
     validateIsRelation(this);
-    return new DefaultRelationViewOnSet(getValueFactory(), this);
+    return new DefaultRelationViewOnSet(this);
   }
   
   @Override
