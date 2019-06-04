@@ -14,7 +14,6 @@ package io.usethesource.vallang.impl;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -61,21 +60,6 @@ public abstract class AbstractMap extends AbstractValue implements IMap {
     }
 
 	@Override
-	public IMap put(IValue key, IValue value) {
-		return MapFunctions.put(getValueFactory(), this, key, value);
-	}
-
-	@Override
-	public boolean containsKey(IValue key) {
-		return MapFunctions.containsKey(getValueFactory(), this, key);
-	}
-
-	@Override
-	public boolean containsValue(IValue value) {
-		return MapFunctions.containsValue(getValueFactory(), this, value);
-	}
-
-	@Override
 	public Type getKeyType() {
 		return getType().getKeyType();
 	}
@@ -83,35 +67,5 @@ public abstract class AbstractMap extends AbstractValue implements IMap {
 	@Override
 	public Type getValueType() {
 		return getType().getValueType();
-	}
-
-	@Override
-	public IMap join(IMap that) {
-		return MapFunctions.join(getValueFactory(), this, that);
-	}
-
-	@Override
-	public IMap remove(IMap that) {
-		return MapFunctions.remove(getValueFactory(), this, that);	
-	}
-	
-	@Override
-	public IMap removeKey(IValue key) {
-	    return MapFunctions.removeKey(getValueFactory(), this, key);
-	}
-
-	@Override
-	public IMap compose(IMap that) {
-		return MapFunctions.compose(getValueFactory(), this, that);
-	}
-
-	@Override
-	public IMap common(IMap that) {
-		return MapFunctions.common(getValueFactory(), this, that);
-	}
-
-	@Override
-	public boolean isSubMap(IMap that) {
-		return MapFunctions.isSubMap(getValueFactory(), this, that);
 	}
 }

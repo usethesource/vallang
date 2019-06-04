@@ -21,12 +21,11 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.impl.AbstractMap;
-import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
 
 /*package*/ class Map extends AbstractMap {
@@ -62,7 +61,14 @@ import io.usethesource.vallang.type.Type;
 
 	@Override
 	public IValue get(IValue key) {
-		return MapFunctions.get(getValueFactory(), this, key);
+	    // see how we can't use the hash tabel due to the semantics of isEqual
+	    for (Entry<IValue,IValue> entry : content.entrySet()) {
+	        if (key.isEqual(entry.getKey())) {
+	            return entry.getValue();
+	        }
+	    }
+
+	    return null;
 	}
 
 	@Override
@@ -80,26 +86,6 @@ import io.usethesource.vallang.type.Type;
 		return content.entrySet().iterator();
 	}
 
-	@Override
-	public boolean equals(Object other) {
-		return MapFunctions.equals(getValueFactory(), this, other);
-	}
-
-	@Override
-	public boolean isEqual(IValue other) {
-		return MapFunctions.isEqual(getValueFactory(), this, other);
-	}
-	
-	@Override
-    public boolean match(IValue other) {
-        return MapFunctions.match(getValueFactory(), this, other);
-    }
-
-	@Override
-	public int hashCode() {
-		return MapFunctions.hashCode(getValueFactory(), this);
-	}
-
     @Override
     public Type getElementType() {
         // the iterator iterates over the keys
@@ -112,7 +98,7 @@ import io.usethesource.vallang.type.Type;
     }
 
     @Override
-    public IWriter<IMap> writer() {
+    public IMapWriter writer() {
         return new MapWriter();
     }
 

@@ -26,10 +26,23 @@ public interface IMap extends ICollection<IMap> {
      * @param value
      * @return a copy of the map with the new key/value mapping
      */
-    public IMap put(IValue key, IValue value);
+    default IMap put(IValue key, IValue value) {
+        IMapWriter sw = writer();
+        sw.putAll(this);
+        sw.put(key, value);
+        return sw.done();
+    }
     
-    public IMap removeKey(IValue key);  
-    
+    default IMap removeKey(IValue key) {
+        IMapWriter sw = writer();
+        for (IValue c : this) {
+            if (!c.isEqual(key)) {
+                sw.put(c, get(c));
+            }
+        }
+        return sw.done();
+    }
+
     /**
      * @param key
      * @return the value that is mapped to this key, or null if no such value exists
@@ -41,14 +54,141 @@ public interface IMap extends ICollection<IMap> {
      * @param key
      * @return true iff there is a value mapped to this key
      */
-    public boolean containsKey(IValue key);
+    default boolean containsKey(IValue key) {
+        for (IValue cursor : this) {
+            if (cursor.isEqual(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    default boolean containsKeyWithEquals(IValue key) {
+        for (IValue cursor : this) {
+            if (cursor.equals(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    default boolean isEqual(IValue other) {
+        if (other == this) return true;
+        if (other == null) return false;
+
+        if (other instanceof IMap) {
+            IMap map2 = (IMap) other;
+
+            if (size() == map2.size()) {
+
+                for (IValue k1 : this) {
+                    if (containsKey(k1) == false) { // call to IValue.isEqual(IValue)
+                        return false;
+                    } else if (map2.get(k1).isEqual(get(k1)) == false) { // call to IValue.isEqual(IValue)
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    default boolean defaultEquals(Object other){
+        if (other == this) return true;
+        if (other == null) return false;
+
+        if (other instanceof IMap) {
+            IMap map2 = (IMap) other;
+
+            if (getType() != map2.getType()) return false;
+
+            if (hashCode() != map2.hashCode()) return false;
+
+            if (size() == map2.size()) {
+
+                for (IValue k1 : this) {
+                    if (containsKeyWithEquals(k1) == false) { // call to Object.equals(Object)
+                        return false;
+                    } else if (map2.get(k1).equals(get(k1)) == false) { // call to Object.equals(Object)
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        return false;   
+    }
+    
+
+    default int defaultHashCode() {
+        int hash = 0;
+
+        Iterator<IValue> keyIterator = iterator();
+        while (keyIterator.hasNext()) {
+            IValue key = keyIterator.next();
+            hash ^= key.hashCode();
+        }
+
+        return hash;
+    }
+
+    
+    
+    @Override
+    default boolean match(IValue other) {
+        if (other == this) return true;
+        if (other == null) return false;
+
+        if (other instanceof IMap) {
+            IMap map2 = (IMap) other;
+
+            if (size() == map2.size()) {
+                next:for (IValue k1 : this) {
+                    IValue v1 = get(k1);
+
+                    for (Iterator<IValue> iterator = map2.iterator(); iterator.hasNext();) {
+                        IValue k2 = iterator.next();
+                        if (k2.match(k1)) {
+                            IValue v2 = map2.get(k2);
+
+                            if (!v2.match(v1)) {
+                                return false;
+                            }
+                            else {
+                                continue next; // this key is co
+                            }
+                        }
+                    }
+
+                    return false; // no matching key found for k1
+                }
+
+            return true;
+            }
+        }
+
+        return false;
+    }
     
     /**
      * Determine whether a certain value exists in this map.
      * @param value 
      * @return true iff there is at least one key that maps to the given value.
      */
-    public boolean containsValue(IValue value);
+    default boolean containsValue(IValue value) {
+        for (Iterator<IValue> iterator = valueIterator(); iterator.hasNext();) {
+            if (iterator.next().isEqual(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * @return the key type for this map
@@ -66,14 +206,27 @@ public interface IMap extends ICollection<IMap> {
      * @param other the other map to add to this one
      * @return a new map
      */
-    public IMap join(IMap other);
+    default IMap join(IMap other) {
+        IMapWriter sw = writer();
+        sw.putAll(this);
+        sw.putAll(other);
+        return sw.done();
+    }
     
     /**
      * Removes all key-value pairs from this map where a key exists in the other map.
      * @param other
      * @return a new map with less key-value pairs.
      */
-    public IMap remove(IMap other);
+    default IMap remove(IMap other) {
+        IMapWriter sw = writer();
+        for (IValue key : this) {
+            if (!other.containsKey(key)) {
+                sw.put(key, get(key));
+            }
+        }
+        return sw.done();
+    }
     
     /**
      * If the value type of this map is a sub-type of the key type of the other, construct
@@ -82,7 +235,23 @@ public interface IMap extends ICollection<IMap> {
      * @param other other map to compose with
      * @return a new map that represent the composition of this with the other map
      */
-    public IMap compose(IMap other);
+    default IMap compose(IMap other) {
+        IMapWriter w = writer();
+
+        Iterator<Entry<IValue, IValue>> iter = entryIterator();
+        while (iter.hasNext()) {
+            Entry<IValue, IValue> e = iter.next();
+            IValue value = other.get(e.getValue());
+            if (value != null) {
+                w.put(e.getKey(), value);
+            }
+        }
+
+        return w.done();
+    }
+    
+    @Override
+    IMapWriter writer();
     
     /**
      * Compute the common map (intersection) between this map and another. Any key-value
@@ -92,7 +261,18 @@ public interface IMap extends ICollection<IMap> {
      * @param other
      * @return a new map containing the common pairs between the two maps.
      */
-    public IMap common(IMap other);
+    default IMap common(IMap other) {
+        IMapWriter sw = writer();
+
+        for (IValue key : this) {
+            IValue thisValue = this.get(key);
+            IValue otherValue = other.get(key);
+            if (otherValue != null && thisValue.isEqual(otherValue)) {
+                sw.put(key, thisValue);
+            }
+        }
+        return sw.done();
+    }
     
     /**
 	 * Checks if the <code>other</code> map is defined for every key that is
@@ -102,7 +282,17 @@ public interface IMap extends ICollection<IMap> {
 	 * @return true iff all for every key of the receiver there exists an entry
 	 *         in the other map.
 	 */
-    public boolean isSubMap(IMap other);
+    default boolean isSubMap(IMap other) {
+        for (IValue key : this) {
+            if (!other.containsKey(key)) {
+                return false;
+            }
+            if (!other.get(key).isEqual(this.get(key))) {
+                return false;
+            }
+        }
+        return true;
+    }
     
     /**
      * @return an iterator over the keys of the map 

@@ -18,12 +18,11 @@ import java.util.Objects;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.impl.AbstractMap;
-import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
@@ -223,15 +222,6 @@ public final class PersistentHashMap extends AbstractMap {
 	}
 	
 	@Override
-	public boolean match(IValue other) {
-	    if (!(other instanceof IMap)) {
-	        return false;
-	    }
-	    
-	    return MapFunctions.match(getValueFactory(), this, other);
-	}
-
-	@Override
 	public Iterator<IValue> iterator() {
 		return content.keyIterator();
 	}
@@ -320,30 +310,6 @@ public final class PersistentHashMap extends AbstractMap {
 		}
 	}
 	
-	@Override
-	public IMap remove(IMap that) {
-		// TODO Auto-generated method stub
-		return super.remove(that);
-	}
-
-	@Override
-	public IMap compose(IMap that) {
-		// TODO Auto-generated method stub
-		return super.compose(that);
-	}
-
-	@Override
-	public IMap common(IMap that) {
-		// TODO Auto-generated method stub
-		return super.common(that);
-	}
-
-	@Override
-	public boolean isSubMap(IMap that) {
-		// TODO Auto-generated method stub
-		return super.isSubMap(that);
-	}
-
     @Override
     public Type getElementType() {
         return keyTypeBag.lub();
@@ -355,7 +321,7 @@ public final class PersistentHashMap extends AbstractMap {
     }
 
     @Override
-    public IWriter<IMap> writer() {
+    public IMapWriter writer() {
         return new MapWriter();
     }
 

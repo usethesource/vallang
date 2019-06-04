@@ -32,7 +32,6 @@ import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
 import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
-import io.usethesource.vallang.impl.func.ConstructorFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -93,16 +92,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	        };
 	    }
 
-	    @Override
-	    public boolean isEqual(IValue value){
-	        return ConstructorFunctions.isEqual(this, value);
-	    }
-	    
-	    @Override
-        public boolean match(IValue value){
-            return ConstructorFunctions.match(this, value);
-        }
-	    
 	    @Override
         public int hashCode(){
             if (hashCode == 0) {
