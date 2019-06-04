@@ -56,6 +56,11 @@ public abstract class AbstractExternalValue implements IExternalValue {
 			}
 			
 			@Override
+		    public INode setChildren(IValue[] childArray) {
+		        return this;
+		    }
+			
+			@Override
 			public Type getType() {
 				return TypeFactory.getInstance().valueType();
 			}

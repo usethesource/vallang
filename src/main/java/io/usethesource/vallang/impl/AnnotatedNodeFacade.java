@@ -34,6 +34,11 @@ public class AnnotatedNodeFacade implements INode {
 		this.annotations = annotations;
 	}
 	
+	@Override
+    public INode setChildren(IValue[] childArray) {
+        return content.setChildren(childArray).asAnnotatable().setAnnotations(annotations);
+    }
+	
 	public Type getType() {
 		return content.getType();
 	}

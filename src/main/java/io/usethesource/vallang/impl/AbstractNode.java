@@ -14,13 +14,10 @@ package io.usethesource.vallang.impl;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -33,15 +30,7 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 	protected abstract IValueFactory getValueFactory();
 
 
-	@Override
-	public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException, IndexOutOfBoundsException {
-		return NodeFunctions.replace(getValueFactory(), this, first, second, end, repl);
-	}
-
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return v.visitNode(this);
-	}
+	
 	
 	@Override
 	public boolean isAnnotatable() {

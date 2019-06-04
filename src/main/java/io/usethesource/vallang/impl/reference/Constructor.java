@@ -16,7 +16,6 @@ import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
 import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
-import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -133,16 +132,6 @@ public class Constructor extends Node implements IConstructor {
 		return false;
 	}
 	
-	@Override
-	public boolean isEqual(IValue value) {
-	  return NodeFunctions.isEqual(getValueFactory(), this, value);
-	}
-	
-	@Override
-    public boolean match(IValue value) {
-      return NodeFunctions.match(getValueFactory(), this, value);
-    }
-
 	@Override
 	public int hashCode() {
 		 return 17 + ~super.hashCode();

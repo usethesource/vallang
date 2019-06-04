@@ -20,7 +20,6 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractNode;
-import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -105,6 +104,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	@Override
+	public INode setChildren(IValue[] childArray) {
+	    return new Node(fName, childArray);
+	}
+	
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitNode(this);
 	}
@@ -185,16 +189,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 		return false;
 	}
-	
-	@Override
-	public boolean isEqual(IValue value){
-		return NodeFunctions.isEqual(getValueFactory(), this, value);
-	}
-	
-	@Override
-    public boolean match(IValue value){
-        return NodeFunctions.match(getValueFactory(), this, value);
-    }
 	
 	public int computeHashCode() {
        int hash = fName != null ? fName.hashCode() : 0;

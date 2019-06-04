@@ -35,7 +35,12 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		this.content = content;
 		this.annotations = annotations;
 	}
-
+	
+	@Override
+	public INode setChildren(IValue[] childArray) {
+	    return content.setChildren(childArray).asAnnotatable().setAnnotations(annotations);
+	}
+	
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return v.visitConstructor(this);
 	}

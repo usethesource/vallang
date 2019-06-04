@@ -24,6 +24,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -55,6 +56,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
 	    @Override
+	    public INode setChildren(IValue[] childArray) {
+	        return new Node(constructorType.getName(), childArray);
+	    }
+	    
+	    @Override
         public IConstructor set(String label, IValue arg) throws FactTypeUseException {
             return set(constructorType.getFieldIndex(label), arg);
         }
@@ -63,7 +69,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    public Iterable<IValue> getChildren(){
 	        return this;
 	    }
-
+	    
 	    @Override
 	    public boolean isAnnotatable() {
 	        return true;

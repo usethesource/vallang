@@ -22,7 +22,6 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -39,6 +38,11 @@ public class NodeWithKeywordParametersFacade implements INode {
 	public Type getType() {
 		return content.getType();
 	}
+	
+	@Override
+    public INode setChildren(IValue[] childArray) {
+        return content.setChildren(childArray).asWithKeywordParameters().setParameters(parameters);
+    }
 
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return v.visitNode(this);
@@ -118,7 +122,7 @@ public class NodeWithKeywordParametersFacade implements INode {
       }
       
       if (other instanceof INode) {
-          return NodeFunctions.match(null, this, other);
+          return match(other);
       }
       
       return false;

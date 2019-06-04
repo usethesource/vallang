@@ -20,7 +20,6 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.AbstractNode;
-import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -41,7 +40,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new Node(name, children);
 	}
 	
-	private Node(String name, IValue[] children) {
+	Node(String name, IValue[] children) {
 		super();
 		
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
@@ -88,6 +87,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return children.length;
 	}
 
+	@Override
+    public INode setChildren(IValue[] childArray) {
+        return new Node(name, childArray);
+    }
+	
 	@Override
 	protected IValueFactory getValueFactory() {
 		return io.usethesource.vallang.impl.persistent.ValueFactory.getInstance();
@@ -172,18 +176,4 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 		return true;
 	}
-	
-	/**
-	 * TODO: Check if it is easily possible to cast annotatable's content to
-	 * List and to reuse old isEqual.
-	 */
-	@Override
-	public boolean isEqual(IValue value){
-		return NodeFunctions.isEqual(getValueFactory(), this, value);
-	}
-	
-	@Override
-    public boolean match(IValue value){
-        return NodeFunctions.match(getValueFactory(), this, value);
-    }
 }

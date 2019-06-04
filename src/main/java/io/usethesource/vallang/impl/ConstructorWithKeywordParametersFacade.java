@@ -21,10 +21,10 @@ import java.util.Set;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.func.ConstructorFunctions;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
@@ -38,6 +38,11 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 		this.content = content;
 		this.parameters = parameters;
 	}
+	
+	@Override
+    public INode setChildren(IValue[] childArray) {
+        return content.setChildren(childArray).asWithKeywordParameters().setParameters(parameters);
+    }
 	
 	public Type getType() {
 		return content.getType();
@@ -125,7 +130,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	    }
 	    
 	    if (other instanceof IConstructor) {
-	        return ConstructorFunctions.match(this, other);
+	        return IConstructor.super.match(other);
 	    }
 	    
 	    return false;
