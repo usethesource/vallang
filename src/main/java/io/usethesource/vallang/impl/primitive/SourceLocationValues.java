@@ -150,22 +150,22 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasAuthority() {
+		public boolean hasAuthority() {
 			return root.hasAuthority();
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return root.hasFragment();
 		}
 		
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return root.hasPath();
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return root.hasQuery();
 		}
 		

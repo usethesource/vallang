@@ -117,11 +117,11 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
      * @return the transitive non-reflexive closure of a binary relation
      * @throws IllegalOperationException when the receiver is not a binary relation
      */
-    public default IRelation<C> closure() {
+    public default C closure() {
         C rel1 = asContainer();
 
         if (rel1.getElementType().isBottom()) {
-            return this;
+            return this.asContainer();
         }
 
         if (!isBinary()) {
@@ -138,16 +138,16 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         resultWriter.insertAll(rel1);
         resultWriter.insertAll(closureDelta);
 
-        return resultWriter.done().asRelation();
+        return resultWriter.done();
     }
 
     /**
      * @return the transitive reflexive closure of a binary relation
      * @throws IllegalOperationException when the receiver is not a binary relation
      */
-    public default IRelation<C> closureStar() {
+    public default C closureStar() {
         if (getElementType().isBottom()) {
-            return this;
+            return this.asContainer();
         }
 
         if (!isBinary()) {
@@ -173,7 +173,7 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
             resultWriter.insertTuple(element, element);
         }
 
-        return resultWriter.done().asRelation();
+        return resultWriter.done();
     }
 
     /**

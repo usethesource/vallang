@@ -164,31 +164,29 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public Boolean hasAuthority() {
+		public boolean hasAuthority() {
 			return false;
 		}
 
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return true;
 		}
 
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return false;
 		}
 
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return false;
 		}
-
 
 		@Override
 		public <T, E extends Throwable> T accept(IValueVisitor<T, E> arg0) throws E {
 		    return arg0.visitSourceLocation(this);
 		}
-
 
 		@Override
 		public IAnnotatable<? extends IValue> asAnnotatable() {
@@ -344,12 +342,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return false;
 		}
 
 		@Override
-		public Boolean hasAuthority() {
+		public boolean hasAuthority() {
 			return true;
 		}
 		@Override
@@ -393,7 +391,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return true;
 		}
 		@Override
@@ -436,7 +434,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return true;
 		}
 		@Override
@@ -479,7 +477,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return true;
 		}
 		@Override
@@ -518,7 +516,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return true;
 		}
 		@Override
@@ -562,7 +560,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return true;
 		}
 		@Override
@@ -602,7 +600,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return true;
 		}
 		@Override
@@ -647,7 +645,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -686,7 +684,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -730,7 +728,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -770,7 +768,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -814,7 +812,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -854,7 +852,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -899,7 +897,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -940,7 +938,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
