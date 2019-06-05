@@ -54,7 +54,7 @@ public interface IMap extends ICollection<IMap> {
      * @param key
      * @return true iff there is a value mapped to this key
      */
-    default boolean containsKey(IValue key) {
+    public default boolean containsKey(IValue key) {
         for (IValue cursor : this) {
             if (cursor.isEqual(key)) {
                 return true;
@@ -63,7 +63,7 @@ public interface IMap extends ICollection<IMap> {
         return false;
     }
     
-    default boolean containsKeyWithEquals(IValue key) {
+    public default boolean containsKeyWithEquals(IValue key) {
         for (IValue cursor : this) {
             if (cursor.equals(key)) {
                 return true;
@@ -73,7 +73,7 @@ public interface IMap extends ICollection<IMap> {
     }
     
     @Override
-    default boolean isEqual(IValue other) {
+    public default boolean isEqual(IValue other) {
         if (other == this) return true;
         if (other == null) return false;
 
@@ -97,7 +97,7 @@ public interface IMap extends ICollection<IMap> {
         return false;
     }
     
-    default boolean defaultEquals(Object other){
+    public default boolean defaultEquals(Object other){
         if (other == this) return true;
         if (other == null) return false;
 
@@ -125,8 +125,7 @@ public interface IMap extends ICollection<IMap> {
         return false;   
     }
     
-
-    default int defaultHashCode() {
+    public default int defaultHashCode() {
         int hash = 0;
 
         Iterator<IValue> keyIterator = iterator();
@@ -137,11 +136,9 @@ public interface IMap extends ICollection<IMap> {
 
         return hash;
     }
-
-    
     
     @Override
-    default boolean match(IValue other) {
+    public default boolean match(IValue other) {
         if (other == this) return true;
         if (other == null) return false;
 
@@ -181,7 +178,7 @@ public interface IMap extends ICollection<IMap> {
      * @param value 
      * @return true iff there is at least one key that maps to the given value.
      */
-    default boolean containsValue(IValue value) {
+    public default boolean containsValue(IValue value) {
         for (Iterator<IValue> iterator = valueIterator(); iterator.hasNext();) {
             if (iterator.next().isEqual(value)) {
                 return true;
@@ -206,7 +203,7 @@ public interface IMap extends ICollection<IMap> {
      * @param other the other map to add to this one
      * @return a new map
      */
-    default IMap join(IMap other) {
+    public default IMap join(IMap other) {
         IMapWriter sw = writer();
         sw.putAll(this);
         sw.putAll(other);
@@ -218,7 +215,7 @@ public interface IMap extends ICollection<IMap> {
      * @param other
      * @return a new map with less key-value pairs.
      */
-    default IMap remove(IMap other) {
+    public default IMap remove(IMap other) {
         IMapWriter sw = writer();
         for (IValue key : this) {
             if (!other.containsKey(key)) {
@@ -235,7 +232,7 @@ public interface IMap extends ICollection<IMap> {
      * @param other other map to compose with
      * @return a new map that represent the composition of this with the other map
      */
-    default IMap compose(IMap other) {
+    public default IMap compose(IMap other) {
         IMapWriter w = writer();
 
         Iterator<Entry<IValue, IValue>> iter = entryIterator();
@@ -251,7 +248,7 @@ public interface IMap extends ICollection<IMap> {
     }
     
     @Override
-    IMapWriter writer();
+    public IMapWriter writer();
     
     /**
      * Compute the common map (intersection) between this map and another. Any key-value
@@ -261,7 +258,7 @@ public interface IMap extends ICollection<IMap> {
      * @param other
      * @return a new map containing the common pairs between the two maps.
      */
-    default IMap common(IMap other) {
+    public default IMap common(IMap other) {
         IMapWriter sw = writer();
 
         for (IValue key : this) {
@@ -282,7 +279,7 @@ public interface IMap extends ICollection<IMap> {
 	 * @return true iff all for every key of the receiver there exists an entry
 	 *         in the other map.
 	 */
-    default boolean isSubMap(IMap other) {
+    public default boolean isSubMap(IMap other) {
         for (IValue key : this) {
             if (!other.containsKey(key)) {
                 return false;
@@ -295,8 +292,12 @@ public interface IMap extends ICollection<IMap> {
     }
     
     /**
+     * Repeated here for documentation purposes, this iterator
+     * returns only the keys of the map, not its values.
+     * 
      * @return an iterator over the keys of the map 
      */
+    @Override
     public Iterator<IValue> iterator();
     
     /**

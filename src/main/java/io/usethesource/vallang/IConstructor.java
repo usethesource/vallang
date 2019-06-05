@@ -84,8 +84,7 @@ public interface IConstructor extends INode {
 	 *         when the given value has a type that is not a sub-type of the declared type
 	 *         of the child at this index.
 	 */
-	public IConstructor set(int index, IValue newChild)
-			throws FactTypeUseException;
+	public IConstructor set(int index, IValue newChild);
 	
 	/**
 	 * @return a tuple type representing the children types of this node/
@@ -177,5 +176,4 @@ public interface IConstructor extends INode {
             throws E {
         return v.visitConstructor(this);
     }
-
 }

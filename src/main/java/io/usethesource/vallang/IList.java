@@ -22,14 +22,14 @@ public interface IList extends ICollection<IList> {
     /**
      * @return the number of elements in the list
      */
-    default int length() {
+    public default int length() {
         return size();
     }
     
     /**
      * @return a new list with all elements in reverse order
      */
-    default IList reverse() {
+    public default IList reverse() {
         IListWriter w = writer();
         for (IValue e : this) {
             w.insert(e);
@@ -41,7 +41,7 @@ public interface IList extends ICollection<IList> {
      * @param rand the random generator to use for the shuffling. If the same seed is set, the same shuffling should happen.
      * @return a new list with all the elements randomly shuffled.
      */
-    default IList shuffle(Random rand) {
+    public default IList shuffle(Random rand) {
         IListWriter w = writer();
         w.appendAll(this); // add everything
         // we use Fisher–Yates shuffle (or Knuth shuffle)
@@ -55,7 +55,8 @@ public interface IList extends ICollection<IList> {
     /**
      * @return an IListWriter for the current list implementation
      */
-    IListWriter writer();
+    @Override
+    public IListWriter writer();
     
     /**
      * Appends an element to the end of the list
@@ -105,7 +106,7 @@ public interface IList extends ICollection<IList> {
      * @throws FactTypeUseException when the type of the element is not a subtype of the element type
      * @throws IndexOutOfBoundsException when the i < 0 or i >= IList.length()
      */
-    default IList put(int i, IValue e) {
+    public default IList put(int i, IValue e) {
         IListWriter w = writer();
         w.appendAll(this);
         w.replaceAt(i, e);
@@ -125,7 +126,7 @@ public interface IList extends ICollection<IList> {
      * @throws FactTypeUseException when the type of the element is not a subtype of the element type
      * @throws IndexOutOfBoundsException when the b < 0 or b >= IList.length() or e < 0 or e > IList.length()
      */
-    default IList replace(int first, int second, int end, IList repl) {
+    public default IList replace(int first, int second, int end, IList repl) {
         IListWriter result = writer();
 
         int rlen = repl.length();
@@ -232,7 +233,7 @@ public interface IList extends ICollection<IList> {
      * @param e
      * @return true iff e is an element of the list
      */
-    default boolean contains(IValue e) {
+    public default boolean contains(IValue e) {
         for (IValue v : this) {
             if (v.isEqual(e)) {
                 return true;
@@ -248,7 +249,7 @@ public interface IList extends ICollection<IList> {
      * @param e
      * @return a new list, with one element removed.
      */
-    default IList delete(IValue v) {
+    public default IList delete(IValue v) {
         IListWriter w = writer();
 
         boolean deleted = false;
@@ -269,7 +270,7 @@ public interface IList extends ICollection<IList> {
      * @param i
      * @return a new list with one element removed.
      */
-    default IList delete(int index) {
+    public default IList delete(int index) {
         IListWriter w = writer();
 
         int currentIndex = 0;
@@ -293,7 +294,7 @@ public interface IList extends ICollection<IList> {
      * @param l
      * @return a new list relation containing the product
      */
-    default IList product(IList l) {
+    public default IList product(IList l) {
         IWriter<IList> w = writer();
 
         for (IValue t1 : this) {
@@ -310,7 +311,7 @@ public interface IList extends ICollection<IList> {
      * @param l
      * @return a new list that is the intersection
      */
-    default IList intersect(IList l) {
+    public default IList intersect(IList l) {
         IWriter<IList> w = writer();
 
         for (IValue v : this) {
@@ -327,7 +328,7 @@ public interface IList extends ICollection<IList> {
      * @param l
      * @return a new list that is the intersection
      */
-    default IList subtract(IList l) {
+    public default IList subtract(IList l) {
         IWriter<IList> w = writer();
         for (IValue v : this) {
             if (l.contains(v)) {
@@ -340,7 +341,7 @@ public interface IList extends ICollection<IList> {
     }
     
     @Override
-    default boolean match(IValue other) {
+    public default boolean match(IValue other) {
         // return equals(vf, list1, other);
         if (other == this) {
             return true;
@@ -374,7 +375,7 @@ public interface IList extends ICollection<IList> {
     /**
      * @return true if this list is a sublist of list l
      */
-    default boolean isSubListOf(IList l) {
+    public default boolean isSubListOf(IList l) {
         int j = 0;
         nextValue: for (IValue elm : this) {
             while (j < l.length()) {
@@ -392,7 +393,6 @@ public interface IList extends ICollection<IList> {
 
     @Override
     default boolean isEqual(IValue other) {
-        // return equals(vf, list1, other);
         if (other == this) {
             return true;
         }
@@ -422,13 +422,11 @@ public interface IList extends ICollection<IList> {
         return false;
     }
     
-    default boolean isRelation() {
+    public default boolean isRelation() {
         return getElementType().isFixedWidth();
     }
     
-    public IRelation<IList> asRelation();
-
-    default boolean defaultEquals(Object other) {
+    public default boolean defaultEquals(Object other) {
         if (other == this) {
             return true;
         }
@@ -447,7 +445,7 @@ public interface IList extends ICollection<IList> {
             if (getType() != list2.getType())
                 return false;
 
-            if (defaultHashCode() != list2.defaultHashCode()) {
+            if (hashCode() != list2.hashCode()) {
                 return false;
             }
 

@@ -12,78 +12,88 @@
 
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IInteger extends INumber {
 	/**
 	 * @return this + other;
 	 */
-    IInteger add(IInteger other);
+    @Override
+    public IInteger add(IInteger other);
     
     /**
      * @return this - other;
      */
-    IInteger subtract(IInteger other);
+    @Override
+    public IInteger subtract(IInteger other);
     
     /**
      * @return this * other;
      */
-    IInteger multiply(IInteger other);
+    @Override
+    public IInteger multiply(IInteger other);
     
     /**
      * @return this / other;
      */
-    IInteger divide(IInteger other);
+    public IInteger divide(IInteger other);
 
     /**
      * @return this / other (exact divison);
      */
-    IRational divide(IRational other);
+    public IRational divide(IRational other);
 
     /**
      * @return this rem other, which is the remainder after dividing this by other.
      * This may be a negative number.
      */
-    IInteger remainder(IInteger other);
+    public IInteger remainder(IInteger other);
     
     /**
      * @return -1 * this;
      */
-    IInteger negate();
+    @Override
+    public IInteger negate();
     
     /**
      * @return this % other, which is always a positive IInteger
      */
-    IInteger mod(IInteger other);
+    public IInteger mod(IInteger other);
     
     /**
      * @return an IReal that is equal to this IInteger
      */
-    IReal  toReal(int precision);
+    @Override
+    public IReal  toReal(int precision);
     
     /**
      * @return true iff this < other
      */
-    IBool less(IInteger other);
+    @Override
+    public IBool less(IInteger other);
     
     /**
      * @return true iff this > other
      */
-    IBool greater(IInteger other);
+    @Override
+    public IBool greater(IInteger other);
  
     /**
      * @return true iff this <= other
      */
-    IBool lessEqual(IInteger other);
+    @Override
+    public IBool lessEqual(IInteger other);
     
     /**
      * @return true iff this >= other
      */
-    IBool greaterEqual(IInteger other);
+    @Override
+    public IBool greaterEqual(IInteger other);
     
     /**
      * @return the value of the IInteger represent as a string of decimal numbers in ASCII encoding.
      */
-    String getStringRepresentation();
+    public String getStringRepresentation();
     
     /**
      * @return the two's complement representation of this integer in the minimum
@@ -100,7 +110,7 @@ public interface IInteger extends INumber {
      * result will fit in an int.
      * 
      */
-    int intValue();
+    public int intValue();
     
     /**
      * Converts this IInteger to a long.  
@@ -111,29 +121,36 @@ public interface IInteger extends INumber {
      * result will fit in a long.
      * 
      */
-    long longValue();
+    public long longValue();
     
     /**
      * Converts this IInteger to a double.  
      * The conversion may lose precision, and will yield +/- Inf
      * if the magnitude is too large for a double.
      */
-    double doubleValue();
+    public double doubleValue();
     
     /**
      * Compares two integers
      * @param other
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
      */
-    int compare(IInteger other);
+    public int compare(IInteger other);
     
     /**
      * @return return -1, 0 or 1 iff this integer is less than, equal to or greater than zero.
      */
-    int signum();
+    @Override
+    public int signum();
 
     /**
      * @return absolute value of this integer
      */
-	IInteger abs();
+    @Override
+    public IInteger abs();
+	
+	@Override
+	public default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+	    return v.visitInteger(this);
+	}
 }

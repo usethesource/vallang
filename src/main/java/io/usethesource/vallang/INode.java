@@ -30,8 +30,9 @@ public interface INode extends IValue, Iterable<IValue> {
 	 * Get a child
 	 * @param i the zero based index of the child
 	 * @return a value
+	 * @throws IndexOutOfBoundsException
 	 */
-	public IValue get(int i) throws IndexOutOfBoundsException;
+	public IValue get(int i);
 	
 	/**
 	 * Change this tree to have a different child at a certain position.
@@ -40,13 +41,13 @@ public interface INode extends IValue, Iterable<IValue> {
 	 * @param newChild     the new value for the child
 	 * @return an untyped tree with the new child at position i, if the receiver was untyped,
 	 *         or a typed tree node if it was typed.
+	 * @throws IndexOutOfBoundsException
 	 */
-	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException;
+	public INode set(int i, IValue newChild);
 	
 	/**
 	 * @return the (fixed) number of children of this node (excluding keyword arguments)
 	 */
-
 	public int arity();
 	
 	/**
@@ -77,7 +78,7 @@ public interface INode extends IValue, Iterable<IValue> {
      * @throws FactTypeUseException when the type of the element is not a subtype of the element type
      * @throws IndexOutOfBoundsException when the b < 0 or b >= INode.arity() or e < 0 or e > INOde.arity()
      */
-	default INode replace(int first, int second, int end, IList repl) {
+	public default INode replace(int first, int second, int end, IList repl) {
 	    ArrayList<IValue> newChildren = new ArrayList<>();
 	    int rlen = repl.length();
 	    int increment = Math.abs(second - first);
@@ -148,10 +149,16 @@ public interface INode extends IValue, Iterable<IValue> {
 	    return setChildren(childArray);
 	}
     
+	/**
+	 * Replace all children with a new array of children, keeping only
+	 * the name of the original node.
+	 * @param childArray
+	 * @return a new node with the same name, yet new children.
+	 */
 	public INode setChildren(IValue[] childArray);
 
     @Override
-	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+    public default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 	    return v.visitNode(this);
 	}
 	
@@ -168,7 +175,7 @@ public interface INode extends IValue, Iterable<IValue> {
     public IWithKeywordParameters<? extends INode> asWithKeywordParameters();
     
     @Override
-    default boolean isEqual(IValue value) {
+    public default boolean isEqual(IValue value) {
         if(value == this) return true;
         if(value == null) return false;
 
@@ -218,10 +225,9 @@ public interface INode extends IValue, Iterable<IValue> {
 
         return false;
     }
-
     
     @Override
-    default boolean match(IValue value) {
+    public default boolean match(IValue value) {
         if(value == this) return true;
         if(value == null) return false;
 

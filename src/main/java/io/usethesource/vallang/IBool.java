@@ -10,6 +10,8 @@
 *******************************************************************************/
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.visitors.IValueVisitor;
+
 public interface IBool extends IValue {
 	boolean getValue();
 	String getStringRepresentation();
@@ -19,4 +21,9 @@ public interface IBool extends IValue {
 	IBool not();
 	IBool implies(IBool other);
 	IBool equivalent(IBool other);
+	
+	@Override
+	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+	    return v.visitBoolean(this);
+	}
 }

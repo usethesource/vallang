@@ -91,7 +91,7 @@ public interface IValue {
      *         in type labels, the presence of annotations or the presence of keyword 
      *         parameters
      */
-     boolean match(IValue other);
+    public boolean match(IValue other);
     
     /**
      * Prints the value to a string using the {@link StandardTextWriter}
@@ -100,6 +100,10 @@ public interface IValue {
     
     /**
      * @return if this {@link IValue} object can be annotated
+     * 
+     * TODO: annotations kill structural equality and disable a number of important
+     * optimization techniques because of that. Next to this the semantics of equality
+     * modulo annotations has proven to be confusing to the users of this library.
      */
     @Deprecated
     public boolean isAnnotatable();
@@ -108,6 +112,12 @@ public interface IValue {
      * Creates a view that exposes the {@link IAnnotatable} annotation API. 
      * 
      * @return an {@link IAnnotatable} view on this {@link IValue} object 
+     * 
+     * TODO: annotations kill structural equality and disable a number of important
+     * optimization techniques because of that. Next to this the semantics of equality
+     * modulo annotations has proven to be confusing to the users of this library.
+     * 
+     * IAnnotable is replaced by comparable functionality with IWithKeywordParameters
      */
     @Deprecated
     public IAnnotatable<? extends IValue> asAnnotatable();

@@ -12,6 +12,11 @@
 
 package io.usethesource.vallang;
 
+/**
+ * This marker interface is left here for backwards compatibility with earlier
+ * versions of vallang. Also IListWriter and IMapWriter exist, so for consistency's
+ * sake we also have an empty ISetWriter. See IWriter for details.
+ */
 public interface ISetWriter extends IWriter<ISet> {
 
 }

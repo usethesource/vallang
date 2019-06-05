@@ -23,8 +23,9 @@ public interface IAnnotatable<T extends IValue> {
 	 * 
 	 * @param label identifies the annotation
 	 * @return a value if the annotation has a value on this node or null otherwise
+	 * @throws FactTypeUseException
 	 */
-	public IValue getAnnotation(String label) throws FactTypeUseException;
+	public IValue getAnnotation(String label);
 	
 	/**
 	 * Set the value of an annotation
@@ -34,7 +35,7 @@ public interface IAnnotatable<T extends IValue> {
 	 * @return a new node where the value of the annotation is replaced (if previously present) or newly added
 	 * @throws FactTypeUseException when the type of the new value is not comparable to the old annotation value
 	 */
-	public T setAnnotation(String label, IValue newValue) throws FactTypeUseException;
+	public T setAnnotation(String label, IValue newValue);
 
 	/**
 	 * Check whether a certain annotation is set.
@@ -43,7 +44,7 @@ public interface IAnnotatable<T extends IValue> {
 	 * @return true iff the annotation has a value on this node
 	 * @throws FactTypeUseException when no annotation with this label is defined for this type of node.
 	 */
-	public boolean hasAnnotation(String label) throws FactTypeUseException;
+	public boolean hasAnnotation(String label);
 
 	/**
 	 * Check whether any annotations are present.

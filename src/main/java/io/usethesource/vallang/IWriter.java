@@ -7,13 +7,13 @@ public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
      * Insert several elements
      * @param value array of elements to insert
      */
-	 void insert(IValue... value);
+	 public void insert(IValue... value);
 	 
 	 /**
 	  * Append several elements
 	  * @param value array of elements to append
 	  */
-	 default void append(IValue... value) {
+	 public default void append(IValue... value) {
 	     insert(value);
 	 }
 	 
@@ -23,7 +23,7 @@ public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
 	  * @param value array of elements to append
 	  * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	  */
-	 default void appendAll(Iterable<? extends IValue> collection) {
+	 public default void appendAll(Iterable<? extends IValue> collection) {
 	     for (IValue v : collection) {
              append(v);
          }
@@ -33,13 +33,13 @@ public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
 	  * Insert a tuple made of the given fields
 	  * @param fields
 	  */
-	 void insertTuple(IValue... fields);
+	 public void insertTuple(IValue... fields);
 	 
 	 /**
       * Append a tuple made of the given fields
       * @param fields
       */
-	 default void appendTuple(IValue... fields) {
+	 public default void appendTuple(IValue... fields) {
 	     insertTuple(fields);
 	 }
 	 

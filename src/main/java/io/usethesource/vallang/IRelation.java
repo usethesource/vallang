@@ -1,3 +1,13 @@
+/*******************************************************************************
+* Copyright (c) 2019 NWO-I CWI
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Jurgen J. Vinju - initial implementation
+*******************************************************************************/
 package io.usethesource.vallang;
 
 import java.util.HashMap;
@@ -12,10 +22,18 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.util.RotatingQueue;
 import io.usethesource.vallang.util.ValueIndexedHashMap;
 
+/**
+ * Provides Relational Calculus operators to an existing ICollection.
+ * This interface provides a generic implementation for all operators,
+ * which should be specialized by implementations that know how to optimize
+ * these operations with specialized data-structures.
+ *
+ * @param <C> a collection value type like ISet or IList
+ */
 public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {	
 
     @Override
-    default Iterator<ITuple> iterator() {
+    public default Iterator<ITuple> iterator() {
         return new Iterator<ITuple>() {
             Iterator<IValue> it = asContainer().iterator();
             
@@ -31,7 +49,17 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         };
     }
     
-    default C compose(IRelation<C> that) {
+    /**
+     * Relational composition works only on binary relations. It matches the second column
+     * of the receiver with the first column of the given relation. 
+     * TODO: generalize to n-ary.
+     * 
+     * @param that is the given relation
+     * @return a new binary relation with first column of the accepting relation and the second column
+     *        of the given relation, containing only tuples where the last column of the receiver
+     *        matches the first column of the given relation.
+     */
+    public default C compose(IRelation<C> that) {
         C thisContainer = this.asContainer();
         C thatContainer = that.asContainer();
         Type thisElementType = thisContainer.getElementType();
@@ -85,7 +113,11 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return resultWriter.done();
     }   
 
-    default IRelation<C> closure() {
+    /**
+     * @return the transitive non-reflexive closure of a binary relation
+     * @throws IllegalOperationException when the receiver is not a binary relation
+     */
+    public default IRelation<C> closure() {
         C rel1 = asContainer();
 
         if (rel1.getElementType().isBottom()) {
@@ -109,8 +141,11 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return resultWriter.done().asRelation();
     }
 
-
-    default IRelation<C> closureStar() {
+    /**
+     * @return the transitive reflexive closure of a binary relation
+     * @throws IllegalOperationException when the receiver is not a binary relation
+     */
+    public default IRelation<C> closureStar() {
         if (getElementType().isBottom()) {
             return this;
         }
@@ -141,14 +176,25 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return resultWriter.done().asRelation();
     }
 
+    /**
+     * @return the number of columns in the relation
+     */
     default int arity() {
         return asContainer().getElementType().getArity();
     }
 
+    /**
+     * @return a new empty relation with the current factory
+     */
     default C empty() {
         return asContainer().empty();
     }
     
+    /**
+     * Reduces an n-ary relation to fewer columns, given by the fields to select.
+     * @param fields to select from the relation, index starts at 0
+     * @return a new relation with only the columns selected by the fields parameter
+     */
     default C project(int... fields) {
         IWriter<C> w = writer();
 
@@ -159,8 +205,17 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return w.done();
     }
 
+    /**
+     * Reduces an n-ary relation to fewer columns, given by the fields to select.
+     * @param fields to select from the relation by name
+     * @return a new relation with only the columns selected by the field names
+     * 
+     * TODO: this method will dissappear when field names will no longer be recorded 
+     * the vallang library. This is necessary to be able to provide canonical types
+     * and use reference equality for type equality; a major factor in CPU performance.
+     */
     @Deprecated
-    default C projectByFieldNames(String... fields) {
+    public default C projectByFieldNames(String... fields) {
         C collection = asContainer();
         int[] indexes = new int[fields.length];
         int i = 0;
@@ -176,7 +231,11 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return project(indexes);
     }
 
-    default C carrier() {
+    /**
+     * Compute the carrier set of an n-ary relation.
+     * @return a container with all the elements of all tuples in the relation.
+     */
+    public default C carrier() {
         IWriter<C> w = writer();
 
         for (ITuple t : this) {
@@ -186,7 +245,10 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return w.done();
     }
 
-    default C domain() {
+    /**
+     * @return a container with the first elements of all tuples in the relation
+     */
+    public default C domain() {
         IWriter<C> w = asContainer().writer();
 
         for (ITuple elem : this) {
@@ -196,7 +258,10 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return w.done();
     }
 
-    default C range() {
+    /**
+     * @return a container with the last elements of all tuples in the relation
+     */
+    public default C range() {
         int columnIndex = arity() - 1;
         IWriter<C> w = writer();
 
@@ -207,7 +272,14 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return w.done();
     }
 
-    default C index(IValue key) {
+    /**
+     * Lookup the values by the first column in the relation
+     * @return a set of the second elements of all tuples where the first column is 
+     *         equal to the given key, without the first column.
+     *         
+     * TODO: generalize to producing n-ary tuples.
+     */
+    public default C index(IValue key) {
         C set1 = asContainer();
         Type elementType = getElementType();
 
@@ -239,21 +311,37 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return result.done();
     }
 
-    C asContainer();
+    /**
+     * @return the original container this IRelation<C> is wrapping.
+     */
+    public C asContainer();
     
-    default IWriter<C> writer() {
+    /**
+     * @return a fresh writer for the kind of container this IRelation is wrapping 
+     */
+    public default IWriter<C> writer() {
         return asContainer().writer();
     }
     
-    default Type getElementType() {
+    /**
+     * @return the element type of the container this IRelation is wrapping
+     */
+    public default Type getElementType() {
         return asContainer().getElementType();
     }
 
+    /**
+     * @return true iff the current relation is binary (has two columns)
+     */
     default boolean isBinary() {
         return getElementType().getArity() == 2;
     }
 
-    static class HelperFunctions {
+    /**
+     * Static functions for efficiently implementing transitive closure in 
+     * a general way. Not to be used or extended by clients. 
+     */
+    static final class HelperFunctions {
         private static <C extends ICollection<C>> ShareableValuesHashSet computeClosureDelta(IRelation<C> x1, Type tupleType) {
             RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
             RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();

@@ -69,7 +69,7 @@ public interface ISet extends ICollection<ISet> {
     }
     
     @Override
-    default boolean isEqual(IValue other) {
+    public default boolean isEqual(IValue other) {
         if (other == this) {
             return true;
         }
@@ -98,7 +98,7 @@ public interface ISet extends ICollection<ISet> {
     }
 
     @Override
-    default boolean match(IValue other) {
+    public default boolean match(IValue other) {
         if (other == this) {
             return true;
         }
@@ -125,6 +125,7 @@ public interface ISet extends ICollection<ISet> {
 
         return false;
     }
+    
     /**
      * Compute the union of two sets. To be overridden
      * by implementations who know how to do this more efficiently.
@@ -248,9 +249,8 @@ public interface ISet extends ICollection<ISet> {
 
     /**
      * A default implementation of Object.hashCode() for use in implementations of ISet.
-     * @return
      */
-    default int defaultHashCode() {
+    public default int defaultHashCode() {
         int hash = 0;
 
         Iterator<IValue> iterator = this.iterator();
@@ -262,7 +262,7 @@ public interface ISet extends ICollection<ISet> {
         return hash;
     }
     
-    default boolean defaultEquals(Object that) {
+    public default boolean defaultEquals(Object that) {
         if (that == this) {
             return true;
         }
@@ -296,13 +296,12 @@ public interface ISet extends ICollection<ISet> {
         return false;
     }
     
+    /**
+     * @return true iff this set is a relation
+     */
     public default boolean isRelation() {
         return getType().isRelation();
     }
-    
-    public IRelation<ISet> asRelation();
-    
-    
     
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {

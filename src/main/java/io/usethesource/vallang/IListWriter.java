@@ -32,7 +32,7 @@ public interface IListWriter extends IWriter<IList> {
 	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException 
 	 */
-    void insertAt(int index, IValue... value);
+    public void insertAt(int index, IValue... value);
     
     /**
 	 * Inserts elements in front, keeping the argument in order of appearance.
@@ -44,7 +44,7 @@ public interface IListWriter extends IWriter<IList> {
 	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException
 	 */
-    void insert(IValue[] elems, int start, int length);
+    public void insert(IValue[] elems, int start, int length);
     
     /**
 	 * Inserts elements at a specific position, keeping the argument in order of appearance.
@@ -57,7 +57,7 @@ public interface IListWriter extends IWriter<IList> {
 	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException
 	 */
-    void insertAt(int index, IValue[] elems, int start, int length);
+    public void insertAt(int index, IValue[] elems, int start, int length);
     
     /**
      * Replaces an existing element at index in the list.
@@ -67,7 +67,7 @@ public interface IListWriter extends IWriter<IList> {
      * @throws IndexOutOfBoundsException
      * @returns the replaced element
      */
-    IValue replaceAt(int index, IValue elem);
+    public IValue replaceAt(int index, IValue elem);
    
     /**
      * Return the ith element of the list.
@@ -76,10 +76,10 @@ public interface IListWriter extends IWriter<IList> {
      * @return the ith element of the list
      * @throws IndexOutOfBoundsException when i < 0 or i >= IList.length
      */
-    IValue get(int i);
+    public IValue get(int i);
 
     /**
      * @return the number of elements in the list
      */
-    int length();
+    public int length();
 }

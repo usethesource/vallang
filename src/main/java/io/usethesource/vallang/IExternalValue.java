@@ -12,6 +12,7 @@ package io.usethesource.vallang;
 
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * IExternalValue, together with {@link ExternalType} offer a limited form of extensibility
@@ -35,4 +36,8 @@ public interface IExternalValue extends IValue {
 	
 	IConstructor encodeAsConstructor();
 	
+	@Override
+	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+	    return v.visitExternal(this);
+	}
 }

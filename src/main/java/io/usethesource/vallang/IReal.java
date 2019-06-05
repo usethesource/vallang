@@ -18,77 +18,87 @@ public interface IReal extends INumber {
 	/**
 	 * @return this + other;
 	 */
-    IReal add(IReal other);
+    @Override
+    public IReal add(IReal other);
     
     /**
      * @return this - other;
      */
-    IReal subtract(IReal other);
+    @Override
+    public IReal subtract(IReal other);
     
     /**
      * @return this * other;
      */
-    IReal multiply(IReal other);
+    @Override
+    public IReal multiply(IReal other);
     
     /**
      * Divides a real with a specific precision
      * 
      * @return this / other;
      */
-    IReal divide(IReal other, int precision);
+    @Override
+    public IReal divide(IReal other, int precision);
     
     /**
      * @return this number rounded down to the nearest integer number that is
      * less than this number.
      */
-    IReal floor();
+    public IReal floor();
     
     /**
      * @return this number rounded to the nearest integer number.
      */
-    IReal round();
+    public IReal round();
     
     /**
      * @return the integer value nearest to this number
      */
-    IInteger toInteger();
+    @Override
+    public IInteger toInteger();
     
     /**
      * @return true iff this < other
      */
-    IBool less(IReal other);
+    @Override
+    public IBool less(IReal other);
     
     /**
      * @return true iff this > other
      */
-    IBool greater(IReal other);
+    @Override
+    public IBool greater(IReal other);
     
     /**
      * @return true iff this <= other
      */
-    IBool lessEqual(IReal other);
+    @Override
+    public IBool lessEqual(IReal other);
     
     /**
      * @return true iff this >= other
      */
-    IBool greaterEqual(IReal other);
+    @Override
+    public IBool greaterEqual(IReal other);
     
     /**
      * @return this real represented as a string of decimal characters in scientific notation
      */
-    String getStringRepresentation();
+    public String getStringRepresentation();
     
     /**
      * @return -1 * this
      */
-    IReal negate();
+    @Override
+    public IReal negate();
     
     /**
      * Compares two doubles
      * @param other
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
      */
-    int compare(IReal other);
+    public int compare(IReal other);
     
     /**
      * Converts this IReal to a double. Precision may be less.
@@ -96,7 +106,7 @@ public interface IReal extends INumber {
      * {@link Double#NEGATIVE_INFINITY} or {@link Double#POSITIVE_INFINITY}
      * when the number is smaller or larger, respectively.
      */
-    double doubleValue();
+    public double doubleValue();
 
     /**
      * Converts this IReal to a float. Precision may be less.
@@ -104,12 +114,12 @@ public interface IReal extends INumber {
      * {@link Float#NEGATIVE_INFINITY} or {@link Float#POSITIVE_INFINITY}
      * when the number is smaller or larger, respectively.
      */
-    float floatValue();
+    public float floatValue();
     
     /**
      * @return the number of digits in this.{@link #unscaled()}
      */
-    int precision();
+    public int precision();
     
     /**
      * The scale is the exponent of 10 with which the base is multiplied
@@ -117,7 +127,7 @@ public interface IReal extends INumber {
      * 
      * @return the scale of the real
      */
-    int scale();
+    public int scale();
     
     /**
      * Returns the unscaled value of this real as an integer. This is useful
@@ -125,69 +135,68 @@ public interface IReal extends INumber {
      * 
      * @return this * 10<sup>this.scale()</sup>
      */
-    IInteger unscaled();
+    public IInteger unscaled();
 
     /**
      * @return absolute value of this real
      */
-	IReal abs();
+    @Override
+    public IReal abs();
 
 	/**
 	 * @return log<sub>base</sub>(this)
 	 */
-	IReal log(IInteger base, int precision);
-	
+    public IReal log(IInteger base, int precision);
 	
 	/**
 	 * @return log<sub>base</sub>(this)
 	 */
-	IReal log(IReal base, int precision);
-	
+	public IReal log(IReal base, int precision);
 	
 	/**
 	 * @return natural log of this
 	 */
-	IReal ln(int precision);
+	public IReal ln(int precision);
 	
 	/**
 	 * @return square root of this
 	 */
-	IReal sqrt(int precision);
+	public IReal sqrt(int precision);
 	
 	/**
 	 * @return n-th root of this
 	 */
-	IReal nroot(IInteger n, int precision);
-	
+	public IReal nroot(IInteger n, int precision);
 	
 	/**
 	 * @return e<sup>this</sup>
 	 */
-	IReal exp(int precision);
+	public IReal exp(int precision);
 	
 	/**
 	 * @return this<sup>power</sup>
 	 */
-	IReal pow(IInteger power);
+	public IReal pow(IInteger power);
 
 	/**
 	 * @return this<sup>power<sup> but for non natural numbers 
 	 */
-	IReal pow(IReal power, int precision);
+	public IReal pow(IReal power, int precision);
 	
 	/**
 	 * @return tan(this)
 	 */
-	IReal tan(int precision);
+	public IReal tan(int precision);
 	
 	/**
 	 * @return sin(this)
 	 */
-	IReal sin(int precision);
+	public IReal sin(int precision);
 	
 	/**
 	 * @return cos(this)
 	 */
-	IReal cos(int precision);
+	
+	public IReal cos(int precision);
 
 }
