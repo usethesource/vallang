@@ -53,12 +53,6 @@ public class Setup {
         return io.usethesource.vallang.impl.reference.ValueFactory.getInstance();
       }
     },
-    FAST {
-      @Override
-      public IValueFactory getInstance() {
-        return io.usethesource.vallang.impl.fast.ValueFactory.getInstance();
-      }
-    },
     PERSISTENT {
       @Override
       public IValueFactory getInstance() {
