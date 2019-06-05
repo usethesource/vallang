@@ -20,7 +20,6 @@ import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ class RationalValue extends AbstractNumberValue implements IRational {
 	public static final Type RATIONAL_TYPE = TypeFactory.getInstance().rationalType();
@@ -263,11 +262,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	@Override
 	public Type getType() {
 		return RATIONAL_TYPE;
-	}
-
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-		return v.visitRational(this);
 	}
 
 	@Override

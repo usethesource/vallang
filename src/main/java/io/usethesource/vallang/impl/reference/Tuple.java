@@ -18,10 +18,8 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.AbstractValue;
-import io.usethesource.vallang.impl.func.TupleFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 class Tuple extends AbstractValue implements ITuple {
 
@@ -44,21 +42,6 @@ class Tuple extends AbstractValue implements ITuple {
 	public Type getType() {
 		return fType;
 	}
-
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return v.visitTuple(this);
-	}
-
-	@Override
-	public boolean isEqual(IValue other) {
-		return TupleFunctions.isEqual(this, other);
-	}
-	
-	@Override
-    public boolean match(IValue other) {
-        return TupleFunctions.match(this, other);
-    }
 
 	/*package*/ Tuple(Type tupleType, IValue[] elems) {
 		super();

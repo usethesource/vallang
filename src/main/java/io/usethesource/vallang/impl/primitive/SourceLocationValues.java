@@ -258,11 +258,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
-	    	return v.visitSourceLocation(this);
-		}
-		
-		@Override
 		public boolean isEqual(IValue value){
 			return equals(value);
 		}

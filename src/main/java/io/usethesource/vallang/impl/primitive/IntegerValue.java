@@ -23,7 +23,6 @@ import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * Implementation for IInteger.
@@ -522,11 +521,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			assert other instanceof IReal;
 			return toReal(((IReal) other).precision()).compare(other);
 		}
-	}
-	
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
-		return v.visitInteger(this);
 	}
 	
 	public int hashCode(){

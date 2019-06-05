@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.PrimitiveIterator.OfInt;
 
+import io.usethesource.vallang.visitors.IValueVisitor;
+
 public interface IString extends IValue, Iterable<Integer> {
 	/**
 	 * @return the Java string that this string represents
@@ -105,4 +107,9 @@ public interface IString extends IValue, Iterable<Integer> {
      * @return the current string indented with the given whitespace
      */
     public IString indent(IString whitespace, boolean indentFirstLine);
+    
+    @Override
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitString(this);
+    }
 }

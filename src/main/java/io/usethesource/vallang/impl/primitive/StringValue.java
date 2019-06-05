@@ -39,7 +39,6 @@ import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * Find here the implementations of IString, which all are (must be) sub-classes of  {@link AbstractString}
@@ -804,11 +803,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public Type getType() {
             return STRING_TYPE;
-        }
-
-        @Override
-        public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-            return v.visitString(this);
         }
 
         @Override

@@ -23,7 +23,6 @@ import io.usethesource.vallang.exceptions.InvalidDateTimeException;
 import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 
 /** A concrete instance of IDateTime, representing either a date,
@@ -76,11 +75,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public Type getType() {
 			return DATE_TIME_TYPE;
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			return v.visitDateTime(this);
 		}
 
 		@Override
@@ -363,11 +357,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public Type getType() {
 			return DATE_TIME_TYPE;
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			return v.visitDateTime(this);
 		}
 
 		@Override
@@ -685,11 +674,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public Type getType() {
 			return DATE_TIME_TYPE;
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			return v.visitDateTime(this);
 		}
 
 		@Override

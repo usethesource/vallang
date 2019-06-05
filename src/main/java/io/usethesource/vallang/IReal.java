@@ -13,6 +13,7 @@
 
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IReal extends INumber {
 	/**
@@ -198,5 +199,10 @@ public interface IReal extends INumber {
 	 */
 	
 	public IReal cos(int precision);
+	
+	@Override
+	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+	    return v.visitReal(this);
+	}
 
 }

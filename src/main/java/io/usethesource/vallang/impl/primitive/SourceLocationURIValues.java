@@ -184,11 +184,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T, E> arg0) throws E {
-		    return arg0.visitSourceLocation(this);
-		}
-
-		@Override
 		public IAnnotatable<? extends IValue> asAnnotatable() {
 			throw new UnsupportedOperationException();
 		}

@@ -19,7 +19,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class AbstractNode extends AbstractValue implements INode {
 
@@ -29,9 +28,6 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 
 	protected abstract IValueFactory getValueFactory();
 
-
-	
-	
 	@Override
 	public boolean isAnnotatable() {
 		return true;

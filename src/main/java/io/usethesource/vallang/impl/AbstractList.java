@@ -11,8 +11,6 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl;
 
-import java.util.Random;
-
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
@@ -20,7 +18,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class AbstractList extends AbstractValue implements IList {
 

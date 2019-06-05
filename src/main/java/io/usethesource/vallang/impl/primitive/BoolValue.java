@@ -17,7 +17,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ abstract class BoolValue extends AbstractValue implements IBool {
 	/*package*/ final static BoolValue TRUE = new BoolValue() {
@@ -109,11 +108,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	@Override
 	public Type getType() {
 		return BOOL_TYPE;
-	}
-
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return v.visitBoolean(this);
 	}
 
 	@Override
