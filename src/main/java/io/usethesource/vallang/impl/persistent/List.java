@@ -20,7 +20,6 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -318,7 +317,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 }
 
-class SubList extends AbstractValue implements IList {
+class SubList implements IList {
 
 	private final IList base;
 	private final int offset;

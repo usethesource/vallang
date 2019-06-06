@@ -30,7 +30,6 @@ import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
 import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
 import io.usethesource.vallang.type.Type;
@@ -47,7 +46,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  * @author Jurgen Vinju (specialisations)
  */
 /*package*/ class Constructor {
-	private static abstract class AbstractConstructor extends AbstractValue implements IConstructor {
+	private static abstract class AbstractConstructor  implements IConstructor {
 	    protected final Type constructorType;
 	    private int hashCode;
 

@@ -15,17 +15,11 @@ import java.util.NoSuchElementException;
 
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
-/**
- * Implementation of ITuple.
- * 
- * @author Arnold Lankamp
- */
-/*package*/ class Tuple extends AbstractValue implements ITuple{
+/*package*/ class Tuple implements ITuple{
 	
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 
