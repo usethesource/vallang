@@ -340,7 +340,7 @@ public final class SetSmokeTest {
     ISet prod2 = test.product(prod);
 
     if (prod2.asRelation().arity() != 2) {
-      fail("product's arity should be 3");
+      fail("product's arity should be 2");
     }
 
     if (prod2.size() != test.size() * prod.size()) {

@@ -71,6 +71,11 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 
 	@Override
+	public String toString() {
+	    return defaultToString();
+	}
+	
+	@Override
 	public Type getType(){
 		return NODE_TYPE;
 	}

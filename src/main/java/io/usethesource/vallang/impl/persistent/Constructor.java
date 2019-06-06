@@ -37,14 +37,6 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
-/**
- * Implementation of IConstructor.
- * <br /><br />
- * Constructors that are annotated will use the AnnotatedConstructor class instead.
- *
- * @author Arnold Lankamp
- * @author Jurgen Vinju (specialisations)
- */
 /*package*/ class Constructor {
 	private static abstract class AbstractConstructor  implements IConstructor {
 	    protected final Type constructorType;
@@ -111,6 +103,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return hashCode;
         }
 
+	   
 	    @Override
 	    public boolean equals(Object o){
 	        if(o == this) return true;
@@ -142,11 +135,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    @Override
 	    public boolean has(String label) {
 	        return getConstructorType().hasField(label);
-	    }
-
-	    @Override
-	    public boolean mayHaveKeywordParameters() {
-	      return true;
 	    }
 
 	    @Override
@@ -270,7 +258,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return o == this;
         }
         
-        @SuppressWarnings("deprecation")
         @Override
         public boolean isEqual(IValue value) {
             if (value == this) {

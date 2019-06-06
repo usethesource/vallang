@@ -48,6 +48,11 @@ public final class PersistentHashSet implements ISet {
     assert !(elementTypeBag.lub() == TF.voidType() || content.isEmpty());
   }
 
+  @Override
+  public String toString() {
+      return defaultToString();
+  }
+  
   private static final boolean checkDynamicType(final AbstractTypeBag elementTypeBag,
       final Set.Immutable<IValue> content) {
 
@@ -126,37 +131,30 @@ public final class PersistentHashSet implements ISet {
   
   @Override
   public boolean equals(Object other) {
-    if (other == this)
+    if (other == this) {
       return true;
-    if (other == null)
+    }
+    
+    if (other == null) {
       return false;
+    }
 
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
 
-      if (this.getType() != that.getType())
+      if (this.getType() != that.getType()) {
         return false;
+      }
 
-      if (this.size() != that.size())
+      if (this.size() != that.size()) {
         return false;
+      }
 
       return content.equals(that.content);
     }
 
     if (other instanceof ISet) {
-      ISet that = (ISet) other;
-
-      if (this.getType() != that.getType())
-        return false;
-
-      if (this.size() != that.size())
-        return false;
-
-      for (IValue e : that)
-        if (!content.contains(e))
-          return false;
-
-      return true;
+      return defaultEquals(other);
     }
 
     return false;
@@ -179,16 +177,7 @@ public final class PersistentHashSet implements ISet {
     }
 
     if (other instanceof ISet) {
-      ISet that = (ISet) other;
-
-      if (this.size() != that.size())
-        return false;
-
-      for (IValue e : that)
-        if (!content.containsEquivalent(e, equivalenceComparator))
-          return false;
-
-      return true;
+      return ISet.super.isEqual(other);
     }
 
     return false;

@@ -414,7 +414,7 @@ class SubList implements IList {
 			return otherList.isEqual(this);
 		}
 		else if (value instanceof IList) {
-			return isEqual(value);
+			return IList.super.isEqual(value);
 		}
 		
 		return false;

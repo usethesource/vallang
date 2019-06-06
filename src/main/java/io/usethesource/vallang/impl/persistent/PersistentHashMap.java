@@ -48,6 +48,11 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
+	public String toString() {
+	    return defaultToString();
+	}
+	
+	@Override
 	public Type getType() {
 		if (cachedMapType == null) {
 			final Type keyType = keyTypeBag.lub();
@@ -156,23 +161,7 @@ public final class PersistentHashMap implements IMap {
 		}
 		
 		if (other instanceof IMap) {
-			IMap that = (IMap) other;
-
-			if (this.getType() != that.getType())
-				return false;
-			
-			if (this.size() != that.size())
-				return false;
-			
-			for (IValue e : that) {
-	            if (!content.containsKey(e)) {
-	                return false;
-	            } else if (!content.get(e).equals(that.get(e))) {
-	            	return false;
-	            }
-			}
-			
-	        return true;			
+			return defaultEquals(other);	
 		}
 		
 		return false;
@@ -195,20 +184,7 @@ public final class PersistentHashMap implements IMap {
 		}
 
 		if (other instanceof IMap) {
-			IMap that = (IMap) other;
-
-			if (this.size() != that.size())
-				return false;
-
-			for (IValue e : that) {
-				if (!containsKey(e)) {
-					return false;
-				} else if (!get(e).isEqual(that.get(e))) {
-					return false;
-				}
-			}
-
-			return true;
+			return IMap.super.isEqual(other);
 		}
 
 		return false;

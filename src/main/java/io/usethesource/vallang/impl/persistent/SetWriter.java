@@ -228,8 +228,7 @@ public class SetWriter implements ISetWriter {
 
   @Override
   public void insertTuple(IValue... fields) {
-      // TODO Auto-generated method stub
-
+      insert(Tuple.newTuple(fields));
   }
 
   @Override

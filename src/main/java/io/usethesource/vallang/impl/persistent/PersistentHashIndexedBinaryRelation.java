@@ -67,6 +67,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet {
     assert USE_MULTIMAP_BINARY_RELATIONS && checkDynamicType(keyTypeBag, valTypeBag, content);
   }
 
+  
   private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       final AbstractTypeBag valTypeBag, final SetMultimap.Immutable<IValue, IValue> content) {
 
@@ -200,12 +201,18 @@ public final class PersistentHashIndexedBinaryRelation implements ISet {
 
     return hashCode;
   }
+  
+  @Override
+  public String toString() {
+      return defaultToString();
+  }
 
   @Override
   public boolean equals(Object other) {
     if (other == this) {
       return true;
     }
+    
     if (other == null) {
       return false;
     }
@@ -225,38 +232,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet {
     }
 
     if (other instanceof ISet) {
-      ISet that = (ISet) other;
-
-      if (this.getType() != that.getType()) {
-        return false;
-      }
-
-      if (this.size() != that.size()) {
-        return false;
-      }
-
-      /**
-       * TODO: simplify by adding stream support to {@link ISet}. Such that block below could be
-       * simplified to
-       *   {@code thatStream.allMatch(unboxTupleAndThen(content::containsEntry))}
-       * with signature
-       *   {@code Predicate<IValue> unboxTupleAndThen(BiFunction<IValue, IValue, Boolean> consumer)}
-       */
-      for (IValue value : that) {
-        if (!isTupleOfArityTwo.test(value.getType())) {
-          return false;
-        }
-
-        final ITuple tuple = (ITuple) value;
-        final IValue key = tuple.get(0);
-        final IValue val = tuple.get(1);
-
-        if (!content.containsEntry(key, val)) {
-          return false;
-        }
-      }
-
-      return true;
+      return defaultEquals(other);
     }
 
     return false;
@@ -267,6 +243,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet {
     if (other == this) {
       return true;
     }
+    
     if (other == null) {
       return false;
     }
@@ -277,12 +254,8 @@ public final class PersistentHashIndexedBinaryRelation implements ISet {
       if (this.size() != that.size()) {
         return false;
       }
-
+      
       for (IValue value : that) {
-        if (!isTupleOfArityTwo.test(value.getType())) {
-          return false;
-        }
-
         final ITuple tuple = (ITuple) value;
         final IValue key = tuple.get(0);
         final IValue val = tuple.get(1);

@@ -37,6 +37,11 @@ public final class EmptySet implements ISet {
     return EMPTY_SET;
   }
 
+  @Override
+  public String toString() {
+      return defaultToString();
+  }
+
   public static final ISet of(final IValue firstElement) {
     final Type firstElementType = firstElement.getType();
 

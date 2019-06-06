@@ -129,6 +129,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new Tuple(elements);
 	}
 
+	@Override
+	public String toString() {
+	    return defaultToString();
+	}
+	
 	public int hashCode() {
 		int hash = 1331;
 

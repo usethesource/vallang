@@ -114,21 +114,6 @@ public class NodeWithKeywordParametersFacade implements INode {
 	}
 
 	@Override
-    public boolean match(IValue other) {
-      if (other instanceof NodeWithKeywordParametersFacade) {
-          NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
-          
-          return content.match(o.content);
-      }
-      
-      if (other instanceof INode) {
-          return match(other);
-      }
-      
-      return false;
-    }
-	
-	@Override
 	public int hashCode() {
 		return 15551 + 7 * content.hashCode() + 11 * parameters.hashCode();
 	}

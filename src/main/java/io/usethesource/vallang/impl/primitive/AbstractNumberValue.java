@@ -25,6 +25,11 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 
 	@Override
+	public String toString() {
+	    return defaultToString();
+	}
+	
+	@Override
 	public INumber add(INumber other){
 		if(isIntegerType(other)){
 			return add(other.toInteger());
