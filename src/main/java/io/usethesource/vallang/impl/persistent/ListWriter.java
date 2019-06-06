@@ -26,28 +26,13 @@ import io.usethesource.vallang.type.TypeFactory;
  */
 /*package*/ class ListWriter implements IListWriter{
 	protected Type elementType;
-	protected final boolean inferred;
-	
 	protected final ShareableValuesList data;
-	
 	protected IList constructedList;
 	
-	/*package*/ ListWriter(Type elementType){
-		super();
-		
-		this.elementType = elementType;
-		this.inferred = false;
-		
-		data = new ShareableValuesList();
-		
-		constructedList = null;
-	}
-	
-	/*package*/ ListWriter(){
+	/*package*/ ListWriter() {
 		super();
 		
 		this.elementType = TypeFactory.getInstance().voidType();
-		this.inferred = true;
 		data = new ShareableValuesList();
 		
 		constructedList = null;
@@ -62,7 +47,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		super();
 		
 		this.elementType = elementType;
-		this.inferred = false;
 		this.data = data;
 		
 		constructedList = null;
@@ -81,9 +65,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	private void updateType(IValue element) {
-		if (inferred) {
-			elementType = elementType.lub(element.getType());
-		}
+	    elementType = elementType.lub(element.getType());
 	}
 
 	public void append(IValue... elems){
@@ -129,9 +111,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	public void insertAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
-		Iterator<? extends IValue> collectionIterator = collection.iterator();
-		while(collectionIterator.hasNext()){
-			IValue next = collectionIterator.next();
+		for (IValue next : collection) {
 			updateType(next);
 			data.insert(next);
 		}
@@ -187,7 +167,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	@Override
 	public IList done() {
 		if (constructedList == null) {
-			constructedList = List.newList(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
+			constructedList = List.newList(elementType, data);
 		}
 		
 		return constructedList;

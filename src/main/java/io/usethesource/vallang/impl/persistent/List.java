@@ -23,7 +23,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ class List implements IList {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
@@ -64,42 +63,37 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    return length();
 	}
 	
-	/*package*/ static ListWriter createListWriter(Type eltType){
-		return new ListWriter(eltType);
-	}
-
-	/*package*/ static ListWriter createListWriter(){
-		return new ListWriter();
-	}
-
+	@Override
 	public Type getType(){
 		return listType;
 	}
 
+	@Override
 	public int length(){
 		return data.size();
 	}
 
+	@Override
 	public boolean isEmpty(){
 		return length() == 0;
 	}
 
+	@Override
 	public IValue get(int index){
 		return data.get(index);
 	}
 	
+	@Override
 	public boolean contains(IValue element){
 		return data.contains(element);
 	}
 
+	@Override
 	public Iterator<IValue> iterator(){
 		return data.iterator();
 	}
 	
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
-			return v.visitList(this);
-	}
-
+	@Override
 	public IList append(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.append(element);
@@ -108,6 +102,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new ListWriter(newElementType, newData).done();
 	}
 
+	@Override
 	public IList concat(IList other){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		Iterator<IValue> otherIterator = other.iterator();
@@ -119,6 +114,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new ListWriter(newElementType, newData).done();
 	}
 
+	@Override
 	public IList insert(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.insert(element);
@@ -127,80 +123,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new ListWriter(newElementType, newData).done();
 	}
 	
+	@Override
 	public IList put(int index, IValue element) throws IndexOutOfBoundsException{
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.set(index, element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return new ListWriter(newElementType, newData).done();
-	}
-	
-	public IList replace(int first, int second, int end, IList repl)
-			throws FactTypeUseException, IndexOutOfBoundsException {
-		ShareableValuesList newData = new ShareableValuesList();
-		int rlen = repl.length();
-		int increment = Math.abs(second - first);
-		if(first < end){
-			int dataIndex = 0;
-			// Before begin
-			while(dataIndex < first){
-				newData.append(data.get(dataIndex++));
-			}
-			int replIndex = 0;
-			boolean wrapped = false;
-			// Between begin and end
-			while(dataIndex < end){
-				newData.append(repl.get(replIndex++));
-				if(replIndex == rlen){
-					replIndex = 0;
-					wrapped = true;
-				}
-				dataIndex++; //skip the replaced element
-				for(int j = 1; j < increment && dataIndex < end; j++){
-					newData.append(data.get(dataIndex++));
-				}
-			}
-			if(!wrapped){
-				while(replIndex < rlen){
-					newData.append(repl.get(replIndex++));
-				}
-			}
-			// After end
-			int dlen = data.size();
-			while( dataIndex < dlen){
-				newData.append(data.get(dataIndex++));
-			}
-		} else {
-			// Before begin (from right to left)
-			int dataIndex = data.size() - 1;
-			while(dataIndex > first){
-				newData.insert(data.get(dataIndex--));
-			}
-			// Between begin (right) and end (left)
-			int replIndex = 0;
-			boolean wrapped = false;
-			while(dataIndex > end){
-				newData.insert(repl.get(replIndex++));
-				if(replIndex == repl.length()){
-					replIndex = 0;
-					wrapped = true;
-				}
-				dataIndex--; //skip the replaced element
-				for(int j = 1; j < increment && dataIndex > end; j++){
-					newData.insert(data.get(dataIndex--));
-				}
-			}
-			if(!wrapped){
-				while(replIndex < rlen){
-					newData.insert(repl.get(replIndex++));
-				}
-			}
-			// Left of end
-			while(dataIndex >= 0){
-				newData.insert(data.get(dataIndex--));
-			}
-		}
-		Type newElementType = elementType.lub(repl.getElementType());
 		return new ListWriter(newElementType, newData).done();
 	}
 	
@@ -420,11 +348,6 @@ class SubList implements IList {
 		return false;
 	}
 	
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return v.visitList(this);
-	}
-
 	@Override
     public String toString() {
         return defaultToString();
