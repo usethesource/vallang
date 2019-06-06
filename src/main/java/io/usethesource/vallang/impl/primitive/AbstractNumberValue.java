@@ -15,10 +15,9 @@ import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.exceptions.UnexpectedTypeException;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.TypeFactory;
 
-/*package*/ abstract class AbstractNumberValue extends AbstractValue implements INumber {
+/*package*/ abstract class AbstractNumberValue implements INumber {
 	private final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	/*package*/ AbstractNumberValue(){

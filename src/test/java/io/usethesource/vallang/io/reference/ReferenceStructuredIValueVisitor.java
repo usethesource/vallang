@@ -37,8 +37,8 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
-import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.io.binary.util.StructuredIValueVisitor;
 import io.usethesource.vallang.visitors.IValueVisitor;
 

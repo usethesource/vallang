@@ -16,10 +16,10 @@ import java.util.Map;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
-import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
-import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
-import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
+import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;

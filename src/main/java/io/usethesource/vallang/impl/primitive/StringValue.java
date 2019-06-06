@@ -35,7 +35,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -798,7 +797,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
     }
 
-    private abstract static class AbstractString extends AbstractValue implements IString, IStringTreeNode, IIndentableString {
+    private abstract static class AbstractString implements IString, IStringTreeNode, IIndentableString {
 
         @Override
         public Type getType() {

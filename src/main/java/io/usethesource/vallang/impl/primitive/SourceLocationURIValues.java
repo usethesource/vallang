@@ -11,10 +11,8 @@ import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
@@ -106,7 +104,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
     private static final LoadingCache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build(s -> s);
 
-    private static class BaseURI extends AbstractValue implements ISourceLocation {
+    private static class BaseURI implements ISourceLocation {
 		protected final String scheme;
 		
 		

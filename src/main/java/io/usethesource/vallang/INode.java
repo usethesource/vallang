@@ -19,10 +19,10 @@ import java.util.Iterator;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
-import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
-import io.usethesource.vallang.impl.AnnotatedNodeFacade;
-import io.usethesource.vallang.impl.NodeWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.fields.AnnotatedNodeFacade;
+import io.usethesource.vallang.impl.fields.NodeWithKeywordParametersFacade;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 

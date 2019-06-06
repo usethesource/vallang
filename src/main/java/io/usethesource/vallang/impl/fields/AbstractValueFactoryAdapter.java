@@ -1,4 +1,4 @@
-package io.usethesource.vallang.impl;
+package io.usethesource.vallang.impl.fields;
 
 import java.net.URI;
 import java.net.URISyntaxException;

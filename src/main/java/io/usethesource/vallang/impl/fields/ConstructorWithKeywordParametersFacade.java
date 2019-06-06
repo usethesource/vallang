@@ -9,7 +9,7 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package io.usethesource.vallang.impl;
+package io.usethesource.vallang.impl.fields;
 
 import static io.usethesource.vallang.util.EqualityUtils.KEYWORD_PARAMETER_COMPARATOR;
 

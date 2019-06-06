@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,9 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package io.usethesource.vallang.impl;
+package io.usethesource.vallang.impl.fields;
+
+import static io.usethesource.vallang.util.EqualityUtils.KEYWORD_PARAMETER_COMPARATOR;
 
 import java.util.Iterator;
 
@@ -24,24 +26,23 @@ import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
-public class AnnotatedNodeFacade implements INode {
-
+public class NodeWithKeywordParametersFacade implements INode {
 	protected final INode content;
-	protected final Map.Immutable<String, IValue> annotations;
+	protected final Map.Immutable<String, IValue> parameters;
 	
-	public AnnotatedNodeFacade(final INode content, final Map.Immutable<String, IValue> annotations) {
+	public NodeWithKeywordParametersFacade(final INode content, final Map.Immutable<String, IValue> parameters) {
 		this.content = content;
-		this.annotations = annotations;
+		this.parameters = parameters;
 	}
-	
-	@Override
-    public INode setChildren(IValue[] childArray) {
-        return content.setChildren(childArray).asAnnotatable().setAnnotations(annotations);
-    }
 	
 	public Type getType() {
 		return content.getType();
 	}
+	
+	@Override
+    public INode setChildren(IValue[] childArray) {
+        return content.setChildren(childArray).asWithKeywordParameters().setParameters(parameters);
+    }
 
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return v.visitNode(this);
@@ -53,7 +54,7 @@ public class AnnotatedNodeFacade implements INode {
 	
 	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		INode newContent = content.set(i, newChild);
-		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
+		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
 	}
 
 	public int arity() {
@@ -79,7 +80,7 @@ public class AnnotatedNodeFacade implements INode {
 	public INode replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
 		INode newContent = content.replace(first, second, end, repl);
-		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
+		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
 	}
 
 	public boolean equals(Object o) {
@@ -87,10 +88,10 @@ public class AnnotatedNodeFacade implements INode {
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){
-			AnnotatedNodeFacade other = (AnnotatedNodeFacade) o;
+			NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;
 		
 			return content.equals(other.content) &&
-					annotations.equals(other.annotations);
+					parameters.equals(other.parameters);
 		}
 		
 		return false;
@@ -98,43 +99,63 @@ public class AnnotatedNodeFacade implements INode {
 
 	@Override
 	public boolean isEqual(IValue other) {
-		return content.isEqual(other);
+	  if (!other.mayHaveKeywordParameters()) {
+	    return false;
+	  }
+
+		if (other instanceof NodeWithKeywordParametersFacade) {
+			NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
+
+			return content.isEqual(o.content)
+					&& KEYWORD_PARAMETER_COMPARATOR.equals(parameters, o.parameters);
+		}
+
+		return false;
 	}
-	
-    @Override
+
+	@Override
     public boolean match(IValue other) {
-        return content.match(other);
-    }	
+      if (other instanceof NodeWithKeywordParametersFacade) {
+          NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
+          
+          return content.match(o.content);
+      }
+      
+      if (other instanceof INode) {
+          return match(other);
+      }
+      
+      return false;
+    }
 	
 	@Override
 	public int hashCode() {
-		return content.hashCode();
+		return 15551 + 7 * content.hashCode() + 11 * parameters.hashCode();
 	}
 	
 	@Override
 	public boolean isAnnotatable() {
-		return true;
+		return false;
 	}
 	
 	@Override
 	public IAnnotatable<? extends INode> asAnnotatable() {
-		return new AbstractDefaultAnnotatable<INode>(content, annotations) {
-
+		throw new UnsupportedOperationException("can not annotate a constructor which already has keyword parameters");
+	}
+	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+		return new AbstractDefaultWithKeywordParameters<INode>(content, parameters) {
 			@Override
-			protected INode wrap(INode content,
-					Map.Immutable<String, IValue> annotations) {
-				return new AnnotatedNodeFacade(content, annotations);
+			protected INode wrap(INode content, Map.Immutable<String, IValue> parameters) {
+				return new NodeWithKeywordParametersFacade(content, parameters);
 			}
 		};
 	}
-
-  @Override
-  public boolean mayHaveKeywordParameters() {
-    return false;
-  }
-
-  @Override
-  public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-    throw new UnsupportedOperationException("can not add keyword parameters to a node (" + content.getName() + ") which already has annotations");
-  }
+	
 }

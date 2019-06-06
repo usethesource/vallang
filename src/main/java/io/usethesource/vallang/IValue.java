@@ -67,7 +67,9 @@ public interface IValue {
      * @return true iff the the contents of the receiver is equal to the contents
      *         of the other, and their types are comparable (one is a sub-type of the other).
      */
-    public boolean isEqual(IValue other);
+    public default boolean isEqual(IValue other) {
+        return equals(other);
+    }
     
     
     /**
@@ -94,7 +96,9 @@ public interface IValue {
      *         in type labels, the presence of annotations or the presence of keyword 
      *         parameters
      */
-    public boolean match(IValue other);
+    public default boolean match(IValue other) {
+        return isEqual(other);
+    }
     
     /**
      * Prints the value to a string using the {@link StandardTextWriter}

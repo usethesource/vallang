@@ -9,7 +9,7 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package io.usethesource.vallang.impl;
+package io.usethesource.vallang.impl.fields;
 
 import java.util.Map;
 

@@ -14,11 +14,10 @@ package io.usethesource.vallang.impl.primitive;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
-/*package*/ abstract class BoolValue extends AbstractValue implements IBool {
+/*package*/ abstract class BoolValue implements IBool {
 	/*package*/ final static BoolValue TRUE = new BoolValue() {
 		@Override
 		public boolean getValue() {
