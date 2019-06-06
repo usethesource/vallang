@@ -26,42 +26,24 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedMapKeyTypeException;
-import io.usethesource.vallang.exceptions.UnexpectedMapValueTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class MapWriter implements IMapWriter {
-	private Type staticKeyType;
-	private Type staticValueType;
-	private final boolean inferred;
+	private Type keyTupe;
+	private Type valueType;
 	private final java.util.HashMap<IValue, IValue> mapContent;
 	private Map constructedMap;
 
-	/*package*/ MapWriter(){
+	/*package*/ MapWriter() {
 		super();
 		
-		this.staticKeyType = TypeFactory.getInstance().voidType();
-		this.staticValueType = TypeFactory.getInstance().voidType();
-		this.inferred = true;
+		this.keyTupe = TypeFactory.getInstance().voidType();
+		this.valueType = TypeFactory.getInstance().voidType();
 		
 		mapContent = new java.util.HashMap<>();
 	}
 
-	/*package*/ MapWriter(Type mapType){
-		super();
-		
-		if(mapType.isFixedWidth() && mapType.getArity() >= 2) {
-			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
-		}
-		
-		this.staticKeyType = mapType.getKeyType();
-		this.staticValueType = mapType.getValueType();
-		this.inferred = false;
-		
-		mapContent = new java.util.HashMap<>();
-	}
-	
 	@Override
 	public Iterator<IValue> iterator() {
 	    return mapContent.keySet().iterator();
@@ -79,16 +61,6 @@ import io.usethesource.vallang.type.TypeFactory;
 	    }
 	    
 	    put(fields[0], fields[1]);
-	}
-	
-	private static void check(Type key, Type value, Type keyType, Type valueType)
-			throws FactTypeUseException {
-		if (!key.isSubtypeOf(keyType)) {
-			throw new UnexpectedMapKeyTypeException(keyType, key);
-		}
-		if (!value.isSubtypeOf(valueType)) {
-			throw new UnexpectedMapValueTypeException(valueType, value);
-		}
 	}
 	
 	private void checkMutation() {
@@ -109,11 +81,8 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	private void updateTypes(IValue key, IValue value) {
-		if (inferred) {
-			staticKeyType = staticKeyType.lub(key.getType());
-			staticValueType = staticValueType.lub(value.getType());
-		}
-		
+	    keyTupe = keyTupe.lub(key.getType());
+	    valueType = valueType.lub(value.getType());
 	}
 
 	@Override
@@ -122,7 +91,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		for(Entry<IValue, IValue> entry : map.entrySet()){
 			IValue value = entry.getValue();
 			updateTypes(entry.getKey(), value);
-			check(entry.getKey().getType(), value.getType(), staticKeyType, staticValueType);
 			mapContent.put(entry.getKey(), value);
 		}
 	}
@@ -146,14 +114,9 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	@Override
-	public Iterator<Entry<IValue, IValue>> entryIterator() {
-	    return mapContent.entrySet().iterator();
-	}
-	
-	@Override
 	public IMap done(){
 		if (constructedMap == null) {
-			constructedMap = new Map(computeType(), mapContent);
+			constructedMap = new Map(IMap.TF.mapType(keyTupe, valueType), mapContent);
 		}
 
 		return constructedMap;

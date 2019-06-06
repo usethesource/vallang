@@ -1,13 +1,6 @@
 package io.usethesource.vallang;
 
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.type.Type;
-
 public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
-    /**
-     * @return the type of the container after it is done().
-     */
-    public Type computeType();
     
     /**
      * Insert several elements
@@ -27,7 +20,7 @@ public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
 	  * Append elements at the end.
 	  * 
 	  * @param value array of elements to append
-	  * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
+	  * @throws FactTypeUseException when done() was called before
 	  */
 	 public default void appendAll(Iterable<? extends IValue> collection) {
 	     for (IValue v : collection) {
@@ -52,7 +45,6 @@ public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
 	 /**
 	  * Inserts all elements of an iterable
 	  * @param collection
-	  * @throws FactTypeUseException
 	  */
 	 default void insertAll(Iterable<? extends IValue> collection) {
 	     for (IValue v : collection) {

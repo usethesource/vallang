@@ -24,7 +24,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -44,16 +43,8 @@ import io.usethesource.vallang.type.TypeFactory;
         return setContent.iterator();
     }
     
-    private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException {
-        Type type = elem.getType();
-        if (!type.isSubtypeOf(eltType)) {
-            throw new UnexpectedElementTypeException(eltType, type);
-        }
-    }
-
     private void put(IValue elem) {
         updateType(elem);
-        checkInsert(elem, eltType);
         setContent.add(elem);
     }
 
@@ -85,14 +76,9 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-    public Type computeType() {
-        return ISet.TF.setType(eltType);
-    }
-    
-    @Override
 	public ISet done() {
         if (constructedSet == null) {
-            constructedSet = new Set(computeType(), setContent);
+            constructedSet = new Set(ISet.TF.setType(eltType), setContent);
         }
 
         return constructedSet;

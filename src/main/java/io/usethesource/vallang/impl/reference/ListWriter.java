@@ -143,14 +143,9 @@ import io.usethesource.vallang.type.TypeFactory;
     }
     
     @Override
-    public Type computeType() {
-        return IList.TF.listType(eltType);
-    }
-    
-    @Override
 	public IList done() {
         if (constructedList == null) {
-            constructedList = new List(computeType(), listContent);
+            constructedList = new List(IList.TF.listType(eltType), listContent);
         }
 
         return constructedList;

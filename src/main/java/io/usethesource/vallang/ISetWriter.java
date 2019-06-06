@@ -12,18 +12,6 @@
 
 package io.usethesource.vallang;
 
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
-
 public interface ISetWriter extends IWriter<ISet> {
-    @Override
-    public default Type computeType() {
-        Type eltType = TypeFactory.getInstance().voidType();
-        
-        for (IValue el : this) {
-            eltType = eltType.lub(el.getType());
-        }
-        
-        return IValue.TF.setType(eltType);
-    }
+
 }

@@ -53,10 +53,6 @@ final class MapWriter implements IMapWriter {
 		constructedMap = null;
 	}
 
-	MapWriter(Type prototypeType) {
-		this();
-	}
-
 	@Override
 	public void put(IValue key, IValue value) {
 		checkMutation();
@@ -159,11 +155,6 @@ final class MapWriter implements IMapWriter {
         return mapContent.keyIterator();
     }
     
-    @Override
-    public Iterator<Entry<IValue, IValue>> entryIterator() {
-        return mapContent.entryIterator();
-    }
-
     @Override
     public IValue get(IValue key) {
         return mapContent.get(key);
