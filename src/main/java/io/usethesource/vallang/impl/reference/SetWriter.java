@@ -30,22 +30,12 @@ import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class SetWriter implements ISetWriter {
     protected final HashSet<IValue> setContent;
-    protected final boolean inferred;
     protected Type eltType;
     protected Set constructedSet;
-
-    /*package*/ SetWriter(Type eltType) {
-        super();
-
-        this.eltType = eltType;
-        this.inferred = false;
-        setContent = new HashSet<>();
-    }
 
     /*package*/ SetWriter() {
         super();
         this.eltType = TypeFactory.getInstance().voidType();
-        this.inferred = true;
         setContent = new HashSet<>();
     }
 
@@ -68,9 +58,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private void updateType(IValue elem) {
-        if (inferred) {
-            eltType = eltType.lub(elem.getType());
-        }
+        eltType = eltType.lub(elem.getType());
     }
 
     @Override
@@ -97,14 +85,14 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
+    public Type computeType() {
+        return ISet.TF.setType(eltType);
+    }
+    
+    @Override
 	public ISet done() {
-    	// Temporary fix of the static vs dynamic type issue
-    	eltType = TypeFactory.getInstance().voidType();
-    	for(IValue el : setContent)
-    		eltType = eltType.lub(el.getType());
-    	// ---
         if (constructedSet == null) {
-            constructedSet = new Set(eltType, setContent);
+            constructedSet = new Set(computeType(), setContent);
         }
 
         return constructedSet;
@@ -114,5 +102,4 @@ import io.usethesource.vallang.type.TypeFactory;
         if (constructedSet != null)
             throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
     }
-
 }

@@ -15,32 +15,24 @@ import java.util.Iterator;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractList;
-import io.usethesource.vallang.impl.DefaultRelationViewOnList;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
-/*package*/ class List extends AbstractList {
+/*package*/ class List implements IList {
 
 	private final Type type;
 	private final java.util.List<IValue> content;
 
 	/*package*/ List(Type elementType, java.util.List<IValue> content) {
 		super();
-		this.type = inferListOrRelType(elementType, content);
+		this.type = TypeFactory.getInstance().listType(elementType);
 		this.content = content;
 	}
 
 	@Override
 	public Type getType() {
 		return type;
-	}
-
-	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
 	}
 
 	@Override
@@ -73,16 +65,6 @@ import io.usethesource.vallang.type.Type;
 	}
 
     @Override
-    public IRelation<IList> asRelation() {
-        return new DefaultRelationViewOnList(this);
-    }
-
-    @Override
-    public IList empty() {
-        return writer().done();
-    }
-
-    @Override
     public IListWriter writer() {
         return new ListWriter();
     }
@@ -92,4 +74,8 @@ import io.usethesource.vallang.type.Type;
         return content.size();
     }
 
+    @Override
+    public Type getElementType() {
+        return type.getElementType();
+    }
 }

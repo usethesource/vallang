@@ -370,7 +370,7 @@ public final class ValueFactorySmokeTest {
         StringReader in = new StringReader(out.toString());
         IValue read = r.read(vf, in);
         if (!o.isEqual(read)) {
-          fail(o + " != " + read);
+          fail(o + " != " + read + " " + o.isEqual(read));
         }
       }
     } catch (IOException e) {

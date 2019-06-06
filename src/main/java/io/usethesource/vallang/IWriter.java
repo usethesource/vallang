@@ -1,8 +1,14 @@
 package io.usethesource.vallang;
 
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
 
 public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
+    /**
+     * @return the type of the container after it is done().
+     */
+    public Type computeType();
+    
     /**
      * Insert several elements
      * @param value array of elements to insert

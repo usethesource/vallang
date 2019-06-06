@@ -23,7 +23,7 @@ public class Setup {
   
   public static Iterable<? extends Object> valueFactories() {
     final String propertyName = String.format("%s.%s", Setup.class.getName(), "valueFactory");
-    final String propertyValue = System.getProperty(propertyName, "FAST,PERSISTENT");
+    final String propertyValue = System.getProperty(propertyName, "PERSISTENT");
 
     final IValueFactory[] valueFactories =
         Stream.of(propertyValue.split(",")).map(String::trim).map(ValueFactoryEnum::valueOf)

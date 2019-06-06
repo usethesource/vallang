@@ -12,9 +12,13 @@
 
 package io.usethesource.vallang;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 
 public interface IMapWriter extends IWriter<IMap> {
@@ -48,4 +52,24 @@ public interface IMapWriter extends IWriter<IMap> {
      * @return null if no value exists with this key, otherwise the respective value.
      */
     IValue get(IValue key);
+    
+    /**
+     * @return an entry iterator over the current map key/value pairs
+     */
+    public Iterator<Entry<IValue, IValue>> entryIterator();
+    
+    @Override
+    default Type computeType() {
+        Type keyLub = TypeFactory.getInstance().voidType();
+        Type valueLub = TypeFactory.getInstance().voidType();
+        
+        Iterator<Entry<IValue, IValue>> it = entryIterator();
+        while (it.hasNext()) {
+            Entry<IValue, IValue> entry = it.next();
+            keyLub = keyLub.lub(entry.getKey().getType());
+            valueLub = valueLub.lub(entry.getValue().getType());
+        }
+        
+        return IValue.TF.mapType(keyLub, valueLub);
+    }
 }

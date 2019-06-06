@@ -13,6 +13,8 @@
 package io.usethesource.vallang;
 
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 
 /**
@@ -82,4 +84,15 @@ public interface IListWriter extends IWriter<IList> {
      * @return the number of elements in the list
      */
     public int length();
+    
+    @Override
+    public default Type computeType() {
+        Type eltType = TypeFactory.getInstance().voidType();
+        
+        for (IValue el : this) {
+            eltType = eltType.lub(el.getType());
+        }
+        
+        return IValue.TF.listType(eltType);
+    }
 }

@@ -20,21 +20,13 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.AbstractValue;
-import io.usethesource.vallang.impl.DefaultRelationViewOnList;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
-import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
-/**
- * Implementation of IList.
- * 
- * @author Arnold Lankamp
- */
-/*package*/ class List extends AbstractValue implements IList {
+/*package*/ class List implements IList {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	
@@ -69,11 +61,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public IList empty() {
-	    return writer().done();
-	}
-	
-	@Override
 	public int size() {
 	    return length();
 	}
@@ -88,10 +75,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 	public Type getType(){
 		return listType;
-	}
-
-	public Type getElementType(){
-		return elementType;
 	}
 
 	public int length(){
@@ -222,6 +205,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new ListWriter(newElementType, newData).done();
 	}
 	
+	@Override
 	public IList delete(int index){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(index);
@@ -233,6 +217,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new ListWriter(newElementType, newData).done();
 	}
 	
+	@Override
 	public IList delete(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		
@@ -249,6 +234,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return this;
 	}
 
+	@Override
 	public IList reverse(){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.reverse();
@@ -268,6 +254,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new ListWriter(elementType, newData).done();
 	}
 	
+	@Override
 	public  IList sublist(int offset, int length){
 		if(length < 4){
 			return materializedSublist(offset, length);
@@ -291,6 +278,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new ListWriter(newElementType, newData).done();
 	}
 	
+	@Override
 	public int hashCode(){
 		if (hashCode == 0) {
 			hashCode = data.hashCode();
@@ -298,6 +286,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return hashCode;
 	}
 
+	@Override
+    public String toString() {
+        return defaultToString();
+    }
+    
+	@Override
 	public boolean equals(Object o){
 		if(o == this) return true;
 		if(o == null) return false;
@@ -321,15 +315,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		return false;
-	}
-
-	@Override
-	public IRelation<IList> asRelation() {
-		if (!isRelation()) {
-			throw new IllegalOperationException("Cannot be viewed as a relation.", getType());
-		}
-
-		return new DefaultRelationViewOnList(this);
 	}
 }
 
@@ -367,6 +352,7 @@ class SubList extends AbstractValue implements IList {
 		elementType = newElementType;
 	}
 	
+	
 	IList materialize(){
 		ListWriter w = new ListWriter();
 		int end = offset + length;
@@ -385,7 +371,7 @@ class SubList extends AbstractValue implements IList {
 	
 	@Override
 	public Type getType() {
-		return TypeFactory.getInstance().listType(elementType);
+		return TF.listType(elementType);
 	}
 	
 	@Override
@@ -440,9 +426,10 @@ class SubList extends AbstractValue implements IList {
 		return v.visitList(this);
 	}
 
-	public String toString() {
-		return StandardTextWriter.valueToString(this);
-	}
+	@Override
+    public String toString() {
+        return defaultToString();
+    }
 	
 	@Override
 	public Iterator<IValue> iterator() {

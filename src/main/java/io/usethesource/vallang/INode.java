@@ -16,7 +16,13 @@ package io.usethesource.vallang;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import io.usethesource.capsule.Map;
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.AnnotatedNodeFacade;
+import io.usethesource.vallang.impl.NodeWithKeywordParametersFacade;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 
@@ -162,17 +168,35 @@ public interface INode extends IValue, Iterable<IValue> {
 	    return v.visitNode(this);
 	}
 	
-    /*
-     * (non-Javadoc)
-     * @see IValue#asAnnotatable()
-     */
-    public IAnnotatable<? extends INode> asAnnotatable();
+    @Override
+    public default boolean isAnnotatable() {
+        return true;
+    }
     
-    /*
-     * (non-Javadoc)
-     * @see IValue#asWithKeywordParameters()
-     */
-    public IWithKeywordParameters<? extends INode> asWithKeywordParameters();
+    @Override
+    public default IAnnotatable<? extends INode> asAnnotatable() {
+        return new AbstractDefaultAnnotatable<INode>(this) {
+            @Override
+            protected INode wrap(INode content, Map.Immutable<String, IValue> annotations) {
+                return new AnnotatedNodeFacade(content, annotations);
+            }
+        };
+    }
+    
+    @Override
+    public default boolean mayHaveKeywordParameters() {
+      return true;
+    }
+    
+    @Override
+    public default IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+      return new AbstractDefaultWithKeywordParameters<INode>(this, AbstractSpecialisedImmutableMap.<String, IValue>mapOf()) {
+        @Override
+        protected INode wrap(INode content, Map.Immutable<String, IValue> parameters) {
+          return new NodeWithKeywordParametersFacade(content, parameters);
+        }
+    };
+    }
     
     @Override
     public default boolean isEqual(IValue value) {

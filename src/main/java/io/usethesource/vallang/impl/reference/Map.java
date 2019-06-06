@@ -24,29 +24,21 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractMap;
 import io.usethesource.vallang.type.Type;
 
-/*package*/ class Map extends AbstractMap {
-
+/*package*/ class Map implements IMap {
 	final Type type;
 	final java.util.Map<IValue, IValue> content;
 
 	/*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content) {
 		super();
-		this.type = inferMapType(candidateMapType, content);
 		this.content = content;
+		this.type = candidateMapType;
 	}
 
 	@Override
 	public Type getType() {
 		return type;
-	}
-
-	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
 	}
 
 	@Override

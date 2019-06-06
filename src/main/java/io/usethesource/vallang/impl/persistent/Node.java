@@ -8,6 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *    Paul Klint - Implemented replace
+*    Jurgen J. Vinju - maintenance
 *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
@@ -18,19 +19,11 @@ import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractNode;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
-/**
- * Implementation of INode.
- * 
- * @author Arnold Lankamp
- */
-/*package*/ class Node extends AbstractNode implements INode {
-	protected final static Type NODE_TYPE = TypeFactory.getInstance().nodeType();
+/*package*/ class Node implements INode {
+	protected final static Type NODE_TYPE = TF.nodeType();
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 	
 	protected final String name;
@@ -93,11 +86,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     }
 	
 	@Override
-	protected IValueFactory getValueFactory() {
-		return io.usethesource.vallang.impl.persistent.ValueFactory.getInstance();
-	}
-
-	@Override
 	public IValue get(int i){
 		return children[i];
 	}
@@ -126,12 +114,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
-		return v.visitNode(this);
-	}	
-
-	@Override
-	public int hashCode(){
+	public int hashCode() {
 		int hash = name.hashCode();
 		
 		for(int i = children.length - 1; i >= 0; i--){

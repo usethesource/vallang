@@ -131,6 +131,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 
 	@Override
 	public String toString() {
-		return "VF_PDB_PERSISTENT";
+		return "VALLANG_PERSISTENT_FACTORY";
 	}
 }

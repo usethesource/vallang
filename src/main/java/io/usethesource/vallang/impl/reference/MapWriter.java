@@ -32,7 +32,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class MapWriter implements IMapWriter {
-	private Type staticMapType;
 	private Type staticKeyType;
 	private Type staticValueType;
 	private final boolean inferred;
@@ -42,9 +41,6 @@ import io.usethesource.vallang.type.TypeFactory;
 	/*package*/ MapWriter(){
 		super();
 		
-		this.staticMapType = TypeFactory.getInstance().mapType(
-				TypeFactory.getInstance().voidType(),
-				TypeFactory.getInstance().voidType());
 		this.staticKeyType = TypeFactory.getInstance().voidType();
 		this.staticValueType = TypeFactory.getInstance().voidType();
 		this.inferred = true;
@@ -59,7 +55,6 @@ import io.usethesource.vallang.type.TypeFactory;
 			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
 		}
 		
-		this.staticMapType = mapType;
 		this.staticKeyType = mapType.getKeyType();
 		this.staticValueType = mapType.getValueType();
 		this.inferred = false;
@@ -141,7 +136,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	
 	@Override
 	public void insert(IValue... value) throws FactTypeUseException {
-		for(IValue tuple : value){
+		for (IValue tuple : value) {
 			ITuple t = (ITuple) tuple;
 			IValue key = t.get(0);
 			IValue value2 = t.get(1);
@@ -151,22 +146,14 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	@Override
+	public Iterator<Entry<IValue, IValue>> entryIterator() {
+	    return mapContent.entrySet().iterator();
+	}
+	
+	@Override
 	public IMap done(){
-		// Temporary fix of the static vs dynamic type issue
-		Type dynamicKeyType = TypeFactory.getInstance().voidType();
-		Type dynamicValueType = TypeFactory.getInstance().voidType();
-		for (java.util.Map.Entry<IValue, IValue> entry : mapContent.entrySet()) {
-			dynamicKeyType = dynamicKeyType.lub(entry.getKey().getType());
-			dynamicValueType = dynamicValueType.lub(entry.getValue().getType());
-		}
-		// ---
-		
 		if (constructedMap == null) {
-			Type dynamicMapType = TypeFactory.getInstance().mapType(
-					dynamicKeyType, staticMapType.getKeyLabel(),
-					dynamicValueType, staticMapType.getValueLabel());
-
-			constructedMap = new Map(dynamicMapType, mapContent);
+			constructedMap = new Map(computeType(), mapContent);
 		}
 
 		return constructedMap;

@@ -158,6 +158,11 @@ final class MapWriter implements IMapWriter {
     public Iterator<IValue> iterator() {
         return mapContent.keyIterator();
     }
+    
+    @Override
+    public Iterator<Entry<IValue, IValue>> entryIterator() {
+        return mapContent.entryIterator();
+    }
 
     @Override
     public IValue get(IValue key) {

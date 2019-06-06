@@ -296,15 +296,29 @@ public interface ISet extends ICollection<ISet> {
         return false;
     }
     
-    /**
-     * @return true iff this set is a relation
-     */
-    public default boolean isRelation() {
-        return getType().isRelation();
-    }
-    
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitSet(this);
+    }
+    
+    @Override
+    default IRelation<ISet> asRelation() {
+        if (!getType().isRelation()) {
+            throw new UnsupportedOperationException(getType() + " is not a relation");
+        }
+        
+        return new IRelation<ISet>() {
+            protected final ISet set = ISet.this;
+            
+            @Override
+            public String toString() {
+                return set.toString();
+            }   
+
+            @Override
+            public ISet asContainer() {
+                return set;
+            }
+        };
     }
 }

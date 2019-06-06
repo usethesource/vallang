@@ -19,20 +19,19 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractSet;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
-/*package*/ class Set extends AbstractSet {
-
+/*package*/ class Set implements ISet {
 	final Type type;
 	final java.util.Set<IValue> content;
 
 	/*package*/ Set(Type elementType, java.util.Set<IValue> content) {
 		super();
-		this.type = inferSetOrRelType(elementType, content);
+		this.type = TypeFactory.getInstance().setType(elementType);
 		this.content = content;
 	}
 
@@ -40,7 +39,7 @@ import io.usethesource.vallang.type.Type;
 	public Type getType() {
 		return type;
 	}
-
+	
 	@Override
 	public ISetWriter writer() {
 	    return ValueFactory.getInstance().setWriter();
@@ -72,13 +71,7 @@ import io.usethesource.vallang.type.Type;
 	}
 
 	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
-	}
-
-	@Override
 	public Iterator<IValue> iterator() {
 		return content.iterator();
 	}
-
 }

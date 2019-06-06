@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IMap extends ICollection<IMap> {
 
@@ -26,14 +27,21 @@ public interface IMap extends ICollection<IMap> {
      * @param value
      * @return a copy of the map with the new key/value mapping
      */
-    default IMap put(IValue key, IValue value) {
+    public default IMap put(IValue key, IValue value) {
         IMapWriter sw = writer();
         sw.putAll(this);
         sw.put(key, value);
         return sw.done();
     }
     
-    default IMap removeKey(IValue key) {
+    /**
+     * Remove all values with the given key (due to annotations there may be more
+     * than one key to match in the map).
+     * 
+     * @param key
+     * @return a map without entries that are isEqual to the key
+     */
+    public default IMap removeKey(IValue key) {
         IMapWriter sw = writer();
         for (IValue c : this) {
             if (!c.isEqual(key)) {
@@ -190,12 +198,16 @@ public interface IMap extends ICollection<IMap> {
     /**
      * @return the key type for this map
      */
-    public Type getKeyType();
+    public default Type getKeyType() {
+        return getType().getKeyType();
+    }
     
     /**
      * @return the value type for this map
      */
-    public Type getValueType();
+    public default Type getValueType() {
+        return getType().getValueType();
+    }
     
     /**
      * Adds all key value pairs of the other map to this map (constructing a new one).
@@ -309,5 +321,10 @@ public interface IMap extends ICollection<IMap> {
      * @return an iterator over the keys-value pairs of the map
      */
     public Iterator<Entry<IValue, IValue>> entryIterator();
+    
+    @Override
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitMap(this);
+    }
 	
 }

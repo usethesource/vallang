@@ -20,18 +20,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractSet;
-import io.usethesource.vallang.impl.DefaultRelationViewOnSet;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
-public final class EmptySet extends AbstractSet {
-
+public final class EmptySet implements ISet {
+  private static final Type EMPTY_SET_TYPE = TypeFactory.getInstance().setType(TypeFactory.getInstance().voidType());
   public static final EmptySet EMPTY_SET = new EmptySet();
 
   private EmptySet() {}
@@ -53,24 +50,13 @@ public final class EmptySet extends AbstractSet {
   }
 
   @Override
-  public IRelation<ISet> asRelation() {
-    validateIsRelation(this);
-    return new DefaultRelationViewOnSet(this);
-  }
-  
-  @Override
   public ISetWriter writer() {
       return ValueFactory.getInstance().setWriter();
   }
 
   @Override
-  protected IValueFactory getValueFactory() {
-    return ValueFactory.getInstance();
-  }
-
-  @Override
   public Type getType() {
-    return getTypeFactory().setType(getTypeFactory().voidType());
+    return EMPTY_SET_TYPE;
   }
 
   @Override

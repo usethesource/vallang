@@ -15,21 +15,24 @@ package io.usethesource.vallang;
 
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 
 public interface IValue {
+    public static final TypeFactory TF = TypeFactory.getInstance();
+    
 	/** 
 	 * @return the {@link Type} of a value
 	 */
-    Type getType();
+    public Type getType();
     
     /**
      * Execute the {@link IValueVisitor} on the current node
      * 
-     * @param
+     * @param v the visitor to dispatch to
      */
-    <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E;
+    public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E;
     
     /**
      * Warning: you may not want to use this method. The semantics of this 
@@ -106,7 +109,9 @@ public interface IValue {
      * modulo annotations has proven to be confusing to the users of this library.
      */
     @Deprecated
-    public boolean isAnnotatable();
+    public default boolean isAnnotatable() {
+        return false;
+    }
     
     /**
      * Creates a view that exposes the {@link IAnnotatable} annotation API. 
@@ -120,17 +125,31 @@ public interface IValue {
      * IAnnotable is replaced by comparable functionality with IWithKeywordParameters
      */
     @Deprecated
-    public IAnnotatable<? extends IValue> asAnnotatable();
+    public default IAnnotatable<? extends IValue> asAnnotatable() {
+        throw new UnsupportedOperationException(getType() + " does not support annotations.");
+    }
     
     /**
      * @return if this {@link IValue} object may have keyword parameters
      */
-    public boolean mayHaveKeywordParameters();    
+    public default boolean mayHaveKeywordParameters() {
+        return false;
+    }
     
     /**
      * Creates a view that exposes the {@link IWithKeywordParameters} annotation API. 
      * 
      * @return an {@link IWithKeywordParameters} view on this {@link IValue} object 
      */
-    public IWithKeywordParameters<? extends IValue> asWithKeywordParameters();
+    public default IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+        throw new UnsupportedOperationException(getType() + " does not support keyword parameters.");
+    }
+    
+    /**
+     * This is how all IValue implementations should be printed.
+     * @return the literal expression format of the value as a string
+     */
+    public default String defaultToString() {
+        return StandardTextWriter.valueToString(this);
+    }
 }

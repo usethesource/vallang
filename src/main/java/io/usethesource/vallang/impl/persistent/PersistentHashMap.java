@@ -21,13 +21,11 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractMap;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
 
-public final class PersistentHashMap extends AbstractMap {
+public final class PersistentHashMap implements IMap {
 
 	private static final EqualityComparator<Object> equivalenceComparator =
 			EqualityUtils.getEquivalenceComparator();
@@ -50,11 +48,6 @@ public final class PersistentHashMap extends AbstractMap {
 	}
 	
 	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
-	}
-
-	@Override
 	public Type getType() {
 		if (cachedMapType == null) {
 			final Type keyType = keyTypeBag.lub();
@@ -64,9 +57,9 @@ public final class PersistentHashMap extends AbstractMap {
 			final String valLabel = valTypeBag.getLabel();
 
 			if (keyLabel != null && valLabel != null) {
-				cachedMapType = getTypeFactory().mapType(keyType, keyLabel, valType, valLabel);
+				cachedMapType = TF.mapType(keyType, keyLabel, valType, valLabel);
 			} else { 
-				cachedMapType = getTypeFactory().mapType(keyType, valType);
+				cachedMapType = TF.mapType(keyType, valType);
 			}
 		}
 		return cachedMapType;		
@@ -306,7 +299,7 @@ public final class PersistentHashMap extends AbstractMap {
 				return this;
 			}
 		} else {
-			return super.join(other);
+			return IMap.super.join(other);
 		}
 	}
 	

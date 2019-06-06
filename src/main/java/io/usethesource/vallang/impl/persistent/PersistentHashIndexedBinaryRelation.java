@@ -35,13 +35,11 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.AbstractSet;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 
-public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
+public final class PersistentHashIndexedBinaryRelation implements ISet {
 
   private Type cachedRelationType;
   private final AbstractTypeBag keyTypeBag;
@@ -64,7 +62,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     this.content = Objects.requireNonNull(content);
 
     assert USE_MULTIMAP_BINARY_RELATIONS
-        && isTupleOfArityTwo.test(getTypeFactory().tupleType(keyTypeBag.lub(), valTypeBag.lub()));
+        && isTupleOfArityTwo.test(TF.tupleType(keyTypeBag.lub(), valTypeBag.lub()));
     assert USE_MULTIMAP_BINARY_RELATIONS && !content.isEmpty();
     assert USE_MULTIMAP_BINARY_RELATIONS && checkDynamicType(keyTypeBag, valTypeBag, content);
   }
@@ -96,34 +94,25 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   }
 
   @Override
-  protected IValueFactory getValueFactory() {
-    return ValueFactory.getInstance();
-  }
-
-  @Override
   public Type getType() {
     if (cachedRelationType == null) {
       final String keyLabel = keyTypeBag.getLabel();
       final String valLabel = valTypeBag.getLabel();
 
       if (keyLabel != null && valLabel != null) {
-        final Type tupleType = getTypeFactory().tupleType(
+        final Type tupleType = TF.tupleType(
             new Type[] {keyTypeBag.lub(), valTypeBag.lub()}, new String[] {keyLabel, valLabel});
 
-        cachedRelationType = getTypeFactory().relTypeFromTuple(tupleType);
+        cachedRelationType = TF.relTypeFromTuple(tupleType);
       } else {
-        cachedRelationType = getTypeFactory().relType(keyTypeBag.lub(), valTypeBag.lub());
+        cachedRelationType = TF.relType(keyTypeBag.lub(), valTypeBag.lub());
       }
     }
     return cachedRelationType;
   }
 
   private final <K extends IValue, V extends IValue> BiFunction<IValue, IValue, ITuple> tupleConverter() {
-    /*
-     * TODO: independence from value factory, however tuple constructor is not visible; wanted:
-     * content.tupleIterator((first, second) -> Tuple.newTuple(tupleType, first, second);
-     */
-    return (first, second) -> getValueFactory().tuple(first, second);
+    return (first, second) -> Tuple.newTuple(first, second);
   }
 
   @Override
@@ -201,7 +190,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   @Override
   public Iterator<IValue> iterator() {
     // TODO: make method co-variant
-    return content.tupleIterator(getValueFactory()::tuple);
+    return content.tupleIterator(Tuple::newTuple);
   }
 
   @Override
@@ -366,7 +355,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       }
       return def;
     } else {
-      return super.union(other);
+      return ISet.super.union(other);
     }
   }
 
@@ -423,7 +412,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       }
       return def;
     } else {
-      return super.intersect(other);
+      return ISet.super.intersect(other);
     }
   }
 
@@ -470,26 +459,14 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       }
       return def;
     } else {
-      return super.subtract(other);
+      return ISet.super.subtract(other);
     }
-  }
-
-  @Override
-  public ISet product(ISet that) {
-    // TODO Auto-generated method stub
-    return super.product(that);
-  }
-
-  @Override
-  public boolean isSubsetOf(ISet that) {
-    // TODO Auto-generated method stub
-    return super.isSubsetOf(that);
   }
 
   @Override
   public IRelation<ISet> asRelation() {
       
-    final PersistentHashIndexedBinaryRelation thisSet = this;
+    final PersistentHashIndexedBinaryRelation thisSet = PersistentHashIndexedBinaryRelation.this;
 
     return new IRelation<ISet>() {
 

@@ -482,4 +482,27 @@ public interface IList extends ICollection<IList> {
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitList(this);
     }
+    
+    @Override
+    default IRelation<IList> asRelation() {
+        if (!getType().isListRelation()) {
+            throw new UnsupportedOperationException(getType() + " is not a relation");
+        }
+        
+        return new IRelation<IList>() {
+            protected final IList rel1 = IList.this;
+
+            @Override
+            public String toString() {
+                return rel1.toString();
+            }
+
+            @Override
+            public IList asContainer() {
+                return rel1;
+            }
+        };
+    }
+    
+   
 }

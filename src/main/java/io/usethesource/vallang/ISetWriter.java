@@ -12,11 +12,18 @@
 
 package io.usethesource.vallang;
 
-/**
- * This marker interface is left here for backwards compatibility with earlier
- * versions of vallang. Also IListWriter and IMapWriter exist, so for consistency's
- * sake we also have an empty ISetWriter. See IWriter for details.
- */
-public interface ISetWriter extends IWriter<ISet> {
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
+public interface ISetWriter extends IWriter<ISet> {
+    @Override
+    public default Type computeType() {
+        Type eltType = TypeFactory.getInstance().voidType();
+        
+        for (IValue el : this) {
+            eltType = eltType.lub(el.getType());
+        }
+        
+        return IValue.TF.setType(eltType);
+    }
 }

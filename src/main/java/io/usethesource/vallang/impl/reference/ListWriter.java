@@ -35,25 +35,12 @@ import io.usethesource.vallang.type.TypeFactory;
 /*package*/ class ListWriter implements IListWriter {
     protected Type eltType;
     protected final java.util.List<IValue> listContent;
-
     protected IList constructedList;
-    private final boolean inferred;
-
-    /*package*/ ListWriter(Type eltType){
-        super();
-
-        this.eltType = eltType;
-        this.inferred = false;
-        listContent = new LinkedList<>();
-
-        constructedList = null;
-    }
 
     /*package*/ ListWriter(){
         super();
 
         this.eltType = TypeFactory.getInstance().voidType();
-        inferred = true;
         listContent = new LinkedList<>();
 
         constructedList = null;
@@ -76,12 +63,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private void put(int index, IValue elem){
-        if (inferred) {
-            eltType = eltType.lub(elem.getType());
-        }
-        else {
-            checkInsert(elem, eltType);
-        }
+        eltType = eltType.lub(elem.getType());
         listContent.add(index, elem);
     }
 
@@ -120,9 +102,7 @@ import io.usethesource.vallang.type.TypeFactory;
         checkBounds(elems, start, length);
 
         for(int i = start + length - 1; i >= start; i--) {
-            if (inferred) {
-                eltType = eltType.lub(elems[i].getType());
-            }
+            eltType = eltType.lub(elems[i].getType());
             put(index, elems[i]);
         }
     }
@@ -159,20 +139,18 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private void updateType(IValue v) {
-        if (inferred) {
-            eltType = eltType.lub(v.getType());
-        }
+        eltType = eltType.lub(v.getType());
     }
-
+    
+    @Override
+    public Type computeType() {
+        return IList.TF.listType(eltType);
+    }
+    
     @Override
 	public IList done() {
-    	// Temporary fix of the static vs dynamic type issue
-    	eltType = TypeFactory.getInstance().voidType();
-    	for(IValue el : listContent)
-    		eltType = eltType.lub(el.getType());
-    	// ---
         if (constructedList == null) {
-            constructedList = new List(eltType, listContent);
+            constructedList = new List(computeType(), listContent);
         }
 
         return constructedList;

@@ -175,7 +175,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 
 	@Override
 	public String toString() {
-		return "VF_PDB_REFERENCE";
+		return "VALLANG_REFERENCE_FACTORY";
 	}
 	
 }

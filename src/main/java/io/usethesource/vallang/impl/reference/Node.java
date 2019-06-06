@@ -18,16 +18,13 @@ import java.util.Map;
 import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractNode;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * Naive implementation of an untyped tree node, using array of children.
  */
-/*package*/ class Node extends AbstractNode implements INode {
+/*package*/ class Node implements INode {
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 
 	@Override
@@ -109,18 +106,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-		return v.visitNode(this);
-	}
-
-	@Override
 	public int arity() {
 		return fChildren.length;
-	}
-
-	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
 	}
 
 	@Override

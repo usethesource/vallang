@@ -16,18 +16,14 @@ import java.util.Objects;
 
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.util.EqualityComparator;
-import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractSet;
-import io.usethesource.vallang.impl.DefaultRelationViewOnSet;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
 
-public final class PersistentHashSet extends AbstractSet {
+public final class PersistentHashSet implements ISet {
 
   private static final EqualityComparator<Object> equivalenceComparator =
       EqualityUtils.getEquivalenceComparator();
@@ -49,9 +45,7 @@ public final class PersistentHashSet extends AbstractSet {
     this.content = Objects.requireNonNull(content);
 
     assert checkDynamicType(elementTypeBag, content);
-    assert !(elementTypeBag.lub() == getTypeFactory().voidType() || content.isEmpty());
-
-//    assert this.content.getClass() == DefaultTrieSet.getTargetClass();
+    assert !(elementTypeBag.lub() == TF.voidType() || content.isEmpty());
   }
 
   private static final boolean checkDynamicType(final AbstractTypeBag elementTypeBag,
@@ -71,28 +65,11 @@ public final class PersistentHashSet extends AbstractSet {
   }
 
   @Override
-  public IRelation<ISet> asRelation() {
-    validateIsRelation(this);
-    return new DefaultRelationViewOnSet(this);
-  }
-
-  @Override
-  protected IValueFactory getValueFactory() {
-    return ValueFactory.getInstance();
-  }
-
-  @Override
   public Type getType() {
     if (cachedSetType == null) {
-      final Type elementType = elementTypeBag.lub();
-
-      // consists collection out of tuples?
-      if (elementType.isFixedWidth()) {
-        cachedSetType = getTypeFactory().relTypeFromTuple(elementType);
-      } else {
-        cachedSetType = getTypeFactory().setType(elementType);
-      }
+        cachedSetType = TF.setType(elementTypeBag.lub());
     }
+    
     return cachedSetType;
   }
 
@@ -259,7 +236,7 @@ public final class PersistentHashSet extends AbstractSet {
       }
       return def;
     } else {
-      return super.union(other);
+      return ISet.super.union(other);
     }
   }
 
@@ -307,7 +284,7 @@ public final class PersistentHashSet extends AbstractSet {
       }
       return def;
     } else {
-      return super.intersect(other);
+      return ISet.super.intersect(other);
     }
   }
 
@@ -346,20 +323,7 @@ public final class PersistentHashSet extends AbstractSet {
       }
       return def;
     } else {
-      return super.subtract(other);
+      return ISet.super.subtract(other);
     }
   }
-
-  @Override
-  public ISet product(ISet that) {
-    // TODO Auto-generated method stub
-    return super.product(that);
-  }
-
-  @Override
-  public boolean isSubsetOf(ISet that) {
-    // TODO Auto-generated method stub
-    return super.isSubsetOf(that);
-  }
-
 }
