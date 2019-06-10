@@ -175,10 +175,10 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
      * @return a container with all the elements of all tuples in the relation.
      */
     public default C carrier() {
-        IWriter<C> w = writer();
+        IWriter<C> w = writer().unique();
 
         for (IValue t : this) {
-            w.insertAll((ITuple) t);
+            w.appendAll((ITuple) t);
         }
 
         return w.done();
