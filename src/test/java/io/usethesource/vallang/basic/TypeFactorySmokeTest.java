@@ -201,14 +201,16 @@ public final class TypeFactorySmokeTest {
   @Test
   public void testTupleTypeOfIValueArray() {
     // a and b shadow the 'types' field
-    try {
-      IValue[] a = new IValue[] {vf.integer(1), vf.real(1.0),
-          vf.sourceLocation(new URI("file://bla"), 0, 0, 0, 0, 0, 0)};
-      IValue[] b = new IValue[] {vf.integer(1), vf.real(1.0),
-          vf.sourceLocation(new URI("file://bla"), 0, 0, 0, 0, 0, 0)};
-      Type t = ft.tupleType(a);
+      try {
+          @SuppressWarnings("deprecation")
+          IValue[] a = new IValue[] {vf.integer(1), vf.real(1.0),
+                  vf.sourceLocation(new URI("file://bla"), 0, 0, 0, 0, 0, 0)};
+          @SuppressWarnings("deprecation")
+          IValue[] b = new IValue[] {vf.integer(1), vf.real(1.0),
+                  vf.sourceLocation(new URI("file://bla"), 0, 0, 0, 0, 0, 0)};
+          Type t = ft.tupleType(a);
 
-      if (t != ft.tupleType(b)) {
+          if (t != ft.tupleType(b)) {
         fail("tuples should be canonical");
       }
 

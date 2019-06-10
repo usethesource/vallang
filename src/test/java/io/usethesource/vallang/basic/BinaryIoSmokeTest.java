@@ -10,6 +10,8 @@
 *******************************************************************************/
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,37 +24,35 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Random;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
-import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
+import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
 import io.usethesource.vallang.io.old.BinaryWriter;
 import io.usethesource.vallang.random.RandomValueGenerator;
+import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.binary.wire.IWireInputStream;
-import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
-import io.usethesource.vallang.type.Type;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 /**
  * @author Arnold Lankamp
  */
+@SuppressWarnings("deprecation")
 @RunWith(Parameterized.class)
 public final class BinaryIoSmokeTest {
 
@@ -380,11 +380,10 @@ public final class BinaryIoSmokeTest {
       }
   }
 
-  
-
   private void ioRoundTripOld(IValue value, int seed) {
     try {
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+      
       BinaryWriter w = new BinaryWriter(value, buffer, new TypeStore());
       w.serialize();
       buffer.flush();

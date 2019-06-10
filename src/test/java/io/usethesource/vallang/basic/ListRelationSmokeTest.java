@@ -464,9 +464,9 @@ public class ListRelationSmokeTest {
   public void testCarrier() {
     IList carrier = integerListRelation.asRelation().carrier();
 
-//    if (!carrier.isEqual(listOfIntegers)) {
-//      fail("carrier should be equal to this set");
-//    }
+    if (!carrier.isEqual(listOfIntegers)) {
+      fail("carrier should be equal to this set");
+    }
 
     try {
       ITuple t1 = vf.tuple(integers[0], doubles[0]);

@@ -66,6 +66,7 @@ public final class TypeSmokeTest {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static void recombine() throws FactTypeUseException {
     List<Type> newTypes = new LinkedList<>();
     int max1 = COMBINATION_UPPERBOUND;
@@ -131,6 +132,7 @@ public final class TypeSmokeTest {
     Type T = ft.parameterType("T");
     TypeStore ts = new TypeStore();
     // DiGraph[&T] = rel[&T from ,&T to]
+    @SuppressWarnings("deprecation")
     Type DiGraph = ft.aliasType(ts, "DiGraph", ft.relType(T, "from", T, "to"), T);
     Type IntInstance = ft.relType(ft.integerType(), ft.integerType());
     Type ValueInstance = ft.relType(ft.valueType(), ft.valueType());
