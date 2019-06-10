@@ -58,7 +58,8 @@ public class ValueCollectors {
     class SetMultimapStruct {
       AbstractTypeBag keyTypeBag = AbstractTypeBag.of(keyLabel.orElse(null));
       AbstractTypeBag valTypeBag = AbstractTypeBag.of(valueLabel.orElse(null));
-      SetMultimap.Transient<K, V> map =
+      @SuppressWarnings("deprecation")
+    SetMultimap.Transient<K, V> map =
           SetMultimap.Transient.of(equivalenceEqualityComparator);
     }
 

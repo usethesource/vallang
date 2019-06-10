@@ -10,17 +10,11 @@
 *******************************************************************************/
 package io.usethesource.vallang;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.function.Function;
 
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.util.RotatingQueue;
-import io.usethesource.vallang.util.ValueIndexedHashMap;
 
 /**
  * Provides Relational Calculus operators to an existing ICollection.
@@ -30,29 +24,18 @@ import io.usethesource.vallang.util.ValueIndexedHashMap;
  *
  * @param <C> a collection value type like ISet or IList
  */
-public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {	
+public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {	
 
     @Override
-    public default Iterator<ITuple> iterator() {
-        return new Iterator<ITuple>() {
-            Iterator<IValue> it = asContainer().iterator();
-            
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public ITuple next() {
-                return (ITuple) it.next();
-            }
-        };
+    default Iterator<IValue> iterator() {
+        return asContainer().iterator();
     }
     
     /**
      * Relational composition works only on binary relations. It matches the second column
      * of the receiver with the first column of the given relation. 
-     * TODO: generalize to n-ary.
+     * TODO: generalize to n-ary. Implementing classes should specialize 
+     * this generic implementation for more efficiency.
      * 
      * @param that is the given relation
      * @return a new binary relation with first column of the accepting relation and the second column
@@ -81,99 +64,53 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
             return asContainer().empty();
         }
 
-        // Index
-        Map<IValue, IWriter<C>> rightSides = new HashMap<>();
+        IWriter<C> w = writer();
 
-        for (ITuple tuple : that) {    
-            IValue key = tuple.get(0);
-
-            IWriter<C> values = rightSides.get(key);
-            if(values == null){
-                values = writer();
-                rightSides.put(key, values);
-            }
-
-            values.append(tuple.get(1));
-        }
-
-        // Compute      
-        IWriter<C> resultWriter = thisContainer.writer();
-
-        for (ITuple thisTuple : this) {
-            IValue key = thisTuple.get(1);
-            IWriter<C> values = rightSides.get(key);
-            
-            if (values != null) {
-                for (IValue value : values) {
-                    resultWriter.appendTuple(thisTuple.get(0), value);
+        for (IValue elem1 : this) {
+            ITuple tuple1 = (ITuple) elem1;
+            for (IValue elem2 : that) {
+                ITuple tuple2 = (ITuple) elem2;
+                if (tuple1.get(1).isEqual(tuple2.get(0))) {
+                    w.appendTuple(tuple1.get(0), tuple2.get(1));
                 }
             }
         }
-
-        return resultWriter.done();
+        
+        return w.done();
     }   
 
     /**
      * @return the transitive non-reflexive closure of a binary relation
-     * @throws IllegalOperationException when the receiver is not a binary relation
+     * @throws UnsupportedOperationException when the receiver is not a binary relation
      */
     public default C closure() {
-        C rel1 = asContainer();
-
-        if (rel1.getElementType().isBottom()) {
-            return this.asContainer();
-        }
-
         if (!isBinary()) {
-            throw new IllegalOperationException("closure", rel1.getType());
+            throw new UnsupportedOperationException("relation is not binary");
         }
-
-        Type tupleElementType = rel1.getElementType().getFieldType(0).lub(rel1.getElementType().getFieldType(1));
-        Type tupleType = TypeFactory.getInstance().tupleType(tupleElementType, tupleElementType);
-
-        java.util.Set<IValue> closureDelta = HelperFunctions.computeClosureDelta(this, tupleType);
-
-        // NOTE: type is already known, thus, using a SetWriter degrades performance
-        IWriter<C> resultWriter = rel1.writer();
-        resultWriter.insertAll(rel1);
-        resultWriter.insertAll(closureDelta);
-
-        return resultWriter.done();
+        
+        C next = this.asContainer();
+        IRelation<C> result;
+        
+        do {
+            result = next.asRelation();
+            next = result.compose(result).union(next);
+        } while (!next.equals(result.asContainer()));
+        
+        return next;
     }
 
     /**
      * @return the transitive reflexive closure of a binary relation
-     * @throws IllegalOperationException when the receiver is not a binary relation
+     * @throws UnsupportedOperationException when the receiver is not a binary relation
      */
     public default C closureStar() {
-        if (getElementType().isBottom()) {
-            return this.asContainer();
-        }
+        IWriter<C> w = writer();
 
-        if (!isBinary()) {
-            throw new IllegalOperationException("closureStar", asContainer().getType());
-        }
-
-        Type tupleElementType = getElementType().getFieldType(0).lub(getElementType().getFieldType(1));
-        Type tupleType = TypeFactory.getInstance().tupleType(tupleElementType, tupleElementType);
-
-        // calculate
-        ShareableValuesHashSet closureDelta = HelperFunctions.computeClosureDelta(this, tupleType);
         C carrier = carrier();
+        w.appendAll(carrier.product(carrier));
+        w.appendAll(closure());
 
-        // aggregate result
-        // NOTE: type is already known, thus, using a SetWriter degrades performance
-        IWriter<C> resultWriter = writer();
-        resultWriter.insertAll(this);
-        resultWriter.insertAll(closureDelta);
-
-        Iterator<IValue> carrierIterator = carrier.iterator();
-        while (carrierIterator.hasNext()) {
-            IValue element = carrierIterator.next();
-            resultWriter.insertTuple(element, element);
-        }
-
-        return resultWriter.done();
+        return w.done();
     }
 
     /**
@@ -198,8 +135,8 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
     default C project(int... fields) {
         IWriter<C> w = writer();
 
-        for (ITuple v : this) {
-            w.insert(v.select(fields));
+        for (IValue v : this) {
+            w.insert(((ITuple) v).select(fields));
         }
 
         return w.done();
@@ -231,6 +168,8 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         return project(indexes);
     }
 
+    
+    
     /**
      * Compute the carrier set of an n-ary relation.
      * @return a container with all the elements of all tuples in the relation.
@@ -238,8 +177,8 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
     public default C carrier() {
         IWriter<C> w = writer();
 
-        for (ITuple t : this) {
-            w.insertAll(t);
+        for (IValue t : this) {
+            w.insertAll((ITuple) t);
         }
 
         return w.done();
@@ -251,8 +190,8 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
     public default C domain() {
         IWriter<C> w = asContainer().writer();
 
-        for (ITuple elem : this) {
-            w.insert(elem.get(0));
+        for (IValue elem : this) {
+            w.insert(((ITuple) elem).get(0));
         }
 
         return w.done();
@@ -265,8 +204,8 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         int columnIndex = arity() - 1;
         IWriter<C> w = writer();
 
-        for (ITuple elem : this) {
-            w.insert(elem.get(columnIndex));
+        for (IValue elem : this) {
+            w.insert(((ITuple) elem).get(columnIndex));
         }
 
         return w.done();
@@ -302,7 +241,8 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
         }
 
         IWriter<C> result = writer();
-        for (ITuple tup : this) {
+        for (IValue val : this) {
+            ITuple tup = (ITuple) val;
             if (tup.get(0).isEqual(key)) {
                 result.insert(mapper.apply(tup));
             }
@@ -335,90 +275,5 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<ITuple> {
      */
     default boolean isBinary() {
         return getElementType().getArity() == 2;
-    }
-
-    /**
-     * Static functions for efficiently implementing transitive closure in 
-     * a general way. Not to be used or extended by clients. 
-     */
-    static final class HelperFunctions {
-        private static <C extends ICollection<C>> ShareableValuesHashSet computeClosureDelta(IRelation<C> x1, Type tupleType) {
-            RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
-            RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
-
-            ValueIndexedHashMap<RotatingQueue<IValue>> interestingLeftSides = new ValueIndexedHashMap<>();
-            ValueIndexedHashMap<IWriter<C>> potentialRightSides = new ValueIndexedHashMap<>();
-
-            // Index
-            for (ITuple tuple : x1) {
-                IValue key = tuple.get(0);
-                IValue value = tuple.get(1);
-                RotatingQueue<IValue> leftValues = interestingLeftSides.get(key);
-                IWriter<C> rightValues;
-                
-                if (leftValues != null) {
-                    rightValues = potentialRightSides.get(key);
-                } else {
-                    leftValues = new RotatingQueue<>();
-                    iLeftKeys.put(key);
-                    iLefts.put(leftValues);
-                    interestingLeftSides.put(key, leftValues);
-
-                    rightValues = x1.writer();
-                    potentialRightSides.put(key, rightValues);
-                }
-                
-                leftValues.put(value);
-                rightValues.append(value);
-            }
-
-            int size = potentialRightSides.size();
-            int nextSize = 0;
-
-            // Compute
-            final ShareableValuesHashSet newTuples = new ShareableValuesHashSet();
-            do{
-                ValueIndexedHashMap<IWriter<C>> rightSides = potentialRightSides;
-                potentialRightSides = new ValueIndexedHashMap<>();
-
-                for (; size > 0; size--){
-                    IValue leftKey = iLeftKeys.get();
-                    RotatingQueue<IValue> leftValues = iLefts.get();
-
-                    RotatingQueue<IValue> interestingLeftValues = null;
-
-                    IValue rightKey;
-                    while ((rightKey = leftValues.get()) != null) {
-                        IWriter<C> rightValues = rightSides.get(rightKey);
-                        if (rightValues != null) {
-                            
-                            for (IValue rightValue : rightValues) {
-                                if (newTuples.addTuple(leftKey, rightValue)) {
-                                    if (interestingLeftValues == null) {
-                                        nextSize++;
-
-                                        iLeftKeys.put(leftKey);
-                                        interestingLeftValues = new RotatingQueue<>();
-                                        iLefts.put(interestingLeftValues);
-                                    }
-                                    interestingLeftValues.put(rightValue);
-
-                                    IWriter<C> potentialRightValues = potentialRightSides.get(rightKey);
-                                    if (potentialRightValues == null) {
-                                        potentialRightValues = x1.writer();
-                                        potentialRightSides.put(rightKey, potentialRightValues);
-                                    }
-                                    potentialRightValues.append(rightValue);
-                                }
-                            }
-                        }
-                    }
-                }
-                size = nextSize;
-                nextSize = 0;
-            } while(size > 0);
-
-            return newTuples;
-        }
     }
 }

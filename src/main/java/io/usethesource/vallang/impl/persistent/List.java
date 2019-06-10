@@ -54,6 +54,11 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	@Override
+	public IRelation<IList> asRelation() {
+	    return new ListRelation(this);
+	}
+	
+	@Override
 	public IListWriter writer() {
 	    return new ListWriter();
 	}

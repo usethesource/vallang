@@ -15,6 +15,7 @@ import java.util.Iterator;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -25,9 +26,10 @@ import io.usethesource.vallang.type.TypeFactory;
  * @author Arnold Lankamp
  */
 /*package*/ class ListWriter implements IListWriter{
-	protected Type elementType;
-	protected final ShareableValuesList data;
-	protected IList constructedList;
+    private Type elementType;
+	private final ShareableValuesList data;
+	private IList constructedList;
+	private boolean unique = false;
 	
 	/*package*/ ListWriter() {
 		super();
@@ -38,6 +40,16 @@ import io.usethesource.vallang.type.TypeFactory;
 		constructedList = null;
 	}
 	
+	private ListWriter(boolean unique) {
+	    this();
+	    unique = true;
+	}
+	
+	@Override
+    public IWriter<IList> unique() {
+        return new ListWriter(true);
+    }
+
 	@Override
 	public Iterator<IValue> iterator() {
 	    return data.iterator();
@@ -60,8 +72,17 @@ import io.usethesource.vallang.type.TypeFactory;
 	public void append(IValue element){
 		checkMutation();
 		
+		if (unique && data.contains(element)) {
+		    return;
+        }
+		
 		updateType(element);
 		data.append(element);
+	}
+	
+	@Override
+	public void appendTuple(IValue... fields) {
+	    append(Tuple.newTuple(fields));
 	}
 	
 	private void updateType(IValue element) {
@@ -70,19 +91,39 @@ import io.usethesource.vallang.type.TypeFactory;
 
 	public void append(IValue... elems){
 		checkMutation();
+		boolean notUnique = false;
 		
-		for(IValue elem : elems){
+		for (IValue elem : elems){
+		    if (unique && data.contains(elem)) {
+		        notUnique = true;
+		        break;
+		    }
 			updateType(elem);
 		}
-		data.appendAll(elems);
+		
+		if (!notUnique) {
+		    data.appendAll(elems);
+		}
+		else {
+		    for (IValue next : elems) {
+		        if (unique && data.contains(next)) {
+	                continue;
+	            }
+	            
+	            updateType(next);
+	            data.append(next);
+		    }
+		}
 	}
 	
 	public void appendAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
-		Iterator<? extends IValue> collectionIterator = collection.iterator();
-		while(collectionIterator.hasNext()){
-			IValue next = collectionIterator.next();
+		for (IValue next : collection) {
+			if (unique && data.contains(next)) {
+	            continue;
+	        }
+			
 			updateType(next);
 			data.append(next);
 		}
@@ -90,6 +131,9 @@ import io.usethesource.vallang.type.TypeFactory;
 	
 	public void insert(IValue elem){
 		checkMutation();
+		if (unique && data.contains(elem)) {
+		    return;
+		}
 		updateType(elem);
 		data.insert(elem);
 	}
@@ -104,6 +148,11 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		for(int i = start + length - 1; i >= start; i--){
 			updateType(elements[i]);
+			
+			if (unique && data.contains(elements[i])) {
+			    continue;
+			}
+			
 			data.insert(elements[i]);
 		}
 	}
@@ -112,6 +161,9 @@ import io.usethesource.vallang.type.TypeFactory;
 		checkMutation();
 		
 		for (IValue next : collection) {
+			if (unique && data.contains(next)) {
+                continue;
+            }
 			updateType(next);
 			data.insert(next);
 		}

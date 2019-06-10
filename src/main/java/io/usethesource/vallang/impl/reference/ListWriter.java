@@ -23,8 +23,8 @@ import java.util.LinkedList;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -33,17 +33,29 @@ import io.usethesource.vallang.type.TypeFactory;
  * It is thread-friendly however.
  */
 /*package*/ class ListWriter implements IListWriter {
-    protected Type eltType;
-    protected final java.util.List<IValue> listContent;
-    protected IList constructedList;
+    private Type eltType;
+    private final java.util.List<IValue> listContent;
+    private IList constructedList;
+    private boolean unique;
 
-    /*package*/ ListWriter(){
+    /*package*/ ListWriter() {
         super();
 
         this.eltType = TypeFactory.getInstance().voidType();
         listContent = new LinkedList<>();
 
         constructedList = null;
+        unique = false;
+    }
+    
+    private ListWriter(boolean unique) {
+        this();
+        unique = true;
+    }
+    
+    @Override
+    public IWriter<IList> unique() {
+        return new ListWriter(true);
     }
     
     @Override
@@ -55,20 +67,18 @@ import io.usethesource.vallang.type.TypeFactory;
         if(constructedList != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
     }
 
-    private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException{
-        Type type = elem.getType();
-        if(!type.isSubtypeOf(eltType)){
-            throw new UnexpectedElementTypeException(eltType, type);
+    private void put(int index, IValue elem) {
+        if (unique && listContent.contains(elem)) {
+            return;
         }
-    }
-
-    private void put(int index, IValue elem){
+        
         eltType = eltType.lub(elem.getType());
         listContent.add(index, elem);
     }
 
     public void insert(IValue elem) throws FactTypeUseException {
         checkMutation();
+       
         put(0, elem);
     }
 
@@ -87,7 +97,6 @@ import io.usethesource.vallang.type.TypeFactory;
 	public IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
         checkMutation();
         updateType(elem);
-        checkInsert(elem, eltType);
         return listContent.set(index, elem);
     }
 

@@ -1,6 +1,13 @@
 package io.usethesource.vallang;
 
 public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
+    /**
+     * Modify this writer to insert only unique instances into the collection
+     * @return
+     */
+    public default IWriter<T> unique() { 
+        return this;
+    }
     
     /**
      * Insert several elements

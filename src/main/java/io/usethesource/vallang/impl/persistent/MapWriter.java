@@ -54,6 +54,7 @@ final class MapWriter implements IMapWriter {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void put(IValue key, IValue value) {
 		checkMutation();
 

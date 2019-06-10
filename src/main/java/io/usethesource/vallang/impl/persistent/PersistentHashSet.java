@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.util.EqualityComparator;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
@@ -85,6 +86,7 @@ public final class PersistentHashSet implements ISet {
 
   @Override
   public ISet insert(IValue value) {
+    @SuppressWarnings("deprecation")
     final Set.Immutable<IValue> contentNew =
         content.__insertEquivalent(value, equivalenceComparator);
 
@@ -98,6 +100,7 @@ public final class PersistentHashSet implements ISet {
 
   @Override
   public ISet delete(IValue value) {
+    @SuppressWarnings("deprecation")
     final Set.Immutable<IValue> contentNew =
         content.__removeEquivalent(value, equivalenceComparator);
 
@@ -114,6 +117,7 @@ public final class PersistentHashSet implements ISet {
     return content.size();
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public boolean contains(IValue value) {
     return content.containsEquivalent(value, equivalenceComparator);
@@ -160,6 +164,7 @@ public final class PersistentHashSet implements ISet {
     return false;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public boolean isEqual(IValue other) {
     if (other == this)
@@ -183,13 +188,13 @@ public final class PersistentHashSet implements ISet {
     return false;
   }
   
+  @SuppressWarnings("deprecation")
   @Override
   public ISet union(ISet other) {
-    if (other == this)
+    if (other == this) {
       return this;
-    if (other == null)
-      return this;
-
+    }
+    
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
 
@@ -229,12 +234,12 @@ public final class PersistentHashSet implements ISet {
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public ISet intersect(ISet other) {
-    if (other == this)
+    if (other == this) {
       return this;
-    if (other == null)
-      return EmptySet.EMPTY_SET;
+    }
 
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
@@ -277,7 +282,8 @@ public final class PersistentHashSet implements ISet {
     }
   }
 
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   public ISet subtract(ISet other) {
     if (other == this)
       return EmptySet.EMPTY_SET;
@@ -315,4 +321,9 @@ public final class PersistentHashSet implements ISet {
       return ISet.super.subtract(other);
     }
   }
+  
+  @Override
+    public IRelation<ISet> asRelation() {
+        return new PersistentSetRelation(this);
+    }
 }

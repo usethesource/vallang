@@ -53,6 +53,7 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public Type getType() {
 		if (cachedMapType == null) {
 			final Type keyType = keyTypeBag.lub();
@@ -76,6 +77,7 @@ public final class PersistentHashMap implements IMap {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public IMap put(IValue key, IValue value) {
 		final Map.Immutable<IValue,IValue> contentNew =
 				content.__putEquivalent(key, value, equivalenceComparator);
@@ -101,6 +103,7 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public IMap removeKey(IValue key) {
 	    final Map.Immutable<IValue, IValue> newContent = 
 				content.__removeEquivalent(key, equivalenceComparator);
@@ -122,16 +125,19 @@ public final class PersistentHashMap implements IMap {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public boolean containsKey(IValue key) {
 		return content.containsKeyEquivalent(key, equivalenceComparator);
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public boolean containsValue(IValue value) {
 		return content.containsValueEquivalent(value, equivalenceComparator);
 	}
 	
 	@Override
+	 @SuppressWarnings("deprecation")
 	public IValue get(IValue key) {
 		return content.getEquivalent(key, equivalenceComparator);
 	}
@@ -168,6 +174,7 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public boolean isEqual(IValue other) {
 		if (other == this)
 			return true;
@@ -217,6 +224,7 @@ public final class PersistentHashMap implements IMap {
 	}	
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public IMap join(IMap other) {
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
