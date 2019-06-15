@@ -21,69 +21,71 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 
 public class ValueCollectors {
 
-  public static <T extends IValue> Collector<T, ?, ISet> toSet() {
+    @SuppressWarnings("unchecked")
+    public static <T extends IValue> Collector<T, ?, ISet> toSet() {
 
-    class SetStruct {
-      AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
-      Set.Transient<T> set = Set.Transient.of();
+        class SetStruct {
+            AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
+            Set.Transient<T> set = Set.Transient.of();
+        }
+
+        /** extract key/value from type {@code T} and insert into multimap */
+        final BiConsumer<SetStruct, T> accumulator = (struct, element) -> {
+            if (struct.set.__insert(element)) {
+                struct.elementTypeBag = struct.elementTypeBag.increase(element.getType());
+            }
+        };
+
+        return new DefaultCollector<>(SetStruct::new, accumulator, unsupportedCombiner(),
+                struct -> PersistentSetFactory.from(struct.elementTypeBag,
+                        (Set.Immutable<IValue>) struct.set.freeze()),
+                UNORDERED);
     }
 
-    /** extract key/value from type {@code T} and insert into multimap */
-    final BiConsumer<SetStruct, T> accumulator = (struct, element) -> {
-      if (struct.set.__insert(element)) {
-        struct.elementTypeBag = struct.elementTypeBag.increase(element.getType());
-      }
-    };
-
-    return new DefaultCollector<>(SetStruct::new, accumulator, unsupportedCombiner(),
-        struct -> PersistentSetFactory.from(struct.elementTypeBag,
-            (Set.Immutable<IValue>) struct.set.freeze()),
-        UNORDERED);
-  }
-  
-  public static <T extends IValue> Collector<T, ?, IList> toList() {
-    return new DefaultCollector<>(ValueFactory.getInstance()::listWriter, (w,e) -> { w.append(e); }, 
-    		unsupportedCombiner(), w -> w.done(), Collections.emptySet()); 
-  }
-  
-
-  /**
-   * @param keyLabel optional label of first column
-   * @param valueLabel optional label of second column
-   */
-  public static <T extends ITuple, K extends IValue, V extends IValue> Collector<T, ?, ISet> toSetMultimap(
-      Optional<String> keyLabel, Function<? super T, ? extends K> keyMapper,
-      Optional<String> valueLabel, Function<? super T, ? extends V> valueMapper) {
-
-    class SetMultimapStruct {
-      AbstractTypeBag keyTypeBag = AbstractTypeBag.of(keyLabel.orElse(null));
-      AbstractTypeBag valTypeBag = AbstractTypeBag.of(valueLabel.orElse(null));
-      @SuppressWarnings("deprecation")
-    SetMultimap.Transient<K, V> map =
-          SetMultimap.Transient.of(equivalenceEqualityComparator);
+    public static <T extends IValue> Collector<T, ?, IList> toList() {
+        return new DefaultCollector<>(ValueFactory.getInstance()::listWriter, (w,e) -> { w.append(e); }, 
+                unsupportedCombiner(), w -> w.done(), Collections.emptySet()); 
     }
 
-    /** extract key/value from type {@code T} and insert into multimap */
-    final BiConsumer<SetMultimapStruct, T> accumulator = (struct, element) -> {
-      final K key = keyMapper.apply(element);
-      final V val = valueMapper.apply(element);
 
-      if (struct.map.__insert(key, val)) {
-        struct.keyTypeBag = struct.keyTypeBag.increase(key.getType());
-        struct.valTypeBag = struct.valTypeBag.increase(val.getType());
-      }
-    };
+    /**
+     * @param keyLabel optional label of first column
+     * @param valueLabel optional label of second column
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends ITuple, K extends IValue, V extends IValue> Collector<T, ?, ISet> toSetMultimap(
+            Optional<String> keyLabel, Function<? super T, ? extends K> keyMapper,
+            Optional<String> valueLabel, Function<? super T, ? extends V> valueMapper) {
 
-    return new DefaultCollector<>(SetMultimapStruct::new, accumulator,
-        unsupportedCombiner(), struct -> PersistentSetFactory.from(struct.keyTypeBag,
-            struct.valTypeBag, (SetMultimap.Immutable<IValue, IValue>) struct.map.freeze()),
-        UNORDERED);
-  }
+        class SetMultimapStruct {
+            AbstractTypeBag keyTypeBag = AbstractTypeBag.of(keyLabel.orElse(null));
+            AbstractTypeBag valTypeBag = AbstractTypeBag.of(valueLabel.orElse(null));
+            @SuppressWarnings("deprecation")
+            SetMultimap.Transient<K, V> map =
+            SetMultimap.Transient.of(equivalenceEqualityComparator);
+        }
 
-  private static <T> BinaryOperator<T> unsupportedCombiner() {
-    return (u, v) -> {
-      throw new UnsupportedOperationException("Merging is not yet supported.");
-    };
-  }
+        /** extract key/value from type {@code T} and insert into multimap */
+        final BiConsumer<SetMultimapStruct, T> accumulator = (struct, element) -> {
+            final K key = keyMapper.apply(element);
+            final V val = valueMapper.apply(element);
+
+            if (struct.map.__insert(key, val)) {
+                struct.keyTypeBag = struct.keyTypeBag.increase(key.getType());
+                struct.valTypeBag = struct.valTypeBag.increase(val.getType());
+            }
+        };
+
+        return new DefaultCollector<>(SetMultimapStruct::new, accumulator,
+                unsupportedCombiner(), struct -> PersistentSetFactory.from(struct.keyTypeBag,
+                        struct.valTypeBag, (SetMultimap.Immutable<IValue, IValue>) struct.map.freeze()),
+                UNORDERED);
+    }
+
+    private static <T> BinaryOperator<T> unsupportedCombiner() {
+        return (u, v) -> {
+            throw new UnsupportedOperationException("Merging is not yet supported.");
+        };
+    }
 
 }
