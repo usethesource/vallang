@@ -59,10 +59,16 @@ import io.usethesource.vallang.type.Type;
 		return content.hashCode();
 	}
 
+	@Override
 	public boolean equals(Object that) {
 		return defaultEquals(that);
 	}
 
+	@Override
+	public String toString() {
+	    return defaultToString();
+	}
+	
     @Override
     public IListWriter writer() {
         return new ListWriter();

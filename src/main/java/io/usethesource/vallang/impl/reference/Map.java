@@ -98,4 +98,24 @@ import io.usethesource.vallang.type.Type;
     public IRelation<IMap> asRelation() {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public String toString() {
+        return defaultToString();
+    }
+
+    @Override
+    public int hashCode() {
+        return content.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof IMap) {
+            return defaultEquals(obj);
+        }
+        else {
+            return false;
+        }
+    }
 }

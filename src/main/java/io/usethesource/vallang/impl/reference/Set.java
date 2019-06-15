@@ -68,6 +68,11 @@ import io.usethesource.vallang.type.Type;
 	public boolean equals(Object other) {
 		return defaultEquals(other);
 	}
+	
+	@Override
+	public String toString() {
+	    return defaultToString();
+	}
 
 	@Override
 	public Iterator<IValue> iterator() {

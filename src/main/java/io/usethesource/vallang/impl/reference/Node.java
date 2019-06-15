@@ -177,6 +177,11 @@ import io.usethesource.vallang.type.TypeFactory;
 		return false;
 	}
 	
+	@Override
+	public String toString() {
+	    return defaultToString();
+	}
+	
 	public int computeHashCode() {
        int hash = fName != null ? fName.hashCode() : 0;
        
