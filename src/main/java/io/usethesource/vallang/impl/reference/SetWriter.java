@@ -78,7 +78,7 @@ import io.usethesource.vallang.type.TypeFactory;
     @Override
 	public ISet done() {
         if (constructedSet == null) {
-            constructedSet = new Set(ISet.TF.setType(eltType), setContent);
+            constructedSet = new Set(eltType, setContent);
         }
 
         return constructedSet;
