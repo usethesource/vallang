@@ -637,6 +637,7 @@ public final class RandomValueTest {
       assertTrue("" + a + " <= " + b + " <= " + c, a.lessEqual(c).getValue());
   }
 
+  @SuppressWarnings("unlikely-arg-type")
   public void axiomNoEqualInt(IInteger i) {
     assertFalse(i.toReal(PRECISION).equals(i));
     assertTrue(i.toReal(PRECISION).equal(i).getValue());
@@ -644,12 +645,14 @@ public final class RandomValueTest {
     assertTrue(i.toRational().equal(i).getValue());
   }
 
+  @SuppressWarnings("unlikely-arg-type")
   public void axiomNoEqualRat(IRational i) {
     assertFalse(i.toReal(PRECISION).equals(i));
     assertTrue(i.toReal(PRECISION).equal(i).getValue());
     assertFalse(i.toInteger().equals(i));
   }
 
+  @SuppressWarnings("unlikely-arg-type")
   public void axiomNoEqualReal(IReal i) {
     assertFalse(i.toInteger().equals(i));
   }
