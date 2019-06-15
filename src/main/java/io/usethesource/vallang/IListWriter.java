@@ -12,6 +12,7 @@
 
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 /**
  * This interface allows to gather the elements of a list efficiently and in a specific order.

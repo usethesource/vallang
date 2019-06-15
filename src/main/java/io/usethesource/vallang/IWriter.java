@@ -1,5 +1,7 @@
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+
 public interface IWriter<T extends ICollection<T>> extends Iterable<IValue> {
     /**
      * Modify this writer to insert only unique instances into the collection
