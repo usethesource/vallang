@@ -23,7 +23,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class Set implements ISet {
 	final Type type;
@@ -31,7 +30,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
 	/*package*/ Set(Type elementType, java.util.Set<IValue> content) {
 		super();
-		this.type = TypeFactory.getInstance().setType(elementType);
+		this.type = TF.setType(elementType);
 		this.content = content;
 	}
 

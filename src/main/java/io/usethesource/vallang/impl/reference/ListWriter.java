@@ -154,7 +154,7 @@ import io.usethesource.vallang.type.TypeFactory;
     @Override
 	public IList done() {
         if (constructedList == null) {
-            constructedList = new List(IList.TF.listType(eltType), listContent);
+            constructedList = new List(eltType, listContent);
         }
 
         return constructedList;

@@ -17,7 +17,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class List implements IList {
 
@@ -26,7 +25,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
 	/*package*/ List(Type elementType, java.util.List<IValue> content) {
 		super();
-		this.type = TypeFactory.getInstance().listType(elementType);
+		this.type = TF.listType(elementType);
 		this.content = content;
 	}
 
