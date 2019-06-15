@@ -274,6 +274,6 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
      * @return true iff the current relation is binary (has two columns)
      */
     default boolean isBinary() {
-        return getElementType().getArity() == 2;
+        return getElementType().isBottom() || getElementType().getArity() == 2;
     }
 }
