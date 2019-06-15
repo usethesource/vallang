@@ -26,20 +26,19 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.util.AbstractTypeBag;
 
 /*package*/ class MapWriter implements IMapWriter {
-	private Type keyTupe;
-	private Type valueType;
+	private AbstractTypeBag keyTypeBag;
+    private AbstractTypeBag valTypeBag;
 	private final java.util.HashMap<IValue, IValue> mapContent;
 	private Map constructedMap;
 
 	/*package*/ MapWriter() {
 		super();
 		
-		this.keyTupe = TypeFactory.getInstance().voidType();
-		this.valueType = TypeFactory.getInstance().voidType();
+		keyTypeBag = AbstractTypeBag.of();
+        valTypeBag = AbstractTypeBag.of();
 		
 		mapContent = new java.util.HashMap<>();
 	}
@@ -81,8 +80,15 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	private void updateTypes(IValue key, IValue value) {
-	    keyTupe = keyTupe.lub(key.getType());
-	    valueType = valueType.lub(value.getType());
+	    if (mapContent.containsKey(key)) {
+	        // key will be overwritten, so the corresponding value must be subtracted from the type bag too
+	        valTypeBag = valTypeBag.decrease(mapContent.get(key).getType());
+	        valTypeBag = valTypeBag.increase(value.getType());
+	    }
+	    else {
+	        keyTypeBag = keyTypeBag.increase(key.getType());
+	        valTypeBag = valTypeBag.increase(value.getType());
+	    }
 	}
 
 	@Override
@@ -98,7 +104,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	@Override
 	public void put(IValue key, IValue value) throws FactTypeUseException{
 		checkMutation();
-		updateTypes(key,value);
+		updateTypes(key, value);
 		mapContent.put(key, value);
 	}
 	
@@ -116,7 +122,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	@Override
 	public IMap done(){
 		if (constructedMap == null) {
-			constructedMap = new Map(IMap.TF.mapType(keyTupe, valueType), mapContent);
+			constructedMap = new Map(IMap.TF.mapType(keyTypeBag.lub(), valTypeBag.lub()), mapContent);
 		}
 
 		return constructedMap;
