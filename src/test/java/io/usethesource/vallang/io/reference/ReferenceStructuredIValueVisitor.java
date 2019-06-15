@@ -145,7 +145,7 @@ public class ReferenceStructuredIValueVisitor {
                         IWithKeywordParameters<? extends INode> okw = o.asWithKeywordParameters();
                         if(okw.hasParameters()){
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
-                            AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(okw);
+                            AbstractDefaultWithKeywordParameters<? extends INode> nodeKw = (AbstractDefaultWithKeywordParameters<? extends INode>)(okw);
                             Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterNodeKeywordParameters();
                             visitNamedValues(params);
@@ -154,7 +154,7 @@ public class ReferenceStructuredIValueVisitor {
                         IAnnotatable<? extends INode> oan = o.asAnnotatable();
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
-                            AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)(oan);
+                            AbstractDefaultAnnotatable<? extends INode> nodeAnno = (AbstractDefaultAnnotatable<? extends INode>)(oan);
                             Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterNodeAnnotations();
                             visitNamedValues(annos);
@@ -192,7 +192,7 @@ public class ReferenceStructuredIValueVisitor {
                         IWithKeywordParameters<? extends IConstructor> okw = o.asWithKeywordParameters();
                         if(okw.hasParameters()){
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
-                            AbstractDefaultWithKeywordParameters<IConstructor> nodeKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(okw);
+                            AbstractDefaultWithKeywordParameters<? extends IConstructor> nodeKw = (AbstractDefaultWithKeywordParameters<? extends IConstructor>)(okw);
                             Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterConstructorKeywordParameters();
                             visitNamedValues(params);
@@ -201,7 +201,7 @@ public class ReferenceStructuredIValueVisitor {
                         IAnnotatable<? extends IConstructor> oan = o.asAnnotatable();
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
-                            AbstractDefaultAnnotatable<IConstructor> nodeAnno = (AbstractDefaultAnnotatable<IConstructor>)(oan);
+                            AbstractDefaultAnnotatable<? extends IConstructor> nodeAnno = (AbstractDefaultAnnotatable<? extends IConstructor>)(oan);
                             Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterConstructorAnnotations();
                             visitNamedValues(annos);
