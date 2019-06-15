@@ -158,7 +158,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     checkNull(kwParams);
     checkNull((Object[]) children);
         
-    return new Constructor(constructorType, children, kwParams);
+    return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
   }
 	
 	@Override
