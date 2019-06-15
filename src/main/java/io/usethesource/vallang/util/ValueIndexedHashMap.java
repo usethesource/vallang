@@ -42,13 +42,14 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	/**
 	 * Constructor.
 	 */
-	public ValueIndexedHashMap(){
+	@SuppressWarnings("unchecked")
+    public ValueIndexedHashMap(){
 		super();
 		
 		modSize = INITIAL_LOG_SIZE;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		data = (Entry<V>[]) new Entry[tableSize];
+		data = new Entry[tableSize];
 		
 		threshold = tableSize;
 		
@@ -77,7 +78,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	/**
 	 * Removes all the entries from this map.
 	 */
-	public void clear(){
+	@SuppressWarnings("unchecked")
+    public void clear(){
 		modSize = INITIAL_LOG_SIZE;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
@@ -95,7 +97,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		modSize++;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		Entry<V>[] newData = (Entry<V>[]) new Entry[tableSize];
+		@SuppressWarnings("unchecked")
+        Entry<V>[] newData = (Entry<V>[]) new Entry[tableSize];
 
 		threshold = tableSize;
 		
@@ -333,7 +336,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * Copies over all entries from the given map, to this map.
 	 */
 	public void putAll(Map<? extends IValue, ? extends V> otherMap){
-		Set<Map.Entry<IValue, V>> entrySet = (Set<Map.Entry<IValue, V>>) (Set<?>) otherMap.entrySet(); // Generics stink.
+		@SuppressWarnings("unchecked")
+        Set<Map.Entry<IValue, V>> entrySet = (Set<Map.Entry<IValue, V>>) (Set<?>) otherMap.entrySet();
 		Iterator<Map.Entry<IValue, V>> entrySetIterator = entrySet.iterator();
 		while(entrySetIterator.hasNext()){
 			Map.Entry<IValue, V> next = entrySetIterator.next();
@@ -477,16 +481,17 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){
-			ValueIndexedHashMap<V> other = (ValueIndexedHashMap<V>) o;
+            ValueIndexedHashMap<?> other = (ValueIndexedHashMap<?>) o;
 			
 			if(other.size() != size()) return false;
 		
 			if(isEmpty()) return true; // No need to check if the maps are empty.
 			
-			Iterator<Map.Entry<IValue, V>> otherIterator = other.entryIterator();
+			Iterator<?> otherIterator = other.entryIterator();
 			while(otherIterator.hasNext()){
-				Map.Entry<IValue, V> entry = otherIterator.next();
-				V otherValue = entry.getValue();
+				@SuppressWarnings("unchecked")
+                Map.Entry<IValue, ?> entry = (Map.Entry<IValue, ?>) otherIterator.next();
+				Object otherValue = entry.getValue();
 				V thisValue = get(entry.getKey());
 				if(otherValue != thisValue && thisValue != null && !thisValue.equals(entry.getValue())) return false;
 			}

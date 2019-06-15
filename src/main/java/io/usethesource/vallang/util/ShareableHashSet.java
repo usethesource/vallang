@@ -41,7 +41,8 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 	/**
 	 * Default constructor.
 	 */
-	public ShareableHashSet(){
+	@SuppressWarnings("unchecked")
+    public ShareableHashSet(){
 		super();
 		
 		modSize = INITIAL_LOG_SIZE;
@@ -80,7 +81,8 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 	/**
 	 * Removes all the entries from this set.
 	 */
-	public void clear(){
+	@SuppressWarnings("unchecked")
+    public void clear(){
 		modSize = INITIAL_LOG_SIZE;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
@@ -100,7 +102,8 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 		modSize++;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		Entry<V>[] newData = (Entry<V>[]) new Entry[tableSize];
+		@SuppressWarnings("unchecked")
+        Entry<V>[] newData = (Entry<V>[]) new Entry[tableSize];
 
 		threshold = tableSize;
 		
@@ -377,7 +380,8 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 	 *            The array to use; in case it isn't large enough a new one will be allocated.
 	 * @return All the elements from this set in an array.
 	 */
-	public <T> T[] toArray(T[] array){
+	@SuppressWarnings("unchecked")
+    public <T> T[] toArray(T[] array){
 		if(array.length < load) return (T[]) toArray();
 		
 		Iterator<V> valuesIterator = iterator();
@@ -446,14 +450,14 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){
-			ShareableHashSet<V> other = (ShareableHashSet<V>) o;
+            ShareableHashSet<?> other = (ShareableHashSet<?>) o;
 			
 			if(other.currentHashCode != currentHashCode) return false;
 			if(other.size() != size()) return false;
 			
 			if(isEmpty()) return true; // No need to check if the sets are empty.
 			
-			Iterator<V> otherIterator = other.iterator();
+			Iterator<?> otherIterator = other.iterator();
 			while(otherIterator.hasNext()){
 				if(!contains(otherIterator.next())) return false;
 			}

@@ -44,7 +44,8 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 	/**
 	 * Constructor.
 	 */
-	public ShareableHashMap(){
+	@SuppressWarnings("unchecked")
+    public ShareableHashMap(){
 		super();
 		
 		modSize = INITIAL_LOG_SIZE;
@@ -83,7 +84,8 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 	/**
 	 * Removes all the entries from this map.
 	 */
-	public void clear(){
+	@SuppressWarnings("unchecked")
+    public void clear(){
 		modSize = INITIAL_LOG_SIZE;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
@@ -103,7 +105,8 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 		modSize++;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		Entry<K, V>[] newData = (Entry<K, V>[]) new Entry[tableSize];
+		@SuppressWarnings("unchecked")
+        Entry<K, V>[] newData = (Entry<K, V>[]) new Entry[tableSize];
 
 		threshold = tableSize;
 		
@@ -341,7 +344,8 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 	 * Copies over all entries from the given map, to this map.
 	 */
 	public void putAll(Map<? extends K, ? extends V> otherMap){
-		Set<Map.Entry<K, V>> entrySet = (Set<Map.Entry<K, V>>) (Set<?>) otherMap.entrySet(); // Generics stink.
+		@SuppressWarnings("unchecked")
+        Set<Map.Entry<K, V>> entrySet = (Set<Map.Entry<K, V>>) (Set<?>) otherMap.entrySet();
 		Iterator<Map.Entry<K, V>> entrySetIterator = entrySet.iterator();
 		while(entrySetIterator.hasNext()){
 			Map.Entry<K, V> next = entrySetIterator.next();
@@ -476,17 +480,17 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){
-			ShareableHashMap<K, V> other = (ShareableHashMap<K, V>) o;
+			ShareableHashMap<?, ?> other = (ShareableHashMap<?, ?>) o;
 			
 			if(other.currentHashCode != currentHashCode) return false;
 			if(other.size() != size()) return false;
 		
 			if(isEmpty()) return true; // No need to check if the maps are empty.
 			
-			Iterator<Map.Entry<K, V>> otherIterator = other.entryIterator();
+			Iterator<?> otherIterator = other.entryIterator();
 			while(otherIterator.hasNext()){
-				Map.Entry<K, V> entry = otherIterator.next();
-				V otherValue = entry.getValue();
+				Map.Entry<?, ?> entry = (java.util.Map.Entry<?, ?>) otherIterator.next();
+				Object otherValue = entry.getValue();
 				V thisValue = get(entry.getKey());
 				if(otherValue != thisValue && thisValue != null && !thisValue.equals(entry.getValue())) return false;
 			}

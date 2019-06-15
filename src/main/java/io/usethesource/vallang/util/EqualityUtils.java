@@ -22,7 +22,6 @@ public class EqualityUtils {
 	/**
 	 * Temporary function in order to support different equality checks.
 	 */
-	@SuppressWarnings("rawtypes")
 	public static EqualityComparator<Object> getDefaultEqualityComparator() {
 		return Object::equals;
 	}
@@ -32,7 +31,6 @@ public class EqualityUtils {
 	 * implementation is only works for {@link IValue} arguments. If arguments
 	 * are of a different type, an unchecked exception will be thrown.
 	 */
-	@SuppressWarnings("rawtypes")
 	public static EqualityComparator<Object> getEquivalenceComparator() {
 		return (a, b) -> EqualityComparator.equals((IValue) a, (IValue) b, IValue::isEqual);
 	}
