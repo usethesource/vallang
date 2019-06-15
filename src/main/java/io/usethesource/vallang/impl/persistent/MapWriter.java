@@ -31,14 +31,14 @@ final class MapWriter implements IMapWriter {
 	private static final EqualityComparator<Object> equivalenceComparator =
 			EqualityUtils.getEquivalenceComparator();
 
-	protected AbstractTypeBag keyTypeBag;
-	protected AbstractTypeBag valTypeBag;
-	protected final Map.Transient<IValue, IValue> mapContent;
+	private AbstractTypeBag keyTypeBag;
+	private AbstractTypeBag valTypeBag;
+	private final Map.Transient<IValue, IValue> mapContent;
 
-	protected final boolean checkUpperBound;
-	protected final Type upperBoundKeyType;
-	protected final Type upperBoundValType;
-	protected IMap constructedMap;
+	private final boolean checkUpperBound;
+	private final Type upperBoundKeyType;
+	private final Type upperBoundValType;
+	private IMap constructedMap;
 
 	MapWriter() {
 		super();
