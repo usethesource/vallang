@@ -209,6 +209,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     	throw new UndeclaredFieldException(this, fieldName);
     }
     
+    @SuppressWarnings("deprecation")
     @Override
     public Type getFieldTypes() {
     	if (hasFieldNames()) {

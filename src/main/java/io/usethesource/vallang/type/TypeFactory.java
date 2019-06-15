@@ -32,7 +32,6 @@ import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;

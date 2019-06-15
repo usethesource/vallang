@@ -789,7 +789,8 @@ public class TypeStore {
 				return type;
 			}
 
-			@Override
+			@SuppressWarnings("deprecation")
+            @Override
 			public Type visitTuple(Type type) throws RuntimeException {
 				int arity = type.getArity();
 				Type fieldTypes[] = new Type[arity];
@@ -805,7 +806,8 @@ public class TypeStore {
 					}
 					fieldTypes[i] = fieldType;
 				}
-				if(aliasFound){
+				
+				if (aliasFound){
 					return fieldNames == null ? factory.tupleType(fieldTypes) : factory.tupleType(fieldTypes, fieldNames);
 				}
 				return type;
