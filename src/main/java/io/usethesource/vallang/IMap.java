@@ -121,8 +121,11 @@ public interface IMap extends ICollection<IMap> {
                 for (IValue k1 : this) {
                     if (containsKeyWithEquals(k1) == false) { // call to Object.equals(Object)
                         return false;
-                    } else if (map2.get(k1).equals(get(k1)) == false) { // call to Object.equals(Object)
-                        return false;
+                    } else {
+                        IValue val2 = map2.get(k1);
+                        if (val2 != null && val2.equals(get(k1)) == false) { // call to Object.equals(Object)
+                            return false;
+                        }
                     }
                 }
 
