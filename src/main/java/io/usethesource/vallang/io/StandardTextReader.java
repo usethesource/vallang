@@ -813,7 +813,7 @@ public class StandardTextReader extends AbstractTextReader {
 		checkAndRead(end);
 	}
 
-	private IValue readContainer(Type elemType, IWriter w, char end) throws FactTypeUseException, IOException {
+	private IValue readContainer(Type elemType, IWriter<?> w, char end) throws FactTypeUseException, IOException {
 		current = stream.read();
 		while(current != end) {
 			w.insert(readValue(elemType));

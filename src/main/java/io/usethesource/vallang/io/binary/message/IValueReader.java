@@ -141,6 +141,7 @@ public class IValueReader {
     private final TrackLastRead<IValue> valueWindow;
     private final TrackLastRead<ISourceLocation> uriWindow;
     
+    @SuppressWarnings("deprecation")
     private Type readType(final IWireInputStream reader) throws IOException{
         reader.next();
         switch (reader.message()) {
