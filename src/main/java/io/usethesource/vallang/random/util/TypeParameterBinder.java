@@ -49,7 +49,7 @@ public class TypeParameterBinder extends DefaultTypeVisitor<Void,RuntimeExceptio
         if(type == null){
             Type bound = parameterType.getBound();
             while (bound.isOpen()){
-                bound = typeParameters.get(bound.getName());
+                bound = typeParameters.get(bound);
             }
 
             do {
