@@ -13,7 +13,6 @@
 package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.INode;
@@ -36,14 +35,12 @@ import io.usethesource.vallang.type.TypeFactory;
 	protected final IValue[] fChildren;
 	protected final String fName;
 	protected int fHash = 0;
-	protected final String[] keyArgNames;
 	
 	/*package*/ Node(String name, IValue[] children) {
 		super();
 		fType = TypeFactory.getInstance().nodeType();
 		fName = name;
 		fChildren = children.clone();
-		keyArgNames = null;
 	}
 		
 	protected Node(String name, Type type, IValue[] children) {
@@ -51,36 +48,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		fType = type;
 		fName = name;
 		fChildren = children.clone();
-		keyArgNames = null;
 	}
 	
-	/*package*/ Node(String name, IValue[] children, Map<String, IValue> keyArgValues){
-		super();
-		fType = TypeFactory.getInstance().nodeType();
-		fName = (name != null ? name.intern() : null); // Handle (weird) special case.
-		if(keyArgValues != null){
-			int nkw = keyArgValues.size();
-			IValue[] extendedChildren = new IValue[children.length + nkw];
-			for(int i = 0; i < children.length;i++){
-				extendedChildren[i] = children[i];
-			}
-
-			String keyArgNames[]= new String[nkw];
-			int k = 0;
-			for(String kw : keyArgValues.keySet()){
-				keyArgNames[k++] = kw;
-			}
-			for(int i = 0; i < nkw; i++){
-				extendedChildren[children.length + i] = keyArgValues.get(keyArgNames[i]);
-			}
-			this.fChildren = extendedChildren;
-			this.keyArgNames = keyArgNames;
-		} else {
-			this.fChildren = children;
-			this.keyArgNames = null;
-		}
-	}
-				
 	/*package*/ Node(String name) {
 		this(name, new IValue[0]);
 	}
@@ -97,7 +66,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fChildren[index] = newChild;
-		keyArgNames = null;
 	}
 	
 	@Override

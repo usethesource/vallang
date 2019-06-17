@@ -132,7 +132,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		checkNull((Object[]) children);
 //		checkNull(keyArgValues); // fails; are null values allowed?
 		
-		return new Node(name, children.clone(), keyArgValues);
+		return new Node(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
 	}
 		
 	@Override
