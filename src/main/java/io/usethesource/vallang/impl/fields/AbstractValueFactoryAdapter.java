@@ -53,7 +53,7 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException {
+    public IConstructor constructor(Type constructor, IValue... children) {
         return adapted.constructor(constructor, children);
     }
 
@@ -84,7 +84,7 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public IInteger integer(String i) throws NumberFormatException {
+    public IInteger integer(String i) {
         return adapted.integer(i);
     }
     
@@ -129,7 +129,7 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public IReal real(String s) throws NumberFormatException {
+    public IReal real(String s) {
         return adapted.real(s);
     }
 
@@ -233,12 +233,12 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public IRational rational(String rat) throws NumberFormatException {
+    public IRational rational(String rat) {
         return adapted.rational(rat);
     }
 
     @Override
-    public IReal real(String s, int p) throws NumberFormatException {
+    public IReal real(String s, int p) {
         return adapted.real(s, p);
     }
 
@@ -268,36 +268,39 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public IString string(int[] chars) throws IllegalArgumentException {
+    public IString string(int[] chars) {
         return adapted.string(chars);
     }
 
     @Override
-    public IString string(int ch) throws IllegalArgumentException {
+    public IString string(int ch) {
         return adapted.string(ch);
     }
 
     @Override
+    @Deprecated
     public ISourceLocation sourceLocation(URI uri, int offset, int length) {
         return adapted.sourceLocation(uri, offset, length);
     }
 
     @Override
+    @Deprecated
     public ITuple tuple(Type type, IValue... args) {
         return adapted.tuple(type, args);
     }
 
     @Override
-    public INode node(String name, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
+    public INode node(String name, Map<String, IValue> annotations, IValue... children) {
         return adapted.node(name, annotations, children);
     }
 
     @Override
-    public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) throws FactTypeUseException {
+    public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
         return adapted.node(name, children, keyArgValues);
     }
 
     @Override
+    @Deprecated
     public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children)
             throws FactTypeUseException {
         return adapted.constructor(constructor, annotations, children);

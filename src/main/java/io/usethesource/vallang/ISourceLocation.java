@@ -107,24 +107,28 @@ public interface ISourceLocation extends IValue {
     /**
      * @return the (inclusive) line number where the location begins. The first
      * line is always line number 1.
+     * @throws UnsupportedOperationException
      */
-    public int getBeginLine() throws UnsupportedOperationException;
+    public int getBeginLine();
     
     /**
      * @return the (exclusive) line where the location ends
+     * @throws UnsupportedOperationException
      */
-    public int getEndLine() throws UnsupportedOperationException;
+    public int getEndLine();
 
     /**
      * @return the (inclusive) column number where the location begins. The
      * first column is always column number 0 (zero).
+     * @throws UnsupportedOperationException
      */
-    public int getBeginColumn() throws UnsupportedOperationException;
+    public int getBeginColumn();
     
     /**
      * @return the (exclusive) column number where the location ends.
+     * @throws UnsupportedOperationException
      */
-    public int getEndColumn() throws UnsupportedOperationException;
+    public int getEndColumn();
 
     /**
      * @return the source location without any offset & length information.

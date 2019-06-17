@@ -33,11 +33,9 @@ public class ListRelation implements IRelation<IList> {
             IList tcomp = tmp.compose(tmp);
             IWriter<IList> w = writer();
             for (IValue t1 : tcomp) {
-                if (!tmp.asContainer().contains(t1)) {
-                    if (!addedTuples.contains(t1)) {
-                        addedTuples.add(t1);
-                        w.append(t1);
-                    }
+                if (!tmp.asContainer().contains(t1) && !addedTuples.contains(t1)) {
+                    addedTuples.add(t1);
+                    w.append(t1);
                 }
             }
             

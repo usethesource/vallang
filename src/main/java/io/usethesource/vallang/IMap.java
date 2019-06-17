@@ -82,11 +82,11 @@ public interface IMap extends ICollection<IMap> {
             if (size() == map2.size()) {
 
                 for (IValue k1 : this) {
-                    if (containsKey(k1) == false) { 
+                    if (!containsKey(k1)) { 
                         return false;
                     } else {
                         IValue v1 = map2.get(k1);
-                        if (v1 == null || v1.isEqual(get(k1)) == false) { 
+                        if (v1 == null || !v1.isEqual(get(k1))) { 
                             return false;
                         }
                     }
@@ -124,7 +124,7 @@ public interface IMap extends ICollection<IMap> {
                         if (cursor.equals(k1)) {
                             // key was found, now check the value
                             IValue val2 = map2.get(k1);
-                            if (val2 != null && val2.equals(get(k1)) == false) { // call to Object.equals(Object)
+                            if (val2 != null && !val2.equals(get(k1))) { // call to Object.equals(Object)
                                 return false;
                             }
                             

@@ -7,10 +7,8 @@ import java.util.regex.Pattern;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -182,39 +180,19 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 
 		@Override
-		public IAnnotatable<? extends IValue> asAnnotatable() {
-			throw new UnsupportedOperationException();
-		}
-
-
-		@Override
-		public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public Type getType() {
 			return TypeFactory.getInstance().sourceLocationType();
 		}
-
-
-		@Override
-		public boolean isAnnotatable() {
-		    return false;
-		}
-
 
 		@Override
 		public boolean isEqual(IValue arg0) {
 		    return equals(arg0);
 		}
 
-
 		@Override
 		public boolean mayHaveKeywordParameters() {
 		    return false;
 		}
-
 
 		@Override
 		public int getBeginColumn() throws UnsupportedOperationException {

@@ -20,7 +20,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
@@ -36,84 +35,100 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		this.annotations = annotations;
 	}
 	
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public INode setChildren(IValue[] childArray) {
 	    return content.setChildren(childArray).asAnnotatable().setAnnotations(annotations);
 	}
 	
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return v.visitConstructor(this);
 	}
 
+	@Override
 	public Type getType() {
 		return content.getType();
 	}
 
+	@Override
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		return content.get(i);
 	}
 
+	@Override
 	public Type getConstructorType() {
 		return content.getConstructorType();
 	}
 	
+	@Override
 	public Type getUninstantiatedConstructorType() {
 		return content.getUninstantiatedConstructorType();
 	}
 
+	@Override
 	public IValue get(String label) {
 		return content.get(label);
 	}
 
-	public IConstructor set(String label, IValue newChild)
-			throws FactTypeUseException {
+	@Override
+	public IConstructor set(String label, IValue newChild) {
 		IConstructor newContent = content.set(label, newChild);
 		return new AnnotatedConstructorFacade(newContent, annotations);	// TODO: introduce wrap() here as well			
 	}
 
+	@Override
 	public int arity() {
 		return content.arity();
 	}
 
+	@Override
 	public boolean has(String label) {
 		return content.has(label);
 	}
 
+	@Override
 	public String toString() {
 		return StandardTextWriter.valueToString(this);
 	}
 
-	public IConstructor set(int index, IValue newChild)
-			throws FactTypeUseException {
+	@Override
+	public IConstructor set(int index, IValue newChild) {
 		IConstructor newContent = content.set(index, newChild);
 		return new AnnotatedConstructorFacade(newContent, annotations);	// TODO: introduce wrap() here as well		
 	}
 
+	@Override
 	public String getName() {
 		return content.getName();
 	}
 
+	@Override
 	public Iterable<IValue> getChildren() {
 		return content.getChildren();
 	}
 
+	@Override
 	public Iterator<IValue> iterator() {
 		return content.iterator();
 	}
 
-	public INode replace(int first, int second, int end, IList repl)
-			throws FactTypeUseException, IndexOutOfBoundsException {
+	@Override
+	public INode replace(int first, int second, int end, IList repl) {
 		return content.replace(first, second, end, repl);
 	}
 
+	@Override
 	public Type getChildrenTypes() {
 		return content.getChildrenTypes();
 	}
 
+	@Override
 	public boolean declaresAnnotation(TypeStore store, String label) {
 		return content.declaresAnnotation(store, label);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if(o == this) return true;
 		if(o == null) return false;
@@ -144,6 +159,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isAnnotatable() {
 		return true;
 	}

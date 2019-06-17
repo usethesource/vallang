@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
@@ -50,7 +49,7 @@ public interface IExternalValue extends IValue {
         return new IConstructor() {
             @Override
             public Type getConstructorType() {
-                return TypeFactory.getInstance().constructor(new TypeStore(), getType(), getName(), new Type[0]);
+                return TypeFactory.getInstance().constructor(new TypeStore(), getType(), getName());
             }
             
             @Override
@@ -79,7 +78,7 @@ public interface IExternalValue extends IValue {
             }
 
             @Override
-            public IConstructor set(String label, IValue newChild) throws FactTypeUseException {
+            public IConstructor set(String label, IValue newChild) {
                 return this;
             }
 
@@ -116,8 +115,7 @@ public interface IExternalValue extends IValue {
             }
 
             @Override
-            public INode replace(int first, int second, int end, IList repl)
-                    throws FactTypeUseException, IndexOutOfBoundsException {
+            public INode replace(int first, int second, int end, IList repl) {
                 return this;
             }
             
@@ -127,7 +125,7 @@ public interface IExternalValue extends IValue {
             }
             
             @Override
-            public IValue get(int i) throws IndexOutOfBoundsException {
+            public IValue get(int i) {
                 return null;
             }
             

@@ -22,7 +22,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.primitive.AbstractPrimitiveValueFactory;
 import io.usethesource.vallang.type.Type;
 
@@ -65,6 +64,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         return Node.newNode(name, new IValue[0]);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public INode node(String name, Map<String, IValue> annos, IValue... children) {
         return Node.newNode(name, children.clone()).asAnnotatable().setAnnotations(annos);
@@ -76,9 +76,8 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     }
     
     @Override
-    public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues)
-            throws FactTypeUseException {
-        return Node.newNode(name, children.clone(), keyArgValues);
+    public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
+        return Node.newNode(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
     }
     
     @Override
@@ -96,10 +95,10 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         return Constructor.newConstructor(constructorType, children.clone(), kwParams);
     }
     
+    @SuppressWarnings("deprecation")
     @Override
     public IConstructor constructor(Type constructorType,
-            Map<String, IValue> annotations, IValue... children)
-            throws FactTypeUseException {
+            Map<String, IValue> annotations, IValue... children) {
         return Constructor.newConstructor(constructorType, children.clone()).asAnnotatable().setAnnotations(annotations);
     }
     

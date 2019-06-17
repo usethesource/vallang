@@ -169,11 +169,13 @@ public interface INode extends IValue, Iterable<IValue> {
 	}
 	
     @Override
+    @Deprecated
     public default boolean isAnnotatable() {
         return true;
     }
     
     @Override
+    @Deprecated
     public default IAnnotatable<? extends INode> asAnnotatable() {
         return new AbstractDefaultAnnotatable<INode>(this) {
             @Override
@@ -252,13 +254,14 @@ public interface INode extends IValue, Iterable<IValue> {
     
     @Override
     public default boolean match(IValue value) {
-        if(value == this) return true;
-        if(value == null) return false;
-
-        if (this == value) {
+        if(value == this) {
             return true;
         }
         
+        if(value == null) {
+            return false;
+        }
+
         if (getType() != value.getType()) {
             return false;
         }

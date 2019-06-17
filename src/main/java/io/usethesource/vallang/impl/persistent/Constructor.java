@@ -1,13 +1,13 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Arnold Lankamp - interfaces and implementation
-*******************************************************************************/
+ * Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Arnold Lankamp - interfaces and implementation
+ *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
 import java.util.Arrays;
@@ -27,7 +27,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
@@ -38,58 +37,58 @@ import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ class Constructor {
-	private static abstract class AbstractConstructor  implements IConstructor {
-	    protected final Type constructorType;
-	    private int hashCode;
+    private abstract static class AbstractConstructor  implements IConstructor {
+        protected final Type constructorType;
+        private int hashCode;
 
-	    public AbstractConstructor(Type constructorType) {
-	        this.constructorType = constructorType;
+        public AbstractConstructor(Type constructorType) {
+            this.constructorType = constructorType;
         }
 
-	    @Override
-	    public INode setChildren(IValue[] childArray) {
-	        return new Node(constructorType.getName(), childArray);
-	    }
-	    
-	    @Override
-        public IConstructor set(String label, IValue arg) throws FactTypeUseException {
+        @Override
+        public INode setChildren(IValue[] childArray) {
+            return new Node(constructorType.getName(), childArray);
+        }
+
+        @Override
+        public IConstructor set(String label, IValue arg) {
             return set(constructorType.getFieldIndex(label), arg);
         }
 
-	    @Override
-	    public Iterable<IValue> getChildren(){
-	        return this;
-	    }
-	    
-	    @Override
-	    public boolean isAnnotatable() {
-	        return true;
-	    }
+        @Override
+        public Iterable<IValue> getChildren(){
+            return this;
+        }
 
-	    @Override
-	    public boolean declaresAnnotation(TypeStore store, String label) {
-	        return (store.getAnnotationType(constructorType.getAbstractDataType(), label) != null);
-	    }
+        @Override
+        public boolean isAnnotatable() {
+            return true;
+        }
 
-	    @Override
-	    public IConstructor replace(int first, int second, int end, IList repl)
-	            throws FactTypeUseException, IndexOutOfBoundsException {
-	        throw new UnsupportedOperationException("Replace not supported on constructor.");
-	    }
+        @Override
+        public boolean declaresAnnotation(TypeStore store, String label) {
+            return (store.getAnnotationType(constructorType.getAbstractDataType(), label) != null);
+        }
+
+        @Override
+        public IConstructor replace(int first, int second, int end, IList repl) {
+            throw new UnsupportedOperationException("Replace not supported on constructor.");
+        }
 
 
-	    @Override
-	    public IAnnotatable<IConstructor> asAnnotatable() {
-	        return new AbstractDefaultAnnotatable<IConstructor>(this) {
-	            @Override
-	            protected IConstructor wrap(IConstructor content,
-	                    io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-	                return new AnnotatedConstructorFacade(content, annotations);
-	            }
-	        };
-	    }
+        @Override
+        @Deprecated
+        public IAnnotatable<IConstructor> asAnnotatable() {
+            return new AbstractDefaultAnnotatable<IConstructor>(this) {
+                @Override
+                protected IConstructor wrap(IConstructor content,
+                        io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
+                    return new AnnotatedConstructorFacade(content, annotations);
+                }
+            };
+        }
 
-	    @Override
+        @Override
         public int hashCode(){
             if (hashCode == 0) {
                 hashCode = constructorType.hashCode();
@@ -103,86 +102,85 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return hashCode;
         }
 
-	   
-	    @Override
-	    public boolean equals(Object o){
-	        if(o == this) return true;
-	        if(o == null) return false;
+        @Override
+        public boolean equals(Object o){
+            if(o == this) return true;
+            if(o == null) return false;
 
-	        if(o.getClass() == getClass()){
-	            AbstractConstructor otherTree = (AbstractConstructor) o;
+            if(o.getClass() == getClass()){
+                AbstractConstructor otherTree = (AbstractConstructor) o;
 
-	            if (constructorType != otherTree.constructorType) {
-	                return false;
-	            }
+                if (constructorType != otherTree.constructorType) {
+                    return false;
+                }
 
-	            Iterator<IValue> children = iterator();
-	            Iterator<IValue> other = otherTree.iterator();
+                Iterator<IValue> children = iterator();
+                Iterator<IValue> other = otherTree.iterator();
 
-	            while (children.hasNext() && other.hasNext()) {
-	                if (!children.next().equals(other.next())) {
-	                    return false;
-	                }
-	            }
+                while (children.hasNext() && other.hasNext()) {
+                    if (!children.next().equals(other.next())) {
+                        return false;
+                    }
+                }
 
-	            return true;
-	        }
+                return true;
+            }
 
-	        return false;
-	    }
+            return false;
+        }
 
 
-	    @Override
-	    public boolean has(String label) {
-	        return getConstructorType().hasField(label);
-	    }
+        @Override
+        public boolean has(String label) {
+            return getConstructorType().hasField(label);
+        }
 
-	    @Override
-	    public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-	      return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
-	        @Override
-	        protected IConstructor wrap(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
-	          return new ConstructorWithKeywordParametersFacade(content, parameters);
-	        }
+        @Override
+        public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+            return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
+                @Override
+                protected IConstructor wrap(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
+                    return new ConstructorWithKeywordParametersFacade(content, parameters);
+                }
 
-	        @Override
-	        public boolean hasParameters() {
-	            return false;
-	        }
+                @Override
+                public boolean hasParameters() {
+                    return false;
+                }
 
-	        @Override
-	        public java.util.Set<String> getParameterNames() {
-	            return Collections.emptySet();
-	        }
+                @Override
+                public java.util.Set<String> getParameterNames() {
+                    return Collections.emptySet();
+                }
 
-	        @Override
-	        public Map<String, IValue> getParameters() {
-	            return Collections.unmodifiableMap(parameters);
-	        }
-	      };
-	    }
+                @Override
+                public Map<String, IValue> getParameters() {
+                    return Collections.unmodifiableMap(parameters);
+                }
+            };
+        }
 
-	    @Override
-	    public IValue get(String label){
-	        return get(constructorType.getFieldIndex(label));
-	    }
+        @Override
+        public IValue get(String label){
+            return get(constructorType.getFieldIndex(label));
+        }
 
         @Override
         public String getName(){
             return constructorType.getName();
         }
 
-	    @Override
-	    public Type getUninstantiatedConstructorType() {
-	      return constructorType;
-	    }
+        @Override
+        public Type getUninstantiatedConstructorType() {
+            return constructorType;
+        }
 
-	    @Override
-	    public Type getType(){
-	        return getConstructorType().getAbstractDataType();
-	    }
+        @Override
+        public Type getType(){
+            return getConstructorType().getAbstractDataType();
+        }
 
-	    @Override
+        @Override
         public Iterator<IValue> iterator() {
             return new Iterator<IValue>() {
                 private final int max = arity();
@@ -202,23 +200,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             };
         }
 
-	    @Override
-	    public Type getConstructorType(){
-	        return constructorType;
-	    }
+        @Override
+        public Type getConstructorType(){
+            return constructorType;
+        }
 
-	    @Override
-	    public Type getChildrenTypes(){
-	        return constructorType.getFieldTypes();
-	    }
+        @Override
+        public Type getChildrenTypes(){
+            return constructorType.getFieldTypes();
+        }
 
-	    @Override
-	    public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
-	        return v.visitConstructor(this);
-	    }
-	}
+        @Override
+        public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
+            return v.visitConstructor(this);
+        }
+    }
 
-	private static class Constructor0 extends AbstractConstructor {
+    private static class Constructor0 extends AbstractConstructor {
         public Constructor0(Type constructorType) {
             super(constructorType);
         }
@@ -239,17 +237,17 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IValue get(int arg0) throws IndexOutOfBoundsException {
+        public IValue get(int arg0) {
             throw new IndexOutOfBoundsException();
         }
 
         @Override
-        public IConstructor set(int arg0, IValue arg1) throws FactTypeUseException {
+        public IConstructor set(int arg0, IValue arg1) {
             throw new IndexOutOfBoundsException();
         }
 
         @Override
-        public IConstructor set(String arg0, IValue arg1) throws FactTypeUseException {
+        public IConstructor set(String arg0, IValue arg1) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -257,7 +255,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         public boolean equals(Object o) {
             return o == this;
         }
-        
+
+        @SuppressWarnings("deprecation")
         @Override
         public boolean isEqual(IValue value) {
             if (value == this) {
@@ -274,7 +273,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
             return false;
         }
-        
+
         @Override
         public boolean match(IValue value) {
             // either value is the same instance
@@ -283,8 +282,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
     }
 
-	private static class Constructor1 extends AbstractConstructor {
-	    private final IValue arg1;
+    private static class Constructor1 extends AbstractConstructor {
+        private final IValue arg1;
 
         public Constructor1(Type constructorType, IValue arg1) {
             super(constructorType);
@@ -297,7 +296,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IValue get(int index) throws IndexOutOfBoundsException {
+        public IValue get(int index) {
             switch (index) {
             case 0: return arg1;
             default:
@@ -306,7 +305,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
+        public IConstructor set(int index, IValue newArg) {
             switch (index) {
             case 0: return new Constructor1(constructorType, newArg);
             default:
@@ -334,11 +333,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
             return Objects.equals(arg1, otherTree.arg1);
         }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
     }
 
-	private static class Constructor2 extends AbstractConstructor {
-	    private final IValue arg1;
-	    private final IValue arg2;
+    private static class Constructor2 extends AbstractConstructor {
+        private final IValue arg1;
+        private final IValue arg2;
 
         public Constructor2(Type constructorType, IValue arg1, IValue arg2) {
             super(constructorType);
@@ -352,7 +356,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IValue get(int index) throws IndexOutOfBoundsException {
+        public IValue get(int index) {
             switch (index) {
             case 0: return arg1;
             case 1: return arg2;
@@ -362,13 +366,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
+        public IConstructor set(int index, IValue newArg) {
             switch (index) {
             case 0: return new Constructor2(constructorType, newArg, arg2);
             case 1: return new Constructor2(constructorType, arg1, newArg);
             default:
                 throw new IndexOutOfBoundsException();
             }
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
         }
 
         @Override
@@ -390,12 +399,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                && Objects.equals(arg2, otherTree.arg2);
+                    && Objects.equals(arg2, otherTree.arg2);
         }
     }
 
-	private static class Constructor3 extends AbstractConstructor {
-	    private final IValue arg1;
+    private static class Constructor3 extends AbstractConstructor {
+        private final IValue arg1;
         private final IValue arg2;
         private final IValue arg3;
 
@@ -412,7 +421,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IValue get(int index) throws IndexOutOfBoundsException {
+        public IValue get(int index) {
             switch (index) {
             case 0: return arg1;
             case 1: return arg2;
@@ -423,7 +432,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
+        public IConstructor set(int index, IValue newArg) {
             switch (index) {
             case 0: return new Constructor3(constructorType, newArg, arg2, arg3);
             case 1: return new Constructor3(constructorType, arg1, newArg, arg3);
@@ -452,13 +461,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                && Objects.equals(arg2, otherTree.arg2)
-                && Objects.equals(arg3, otherTree.arg3);
+                    && Objects.equals(arg2, otherTree.arg2)
+                    && Objects.equals(arg3, otherTree.arg3);
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
         }
     }
 
-	private static class Constructor4 extends AbstractConstructor {
-	    private final IValue arg1;
+    private static class Constructor4 extends AbstractConstructor {
+        private final IValue arg1;
         private final IValue arg2;
         private final IValue arg3;
         private final IValue arg4;
@@ -477,7 +491,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IValue get(int index) throws IndexOutOfBoundsException {
+        public IValue get(int index) {
             switch (index) {
             case 0: return arg1;
             case 1: return arg2;
@@ -489,7 +503,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
+        public IConstructor set(int index, IValue newArg) {
             switch (index) {
             case 0: return new Constructor4(constructorType, newArg, arg2, arg3, arg4);
             case 1: return new Constructor4(constructorType, arg1, newArg, arg3, arg4);
@@ -519,14 +533,19 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                && Objects.equals(arg2, otherTree.arg2)
-                && Objects.equals(arg3, otherTree.arg3)
-                && Objects.equals(arg4, otherTree.arg4);
+                    && Objects.equals(arg2, otherTree.arg2)
+                    && Objects.equals(arg3, otherTree.arg3)
+                    && Objects.equals(arg4, otherTree.arg4);
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
         }
     }
 
-	private static class Constructor5 extends AbstractConstructor {
-	    private final IValue arg1;
+    private static class Constructor5 extends AbstractConstructor {
+        private final IValue arg1;
         private final IValue arg2;
         private final IValue arg3;
         private final IValue arg4;
@@ -547,7 +566,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IValue get(int index) throws IndexOutOfBoundsException {
+        public IValue get(int index) {
             switch (index) {
             case 0: return arg1;
             case 1: return arg2;
@@ -560,7 +579,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
+        public IConstructor set(int index, IValue newArg) {
             switch (index) {
             case 0: return new Constructor5(constructorType, newArg, arg2, arg3, arg4, arg5);
             case 1: return new Constructor5(constructorType, arg1, newArg, arg3, arg4, arg5);
@@ -591,15 +610,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                && Objects.equals(arg2, otherTree.arg2)
-                && Objects.equals(arg3, otherTree.arg3)
-                && Objects.equals(arg4, otherTree.arg4)
-                && Objects.equals(arg5, otherTree.arg5);
+                    && Objects.equals(arg2, otherTree.arg2)
+                    && Objects.equals(arg3, otherTree.arg3)
+                    && Objects.equals(arg4, otherTree.arg4)
+                    && Objects.equals(arg5, otherTree.arg5);
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
         }
     }
 
-	private static class Constructor6 extends AbstractConstructor {
-	    private final IValue arg1;
+    private static class Constructor6 extends AbstractConstructor {
+        private final IValue arg1;
         private final IValue arg2;
         private final IValue arg3;
         private final IValue arg4;
@@ -622,7 +646,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IValue get(int index) throws IndexOutOfBoundsException {
+        public IValue get(int index) {
             switch (index) {
             case 0: return arg1;
             case 1: return arg2;
@@ -636,7 +660,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
+        public IConstructor set(int index, IValue newArg) {
             switch (index) {
             case 0: return new Constructor6(constructorType, newArg, arg2, arg3, arg4, arg5, arg6);
             case 1: return new Constructor6(constructorType, arg1, newArg, arg3, arg4, arg5, arg6);
@@ -649,35 +673,40 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
         }
 
-    @Override
-    public boolean equals(Object o) {
-      if (o == this) {
-        return true;
-      }
-      if (o == null) {
-        return false;
-      }
+        @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
 
-      if (o.getClass() != getClass()) {
-        return false;
-      }
-      Constructor6 otherTree = (Constructor6) o;
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
 
-      if (constructorType != otherTree.constructorType) {
-        return false;
-      }
+            if (o.getClass() != getClass()) {
+                return false;
+            }
+            Constructor6 otherTree = (Constructor6) o;
 
-      return Objects.equals(arg1, otherTree.arg1)
-          && Objects.equals(arg2, otherTree.arg2)
-          && Objects.equals(arg3, otherTree.arg3)
-          && Objects.equals(arg4, otherTree.arg4)
-          && Objects.equals(arg5, otherTree.arg5)
-          && Objects.equals(arg6, otherTree.arg6);
+            if (constructorType != otherTree.constructorType) {
+                return false;
+            }
+
+            return Objects.equals(arg1, otherTree.arg1)
+                    && Objects.equals(arg2, otherTree.arg2)
+                    && Objects.equals(arg3, otherTree.arg3)
+                    && Objects.equals(arg4, otherTree.arg4)
+                    && Objects.equals(arg5, otherTree.arg5)
+                    && Objects.equals(arg6, otherTree.arg6);
+        }
     }
-	}
 
-	private static class Constructor7 extends AbstractConstructor {
-	    private final IValue arg1;
+    private static class Constructor7 extends AbstractConstructor {
+        private final IValue arg1;
         private final IValue arg2;
         private final IValue arg3;
         private final IValue arg4;
@@ -702,7 +731,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IValue get(int index) throws IndexOutOfBoundsException {
+        public IValue get(int index) {
             switch (index) {
             case 0: return arg1;
             case 1: return arg2;
@@ -717,7 +746,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
+        public IConstructor set(int index, IValue newArg) {
             switch (index) {
             case 0: return new Constructor7(constructorType, newArg, arg2, arg3, arg4, arg5, arg6, arg7);
             case 1: return new Constructor7(constructorType, arg1, newArg, arg3, arg4, arg5, arg6, arg7);
@@ -731,6 +760,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
         }
 
+        @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
+        
         @Override
         public boolean equals(Object o) {
             if (o == this) {
@@ -750,49 +784,49 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                && Objects.equals(arg2, otherTree.arg2)
-                && Objects.equals(arg3, otherTree.arg3)
-                && Objects.equals(arg4, otherTree.arg4)
-                && Objects.equals(arg5, otherTree.arg5)
-                && Objects.equals(arg6, otherTree.arg6)
-                && Objects.equals(arg7, otherTree.arg7);
+                    && Objects.equals(arg2, otherTree.arg2)
+                    && Objects.equals(arg3, otherTree.arg3)
+                    && Objects.equals(arg4, otherTree.arg4)
+                    && Objects.equals(arg5, otherTree.arg5)
+                    && Objects.equals(arg6, otherTree.arg6)
+                    && Objects.equals(arg7, otherTree.arg7);
         }
     }
 
-	private static class ConstructorN extends AbstractConstructor {
-	    protected final IValue[] children;
+    private static class ConstructorN extends AbstractConstructor {
+        protected final IValue[] children;
 
-	    public ConstructorN(Type constructorType, IValue[] children) {
-	        super(constructorType);
-	        this.children = children;
-	    }
+        public ConstructorN(Type constructorType, IValue[] children) {
+            super(constructorType);
+            this.children = children;
+        }
 
-	    @Override
-	    public int arity(){
-	        return children.length;
-	    }
+        @Override
+        public int arity(){
+            return children.length;
+        }
 
-	    @Override
-	    public Iterator<IValue> iterator() {
-	        return Arrays.stream(children).iterator();
-	    }
+        @Override
+        public Iterator<IValue> iterator() {
+            return Arrays.stream(children).iterator();
+        }
 
-	    @Override
-	    public IValue get(int i){
-	        return children[i];
-	    }
+        @Override
+        public IValue get(int i){
+            return children[i];
+        }
 
-	    @Override
-	    public IConstructor set(int index, IValue newArg) throws FactTypeUseException {
-	        IValue[] newChildren = new IValue[children.length];
-	        System.arraycopy(children, 0, newChildren, 0, children.length);
-	        newChildren[index] = newArg;
-	        return new ConstructorN(constructorType, newChildren);
-	    }
-	}
-	
-	private static class TypeParameterizedConstructorN extends ConstructorN {
-	    private final Type uninstantiatedConstructorType;
+        @Override
+        public IConstructor set(int index, IValue newArg) {
+            IValue[] newChildren = new IValue[children.length];
+            System.arraycopy(children, 0, newChildren, 0, children.length);
+            newChildren[index] = newArg;
+            return new ConstructorN(constructorType, newChildren);
+        }
+    }
+
+    private static class TypeParameterizedConstructorN extends ConstructorN {
+        private final Type uninstantiatedConstructorType;
 
         public TypeParameterizedConstructorN(Type constructorType, IValue[] children) {
             super(instantiate(constructorType, children), children);
@@ -818,45 +852,45 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
             return constructorType.instantiate(bindings);
         }
-        
+
         @Override
         public Type getUninstantiatedConstructorType() {
             return uninstantiatedConstructorType;
         }
-	}
-	
-	/**
-	 * As empty constructors are very common and are only based on a type that is already maximally shared we also maximally share the Constructor0 instances
-	 * 
-	 * This descreases both memory footprint and allocation overhead.
-	 */
+    }
+
+    /**
+     * As empty constructors are very common and are only based on a type that is already maximally shared we also maximally share the Constructor0 instances
+     * 
+     * This descreases both memory footprint and allocation overhead.
+     */
     private static final LoadingCache<Type, IConstructor> EMPTY_CONSTRUCTOR_SINGLETONS = Caffeine.newBuilder().build(Constructor0::new);
 
-	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
-	    if (constructorType.isParameterized()) {
-	        return new TypeParameterizedConstructorN(constructorType, children);
-	    }
-	    
-	    switch (children.length) {
-	        case 0: return EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType);
-	        case 1: return new Constructor1(constructorType, children[0]);
-	        case 2: return new Constructor2(constructorType, children[0], children[1]);
-	        case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
-	        case 4: return new Constructor4(constructorType, children[0], children[1], children[2], children[3]);
-	        case 5: return new Constructor5(constructorType, children[0], children[1], children[2], children[3], children[4]);
-	        case 6: return new Constructor6(constructorType, children[0], children[1], children[2], children[3], children[4], children[5]);
-	        case 7: return new Constructor7(constructorType, children[0], children[1], children[2], children[3], children[4], children[5], children[6]);
-	        default: return new ConstructorN(constructorType, children);
-	    }
-	}
+    /*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
+        if (constructorType.isParameterized()) {
+            return new TypeParameterizedConstructorN(constructorType, children);
+        }
 
-	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
-	  IConstructor r = newConstructor(constructorType, children);
+        switch (children.length) {
+        case 0: return EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType);
+        case 1: return new Constructor1(constructorType, children[0]);
+        case 2: return new Constructor2(constructorType, children[0], children[1]);
+        case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
+        case 4: return new Constructor4(constructorType, children[0], children[1], children[2], children[3]);
+        case 5: return new Constructor5(constructorType, children[0], children[1], children[2], children[3], children[4]);
+        case 6: return new Constructor6(constructorType, children[0], children[1], children[2], children[3], children[4], children[5]);
+        case 7: return new Constructor7(constructorType, children[0], children[1], children[2], children[3], children[4], children[5], children[6]);
+        default: return new ConstructorN(constructorType, children);
+        }
+    }
 
-	  if (kwParams != null && !kwParams.isEmpty()) {
-	    return r.asWithKeywordParameters().setParameters(kwParams);
-	  }
+    /*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
+        IConstructor r = newConstructor(constructorType, children);
 
-	  return r;
-	}
+        if (kwParams != null && !kwParams.isEmpty()) {
+            return r.asWithKeywordParameters().setParameters(kwParams);
+        }
+
+        return r;
+    }
 }

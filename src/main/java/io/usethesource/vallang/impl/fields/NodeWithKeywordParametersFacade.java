@@ -21,8 +21,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -35,6 +33,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 		this.parameters = parameters;
 	}
 	
+	@Override
 	public Type getType() {
 		return content.getType();
 	}
@@ -44,45 +43,54 @@ public class NodeWithKeywordParametersFacade implements INode {
         return content.setChildren(childArray).asWithKeywordParameters().setParameters(parameters);
     }
 
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return v.visitNode(this);
 	}
 
-	public IValue get(int i) throws IndexOutOfBoundsException {
+	@Override
+	public IValue get(int i) {
 		return content.get(i);
 	}
 	
-	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
+	@Override
+	public INode set(int i, IValue newChild) {
 		INode newContent = content.set(i, newChild);
 		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
 	}
 
+	@Override
 	public int arity() {
 		return content.arity();
 	}
 
+	@Override
 	public String toString() {
-		return StandardTextWriter.valueToString(this);
+		return defaultToString();
 	}
 
+	@Override
 	public String getName() {
 		return content.getName();
 	}
 
+	@Override
 	public Iterable<IValue> getChildren() {
 		return content.getChildren();
 	}
 
+	@Override
 	public Iterator<IValue> iterator() {
 		return content.iterator();
 	}
 	
-	public INode replace(int first, int second, int end, IList repl)
-			throws FactTypeUseException, IndexOutOfBoundsException {
+	@Override
+	public INode replace(int first, int second, int end, IList repl) {
 		INode newContent = content.replace(first, second, end, repl);
 		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if(o == this) return true;
 		if(o == null) return false;

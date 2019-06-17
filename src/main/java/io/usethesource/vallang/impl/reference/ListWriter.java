@@ -50,7 +50,7 @@ import io.usethesource.vallang.type.TypeFactory;
     
     private ListWriter(boolean unique) {
         this();
-        this.unique = true;
+        this.unique = unique;
     }
     
     @Override

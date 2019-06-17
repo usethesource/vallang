@@ -315,8 +315,7 @@ public interface IValueFactory {
 	 *            the path part of an source location
 	 * @return
 	 */
-	public ISourceLocation sourceLocation(String scheme, String authority,
-			String path) throws URISyntaxException;
+	public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException;
 
 	/**
 	 * Create an exact reference to a source location

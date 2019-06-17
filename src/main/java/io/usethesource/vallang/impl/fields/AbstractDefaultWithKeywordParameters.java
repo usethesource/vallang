@@ -18,7 +18,6 @@ import java.util.Set;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 
 /**
@@ -64,12 +63,12 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
-	public IValue getParameter(String label) throws FactTypeUseException {
+	public IValue getParameter(String label) {
 		return parameters.get(label);
 	}
 
 	@Override
-	public T setParameter(String label, IValue newValue) throws FactTypeUseException {
+	public T setParameter(String label, IValue newValue) {
 		return wrap(content, parameters.__put(label, newValue));
 	}
 	
@@ -89,7 +88,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
-	public boolean hasParameter(String label) throws FactTypeUseException {
+	public boolean hasParameter(String label) {
 		return parameters.containsKey(label);
 	}
 
@@ -109,7 +108,16 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
+	public int hashCode() {
+	    return 91 + content.hashCode() * 13 + 101 * parameters.hashCode(); 
+	}
+	
+	@Override
 	public boolean equals(Object other) {
+	    if (other == null) {
+	        return false;
+	    }
+	    
 		if (!getClass().equals(other.getClass())) {
 			return false;
 		}
@@ -124,6 +132,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 			return false;
 		}
 
+		// TODO: there should be a faster way for this
 		for (String key : parameters.keySet()) {
 			if (!getParameter(key).equals(o.getParameter(key))) {
 				return false;

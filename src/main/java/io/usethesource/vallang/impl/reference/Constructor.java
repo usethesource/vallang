@@ -134,18 +134,14 @@ public class Constructor extends Node implements IConstructor {
         return getConstructorType().hasField(label);
     }
 
-    /**
-     * TODO: Create and move to {@link AbstractConstructor}.
-     */
     @Override
+    @Deprecated
     public boolean isAnnotatable() {
         return true;
     }
 
-    /**
-     * TODO: Create and move to {@link AbstractConstructor}.
-     */
     @Override
+    @Deprecated
     public IAnnotatable<? extends IConstructor> asAnnotatable() {
         return new AbstractDefaultAnnotatable<IConstructor>(this) {
             @Override

@@ -13,7 +13,6 @@
 package io.usethesource.vallang.impl.persistent;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.IList;
@@ -23,8 +22,8 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class Node implements INode {
-	protected final static Type NODE_TYPE = TF.nodeType();
-	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
+	protected static final Type NODE_TYPE = TF.nodeType();
+	protected static final Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 	
 	protected final String name;
 	protected final IValue[] children;
@@ -54,22 +53,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		this.children = childArray;
 	}
 	
-	/*package*/ static INode newNode(String name, IValue[] children, Map<String, IValue> keyArgValues) {
-		INode node = new Node(name, children, keyArgValues);
-		
-		if (keyArgValues != null && keyArgValues.size() > 0) {
-		  return node.asWithKeywordParameters().setParameters(keyArgValues);
-		}
-		
-		return node;
-	}
-	
-	private Node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
-		super();
-		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
-		this.children = children;
-	}
-
 	@Override
 	public String toString() {
 	    return defaultToString();

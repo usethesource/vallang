@@ -21,7 +21,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ class Tuple implements ITuple{
 	
-	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
+	protected static final TypeFactory typeFactory = TypeFactory.getInstance();
 
 	private Type cachedTupleType;
 	protected final IValue[] elements;
@@ -37,6 +37,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		this.elements = elements;
 	}
 
+	@Override
 	public Type getType() {
 		if (cachedTupleType == null) {
 			cachedTupleType = TypeFactory.getInstance().tupleType(elements);
@@ -45,26 +46,32 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return cachedTupleType;
 	}
 
+	@Override
 	public int arity() {
 		return elements.length;
 	}
 
+	@Override
 	public IValue get(int i) {
 		return elements[i];
 	}
 
+	@Override
 	public IValue get(String label) {
 		return elements[getType().getFieldIndex(label)];
 	}
 
+	@Override
 	public Iterator<IValue> iterator() {
 		return new TupleIterator(this);
 	}
 
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return v.visitTuple(this);
 	}
 
+	@Override
 	public ITuple set(int index, IValue arg) {
 		int nrOfElements = elements.length;
 		IValue[] newElements = new IValue[nrOfElements];
@@ -81,6 +88,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new Tuple(newElements);
 	}
 
+	@Override
 	public ITuple set(String label, IValue arg) {
 		int nrOfElements = elements.length;
 		IValue[] newElements = new IValue[nrOfElements];
@@ -97,6 +105,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new Tuple(newElements);
 	}
 
+	@Override
 	public IValue select(int... indexes) {
 		if (indexes.length == 1)
 			return get(indexes[0]);
@@ -113,6 +122,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new Tuple(elements);
 	}
 
+	@Override
 	public IValue selectByFieldNames(String... fields) {
 		if (fields.length == 1)
 			return get(fields[0]);
@@ -134,6 +144,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	    return defaultToString();
 	}
 	
+	@Override
 	public int hashCode() {
 		int hash = 1331;
 
@@ -145,6 +156,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return hash - (hash << 7);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (o == this)
 			return true;
@@ -233,10 +245,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			elements = tuple.elements;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return index < elements.length;
 		}
 
+		@Override
 		public IValue next() {
 			if (!hasNext())
 				throw new NoSuchElementException("No more elements in this iteration.");
@@ -244,9 +258,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return elements[index++];
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("This iterator doesn't support removal.");
 		}
 	}
-	
 }

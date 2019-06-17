@@ -17,7 +17,6 @@ import io.usethesource.capsule.Map.Immutable;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 /**
  * A generic wrapper for an {@link IValue} that associates annotations to it.
@@ -85,18 +84,17 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	}
 
 	@Override
-	public boolean hasAnnotation(String label) throws FactTypeUseException {
+	public boolean hasAnnotation(String label) {
 		return annotations.containsKey(label);
 	}
 
 	@Override
-	public IValue getAnnotation(String label) throws FactTypeUseException {
+	public IValue getAnnotation(String label) {
 		return annotations.get(label);
 	}
 
 	@Override
-	public T setAnnotation(String label, IValue newValue)
-			throws FactTypeUseException {
+	public T setAnnotation(String label, IValue newValue) {
 		return wrap(content, annotations.__put(label, newValue));
 	}
 
@@ -137,14 +135,4 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	public io.usethesource.capsule.Map.Immutable<String, IValue> internalGetAnnotations() {
 	    return annotations;
 	}
-//	@Override
-//	public int hashCode() {
-//		// TODO
-//	}
-//
-//	@Override
-//	public boolean equals(Object obj) {
-//		// TODO
-//	}	
-	
 }

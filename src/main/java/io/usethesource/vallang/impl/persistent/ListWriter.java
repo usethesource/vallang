@@ -89,6 +89,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	    elementType = elementType.lub(element.getType());
 	}
 
+	@Override
 	public void append(IValue... elems){
 		checkMutation();
 		boolean notUnique = false;
@@ -116,6 +117,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void appendAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
@@ -138,10 +140,12 @@ import io.usethesource.vallang.type.TypeFactory;
 		data.insert(elem);
 	}
 	
+	@Override
 	public void insert(IValue... elements){
 		insert(elements, 0, elements.length);
 	}
 	
+	@Override
 	public void insert(IValue[] elements, int start, int length){
 		checkMutation();
 		checkBounds(elements, start, length);
@@ -157,6 +161,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void insertAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
@@ -169,17 +174,12 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 	}
 	
-	public void insertAt(int index, IValue element){
-		checkMutation();
-		
-		updateType(element);
-		data.insertAt(index, element);
-	}
-	
+	@Override
 	public void insertAt(int index, IValue... elements){
 		insertAt(index, elements, 0, 0);
 	}
 	
+	@Override
 	public void insertAt(int index, IValue[] elements, int start, int length){
 		checkMutation();
 		checkBounds(elements, start, length);
@@ -190,6 +190,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public IValue replaceAt(int index, IValue element){
 		checkMutation();
 		

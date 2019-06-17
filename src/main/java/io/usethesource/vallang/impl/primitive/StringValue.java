@@ -30,11 +30,9 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -827,26 +825,6 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public boolean match(IValue other) {
             return isEqual(other);
-        }
-
-        @Override
-        public boolean isAnnotatable() {
-            return false;
-        }
-
-        @Override
-        public IAnnotatable<? extends IValue> asAnnotatable() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean mayHaveKeywordParameters() {
-            return false;
-        }
-
-        @Override
-        public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-            throw new UnsupportedOperationException();
         }
 
         @Override

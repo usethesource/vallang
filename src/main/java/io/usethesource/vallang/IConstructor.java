@@ -27,11 +27,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public interface IConstructor extends INode {
 
 	/**
-	 * @return the AbstractDataType of a constructor.
-	 */
-	public Type getType();
-	
-	/**
 	 * @return the specific ConstructorType of this constructor
 	 */
 	public Type getConstructorType();
@@ -61,8 +56,7 @@ public interface IConstructor extends INode {
 	 *         when the given value has a type that is not a sub-type of the declared type
 	 *         of the child with this label.
 	 */
-	public IConstructor set(String label, IValue newChild)
-			throws FactTypeUseException;
+	public IConstructor set(String label, IValue newChild);
 	
 	/**
 	 * Find out whether this constructor has a field a given name
@@ -84,6 +78,7 @@ public interface IConstructor extends INode {
 	 *         when the given value has a type that is not a sub-type of the declared type
 	 *         of the child at this index.
 	 */
+	@Override
 	public IConstructor set(int index, IValue newChild);
 	
 	/**
@@ -102,12 +97,15 @@ public interface IConstructor extends INode {
 	 * (non-Javadoc)
 	 * @see IValue#asAnnotatable()
 	 */
+	@Override
+	@Deprecated
 	public IAnnotatable<? extends IConstructor> asAnnotatable();
 	
 	/*
 	 * (non-Javadoc)
 	 * @see IValue#asWithKeywordParameters()
 	 */
+	@Override
 	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters();
 	
 	@Override
@@ -128,7 +126,7 @@ public interface IConstructor extends INode {
 
 	        while (it1.hasNext() && it2.hasNext()) {
 	            // call to IValue.isEqual(IValue)
-	            if (it1.next().match(it2.next()) == false) {
+	            if (!it1.next().match(it2.next())) {
 	                return false;
 	            }
 	        }
@@ -158,7 +156,7 @@ public interface IConstructor extends INode {
 
 	        while (it1.hasNext() && it2.hasNext()) {
 	            // call to IValue.isEqual(IValue)
-	            if (it1.next().isEqual(it2.next()) == false) {
+	            if (!it1.next().isEqual(it2.next())) {
 	                return false;
 	            }
 	        }
@@ -172,8 +170,7 @@ public interface IConstructor extends INode {
 	}
 	
 	@Override
-    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v)
-            throws E {
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitConstructor(this);
     }
 }

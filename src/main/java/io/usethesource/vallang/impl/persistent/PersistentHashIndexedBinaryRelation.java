@@ -539,6 +539,7 @@ private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
   }
 
   @Override
+  @Deprecated
   public ISet projectByFieldNames(String... fieldNames) {
       final Type fieldTypeType = getType().getFieldTypes();
 

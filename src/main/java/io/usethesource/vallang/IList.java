@@ -294,6 +294,7 @@ public interface IList extends ICollection<IList> {
      * @param l
      * @return a new list relation containing the product
      */
+    @Override
     public default IList product(IList l) {
         IWriter<IList> w = writer();
 
@@ -303,7 +304,7 @@ public interface IList extends ICollection<IList> {
             }
         }
 
-        return (IList) w.done();
+        return w.done();
     }
     
     /**
@@ -342,7 +343,6 @@ public interface IList extends ICollection<IList> {
     
     @Override
     public default boolean match(IValue other) {
-        // return equals(vf, list1, other);
         if (other == this) {
             return true;
         }
@@ -360,8 +360,9 @@ public interface IList extends ICollection<IList> {
 
                 while (it1.hasNext() && it2.hasNext()) {
                     // call to IValue.isEqual(IValue)
-                    if (it1.next().match(it2.next()) == false)
+                    if (!it1.next().match(it2.next())) {
                         return false;
+                    }
                 }
 
                 assert (!it1.hasNext() && !it2.hasNext());
@@ -410,8 +411,9 @@ public interface IList extends ICollection<IList> {
                 final Iterator<IValue> it2 = list2.iterator();
 
                 while (it1.hasNext() && it2.hasNext()) {
-                    if (it1.next().isEqual(it2.next()) == false)
+                    if (!it1.next().isEqual(it2.next())) {
                         return false;
+                    }
                 }
 
                 assert (!it1.hasNext() && !it2.hasNext());
@@ -420,10 +422,6 @@ public interface IList extends ICollection<IList> {
         }
 
         return false;
-    }
-    
-    public default boolean isRelation() {
-        return getElementType().isFixedWidth();
     }
     
     public default boolean defaultEquals(Object other) {
@@ -456,7 +454,7 @@ public interface IList extends ICollection<IList> {
 
                 while (it1.hasNext() && it2.hasNext()) {
                     // call to Object.equals(Object)
-                    if (it1.next().equals(it2.next()) == false) {
+                    if (!it1.next().equals(it2.next())) {
                         return false;
                     }
                 }
@@ -491,16 +489,14 @@ public interface IList extends ICollection<IList> {
         }
         
         return new IRelation<IList>() {
-            protected final IList rel1 = IList.this;
-
             @Override
             public String toString() {
-                return rel1.toString();
+                return IList.this.toString();
             }
 
             @Override
             public IList asContainer() {
-                return rel1;
+                return IList.this;
             }
             
             @Override

@@ -56,6 +56,7 @@ public interface ISet extends ICollection<ISet> {
      * @param set
      * @return a relation representing the Cartesian product
      */
+    @Override
     public default ISet product(ISet that) {
         IWriter<ISet> w = writer();
 
@@ -131,6 +132,7 @@ public interface ISet extends ICollection<ISet> {
      * by implementations who know how to do this more efficiently.
      * @return the mathematical union of the two sets
      */
+    @Override
     public default ISet union(ISet that) {
         if (this == that) {
             return this;
@@ -336,16 +338,14 @@ public interface ISet extends ICollection<ISet> {
         }
         
         return new IRelation<ISet>() {
-            protected final ISet set = ISet.this;
-            
             @Override
             public String toString() {
-                return set.toString();
+                return ISet.this.toString();
             }   
 
             @Override
             public ISet asContainer() {
-                return set;
+                return ISet.this;
             }
         };
     }
