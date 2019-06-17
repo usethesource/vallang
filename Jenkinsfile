@@ -9,6 +9,10 @@ node {
             sh "mvn clean test"
         }
 
+        stage('QA') {
+            sh "mvn clean compile -P checker-framework"
+        }
+
         stage('Report code coverage') {
             sh "curl -L https://codecov.io/bash | bash -s - -K -t d32f974b-1db9-4b8e-b1d5-9bd68bb6c107"
         }
@@ -19,7 +23,7 @@ node {
     
         stage('Deploy') {
             if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
-                sh "mvn -DskipTests deploy"
+                sh "mvn clean -DskipTests deploy"
             }
         }
     }
