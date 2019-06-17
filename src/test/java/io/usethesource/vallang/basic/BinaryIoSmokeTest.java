@@ -235,9 +235,7 @@ public final class BinaryIoSmokeTest {
     Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
     Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
 
-    HashMap<Type, Type> binding = new HashMap<>();
-    binding.put(tf.parameterType("T"), tf.integerType());
-    ioRoundTrip(vf.constructor(cons.instantiate(binding), vf.integer(42)), 0);
+    ioRoundTrip(vf.constructor(cons, vf.integer(42)), 0);
   }
 
   @Test

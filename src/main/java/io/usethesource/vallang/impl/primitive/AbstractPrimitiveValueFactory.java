@@ -25,11 +25,7 @@ import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.util.ShareableHashMap;
 
 /**
  * Base value factory with optimized representations of primitive values.
@@ -38,26 +34,6 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
 	private final static int DEFAULT_PRECISION = 10;
 	private final AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
-
-	protected Type inferInstantiatedTypeOfConstructor(final Type constructorType, final IValue... children) {
-		Type instantiatedType;
-		if (!constructorType.getAbstractDataType().isParameterized()) {
-			instantiatedType = constructorType;
-		} else {
-			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<>();
-			TypeFactory tf = TypeFactory.getInstance();
-			Type params = constructorType.getAbstractDataType().getTypeParameters();
-			for (Type p : params) {
-				if (p.isOpen()) {
-					bindings.put(p, tf.voidType());
-				}
-			}
-			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
-			instantiatedType = constructorType.instantiate(bindings);
-		}
-
-		return instantiatedType;
-	}
 
 	@Override
 	public IInteger integer(String integerValue) {

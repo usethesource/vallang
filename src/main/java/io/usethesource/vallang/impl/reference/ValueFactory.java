@@ -139,8 +139,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	public IConstructor constructor(Type constructorType, IValue... children) {
 		checkNull(constructorType);
 		checkNull((Object[]) children);
-		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);
-		return new Constructor(instantiatedType, children);
+		return new Constructor(constructorType, children);
 	}
 	
 	@Override
@@ -164,8 +163,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	@Override
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
-		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);		
-		return new Constructor(instantiatedType);
+		return new Constructor(constructorType);
 	}
 
 	@Override

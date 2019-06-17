@@ -82,10 +82,13 @@ public interface IMap extends ICollection<IMap> {
             if (size() == map2.size()) {
 
                 for (IValue k1 : this) {
-                    if (containsKey(k1) == false) { // call to IValue.isEqual(IValue)
+                    if (containsKey(k1) == false) { 
                         return false;
-                    } else if (map2.get(k1).isEqual(get(k1)) == false) { // call to IValue.isEqual(IValue)
-                        return false;
+                    } else {
+                        IValue v1 = map2.get(k1);
+                        if (v1 == null || v1.isEqual(get(k1)) == false) { 
+                            return false;
+                        }
                     }
                 }
 
