@@ -456,8 +456,9 @@ public interface IList extends ICollection<IList> {
 
                 while (it1.hasNext() && it2.hasNext()) {
                     // call to Object.equals(Object)
-                    if (it1.next().equals(it2.next()) == false)
+                    if (it1.next().equals(it2.next()) == false) {
                         return false;
+                    }
                 }
 
                 assert (!it1.hasNext() && !it2.hasNext());

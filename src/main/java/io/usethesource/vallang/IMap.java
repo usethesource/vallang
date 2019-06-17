@@ -71,15 +71,6 @@ public interface IMap extends ICollection<IMap> {
         return false;
     }
     
-    public default boolean containsKeyWithEquals(IValue key) {
-        for (IValue cursor : this) {
-            if (cursor.equals(key)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
     @Override
     public default boolean isEqual(IValue other) {
         if (other == this) return true;
@@ -118,14 +109,26 @@ public interface IMap extends ICollection<IMap> {
 
             if (size() == map2.size()) {
 
-                for (IValue k1 : this) {
-                    if (containsKeyWithEquals(k1) == false) { // call to Object.equals(Object)
-                        return false;
-                    } else {
-                        IValue val2 = map2.get(k1);
-                        if (val2 != null && val2.equals(get(k1)) == false) { // call to Object.equals(Object)
-                            return false;
+                outer:for (IValue k1 : map2) {
+                    
+                    // the loop might seem weird but due to the (deprecated)
+                    // semantics of node annotations we must check each element
+                    // for _deep_ equality. This is a big source of inefficiency
+                    // and one of the reasons why the semantics of annotations is
+                    // deprecated for "keyword parameters".
+                    
+                    for (IValue cursor : this) {
+                        if (cursor.equals(k1)) {
+                            // key was found, now check the value
+                            IValue val2 = map2.get(k1);
+                            if (val2 != null && val2.equals(get(k1)) == false) { // call to Object.equals(Object)
+                                return false;
+                            }
+                            
+                            continue outer;
                         }
+                        
+                        return false;
                     }
                 }
 
