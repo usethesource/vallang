@@ -50,7 +50,7 @@ import io.usethesource.vallang.type.TypeFactory;
     
     private ListWriter(boolean unique) {
         this();
-        unique = true;
+        this.unique = true;
     }
     
     @Override
@@ -136,13 +136,17 @@ import io.usethesource.vallang.type.TypeFactory;
             put(listContent.size(), elem);
         }
     }
+    
+    @Override
+    public void appendTuple(IValue... fields) {
+        append(new Tuple(fields));
+    }
 
     @Override
 	public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
         checkMutation();
 
         for(IValue v : collection){
-            updateType(v);
             put(listContent.size(), v);
         }
     }

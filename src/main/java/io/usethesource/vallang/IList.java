@@ -505,11 +505,7 @@ public interface IList extends ICollection<IList> {
             
             @Override
             public IWriter<IList> writer() {
-                // when considering lists as relations it is expected computed elements do not lead
-                // to additional duplicates.
-                IWriter<IList> result = IList.this.writer().unique();
-                result.unique();
-                return result;
+               return IList.this.writer();
             }
         };
     }
