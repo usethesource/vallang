@@ -311,9 +311,10 @@ public interface ISet extends ICollection<ISet> {
                         if (v2.equals(v1)) {
                             continue outer;
                         }
-
-                        return false;
                     }
+                    
+                    // v1 is not found in set2
+                    return false;
                 }
 
                 return true;
