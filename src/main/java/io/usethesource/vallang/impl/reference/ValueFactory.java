@@ -109,7 +109,8 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		return new Node(name);
 	}
 	
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public INode node(String name, java.util.Map<String, IValue> annotations, IValue... children) {
 		checkNull(name);
 		checkNull(annotations);
@@ -142,7 +143,8 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		return new Constructor(constructorType, children);
 	}
 	
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public IConstructor constructor(Type constructorType, java.util.Map<String,IValue> annotations, IValue... children) {
 		checkNull(constructorType);
 		checkNull(annotations);

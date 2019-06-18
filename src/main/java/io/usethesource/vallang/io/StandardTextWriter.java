@@ -192,6 +192,7 @@ public class StandardTextWriter implements IValueTextWriter {
             return o;
         }
 
+        @SuppressWarnings("deprecation")
         public IValue visitConstructor(IConstructor o) throws IOException {
             String name = o.getName();
 
@@ -656,6 +657,7 @@ public class StandardTextWriter implements IValueTextWriter {
             return o;
         }
 
+        @SuppressWarnings("deprecation")
         public IValue visitNode(INode o) throws IOException {
             visitString(StringValue.newString(o.getName()));
 

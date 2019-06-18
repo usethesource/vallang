@@ -745,7 +745,8 @@ public class StandardTextReader extends AbstractTextReader {
 		return factory.string(str);
 	}
 
-	private IValue readAnnos(Type expected, INode result) throws IOException {
+	@SuppressWarnings("deprecation")
+    private IValue readAnnos(Type expected, INode result) throws IOException {
 		current = stream.read();
 		
 		while (current != ']') {

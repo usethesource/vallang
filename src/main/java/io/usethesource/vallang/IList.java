@@ -22,9 +22,15 @@ public interface IList extends ICollection<IList> {
     /**
      * @return the number of elements in the list
      */
-    public default int length() {
-        return size();
+    @Override
+    public default int size() {
+        return length();
     }
+    
+    /**
+     * Return the length of the list == size();
+     */
+    public int length();
     
     /**
      * @return a new list with all elements in reverse order
