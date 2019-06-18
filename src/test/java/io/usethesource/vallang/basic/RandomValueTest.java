@@ -10,6 +10,11 @@
 *******************************************************************************/
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,39 +28,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.IValueBinaryReader;
 import io.usethesource.vallang.io.IValueBinaryWriter;
 import io.usethesource.vallang.io.IValueTextReader;
+import io.usethesource.vallang.io.IValueTextWriter;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.random.deprecated.DataGenerator;
 import io.usethesource.vallang.random.deprecated.RandomIntegerGenerator;
 import io.usethesource.vallang.random.deprecated.RandomNumberGenerator;
 import io.usethesource.vallang.random.deprecated.RandomRationalGenerator;
 import io.usethesource.vallang.random.deprecated.RandomRealGenerator;
+import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 import junit.framework.AssertionFailedError;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import io.usethesource.vallang.Setup;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.IValueTextWriter;
-import io.usethesource.vallang.io.binary.stream.IValueInputStream;
-import io.usethesource.vallang.type.Type;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Implements random testing of algebraic properties of the PDB values numeric types (aka

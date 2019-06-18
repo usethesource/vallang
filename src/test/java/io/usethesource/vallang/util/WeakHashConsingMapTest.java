@@ -13,6 +13,7 @@
 package io.usethesource.vallang.util;
 
 import static org.junit.Assert.assertSame;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.function.Supplier;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

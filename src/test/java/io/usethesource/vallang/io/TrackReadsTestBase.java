@@ -2,8 +2,9 @@ package io.usethesource.vallang.io;
 
 import static org.junit.Assert.assertSame;
 
-import io.usethesource.vallang.io.binary.util.TrackLastRead;
 import org.junit.Test;
+
+import io.usethesource.vallang.io.binary.util.TrackLastRead;
 
 
 public abstract class TrackReadsTestBase {

@@ -12,24 +12,25 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Iterator;
 
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.Setup;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.type.TypeFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 @RunWith(Parameterized.class)
 public final class RelationSmokeTest {

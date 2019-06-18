@@ -12,12 +12,15 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.fail;
+
 import java.util.Iterator;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ITuple;
@@ -27,8 +30,6 @@ import io.usethesource.vallang.Setup;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-
-import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public class ListRelationSmokeTest {

@@ -13,23 +13,24 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import io.usethesource.vallang.type.TypeStore;
 import org.junit.Test;
+
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import io.usethesource.vallang.type.TypeStore;
 
 public final class TypeSmokeTest {
   private static final int COMBINATION_UPPERBOUND = 5;

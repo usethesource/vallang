@@ -20,6 +20,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -31,11 +37,6 @@ import io.usethesource.vallang.impl.reference.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 /**
  * @author Anya Helene Bagge
@@ -445,6 +446,7 @@ public final class MapSmokeTest {
     ts.declareAnnotation(E, "x", tf.integerType());
 
     final IConstructor n = vf.constructor(N, vf.integer(1));
+    @SuppressWarnings("deprecation")
     final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
 
     final IMap m1 = vf.mapWriter().done().put(n, vf.integer(1)).put(na, vf.integer(1));
@@ -454,6 +456,7 @@ public final class MapSmokeTest {
     assertEquals(vf.integer(1), m1.get(na));
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testPutReplaceWithAnnotationsValue_Map() {
     final Type E = tf.abstractDataType(ts, "E");
@@ -480,6 +483,7 @@ public final class MapSmokeTest {
     ts.declareAnnotation(E, "x", tf.integerType());
 
     final IConstructor n = vf.constructor(N, vf.integer(1));
+    @SuppressWarnings("deprecation")
     final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
 
     final IMapWriter w1 = vf.mapWriter();
@@ -500,6 +504,7 @@ public final class MapSmokeTest {
     ts.declareAnnotation(E, "x", tf.integerType());
 
     final IConstructor n = vf.constructor(N, vf.integer(1));
+    @SuppressWarnings("deprecation")
     final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
 
     final IMapWriter w1 = vf.mapWriter();

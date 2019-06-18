@@ -151,6 +151,7 @@ public class ReferenceStructuredIValueVisitor {
                             visitNamedValues(params);
                         }
                     } else {
+                        @SuppressWarnings("deprecation")
                         IAnnotatable<? extends INode> oan = o.asAnnotatable();
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
@@ -198,6 +199,7 @@ public class ReferenceStructuredIValueVisitor {
                             visitNamedValues(params);
                         }
                     } else {
+                        @SuppressWarnings("deprecation")
                         IAnnotatable<? extends IConstructor> oan = o.asAnnotatable();
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;

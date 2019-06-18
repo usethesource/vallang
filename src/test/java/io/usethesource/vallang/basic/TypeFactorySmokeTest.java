@@ -12,9 +12,16 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.fail;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
@@ -22,12 +29,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import io.usethesource.vallang.IValue;
-
-import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public final class TypeFactorySmokeTest {

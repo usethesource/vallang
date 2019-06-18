@@ -1,18 +1,19 @@
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import io.usethesource.vallang.INumber;
-import io.usethesource.vallang.IReal;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.INumber;
+import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
-
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public final class BigDecimalCalculationSmokeTest {

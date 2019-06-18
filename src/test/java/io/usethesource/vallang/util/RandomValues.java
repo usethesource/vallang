@@ -48,7 +48,8 @@ public class RandomValues {
 		return vf.constructor(NameNode, vf.string(n));
 	}
 	
-	public static IValue[] getTestValues(IValueFactory vf) {
+	@SuppressWarnings("deprecation")
+    public static IValue[] getTestValues(IValueFactory vf) {
 	    return new IValue[] {
 			vf.constructor(True),
 			vf.constructor(And, vf.constructor(True), vf.constructor(False)),

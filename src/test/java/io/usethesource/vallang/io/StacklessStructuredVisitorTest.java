@@ -12,6 +12,8 @@
  */ 
 package io.usethesource.vallang.io;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,10 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import io.usethesource.vallang.IReal;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -31,6 +33,7 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -44,8 +47,6 @@ import io.usethesource.vallang.io.reference.ReferenceStructuredIValueVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class StacklessStructuredVisitorTest {

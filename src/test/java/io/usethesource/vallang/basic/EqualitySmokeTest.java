@@ -12,20 +12,21 @@
 
 package io.usethesource.vallang.basic;
 
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
 import io.usethesource.vallang.type.Type;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 @RunWith(Parameterized.class)
 public final class EqualitySmokeTest {

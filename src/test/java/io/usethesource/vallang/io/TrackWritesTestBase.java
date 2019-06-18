@@ -1,9 +1,10 @@
 package io.usethesource.vallang.io;
 
-import io.usethesource.vallang.io.binary.util.TrackLastWritten;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import io.usethesource.vallang.io.binary.util.TrackLastWritten;
 
 public abstract class TrackWritesTestBase {
 

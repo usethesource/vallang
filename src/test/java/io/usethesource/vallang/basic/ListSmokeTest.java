@@ -12,24 +12,25 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.fail;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.type.TypeFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
-
-import static org.junit.Assert.fail;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory;
 
 @RunWith(Parameterized.class)
 public final class ListSmokeTest {

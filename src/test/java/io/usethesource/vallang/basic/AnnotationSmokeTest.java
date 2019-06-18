@@ -12,11 +12,15 @@
 
 package io.usethesource.vallang.basic;
 
-import io.usethesource.vallang.type.TypeStore;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -28,12 +32,10 @@ import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import io.usethesource.vallang.type.TypeStore;
 
 @RunWith(Parameterized.class)
+@SuppressWarnings("deprecation")
 public final class AnnotationSmokeTest {
 
   @Parameterized.Parameters
@@ -89,7 +91,8 @@ public final class AnnotationSmokeTest {
     }
   }
 
-  @Test
+  
+@Test
   public void testSetAnnotation() {
     IConstructor n = vf.constructor(N, vf.integer(0));
     ts.declareAnnotation(E, "size", tf.integerType());
