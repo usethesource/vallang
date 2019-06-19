@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.Setup;
@@ -159,6 +160,42 @@ public final class IoSmokeTest {
     }
   }
 
+  @Test
+  public void testToString() throws FactTypeUseException, IOException {
+      StandardTextReader reader = new StandardTextReader();
+      TypeFactory TF = TypeFactory.getInstance();
+      
+      // there are specialized implementations for different sizes of constructors.
+      // each must have a specialized toString implementation to work correctly.
+      
+      TypeStore store = new TypeStore();
+      Type A = TF.abstractDataType(store, "A");
+      
+      Type[] examples = new Type[] {
+              TF.constructor(store, A, "x1", TF.integerType(), "a1"),
+              TF.constructor(store, A, "x2", TF.integerType(), "a1", TF.integerType(), "a2"),
+              TF.constructor(store, A, "x3", TF.integerType(), "a1", TF.integerType(), "a2", TF.integerType(), "a3"),
+              TF.constructor(store, A, "x4", TF.integerType(), "a1", TF.integerType(), "a2", TF.integerType(), "a3", TF.integerType(), "a4"),
+              TF.constructor(store, A, "x5", TF.integerType(), "a1", TF.integerType(), "a2", TF.integerType(), "a3", TF.integerType(), "a4", TF.integerType(), "a5"),
+              TF.constructor(store, A, "x6", TF.integerType(), "a1", TF.integerType(), "a2", TF.integerType(), "a3", TF.integerType(), "a4", TF.integerType(), "a5", TF.integerType(), "a6"),
+              TF.constructor(store, A, "x7", TF.integerType(), "a1", TF.integerType(), "a2", TF.integerType(), "a3", TF.integerType(), "a4", TF.integerType(), "a5", TF.integerType(), "a6", TF.integerType(), "a7"),
+              TF.constructor(store, A, "x8", TF.integerType(), "a1", TF.integerType(), "a2", TF.integerType(), "a3", TF.integerType(), "a4", TF.integerType(), "a5", TF.integerType(), "a6", TF.integerType(), "a7", TF.integerType(), "a8"),
+      };
+
+      for (int i = 0; i < 8; i++) {
+          IValue[] kids = new IValue[i];
+          for (int k = 0; k < i; k++) {
+              kids[k] = vf.integer(k);
+          }
+          IConstructor cons = vf.constructor(examples[i], kids);
+          String string = cons.toString();
+          IValue result = reader.read(vf, store, A, new StringReader(string));
+
+          assertEquals(result, cons);
+      }
+      
+  }
+  
   @Test
   public void testStandardReader() {
     StandardTextReader reader = new StandardTextReader();

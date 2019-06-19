@@ -128,6 +128,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
             return false;
         }
+        
+        @Override
+        public String toString() {
+            return defaultToString();
+        }
 
 
         @Override
