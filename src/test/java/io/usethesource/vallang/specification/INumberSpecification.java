@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IValueFactory;
 
-public class INumberSpecification extends AbstractSpecification {
+public class INumberSpecification {
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void divByZero(IValueFactory vf, INumber a) {

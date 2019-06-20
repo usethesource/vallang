@@ -14,7 +14,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 
-public class IValueSpecification extends AbstractSpecification {
+public class IValueSpecification {
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void equalsIsReflexive(IValue val) {
