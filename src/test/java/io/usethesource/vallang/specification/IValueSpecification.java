@@ -47,4 +47,21 @@ public class IValueSpecification extends AbstractSpecification {
         IValue result = reader.read(vf, val.getType(), new StringReader(string));
         assertEquals(val, result, () -> val.toString() + " != " + result.toString());
     }
+    
+    @ParameterizedTest(name="testIsomorphicText({0},{1})")
+    @MethodSource("anyTwoValues")
+    public void testIsomorphicText(IValue val1, IValue val2) throws FactTypeUseException, IOException {
+        // (val1 == val2) <==> (val1.toString() == val2.toString())
+        assertTrue(!val1.equals(val2) || val1.toString().equals(val2.toString()));
+        assertTrue(!val1.toString().equals(val2.toString()) || val1.equals(val2));
+    }
+    
+    @ParameterizedTest(name="wysiwygAnnos({0})")
+    @MethodSource("anyValue")
+    public void testWysiwygAnnos(IValue val) throws FactTypeUseException, IOException {
+        StandardTextReader reader = new StandardTextReader();
+        String string = val.toString();
+        IValue result = reader.read(vf, val.getType(), new StringReader(string));
+        assertTrue(val.isEqual(result)); // isEqual ignores annotations
+    }
 }
