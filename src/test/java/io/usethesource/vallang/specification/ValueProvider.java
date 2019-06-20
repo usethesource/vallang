@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -24,6 +24,7 @@ import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.random.RandomValueGenerator;
@@ -41,19 +42,19 @@ class ValueProvider implements ArgumentsProvider {
     private static final RandomValueGenerator persistentGen = new RandomValueGenerator(persistentFactory, rnd, 5, 10, true);
     private static final int MAX = 1000;
     
-    private static final Map<Class<?>, Type> types = Stream.of(
-            new AbstractMap.SimpleEntry<Class<?>, Type>(IInteger.class, tf.integerType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(IReal.class, tf.realType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(IRational.class, tf.rationalType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(INumber.class, tf.numberType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(IString.class, tf.stringType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(ISourceLocation.class, tf.sourceLocationType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(IValue.class, tf.valueType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(INode.class, tf.nodeType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(IConstructor.class, tf.integerType()),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(IList.class, tf.listType(tf.valueType())),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(ISet.class, tf.setType(tf.valueType())),
-            new AbstractMap.SimpleEntry<Class<?>, Type>(IMap.class, tf.mapType(tf.valueType(), tf.valueType()))
+    private static final Map<Class<?>, Supplier<Type>> types = Stream.of(
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(IInteger.class, () -> tf.integerType()),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(IReal.class, () -> tf.realType()),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(IRational.class, () -> tf.rationalType()),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(INumber.class, () -> tf.numberType()),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(IString.class, () -> tf.stringType()),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(ISourceLocation.class, () -> tf.sourceLocationType()),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(IValue.class, () -> tf.valueType()),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(INode.class, () -> tf.nodeType()),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(IList.class, () -> tf.listType(tf.randomType())),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(ISet.class, () -> tf.setType(tf.randomType())),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(ITuple.class, () -> tf.tupleType(tf.randomType(), tf.randomType())),
+            new AbstractMap.SimpleEntry<Class<?>, Supplier<Type>>(IMap.class, () -> tf.mapType(tf.randomType(), tf.randomType()))
     ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             
     @Override
@@ -81,10 +82,10 @@ class ValueProvider implements ArgumentsProvider {
     }
 
     private IValue persistentValue(Class<?> cl) {
-        return persistentGen.generate(types.getOrDefault(cl, tf.valueType()), store, Collections.emptyMap());
+        return persistentGen.generate(types.getOrDefault(cl, () -> tf.valueType()).get(), store, Collections.emptyMap());
     }
 
     private IValue referenceValue(Class<?> cl) {
-        return referenceGen.generate(types.getOrDefault(cl, tf.valueType()), store, Collections.emptyMap());
+        return referenceGen.generate(types.getOrDefault(cl, () -> tf.valueType()).get(), store, Collections.emptyMap());
     }
 }
