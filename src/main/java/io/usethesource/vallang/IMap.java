@@ -130,9 +130,9 @@ public interface IMap extends ICollection<IMap> {
                             
                             continue outer;
                         }
-                        
-                        return false;
                     }
+                    
+                    return false;
                 }
 
                 return true;

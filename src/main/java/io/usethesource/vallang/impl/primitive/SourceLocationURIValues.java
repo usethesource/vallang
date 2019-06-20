@@ -121,6 +121,11 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		public String toString() {
+		    return defaultToString();
+		}
+		
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;

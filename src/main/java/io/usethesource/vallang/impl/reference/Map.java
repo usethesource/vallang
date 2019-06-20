@@ -111,11 +111,6 @@ import io.usethesource.vallang.type.Type;
     
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof IMap) {
-            return defaultEquals(obj);
-        }
-        else {
-            return false;
-        }
+        return defaultEquals(obj);
     }
 }

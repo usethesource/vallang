@@ -796,7 +796,11 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private abstract static class AbstractString implements IString, IStringTreeNode, IIndentableString {
-
+        @Override
+        public String toString() {
+            return defaultToString();
+        }
+        
         @Override
         public Type getType() {
             return STRING_TYPE;
