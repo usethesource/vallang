@@ -61,17 +61,23 @@ public class AbstractSpecification {
         public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
             Method method = context.getTestMethod().get();
             
-            // we generate as many values as there are IValue parameters
+            // we generate as many values as there are IValue parameters,
+            // either all parameters are with the reference factory,
+            // or they are all with the persistent factory:
+            
             return Stream.generate(() -> Arguments.of(
+                    rnd.nextBoolean() ?
                     Arrays.stream(method.getParameterTypes()).map(
-                            cl -> {
-                                if (cl.isAssignableFrom(IValueFactory.class)) {
-                                    return rnd.nextBoolean() ? referenceFactory : persistentFactory;
-                                } else {
-                                    return rnd.nextBoolean() ? referenceValue(cl) : persistentValue(cl);
-                                }
-                            }
+                            cl -> cl.isAssignableFrom(IValueFactory.class) 
+                                    ? referenceFactory
+                                    : referenceValue(cl)
                             ).toArray()
+                    :
+                        Arrays.stream(method.getParameterTypes()).map(
+                                cl -> cl.isAssignableFrom(IValueFactory.class) 
+                                        ? persistentFactory
+                                        : persistentValue(cl)
+                                ).toArray()  
                     )).limit(MAX);
         }
 
