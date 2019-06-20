@@ -304,7 +304,8 @@ public class ATermReader extends AbstractBinaryReader {
 		return result;
 	}
 	
-	private IValue parseAnno(SharingStream reader, IValue result) throws IOException {
+	@SuppressWarnings("deprecation")
+    private IValue parseAnno(SharingStream reader, IValue result) throws IOException {
 		if (reader.getLastChar() == '[') {
 			int c = reader.readSkippingWS();
 			
