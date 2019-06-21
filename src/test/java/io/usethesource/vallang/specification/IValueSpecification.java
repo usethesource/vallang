@@ -11,8 +11,10 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class IValueSpecification {
     
@@ -57,5 +59,11 @@ public class IValueSpecification {
         String string = val.toString();
         IValue result = reader.read(vf, val.getType(), new StringReader(string));
         assertTrue(val.isEqual(result)); // isEqual ignores annotations
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testToStringIsStandardardTextWriter(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
+        StandardTextWriter writer = new StandardTextWriter();
+        assertTrue(val.toString().equals(writer.toString()));
     }
 }

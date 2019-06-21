@@ -12,62 +12,46 @@
 
 package io.usethesource.vallang.basic;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
+import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueFactoryProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
-import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-@RunWith(Parameterized.class)
 public final class ValueFactorySmokeTest {
-
-  @Parameterized.Parameters
-  public static Iterable<? extends Object> data() {
-    return Setup.valueFactories();
-  }
-
-  private final IValueFactory vf;
-
-  public ValueFactorySmokeTest(final IValueFactory vf) {
-    this.vf = vf;
-  }
-
   private TypeFactory ft = TypeFactory.getInstance();
-  private IValue[] integers;
 
-  @Before
-  public void setUp() throws Exception {
-
-    integers = new IValue[100];
-    for (int i = 0; i < integers.length; i++) {
-      integers[i] = vf.integer(i);
-    }
+  public static class ValueFactoryAndIntegersProvider implements ArgumentsProvider {
+      @Override
+      public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+          return Stream.of(
+                  io.usethesource.vallang.impl.reference.ValueFactory.getInstance(),
+                  io.usethesource.vallang.impl.persistent.ValueFactory.getInstance()
+                 ).map(vf -> {
+                     Stream<IInteger> integers = Stream.iterate(0, i -> i + 1).map(j -> vf.integer(j)).limit(100);
+                     return Arguments.of(vf, integers.toArray(IInteger[]::new)); 
+                 });
+      }
   }
-
-  @Test
-  public void testRelationNamedType() {
+  
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testRelationNamedType(IValueFactory vf) {
     try {
       ISet r = vf.set();
 
@@ -79,20 +63,20 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testRealZeroDotFromString() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testRealZeroDotFromString(IValueFactory vf) {
     assertTrue(vf.real("0.").isEqual(vf.real("0")));
   }
 
-  @Test
-  public void testZeroRealRepresentation() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testZeroRealRepresentation(IValueFactory vf) {
     IReal real = vf.real("0");
 
     assertTrue(real.toString().equals("0."));
   }
 
-  @Test
-  public void testRelationTupleType() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testRelationTupleType(IValueFactory vf) {
     ISet r = vf.set();
 
     if (r.size() != 0) {
@@ -104,8 +88,8 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testRelationWith() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testRelationWith(IValueFactory vf) {
     ISet[] relations = new ISet[7];
     ITuple[] tuples = new ITuple[7];
 
@@ -136,8 +120,8 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testSetNamedType() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testSetNamedType(IValueFactory vf) {
     ISet l;
     try {
       TypeStore typeStore = new TypeStore();
@@ -160,8 +144,8 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testSetType() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testSetType(IValueFactory vf) {
     ISet s = vf.set();
 
     if (s.size() != 0) {
@@ -177,8 +161,8 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testSetWith() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryAndIntegersProvider.class)
+  public void testSetWith(IValueFactory vf, IInteger[] integers) {
     ISet[] sets = new ISet[7];
 
     sets[0] = vf.set(integers[0]);
@@ -209,8 +193,8 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testListNamedType() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testListNamedType(IValueFactory vf) {
     IList l;
     try {
       TypeStore ts = new TypeStore();
@@ -232,8 +216,8 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testListType() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testListType(IValueFactory vf) {
     IList l = vf.list();
 
     if (l.length() != 0) {
@@ -245,8 +229,8 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testListWith() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryAndIntegersProvider.class)
+  public void testListWith(IValueFactory vf, IInteger[] integers) {
     IList[] lists = new IList[7];
 
     lists[0] = vf.list(integers[0]);
@@ -269,8 +253,8 @@ public final class ValueFactorySmokeTest {
 
   }
 
-  @Test
-  public void testTupleIValue() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryAndIntegersProvider.class)
+  public void testTupleIValue(IValueFactory vf, IInteger[] integers) {
     ITuple[] tuples = new ITuple[7];
 
     tuples[0] = vf.tuple(integers[0]);
@@ -292,123 +276,20 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testInteger() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testInteger(IValueFactory vf) {
     assertTrue(vf.integer(42).toString().equals("42"));
   }
 
-  @Test
-  public void testDubble() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testDubble(IValueFactory vf) {
     assertTrue(vf.real(84.5).toString().equals("84.5"));
   }
 
-  @Test
-  public void testString() {
+  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  public void testString(IValueFactory vf) {
     assertTrue(vf.string("hello").getValue().equals("hello"));
     assertTrue(vf.string(0x1F35D).getValue().equals("🍝"));
     assertTrue(vf.string(new int[] {0x1F35D, 0x1F35D}).getValue().equals("🍝🍝"));
-  }
-
-  // @Test
-  // public void testSourceLocation() {
-  // ISourceLocation sl;
-  // try {
-  // sl = vf.sourceLocation(new URL("file:///dev/null"), 1, 2, 3, 4, 5, 6);
-  // if (!sl.getURL().getPath().equals("/dev/null")) {
-  // fail("source location creation is weird");
-  // }
-  //
-  // if (sl.getStartOffset() != 1 || sl.getLength() != 2
-  // || sl.getStartColumn() != 5 || sl.getStartLine() != 3
-  // || sl.getEndLine() != 4 || sl.getEndColumn() != 6) {
-  // fail("source range creation is weird");
-  // }
-  // } catch (MalformedURLException e) {
-  // fail();
-  // }
-  //
-  // }
-
-  @Test
-  public void testToString() {
-    // first we create a lot of values, and
-    // then we check whether toString does the same
-    // as StandardTextWriter
-    ISetWriter extended;
-    try {
-      extended = createSomeValues();
-
-      StandardTextWriter w = new StandardTextWriter();
-
-      for (IValue o : extended.done()) {
-        StringWriter out = new StringWriter();
-        try {
-          w.write(o, out);
-          if (!out.toString().equals(o.toString())) {
-            fail(out.toString() + " != " + o.toString());
-          }
-        } catch (IOException e) {
-          fail(e.toString());
-          e.printStackTrace();
-        }
-      }
-
-    } catch (FactTypeUseException | MalformedURLException e1) {
-      fail(e1.toString());
-    }
-  }
-
-  @Test
-  public void testStandardReaderWriter() {
-    StandardTextWriter w = new StandardTextWriter();
-    StandardTextReader r = new StandardTextReader();
-
-    try {
-      for (IValue o : createSomeValues().done()) {
-        StringWriter out = new StringWriter();
-        w.write(o, out);
-        StringReader in = new StringReader(out.toString());
-        IValue read = r.read(vf, in);
-        if (!o.isEqual(read)) {
-          fail(o + " != " + read + " " + o.isEqual(read));
-        }
-      }
-    } catch (IOException e) {
-      fail();
-    }
-  }
-
-  private ISetWriter createSomeValues() throws FactTypeUseException, MalformedURLException {
-    ISetWriter basicW = vf.setWriter();
-
-    // TODO add tests for locations and constructors again
-    basicW.insert(vf.integer(0), vf.real(0.0),
-        // vf.sourceLocation(new URL("file:///dev/null"), 0, 0, 0, 0, 0, 0),
-        vf.bool(true), vf.bool(false), vf.node("hello"));
-
-    ISet basic = basicW.done();
-    ISetWriter extended = vf.setWriter();
-
-    // TypeStore ts = new TypeStore();
-    // Type adt = ft.abstractDataType(ts, "E");
-    // Type cons0 = ft.constructor(ts, adt, "cons");
-    // Type cons1 = ft.constructor(ts, adt, "cons", ft.valueType(), "value");
-
-    extended.insertAll(basic);
-    for (IValue w : basic) {
-      extended.insert(vf.list());
-      extended.insert(vf.list(w));
-      extended.insert(vf.set());
-      extended.insert(vf.set(w));
-      IMap map = vf.mapWriter().done();
-      extended.insert(map.put(w, w));
-      ITuple tuple = vf.tuple(w, w);
-      extended.insert(tuple);
-      extended.insert(vf.set(tuple, tuple));
-      extended.insert(vf.node("hi", w));
-      // extended.insert(vf.constructor(cons0));
-      // extended.insert(vf.constructor(cons1, w));
-    }
-    return extended;
   }
 }

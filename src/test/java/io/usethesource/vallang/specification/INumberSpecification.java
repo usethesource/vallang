@@ -14,6 +14,7 @@ import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.type.Type;
 
 public class INumberSpecification {

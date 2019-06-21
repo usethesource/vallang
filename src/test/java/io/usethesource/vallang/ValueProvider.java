@@ -1,4 +1,4 @@
-package io.usethesource.vallang.specification;
+package io.usethesource.vallang;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap;
@@ -14,26 +14,12 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.INode;
-import io.usethesource.vallang.INumber;
-import io.usethesource.vallang.IRational;
-import io.usethesource.vallang.IReal;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-class ValueProvider implements ArgumentsProvider {
+public class ValueProvider implements ArgumentsProvider {
     private static final TypeFactory tf = TypeFactory.getInstance();
     private static final IValueFactory referenceFactory = io.usethesource.vallang.impl.reference.ValueFactory.getInstance();
     private static final IValueFactory persistentFactory = io.usethesource.vallang.impl.persistent.ValueFactory.getInstance();
