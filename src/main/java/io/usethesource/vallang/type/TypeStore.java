@@ -66,6 +66,11 @@ public class TypeStore {
 	public TypeStore(TypeStore... imports) {
 	  importStore(imports);
 	}
+	
+	@Override
+	public String toString() {
+	    return "TypeStore(adts=" + fADTs.size() + ",imports=" + fImports.size() + ")";
+	}
 
 	/**
 	 * Retrieves all ADT's declared in this TypeStore. Note that it does
