@@ -1,8 +1,9 @@
 package io.usethesource.vallang.basic;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -11,10 +12,8 @@ import java.util.PrimitiveIterator.OfInt;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import org.junit.ComparisonFailure;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
@@ -24,48 +23,35 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.impl.primitive.StringValue;
 import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
+import junit.framework.ComparisonFailure;
 
-@RunWith(Parameterized.class)
 public final class BasicValueSmokeTest {
 
-  @Parameterized.Parameters
-  public static Iterable<? extends Object> data() {
-    return Setup.valueFactories();
-  }
-
-  private final IValueFactory vf;
-
-  public BasicValueSmokeTest(final IValueFactory vf) {
-    this.vf = vf;
-  }
-
-  protected TypeFactory tf = TypeFactory.getInstance();
-
   protected void assertEqual(IValue l, IValue r) {
-    assertTrue("Expected " + l + " got " + r, l.isEqual(r));
+    assertTrue(l.isEqual(r), () -> "Expected " + l + " got " + r);
   }
 
-  @Test
-  public void testRationalToReal() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testRationalToReal(IValueFactory vf) {
     assertTrue(vf.rational(1, 4).toReal(3).isEqual(vf.real(0.25)));
   }
 
-  @Test
-  public void testStringRepresentation() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringRepresentation(IValueFactory vf) {
     assertTrue(vf.string("\uD83C\uDF5D").isEqual(vf.string("🍝")));
     assertTrue(vf.string(new String(Character.toChars(0x1F35D))).isEqual(vf.string("🍝")));
   }
 
-  @Test public void testRascalIssue1192() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class) public void testRascalIssue1192(IValueFactory vf) {
       assertTrue(vf.integer("-2147483648").subtract(vf.integer("2147483648")).isEqual(vf.integer("-4294967296")));
   }
   
-  @Test
-  public void testStringLength() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringLength(IValueFactory vf) {
     assertTrue(vf.string("\uD83C\uDF5D").length() == 1);
     assertTrue(vf.string("\uD83C\uDF5D\uD83C\uDF5D").length() == 2);
     assertTrue(vf.string("🍝").length() == 1);
@@ -74,8 +60,8 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("").length() == 0);
   }
 
-  @Test
-  public void testStringReverse() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringReverse(IValueFactory vf) {
     assertTrue(vf.string("").reverse().isEqual(vf.string("")));
     assertTrue(vf.string("🍝").reverse().isEqual(vf.string("🍝")));
     assertTrue(vf.string("🍝🍝").reverse().isEqual(vf.string("🍝🍝")));
@@ -83,8 +69,8 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("🍝🍞").reverse().getValue().equals("🍞🍝"));
   }
 
-  @Test
-  public void testStringSubString() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringSubString(IValueFactory vf) {
     assertTrue(vf.string("").substring(0, 0).isEqual(vf.string("")));
     assertTrue(vf.string("🍝").substring(0, 1).isEqual(vf.string("🍝")));
     assertTrue(vf.string("🍝🍝").substring(0, 1).isEqual(vf.string("🍝")));
@@ -93,8 +79,8 @@ public final class BasicValueSmokeTest {
   }
   
 
-  @Test
-  public void testStringWrite() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringWrite(IValueFactory vf) {
       Random rnd = new Random();
       
       for (int i = 0; i < 1000; i++) {
@@ -110,8 +96,8 @@ public final class BasicValueSmokeTest {
       }
   }
   
-  @Test
-  public void testStringEmptyWrite() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringEmptyWrite(IValueFactory vf) {
       IString testString = vf.string("");
       StringWriter w = new StringWriter();
       try {
@@ -123,16 +109,16 @@ public final class BasicValueSmokeTest {
       assertEqual(testString, vf.string(""));
   }
 
-  @Test
-  public void testStringCharAt() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringCharAt(IValueFactory vf) {
     assertTrue(vf.string("🍝").charAt(0) == 0x1F35D);
     assertTrue(vf.string("🍝🍞").charAt(1) == 0x1F35E);
     assertTrue(vf.string("🍝x🍝").charAt(1) == 'x');
     assertTrue(vf.string("🍝x🍞").charAt(2) == 0x1F35E);
   }
 
-  @Test
-  public void testStringConcat() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringConcat(IValueFactory vf) {
     assertTrue(vf.string("").concat(vf.string("")).isEqual(vf.string("")));
     assertTrue(vf.string("x").concat(vf.string("y")).isEqual(vf.string("xy")));
     assertTrue(vf.string("🍝").concat(vf.string("y")).isEqual(vf.string("🍝y")));
@@ -140,8 +126,8 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("🍝").concat(vf.string("🍝")).isEqual(vf.string("🍝🍝")));
   }
 
-  @Test
-  public void testStringReplace() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringReplace(IValueFactory vf) {
     assertTrue(vf.string("").replace(0, 1, 0, vf.string("x")).isEqual(vf.string("x")));
     assertTrue(vf.string("x").replace(0, 1, 0, vf.string("")).isEqual(vf.string("x")));
     assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("py")));
@@ -177,7 +163,7 @@ public final class BasicValueSmokeTest {
       }
   }
   
-  private void checkIndent(String indent, String newline, boolean indentFirstLine, String... lines) {
+  private void checkIndent(IValueFactory vf, String indent, String newline, boolean indentFirstLine, String... lines) {
 	  StringBuilder unindented = new StringBuilder();
 	  StringBuilder indented = new StringBuilder();
 	  StringBuilder indentedTwice = new StringBuilder();
@@ -316,30 +302,30 @@ public final class BasicValueSmokeTest {
       }
   }
   
-  @Test
-  public void testStringIndent() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringIndent(IValueFactory vf) {
       for (boolean firstLine : new Boolean[] { true, false}) {
           for (String nl: commonNewlines) {
-              checkIndent(" ", nl, firstLine, "a", "b", "c");
-              checkIndent("\t", nl, firstLine, "a", "b", "c");
-              checkIndent("\t", nl, firstLine, "a", "", "c");
-              checkIndent("\t", nl, firstLine, "a", "", "", "c");
-              checkIndent("   ", nl, firstLine, "a", "b", "c");
-              checkIndent(" ", nl, firstLine, " abcdef", " bcdefg", " cdefgh");
-              checkIndent(" ", nl, firstLine, "🍝", " b", " c");
+              checkIndent(vf, " ", nl, firstLine, "a", "b", "c");
+              checkIndent(vf, "\t", nl, firstLine, "a", "b", "c");
+              checkIndent(vf, "\t", nl, firstLine, "a", "", "c");
+              checkIndent(vf, "\t", nl, firstLine, "a", "", "", "c");
+              checkIndent(vf, "   ", nl, firstLine, "a", "b", "c");
+              checkIndent(vf, " ", nl, firstLine, " abcdef", " bcdefg", " cdefgh");
+              checkIndent(vf, " ", nl, firstLine, "🍝", " b", " c");
 
               // these are some hard tests containing spurious carriage return characters:
-              checkIndent("\t", nl, firstLine, "a", "\r", "", "c");
-              checkIndent("\t", nl, firstLine, "a", "", "\r", "c");
-              checkIndent("\t", nl, firstLine, "a", "", "\r\r\r", "c");
-              checkIndent("\t", nl, firstLine, "a\r", "", "c");
-              checkIndent("\t", nl, firstLine, "a", "", "\rc");
+              checkIndent(vf, "\t", nl, firstLine, "a", "\r", "", "c");
+              checkIndent(vf, "\t", nl, firstLine, "a", "", "\r", "c");
+              checkIndent(vf, "\t", nl, firstLine, "a", "", "\r\r\r", "c");
+              checkIndent(vf, "\t", nl, firstLine, "a\r", "", "c");
+              checkIndent(vf, "\t", nl, firstLine, "a", "", "\rc");
           }
       }
   }
   
-  @Test
-  public void testStringIndentRandomDefault() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringIndentRandomDefault(IValueFactory vf) {
       Random rnd = new Random();
       for (String nl: commonNewlines) {
           String[] randomLines = new String[10];
@@ -354,14 +340,14 @@ public final class BasicValueSmokeTest {
 
           for (boolean first : new Boolean[] { true, true} ) {
               for (int n = 0; n < 20; n++) {
-                  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, first, randomLines);
+                  checkIndent(vf, Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, first, randomLines);
               }
           }
       }
   }
   
-  @Test
-  public void testStringIndentRandomShortConcats() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testStringIndentRandomShortConcats(IValueFactory vf) {
       Random rnd = new Random();
       for (String nl: commonNewlines) {
           String[] randomLines = new String[10];
@@ -377,7 +363,7 @@ public final class BasicValueSmokeTest {
               StringValue.setMaxFlatString(5);
               StringValue.setMaxUnbalance(5);
               for (int n = 0; n < 20; n++) {
-                  checkIndent(Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, true, randomLines);
+                  checkIndent(vf, Pattern.quote(RandomUtil.string(rnd, rnd.nextInt(20)).replaceAll("\n",  "_")), nl, true, randomLines);
               }
           }
           finally {
@@ -387,19 +373,19 @@ public final class BasicValueSmokeTest {
       }
   }
 
-  @Test
-  public void testIntAddition() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIntAddition(IValueFactory vf) {
     assertTrue(vf.integer(1).add(vf.integer(1)).isEqual(vf.integer(2)));
   }
 
-  @Test
-  public void testReal() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testReal(IValueFactory vf) {
     assertTrue(vf.real("1.5").floor().isEqual(vf.real("1")));
     assertTrue(vf.real("1.5").round().isEqual(vf.real("2")));
   }
 
-  @Test
-  public void testNumberSubTypes() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testNumberSubTypes(TypeFactory tf) {
     assertTrue(tf.integerType().isSubtypeOf(tf.numberType()));
     assertFalse(tf.numberType().isSubtypeOf(tf.integerType()));
     assertTrue(tf.realType().isSubtypeOf(tf.numberType()));
@@ -416,8 +402,8 @@ public final class BasicValueSmokeTest {
     assertTrue(tf.rationalType().lub(tf.numberType()).equivalent(tf.numberType()));
   }
 
-  @Test
-  public void testNumberArithmatic() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testNumberArithmatic(IValueFactory vf) {
     INumber i1 = vf.integer(1);
     INumber i2 = vf.integer(2);
     INumber r1 = vf.real(1.0);
@@ -452,30 +438,30 @@ public final class BasicValueSmokeTest {
     assertEqual(vf.real(0), vf.real(0).abs());
   }
 
-  @Test
-  public void testPreciseRealDivision() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testPreciseRealDivision(IValueFactory vf) {
     IReal e100 = vf.real("1E100");
     IReal maxDiff = vf.real("1E-6300");
     IReal r9 = vf.real("9");
     assertTrue(e100.subtract(e100.divide(r9, 80 * 80).multiply(r9)).lessEqual(maxDiff).getValue());
   }
 
-  @Test
-  public void testDateTimeLongConversion() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testDateTimeLongConversion(IValueFactory vf) {
     long l = 1156521600000L;
     IDateTime dt = vf.datetime(l);
     assertEqual(dt, vf.datetime(dt.getInstant()));
   }
 
-  @Test
-  public void testDateTimeLongConversionWithTimezone() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testDateTimeLongConversionWithTimezone(IValueFactory vf) {
     IDateTime dt = vf.datetime(2014, 10, 13, 10, 7, 50, 1, 7, 0);
     assertEqual(dt,
         vf.datetime(dt.getInstant(), dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
   }
 
-  @Test
-  public void testLocationTop() throws URISyntaxException {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testLocationTop(IValueFactory vf) throws URISyntaxException {
     ISourceLocation l = vf.sourceLocation("tmp", "", "/file.txt");
     assertTrue(l.top() == l);
 
