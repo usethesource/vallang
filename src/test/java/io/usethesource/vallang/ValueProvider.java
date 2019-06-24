@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
+import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.random.RandomValueGenerator;
@@ -225,8 +226,8 @@ public class ValueProvider implements ArgumentsProvider {
     private IValue reinstantiate(IValueFactory vf, TypeStore ts, IValue val) {
         try {
             return new StandardTextReader().read(vf, ts, val.getType(), new StringReader(val.toString()));
-        } catch (FactTypeUseException | IOException e) {
-            System.err.println("WARNING: value reinstantation via serialization failed. Reusing reference.");
+        } catch (FactTypeUseException | FactParseError | IOException e) {
+            System.err.println("WARNING: value reinstantation via serialization failed for ["+val+"] because + \""+e.getMessage()+"\". Reusing reference.");
             return val;
         }
     }
