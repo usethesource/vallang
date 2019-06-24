@@ -63,7 +63,6 @@ public class IValueSpecification {
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testToStringIsStandardardTextWriter(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
-        StandardTextWriter writer = new StandardTextWriter();
-        assertTrue(val.toString().equals(writer.toString()));
+        assertTrue(val.toString().equals(StandardTextWriter.valueToString(val)));
     }
 }
