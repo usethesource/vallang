@@ -23,6 +23,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -67,6 +68,8 @@ public class XMLWriter implements IValueTextWriter {
 			throw new IOException("XML configuration is invalid: " + e.getMessage());
 		} catch (TransformerException e) {
 			throw new IOException("Exception while serializing XML: " + e.getMessage());
+		} catch (DOMException e) {
+		    throw new UnsupportedTypeException(e.getMessage(), value.getType());
 		}
 	}
 	
