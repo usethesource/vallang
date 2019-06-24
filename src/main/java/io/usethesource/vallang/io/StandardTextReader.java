@@ -114,10 +114,10 @@ public class StandardTextReader extends AbstractTextReader {
 		    boolean escaped = current == '\\';
 		  String id = readIdentifier();
 		  
-		  if (!escaped && id.equals("true")) {
+		  if (!escaped && id.equals("true") && !expected.isAbstractData()) {
 		      return factory.bool(true);
 		  }
-		  else if (!escaped && id.equals("false")) {
+		  else if (!escaped && id.equals("false") && !expected.isAbstractData()) {
 		      return factory.bool(false);
 		  }
 		  else if (current == '=') {
