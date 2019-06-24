@@ -18,7 +18,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.type.Type;
 
-public class INumberSpecification {
+public class INumberTests {
     protected static final int PRECISION = 100;
     
     IInteger INT_ONE(IValueFactory vf) {
@@ -159,7 +159,7 @@ public class INumberSpecification {
      * comparisons.
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomCompare(INumber a, INumber b) {
+    public void testCompare(INumber a, INumber b) {
       int cmp = a.compare(b);
       assertEquals(cmp == 0, b.compare(a) == 0); // negating and comparing directly isn't safe
       assertEquals(cmp < 0, b.compare(a) > 0);
@@ -199,7 +199,7 @@ public class INumberSpecification {
      * Closure: These operations should yield a result of the same type.
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomClosure(INumber a, INumber b) {
+    public void testClosure(INumber a, INumber b) {
       if (a.signum() == 0 && b.signum() == 0)
         a.signum();
       if (a.getType().equivalent(b.getType())) {
@@ -217,7 +217,7 @@ public class INumberSpecification {
      * (Possibly not strictly true for reals.)
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomAssociativity(INumber a, INumber b, INumber c) {
+    public void testAssociativity(INumber a, INumber b, INumber c) {
       if (!(a instanceof IReal || b instanceof IReal || c instanceof IReal)) {
         assertEqualNumber(a.add(b.add(c)), a.add(b).add(c));
         assertEqualNumber(a.multiply(b.multiply(c)), a.multiply(b).multiply(c));
@@ -228,7 +228,7 @@ public class INumberSpecification {
      * Commutativity: addition and multiplication
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomCommutativity(INumber a, INumber b) {
+    public void testCommutativity(INumber a, INumber b) {
       assertEqualNumber(a.toString() + " + " + b.toString(), a.add(b), b.add(a));
       assertEqualNumber(a.toString() + " * " + b.toString(), a.multiply(b), b.multiply(a));
     }
@@ -237,7 +237,7 @@ public class INumberSpecification {
      * 0 or 1 are identities for all the binary ops
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomIdentity(IValueFactory vf, INumber a) {
+    public void testIdentity(IValueFactory vf, INumber a) {
       assertEqualNumber(a, a.add(INT_ZERO(vf)));
       assertEqualNumber(a, a.multiply(INT_ONE(vf)));
       assertEqualNumber(a, a.subtract(INT_ZERO(vf)));
@@ -253,7 +253,7 @@ public class INumberSpecification {
      * Subtraction is inverse of addition. Division is inverse of non-integer multiplication.
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomInverse(IValueFactory vf, INumber a) {
+    public void testInverse(IValueFactory vf, INumber a) {
       if (a instanceof IInteger) {
         IInteger i = (IInteger) a;
         assertEqualNumber(INT_ZERO(vf), i.add(i.negate()));
@@ -291,7 +291,7 @@ public class INumberSpecification {
      * (Possibly not strictly true for reals.)
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomDistributivity(INumber a, INumber b, INumber c) {
+    public void testDistributivity(INumber a, INumber b, INumber c) {
       if (!(a instanceof IReal || b instanceof IReal || c instanceof IReal)) {
         assertEqualNumber(String.format("a=%s, b=%s, c=%s", a.toString(), b.toString(), c.toString()),
             a.multiply(b.add(c)), a.multiply(b).add(a.multiply(c)));
@@ -305,7 +305,7 @@ public class INumberSpecification {
      * This may not be strictly true for reals.
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomTransitivity(INumber a, INumber b, INumber c) {
+    public void testTransitivity(INumber a, INumber b, INumber c) {
       if (a.equal(b).getValue() && b.equal(c).getValue())
         Assertions.assertTrue(a.equal(c).getValue(), "" + a + " == " + b + " == " + c);
       if (a.lessEqual(b).getValue() && b.lessEqual(c).getValue())
@@ -314,7 +314,7 @@ public class INumberSpecification {
 
     @SuppressWarnings("unlikely-arg-type")
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomNoEqualInt(IInteger i) {
+    public void testNoEqualInt(IInteger i) {
       assertFalse(i.toReal(PRECISION).equals(i));
       assertTrue(i.toReal(PRECISION).equal(i).getValue());
       assertFalse(i.toRational().equals(i));
@@ -323,7 +323,7 @@ public class INumberSpecification {
 
     @SuppressWarnings("unlikely-arg-type")
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomNoEqualRat(IRational i) {
+    public void testNoEqualRat(IRational i) {
       assertFalse(i.toReal(PRECISION).equals(i));
       assertTrue(i.toReal(PRECISION).equal(i).getValue());
       assertFalse(i.toInteger().equals(i));
@@ -331,7 +331,7 @@ public class INumberSpecification {
 
     @SuppressWarnings("unlikely-arg-type")
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomNoEqualReal(IReal i) {
+    public void testNoEqualReal(IReal i) {
       assertFalse(i.toInteger().equals(i));
     }
 
@@ -340,7 +340,7 @@ public class INumberSpecification {
      * for reals
      **/
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomRationalBehavior(IValueFactory vf, IRational a, IRational b) {
+    public void testRationalBehavior(IValueFactory vf, IRational a, IRational b) {
       assertEqualNumber(a, a.add(b).subtract(b));
       assertEqualNumber(a, a.subtract(b).add(b));
       if (b.signum() != 0) {
@@ -365,7 +365,7 @@ public class INumberSpecification {
      * as that for reals and rationals.
      **/
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomIntegerBehavior(IValueFactory vf, IInteger a, IInteger b) {
+    public void testIntegerBehavior(IValueFactory vf, IInteger a, IInteger b) {
       assertEqualNumber(a, a.add(b).subtract(b));
       assertEqualNumber(a, a.subtract(b).add(b));
       if (b.signum() != 0) {
@@ -384,7 +384,7 @@ public class INumberSpecification {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void axiomRealBehavior(IValueFactory vf, IReal a, IReal b) {
+    public void testRealBehavior(IValueFactory vf, IReal a, IReal b) {
       assertApprox(vf, a, a.add(b).subtract(b));
       assertApprox(vf, a, a.subtract(b).add(b));
       try {

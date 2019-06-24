@@ -94,8 +94,7 @@
                     <argLine>
                         @{argLine} 
                         -Xmx2G
-						-ea
-						-Dio.usethesource.vallang.Setup.valueFactory=REFERENCE,PERSISTENT
+		        -ea
 					</argLine>
 				</configuration>
 			</plugin>
