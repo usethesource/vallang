@@ -141,6 +141,7 @@ public class StacklessStructuredVisitor {
                         }
 
                     } else {
+                        @SuppressWarnings("deprecation")
                         IAnnotatable<? extends INode> withAnno = node.asAnnotatable();
                         if(withAnno.hasAnnotations()){
                             assert withAnno instanceof AbstractDefaultAnnotatable;
@@ -200,6 +201,7 @@ public class StacklessStructuredVisitor {
                         }
 
                     } else {
+                        @SuppressWarnings("deprecation")
                         IAnnotatable<? extends IConstructor> withAnno = constr.asAnnotatable();
                         if(withAnno.hasAnnotations()){
                             assert withAnno instanceof AbstractDefaultAnnotatable;

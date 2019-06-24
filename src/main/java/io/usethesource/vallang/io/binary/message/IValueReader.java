@@ -607,6 +607,7 @@ public class IValueReader {
         return returnAndStore(backReference, valueWindow, result.done());
     }
 
+    @SuppressWarnings("deprecation")
     private IValue readNode(final IWireInputStream reader) throws IOException {
         String name = null;
         IValue[] children = new IValue[0];
