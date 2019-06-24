@@ -35,6 +35,9 @@ public class IValueTests {
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testHashCodeContract(IValue val1, IValue val2) {
+        if (val1.equals(val2)) {
+            assertEquals(val1.hashCode(), val2.hashCode(), "" + val1.toString() + " and " + val2.toString() + " are equal but do not have the same hashCode?");
+        }
         assertTrue(!val1.equals(val2) || val1.hashCode() == val2.hashCode());
     }
     
@@ -43,14 +46,20 @@ public class IValueTests {
         StandardTextReader reader = new StandardTextReader();
         String string = val.toString();
         IValue result = reader.read(vf, val.getType(), new StringReader(string));
-        assertEquals(val, result);
+        assertEquals(val, result, "reading back " + val + " produced something different");
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testIsomorphicText(IValue val1, IValue val2) throws FactTypeUseException, IOException {
         // (val1 == val2) <==> (val1.toString() == val2.toString())
-        assertTrue(!val1.equals(val2) || val1.toString().equals(val2.toString()));
-        assertTrue(!val1.toString().equals(val2.toString()) || val1.equals(val2));
+
+        if (val1.equals(val2)) {
+            assertEquals(val1.toString(), val2.toString(), val1.toString() + " and " + val2.toString() + " should look the same because they are equal.");
+        }
+        
+        if (val1.toString().equals(val2.toString())) {
+            assertEquals(val1, val2, val1.toString() + " and " + val2.toString() + "should be equal because they look the same.");
+        }
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -58,11 +67,11 @@ public class IValueTests {
         StandardTextReader reader = new StandardTextReader();
         String string = val.toString();
         IValue result = reader.read(vf, val.getType(), new StringReader(string));
-        assertTrue(val.isEqual(result)); // isEqual ignores annotations
+        assertTrue(val.isEqual(result), val.toString() + " is not read back properly."); // isEqual ignores annotations
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testToStringIsStandardardTextWriter(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
-        assertTrue(val.toString().equals(StandardTextWriter.valueToString(val)));
+        assertEquals(val.toString(), StandardTextWriter.valueToString(val), "toString of " + val + " is not equal to the standard notation");
     }
 }
