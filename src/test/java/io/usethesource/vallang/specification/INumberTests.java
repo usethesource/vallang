@@ -183,7 +183,7 @@ public class INumberTests {
         assertEquals( a.hashCode(), b.hashCode(), "" + a + ".hashCode() != " + b + ".hashCode()");
 
         if (!(a instanceof IReal || b instanceof IReal) && a.getType().equivalent(b.getType())) {
-          assertEquals("" + a + ".toString() != " + b + ".toString()", a.toString(), b.toString());
+          assertEquals(a.toString(), b.toString(), "" + a + ".toString() != " + b + ".toString()");
         }
       }
 
