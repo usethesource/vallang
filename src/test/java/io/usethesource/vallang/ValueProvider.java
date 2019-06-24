@@ -2,10 +2,11 @@ package io.usethesource.vallang;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.Supplier;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,21 +85,22 @@ public class ValueProvider implements ArgumentsProvider {
      * generate a (random) instance of a type that all instances of such Java classes could have.
      * Only composite types will actually be random.
      */
-    private static final Map<Class<? extends IValue>, Supplier<Type>> types = 
-        Stream.<Tuple<Class<? extends IValue>, Supplier<Type>>>of(
-            Tuple.of(IInteger.class,        () -> tf.integerType()),
-            Tuple.of(IBool.class,           () -> tf.boolType()),
-            Tuple.of(IReal.class,           () -> tf.realType()),
-            Tuple.of(IRational.class,       () -> tf.rationalType()),
-            Tuple.of(INumber.class,         () -> tf.numberType()),
-            Tuple.of(IString.class,         () -> tf.stringType()),
-            Tuple.of(ISourceLocation.class, () -> tf.sourceLocationType()),
-            Tuple.of(IValue.class,          () -> tf.valueType()),
-            Tuple.of(INode.class,           () -> tf.nodeType()),
-            Tuple.of(IList.class,           () -> tf.listType(tf.randomType())),
-            Tuple.of(ISet.class,            () -> tf.setType(tf.randomType())),
-            Tuple.of(ITuple.class,          () -> tf.tupleType(tf.randomType(), tf.randomType())),
-            Tuple.of(IMap.class,            () -> tf.mapType(tf.randomType(), tf.randomType()))
+    private static final Map<Class<? extends IValue>, BiFunction<TypeStore, ExpectedType, Type>> types = 
+        Stream.<Tuple<Class<? extends IValue>, BiFunction<TypeStore, ExpectedType, Type>>>of(
+            Tuple.of(IInteger.class,        (ts, n) -> tf.integerType()),
+            Tuple.of(IBool.class,           (ts, n) -> tf.boolType()),
+            Tuple.of(IReal.class,           (ts, n) -> tf.realType()),
+            Tuple.of(IRational.class,       (ts, n) -> tf.rationalType()),
+            Tuple.of(INumber.class,         (ts, n) -> tf.numberType()),
+            Tuple.of(IString.class,         (ts, n) -> tf.stringType()),
+            Tuple.of(ISourceLocation.class, (ts, n) -> tf.sourceLocationType()),
+            Tuple.of(IValue.class,          (ts, n) -> tf.valueType()),
+            Tuple.of(INode.class,           (ts, n) -> tf.nodeType()),
+            Tuple.of(IList.class,           (ts, n) -> tf.listType(tf.randomType())),
+            Tuple.of(ISet.class,            (ts, n) -> tf.setType(tf.randomType())),
+            Tuple.of(ITuple.class,          (ts, n) -> tf.tupleType(tf.randomType(), tf.randomType())),
+            Tuple.of(IMap.class,            (ts, n) -> tf.mapType(tf.randomType(), tf.randomType())),
+            Tuple.of(IConstructor.class,    (ts, n) -> randomADT(ts, n))
         ).collect(Collectors.toMap(t -> t.a, t -> t.b));
             
     
@@ -111,7 +113,7 @@ public class ValueProvider implements ArgumentsProvider {
          * value factory implementations (2). For the IValue argument we generate 100 tests and for
          * every additional IValue argument we multiply the number of tests by 10.
          */
-        long valueArity = Arrays.stream(method.getParameterTypes()).filter(x -> x.isAssignableFrom(IValue.class)).count();
+        long valueArity = Arrays.stream(method.getParameterTypes()).filter(x -> IValue.class.isAssignableFrom(x)).count();
         int numberOfTests = Math.max(1, 100 * (int) Math.pow(10, valueArity - 1));
         
         return Stream.of(
@@ -124,6 +126,31 @@ public class ValueProvider implements ArgumentsProvider {
                );
     }
 
+    private static Type randomADT(TypeStore ts, ExpectedType n) {
+        if (n != null) {
+            Type adt = ts.lookupAbstractDataType(n.value());
+            
+            if (adt != null) {
+                return adt;
+            }
+            else {
+                throw new IllegalArgumentException(n.value() + " is not declared by the given TypeStore");
+            }
+        }
+        
+        Collection<Type> allADTs = ts.getAbstractDataTypes();
+
+        if (!allADTs.isEmpty()) {
+            return allADTs.stream().skip(new Random().nextInt(allADTs.size())).findFirst().get();
+        }
+
+        // note the side-effect in the type store!
+        Type x = tf.abstractDataType(ts, "X");
+        tf.constructor(ts, x, "x");
+
+        return x;
+    }
+
     /**
      * Generate the random argument for a single test method
      * @param method the declaration of the method under test
@@ -132,7 +159,7 @@ public class ValueProvider implements ArgumentsProvider {
      * @return an Arguments instance for streaming into JUnits MethodSource interface.
      */
     private Arguments arguments(Method method, Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts) {
-        return Arguments.of(Arrays.stream(method.getParameterTypes()).map(cl -> argument(vf, ts, cl)).toArray());    
+        return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class))).toArray());    
     }
     
     /**
@@ -143,7 +170,7 @@ public class ValueProvider implements ArgumentsProvider {
      * @param cls       the class type of the parameter to generate an input for
      * @return a random object which is assignable to cls
      */
-    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls)  {
+    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType name)  {
         if (cls.isAssignableFrom(IValueFactory.class)) {
             return vf.a;
         }
@@ -153,8 +180,8 @@ public class ValueProvider implements ArgumentsProvider {
         else if (cls.isAssignableFrom(TypeFactory.class)) {
             return TypeFactory.getInstance();
         }
-        else if (cls.isAssignableFrom(IValue.class)) {
-            return generateValue(vf, ts, cls.asSubclass(IValue.class));
+        else if (IValue.class.isAssignableFrom(cls)) {
+            return generateValue(vf, ts, cls.asSubclass(IValue.class), name);
         }
         else {
             throw new IllegalArgumentException(cls + " is not assignable from IValue, IValueFactory, TypeStore or TypeFactory");
@@ -169,8 +196,8 @@ public class ValueProvider implements ArgumentsProvider {
      * @param cl  the `cl` (sub-type of `IValue`) to be assignable to
      * @return an instance assignable to `cl`
      */
-    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl) {
-        return vf.b.generate(types.getOrDefault(cl, () -> tf.valueType()).get(), ts, Collections.emptyMap());
+    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType name) {
+        return vf.b.generate(types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, name), ts, Collections.emptyMap());
     }
     
     /**
