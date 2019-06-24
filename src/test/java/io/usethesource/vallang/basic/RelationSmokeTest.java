@@ -17,97 +17,114 @@ import static org.junit.Assert.fail;
 
 import java.util.Iterator;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
-@RunWith(Parameterized.class)
 public final class RelationSmokeTest {
 
-  @Parameterized.Parameters
-  public static Iterable<? extends Object> data() {
-    return Setup.valueFactories();
-  }
+    private IValue[] integers(IValueFactory vf) {
+        IValue[] integers = new IValue[5];
 
-  private final IValueFactory vf;
-
-  public RelationSmokeTest(final IValueFactory vf) {
-    this.vf = vf;
-  }
-
-  private TypeFactory tf;
-  private IValue[] integers;
-  private ITuple[] integerTuples;
-  private ISet setOfIntegers;
-  private ISet integerRelation;
-  private IValue[] doubles;
-  private ISet setOfDoubles;
-  private ISet doubleRelation;
-  private ITuple[] doubleTuples;
-
-  @Before
-  public void setUp() throws Exception {
-    tf = TypeFactory.getInstance();
-
-    integers = new IValue[5];
-    ISetWriter sw = vf.setWriter();
-
-    for (int i = 0; i < integers.length; i++) {
-      IValue iv = vf.integer(i);
-      integers[i] = iv;
-      sw.insert(iv);
+        for (int i = 0; i < integers.length; i++) {
+          integers[i] = vf.integer(i);
+        }
+        
+        return integers;
     }
-    setOfIntegers = sw.done();
+    
+    private IValue[] doubles(IValueFactory vf) {
+        IValue[] doubles = new IValue[10];
 
-    doubles = new IValue[10];
-    ISetWriter sw2 = vf.setWriter();
-
-    for (int i = 0; i < doubles.length; i++) {
-      IValue iv = vf.real(i);
-      doubles[i] = iv;
-      sw2.insert(iv);
+        for (int i = 0; i < doubles.length; i++) {
+          doubles[i] = vf.real(i);
+        }
+        
+        return doubles;
     }
-    setOfDoubles = sw2.done();
-
-    ISetWriter rw = vf.setWriter();
-    integerTuples = new ITuple[integers.length * integers.length];
-
-    for (int i = 0; i < integers.length; i++) {
-      for (int j = 0; j < integers.length; j++) {
-        ITuple t = vf.tuple(integers[i], integers[j]);
-        integerTuples[i * integers.length + j] = t;
-        rw.insert(t);
-      }
+    
+    
+    private ITuple[] integerTuples(IValueFactory vf) {
+        IValue[] integers = integers(vf);
+        ITuple[] integerTuples = new ITuple[integers.length * integers.length];
+        
+        for (int i = 0; i < integers.length; i++) {
+          for (int j = 0; j < integers.length; j++) {
+            ITuple t = vf.tuple(integers[i], integers[j]);
+            integerTuples[i * integers.length + j] = t;
+          }
+        }
+        
+        return integerTuples;
     }
-    integerRelation = rw.done();
-
-    ISetWriter rw2 = vf.setWriter();
-    doubleTuples = new ITuple[doubles.length * doubles.length];
-
-    for (int i = 0; i < doubles.length; i++) {
-      for (int j = 0; j < doubles.length; j++) {
-        ITuple t = vf.tuple(doubles[i], doubles[j]);
-        doubleTuples[i * doubles.length + j] = t;
-        rw2.insert(t);
-      }
+    
+    private ITuple[] doubleTuples(IValueFactory vf) {
+        IValue[] integers = doubles(vf);
+        ITuple[] integerTuples = new ITuple[integers.length * integers.length];
+        
+        for (int i = 0; i < integers.length; i++) {
+          for (int j = 0; j < integers.length; j++) {
+            ITuple t = vf.tuple(integers[i], integers[j]);
+            integerTuples[i * integers.length + j] = t;
+          }
+        }
+        
+        return integerTuples;
     }
-    doubleRelation = rw2.done();
-  }
+    
+    private ISet setOfIntegers(IValueFactory vf) {
+        ISetWriter lw = vf.setWriter();
+        
+        for (IValue i : integers(vf)) {
+            lw.append(i);
+        }
+        
+        return lw.done();
+    }
+    
+    private ISet setOfDoubles(IValueFactory vf) {
+        ISetWriter lw = vf.setWriter();
+        
+        for (IValue i : doubles(vf)) {
+            lw.append(i);
+        }
+        
+        return lw.done();
+    }
+    
+    private ISet integerRelation(IValueFactory vf) {
+        ISetWriter lw = vf.setWriter();
+        
+        for (IValue i : integerTuples(vf)) {
+            lw.append(i);
+        }
+        
+        return lw.done();
+    }
+    
+    private ISet doubleRelation(IValueFactory vf) {
+        ISetWriter lw = vf.setWriter();
+        
+        for (IValue i : doubleTuples(vf)) {
+            lw.append(i);
+        }
+        
+        return lw.done();
+    }
+    
 
-  @Test
-  public void testIsEmpty() {
-    if (integerRelation.isEmpty()) {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIsEmpty(IValueFactory vf) {
+    if (integerRelation(vf).isEmpty()) {
       fail("integerRelation is not empty");
     }
 
@@ -125,50 +142,50 @@ public final class RelationSmokeTest {
 
   }
 
-  @Test
-  public void testSize() {
-    if (integerRelation.size() != integerTuples.length) {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testSize(IValueFactory vf) {
+    if (integerRelation(vf).size() != integerTuples(vf).length) {
       fail("relation size is not correct");
     }
   }
 
-  @Test
-  public void testArity() {
-    if (integerRelation.asRelation().arity() != 2) {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testArity(IValueFactory vf) {
+    if (integerRelation(vf).asRelation().arity() != 2) {
       fail("arity should be 2");
     }
   }
 
-  @Test
-  public void testProductIRelation() {
-    ISet prod = integerRelation.product(integerRelation);
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testProductIRelation(IValueFactory vf) {
+    ISet prod = integerRelation(vf).product(integerRelation(vf));
 
     if (prod.asRelation().arity() != 2) {
       fail("arity of product should be 2");
     }
 
-    if (prod.size() != integerRelation.size() * integerRelation.size()) {
+    if (prod.size() != integerRelation(vf).size() * integerRelation(vf).size()) {
       fail("size of product should be square of size of integerRelation");
     }
   }
 
-  @Test
-  public void testProductISet() {
-    ISet prod = integerRelation.product(setOfIntegers);
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testProductISet(IValueFactory vf) {
+    ISet prod = integerRelation(vf).product(setOfIntegers(vf));
 
     if (prod.asRelation().arity() != 2) {
       fail("arity of product should be 2");
     }
 
-    if (prod.size() != integerRelation.size() * setOfIntegers.size()) {
+    if (prod.size() != integerRelation(vf).size() * setOfIntegers(vf).size()) {
       fail("size of product should be square of size of integerRelation");
     }
   }
 
-  @Test
-  public void testClosure() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testClosure(IValueFactory vf) {
     try {
-      if (!integerRelation.asRelation().closure().isEqual(integerRelation)) {
+      if (!integerRelation(vf).asRelation().closure().isEqual(integerRelation(vf))) {
         fail("closure adds extra tuples?");
       }
     } catch (FactTypeUseException e) {
@@ -183,12 +200,12 @@ public final class RelationSmokeTest {
     }
 
     try {
-      ITuple t1 = vf.tuple(integers[0], integers[1]);
-      ITuple t2 = vf.tuple(integers[1], integers[2]);
-      ITuple t3 = vf.tuple(integers[2], integers[3]);
-      ITuple t4 = vf.tuple(integers[0], integers[2]);
-      ITuple t5 = vf.tuple(integers[1], integers[3]);
-      ITuple t6 = vf.tuple(integers[0], integers[3]);
+      ITuple t1 = vf.tuple(integers(vf)[0], integers(vf)[1]);
+      ITuple t2 = vf.tuple(integers(vf)[1], integers(vf)[2]);
+      ITuple t3 = vf.tuple(integers(vf)[2], integers(vf)[3]);
+      ITuple t4 = vf.tuple(integers(vf)[0], integers(vf)[2]);
+      ITuple t5 = vf.tuple(integers(vf)[1], integers(vf)[3]);
+      ITuple t6 = vf.tuple(integers(vf)[0], integers(vf)[3]);
 
       ISet test = vf.set(t1, t2, t3);
       ISet closed = test.asRelation().closure();
@@ -214,17 +231,17 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testCompose() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testCompose(IValueFactory vf) {
     try {
-      ISet comp = integerRelation.asRelation().compose(integerRelation.asRelation());
+      ISet comp = integerRelation(vf).asRelation().compose(integerRelation(vf).asRelation());
 
-      if (comp.asRelation().arity() != integerRelation.asRelation().arity() * 2 - 2) {
+      if (comp.asRelation().arity() != integerRelation(vf).asRelation().arity() * 2 - 2) {
         fail(
             "composition is a product with the last column of the first relation and the first column of the last relation removed");
       }
 
-      if (comp.size() != integerRelation.size()) {
+      if (comp.size() != integerRelation(vf).size()) {
         fail("numner of expected tuples is off");
       }
     } catch (FactTypeUseException e) {
@@ -232,22 +249,22 @@ public final class RelationSmokeTest {
     }
 
     try {
-      ITuple t1 = vf.tuple(integers[0], doubles[0]);
-      ITuple t2 = vf.tuple(integers[1], doubles[1]);
-      ITuple t3 = vf.tuple(integers[2], doubles[2]);
+      ITuple t1 = vf.tuple(integers(vf)[0], doubles(vf)[0]);
+      ITuple t2 = vf.tuple(integers(vf)[1], doubles(vf)[1]);
+      ITuple t3 = vf.tuple(integers(vf)[2], doubles(vf)[2]);
       ISet rel1 = vf.set(t1, t2, t3);
 
-      ITuple t4 = vf.tuple(doubles[0], integers[0]);
-      ITuple t5 = vf.tuple(doubles[1], integers[1]);
-      ITuple t6 = vf.tuple(doubles[2], integers[2]);
+      ITuple t4 = vf.tuple(doubles(vf)[0], integers(vf)[0]);
+      ITuple t5 = vf.tuple(doubles(vf)[1], integers(vf)[1]);
+      ITuple t6 = vf.tuple(doubles(vf)[2], integers(vf)[2]);
       ISet rel2 = vf.set(t4, t5, t6);
 
-      ITuple t7 = vf.tuple(integers[0], integers[0]);
-      ITuple t8 = vf.tuple(integers[1], integers[1]);
-      ITuple t9 = vf.tuple(integers[2], integers[2]);
+      ITuple t7 = vf.tuple(integers(vf)[0], integers(vf)[0]);
+      ITuple t8 = vf.tuple(integers(vf)[1], integers(vf)[1]);
+      ITuple t9 = vf.tuple(integers(vf)[2], integers(vf)[2]);
       ISet rel3 = vf.set(t7, t8, t9);
       assertTrue("Non-comparable types should yield empty composition result.", vf
-          .set(vf.tuple(doubles[0], doubles[0])).asRelation().compose(rel1.asRelation()).isEmpty());
+          .set(vf.tuple(doubles(vf)[0], doubles(vf)[0])).asRelation().compose(rel1.asRelation()).isEmpty());
       ISet comp = rel1.asRelation().compose(rel2.asRelation());
 
       if (!comp.isEqual(rel3)) {
@@ -258,11 +275,11 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testContains() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testContains(IValueFactory vf) {
     try {
-      for (ITuple t : integerTuples) {
-        if (!integerRelation.contains(t)) {
+      for (ITuple t : integerTuples(vf)) {
+        if (!integerRelation(vf).contains(t)) {
           fail("contains returns false instead of true");
         }
       }
@@ -271,23 +288,23 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testInsert() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testInsert(IValueFactory vf) {
     try {
-      ISet rel = integerRelation.insert(vf.tuple(vf.integer(0), vf.integer(0)));
+      ISet rel = integerRelation(vf).insert(vf.tuple(vf.integer(0), vf.integer(0)));
 
-      if (!rel.isEqual(integerRelation)) {
+      if (!rel.isEqual(integerRelation(vf))) {
         fail("insert into a relation of an existing tuple should not change the relation");
       }
 
       ISetWriter relw3 = vf.setWriter();
-      relw3.insertAll(integerRelation);
+      relw3.insertAll(integerRelation(vf));
       ISet rel3 = relw3.done();
 
       final ITuple tuple = vf.tuple(vf.integer(100), vf.integer(100));
       ISet rel4 = rel3.insert(tuple);
 
-      if (rel4.size() != integerRelation.size() + 1) {
+      if (rel4.size() != integerRelation(vf).size() + 1) {
         fail("insert failed");
       }
 
@@ -300,17 +317,17 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testIntersectIRelation() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIntersectIRelation(IValueFactory vf) {
 
     try {
-      if (!integerRelation.intersect(doubleRelation).isEmpty()) {
+      if (!integerRelation(vf).intersect(doubleRelation(vf)).isEmpty()) {
         fail("non-intersecting relations should produce empty intersections");
       }
 
-      ISet oneTwoThree = vf.set(integerTuples[0], integerTuples[1], integerTuples[2]);
-      ISet threeFourFive = vf.set(integerTuples[2], integerTuples[3], integerTuples[4]);
-      ISet result = vf.set(integerTuples[2]);
+      ISet oneTwoThree = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2]);
+      ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
+      ISet result = vf.set(integerTuples(vf)[2]);
 
       if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
         fail("intersection failed");
@@ -329,8 +346,8 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testIntersectISet() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIntersectISet(IValueFactory vf, TypeFactory tf) {
     ISet empty1 = vf.set();
     ISet empty2 = vf.set();
 
@@ -349,13 +366,13 @@ public final class RelationSmokeTest {
     }
 
     try {
-      if (!integerRelation.intersect(doubleRelation).isEmpty()) {
+      if (!integerRelation(vf).intersect(doubleRelation(vf)).isEmpty()) {
         fail("non-intersecting relations should produce empty intersections");
       }
 
-      ISet oneTwoThree = vf.set(integerTuples[0], integerTuples[1], integerTuples[2]);
-      ISet threeFourFive = vf.set(integerTuples[2], integerTuples[3], integerTuples[4]);
-      ISet result = vf.set(integerTuples[2]);
+      ISet oneTwoThree = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2]);
+      ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
+      ISet result = vf.set(integerTuples(vf)[2]);
 
       if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
         fail("intersection failed");
@@ -374,8 +391,8 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testSubtractIRelation() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testSubtractIRelation(IValueFactory vf) {
     ISet empty1 = vf.set();
     ISet empty2 = vf.set();
 
@@ -390,10 +407,10 @@ public final class RelationSmokeTest {
     }
 
     try {
-      ISet oneTwoThree = vf.set(integerTuples[0], integerTuples[1], integerTuples[2]);
-      ISet threeFourFive = vf.set(integerTuples[2], integerTuples[3], integerTuples[4]);
-      ISet result1 = vf.set(integerTuples[0], integerTuples[1]);
-      ISet result2 = vf.set(integerTuples[3], integerTuples[4]);
+      ISet oneTwoThree = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2]);
+      ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
+      ISet result1 = vf.set(integerTuples(vf)[0], integerTuples(vf)[1]);
+      ISet result2 = vf.set(integerTuples(vf)[3], integerTuples(vf)[4]);
 
       if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
         fail("subtraction failed");
@@ -412,8 +429,8 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testSubtractISet() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testSubtractISet(IValueFactory vf) {
     ISet empty1 = vf.set();
     ISet empty2 = vf.set();
 
@@ -428,9 +445,9 @@ public final class RelationSmokeTest {
     }
 
     try {
-      ISet oneTwoThree = vf.set(integerTuples[0], integerTuples[1], integerTuples[2]);
-      ISet threeFourFive = vf.set(integerTuples[2], integerTuples[3], integerTuples[4]);
-      ISet result1 = vf.set(integerTuples[0], integerTuples[1]);
+      ISet oneTwoThree = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2]);
+      ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
+      ISet result1 = vf.set(integerTuples(vf)[0], integerTuples(vf)[1]);
 
       if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
         fail("subtraction failed");
@@ -446,19 +463,19 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testUnionIRelation() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testUnionIRelation(IValueFactory vf) {
     try {
-      if (integerRelation.union(doubleRelation).size() != integerRelation.size()
-          + doubleRelation.size()) {
+      if (integerRelation(vf).union(doubleRelation(vf)).size() != integerRelation(vf).size()
+          + doubleRelation(vf).size()) {
         fail(
             "non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
       }
 
-      ISet oneTwoThree = vf.set(integerTuples[0], integerTuples[1], integerTuples[2]);
-      ISet threeFourFive = vf.set(integerTuples[2], integerTuples[3], integerTuples[4]);
-      ISet result = vf.set(integerTuples[0], integerTuples[1], integerTuples[2], integerTuples[3],
-          integerTuples[4]);
+      ISet oneTwoThree = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2]);
+      ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
+      ISet result = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2], integerTuples(vf)[3],
+          integerTuples(vf)[4]);
 
       if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
         fail("union failed");
@@ -477,8 +494,8 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testEmptySetIsARelation() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testEmptySetIsARelation(IValueFactory vf) {
     assertTrue(vf.set().getType().isRelation());
 
     ISet r = vf.set().insert(vf.tuple(vf.integer(1), vf.integer(2)));
@@ -490,19 +507,19 @@ public final class RelationSmokeTest {
     assertTrue(s.getType().isRelation()); // yes really!
   }
 
-  @Test
-  public void testUnionISet() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testUnionISet(IValueFactory vf) {
     try {
-      if (integerRelation.union(doubleRelation).size() != integerRelation.size()
-          + doubleRelation.size()) {
+      if (integerRelation(vf).union(doubleRelation(vf)).size() != integerRelation(vf).size()
+          + doubleRelation(vf).size()) {
         fail(
             "non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
       }
 
-      ISet oneTwoThree = vf.set(integerTuples[0], integerTuples[1], integerTuples[2]);
-      ISet threeFourFive = vf.set(integerTuples[2], integerTuples[3], integerTuples[4]);
-      ISet result = vf.set(integerTuples[0], integerTuples[1], integerTuples[2], integerTuples[3],
-          integerTuples[4]);
+      ISet oneTwoThree = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2]);
+      ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
+      ISet result = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2], integerTuples(vf)[3],
+          integerTuples(vf)[4]);
 
       if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
         fail("union failed");
@@ -521,21 +538,21 @@ public final class RelationSmokeTest {
     }
   }
 
-  @Test
-  public void testIterator() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIterator(IValueFactory vf) {
     try {
-      Iterator<IValue> it = integerRelation.iterator();
+      Iterator<IValue> it = integerRelation(vf).iterator();
 
       int i;
       for (i = 0; it.hasNext(); i++) {
         ITuple t = (ITuple) it.next();
 
-        if (!integerRelation.contains(t)) {
+        if (!integerRelation(vf).contains(t)) {
           fail("iterator produces strange elements?");
         }
       }
 
-      if (i != integerRelation.size()) {
+      if (i != integerRelation(vf).size()) {
         fail("iterator skipped elements");
       }
     } catch (FactTypeUseException e) {
@@ -543,18 +560,18 @@ public final class RelationSmokeTest {
     }
   }
   
-  @Test
-  public void testCarrier() {
-    ISet carrier = integerRelation.asRelation().carrier();
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testCarrier(IValueFactory vf, TypeFactory tf) {
+    ISet carrier = integerRelation(vf).asRelation().carrier();
 
-    if (!carrier.isEqual(setOfIntegers)) {
+    if (!carrier.isEqual(setOfIntegers(vf))) {
       fail("carrier should be equal to this set");
     }
 
     try {
-      ITuple t1 = vf.tuple(integers[0], doubles[0]);
-      ITuple t2 = vf.tuple(integers[1], doubles[1]);
-      ITuple t3 = vf.tuple(integers[2], doubles[2]);
+      ITuple t1 = vf.tuple(integers(vf)[0], doubles(vf)[0]);
+      ITuple t2 = vf.tuple(integers(vf)[1], doubles(vf)[1]);
+      ITuple t3 = vf.tuple(integers(vf)[2], doubles(vf)[2]);
       ISet rel1 = vf.set(t1, t2, t3);
 
       ISet carrier1 = rel1.asRelation().carrier();
@@ -567,11 +584,11 @@ public final class RelationSmokeTest {
         fail("carrier does not contain all elements");
       }
 
-      if (carrier1.intersect(setOfIntegers).size() != 3) {
+      if (carrier1.intersect(setOfIntegers(vf)).size() != 3) {
         fail("integers should be in there still");
       }
 
-      if (carrier1.intersect(setOfDoubles).size() != 3) {
+      if (carrier1.intersect(setOfDoubles(vf)).size() != 3) {
         fail("doubles should be in there still");
       }
     } catch (FactTypeUseException e) {
@@ -580,15 +597,15 @@ public final class RelationSmokeTest {
 
   }
   
-  @Test
-  public void testIndex() {
-      testIndex(integerRelation);
-      testIndex(doubleRelation);
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIndex(IValueFactory vf) {
+      testIndex(integerRelation(vf));
+      testIndex(doubleRelation(vf));
   }
   
-  @Test
-  public void testEmptyIndex() {
-      assertTrue(integerRelation.asRelation().index(vf.integer(integers.length +  1)).isEmpty());
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testEmptyIndex(IValueFactory vf) {
+      assertTrue(integerRelation(vf).asRelation().index(vf.integer(integers(vf).length +  1)).isEmpty());
   }
 
   private void testIndex(ISet targetRel) {
