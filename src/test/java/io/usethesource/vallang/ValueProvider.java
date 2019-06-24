@@ -1,5 +1,7 @@
 package io.usethesource.vallang;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -207,12 +211,26 @@ public class ValueProvider implements ArgumentsProvider {
         Random rnd = vf.b.getRandom();
         
         if (previous != null && rnd.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {
-            return previous;
+            return rnd.nextBoolean() ? previous : reinstantiate(vf.a, ts, previous);
         }
         
         return (previous = vf.b.generate(expectedType, ts, Collections.emptyMap()));
     }
     
+    /**
+     * Produces a value which equals the input `val` but is not the same object reference.
+     * It does this by serializing the value and parsing it again with the same expected type.
+     * @return a value equals to `val` (val.equals(returnValue)) but not reference equal (val != returnValue)
+     */
+    private IValue reinstantiate(IValueFactory vf, TypeStore ts, IValue val) {
+        try {
+            return new StandardTextReader().read(vf, ts, val.getType(), new StringReader(val.toString()));
+        } catch (FactTypeUseException | IOException e) {
+            System.err.println("WARNING: value reinstantation via serialization failed. Reusing reference.");
+            return val;
+        }
+    }
+
     /**
      * Generates a TypeStore instance by importing the static `store` field of the class-under-test (if-present)
      * in a fresh TypeStore. Otherwise it generates a fresh and empty TypeStore.  
