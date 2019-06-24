@@ -170,6 +170,7 @@ public class ValueProvider implements ArgumentsProvider {
      * @return an Arguments instance for streaming into JUnits MethodSource interface.
      */
     private Arguments arguments(Method method, Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts) {
+        previous = null; // never reuse arguments from a previous instance
         return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class))).toArray());    
     }
     
