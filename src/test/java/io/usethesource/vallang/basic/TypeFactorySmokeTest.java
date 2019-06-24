@@ -12,91 +12,78 @@
 
 package io.usethesource.vallang.basic;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-@RunWith(Parameterized.class)
 public final class TypeFactorySmokeTest {
 
-  @Parameterized.Parameters
-  public static Iterable<? extends Object> data() {
-    return Setup.valueFactories();
-  }
+  private static TypeFactory ft = TypeFactory.getInstance();
 
-  private final IValueFactory vf;
-
-  public TypeFactorySmokeTest(IValueFactory vf) {
-    this.vf = vf;
-  }
-
-  private TypeFactory ft = TypeFactory.getInstance();
-
-  private Type[] types = new Type[] {ft.integerType(), ft.realType(), ft.sourceLocationType(),
+  private static Type[] types = new Type[] {ft.integerType(), ft.realType(), ft.sourceLocationType(),
       ft.valueType(), ft.listType(ft.integerType()), ft.setType(ft.realType())};
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testGetInstance() {
     if (TypeFactory.getInstance() != ft) {
       fail("getInstance did not return the same reference");
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testGetTypeByDescriptor() {
     // TODO: needs to be tested, after we've implemented it
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testValueType() {
     if (ft.valueType() != ft.valueType()) {
       fail("valueType should be canonical");
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testIntegerType() {
     if (ft.integerType() != ft.integerType()) {
       fail("integerType should be canonical");
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testDoubleType() {
     if (ft.realType() != ft.realType()) {
       fail("doubleType should be canonical");
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringType() {
     if (ft.stringType() != ft.stringType()) {
       fail("stringType should be canonical");
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testSourceLocationType() {
     if (ft.sourceLocationType() != ft.sourceLocationType()) {
       fail("sourceLocationType should be canonical");
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testTupleTypeOfType() {
     Type t = ft.tupleType(types[0]);
 
@@ -107,7 +94,7 @@ public final class TypeFactorySmokeTest {
     checkTupleTypeOf(t, 1);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testTupleTypeOfTypeType() {
     Type t = ft.tupleType(types[0], types[1]);
 
@@ -118,7 +105,7 @@ public final class TypeFactorySmokeTest {
     checkTupleTypeOf(t, 2);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testTupleTypeOfTypeTypeType() {
     Type t = ft.tupleType(types[0], types[1], types[2]);
 
@@ -129,7 +116,7 @@ public final class TypeFactorySmokeTest {
     checkTupleTypeOf(t, 3);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testTupleTypeOfTypeTypeTypeType() {
     Type t = ft.tupleType(types[0], types[1], types[2], types[3]);
 
@@ -140,7 +127,7 @@ public final class TypeFactorySmokeTest {
     checkTupleTypeOf(t, 4);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testTupleTypeOfTypeTypeTypeTypeType() {
     Type t = ft.tupleType(types[0], types[1], types[2], types[3], types[4]);
 
@@ -151,7 +138,7 @@ public final class TypeFactorySmokeTest {
     checkTupleTypeOf(t, 5);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testTupleTypeOfTypeTypeTypeTypeTypeType() {
     Type t = ft.tupleType(types[0], types[1], types[2], types[3], types[4], types[5]);
 
@@ -162,7 +149,7 @@ public final class TypeFactorySmokeTest {
     checkTupleTypeOf(t, 6);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testTupleTypeOfTypeTypeTypeTypeTypeTypeType() {
     Type t = ft.tupleType(types[0], types[1], types[2], types[3], types[4], types[5]);
 
@@ -199,8 +186,8 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
-  public void testTupleTypeOfIValueArray() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testTupleTypeOfIValueArray(IValueFactory vf) {
     // a and b shadow the 'types' field
       try {
           @SuppressWarnings("deprecation")
@@ -221,7 +208,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testSetTypeOf() {
     Type type = ft.setType(ft.integerType());
 
@@ -230,7 +217,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeType() {
     try {
       TypeStore store = new TypeStore();
@@ -254,7 +241,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testListRelTypeType() {
     try {
       TypeStore store = new TypeStore();
@@ -278,7 +265,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeNamedType() {
     try {
       TypeStore store = new TypeStore();
@@ -298,7 +285,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testListRelTypeNamedType() {
     try {
       TypeStore store = new TypeStore();
@@ -318,7 +305,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeTupleType() {
     Type tupleType = ft.tupleType(ft.integerType(), ft.integerType());
     // note that the declared type of tupleType needs to be TupleType
@@ -331,7 +318,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testListRelTypeTupleType() {
     Type tupleType = ft.tupleType(ft.integerType(), ft.integerType());
     // note that the declared type of tupleType needs to be TupleType
@@ -344,7 +331,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeOfType() {
     Type type = ft.relType(types[0]);
 
@@ -355,7 +342,7 @@ public final class TypeFactorySmokeTest {
     checkRelationTypeOf(type, 1);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeOfTypeType() {
     Type type = ft.relType(types[0], types[1]);
 
@@ -366,7 +353,7 @@ public final class TypeFactorySmokeTest {
     checkRelationTypeOf(type, 2);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeOfTypeTypeType() {
     Type type = ft.relType(types[0], types[1], types[2]);
 
@@ -377,7 +364,7 @@ public final class TypeFactorySmokeTest {
     checkRelationTypeOf(type, 3);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeOfTypeTypeTypeType() {
     Type type = ft.relType(types[0], types[1], types[2], types[3]);
 
@@ -387,7 +374,7 @@ public final class TypeFactorySmokeTest {
     checkRelationTypeOf(type, 4);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeOfTypeTypeTypeTypeType() {
     Type type = ft.relType(types[0], types[1], types[2], types[3], types[4]);
 
@@ -397,7 +384,7 @@ public final class TypeFactorySmokeTest {
     checkRelationTypeOf(type, 5);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeOfTypeTypeTypeTypeTypeType() {
     Type type = ft.relType(types[0], types[1], types[2], types[3], types[4], types[5]);
 
@@ -407,7 +394,7 @@ public final class TypeFactorySmokeTest {
     checkRelationTypeOf(type, 6);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelTypeOfTypeTypeTypeTypeTypeTypeType() {
     Type type = ft.relType(types[0], types[1], types[2], types[3], types[4], types[5]);
 
@@ -417,7 +404,7 @@ public final class TypeFactorySmokeTest {
     checkRelationTypeOf(type, 6);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testNamedType() {
     try {
       TypeStore ts = new TypeStore();
@@ -439,7 +426,7 @@ public final class TypeFactorySmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testListType() {
     Type t1 = ft.listType(ft.integerType());
     Type t2 = ft.listType(ft.integerType());

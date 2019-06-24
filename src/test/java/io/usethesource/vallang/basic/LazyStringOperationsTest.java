@@ -7,44 +7,35 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Random;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.impl.primitive.StringValue;
 import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
 
-@RunWith(Parameterized.class)
 public final class LazyStringOperationsTest {
-
-	@Parameterized.Parameters
-	public static Iterable<? extends Object> data() {
-		return Setup.valueFactories();
-	}
-
-	private IString example, example1;
-
-	private final IValueFactory vf;
 
 	private final Random rnd = new Random();
 
-	public LazyStringOperationsTest(final IValueFactory vf) {
-		this.vf = vf;
-		this.example = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
-		this.example1 = vf.string("abcdef\nxyz").indent(vf.string("123"), true);
-	}
+    private IString example2(final IValueFactory vf) {
+        return vf.string("abcdef\nxyz").indent(vf.string("123"), true);
+    }
 
-	private IString genString(int max) {
+    private IString example1(final IValueFactory vf) {
+        return vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
+    }
+
+	private IString genString(IValueFactory vf, int max) {
 		return vf.string(RandomUtil.string(rnd, rnd.nextInt(max)));
 	}
 
-	@Test
-	public void testRandomHashcodeEquals() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testRandomHashcodeEquals(IValueFactory vf) {
 		for (int count = 0; count < 50; count++) {
 			int loops = 100 + rnd.nextInt(250);
 
@@ -52,11 +43,11 @@ public final class LazyStringOperationsTest {
 				StringValue.setMaxFlatString(3);
 				StringValue.setMaxUnbalance(5);
 				StringBuilder b = new StringBuilder();
-				IString concat = genString(25);
+				IString concat = genString(vf, 25);
 				b.append(concat.getValue());
 
 				for (int i = 0; i < loops; i++) {
-					IString next = genString(25);
+					IString next = genString(vf, 25);
 					concat = concat.concat(next);
 					b.append(next.getValue());
 				}
@@ -79,24 +70,24 @@ public final class LazyStringOperationsTest {
 		assertTrue("Expected " + l + " got " + r, l.isEqual(r));
 	}
 
-	@Test
-	public void testStringLength() {
-		assertTrue(example.substring(0, 0).length() == 0);
-		assertTrue(example.substring(0, 1).length() == 1);
-		assertTrue(example.substring(0, 2).length() == 2);
-		assertTrue(example.substring(0, 3).length() == 3);
-		assertTrue(example.substring(0, 4).length() == 4);
-		assertTrue(example.substring(0, 5).length() == 5);
-		assertTrue(example.substring(0, 6).length() == 6);
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testStringLength(IValueFactory vf) {
+		assertTrue(example1(vf).substring(0, 0).length() == 0);
+		assertTrue(example1(vf).substring(0, 1).length() == 1);
+		assertTrue(example1(vf).substring(0, 2).length() == 2);
+		assertTrue(example1(vf).substring(0, 3).length() == 3);
+		assertTrue(example1(vf).substring(0, 4).length() == 4);
+		assertTrue(example1(vf).substring(0, 5).length() == 5);
+		assertTrue(example1(vf).substring(0, 6).length() == 6);
 	}
 
-	@Test
-	public void testEquals() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testEquals(IValueFactory vf) {
 		try {
 			StringValue.setMaxFlatString(1);
 			StringValue.setMaxUnbalance(1);
 
-			IString x = vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"));
+			IString x = example1(vf);
 			IString y = vf.string("abcdefgh");
 			IString z = vf.string("abcdefgi");
 
@@ -111,8 +102,8 @@ public final class LazyStringOperationsTest {
 		}
 	}
 
-	@Test
-	public void testEqualsUnicode() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testEqualsUnicode(IValueFactory vf) {
 		try {
 			StringValue.setMaxFlatString(1);
 			StringValue.setMaxUnbalance(1);
@@ -130,56 +121,56 @@ public final class LazyStringOperationsTest {
 		}
 	}
 
-	@Test
-	public void testConcat() {
-		assertTrue(example
-				.isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef")).concat(vf.string("gh"))));
-		assertTrue(example
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testConcat(IValueFactory vf) {
+		assertTrue(example1(vf)
+				.isEqual(example1(vf)));
+		assertTrue(example1(vf)
 				.isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef").concat(vf.string("gh")))));
 	}
 
-	@Test
-	public void testStringCharAt() {
-	    assertTrue(example1.charAt(0) == '1');
-	    assertTrue(example1.charAt(1) == '2');
-	    assertTrue(example1.charAt(2) == '3');
-		assertTrue(example1.charAt(3) == 'a');
-		assertTrue(example1.charAt(4) == 'b');
-		assertTrue(example1.charAt(5) == 'c');
-		assertTrue(example1.charAt(6) == 'd');
-		assertTrue(example1.charAt(7) == 'e');
-		assertTrue(example1.charAt(8) == 'f');
-		assertTrue(example1.charAt(9) == '\n');
-		assertTrue(example1.charAt(10) == '1');
-		assertTrue(example1.charAt(11) == '2');
-		assertTrue(example1.charAt(12) == '3');
-		assertTrue(example1.charAt(13) == 'x');
-		assertTrue(example1.charAt(14) == 'y');
-		assertTrue(example1.charAt(15) == 'z');
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testStringCharAt(IValueFactory vf) {
+	    assertTrue(example2(vf).charAt(0) == '1');
+	    assertTrue(example2(vf).charAt(1) == '2');
+	    assertTrue(example2(vf).charAt(2) == '3');
+		assertTrue(example2(vf).charAt(3) == 'a');
+		assertTrue(example2(vf).charAt(4) == 'b');
+		assertTrue(example2(vf).charAt(5) == 'c');
+		assertTrue(example2(vf).charAt(6) == 'd');
+		assertTrue(example2(vf).charAt(7) == 'e');
+		assertTrue(example2(vf).charAt(8) == 'f');
+		assertTrue(example2(vf).charAt(9) == '\n');
+		assertTrue(example2(vf).charAt(10) == '1');
+		assertTrue(example2(vf).charAt(11) == '2');
+		assertTrue(example2(vf).charAt(12) == '3');
+		assertTrue(example2(vf).charAt(13) == 'x');
+		assertTrue(example2(vf).charAt(14) == 'y');
+		assertTrue(example2(vf).charAt(15) == 'z');
 	}
 
-	@Test
-	public void testStringSubString() {
-	    assertEqual(example1.substring(0, 1), vf.string("1"));
-	    assertEqual(example1.substring(0, 2), vf.string("12"));
-	    assertEqual(example1.substring(0, 3), vf.string("123"));
-		assertEqual(example1.substring(0, 4), vf.string("123a"));
-		assertEqual(example1.substring(0, 5), vf.string("123ab"));
-		assertEqual(example1.substring(0, 6), vf.string("123abc"));
-		assertEqual(example1.substring(0, 7), vf.string("123abcd"));
-		assertEqual(example1.substring(0, 8), vf.string("123abcde"));
-		assertEqual(example1.substring(0, 9), vf.string("123abcdef"));
-		assertEqual(example1.substring(0, 10), vf.string("123abcdef\n"));
-		assertEqual(example1.substring(0, 11), vf.string("123abcdef\n1"));
-		assertEqual(example1.substring(0, 12), vf.string("123abcdef\n12"));
-		assertEqual(example1.substring(0, 13), vf.string("123abcdef\n123"));
-		assertEqual(example1.substring(0, 14), vf.string("123abcdef\n123x"));
-		assertEqual(example1.substring(0, 15), vf.string("123abcdef\n123xy"));
-		assertEqual(example1.substring(0, 16), vf.string("123abcdef\n123xyz"));
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testStringSubString(IValueFactory vf) {
+	    assertEqual(example2(vf).substring(0, 1), vf.string("1"));
+	    assertEqual(example2(vf).substring(0, 2), vf.string("12"));
+	    assertEqual(example2(vf).substring(0, 3), vf.string("123"));
+		assertEqual(example2(vf).substring(0, 4), vf.string("123a"));
+		assertEqual(example2(vf).substring(0, 5), vf.string("123ab"));
+		assertEqual(example2(vf).substring(0, 6), vf.string("123abc"));
+		assertEqual(example2(vf).substring(0, 7), vf.string("123abcd"));
+		assertEqual(example2(vf).substring(0, 8), vf.string("123abcde"));
+		assertEqual(example2(vf).substring(0, 9), vf.string("123abcdef"));
+		assertEqual(example2(vf).substring(0, 10), vf.string("123abcdef\n"));
+		assertEqual(example2(vf).substring(0, 11), vf.string("123abcdef\n1"));
+		assertEqual(example2(vf).substring(0, 12), vf.string("123abcdef\n12"));
+		assertEqual(example2(vf).substring(0, 13), vf.string("123abcdef\n123"));
+		assertEqual(example2(vf).substring(0, 14), vf.string("123abcdef\n123x"));
+		assertEqual(example2(vf).substring(0, 15), vf.string("123abcdef\n123xy"));
+		assertEqual(example2(vf).substring(0, 16), vf.string("123abcdef\n123xyz"));
 	}
 
-	@Test
-	public void testStringReplace() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testStringReplace(IValueFactory vf) {
 		int n = 10;
 		StringValue.setMaxFlatString(1);
 		StringValue.setMaxUnbalance(0);
@@ -190,19 +181,19 @@ public final class LazyStringOperationsTest {
 			// result = vf.string(s[i%8]).concat(result);
 		}
 		// System.out.println(example.replace(4, 1, 4, vf.string("x")).getValue());
-		assertEqual(example.replace(0, 1, 0, vf.string("x")), vf.string("xabcdefgh"));
-		assertEqual(example.replace(1, 1, 1, vf.string("x")), vf.string("axbcdefgh"));
-		assertEqual(example.replace(2, 1, 2, vf.string("x")), vf.string("abxcdefgh"));
-		assertEqual(example.replace(3, 1, 3, vf.string("x")), vf.string("abcxdefgh"));
-		assertEqual(example.replace(4, 1, 4, vf.string("x")), vf.string("abcdxefgh"));
-		assertEqual(example.replace(5, 1, 5, vf.string("x")), vf.string("abcdexfgh"));
-		assertEqual(example.replace(6, 1, 6, vf.string("x")), vf.string("abcdefxgh"));
+		assertEqual(example1(vf).replace(0, 1, 0, vf.string("x")), vf.string("xabcdefgh"));
+		assertEqual(example1(vf).replace(1, 1, 1, vf.string("x")), vf.string("axbcdefgh"));
+		assertEqual(example1(vf).replace(2, 1, 2, vf.string("x")), vf.string("abxcdefgh"));
+		assertEqual(example1(vf).replace(3, 1, 3, vf.string("x")), vf.string("abcxdefgh"));
+		assertEqual(example1(vf).replace(4, 1, 4, vf.string("x")), vf.string("abcdxefgh"));
+		assertEqual(example1(vf).replace(5, 1, 5, vf.string("x")), vf.string("abcdexfgh"));
+		assertEqual(example1(vf).replace(6, 1, 6, vf.string("x")), vf.string("abcdefxgh"));
 		assertEqual(str.replace(6, 1, 6, vf.string("x").concat(vf.string("y"))),
 				vf.string("abcdefxygh").concat(str.substring(8)));
 	}
 
-	@Test
-	public void neverRunOutOfStack() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void neverRunOutOfStack(IValueFactory vf) {
 		int outofStack = 30000;
 
 		// first we have to know for sure that we would run out of stack with @see
@@ -245,7 +236,7 @@ public final class LazyStringOperationsTest {
 		}
 	}
 
-	private IString genFixedString1(int n) {
+	private IString genFixedString1(IValueFactory vf, int n) {
 		String[] s = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		IString str = vf.string(s[0]);
 		for (int i = 1; i < n; i++) {
@@ -254,7 +245,7 @@ public final class LazyStringOperationsTest {
 		return str;
 	}
 
-	private IString genFlatString(int n) {
+	private IString genFlatString(IValueFactory vf, int n) {
 		String[] s = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		StringBuffer str = new StringBuffer(n);
 		for (int i = 0; i < n; i++) {
@@ -263,7 +254,7 @@ public final class LazyStringOperationsTest {
 		return vf.string(str.toString());
 	}
 
-	private IString genFixedString2(int n) {
+	private IString genFixedString2(IValueFactory vf, int n) {
 		String[] s = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		IString str = vf.string(s[0]);
 		for (int i = 1; i < n; i++) {
@@ -287,17 +278,17 @@ public final class LazyStringOperationsTest {
 //		return compact?str.getCompactValue():str.getValue();
 //	}
 
-	@Test
-	public void testStringIterator1() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testStringIterator1(IValueFactory vf) {
 		int n = 10;
-		IString flatStr = genFlatString(n);
+		IString flatStr = genFlatString(vf, n);
 		for (int i = 0; i < 2; i++) {
 			long startTime, estimatedTime;
 			System.out.println("Fully balanced:" + n);
 			try {
 				StringValue.setMaxFlatString(512);
 				StringValue.setMaxUnbalance(0);
-				IString str = genFixedString1(n);
+				IString str = genFixedString1(vf, n);
 				startTime = System.nanoTime();
 				work(str);
 				estimatedTime = (System.nanoTime() - startTime) / 1000000;
@@ -310,7 +301,7 @@ public final class LazyStringOperationsTest {
 			try {
 				StringValue.setMaxFlatString(512);
 				StringValue.setMaxUnbalance(512);
-				IString str = genFixedString1(n);
+				IString str = genFixedString1(vf, n);
 				startTime = System.nanoTime();
 				work(str);
 				estimatedTime = (System.nanoTime() - startTime) / 1000000;
@@ -341,17 +332,17 @@ public final class LazyStringOperationsTest {
 		}
 	}
 
-	@Test
-	public void testStringIterator2() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testStringIterator2(IValueFactory vf) {
 		int n = 10;
-		IString flatStr = genFlatString(n);
+		IString flatStr = genFlatString(vf, n);
 		for (int i = 0; i < 2; i++) {
 			long startTime, estimatedTime;
 			System.out.println("Fully balanced:" + n);
 			try {
 				StringValue.setMaxFlatString(512);
 				StringValue.setMaxUnbalance(0);
-				IString str = genFixedString2(n);
+				IString str = genFixedString2(vf, n);
 				startTime = System.nanoTime();
 				work(str);
 				estimatedTime = (System.nanoTime() - startTime) / 1000000;
@@ -364,7 +355,7 @@ public final class LazyStringOperationsTest {
 			try {
 				StringValue.setMaxFlatString(512);
 				StringValue.setMaxUnbalance(512);
-				IString str = genFixedString2(n);
+				IString str = genFixedString2(vf, n);
 				startTime = System.nanoTime();
 				work(str);
 				estimatedTime = (System.nanoTime() - startTime) / 1000000;
@@ -386,8 +377,8 @@ public final class LazyStringOperationsTest {
 		}
 	}
 
-	@Test
-	public void testIndent() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void testIndent(IValueFactory vf) {
 		IString s = vf.string("start\naap").indent(vf.string("123"), true)
 				.concat((vf.string("\nnoot\nteun").indent(vf.string("456"), true))).concat(vf.string("\nmies"));
 		System.out.println(s.getValue() + " " + s.length());
@@ -397,7 +388,7 @@ public final class LazyStringOperationsTest {
 		assertEqual(vf.string("\naap").indent(vf.string("123"), true), vf.string("123\n123aap"));
 	}
 
-	IString simulateOld(String string, String indent) {
+	IString simulateOld(IValueFactory vf, String string, String indent) {
 		StringBuffer buf = new StringBuffer();
 		String[] strings = string.split("\n");
 		for (int i = 0; i < strings.length; i++) {
@@ -411,8 +402,8 @@ public final class LazyStringOperationsTest {
 		return vf.string(buf.toString());
 	}
 
-	@Test
-	public void compareIndent() {
+	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
+	public void compareIndent(IValueFactory vf) {
 		int n = 1;
 		String indent = "123123";
 		// String start = "start"+"a🍕🍕🍕🍕b";
@@ -434,7 +425,7 @@ public final class LazyStringOperationsTest {
 			System.out.println("Basis creation:" + estimatedTime + "ms");
 
 			startTime = System.nanoTime();
-			IString oldString = simulateOld(text.getValue(), indent);
+			IString oldString = simulateOld(vf, text.getValue(), indent);
 			estimatedTime = (System.nanoTime() - startTime) / 1000000;
 			System.out.println("Old indentation:" + estimatedTime + "ms");
 

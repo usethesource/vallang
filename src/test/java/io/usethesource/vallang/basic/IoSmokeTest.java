@@ -30,35 +30,14 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnsupportedTypeException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
-import io.usethesource.vallang.io.XMLReader;
-import io.usethesource.vallang.io.XMLWriter;
 import io.usethesource.vallang.io.binary.SerializableValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-@SuppressWarnings("unused")
-public class IoSmokeTest {
-
-    public static TypeStore store = new TypeStore();
-    private static TypeFactory tf = TypeFactory.getInstance();
-    private static Type Boolean = tf.abstractDataType(store, "Boolean");
-
-    private static Type Name = tf.abstractDataType(store, "Name");
-    private static Type True = tf.constructor(store, Boolean, "true");
-    
-    private static Type False = tf.constructor(store, Boolean, "false");
-    private static Type And = tf.constructor(store, Boolean, "and", Boolean, Boolean);
-    private static Type Or = tf.constructor(store, Boolean, "or", tf.listType(Boolean));
-    private static Type Not = tf.constructor(store, Boolean, "not", Boolean);
-    private static Type TwoTups = tf.constructor(store, Boolean, "twotups",
-            tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
-    private static Type NameNode = tf.constructor(store, Name, "name", tf.stringType());
-    private static Type Friends = tf.constructor(store, Boolean, "friends", tf.listType(Name));
-    private static Type Couples = tf.constructor(store, Boolean, "couples", tf.lrelType(Name, Name));
+public class IoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testSerializable(IValueFactory vf, @ExpectedType("Boolean") IConstructor t) throws IOException {
@@ -71,10 +50,6 @@ public class IoSmokeTest {
         if (!v.getValue().isEqual(w.getValue())) {
             fail();
         }
-    }
-
-    private static IValue name(IValueFactory vf, String n) {
-        return vf.constructor(NameNode, vf.string(n));
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)

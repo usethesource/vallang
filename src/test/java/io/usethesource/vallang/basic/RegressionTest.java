@@ -4,34 +4,20 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-@RunWith(Parameterized.class)
 public class RegressionTest {
-    @Parameterized.Parameters
-    public static Iterable<? extends Object> data() {
-          return Setup.valueFactories();
-            }
 
-    private final IValueFactory vf;
-
-    public RegressionTest(final IValueFactory vf) {
-    this.vf = vf;
-    }
-
-    private TypeFactory tf = TypeFactory.getInstance();
-
-    @Test
-    public void testConstructorEquality() throws Exception {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testConstructorEquality(IValueFactory vf, TypeFactory tf) throws Exception {
     final TypeStore ts = new TypeStore();
     final Type adtType = tf.abstractDataType(ts, "n");
     final Type c0Type = tf.constructor (ts, adtType, "c");

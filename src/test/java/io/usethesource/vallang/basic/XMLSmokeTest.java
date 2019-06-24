@@ -32,7 +32,7 @@ import io.usethesource.vallang.io.XMLReader;
 import io.usethesource.vallang.io.XMLWriter;
 import io.usethesource.vallang.type.TypeStore;
 
-public class XMLSmokeTest extends IoSmokeTest {
+public class XMLSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     @Disabled("XML writer fails on empty strings and empty lists")
