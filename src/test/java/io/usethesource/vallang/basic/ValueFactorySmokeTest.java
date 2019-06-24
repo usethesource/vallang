@@ -29,7 +29,7 @@ import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.ValueFactoryProvider;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -50,7 +50,7 @@ public final class ValueFactorySmokeTest {
       }
   }
   
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelationNamedType(IValueFactory vf) {
     try {
       ISet r = vf.set();
@@ -63,19 +63,19 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRealZeroDotFromString(IValueFactory vf) {
     assertTrue(vf.real("0.").isEqual(vf.real("0")));
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testZeroRealRepresentation(IValueFactory vf) {
     IReal real = vf.real("0");
 
     assertTrue(real.toString().equals("0."));
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelationTupleType(IValueFactory vf) {
     ISet r = vf.set();
 
@@ -88,7 +88,7 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelationWith(IValueFactory vf) {
     ISet[] relations = new ISet[7];
     ITuple[] tuples = new ITuple[7];
@@ -120,7 +120,7 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testSetNamedType(IValueFactory vf) {
     ISet l;
     try {
@@ -144,7 +144,7 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testSetType(IValueFactory vf) {
     ISet s = vf.set();
 
@@ -193,7 +193,7 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testListNamedType(IValueFactory vf) {
     IList l;
     try {
@@ -216,7 +216,7 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testListType(IValueFactory vf) {
     IList l = vf.list();
 
@@ -276,17 +276,17 @@ public final class ValueFactorySmokeTest {
     }
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testInteger(IValueFactory vf) {
     assertTrue(vf.integer(42).toString().equals("42"));
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testDubble(IValueFactory vf) {
     assertTrue(vf.real(84.5).toString().equals("84.5"));
   }
 
-  @ParameterizedTest @ArgumentsSource(ValueFactoryProvider.class)
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testString(IValueFactory vf) {
     assertTrue(vf.string("hello").getValue().equals("hello"));
     assertTrue(vf.string(0x1F35D).getValue().equals("🍝"));
