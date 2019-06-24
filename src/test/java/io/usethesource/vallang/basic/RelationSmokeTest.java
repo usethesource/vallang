@@ -12,8 +12,8 @@
 
 package io.usethesource.vallang.basic;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Iterator;
 
@@ -263,8 +263,9 @@ public final class RelationSmokeTest {
       ITuple t8 = vf.tuple(integers(vf)[1], integers(vf)[1]);
       ITuple t9 = vf.tuple(integers(vf)[2], integers(vf)[2]);
       ISet rel3 = vf.set(t7, t8, t9);
-      assertTrue("Non-comparable types should yield empty composition result.", vf
-          .set(vf.tuple(doubles(vf)[0], doubles(vf)[0])).asRelation().compose(rel1.asRelation()).isEmpty());
+      assertTrue(vf
+          .set(vf.tuple(doubles(vf)[0], doubles(vf)[0])).asRelation().compose(rel1.asRelation()).isEmpty(),
+          "Non-comparable types should yield empty composition result.");
       ISet comp = rel1.asRelation().compose(rel2.asRelation());
 
       if (!comp.isEqual(rel3)) {

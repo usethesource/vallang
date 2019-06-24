@@ -13,18 +13,21 @@
 
 package io.usethesource.vallang.basic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.random.RandomTypeGenerator;
@@ -36,7 +39,7 @@ public final class TypeSmokeTest {
   private static final int COMBINATION_UPPERBOUND = 5;
 
   private static TypeFactory ft = TypeFactory.getInstance();
-  private static TypeStore ts = new TypeStore();
+  public static TypeStore store = new TypeStore();
 
   private static List<Type> basic = new LinkedList<>();
   private static List<Type> allTypes = new LinkedList<>();
@@ -76,9 +79,9 @@ public final class TypeSmokeTest {
       newTypes.add(ft.tupleType(t1));
       newTypes.add(ft.relType(t1));
       newTypes.add(ft.setType(t1));
-      newTypes.add(ft.aliasType(ts, "type_" + allTypes.size() + newTypes.size(), t1));
-      Type adt = ft.abstractDataType(ts, "adt_" + newTypes.size());
-      newTypes.add(ft.constructor(ts, adt, "cons_" + newTypes.size()));
+      newTypes.add(ft.aliasType(store, "type_" + allTypes.size() + newTypes.size(), t1));
+      Type adt = ft.abstractDataType(store, "adt_" + newTypes.size());
+      newTypes.add(ft.constructor(store, adt, "cons_" + newTypes.size()));
       newTypes.add(adt);
 
       int max2 = COMBINATION_UPPERBOUND;
@@ -89,14 +92,14 @@ public final class TypeSmokeTest {
         newTypes.add(ft.relType(t1, t2));
         newTypes.add(ft.mapType(t1, t2));
         newTypes.add(ft.mapType(t1, "a" + newTypes.size(), t2, "b" + newTypes.size()));
-        newTypes.add(ft.constructor(ts, adt, "cons_" + newTypes.size(), t1, "a" + newTypes.size(),
+        newTypes.add(ft.constructor(store, adt, "cons_" + newTypes.size(), t1, "a" + newTypes.size(),
             t2, "b" + newTypes.size()));
         int max3 = COMBINATION_UPPERBOUND;
 
         for (Type t3 : allTypes) {
           newTypes.add(ft.tupleType(t1, t2, t3));
           newTypes.add(ft.relType(t1, t2, t3));
-          newTypes.add(ft.constructor(ts, adt, "cons_" + newTypes.size(), t1, "a" + newTypes.size(),
+          newTypes.add(ft.constructor(store, adt, "cons_" + newTypes.size(), t1, "a" + newTypes.size(),
               t2, "b" + newTypes.size(), t3, "c" + newTypes.size()));
 
           if (max3-- == 0) {
@@ -116,7 +119,7 @@ public final class TypeSmokeTest {
     allTypes.addAll(newTypes);
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelations() {
     for (Type t : allTypes) {
       if (t.isSet() && t.getElementType().isTuple() && !t.isRelation()) {
@@ -128,7 +131,7 @@ public final class TypeSmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testParameterizedAlias() {
     Type T = ft.parameterType("T");
     TypeStore ts = new TypeStore();
@@ -166,42 +169,40 @@ public final class TypeSmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testADT() {
-    Type E = ft.abstractDataType(ts, "E");
+    Type E = ft.abstractDataType(store, "E");
 
-    assertTrue("Abstract data-types are composed of constructors which are tree nodes",
-        E.isSubtypeOf(ft.nodeType()));
+    Assertions.assertTrue(E.isSubtypeOf(ft.nodeType()), "Abstract data-types are composed of constructors which are tree nodes");
 
     assertTrue(E.isSubtypeOf(ft.valueType()));
     assertTrue(E.isSubtypeOf(ft.nodeType()));
     assertTrue(E.lub(ft.nodeType()).isNode());
     assertTrue(ft.nodeType().lub(E).isNode());
 
-    Type f = ft.constructor(ts, E, "f", ft.integerType(), "i");
-    Type g = ft.constructor(ts, E, "g", ft.integerType(), "j");
+    Type f = ft.constructor(store, E, "f", ft.integerType(), "i");
+    Type g = ft.constructor(store, E, "g", ft.integerType(), "j");
 
     assertTrue(f.isSubtypeOf(ft.nodeType()));
 
     assertTrue(f.lub(ft.nodeType()).isNode());
     assertTrue(ft.nodeType().lub(f).isNode());
 
-    Type a = ft.aliasType(ts, "a", ft.integerType());
+    Type a = ft.aliasType(store, "a", ft.integerType());
 
-    assertFalse(
+    Assertions.assertFalse(
         f.isSubtypeOf(ft.integerType()) || f.isSubtypeOf(ft.stringType()) || f.isSubtypeOf(a));
-    assertFalse(
+    Assertions.assertFalse(
         g.isSubtypeOf(ft.integerType()) || g.isSubtypeOf(ft.stringType()) || g.isSubtypeOf(a));
-    assertFalse("constructors are subtypes of the adt", !f.isSubtypeOf(E) || !g.isSubtypeOf(E));
+    Assertions.assertFalse(!f.isSubtypeOf(E) || !g.isSubtypeOf(E), "constructors are subtypes of the adt");
 
-    assertFalse("alternative constructors should be incomparable",
-        f.isSubtypeOf(g) || g.isSubtypeOf(f));
+    Assertions.assertFalse(f.isSubtypeOf(g) || g.isSubtypeOf(f), "alternative constructors should be incomparable");
 
-    assertTrue("A constructor should be a node", f.isSubtypeOf(ft.nodeType()));
-    assertTrue("A constructor should be a node", g.isSubtypeOf(ft.nodeType()));
+    Assertions.assertTrue(f.isSubtypeOf(ft.nodeType()), "A constructor should be a node");
+    Assertions.assertTrue(g.isSubtypeOf(ft.nodeType()), "A constructor should be a node");
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testVoid() {
     for (Type t : allTypes) {
       if (t.isSubtypeOf(ft.voidType())) {
@@ -210,7 +211,7 @@ public final class TypeSmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testVoidProblem1() {
     assertFalse(ft.listType(ft.voidType()).isSubtypeOf(ft.voidType()));
     assertFalse(ft.setType(ft.voidType()).isSubtypeOf(ft.voidType()));
@@ -219,7 +220,7 @@ public final class TypeSmokeTest {
     assertFalse(ft.mapType(ft.voidType(), ft.voidType()).isSubtypeOf(ft.voidType()));
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testIsSubtypeOf() {
     for (Type t : allTypes) {
       if (!t.isSubtypeOf(t)) {
@@ -255,7 +256,7 @@ public final class TypeSmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testEquiv() {
     for (Type t : allTypes) {
       if (!t.equals(t)) {
@@ -297,7 +298,7 @@ public final class TypeSmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testLub() {
     for (Type t : allTypes) {
       if (t.lub(t) != t) {
@@ -345,7 +346,7 @@ public final class TypeSmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testGlb() {
     for (Type t : allTypes) {
       if (t.glb(t) != t) {
@@ -393,7 +394,7 @@ public final class TypeSmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testGetTypeDescriptor() {
     int count = 0;
     for (Type t1 : allTypes) {
@@ -411,7 +412,7 @@ public final class TypeSmokeTest {
     }
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testMatchAndInstantiate() {
     Type X = ft.parameterType("X");
     Map<Type, Type> bindings = new HashMap<>();
@@ -455,7 +456,7 @@ public final class TypeSmokeTest {
 
   }
 
-  @Test
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testAlias() {
     Type alias = ft.aliasType(new TypeStore(), "myValue", ft.valueType());
 

@@ -1,7 +1,7 @@
 package io.usethesource.vallang.basic;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -67,7 +67,7 @@ public final class LazyStringOperationsTest {
 	protected TypeFactory tf = TypeFactory.getInstance();
 
 	protected void assertEqual(IValue l, IValue r) {
-		assertTrue("Expected " + l + " got " + r, l.isEqual(r));
+		assertTrue(l.isEqual(r), () -> "Expected " + l + " got " + r);
 	}
 
 	@ParameterizedTest @ArgumentsSource(ValueProvider.class)

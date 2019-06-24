@@ -1,8 +1,9 @@
 package io.usethesource.vallang.specification;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -64,43 +65,41 @@ public class INumberSpecification {
         return 1e-10;
     }
     
-    
-
     protected void assertEqual(IValue l, IValue r) {
-        assertTrue("Expected " + l + " got " + r, l.isEqual(r));
+        Assertions.assertTrue(l.isEqual(r), "Expected " + l + " got " + r);
     }
 
     protected void assertEqualNumber(INumber l, INumber r) {
-        assertTrue("Expected " + l + " got " + r, l.equal(r).getValue());
+        Assertions.assertTrue(l.equal(r).getValue(), "Expected " + l + " got " + r);
     }
 
     protected void assertEqual(String message, IValue l, IValue r) {
-        assertTrue(message + ": Expected " + l + " got " + r, l.isEqual(r));
+        Assertions.assertTrue(l.isEqual(r), message + ": Expected " + l + " got " + r);
     }
 
     protected void assertEqualNumber(String message, INumber l, INumber r) {
-        assertTrue(message + ": Expected " + l + " got " + r, l.equal(r).getValue());
+        Assertions.assertTrue(l.equal(r).getValue(), message + ": Expected " + l + " got " + r);
     }
 
     /**
      * Test that the difference between two reals is insignificant.
      */
     protected void assertApprox(IValueFactory vf, IReal l, IReal r) {
-        assertTrue("Expected ~" + l + " got " + r + " (diff magnitude "
-                + ((IReal) l.subtract(r).abs()).scale() + ")", approxEqual(vf, l, r));
+        Assertions.assertTrue(approxEqual(vf, l, r), "Expected ~" + l + " got " + r + " (diff magnitude "
+        + ((IReal) l.subtract(r).abs()).scale() + ")");
     }
 
     protected void assertApprox(double l, double r) {
-        assertTrue("Expected ~" + l + " got " + r, approxEqual(l, r));
+        Assertions.assertTrue(approxEqual(l, r), "Expected ~" + l + " got " + r);
     }
 
     protected void assertApprox(String message, IValueFactory vf, IReal l, IReal r) {
-        assertTrue(message + ": Expected ~" + l + " got " + r + " (diff magnitude "
-                + ((IReal) l.subtract(r).abs()).scale() + ")", approxEqual(vf, l, r));
+        Assertions.assertTrue(approxEqual(vf, l, r), message + ": Expected ~" + l + " got " + r + " (diff magnitude "
+        + ((IReal) l.subtract(r).abs()).scale() + ")");
     }
 
     protected void assertApprox(String message, double l, double r) {
-        assertTrue(message + ": Expected ~" + l + " got " + r, approxEqual(l, r));
+        Assertions.assertTrue(approxEqual(l, r), message + ": Expected ~" + l + " got " + r);
     }
 
     /**
@@ -147,7 +146,7 @@ public class INumberSpecification {
     }
 
     protected void assertEqual(Type l, Type r) {
-        assertTrue("Expected " + l + " got " + r, l.equivalent(r));
+        Assertions.assertTrue(l.equivalent(r), "Expected " + l + " got " + r);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -181,7 +180,7 @@ public class INumberSpecification {
       assertTrue(a.equal(a).getValue());
 
       if (a.equals(b) && a.getType() == b.getType()) {
-        assertEquals("" + a + ".hashCode() != " + b + ".hashCode()", a.hashCode(), b.hashCode());
+        assertEquals( a.hashCode(), b.hashCode(), "" + a + ".hashCode() != " + b + ".hashCode()");
 
         if (!(a instanceof IReal || b instanceof IReal) && a.getType().equivalent(b.getType())) {
           assertEquals("" + a + ".toString() != " + b + ".toString()", a.toString(), b.toString());
@@ -191,8 +190,8 @@ public class INumberSpecification {
       if (a.getType().equivalent(b.getType())) {
         INumber c = b.abs();
         // add/subtract a non-negative number gives a greater/smaller or equal result
-        assertTrue("" + a + " + " + c + " >= " + a, a.add(c).greaterEqual(a).getValue());
-        assertTrue("" + a + " + -" + c + " >= " + a, a.add(c.negate()).lessEqual(a).getValue());
+        Assertions.assertTrue(a.add(c).greaterEqual(a).getValue(), "" + a + " + " + c + " >= " + a);
+        Assertions.assertTrue(a.add(c.negate()).lessEqual(a).getValue(), "" + a + " + -" + c + " >= " + a);
       }
     }
 
@@ -308,9 +307,9 @@ public class INumberSpecification {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void axiomTransitivity(INumber a, INumber b, INumber c) {
       if (a.equal(b).getValue() && b.equal(c).getValue())
-        assertTrue("" + a + " == " + b + " == " + c, a.equal(c).getValue());
+        Assertions.assertTrue(a.equal(c).getValue(), "" + a + " == " + b + " == " + c);
       if (a.lessEqual(b).getValue() && b.lessEqual(c).getValue())
-        assertTrue("" + a + " <= " + b + " <= " + c, a.lessEqual(c).getValue());
+        Assertions.assertTrue(a.lessEqual(c).getValue(), "" + a + " <= " + b + " <= " + c);
     }
 
     @SuppressWarnings("unlikely-arg-type")

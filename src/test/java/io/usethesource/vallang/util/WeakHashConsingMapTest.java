@@ -12,7 +12,7 @@
  */ 
 package io.usethesource.vallang.util;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -497,7 +497,7 @@ public class WeakHashConsingMapTest {
         Map<FixedHashEquals, FixedHashEquals> seen = new HashMap<>(objects.size());
         for (FixedHashEquals e : results) {
             if (seen.containsKey(e)) {
-                assertSame("We expect the same reference to be returned everythin for something that is equal", e, seen.get(e));
+                assertSame(e, seen.get(e), "We expect the same reference to be returned everythin for something that is equal");
             }
             else {
                 seen.put(e, e);

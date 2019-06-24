@@ -1,8 +1,8 @@
 package io.usethesource.vallang.io;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.usethesource.vallang.io.binary.util.TrackLastRead;
 
@@ -52,7 +52,7 @@ public abstract class TrackReadsTestBase {
         for (int i = 0; i < elements.length; i++) {
             r.read(elements[i]);
             for (int j = 0 ; j <= Math.min(i, windowSize); j++) {
-                assertSame("For " + j + "back after " + i + "reads", r.lookBack(j), elements[i - j]);
+                assertSame(r.lookBack(j), elements[i - j], "For " + j + "back after " + i + "reads");
             }
         }
     }

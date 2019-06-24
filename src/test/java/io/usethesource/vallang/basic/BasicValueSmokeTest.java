@@ -1,6 +1,7 @@
 package io.usethesource.vallang.basic;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -27,7 +28,6 @@ import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.impl.primitive.StringValue;
 import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory;
-import junit.framework.ComparisonFailure;
 
 public final class BasicValueSmokeTest {
 
@@ -154,14 +154,6 @@ public final class BasicValueSmokeTest {
   }
   
   private static final String[] commonNewlines = new String[] { "\n"};
-  
-  private static void assertEquals(Object expected, Object actual) {
-      if (expected.equals(actual)) {
-          return;
-      } else  {
-          throw new ComparisonFailure("objects not equal", expected.toString(), actual.toString());
-      }
-  }
   
   private void checkIndent(IValueFactory vf, String indent, String newline, boolean indentFirstLine, String... lines) {
 	  StringBuilder unindented = new StringBuilder();
@@ -297,7 +289,7 @@ public final class BasicValueSmokeTest {
           int b = targetIterator.nextInt();
           
           if (a != b) {
-              throw new ComparisonFailure("string iterators produce different values at index " + i + " (" + a + " != " + b + ")", ref.toString(), target.toString());
+              fail("string iterators produce different values at index " + i + " (" + a + " != " + b + ")");
           }
       }
   }

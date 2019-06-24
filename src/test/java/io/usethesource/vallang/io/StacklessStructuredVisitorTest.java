@@ -12,7 +12,7 @@
  */ 
 package io.usethesource.vallang.io;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -270,7 +270,7 @@ public class StacklessStructuredVisitorTest {
     }
 
     private void compareLists(List<Object> expected, List<Object> actual) {
-        assertEquals("We should visit the same amount of elements", expected.size(), actual.size());
+        assertEquals(expected.size(), actual.size(), "We should visit the same amount of elements");
         for (int i=0; i < expected.size(); i++) {
             assertEquals(expected.get(i), actual.get(i));
         }
