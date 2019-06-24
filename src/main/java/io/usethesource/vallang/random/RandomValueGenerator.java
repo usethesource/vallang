@@ -71,6 +71,10 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         this.typeParameters = null;
     }
     
+    public Random getRandom() {
+        return random;
+    }
+    
     /**
      * Generate a new random value of a given type
      * @param type which type to generate

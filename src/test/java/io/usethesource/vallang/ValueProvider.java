@@ -44,6 +44,12 @@ public class ValueProvider implements ArgumentsProvider {
     private static final Random rnd = new Random();
     private static final boolean enableAnnotations = true;
     private static final TypeFactory tf = TypeFactory.getInstance();
+    
+    /**
+     * We use this to accidentally generate arguments which are the same as the previous
+     * once in a while:
+     */
+    private IValue previous = null;
 
     /**
      * Every vallang test is run using all implementations of IValueFactory.
@@ -197,7 +203,14 @@ public class ValueProvider implements ArgumentsProvider {
      * @return an instance assignable to `cl`
      */
     private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType name) {
-        return vf.b.generate(types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, name), ts, Collections.emptyMap());
+        Type expectedType = types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, name);
+        Random rnd = vf.b.getRandom();
+        
+        if (previous != null && rnd.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {
+            return previous;
+        }
+        
+        return (previous = vf.b.generate(expectedType, ts, Collections.emptyMap()));
     }
     
     /**
