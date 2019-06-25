@@ -19,6 +19,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -41,6 +42,7 @@ import io.usethesource.vallang.type.TypeStore;
  *    IConstructor
  *    ITuple
  *    ISourceLocation
+ *    Type
  *    
  *    If the class under test has a static field called "store" of type TypeStore, then this
  *    typestore will be passed to all parameters of type TypeStore instead of a fresh/empty TypeStore.
@@ -63,6 +65,8 @@ public class ValueProvider implements ArgumentsProvider {
             io.usethesource.vallang.impl.reference.ValueFactory.getInstance(),  
             io.usethesource.vallang.impl.persistent.ValueFactory.getInstance()
             };
+    
+    private static RandomTypeGenerator typeGen = new RandomTypeGenerator(rnd);
     
     /**
      * The random value generator is parametrized by the valuefactory at creation time.
@@ -124,7 +128,7 @@ public class ValueProvider implements ArgumentsProvider {
          * value factory implementations (2). For the IValue argument we generate 100 tests and for
          * every additional IValue argument we multiply the number of tests by 10.
          */
-        long valueArity = Arrays.stream(method.getParameterTypes()).filter(x -> IValue.class.isAssignableFrom(x)).count();
+        long valueArity = Arrays.stream(method.getParameterTypes()).filter(x -> IValue.class.isAssignableFrom(x) || Type.class.isAssignableFrom(x)).count();
         int numberOfTests = Math.max(1, 100 * (int) Math.pow(10, valueArity - 1));
         
         return Stream.of(
@@ -171,7 +175,7 @@ public class ValueProvider implements ArgumentsProvider {
      */
     private Arguments arguments(Method method, Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts) {
         previous = null; // never reuse arguments from a previous instance
-        return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class))).toArray());    
+        return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class), cl.getAnnotation(NoAnnotations.class) != null)).toArray());    
     }
     
     /**
@@ -182,18 +186,21 @@ public class ValueProvider implements ArgumentsProvider {
      * @param cls       the class type of the parameter to generate an input for
      * @return a random object which is assignable to cls
      */
-    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType name)  {
+    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType expected, boolean noAnnotations)  {
         if (cls.isAssignableFrom(IValueFactory.class)) {
             return vf.a;
         }
         else if (cls.isAssignableFrom(TypeStore.class)) {
             return ts;
         }
+        else if (cls.isAssignableFrom(Type.class)) {
+            return typeGen.next(5);
+        }
         else if (cls.isAssignableFrom(TypeFactory.class)) {
             return TypeFactory.getInstance();
         }
         else if (IValue.class.isAssignableFrom(cls)) {
-            return generateValue(vf, ts, cls.asSubclass(IValue.class), name);
+            return generateValue(vf, ts, cls.asSubclass(IValue.class), expected, noAnnotations);
         }
         else {
             throw new IllegalArgumentException(cls + " is not assignable from IValue, IValueFactory, TypeStore or TypeFactory");
@@ -206,17 +213,19 @@ public class ValueProvider implements ArgumentsProvider {
      * @param vf  the valuefactory/randomgenerator to use
      * @param ts  the TypeStore to draw ADT constructors from
      * @param cl  the `cl` (sub-type of `IValue`) to be assignable to
+     * @param noAnnotations 
      * @return an instance assignable to `cl`
      */
-    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType name) {
+    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType name, boolean noAnnotations) {
         Type expectedType = types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, name);
-        Random rnd = vf.b.getRandom();
+        RandomValueGenerator gen = vf.b.setAnnotations(!noAnnotations);
+        Random rnd = gen.getRandom();
         
         if (previous != null && rnd.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {
             return rnd.nextBoolean() ? previous : reinstantiate(vf.a, ts, previous);
         }
         
-        return (previous = vf.b.generate(expectedType, ts, Collections.emptyMap()));
+        return (previous = gen.generate(expectedType, ts, Collections.emptyMap()));
     }
     
     /**
