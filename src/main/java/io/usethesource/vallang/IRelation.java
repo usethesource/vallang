@@ -106,8 +106,9 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
     public default C closureStar() {
         IWriter<C> w = writer();
 
-        C carrier = carrier();
-        w.appendAll(carrier.product(carrier));
+        for (IValue val : carrier()) {
+            w.appendTuple(val, val);
+        }
         w.appendAll(closure());
 
         return w.done();

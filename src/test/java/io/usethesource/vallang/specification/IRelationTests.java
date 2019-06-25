@@ -9,7 +9,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ExpectedType;
+import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -32,5 +34,17 @@ public class IRelationTests {
             
             assertEquals(one.select(1,0), two, "elements should appear in original order");
         }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void transReflexiveClosure(
+        @GivenValue("{<1,2>, <2,3>, <3,4>}") ISet src, 
+        @GivenValue("{<1,2>, <2,3>, <3,4>, <1, 3>, <2, 4>, <1, 4>, <1, 1>, <2, 2>, <3, 3>, <4, 4>}") ISet result) {
+        assertEquals(src.asRelation().closureStar(), result);
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void transClosure(@ExpectedType("rel[int,int]") ISet src) {
+        assertEquals(src.asRelation().closure().intersect(src), src);
     }
 }
