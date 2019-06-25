@@ -71,6 +71,10 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         this.typeParameters = null;
     }
     
+    public RandomValueGenerator setAnnotations(boolean gen) {
+        return new RandomValueGenerator(vf, random, maxDepth, maxWidth, gen);
+    }
+    
     public Random getRandom() {
         return random;
     }
