@@ -323,7 +323,7 @@ public interface IList extends ICollection<IList> {
 
         for (IValue v : this) {
             if (l.contains(v)) {
-                w.insert(v);
+                w.append(v);
             }
         }
 
