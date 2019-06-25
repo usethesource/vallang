@@ -1,7 +1,5 @@
 package io.usethesource.vallang;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Method;
@@ -15,10 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
-import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -140,7 +136,8 @@ public class ValueProvider implements ArgumentsProvider {
          * value factory implementations (2). For the IValue argument we generate 100 tests and for
          * every additional IValue argument we multiply the number of tests by 10.
          */
-        long valueArity = Arrays.stream(method.getParameterTypes()).filter(x -> IValue.class.isAssignableFrom(x) || Type.class.isAssignableFrom(x)).count();
+        long valueArity = Arrays.stream(method.getParameterTypes()).filter(x -> IValue.class.isAssignableFrom(x) || Type.class.isAssignableFrom(x)).count()
+                - Arrays.stream(method.getParameters()).filter(x -> x.getAnnotation(GivenValue.class) != null).count();
         int numberOfTests = Math.max(1, 100 * (int) Math.pow(10, valueArity - 1));
         
         return Stream.of(
@@ -183,7 +180,7 @@ public class ValueProvider implements ArgumentsProvider {
      */
     private Arguments arguments(Method method, Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts) {
         previous = null; // never reuse arguments from a previous instance
-        return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class), cl.getAnnotation(NoAnnotations.class) != null)).toArray());    
+        return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class), cl.getAnnotation(NoAnnotations.class) != null, cl.getAnnotation(GivenValue.class))).toArray());    
     }
     
     /**
@@ -194,7 +191,15 @@ public class ValueProvider implements ArgumentsProvider {
      * @param cls       the class type of the parameter to generate an input for
      * @return a random object which is assignable to cls
      */
-    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType expected, boolean noAnnotations)  {
+    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType expected, boolean noAnnotations, GivenValue givenValue)  {
+        if (givenValue != null) {
+            try {
+                return new StandardTextReader().read(vf.a, new StringReader(givenValue.value()));
+            } catch (FactTypeUseException | IOException e) {
+                System.err.println("[WARNING] failed to parse given value: " + givenValue.value());
+            }
+        }
+        
         if (cls.isAssignableFrom(IValueFactory.class)) {
             return vf.a;
         }
