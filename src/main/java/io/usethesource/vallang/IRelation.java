@@ -136,7 +136,7 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
         IWriter<C> w = writer();
 
         for (IValue v : this) {
-            w.insert(((ITuple) v).select(fields));
+            w.append(((ITuple) v).select(fields));
         }
 
         return w.done();

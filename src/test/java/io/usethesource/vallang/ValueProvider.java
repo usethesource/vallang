@@ -141,15 +141,11 @@ public class ValueProvider implements ArgumentsProvider {
                );
     }
 
-    private static Type randomADT(TypeStore ts, ExpectedType n) {
+    private static Type randomADT(TypeStore ts, ExpectedType n)  {
         if (n != null) {
-            Type adt = ts.lookupAbstractDataType(n.value());
-            
-            if (adt != null) {
-                return adt;
-            }
-            else {
-                throw new IllegalArgumentException(n.value() + " is not declared by the given TypeStore");
+            Type result = readType(ts, n);
+            if (result != null) {
+                return result;
             }
         }
         
@@ -216,8 +212,8 @@ public class ValueProvider implements ArgumentsProvider {
      * @param noAnnotations 
      * @return an instance assignable to `cl`
      */
-    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType name, boolean noAnnotations) {
-        Type expectedType = types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, name);
+    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType expected, boolean noAnnotations) {
+        Type expectedType = expected != null ? readType(ts, expected) : types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, expected);
         RandomValueGenerator gen = vf.b.setAnnotations(!noAnnotations);
         Random rnd = gen.getRandom();
         
@@ -226,6 +222,14 @@ public class ValueProvider implements ArgumentsProvider {
         }
         
         return (previous = gen.generate(expectedType, ts, Collections.emptyMap()));
+    }
+
+    private static Type readType(TypeStore ts, ExpectedType expected) {
+        try {
+            return tf.fromString(ts, new StringReader(expected.value()));
+        } catch (IOException e) {
+            return null;
+        }
     }
     
     /**
