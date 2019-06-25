@@ -1,5 +1,7 @@
 package io.usethesource.vallang;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Method;
@@ -13,8 +15,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -46,6 +50,14 @@ import io.usethesource.vallang.type.TypeStore;
  *    
  *    If the class under test has a static field called "store" of type TypeStore, then this
  *    typestore will be passed to all parameters of type TypeStore instead of a fresh/empty TypeStore.
+ *    
+ *   If a parameter of a method under test is annotated with @ExpectedType("type") like so:
+ *      \@ParameterizedTest \@ArgumentsSource(ValueProvider.class)
+ *      public void myTest(\@ExpectedType("set[int]") ISet set) ...
+ *
+ *   , then the ValueProvider will generate only instances which have as run-time type a
+ *   sub-type of the specified expected type. 
+ *    
  */
 public class ValueProvider implements ArgumentsProvider {
     private static final Random rnd = new Random();
