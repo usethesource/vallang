@@ -130,7 +130,7 @@ public class TypeReader {
                 break; // no more elements, so expecting a 'end'
             }
 
-            current = stream.read();
+            checkAndRead(COMMA_SEPARATOR);
         }
 
         checkAndRead(end);
