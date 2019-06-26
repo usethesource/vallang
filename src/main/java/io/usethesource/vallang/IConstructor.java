@@ -12,9 +12,12 @@
  *******************************************************************************/
 package io.usethesource.vallang;
 
+import java.util.Iterator;
+
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * Typed node representation. An IConstructor is a specific kind of INode, namely one
@@ -23,11 +26,6 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public interface IConstructor extends INode {
 
-	/**
-	 * @return the AbstractDataType of a constructor.
-	 */
-	public Type getType();
-	
 	/**
 	 * @return the specific ConstructorType of this constructor
 	 */
@@ -58,8 +56,7 @@ public interface IConstructor extends INode {
 	 *         when the given value has a type that is not a sub-type of the declared type
 	 *         of the child with this label.
 	 */
-	public IConstructor set(String label, IValue newChild)
-			throws FactTypeUseException;
+	public IConstructor set(String label, IValue newChild);
 	
 	/**
 	 * Find out whether this constructor has a field a given name
@@ -81,8 +78,8 @@ public interface IConstructor extends INode {
 	 *         when the given value has a type that is not a sub-type of the declared type
 	 *         of the child at this index.
 	 */
-	public IConstructor set(int index, IValue newChild)
-			throws FactTypeUseException;
+	@Override
+	public IConstructor set(int index, IValue newChild);
 	
 	/**
 	 * @return a tuple type representing the children types of this node/
@@ -100,13 +97,80 @@ public interface IConstructor extends INode {
 	 * (non-Javadoc)
 	 * @see IValue#asAnnotatable()
 	 */
+	@Override
+	@Deprecated
 	public IAnnotatable<? extends IConstructor> asAnnotatable();
 	
 	/*
 	 * (non-Javadoc)
 	 * @see IValue#asWithKeywordParameters()
 	 */
+	@Override
 	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters();
 	
+	@Override
+	default boolean match(IValue value) {
+	    if(value == this) return true;
+	    if(value == null) return false;
+
+	    if (value instanceof IConstructor){
+	        IConstructor otherTree = (IConstructor) value;
+
+	        // TODO: if types are canonical, this can be ==
+	        if(!getConstructorType().comparable(otherTree.getConstructorType())) {
+	            return false;
+	        }
+
+	        final Iterator<IValue> it1 = iterator();
+	        final Iterator<IValue> it2 = otherTree.iterator();
+
+	        while (it1.hasNext() && it2.hasNext()) {
+	            // call to IValue.isEqual(IValue)
+	            if (!it1.next().match(it2.next())) {
+	                return false;
+	            }
+	        }
+
+	        return true;
+	    }
+
+	    return false;
+	}
 	
+	@Override
+	default boolean isEqual(IValue value) {
+	    if(value == this) return true;
+	    if(value == null) return false;
+
+	    if (value instanceof IConstructor){
+	        IConstructor otherTree = (IConstructor) value;
+
+	        // TODO: should this not be `current.getConstructorType() != otherTree.getConstructorType()` for the sake of efficiency?
+	        // TODO: this expensive test might be a left-over from a previous workaround...
+	        if(!getConstructorType().comparable(otherTree.getConstructorType())) {
+	            return false;
+	        }
+
+	        final Iterator<IValue> it1 = iterator();
+	        final Iterator<IValue> it2 = otherTree.iterator();
+
+	        while (it1.hasNext() && it2.hasNext()) {
+	            // call to IValue.isEqual(IValue)
+	            if (!it1.next().isEqual(it2.next())) {
+	                return false;
+	            }
+	        }
+
+	        // if this has keyword parameters, then isEqual is overriden by the wrapper
+	        // but if the other has keyword parameters, then we should fail here:
+	        return otherTree.mayHaveKeywordParameters() ? !otherTree.asWithKeywordParameters().hasParameters() : true;
+	    }
+
+	    return false;
+	}
+	
+	@Override
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitConstructor(this);
+    }
 }

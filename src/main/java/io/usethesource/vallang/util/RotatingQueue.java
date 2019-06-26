@@ -30,6 +30,7 @@ public final class RotatingQueue<T>{
     /**
      * Constructor.
      */
+    @SuppressWarnings("unchecked")
     public RotatingQueue(){
             super();
 
@@ -47,6 +48,7 @@ public final class RotatingQueue<T>{
                     int size = capacity;
                     capacity <<= 1;
                     capacityMask = capacity - 1;
+                    @SuppressWarnings("unchecked")
                     T[] newQueue = (T[]) new Object[capacity];
                     if(getIndex == 0){
                             System.arraycopy(queue, 0, newQueue, 0, queue.length);

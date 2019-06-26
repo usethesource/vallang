@@ -71,6 +71,14 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         this.typeParameters = null;
     }
     
+    public RandomValueGenerator setAnnotations(boolean gen) {
+        return new RandomValueGenerator(vf, random, maxDepth, maxWidth, gen);
+    }
+    
+    public Random getRandom() {
+        return random;
+    }
+    
     /**
      * Generate a new random value of a given type
      * @param type which type to generate
@@ -450,17 +458,6 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitValue(Type type) throws RuntimeException {
-        /*
-        if (oneEvery(7)) {
-            Collection<Type> adts = currentStore.getAbstractDataTypes();
-            if (!adts.isEmpty()) {
-                Type pickedADT = pickRandom(adts);
-                if (!currentStore.lookupAlternatives(pickedADT).isEmpty()) {
-                    return continueGenerating(pickedADT);
-                }
-            }
-        }
-        */
         return continueGenerating(rt.next(depthLeft()));
     }
 

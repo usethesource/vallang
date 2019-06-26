@@ -7,14 +7,10 @@ import java.util.regex.Pattern;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
@@ -106,7 +102,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
     private static final LoadingCache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build(s -> s);
 
-    private static class BaseURI extends AbstractValue implements ISourceLocation {
+    private static class BaseURI implements ISourceLocation {
 		protected final String scheme;
 		
 		
@@ -122,6 +118,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
+		}
+		
+		@Override
+		public String toString() {
+		    return defaultToString();
 		}
 		
 		@Override
@@ -164,41 +165,23 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
-		public Boolean hasAuthority() {
+		public boolean hasAuthority() {
 			return false;
 		}
 
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return true;
 		}
 
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return false;
 		}
 
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return false;
-		}
-
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T, E> arg0) throws E {
-		    return arg0.visitSourceLocation(this);
-		}
-
-
-		@Override
-		public IAnnotatable<? extends IValue> asAnnotatable() {
-			throw new UnsupportedOperationException();
-		}
-
-
-		@Override
-		public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-			throw new UnsupportedOperationException();
 		}
 
 		@Override
@@ -206,24 +189,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 			return TypeFactory.getInstance().sourceLocationType();
 		}
 
-
-		@Override
-		public boolean isAnnotatable() {
-		    return false;
-		}
-
-
 		@Override
 		public boolean isEqual(IValue arg0) {
 		    return equals(arg0);
 		}
 
-
 		@Override
 		public boolean mayHaveKeywordParameters() {
 		    return false;
 		}
-
 
 		@Override
 		public int getBeginColumn() throws UnsupportedOperationException {
@@ -344,12 +318,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		
 
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return false;
 		}
 
 		@Override
-		public Boolean hasAuthority() {
+		public boolean hasAuthority() {
 			return true;
 		}
 		@Override
@@ -393,7 +367,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return true;
 		}
 		@Override
@@ -436,7 +410,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return true;
 		}
 		@Override
@@ -479,7 +453,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return true;
 		}
 		@Override
@@ -518,7 +492,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return true;
 		}
 		@Override
@@ -562,7 +536,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return true;
 		}
 		@Override
@@ -602,7 +576,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return true;
 		}
 		@Override
@@ -647,7 +621,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -686,7 +660,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -730,7 +704,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -770,7 +744,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -814,7 +788,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -854,7 +828,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -899,7 +873,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override
@@ -940,7 +914,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return true;
 		}
 		@Override

@@ -17,9 +17,35 @@ import java.util.Map;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 
-public interface IMapWriter extends IWriter {
-    void put(IValue key, IValue value) throws FactTypeUseException ;
-    void putAll(IMap map)  throws FactTypeUseException;
-    void putAll(Map<IValue, IValue> map) throws FactTypeUseException;
-    IMap done();
+public interface IMapWriter extends IWriter<IMap> {
+    /**
+     * Put a value with a certain key into the map
+     * @param key
+     * @param value
+     * @throws FactTypeUseException
+     */
+    void put(IValue key, IValue value);
+    
+    /**
+     * Merge an entire map into the writer. Existing keys
+     * will be overwritten by the new map
+     * @param map
+     * @throws FactTypeUseException
+     */
+    void putAll(IMap map);
+    
+    /**
+     * Merge an entire java.util.Map into the writer. Existing
+     * keys will be overwritten by the new map.
+     * @param map
+     * @throws FactTypeUseException
+     */
+    void putAll(Map<IValue, IValue> map);
+    
+    /**
+     * Lookup a given key into the state of the current map-to-be
+     * @param key
+     * @return null if no value exists with this key, otherwise the respective value.
+     */
+    IValue get(IValue key);
 }

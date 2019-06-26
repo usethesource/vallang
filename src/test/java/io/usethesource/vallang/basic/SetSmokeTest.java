@@ -12,82 +12,67 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Iterator;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.Setup;
-import io.usethesource.vallang.type.TypeFactory;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-@RunWith(Parameterized.class)
 public final class SetSmokeTest {
 
-  @Parameterized.Parameters
-  public static Iterable<? extends Object> data() {
-    return Setup.valueFactories();
-  }
+    private IValue[] integers(IValueFactory vf) {
+        IValue[] integers = new IValue[100];
 
-  private final IValueFactory vf;
+        for (int i = 0; i < integers.length; i++) {
+            integers[i] = vf.integer(i);
+        }
 
-  public SetSmokeTest(final IValueFactory vf) {
-    this.vf = vf;
-  }
-
-  private TypeFactory tf;
-  private IValue[] integers;
-  private IValue[] doubles;
-  private ISet integerUniverse;
-
-  @Before
-  public void setUp() throws Exception {
-    this.tf = TypeFactory.getInstance();
-
-    integers = new IValue[100];
-    for (int i = 0; i < integers.length; i++) {
-      integers[i] = vf.integer(i);
+        return integers;
     }
+    
+    private IValue[] doubles(IValueFactory vf) {
+        IValue[] integers = new IValue[100];
 
-    doubles = new IValue[100];
-    for (int i = 0; i < doubles.length; i++) {
-      doubles[i] = vf.real(i);
+        for (int i = 0; i < integers.length; i++) {
+            integers[i] = vf.real(i);
+        }
+
+        return integers;
     }
-
-    ISetWriter w = vf.setWriter();
-
-    try {
-      for (IValue v : integers) {
-        w.insert(v);
+    
+  private ISet integerUniverse(IValueFactory vf) {
+      ISetWriter w = vf.setWriter();
+      
+      for (IValue i : integers(vf)) {
+          w.insert(i);
       }
-
-      integerUniverse = w.done();
-    } catch (FactTypeUseException e) {
-      fail("this should be type correct");
-    }
+      
+      return w.done();
   }
 
-  @Test
-  public void testInsert() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testInsert(IValueFactory vf) {
     ISet set1 = vf.set();
     ISet set2;
 
     try {
-      set2 = set1.insert(integers[0]);
+      set2 = set1.insert(integers(vf)[0]);
 
       if (set2.size() != 1) {
         fail("insertion failed");
       }
 
-      if (!set2.contains(integers[0])) {
+      if (!set2.contains(integers(vf)[0])) {
         fail("insertion failed");
       }
 
@@ -98,15 +83,15 @@ public final class SetSmokeTest {
     ISetWriter numberSet = vf.setWriter();
 
     try {
-      numberSet.insert(integers[0]);
-      numberSet.insert(doubles[0]);
+      numberSet.insert(integers(vf)[0]);
+      numberSet.insert(doubles(vf)[0]);
     } catch (FactTypeUseException e) {
       fail("should be able to insert subtypes:" + e);
     }
   }
 
-  @Test
-  public void testEmpty() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testEmpty(IValueFactory vf) {
     ISet emptySet = vf.set();
     if (!emptySet.isEmpty()) {
       fail("empty set is not empty?");
@@ -117,24 +102,24 @@ public final class SetSmokeTest {
     }
   }
 
-  @Test
-  public void testContains() {
-    ISet set1 = vf.set(integers[0], integers[1]);
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testContains(IValueFactory vf) {
+    ISet set1 = vf.set(integers(vf)[0], integers(vf)[1]);
 
     try {
-      set1.contains(integers[0]);
+      set1.contains(integers(vf)[0]);
     } catch (FactTypeUseException e) {
       fail("should be able to check for containment of integers");
     }
   }
 
-  @Test
-  public void testIntersect() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIntersect(IValueFactory vf) {
     ISet set1 = vf.set();
     ISet set2 = vf.set();
-    ISet set3 = vf.set(integers[0], integers[1], integers[2]);
-    ISet set4 = vf.set(integers[2], integers[3], integers[4]);
-    ISet set5 = vf.set(integers[3], integers[4], integers[5]);
+    ISet set3 = vf.set(integers(vf)[0], integers(vf)[1], integers(vf)[2]);
+    ISet set4 = vf.set(integers(vf)[2], integers(vf)[3], integers(vf)[4]);
+    ISet set5 = vf.set(integers(vf)[3], integers(vf)[4], integers(vf)[5]);
 
     try {
       if (!set1.intersect(set2).isEmpty()) {
@@ -153,7 +138,7 @@ public final class SetSmokeTest {
         fail("insersect failed");
       }
 
-      if (!set4.intersect(set3).contains(integers[2])) {
+      if (!set4.intersect(set3).contains(integers(vf)[2])) {
         fail("intersect failed");
       }
 
@@ -161,8 +146,8 @@ public final class SetSmokeTest {
         fail("insersect failed");
       }
 
-      if (!set5.intersect(set4).contains(integers[3])
-          || !set5.intersect(set4).contains(integers[4])) {
+      if (!set5.intersect(set4).contains(integers(vf)[3])
+          || !set5.intersect(set4).contains(integers(vf)[4])) {
         fail("intersect failed");
       }
 
@@ -175,9 +160,9 @@ public final class SetSmokeTest {
     }
   }
 
-  @Test
-  public void testIsEmpty() {
-    if (integerUniverse.isEmpty()) {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIsEmpty(IValueFactory vf) {
+    if (integerUniverse(vf).isEmpty()) {
       fail("an empty universe is not so cosy");
     }
 
@@ -186,28 +171,28 @@ public final class SetSmokeTest {
     }
   }
 
-  @Test
-  public void testSize() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testSize(IValueFactory vf) {
     if (vf.set().size() != 0) {
       fail("empty sets have size 0");
     }
 
-    if (vf.set(integers[0]).size() != 1) {
+    if (vf.set(integers(vf)[0]).size() != 1) {
       fail("singleton set should have size 1");
     }
 
-    if (integerUniverse.size() != integers.length) {
+    if (integerUniverse(vf).size() != integers(vf).length) {
       fail("weird size of universe");
     }
   }
 
-  @Test
-  public void testSubtract() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testSubtract(IValueFactory vf) {
     ISet set1 = vf.set();
     ISet set2 = vf.set();
-    ISet set3 = vf.set(integers[0], integers[1], integers[2]);
-    ISet set4 = vf.set(integers[2], integers[3], integers[4]);
-    ISet set5 = vf.set(integers[3], integers[4], integers[5]);
+    ISet set3 = vf.set(integers(vf)[0], integers(vf)[1], integers(vf)[2]);
+    ISet set4 = vf.set(integers(vf)[2], integers(vf)[3], integers(vf)[4]);
+    ISet set5 = vf.set(integers(vf)[3], integers(vf)[4], integers(vf)[5]);
 
     try {
       if (!set1.subtract(set2).isEmpty()) {
@@ -230,7 +215,7 @@ public final class SetSmokeTest {
         fail("subtract failed");
       }
 
-      if (set4.subtract(set3).contains(integers[2])) {
+      if (set4.subtract(set3).contains(integers(vf)[2])) {
         fail("subtract failed");
       }
 
@@ -238,7 +223,7 @@ public final class SetSmokeTest {
         fail("insersect failed");
       }
 
-      if (set5.subtract(set4).contains(integers[3]) || set5.subtract(set4).contains(integers[4])) {
+      if (set5.subtract(set4).contains(integers(vf)[3]) || set5.subtract(set4).contains(integers(vf)[4])) {
         fail("subtract failed");
       }
 
@@ -248,13 +233,13 @@ public final class SetSmokeTest {
 
   }
 
-  @Test
-  public void testUnion() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testUnion(IValueFactory vf) {
     ISet set1 = vf.set();
     ISet set2 = vf.set();
-    ISet set3 = vf.set(integers[0], integers[1], integers[2]);
-    ISet set4 = vf.set(integers[2], integers[3], integers[4]);
-    ISet set5 = vf.set(integers[3], integers[4], integers[5]);
+    ISet set3 = vf.set(integers(vf)[0], integers(vf)[1], integers(vf)[2]);
+    ISet set4 = vf.set(integers(vf)[2], integers(vf)[3], integers(vf)[4]);
+    ISet set5 = vf.set(integers(vf)[3], integers(vf)[4], integers(vf)[5]);
 
     try {
       if (!set1.union(set2).isEmpty()) {
@@ -277,9 +262,9 @@ public final class SetSmokeTest {
         fail("union failed");
       }
 
-      if (!set4.union(set3).contains(integers[0]) || !set4.union(set3).contains(integers[1])
-          || !set4.union(set3).contains(integers[2]) || !set4.union(set3).contains(integers[3])
-          || !set4.union(set3).contains(integers[4])) {
+      if (!set4.union(set3).contains(integers(vf)[0]) || !set4.union(set3).contains(integers(vf)[1])
+          || !set4.union(set3).contains(integers(vf)[2]) || !set4.union(set3).contains(integers(vf)[3])
+          || !set4.union(set3).contains(integers(vf)[4])) {
         fail("union failed");
       }
 
@@ -293,17 +278,17 @@ public final class SetSmokeTest {
 
   }
 
-  @Test
-  public void testIterator() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testIterator(IValueFactory vf) {
     try {
-      Iterator<IValue> it = integerUniverse.iterator();
+      Iterator<IValue> it = integerUniverse(vf).iterator();
       int i;
       for (i = 0; it.hasNext(); i++) {
-        if (!integerUniverse.contains(it.next())) {
+        if (!integerUniverse(vf).contains(it.next())) {
           fail("iterator produces something weird");
         }
       }
-      if (i != integerUniverse.size()) {
+      if (i != integerUniverse(vf).size()) {
         fail("iterator did not iterate over everything");
       }
     } catch (FactTypeUseException e) {
@@ -311,16 +296,16 @@ public final class SetSmokeTest {
     }
   }
 
-  @Test
-  public void testGetElementType() {
-    if (!integerUniverse.getElementType().isInteger()) {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testGetElementType(IValueFactory vf) {
+    if (!integerUniverse(vf).getElementType().isInteger()) {
       fail("elementType is broken");
     }
   }
 
-  @Test
-  public void testProductISet() {
-    ISet test = vf.set(integers[0], integers[1], integers[2], integers[3]);
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testProductISet(IValueFactory vf) {
+    ISet test = vf.set(integers(vf)[0], integers(vf)[1], integers(vf)[2], integers(vf)[3]);
     ISet prod = test.product(test);
 
     if (prod.asRelation().arity() != 2) {
@@ -333,14 +318,14 @@ public final class SetSmokeTest {
 
   }
 
-  @Test
-  public void testProductIRelation() {
-    ISet test = vf.set(integers[0], integers[1], integers[2], integers[3]);
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testProductIRelation(IValueFactory vf) {
+    ISet test = vf.set(integers(vf)[0], integers(vf)[1], integers(vf)[2], integers(vf)[3]);
     ISet prod = test.product(test);
     ISet prod2 = test.product(prod);
 
     if (prod2.asRelation().arity() != 2) {
-      fail("product's arity should be 3");
+      fail("product's arity should be 2");
     }
 
     if (prod2.size() != test.size() * prod.size()) {
@@ -349,22 +334,22 @@ public final class SetSmokeTest {
 
   }
 
-  @Test
-  public void testTypeDoubleInsertOneRemoveWithSet() {
-    ISet set1 = vf.set().insert(doubles[0]).insert(integers[0]).insert(integers[0]);
-    ISet set2 = set1.delete(integers[0]);
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testTypeDoubleInsertOneRemoveWithSet(IValueFactory vf, TypeFactory tf) {
+    ISet set1 = vf.set().insert(doubles(vf)[0]).insert(integers(vf)[0]).insert(integers(vf)[0]);
+    ISet set2 = set1.delete(integers(vf)[0]);
 
     assertEquals(tf.realType(), set2.getElementType());
   }
 
-  @Test
-  public void testTypeDoubleInsertOneRemoveWithSetWriter() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testTypeDoubleInsertOneRemoveWithSetWriter(IValueFactory vf, TypeFactory tf) {
     ISetWriter w = vf.setWriter();
-    w.insert(doubles[0]);
-    w.insert(integers[0]);
-    w.insert(integers[0]);
+    w.insert(doubles(vf)[0]);
+    w.insert(integers(vf)[0]);
+    w.insert(integers(vf)[0]);
     ISet set1 = w.done();
-    ISet set2 = set1.delete(integers[0]);
+    ISet set2 = set1.delete(integers(vf)[0]);
 
     assertEquals(tf.realType(), set2.getElementType());
   }

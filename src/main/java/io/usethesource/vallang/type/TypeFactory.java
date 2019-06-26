@@ -69,6 +69,11 @@ public class TypeFactory {
 		return InstanceHolder.sInstance;
 	}
 	
+	@Override
+	public String toString() {
+	    return "TF";
+	}
+	
 	public Type randomType() {
 	    return cachedTypeValues().randomType(new TypeStore(), 5);
 	}
@@ -642,6 +647,16 @@ public class TypeFactory {
 	public IConstructor asSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar) {
         return type.asSymbol(vf, store, grammar, new HashSet<>());
     }
+	
+	/**
+	 * Parsers the serialized representation of types (what is produced by Type.toString())
+	 * @param Reader reader
+	 * @return
+	 * @throws IOException 
+	 */
+	public Type fromString(TypeStore store, Reader reader) throws IOException {
+	    return new TypeReader().read(store, reader);   
+	}
 
 	/**
 	 * Construct a type parameter, which can later be instantiated.

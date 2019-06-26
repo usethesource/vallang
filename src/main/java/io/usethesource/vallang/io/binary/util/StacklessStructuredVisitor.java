@@ -35,8 +35,8 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
-import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class StacklessStructuredVisitor {
@@ -141,6 +141,7 @@ public class StacklessStructuredVisitor {
                         }
 
                     } else {
+                        @SuppressWarnings("deprecation")
                         IAnnotatable<? extends INode> withAnno = node.asAnnotatable();
                         if(withAnno.hasAnnotations()){
                             assert withAnno instanceof AbstractDefaultAnnotatable;
@@ -200,6 +201,7 @@ public class StacklessStructuredVisitor {
                         }
 
                     } else {
+                        @SuppressWarnings("deprecation")
                         IAnnotatable<? extends IConstructor> withAnno = constr.asAnnotatable();
                         if(withAnno.hasAnnotations()){
                             assert withAnno instanceof AbstractDefaultAnnotatable;

@@ -12,11 +12,11 @@
  */ 
 package io.usethesource.vallang.util;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,51 +26,28 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
-import java.util.function.Supplier;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import java.util.stream.Stream;
 
-@RunWith(Parameterized.class)
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
 public class WeakHashConsingMapTest {
-	
-	public static final class ConsingTestParameters {
-		private final int threadCount;
-		private final int collisionCount;
-		private final Supplier<HashConsingMap<FixedHashEquals>> target;
-
-		public ConsingTestParameters(int threadCount, int collisionCount, Supplier<HashConsingMap<FixedHashEquals>> target) {
-			this.threadCount = threadCount;
-			this.collisionCount = collisionCount;
-			this.target = target;
-		}
-		
-		public static void generate(Collection<ConsingTestParameters> to, int[] threadCounts, int[] collisionCounts, Supplier<HashConsingMap<FixedHashEquals>> target) {
-			for (int c: collisionCounts) {
-				for (int t : threadCounts) {
-					to.add(new ConsingTestParameters(t, c, target));
-				}
-			}
-		}
-		
-		@Override
-		public String toString() {
-			return target.get().getClass().getSimpleName() + " c: " + collisionCount + " t: " + threadCount;
-		}
-	}
-    
-    @Parameters(name="{0}")
-    public static Iterable<ConsingTestParameters> data() {
-        List<ConsingTestParameters> result = new ArrayList<>();
-        int[] threads = new int[] { 1, 8 };
-        int[] collisions = new int[] { 1, 4 };
-        ConsingTestParameters.generate(result, threads, collisions, WeakWriteLockingHashConsingMap::new);
-        return result;
+    private static class ThreadCount_CollisionCount_TestMapProvider implements ArgumentsProvider {
+        @Override
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+            int[] threads = new int[] { 1, 8 };
+            int[] collisions = new int[] { 1, 4 };
+            return Arrays.stream(threads).boxed().<Arguments>flatMap(thr -> 
+                     Arrays.stream(collisions).boxed().<Arguments>flatMap(col -> 
+                        Stream.of(Arguments.of(thr, col, new WeakWriteLockingHashConsingMap<FixedHashEquals>()))
+                     )
+                   );
+        }
     }
-
+    
     /**
      * Class that allows fine grained control on the equality contract and makes it easier to control hash collisions
      */
@@ -108,25 +85,15 @@ public class WeakHashConsingMapTest {
 
     }
 
-    @Parameter
-    public ConsingTestParameters testParam;
-    private HashConsingMap<FixedHashEquals> target;
-
-
-    @Before
-    public void constructTarget() {
-        target = testParam.target.get();
-    }
-
-    @Test
-    public void restoreSameReference() {
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void restoreSameReference(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) {
         FixedHashEquals a = new FixedHashEquals(1,1);
         assertSame(a, target.get(a));
         assertSame(a, target.get(a));
     }
 
-    @Test
-    public void restoreDifferentReference() {
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void restoreDifferentReference(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) {
         FixedHashEquals a = new FixedHashEquals(1,1);
         FixedHashEquals b = new FixedHashEquals(1,2);
         assertSame(a, target.get(a));
@@ -135,8 +102,8 @@ public class WeakHashConsingMapTest {
         assertSame(a, target.get(a));
     }
 
-    @Test
-    public void restoreOldReference() {
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void restoreOldReference(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) {
         FixedHashEquals a = new FixedHashEquals(1,1);
         FixedHashEquals b = new FixedHashEquals(1,1);
         assertSame(a, target.get(a));
@@ -144,8 +111,8 @@ public class WeakHashConsingMapTest {
         assertSame(a, target.get(a));
     }
 
-    @Test
-    public void looseReference() throws InterruptedException {
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void looseReference(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws InterruptedException {
         FixedHashEquals a = new FixedHashEquals(1,1);
         assertSame(a, target.get(a));
         WeakReference<FixedHashEquals> ref = new WeakReference<>(a);
@@ -163,8 +130,8 @@ public class WeakHashConsingMapTest {
     }
 
 
-    @Test
-    public void storeManyObjects() {
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void storeManyObjects(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) {
         List<FixedHashEquals> objects = new ArrayList<>();
         for (int i = 0; i < 1024*1024; i ++) {
             objects.add(new FixedHashEquals(i, i));
@@ -185,9 +152,9 @@ public class WeakHashConsingMapTest {
         return hash % maxEntries;
     }
 
-    @Test
-    public void storeManyObjectsAndLooseThem() throws CloneNotSupportedException, InterruptedException {
-        FixedHashEquals[] objects = createTestObjects(1024*1024);
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void storeManyObjectsAndLooseThem(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws CloneNotSupportedException, InterruptedException {
+        FixedHashEquals[] objects = createTestObjects(1024*1024, collisions);
 
         // store them 
         for (FixedHashEquals o : objects) {
@@ -208,9 +175,9 @@ public class WeakHashConsingMapTest {
     }
 
 
-    @Test
-    public void storeManyObjectsAndQueryThem() throws InterruptedException, CloneNotSupportedException {
-        FixedHashEquals[] objects = createTestObjects(1024*1024);
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void storeManyObjectsAndQueryThem(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws InterruptedException, CloneNotSupportedException {
+        FixedHashEquals[] objects = createTestObjects(1024*1024, collisions);
 
         // store them 
         for (FixedHashEquals o : objects) {
@@ -223,18 +190,18 @@ public class WeakHashConsingMapTest {
         }
     }
 
-    private FixedHashEquals[] createTestObjects(int size) {
+    private FixedHashEquals[] createTestObjects(int size, int collisions) {
         FixedHashEquals[] objects = new FixedHashEquals[size];
         for (int i = 0; i < size; i ++) {
-            objects[i] = new FixedHashEquals(weakenHash(i, size / testParam.collisionCount), i);
+            objects[i] = new FixedHashEquals(weakenHash(i, size / collisions), i);
         }
         return objects;
     }
 
 
-    @Test
-    public void clearMostAndQueryRest() throws InterruptedException, CloneNotSupportedException {
-        FixedHashEquals[] objects = createTestObjects(1024*1024);
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void clearMostAndQueryRest(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws InterruptedException, CloneNotSupportedException {
+        FixedHashEquals[] objects = createTestObjects(1024*1024, collisions);
 
         // store them 
         for (FixedHashEquals o : objects) {
@@ -265,15 +232,15 @@ public class WeakHashConsingMapTest {
     /**
      * Test many concurrent threads putting in the same object, and getting the same one out of there
      */
-    @Test
-    public void multithreadedAccess() throws InterruptedException, BrokenBarrierException {
-        FixedHashEquals[] objects = createTestObjects(64*1024);
-        CyclicBarrier startRunning = new CyclicBarrier(testParam.threadCount + 1);
-        CyclicBarrier startQuerying = new CyclicBarrier(testParam.threadCount);
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void multithreadedAccess(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws InterruptedException, BrokenBarrierException {
+        FixedHashEquals[] objects = createTestObjects(64*1024, collisions);
+        CyclicBarrier startRunning = new CyclicBarrier(threads + 1);
+        CyclicBarrier startQuerying = new CyclicBarrier(threads);
         Semaphore doneRunning = new Semaphore(0);
         ConcurrentLinkedDeque<Tuple<FixedHashEquals, FixedHashEquals>> failures = new ConcurrentLinkedDeque<>();
 
-        for (int i = 0; i < testParam.threadCount; i++) {
+        for (int i = 0; i < threads; i++) {
             List<FixedHashEquals> objects2 =  new ArrayList<>(objects.length);
             for (FixedHashEquals o: objects) {
                 objects2.add(o);
@@ -312,7 +279,7 @@ public class WeakHashConsingMapTest {
         objects = null;
         startRunning.await();
 
-        doneRunning.acquire(testParam.threadCount);
+        doneRunning.acquire(threads);
         if (!failures.isEmpty()) {
             Tuple<FixedHashEquals, FixedHashEquals> first = failures.pop();
             assertSame(first.x, first.y);
@@ -326,22 +293,22 @@ public class WeakHashConsingMapTest {
      * 
      * Then query the cache from all threads to see if they are all in there (but take a clone of the object, to make sure we are getting the one we expected, and not the one we just passed in
      */
-    @Test
-    public void multithreadedNothingIsLostDuringResizes() throws InterruptedException, BrokenBarrierException {
-        CyclicBarrier startRunning = new CyclicBarrier(testParam.threadCount + 1);
-        CyclicBarrier startQuerying = new CyclicBarrier(testParam.threadCount);
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void multithreadedNothingIsLostDuringResizes(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws InterruptedException, BrokenBarrierException {
+        CyclicBarrier startRunning = new CyclicBarrier(threads + 1);
+        CyclicBarrier startQuerying = new CyclicBarrier(threads);
         Semaphore doneRunning = new Semaphore(0);
         ConcurrentLinkedDeque<Tuple<FixedHashEquals, FixedHashEquals>> failures = new ConcurrentLinkedDeque<>();
 
         List<FixedHashEquals> objects =  new ArrayList<>(TEST_SIZE);
-        for (FixedHashEquals o: createTestObjects(TEST_SIZE)) {
+        for (FixedHashEquals o: createTestObjects(TEST_SIZE, collisions)) {
             objects.add(o);
         }
         Collections.shuffle(objects, new Random(42));
 
 
-        int chunkSize = objects.size() / testParam.threadCount;
-        for (int i = 0; i < testParam.threadCount; i++) {
+        int chunkSize = objects.size() / threads;
+        for (int i = 0; i < threads; i++) {
             final List<FixedHashEquals> mySlice = objects.subList(i*chunkSize, (i + 1) * chunkSize);
 
             new Thread(() -> {
@@ -357,7 +324,7 @@ public class WeakHashConsingMapTest {
                     awaitQuerySend = true;
                     startQuerying.await();
                     // query, and make sure we are not getting a fresh entry, but getting the one that was inserted before, by any of the threads
-                    for (FixedHashEquals o : objects.subList(0, testParam.threadCount * chunkSize)) {
+                    for (FixedHashEquals o : objects.subList(0, threads * chunkSize)) {
                         FixedHashEquals result = target.get(o.clone());
                         if (o != result) {
                             failures.push(new Tuple<>(o, result));
@@ -378,7 +345,7 @@ public class WeakHashConsingMapTest {
         }
         startRunning.await();
 
-        doneRunning.acquire(testParam.threadCount);
+        doneRunning.acquire(threads);
         if (!failures.isEmpty()) {
             Tuple<FixedHashEquals, FixedHashEquals> first = failures.pop();
             assertSame(first.x, first.y);
@@ -388,10 +355,10 @@ public class WeakHashConsingMapTest {
     /**
      * Add a lot of data, causing multiple resizes. Then clear almost all, and see if after the cleanup of the collection has happened, if ones that were left over, still return the same value.
      */
-    @Test
-    public void nothingIsLostDuringGCCollects() throws InterruptedException, BrokenBarrierException {
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void nothingIsLostDuringGCCollects(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws InterruptedException, BrokenBarrierException {
         List<FixedHashEquals> objects =  new ArrayList<>(TEST_SIZE);
-        for (FixedHashEquals o: createTestObjects(TEST_SIZE)) {
+        for (FixedHashEquals o: createTestObjects(TEST_SIZE, collisions)) {
             objects.add(o);
         }
         Collections.shuffle(objects, new Random(42));
@@ -420,16 +387,16 @@ public class WeakHashConsingMapTest {
     /**
      * Add a lot of data (from multiple threads), causing multiple resizes. Then clear almost all, and see if after the cleanup of the collection has happened, if ones that were left over, still return the same value.
      */
-    @Test
-    public void multithreadedNothingIsLostDuringGCCollects() throws InterruptedException, BrokenBarrierException {
-        CyclicBarrier startRunning = new CyclicBarrier(testParam.threadCount + 1);
-        CyclicBarrier stoppedInserting = new CyclicBarrier(testParam.threadCount + 1);
-        CyclicBarrier startQuerying = new CyclicBarrier(testParam.threadCount + 1);
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void multithreadedNothingIsLostDuringGCCollects(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws InterruptedException, BrokenBarrierException {
+        CyclicBarrier startRunning = new CyclicBarrier(threads + 1);
+        CyclicBarrier stoppedInserting = new CyclicBarrier(threads + 1);
+        CyclicBarrier startQuerying = new CyclicBarrier(threads + 1);
         Semaphore doneRunning = new Semaphore(0);
         ConcurrentLinkedDeque<Tuple<FixedHashEquals, FixedHashEquals>> failures = new ConcurrentLinkedDeque<>();
 
         List<FixedHashEquals> objects =  new ArrayList<>(TEST_SIZE);
-        for (FixedHashEquals o: createTestObjects(TEST_SIZE)) {
+        for (FixedHashEquals o: createTestObjects(TEST_SIZE, collisions)) {
             objects.add(o);
         }
         Collections.shuffle(objects, new Random(42));
@@ -442,8 +409,8 @@ public class WeakHashConsingMapTest {
         }
 
 
-        int chunkSize = objects.size() / testParam.threadCount;
-        for (int i = 0; i < testParam.threadCount; i++) {
+        int chunkSize = objects.size() / threads;
+        for (int i = 0; i < threads; i++) {
             List<FixedHashEquals> mySlice = objects.subList(i*chunkSize, (i + 1) * chunkSize);
             new Thread(() -> {
             	boolean awaitQuerySend = false;
@@ -485,7 +452,7 @@ public class WeakHashConsingMapTest {
         Thread.sleep(1100);
         startQuerying.await();
 
-        doneRunning.acquire(testParam.threadCount);
+        doneRunning.acquire(threads);
         if (!failures.isEmpty()) {
             Tuple<FixedHashEquals, FixedHashEquals> first = failures.pop();
             assertSame(first.x, first.y);
@@ -497,20 +464,20 @@ public class WeakHashConsingMapTest {
      * 
      * We test this by inserting clones of the same objects (in the same sequnce) from a lot of threads, and then check if only one result was returned
      */
-    @Test
-    public void insertMultipleCopiesAllReturnSameInstance() throws InterruptedException, BrokenBarrierException {
-        CyclicBarrier startRunning = new CyclicBarrier((testParam.threadCount * 2) + 1);
+    @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
+    public void insertMultipleCopiesAllReturnSameInstance(int threads, int collisions, WeakWriteLockingHashConsingMap<FixedHashEquals> target) throws InterruptedException, BrokenBarrierException {
+        CyclicBarrier startRunning = new CyclicBarrier((threads * 2) + 1);
         Semaphore doneRunning = new Semaphore(0);
         ConcurrentLinkedDeque<FixedHashEquals> results = new ConcurrentLinkedDeque<>();
 
         List<FixedHashEquals> objects =  new ArrayList<>(TEST_SIZE / 4);
-        for (FixedHashEquals o: createTestObjects(TEST_SIZE / 4)) {
+        for (FixedHashEquals o: createTestObjects(TEST_SIZE / 4, collisions)) {
             objects.add(o);
         }
         Collections.shuffle(objects, new Random(42 * 42));
 
 
-        for (int i = 0; i < (testParam.threadCount * 2); i++) {
+        for (int i = 0; i < (threads * 2); i++) {
             new Thread(() -> {
                 try {
                     startRunning.await();
@@ -526,11 +493,11 @@ public class WeakHashConsingMapTest {
         }
         startRunning.await();
 
-        doneRunning.acquire(testParam.threadCount * 2);
+        doneRunning.acquire(threads * 2);
         Map<FixedHashEquals, FixedHashEquals> seen = new HashMap<>(objects.size());
         for (FixedHashEquals e : results) {
             if (seen.containsKey(e)) {
-                assertSame("We expect the same reference to be returned everythin for something that is equal", e, seen.get(e));
+                assertSame(e, seen.get(e), "We expect the same reference to be returned everythin for something that is equal");
             }
             else {
                 seen.put(e, e);

@@ -10,8 +10,20 @@
  *******************************************************************************/
 package io.usethesource.vallang;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
+import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
+import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * IExternalValue, together with {@link ExternalType} offer a limited form of extensibility
@@ -33,6 +45,142 @@ public interface IExternalValue extends IValue {
 	@Override
 	Type getType();
 	
-	IConstructor encodeAsConstructor();
-	
+	public default IConstructor encodeAsConstructor() {
+        return new IConstructor() {
+            @Override
+            public Type getConstructorType() {
+                return TypeFactory.getInstance().constructor(new TypeStore(), getType(), getName());
+            }
+            
+            @Override
+            public INode setChildren(IValue[] childArray) {
+                return this;
+            }
+            
+            @Override
+            public Type getType() {
+                return TypeFactory.getInstance().valueType();
+            }
+
+            @Override
+            public String getName() {
+                return IExternalValue.this.getClass().getSimpleName().toLowerCase();
+            }
+
+            @Override
+            public Type getUninstantiatedConstructorType() {
+                return getConstructorType();
+            }
+
+            @Override
+            public IValue get(String label) {
+                return null;
+            }
+
+            @Override
+            public IConstructor set(String label, IValue newChild) {
+                return this;
+            }
+
+            @Override
+            public boolean has(String label) {
+                return false;
+            }
+
+            @Override
+            public IConstructor set(int index, IValue newChild) {
+                return this;
+            }
+
+            @Override
+            public Type getChildrenTypes() {
+                return TypeFactory.getInstance().voidType();
+            }
+
+            @Override
+            public boolean declaresAnnotation(TypeStore store, String label) {
+                return false;
+            }
+
+            
+
+            @Override
+            public boolean isAnnotatable() {
+                return true;
+            }
+
+            @Override
+            public boolean mayHaveKeywordParameters() {
+                return true;
+            }
+
+            @Override
+            public INode replace(int first, int second, int end, IList repl) {
+                return this;
+            }
+            
+            @Override
+            public int arity() {
+                return 0;
+            }
+            
+            @Override
+            public IValue get(int i) {
+                return null;
+            }
+            
+            @Override
+            public Iterable<IValue> getChildren() {
+                return Collections.emptyList();
+            }
+            
+            
+            @Override
+            public Iterator<IValue> iterator() {
+                return Collections.emptyIterator();
+            }
+            
+            
+            @Override
+            public IAnnotatable<? extends IConstructor> asAnnotatable() {
+                return new AbstractDefaultAnnotatable<IConstructor>(this) {
+                    @Override
+                    protected IConstructor wrap(IConstructor content,
+                            io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
+                        return new AnnotatedConstructorFacade(content, annotations);
+                    }
+                };
+            }
+            
+            @Override
+            public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+                 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
+                        @Override
+                        protected IConstructor wrap(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
+                          return new ConstructorWithKeywordParametersFacade(content, parameters);
+                        }
+                        
+                        @Override
+                        public boolean hasParameters() {
+                            return false;
+                        }
+
+                        @Override
+                        public java.util.Set<String> getParameterNames() {
+                            return Collections.emptySet();
+                        }
+
+                        @Override
+                        public Map<String, IValue> getParameters() {
+                            return Collections.unmodifiableMap(parameters);
+                        }
+                 }; 
+            }
+        };      
+    }
+    
+	@Override
+	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+	    return v.visitExternal(this);
+	}
 }

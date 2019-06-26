@@ -25,7 +25,8 @@ public class ResizingArray<E>{
 	/**
 	 * Constructor.
 	 */
-	public ResizingArray(){
+	@SuppressWarnings("unchecked")
+    public ResizingArray(){
 		super();
 		
 		content = (E[]) new Object[DEFAULT_INITIAL_SIZE];
@@ -37,7 +38,8 @@ public class ResizingArray<E>{
 	 * @param initialSize
 	 *            The initial size of the backing array.
 	 */
-	public ResizingArray(int initialSize){
+	@SuppressWarnings("unchecked")
+    public ResizingArray(int initialSize){
 		super();
 		
 		content = (E[]) new Object[initialSize];
@@ -45,7 +47,8 @@ public class ResizingArray<E>{
 	
 	private void ensureCapacity(int max){
 		if(max >= content.length){
-			E[] newContent = (E[]) new Object[max << 2];
+			@SuppressWarnings("unchecked")
+            E[] newContent = (E[]) new Object[max << 2];
 			System.arraycopy(content, 0, newContent, 0, content.length);
 			content = newContent;
 		}

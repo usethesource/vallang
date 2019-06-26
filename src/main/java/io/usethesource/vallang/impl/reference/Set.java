@@ -19,20 +19,18 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractSet;
-import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 
-/*package*/ class Set extends AbstractSet {
-
+/*package*/ class Set implements ISet {
 	final Type type;
 	final java.util.Set<IValue> content;
 
 	/*package*/ Set(Type elementType, java.util.Set<IValue> content) {
 		super();
-		this.type = inferSetOrRelType(elementType, content);
+		this.type = TF.setType(elementType);
 		this.content = content;
 	}
 
@@ -40,7 +38,12 @@ import io.usethesource.vallang.type.Type;
 	public Type getType() {
 		return type;
 	}
-
+	
+	@Override
+	public ISetWriter writer() {
+	    return ValueFactory.getInstance().setWriter();
+	}
+	
 	@Override
 	public boolean isEmpty() {
 		return content.isEmpty();
@@ -52,38 +55,22 @@ import io.usethesource.vallang.type.Type;
 	}
 
 	@Override
-	public boolean contains(IValue e) {
-		return content.contains(e);
-	}
-
-	@Override
 	public int hashCode() {
 		return content.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object other) {
-		return SetFunctions.equals(getValueFactory(), this, other);
-	}
-
-	@Override
-	public boolean isEqual(IValue other) {
-		return SetFunctions.isEqual(getValueFactory(), this, other);
+		return defaultEquals(other);
 	}
 	
 	@Override
-    public boolean match(IValue other) {
-        return SetFunctions.match(getValueFactory(), this, other);
-    }
-
-	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
+	public String toString() {
+	    return defaultToString();
 	}
 
 	@Override
 	public Iterator<IValue> iterator() {
 		return content.iterator();
 	}
-
 }

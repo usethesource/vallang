@@ -1,7 +1,8 @@
 package io.usethesource.vallang.io;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotEquals;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,12 +12,11 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Semaphore;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.usethesource.vallang.io.binary.util.DelayedZstdOutputStream;
 import io.usethesource.vallang.io.binary.util.DirectZstdInputStream;

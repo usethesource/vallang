@@ -4,7 +4,7 @@
 
 	<groupId>io.usethesource</groupId>
 	<artifactId>vallang</artifactId>
-	<version>0.9.1-SNAPSHOT</version>
+	<version>0.10.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<scm>
@@ -94,8 +94,7 @@
                     <argLine>
                         @{argLine} 
                         -Xmx2G
-						-ea
-						-Dio.usethesource.vallang.Setup.valueFactory=FAST,PERSISTENT
+		        -ea
 					</argLine>
 				</configuration>
 			</plugin>
@@ -122,15 +121,21 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.usethesource</groupId>
-			<artifactId>capsule</artifactId>
+	<dependency>
+		<groupId>org.junit.jupiter</groupId>
+		<artifactId>junit-jupiter-engine</artifactId>
+		<version>5.4.2</version>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.junit.jupiter</groupId>
+		<artifactId>junit-jupiter-params</artifactId>
+		<version>5.4.2</version>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>io.usethesource</groupId>
+		<artifactId>capsule</artifactId>
 			<version>0.6.3</version>
 		</dependency>
 		<dependency>

@@ -264,8 +264,7 @@ public interface IValueFactory {
 	 * @return a value representing a source location, with type
 	 *         SourceLocationType
 	 */
-	public ISourceLocation sourceLocation(ISourceLocation loc, int offset,
-			int length);
+	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length);
 
 	/**
 	 * Create an exact reference to a source location.
@@ -316,8 +315,7 @@ public interface IValueFactory {
 	 *            the path part of an source location
 	 * @return
 	 */
-	public ISourceLocation sourceLocation(String scheme, String authority,
-			String path) throws URISyntaxException;
+	public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException;
 
 	/**
 	 * Create an exact reference to a source location
@@ -378,6 +376,10 @@ public interface IValueFactory {
 	 * @return a tuple with as many children as there are args
 	 * @deprecated will be replaced by tuple(IValue ... arg).checkBounds(Type
 	 *             ... types)
+	 *             
+	 * TODO: this method will dissappear when field names will no longer be recorded 
+     * the vallang library. This is necessary to be able to provide canonical types
+     * and use reference equality for type equality; a major factor in CPU performance.            
 	 */
 	@Deprecated
 	public ITuple tuple(Type type, IValue... args);
@@ -416,8 +418,7 @@ public interface IValueFactory {
 	 *             if the children are not of the expected types for this node
 	 *             type
 	 */
-	public INode node(String name, Map<String, IValue> annotations,
-			IValue... children) throws FactTypeUseException;
+	public INode node(String name, Map<String, IValue> annotations, IValue... children);
 
 	/**
 	 * Construct a node with keyword arguments
@@ -435,8 +436,7 @@ public interface IValueFactory {
 	 *             if the children are not of the expected types for this node
 	 *             type
 	 */
-	public INode node(String name, IValue[] children,
-			Map<String, IValue> keyArgValues) throws FactTypeUseException;
+	public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues);
 
 	/**
 	 * Make a nullary constructor (a typed nullary node)
@@ -459,8 +459,7 @@ public interface IValueFactory {
 	 *             if the children are not of the expected types for this node
 	 *             type
 	 */
-	public IConstructor constructor(Type constructor, IValue... children)
-			throws FactTypeUseException;
+	public IConstructor constructor(Type constructor, IValue... children);
 
 	/**
 	 * Make a constructor value.
@@ -478,11 +477,9 @@ public interface IValueFactory {
 	 * @deprecated annotations will be replaced by keyword parameters
 	 */
 	@Deprecated
-	public IConstructor constructor(Type constructor,
-			Map<String, IValue> annotations, IValue... children)
-			throws FactTypeUseException;
+	public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children);
 	
-	 /**
+ /**
    * Make a constructor value with keyword parameters
    * 
    * @param constructor
@@ -495,8 +492,7 @@ public interface IValueFactory {
    *             if the children are not of the expected types for this node
    *             type
    */
-  public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams)
-      throws FactTypeUseException;
+  public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams);
 
 	/**
 	 * Get a set writer of which the element type will be the least upper bound
@@ -686,5 +682,4 @@ public interface IValueFactory {
 	 * @return a DateTime set to the given instant in time
 	 */
 	public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes);
-	
 }

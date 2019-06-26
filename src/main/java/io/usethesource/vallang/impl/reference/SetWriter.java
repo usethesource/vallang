@@ -18,56 +18,45 @@
 package io.usethesource.vallang.impl.reference;
 
 import java.util.HashSet;
+import java.util.Iterator;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
-import io.usethesource.vallang.impl.AbstractWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
-/*package*/ class SetWriter extends AbstractWriter implements ISetWriter {
+/*package*/ class SetWriter implements ISetWriter {
     protected final HashSet<IValue> setContent;
-    protected final boolean inferred;
     protected Type eltType;
     protected Set constructedSet;
-
-    /*package*/ SetWriter(Type eltType) {
-        super();
-
-        this.eltType = eltType;
-        this.inferred = false;
-        setContent = new HashSet<>();
-    }
 
     /*package*/ SetWriter() {
         super();
         this.eltType = TypeFactory.getInstance().voidType();
-        this.inferred = true;
         setContent = new HashSet<>();
     }
 
-    private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException {
-        Type type = elem.getType();
-        if (!type.isSubtypeOf(eltType)) {
-            throw new UnexpectedElementTypeException(eltType, type);
-        }
+    @Override
+    public Iterator<IValue> iterator() {
+        return setContent.iterator();
     }
-
+    
     private void put(IValue elem) {
         updateType(elem);
-        checkInsert(elem, eltType);
         setContent.add(elem);
     }
 
     private void updateType(IValue elem) {
-        if (inferred) {
-            eltType = eltType.lub(elem.getType());
-        }
+        eltType = eltType.lub(elem.getType());
     }
 
+    @Override
+    public void insertTuple(IValue... fields) {
+        insert(ValueFactory.getInstance().tuple(fields));
+    }
+    
     @Override
 	public void insert(IValue... elems) throws FactTypeUseException {
         checkMutation();
@@ -88,11 +77,6 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
 	public ISet done() {
-    	// Temporary fix of the static vs dynamic type issue
-    	eltType = TypeFactory.getInstance().voidType();
-    	for(IValue el : setContent)
-    		eltType = eltType.lub(el.getType());
-    	// ---
         if (constructedSet == null) {
             constructedSet = new Set(eltType, setContent);
         }
@@ -104,5 +88,4 @@ import io.usethesource.vallang.type.TypeFactory;
         if (constructedSet != null)
             throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
     }
-
 }

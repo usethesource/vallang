@@ -139,7 +139,8 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitNode(INode o) throws IOException {
+		@SuppressWarnings("deprecation")
+        public IValue visitNode(INode o) throws IOException {
 			String name = o.getName();
 			
 			append(name);

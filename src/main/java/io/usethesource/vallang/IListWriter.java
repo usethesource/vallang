@@ -14,7 +14,6 @@ package io.usethesource.vallang;
 
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
-
 /**
  * This interface allows to gather the elements of a list efficiently and in a specific order.
  * When all elements have been gathered the done() method can be used to obtain an immutable IList
@@ -22,16 +21,8 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
  * 
  * Note: implementations are not required to guarantee thread-safe access to the writer object.
  */
-public interface IListWriter extends IWriter {
+public interface IListWriter extends IWriter<IList> {
 	
-	/**
-	 * Inserts elements in front, keeping the argument in order of appearance.
-	 * 
-	 * @param value an array of elements to insert in front.
-	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
-	 */
-    void insert(IValue... value) throws FactTypeUseException;
-    
     /**
 	 * Inserts elements at a specific position, keeping the argument in order of appearance.
 	 * 
@@ -40,7 +31,7 @@ public interface IListWriter extends IWriter {
 	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException 
 	 */
-    void insertAt(int index, IValue... value) throws FactTypeUseException, IndexOutOfBoundsException;
+    public void insertAt(int index, IValue... value);
     
     /**
 	 * Inserts elements in front, keeping the argument in order of appearance.
@@ -52,7 +43,7 @@ public interface IListWriter extends IWriter {
 	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException
 	 */
-    void insert(IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException;
+    public void insert(IValue[] elems, int start, int length);
     
     /**
 	 * Inserts elements at a specific position, keeping the argument in order of appearance.
@@ -65,7 +56,7 @@ public interface IListWriter extends IWriter {
 	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException
 	 */
-    void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException;
+    public void insertAt(int index, IValue[] elems, int start, int length);
     
     /**
      * Replaces an existing element at index in the list.
@@ -75,29 +66,8 @@ public interface IListWriter extends IWriter {
      * @throws IndexOutOfBoundsException
      * @returns the replaced element
      */
-    IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException;
-    /**
-     * Append elements at the end.
-     * 
-     * @param value array of elements to append
-     * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
-     */
-    void append(IValue... value) throws FactTypeUseException;
-    
-    /**
-     * Append elements at the end.
-     * 
-     * @param value array of elements to append
-     * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
-     */
-    void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
-    
-    /**
-     * Finalize an immutable list. After this method none of the others may be called anymore.
-     * @return an immutable IList
-     */
-    IList done();
-
+    public IValue replaceAt(int index, IValue elem);
+   
     /**
      * Return the ith element of the list.
      * 
@@ -105,10 +75,10 @@ public interface IListWriter extends IWriter {
      * @return the ith element of the list
      * @throws IndexOutOfBoundsException when i < 0 or i >= IList.length
      */
-    IValue get(int i) throws IndexOutOfBoundsException;
+    public IValue get(int i);
 
     /**
      * @return the number of elements in the list
      */
-    int length();
-}
+    public int length();
+}    

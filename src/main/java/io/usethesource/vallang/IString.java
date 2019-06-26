@@ -16,27 +16,29 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.PrimitiveIterator.OfInt;
 
+import io.usethesource.vallang.visitors.IValueVisitor;
+
 public interface IString extends IValue, Iterable<Integer> {
 	/**
 	 * @return the Java string that this string represents
 	 */
-    String getValue();
+    public String getValue();
     
     /**
      * Concatenates two strings
      */
-    IString concat(IString other);
+    public IString concat(IString other);
     
     /**
      * Reverses a string
      */
-    IString reverse();
+    public IString reverse();
 
     /**
      * Computes the length of the string 
      * @return amount of Unicode characters 
      */
-    int length();
+    public int length();
     
     /**
      * Computes a substring
@@ -44,28 +46,28 @@ public interface IString extends IValue, Iterable<Integer> {
      * @param start the inclusive start index
      * @param end   the exclusive end index
      */
-    IString substring(int start, int end);
+    public IString substring(int start, int end);
     
     /**
      * Computes a substring
      *  
      * @param start the inclusive start index
      */
-    IString substring(int start);
+    public IString substring(int start);
     
     /**
      * Compares two strings lexicographically
      * @param other
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
      */
-    int compare(IString other);
+    public int compare(IString other);
     
     /**
      * Returns the Unicode character at the given index.
      * @param index an index into the string
      * @return the Unicode character (in UTF-32)
      */
-    int charAt(int index);
+    public int charAt(int index);
     
     /**
      * Replace the characters first, second ... end.
@@ -79,19 +81,19 @@ public interface IString extends IValue, Iterable<Integer> {
      * @param start the inclusive  start index
      * @return
      */
-    IString replace(int first, int second, int end, IString repl);
+    public IString replace(int first, int second, int end, IString repl);
     
     /**
-     * Writes the content of this string to a character writer.
+     * Writes (in a streaming fashion) the content of this string to a character writer.
      */
-    void write(Writer w) throws IOException;
+    public void write(Writer w) throws IOException;
     
     /**
      * Build an iterator which generates the Unicode UTF-32 codepoints of the IString one-by-one.
      * @see Character for more information on Unicode UTF-32 codepoints.
      */
     @Override
-    OfInt iterator();
+    public OfInt iterator();
     
     /** 
      * Indent all the non-empty lines in this string with the given whitespace. That means that
@@ -104,5 +106,10 @@ public interface IString extends IValue, Iterable<Integer> {
      * @param indentFirstLine indicates whether or not to indent the first line of the string. If true the line will be indented. 
      * @return the current string indented with the given whitespace
      */
-    IString indent(IString whitespace, boolean indentFirstLine);
+    public IString indent(IString whitespace, boolean indentFirstLine);
+    
+    @Override
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitString(this);
+    }
 }

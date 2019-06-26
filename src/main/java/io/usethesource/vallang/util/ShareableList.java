@@ -46,7 +46,8 @@ public class ShareableList<E> implements Iterable<E>{
 	/**
 	 * Default constructor
 	 */
-	public ShareableList(){
+	@SuppressWarnings("unchecked")
+    public ShareableList(){
 		super();
 		
 		frontCapacity = 1 << INITIAL_LOG_SIZE;
@@ -86,7 +87,8 @@ public class ShareableList<E> implements Iterable<E>{
 	 * @param length
 	 *            The length of the sublist.
 	 */
-	protected ShareableList(ShareableList<E> shareableList, int offset, int length){
+	@SuppressWarnings("unchecked")
+    protected ShareableList(ShareableList<E> shareableList, int offset, int length){
 		super();
 		
 		int backStartIndex = shareableList.backIndex - offset;
@@ -144,7 +146,8 @@ public class ShareableList<E> implements Iterable<E>{
 	/**
 	 * Removes all the elements from this list.
 	 */
-	public void clear(){
+	@SuppressWarnings("unchecked")
+    public void clear(){
 		frontCapacity = 1 << INITIAL_LOG_SIZE;
 		frontData = (E[]) new Object[frontCapacity];
 		frontIndex = 0;
@@ -160,7 +163,8 @@ public class ShareableList<E> implements Iterable<E>{
 	private void ensureFrontCapacity(){
 		if(frontCapacity == frontIndex){
 			frontCapacity <<= 1;
-			E[] newFrontData = (E[]) new Object[frontCapacity];
+			@SuppressWarnings("unchecked")
+            E[] newFrontData = (E[]) new Object[frontCapacity];
 			System.arraycopy(frontData, 0, newFrontData, 0, frontData.length);
 			frontData = newFrontData;
 		}
@@ -172,7 +176,8 @@ public class ShareableList<E> implements Iterable<E>{
 	private void ensureBackCapacity(){
 		if(backCapacity == backIndex){
 			backCapacity <<= 1;
-			E[] newBackData = (E[]) new Object[backCapacity];
+			@SuppressWarnings("unchecked")
+            E[] newBackData = (E[]) new Object[backCapacity];
 			System.arraycopy(backData, 0, newBackData, 0, backData.length);
 			backData = newBackData;
 		}
@@ -191,7 +196,8 @@ public class ShareableList<E> implements Iterable<E>{
 				frontCapacity <<= 1;
 			}while(frontCapacity <= requiredCapacity);
 			
-			E[] newFrontData = (E[]) new Object[frontCapacity];
+			@SuppressWarnings("unchecked")
+            E[] newFrontData = (E[]) new Object[frontCapacity];
 			System.arraycopy(frontData, 0, newFrontData, 0, frontData.length);
 			frontData = newFrontData;
 		}
@@ -211,7 +217,8 @@ public class ShareableList<E> implements Iterable<E>{
 				backCapacity <<= 1;
 			}while(backCapacity <= requiredCapacity);
 			
-			E[] newBackData = (E[]) new Object[backCapacity];
+			@SuppressWarnings("unchecked")
+            E[] newBackData = (E[]) new Object[backCapacity];
 			System.arraycopy(backData, 0, newBackData, 0, backData.length);
 			backData = newBackData;
 		}

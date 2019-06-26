@@ -15,231 +15,231 @@ public abstract interface INumber extends IValue {
 	 * Returns an integer if both arguments are integer, and a real otherwise
 	 * @return this + other
 	 */
-    INumber add(INumber other);
+    public INumber add(INumber other);
     
     /**
 	 * @return this + other
 	 */
-    IReal   add(IReal other);
+    public IReal   add(IReal other);
     
     /**
 	 * Returns an integer if both arguments are integer, and a real otherwise
 	 * @return this + other
 	 */
-    INumber add(IInteger other);
+    public INumber add(IInteger other);
 
     /**
 	 * Returns a rational if both arguments are rationals or integers, and a real otherwise
 	 * @return this + other
 	 */
-    INumber add(IRational other);
+    public INumber add(IRational other);
 
     /**
      * Returns an integer if both arguments are integer, and a real otherwise
      * @return this - other;
      */
-    INumber subtract(INumber other);
+    public INumber subtract(INumber other);
     
     /**
      * @return this - other;
      */
-    INumber subtract(IReal other);
+    public INumber subtract(IReal other);
     
     /**
      * Returns an integer if both arguments are integer, and a real otherwise
      * @return this - other;
      */
-    INumber subtract(IInteger other);
+    public INumber subtract(IInteger other);
     
     /**
      * @return this - other;
      */
-    INumber subtract(IRational other);
+    public INumber subtract(IRational other);
 
     /**
      * Returns an integer if both arguments are integer, and a real otherwise
      * @return this * other;
      */
-    INumber multiply(INumber other);
+    public INumber multiply(INumber other);
     
     /**
      * @return this * other;
      */
-    IReal multiply(IReal other);
+    public IReal multiply(IReal other);
     
     /**
      * Returns an integer if both arguments are integer, and a real otherwise
      * @return this * other;
      */
-    INumber multiply(IInteger other);
+    public INumber multiply(IInteger other);
 
     /**
      * Returns a rational if both arguments are rationals/integer, and a real otherwise
      * @return this * other;
      */
-    INumber multiply(IRational other);
+    public INumber multiply(IRational other);
 
     /**
      * Integer division if both the receiver and the argument are integers, and real division otherwise
      * @return this / other 
      */
-    INumber divide(INumber other, int precision);
+    public INumber divide(INumber other, int precision);
     
     /**
      * @return this / other 
      */
-    IReal divide(IReal other, int precision);
+    public IReal divide(IReal other, int precision);
     
     /**
      * Integer division if both the receiver and the argument are integers, and real division otherwise
      * @return this / other 
      */
-    INumber divide(IInteger other, int precision);
+    public INumber divide(IInteger other, int precision);
 
     /**
      * Rational division if both the receiver and the argument are integers/rationals, 
      * real division otherwise
      * @return this / other 
      */
-    INumber divide(IRational other, int precision);
+    public INumber divide(IRational other, int precision);
 
     /**
      * Returns an integer if both arguments are integer, and a real otherwise
      * @return -1 * this;
      */
-    INumber negate();
+    public INumber negate();
     
     /**
      * @param precision the precision of the result. This parameter may be ignored if another source of an accurate precision is available.
      * @return an IReal that is equal to this INumber
      */
-    IReal  toReal(int precision);
+    public IReal  toReal(int precision);
     
     /**
      * @return an IInteger (truncated if it was a real value)
      */
-    IInteger toInteger();
+    public IInteger toInteger();
 
     /**
      * @return an IRational (truncated if it was a real value)
      */
-    IRational toRational();
+    public IRational toRational();
 
     /**
      * @return true iff the numbers are equal
      */
-    IBool equal(INumber other);
+    public IBool equal(INumber other);
     
     /**
      * @return true iff the numbers are equal
      */
-    IBool equal(IInteger other);
+    public IBool equal(IInteger other);
     
     /**
      * @return true iff the numbers are equal
      */
-    IBool equal(IReal other);
+    public IBool equal(IReal other);
     
     /**
      * @return true iff the numbers are equal
      */
-    IBool equal(IRational other);
+    public IBool equal(IRational other);
     
     /**
      * @return true iff this < other
      */
-    IBool less(INumber other);
+    public IBool less(INumber other);
     
     /**
      * @return true iff this < other
      */
-    IBool less(IReal other);
+    public IBool less(IReal other);
     
     /**
      * @return true iff this < other
      */
-    IBool less(IInteger other);
+    public IBool less(IInteger other);
 
     /**
      * @return true iff this < other
      */
-    IBool less(IRational other);
+    public IBool less(IRational other);
 
     /**
      * @return true iff this > other
      */
-    IBool greater(INumber other);
+    public IBool greater(INumber other);
     
     /**
      * @return true iff this > other
      */
-    IBool greater(IReal other);
+    public IBool greater(IReal other);
     
     /**
      * @return true iff this > other
      */
-    IBool greater(IInteger other);
+    public IBool greater(IInteger other);
 
     /**
      * @return true iff this > other
      */
-    IBool greater(IRational other);
+    public IBool greater(IRational other);
 
     /**
      * @return true iff this <= other
      */
-    IBool lessEqual(INumber other);
+    public IBool lessEqual(INumber other);
     
     /**
      * @return true iff this <= other
      */
-    IBool lessEqual(IReal other);
+    public IBool lessEqual(IReal other);
     
     /**
      * @return true iff this <= other
      */
-    IBool lessEqual(IInteger other);
+    public IBool lessEqual(IInteger other);
 
     /**
      * @return true iff this <= other
      */
-    IBool lessEqual(IRational other);
+    public IBool lessEqual(IRational other);
 
     /**
      * @return true iff this >= other
      */
-    IBool greaterEqual(INumber other);
+    public IBool greaterEqual(INumber other);
     
     /**
      * @return true iff this >= other
      */
-    IBool greaterEqual(IReal other);
+    public IBool greaterEqual(IReal other);
     
     /**
      * @return true iff this >= other
      */
-    IBool greaterEqual(IInteger other);
+    public IBool greaterEqual(IInteger other);
 
     /**
      * @return true iff this >= other
      */
-    IBool greaterEqual(IRational other);
+    public IBool greaterEqual(IRational other);
     
     /**
      * Returns an integer if the receiver was an integer, and a real otherwise
      * @return absolute value of this number
      */
-	INumber abs();
+    public INumber abs();
 	
 	/**
      * Compares two numbers
      * @param other
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
      */
-    int compare(INumber other);
+    public int compare(INumber other);
     
     /**
      * @return return -1, 0 or 1 iff this integer is less than, equal to or greater than zero.
      */
-    int signum();
+    public int signum();
 }

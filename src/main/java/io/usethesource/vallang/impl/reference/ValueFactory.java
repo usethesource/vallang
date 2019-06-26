@@ -109,7 +109,8 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		return new Node(name);
 	}
 	
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public INode node(String name, java.util.Map<String, IValue> annotations, IValue... children) {
 		checkNull(name);
 		checkNull(annotations);
@@ -132,18 +133,18 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		checkNull((Object[]) children);
 //		checkNull(keyArgValues); // fails; are null values allowed?
 		
-		return new Node(name, children.clone(), keyArgValues);
+		return new Node(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
 	}
 		
 	@Override
 	public IConstructor constructor(Type constructorType, IValue... children) {
 		checkNull(constructorType);
 		checkNull((Object[]) children);
-		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);
-		return new Constructor(instantiatedType, children);
+		return new Constructor(constructorType, children);
 	}
 	
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public IConstructor constructor(Type constructorType, java.util.Map<String,IValue> annotations, IValue... children) {
 		checkNull(constructorType);
 		checkNull(annotations);
@@ -158,14 +159,13 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     checkNull(kwParams);
     checkNull((Object[]) children);
         
-    return new Constructor(constructorType, children, kwParams);
+    return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
   }
 	
 	@Override
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
-		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);		
-		return new Constructor(instantiatedType);
+		return new Constructor(constructorType);
 	}
 
 	@Override
@@ -175,7 +175,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 
 	@Override
 	public String toString() {
-		return "VF_PDB_REFERENCE";
+		return "VALLANG_REFERENCE_FACTORY";
 	}
 	
 }

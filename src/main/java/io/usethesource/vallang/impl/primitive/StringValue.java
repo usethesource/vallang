@@ -30,16 +30,12 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * Find here the implementations of IString, which all are (must be) sub-classes of  {@link AbstractString}
@@ -799,16 +795,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
     }
 
-    private abstract static class AbstractString extends AbstractValue implements IString, IStringTreeNode, IIndentableString {
-
+    private abstract static class AbstractString implements IString, IStringTreeNode, IIndentableString {
+        @Override
+        public String toString() {
+            return defaultToString();
+        }
+        
         @Override
         public Type getType() {
             return STRING_TYPE;
-        }
-
-        @Override
-        public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-            return v.visitString(this);
         }
 
         @Override
@@ -834,26 +829,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public boolean match(IValue other) {
             return isEqual(other);
-        }
-
-        @Override
-        public boolean isAnnotatable() {
-            return false;
-        }
-
-        @Override
-        public IAnnotatable<? extends IValue> asAnnotatable() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean mayHaveKeywordParameters() {
-            return false;
-        }
-
-        @Override
-        public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-            throw new UnsupportedOperationException();
         }
 
         @Override

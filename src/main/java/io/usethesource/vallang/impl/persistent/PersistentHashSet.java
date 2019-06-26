@@ -16,18 +16,15 @@ import java.util.Objects;
 
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.util.EqualityComparator;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractSet;
-import io.usethesource.vallang.impl.DefaultRelationViewOnSet;
-import io.usethesource.vallang.impl.func.SetFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
 
-public final class PersistentHashSet extends AbstractSet {
+public final class PersistentHashSet implements ISet {
 
   private static final EqualityComparator<Object> equivalenceComparator =
       EqualityUtils.getEquivalenceComparator();
@@ -49,11 +46,14 @@ public final class PersistentHashSet extends AbstractSet {
     this.content = Objects.requireNonNull(content);
 
     assert checkDynamicType(elementTypeBag, content);
-    assert !(elementTypeBag.lub() == getTypeFactory().voidType() || content.isEmpty());
-
-//    assert this.content.getClass() == DefaultTrieSet.getTargetClass();
+    assert !(elementTypeBag.lub() == TF.voidType() || content.isEmpty());
   }
 
+  @Override
+  public String toString() {
+      return defaultToString();
+  }
+  
   private static final boolean checkDynamicType(final AbstractTypeBag elementTypeBag,
       final Set.Immutable<IValue> content) {
 
@@ -64,30 +64,18 @@ public final class PersistentHashSet extends AbstractSet {
 
     return expectedTypesEqual;
   }
-
+  
   @Override
-  public ISetRelation<ISet> asRelation() {
-    validateIsRelation(this);
-    return new DefaultRelationViewOnSet(getValueFactory(), this);
-  }
-
-  @Override
-  protected IValueFactory getValueFactory() {
-    return ValueFactory.getInstance();
+  public ISetWriter writer() {
+      return ValueFactory.getInstance().setWriter();
   }
 
   @Override
   public Type getType() {
     if (cachedSetType == null) {
-      final Type elementType = elementTypeBag.lub();
-
-      // consists collection out of tuples?
-      if (elementType.isFixedWidth()) {
-        cachedSetType = getTypeFactory().relTypeFromTuple(elementType);
-      } else {
-        cachedSetType = getTypeFactory().setType(elementType);
-      }
+        cachedSetType = TF.setType(elementTypeBag.lub());
     }
+    
     return cachedSetType;
   }
 
@@ -98,6 +86,7 @@ public final class PersistentHashSet extends AbstractSet {
 
   @Override
   public ISet insert(IValue value) {
+    @SuppressWarnings("deprecation")
     final Set.Immutable<IValue> contentNew =
         content.__insertEquivalent(value, equivalenceComparator);
 
@@ -111,6 +100,7 @@ public final class PersistentHashSet extends AbstractSet {
 
   @Override
   public ISet delete(IValue value) {
+    @SuppressWarnings("deprecation")
     final Set.Immutable<IValue> contentNew =
         content.__removeEquivalent(value, equivalenceComparator);
 
@@ -127,6 +117,7 @@ public final class PersistentHashSet extends AbstractSet {
     return content.size();
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public boolean contains(IValue value) {
     return content.containsEquivalent(value, equivalenceComparator);
@@ -141,45 +132,39 @@ public final class PersistentHashSet extends AbstractSet {
   public int hashCode() {
     return content.hashCode();
   }
-
+  
   @Override
   public boolean equals(Object other) {
-    if (other == this)
+    if (other == this) {
       return true;
-    if (other == null)
+    }
+    
+    if (other == null) {
       return false;
+    }
 
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
 
-      if (this.getType() != that.getType())
+      if (this.getType() != that.getType()) {
         return false;
+      }
 
-      if (this.size() != that.size())
+      if (this.size() != that.size()) {
         return false;
+      }
 
       return content.equals(that.content);
     }
 
     if (other instanceof ISet) {
-      ISet that = (ISet) other;
-
-      if (this.getType() != that.getType())
-        return false;
-
-      if (this.size() != that.size())
-        return false;
-
-      for (IValue e : that)
-        if (!content.contains(e))
-          return false;
-
-      return true;
+      return defaultEquals(other);
     }
 
     return false;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public boolean isEqual(IValue other) {
     if (other == this)
@@ -197,37 +182,19 @@ public final class PersistentHashSet extends AbstractSet {
     }
 
     if (other instanceof ISet) {
-      ISet that = (ISet) other;
-
-      if (this.size() != that.size())
-        return false;
-
-      for (IValue e : that)
-        if (!content.containsEquivalent(e, equivalenceComparator))
-          return false;
-
-      return true;
+      return ISet.super.isEqual(other);
     }
 
     return false;
   }
   
-  @Override
-  public boolean match(IValue other) {
-      if (!(other instanceof ISet)) {
-          return false;
-      }
-      return SetFunctions.match(getValueFactory(), this, other);
-  }
-
-
+  @SuppressWarnings("deprecation")
   @Override
   public ISet union(ISet other) {
-    if (other == this)
+    if (other == this) {
       return this;
-    if (other == null)
-      return this;
-
+    }
+    
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
 
@@ -263,16 +230,16 @@ public final class PersistentHashSet extends AbstractSet {
       }
       return def;
     } else {
-      return super.union(other);
+      return ISet.super.union(other);
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public ISet intersect(ISet other) {
-    if (other == this)
+    if (other == this) {
       return this;
-    if (other == null)
-      return EmptySet.EMPTY_SET;
+    }
 
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
@@ -311,11 +278,12 @@ public final class PersistentHashSet extends AbstractSet {
       }
       return def;
     } else {
-      return super.intersect(other);
+      return ISet.super.intersect(other);
     }
   }
 
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   public ISet subtract(ISet other) {
     if (other == this)
       return EmptySet.EMPTY_SET;
@@ -350,20 +318,12 @@ public final class PersistentHashSet extends AbstractSet {
       }
       return def;
     } else {
-      return super.subtract(other);
+      return ISet.super.subtract(other);
     }
   }
-
+  
   @Override
-  public ISet product(ISet that) {
-    // TODO Auto-generated method stub
-    return super.product(that);
-  }
-
-  @Override
-  public boolean isSubsetOf(ISet that) {
-    // TODO Auto-generated method stub
-    return super.isSubsetOf(that);
-  }
-
+    public IRelation<ISet> asRelation() {
+        return new PersistentSetRelation(this);
+    }
 }

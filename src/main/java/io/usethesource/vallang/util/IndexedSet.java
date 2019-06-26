@@ -33,7 +33,8 @@ public final class IndexedSet<E>{
 	/**
 	 * Constructor.
 	 */
-	public IndexedSet(){
+	@SuppressWarnings("unchecked")
+    public IndexedSet(){
 		super();
 		
 		modSize = INITIAL_LOG_SIZE;
@@ -50,7 +51,8 @@ public final class IndexedSet<E>{
 		modSize++;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		Entry<E>[] newData = (Entry<E>[]) new Entry[tableSize];
+		@SuppressWarnings("unchecked")
+        Entry<E>[] newData = (Entry<E>[]) new Entry[tableSize];
 
 		threshold = tableSize;
 		

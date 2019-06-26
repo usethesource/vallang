@@ -18,6 +18,7 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.reference;
 
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import io.usethesource.vallang.IMap;
@@ -25,56 +26,40 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedMapKeyTypeException;
-import io.usethesource.vallang.exceptions.UnexpectedMapValueTypeException;
-import io.usethesource.vallang.impl.AbstractWriter;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.util.AbstractTypeBag;
 
-/*package*/ class MapWriter extends AbstractWriter implements IMapWriter {
-	private Type staticMapType;
-	private Type staticKeyType;
-	private Type staticValueType;
-	private final boolean inferred;
+/*package*/ class MapWriter implements IMapWriter {
+	private AbstractTypeBag keyTypeBag;
+    private AbstractTypeBag valTypeBag;
 	private final java.util.HashMap<IValue, IValue> mapContent;
 	private Map constructedMap;
 
-	/*package*/ MapWriter(){
+	/*package*/ MapWriter() {
 		super();
 		
-		this.staticMapType = TypeFactory.getInstance().mapType(
-				TypeFactory.getInstance().voidType(),
-				TypeFactory.getInstance().voidType());
-		this.staticKeyType = TypeFactory.getInstance().voidType();
-		this.staticValueType = TypeFactory.getInstance().voidType();
-		this.inferred = true;
+		keyTypeBag = AbstractTypeBag.of();
+        valTypeBag = AbstractTypeBag.of();
 		
 		mapContent = new java.util.HashMap<>();
 	}
 
-	/*package*/ MapWriter(Type mapType){
-		super();
-		
-		if(mapType.isFixedWidth() && mapType.getArity() >= 2) {
-			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
-		}
-		
-		this.staticMapType = mapType;
-		this.staticKeyType = mapType.getKeyType();
-		this.staticValueType = mapType.getValueType();
-		this.inferred = false;
-		
-		mapContent = new java.util.HashMap<>();
+	@Override
+	public Iterator<IValue> iterator() {
+	    return mapContent.keySet().iterator();
 	}
 	
-	private static void check(Type key, Type value, Type keyType, Type valueType)
-			throws FactTypeUseException {
-		if (!key.isSubtypeOf(keyType)) {
-			throw new UnexpectedMapKeyTypeException(keyType, key);
-		}
-		if (!value.isSubtypeOf(valueType)) {
-			throw new UnexpectedMapValueTypeException(valueType, value);
-		}
+	@Override
+	public IValue get(IValue key) {
+	    return mapContent.get(key);
+	}
+	
+	@Override
+	public void insertTuple(IValue... fields) {
+	    if (fields.length != 2) {
+	        throw new IllegalArgumentException("can only insert tuples of arity 2 into a map");
+	    }
+	    
+	    put(fields[0], fields[1]);
 	}
 	
 	private void checkMutation() {
@@ -95,11 +80,15 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	private void updateTypes(IValue key, IValue value) {
-		if (inferred) {
-			staticKeyType = staticKeyType.lub(key.getType());
-			staticValueType = staticValueType.lub(value.getType());
-		}
-		
+	    if (mapContent.containsKey(key)) {
+	        // key will be overwritten, so the corresponding value must be subtracted from the type bag too
+	        valTypeBag = valTypeBag.decrease(mapContent.get(key).getType());
+	        valTypeBag = valTypeBag.increase(value.getType());
+	    }
+	    else {
+	        keyTypeBag = keyTypeBag.increase(key.getType());
+	        valTypeBag = valTypeBag.increase(value.getType());
+	    }
 	}
 
 	@Override
@@ -108,7 +97,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		for(Entry<IValue, IValue> entry : map.entrySet()){
 			IValue value = entry.getValue();
 			updateTypes(entry.getKey(), value);
-			check(entry.getKey().getType(), value.getType(), staticKeyType, staticValueType);
 			mapContent.put(entry.getKey(), value);
 		}
 	}
@@ -116,13 +104,13 @@ import io.usethesource.vallang.type.TypeFactory;
 	@Override
 	public void put(IValue key, IValue value) throws FactTypeUseException{
 		checkMutation();
-		updateTypes(key,value);
+		updateTypes(key, value);
 		mapContent.put(key, value);
 	}
 	
 	@Override
 	public void insert(IValue... value) throws FactTypeUseException {
-		for(IValue tuple : value){
+		for (IValue tuple : value) {
 			ITuple t = (ITuple) tuple;
 			IValue key = t.get(0);
 			IValue value2 = t.get(1);
@@ -133,21 +121,8 @@ import io.usethesource.vallang.type.TypeFactory;
 	
 	@Override
 	public IMap done(){
-		// Temporary fix of the static vs dynamic type issue
-		Type dynamicKeyType = TypeFactory.getInstance().voidType();
-		Type dynamicValueType = TypeFactory.getInstance().voidType();
-		for (java.util.Map.Entry<IValue, IValue> entry : mapContent.entrySet()) {
-			dynamicKeyType = dynamicKeyType.lub(entry.getKey().getType());
-			dynamicValueType = dynamicValueType.lub(entry.getValue().getType());
-		}
-		// ---
-		
 		if (constructedMap == null) {
-			Type dynamicMapType = TypeFactory.getInstance().mapType(
-					dynamicKeyType, staticMapType.getKeyLabel(),
-					dynamicValueType, staticMapType.getValueLabel());
-
-			constructedMap = new Map(dynamicMapType, mapContent);
+			constructedMap = new Map(IMap.TF.mapType(keyTypeBag.lub(), valTypeBag.lub()), mapContent);
 		}
 
 		return constructedMap;

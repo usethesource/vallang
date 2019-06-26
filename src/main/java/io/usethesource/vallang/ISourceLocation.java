@@ -14,6 +14,8 @@ package io.usethesource.vallang;
 
 import java.net.URI;
 
+import io.usethesource.vallang.visitors.IValueVisitor;
+
 /**
  * Source locations point to (parts of) files that contain source code.
  * Technically, the contents of the file does not have to be source code per se.
@@ -30,17 +32,52 @@ public interface ISourceLocation extends IValue {
 	 * @return exact url where the source is located. The particular encoding of
 	 * the URL is not specified.
 	 */
-    URI getURI();
+    public URI getURI();
 
-    String getScheme();
-	String getAuthority();
-	String getPath();
-	String getFragment();
-	String getQuery();
-	Boolean hasAuthority();
-	Boolean hasPath();
-	Boolean hasFragment();
-	Boolean hasQuery();
+    /**
+     * @return the scheme of the URI
+     */
+    public String getScheme();
+    
+    /**
+     * @return the authority of the URI or "" if it does not exist
+     */
+	public String getAuthority();
+	
+	/**
+	 * @return the path of the URI or "" if it does not exist
+	 */
+	public String getPath();
+	
+	/**
+	 * @return the fragment of the URI or "" if it does not exist
+	 */
+	public String getFragment();
+	
+	/**
+	 * @return the query part of the URI or "" if it does not exist
+	 */
+	public String getQuery();
+	
+	/**
+	 * @return true iff the URI has an authority part
+	 */
+	public boolean hasAuthority();
+	
+	/**
+     * @return true iff the URI has an path part
+     */
+	public boolean hasPath();
+	
+	/**
+     * @return true iff the URI has an fragment part
+     */
+	public boolean hasFragment();
+	
+	/**
+     * @return true iff the URI has a query part
+     */
+	public boolean hasQuery();
     
     
     /**
@@ -57,38 +94,49 @@ public interface ISourceLocation extends IValue {
     /**
      * @return the character offset starting from the beginning of the file located 
      * at the given url. Offsets start at 0 (zero).
+     * @throws UnsupportedOperationException
      */
-    int getOffset() throws UnsupportedOperationException;
+    public int getOffset();
     
     /**
      * @return the character length of the location (the amount characters).
+     * @throws UnsupportedOperationException
      */
-    int getLength() throws UnsupportedOperationException;
+    public int getLength();
 
     /**
      * @return the (inclusive) line number where the location begins. The first
      * line is always line number 1.
+     * @throws UnsupportedOperationException
      */
-    int getBeginLine() throws UnsupportedOperationException;
+    public int getBeginLine();
     
     /**
      * @return the (exclusive) line where the location ends
+     * @throws UnsupportedOperationException
      */
-    int getEndLine() throws UnsupportedOperationException;
+    public int getEndLine();
 
     /**
      * @return the (inclusive) column number where the location begins. The
      * first column is always column number 0 (zero).
+     * @throws UnsupportedOperationException
      */
-    int getBeginColumn() throws UnsupportedOperationException;
+    public int getBeginColumn();
     
     /**
      * @return the (exclusive) column number where the location ends.
+     * @throws UnsupportedOperationException
      */
-    int getEndColumn() throws UnsupportedOperationException;
+    public int getEndColumn();
 
     /**
      * @return the source location without any offset & length information.
      */
-	ISourceLocation top();
+    public ISourceLocation top();
+    
+    @Override
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitSourceLocation(this);
+    }
 }

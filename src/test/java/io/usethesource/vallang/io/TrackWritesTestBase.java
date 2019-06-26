@@ -1,9 +1,10 @@
 package io.usethesource.vallang.io;
 
-import io.usethesource.vallang.io.binary.util.TrackLastWritten;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import io.usethesource.vallang.io.binary.util.TrackLastWritten;
 
 public abstract class TrackWritesTestBase {
 
@@ -87,7 +88,7 @@ public abstract class TrackWritesTestBase {
         for (int i = 0; i < elements.length; i++) {
             w.write(elements[i]);
             for (int j = 0; j < Math.min(windowSize, i); j++) {
-                assertEquals("Looking back: "+ j + " after " + i + "written", j, w.howLongAgo(elements[i - j]));
+                assertEquals(j, w.howLongAgo(elements[i - j]), "Looking back: "+ j + " after " + i + "written");
             }
         }
     }

@@ -31,14 +31,14 @@ final class MapWriter implements IMapWriter {
 	private static final EqualityComparator<Object> equivalenceComparator =
 			EqualityUtils.getEquivalenceComparator();
 
-	protected AbstractTypeBag keyTypeBag;
-	protected AbstractTypeBag valTypeBag;
-	protected final Map.Transient<IValue, IValue> mapContent;
+	private AbstractTypeBag keyTypeBag;
+	private AbstractTypeBag valTypeBag;
+	private final Map.Transient<IValue, IValue> mapContent;
 
-	protected final boolean checkUpperBound;
-	protected final Type upperBoundKeyType;
-	protected final Type upperBoundValType;
-	protected IMap constructedMap;
+	private final boolean checkUpperBound;
+	private final Type upperBoundKeyType;
+	private final Type upperBoundValType;
+	private IMap constructedMap;
 
 	MapWriter() {
 		super();
@@ -53,11 +53,8 @@ final class MapWriter implements IMapWriter {
 		constructedMap = null;
 	}
 
-	MapWriter(Type prototypeType) {
-		this();
-	}
-
 	@Override
+	@SuppressWarnings("deprecation")
 	public void put(IValue key, IValue value) {
 		checkMutation();
 
@@ -148,4 +145,19 @@ final class MapWriter implements IMapWriter {
 
 		return constructedMap;
 	}
+
+    @Override
+    public void insertTuple(IValue... fields) {
+        insert(ValueFactory.getInstance().tuple(fields));
+    }
+
+    @Override
+    public Iterator<IValue> iterator() {
+        return mapContent.keyIterator();
+    }
+    
+    @Override
+    public IValue get(IValue key) {
+        return mapContent.get(key);
+    }
 }

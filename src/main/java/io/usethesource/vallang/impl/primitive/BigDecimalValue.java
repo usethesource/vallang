@@ -29,7 +29,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.util.BigDecimalCalculations;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*
  * TODO: provide specializations for smaller values, similar to IntegerValue / BigIntegerValue.
@@ -298,11 +297,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return compare(other.toReal(value.precision()));
 	}
 	
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return v.visitReal(this);
-	}
-
 	/*
 	 * Description and implementation from the (now removed) reference implementation:
 	 *

@@ -18,15 +18,14 @@ import java.util.Objects;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractMap;
-import io.usethesource.vallang.impl.func.MapFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
 
-public final class PersistentHashMap extends AbstractMap {
+public final class PersistentHashMap implements IMap {
 
 	private static final EqualityComparator<Object> equivalenceComparator =
 			EqualityUtils.getEquivalenceComparator();
@@ -49,11 +48,12 @@ public final class PersistentHashMap extends AbstractMap {
 	}
 	
 	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
+	public String toString() {
+	    return defaultToString();
 	}
-
+	
 	@Override
+	@SuppressWarnings("deprecation")
 	public Type getType() {
 		if (cachedMapType == null) {
 			final Type keyType = keyTypeBag.lub();
@@ -63,9 +63,9 @@ public final class PersistentHashMap extends AbstractMap {
 			final String valLabel = valTypeBag.getLabel();
 
 			if (keyLabel != null && valLabel != null) {
-				cachedMapType = getTypeFactory().mapType(keyType, keyLabel, valType, valLabel);
+				cachedMapType = TF.mapType(keyType, keyLabel, valType, valLabel);
 			} else { 
-				cachedMapType = getTypeFactory().mapType(keyType, valType);
+				cachedMapType = TF.mapType(keyType, valType);
 			}
 		}
 		return cachedMapType;		
@@ -77,6 +77,7 @@ public final class PersistentHashMap extends AbstractMap {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public IMap put(IValue key, IValue value) {
 		final Map.Immutable<IValue,IValue> contentNew =
 				content.__putEquivalent(key, value, equivalenceComparator);
@@ -102,6 +103,7 @@ public final class PersistentHashMap extends AbstractMap {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public IMap removeKey(IValue key) {
 	    final Map.Immutable<IValue, IValue> newContent = 
 				content.__removeEquivalent(key, equivalenceComparator);
@@ -123,16 +125,19 @@ public final class PersistentHashMap extends AbstractMap {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public boolean containsKey(IValue key) {
 		return content.containsKeyEquivalent(key, equivalenceComparator);
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public boolean containsValue(IValue value) {
 		return content.containsValueEquivalent(value, equivalenceComparator);
 	}
 	
 	@Override
+	 @SuppressWarnings("deprecation")
 	public IValue get(IValue key) {
 		return content.getEquivalent(key, equivalenceComparator);
 	}
@@ -162,29 +167,14 @@ public final class PersistentHashMap extends AbstractMap {
 		}
 		
 		if (other instanceof IMap) {
-			IMap that = (IMap) other;
-
-			if (this.getType() != that.getType())
-				return false;
-			
-			if (this.size() != that.size())
-				return false;
-			
-			for (IValue e : that) {
-	            if (!content.containsKey(e)) {
-	                return false;
-	            } else if (!content.get(e).equals(that.get(e))) {
-	            	return false;
-	            }
-			}
-			
-	        return true;			
+			return defaultEquals(other);	
 		}
 		
 		return false;
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public boolean isEqual(IValue other) {
 		if (other == this)
 			return true;
@@ -201,34 +191,12 @@ public final class PersistentHashMap extends AbstractMap {
 		}
 
 		if (other instanceof IMap) {
-			IMap that = (IMap) other;
-
-			if (this.size() != that.size())
-				return false;
-
-			for (IValue e : that) {
-				if (!containsKey(e)) {
-					return false;
-				} else if (!get(e).isEqual(that.get(e))) {
-					return false;
-				}
-			}
-
-			return true;
+			return IMap.super.isEqual(other);
 		}
 
 		return false;
 	}
 	
-	@Override
-	public boolean match(IValue other) {
-	    if (!(other instanceof IMap)) {
-	        return false;
-	    }
-	    
-	    return MapFunctions.match(getValueFactory(), this, other);
-	}
-
 	@Override
 	public Iterator<IValue> iterator() {
 		return content.keyIterator();
@@ -256,6 +224,7 @@ public final class PersistentHashMap extends AbstractMap {
 	}	
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public IMap join(IMap other) {
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
@@ -314,32 +283,28 @@ public final class PersistentHashMap extends AbstractMap {
 				return this;
 			}
 		} else {
-			return super.join(other);
+			return IMap.super.join(other);
 		}
 	}
 	
-	@Override
-	public IMap remove(IMap that) {
-		// TODO Auto-generated method stub
-		return super.remove(that);
-	}
+    @Override
+    public Type getElementType() {
+        return keyTypeBag.lub();
+    }
 
-	@Override
-	public IMap compose(IMap that) {
-		// TODO Auto-generated method stub
-		return super.compose(that);
-	}
+    @Override
+    public IMap empty() {
+        return writer().done();
+    }
 
-	@Override
-	public IMap common(IMap that) {
-		// TODO Auto-generated method stub
-		return super.common(that);
-	}
+    @Override
+    public IMapWriter writer() {
+        return new MapWriter();
+    }
 
-	@Override
-	public boolean isSubMap(IMap that) {
-		// TODO Auto-generated method stub
-		return super.isSubMap(that);
-	}
+    @Override
+    public IRelation<IMap> asRelation() {
+        throw new UnsupportedOperationException();
+    }
 
 }

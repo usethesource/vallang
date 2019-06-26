@@ -12,6 +12,8 @@
  */ 
 package io.usethesource.vallang.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,10 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import io.usethesource.vallang.IReal;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -31,13 +32,14 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.io.binary.util.StacklessStructuredVisitor;
 import io.usethesource.vallang.io.binary.util.StructuredIValueVisitor;
 import io.usethesource.vallang.io.reference.ReferenceStructuredIValueVisitor;
@@ -45,29 +47,15 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
 
-import static org.junit.Assert.assertEquals;
-
-@RunWith(Parameterized.class)
 public class StacklessStructuredVisitorTest {
 
-  @Parameterized.Parameters
-  public static Iterable<? extends Object> data() {
-    return Setup.valueFactories();
-  }
-
-    private final IValueFactory vf;
-
-    public StacklessStructuredVisitorTest(IValueFactory vf) {
-        this.vf = vf;
-    }
-
-    @Test
-    public void singleString() {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void singleString(IValueFactory vf) {
         testVisitStructure(vf.string("a"));
     }
 
-    @Test
-    public void nodeWithAnnotations() {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void nodeWithAnnotations(IValueFactory vf) {
         Map<String, IValue> kws = new HashMap<>();
         kws.put("arg1", vf.integer(2));
         kws.put("arg2", vf.integer(3));
@@ -75,27 +63,27 @@ public class StacklessStructuredVisitorTest {
     }
 
 
-    @Test
-    public void listWithTwoElements() {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void listWithTwoElements(IValueFactory vf) {
         testVisitStructure(vf.list(vf.string("a"), vf.list()));
     }
     
-    @Test
-    public void correctOrderSmallValues() {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void correctOrderSmallValues(IValueFactory vf) {
         for (IValue v: RandomValues.getTestValues(vf)) {
             testVisitStructure(v);
         }
     }
 
-    @Test
-    public void correctOrderSmallValuesSkipping() {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void correctOrderSmallValuesSkipping(IValueFactory vf) {
         for (IValue v: RandomValues.getTestValues(vf)) {
             testVisitStructureSkipped(v);
         }
     }
     
-    @Test
-    public void randomValuesCorrect() {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void randomValuesCorrect(IValueFactory vf) {
         TypeStore ts = new TypeStore();
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random();
@@ -103,8 +91,8 @@ public class StacklessStructuredVisitorTest {
             testVisitStructure(RandomValues.generate(tp, ts, vf, r, 10, true));
         }
     }
-    @Test
-    public void randomValuesCorrectSkipping() {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void randomValuesCorrectSkipping(IValueFactory vf) {
         TypeStore ts = new TypeStore();
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random();
@@ -282,7 +270,7 @@ public class StacklessStructuredVisitorTest {
     }
 
     private void compareLists(List<Object> expected, List<Object> actual) {
-        assertEquals("We should visit the same amount of elements", expected.size(), actual.size());
+        assertEquals(expected.size(), actual.size(), "We should visit the same amount of elements");
         for (int i=0; i < expected.size(); i++) {
             assertEquals(expected.get(i), actual.get(i));
         }

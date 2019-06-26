@@ -1,32 +1,22 @@
 package io.usethesource.vallang.basic;
 
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IReal;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueProvider;
 
-import static org.junit.Assert.assertTrue;
-
-@RunWith(Parameterized.class)
 public final class BigDecimalCalculationSmokeTest {
-
-  @Parameterized.Parameters
-  public static Iterable<? extends Object> data() {
-    return Setup.valueFactories();
-  }
-
-  private final IValueFactory vf;
-
-  public BigDecimalCalculationSmokeTest(final IValueFactory vf) {
-    this.vf = vf;
-  }
 
   private static void assertClose(INumber param, IReal actual, double expected) {
     assertClose(param, actual, expected, 6);
@@ -42,12 +32,11 @@ public final class BigDecimalCalculationSmokeTest {
 
     double maxError = Math.pow(10, order - significantDigits);
 
-    assertTrue("failed for " + param + " real:" + actual + " double: " + expected,
-        Math.abs(actual.doubleValue() - expected) < maxError);
+    assertTrue(Math.abs(actual.doubleValue() - expected) < maxError, () -> "failed for " + param + " real:" + actual + " double: " + expected);
   }
 
-  @Test
-  public void testSinComparableToFloatingPoint() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testSinComparableToFloatingPoint(IValueFactory vf) {
     IReal start = vf.real(-100);
     IReal stop = start.negate();
     IReal increments = vf.real("0.1");
@@ -56,8 +45,8 @@ public final class BigDecimalCalculationSmokeTest {
     }
   }
 
-  @Test
-  public void testCosComparableToFloatingPoint() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testCosComparableToFloatingPoint(IValueFactory vf) {
     IReal start = vf.real(-100);
     IReal stop = start.negate();
     IReal increments = vf.real("0.1");
@@ -66,8 +55,8 @@ public final class BigDecimalCalculationSmokeTest {
     }
   }
 
-  @Test
-  public void testTanComparableToFloatingPoint() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testTanComparableToFloatingPoint(IValueFactory vf) {
     IReal start = vf.pi(vf.getPrecision()).divide(vf.real(2.0), vf.getPrecision()).negate();
     IReal stop = start.negate();
     IReal increments = vf.real("0.01");
@@ -84,8 +73,8 @@ public final class BigDecimalCalculationSmokeTest {
     return Math.log(x) / Math.log(2);
   }
 
-  @Test
-  public void testLog2ComparableToFloatingPoint() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testLog2ComparableToFloatingPoint(IValueFactory vf) {
     IReal start = vf.real(0);
     IReal stop = vf.real(100);
     IReal increments = vf.real("0.1");
@@ -95,8 +84,8 @@ public final class BigDecimalCalculationSmokeTest {
     }
   }
 
-  @Test
-  public void testLog10ComparableToFloatingPoint() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testLog10ComparableToFloatingPoint(IValueFactory vf) {
     IReal start = vf.real(0);
     IReal stop = vf.real(100);
     IReal increments = vf.real("0.1");
@@ -107,8 +96,8 @@ public final class BigDecimalCalculationSmokeTest {
     }
   }
 
-  @Test
-  public void testLnComparableToFloatingPoint() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testLnComparableToFloatingPoint(IValueFactory vf) {
     IReal start = vf.real(0);
     IReal stop = vf.real(100);
     IReal increments = vf.real("0.1");
@@ -118,8 +107,8 @@ public final class BigDecimalCalculationSmokeTest {
     }
   }
 
-  @Test
-  public void testPowAllNumbers() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testPowAllNumbers(IValueFactory vf) {
     IReal start = vf.real(-10);
     IReal stop = start.negate();
     IReal increments = vf.real("0.1");
@@ -131,8 +120,8 @@ public final class BigDecimalCalculationSmokeTest {
     }
   }
 
-  @Test
-  public void testPowNaturalNumbers() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testPowNaturalNumbers(IValueFactory vf) {
     IInteger start = vf.integer(-10);
     IInteger stop = start.negate();
     IInteger increments = vf.integer(1);
@@ -143,8 +132,8 @@ public final class BigDecimalCalculationSmokeTest {
     }
   }
 
-  @Test
-  public void testExpComparableToFloatingPoint() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testExpComparableToFloatingPoint(IValueFactory vf) {
     IReal start = vf.real(-100);
     IReal stop = start.negate();
     IReal increments = vf.real("0.1");
@@ -169,14 +158,14 @@ public final class BigDecimalCalculationSmokeTest {
       t.start();
       if (!done.tryAcquire(seconds, TimeUnit.SECONDS)) {
         t.interrupt();
-        assertTrue(call + " took more than 2 second.", false);
+        fail(call + " took more than 2 second.");
       }
     } catch (InterruptedException e) {
     }
   }
 
-  @Test
-  public void testExpPerformance() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testExpPerformance(IValueFactory vf) {
     // exp(x) is small for negative x
     IReal start = vf.pi(20).multiply(vf.real(10));
     IReal stop = start.subtract(start.multiply(vf.real(100)));
@@ -193,8 +182,8 @@ public final class BigDecimalCalculationSmokeTest {
 
   }
 
-  @Test
-  public void testLnPerformance() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testLnPerformance(IValueFactory vf) {
     // ln(x) is small for low x
     IReal start = vf.pi(50).multiply(vf.real(10).pow(vf.integer(8)));
     IReal stop = start.divide(vf.real(10).pow(vf.integer(30)), vf.getPrecision());

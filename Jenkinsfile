@@ -14,7 +14,7 @@ node {
         }
 
         stage ('sonar cloud') {
-            sh "mvn -DskipTests sonar:sonar -Dsonar.projectKey=usethesource_vallang -Dsonar.organization=usethesource  -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${VALLANG_SONAR_CLOUD}"
+          sh "mvn -DskipTests sonar:sonar -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.projectKey=usethesource_vallang -Dsonar.organization=usethesource  -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${VALLANG_SONAR_CLOUD}"
         }
     
         stage('Deploy') {

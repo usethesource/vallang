@@ -11,13 +11,21 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
+import java.util.Map;
+
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.impl.primitive.AbstractPrimitiveValueFactory;
 import io.usethesource.vallang.type.Type;
 
-public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory {
+public class ValueFactory extends AbstractPrimitiveValueFactory {
 
 	protected ValueFactory() {
 		super();
@@ -31,38 +39,88 @@ public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory
 		return InstanceKeeper.instance;
 	}
 
-	public ISetWriter setWriter(Type upperBoundType) {
-		return new SetWriter(upperBoundType, (a,b) -> tuple(a,b));
-	}
+	@Override
+    public IListWriter listWriter() {
+        return new ListWriter();
+    }
+    
+    @Override
+    public IList list(IValue... elements){
+        IListWriter listWriter = listWriter();
+        listWriter.append(elements);
+        
+        return listWriter.done();
+    }
 
+    @Override
+    public ISet set(IValue... elements){
+        ISetWriter setWriter = setWriter();
+        setWriter.insert(elements);
+        return setWriter.done();
+    }
+    
+    @Override
+    public INode node(String name) {
+        return Node.newNode(name, new IValue[0]);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public INode node(String name, Map<String, IValue> annos, IValue... children) {
+        return Node.newNode(name, children.clone()).asAnnotatable().setAnnotations(annos);
+    }
+
+    @Override
+    public INode node(String name, IValue... children) {
+        return Node.newNode(name, children.clone());
+    }
+    
+    @Override
+    public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
+        return Node.newNode(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
+    }
+    
+    @Override
+    public IConstructor constructor(Type constructorType) {
+        return Constructor.newConstructor(constructorType, new IValue[0]);
+    }
+    
+    @Override
+    public IConstructor constructor(Type constructorType, IValue... children){
+        return Constructor.newConstructor(constructorType, children.clone());
+    }
+    
+    @Override
+    public IConstructor constructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams){
+        return Constructor.newConstructor(constructorType, children.clone(), kwParams);
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Override
+    public IConstructor constructor(Type constructorType,
+            Map<String, IValue> annotations, IValue... children) {
+        return Constructor.newConstructor(constructorType, children.clone()).asAnnotatable().setAnnotations(annotations);
+    }
+    
+    @Override
+    public ITuple tuple() {
+        return Tuple.newTuple();
+    }
+
+    @Override
+    public ITuple tuple(IValue... args) {
+        return Tuple.newTuple(args.clone());
+    }
+
+    @Deprecated
+    @Override
+    public ITuple tuple(Type type, IValue... args) {
+        return Tuple.newTuple(args.clone());
+    }
+
+	@Override
 	public ISetWriter setWriter() {
 		return new SetWriter((a,b) -> tuple(a,b));
-	}
-
-	public ISetWriter relationWriter(Type upperBoundType) {
-		return setWriter(upperBoundType);
-	}
-
-	public ISetWriter relationWriter() {
-		return new SetWriter((a,b) -> tuple(a,b));
-	}
-
-	public ISet set(Type elementType) {
-		return setWriter().done();
-	}
-
-	public ISet set(IValue... elements) {
-		ISetWriter setWriter = setWriter();
-		setWriter.insert(elements);
-		return setWriter.done();
-	}
-
-	public ISet relation(Type tupleType) {
-		return relationWriter(tupleType).done();
-	}
-
-	public ISet relation(IValue... elements) {
-		return set(elements);
 	}
 
 	@Override
@@ -72,7 +130,6 @@ public class ValueFactory extends io.usethesource.vallang.impl.fast.ValueFactory
 
 	@Override
 	public String toString() {
-		return "VF_PDB_PERSISTENT";
+		return "VALLANG_PERSISTENT_FACTORY";
 	}
-
 }

@@ -25,7 +25,7 @@ public interface IWithKeywordParameters<T extends IValue> {
 	 * @param label identifies the parameter
 	 * @return a value if the parameter has a value on this node or null otherwise
 	 */
-	public IValue getParameter(String label) throws FactTypeUseException;
+	public IValue getParameter(String label);
 	
 	/**
 	 * Set the value of an parameter
@@ -35,7 +35,7 @@ public interface IWithKeywordParameters<T extends IValue> {
 	 * @return a new node where the value of the parameter is replaced (if previously present) or newly added
 	 * @throws FactTypeUseException when the type of the new value is not comparable to the old parameter value
 	 */
-	public T setParameter(String label, IValue newValue) throws FactTypeUseException;
+	public T setParameter(String label, IValue newValue);
 
 	/**
 	 * Unset the value of an parameter
@@ -60,7 +60,7 @@ public interface IWithKeywordParameters<T extends IValue> {
 	 * @return true iff the parameter has a value on this node
 	 * @throws FactTypeUseException when no parameter with this label is defined for this type of node.
 	 */
-	public boolean hasParameter(String label) throws FactTypeUseException;
+	public boolean hasParameter(String label);
 
 	/**
 	 * Check whether any parameters are present.
@@ -75,20 +75,20 @@ public interface IWithKeywordParameters<T extends IValue> {
 	/**
 	 * @return an unmodifiable map for the keyword parameters
 	 */
-  Map<String, IValue> getParameters();
-  
-  /**
-   * 
-   * @param params
-   * @return
-   */
-  T setParameters(Map<String, IValue> params);
-  
-  /**
-   * Given an arbitrary other IWithKeywordParameters, compare the values of the
-   * parameters.
-   * @param other
-   * @return true iff the parameters are the same (same labels, same values)
-   */
-  <U extends IWithKeywordParameters<? extends IValue>> boolean equalParameters(U other);
+	Map<String, IValue> getParameters();
+
+	/**
+	 * 
+	 * @param params
+	 * @return
+	 */
+	T setParameters(Map<String, IValue> params);
+
+	/**
+	 * Given an arbitrary other IWithKeywordParameters, compare the values of the
+	 * parameters.
+	 * @param other
+	 * @return true iff the parameters are the same (same labels, same values)
+	 */
+	<U extends IWithKeywordParameters<? extends IValue>> boolean equalParameters(U other);
 }

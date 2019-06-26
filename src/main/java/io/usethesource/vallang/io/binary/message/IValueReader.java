@@ -141,6 +141,7 @@ public class IValueReader {
     private final TrackLastRead<IValue> valueWindow;
     private final TrackLastRead<ISourceLocation> uriWindow;
     
+    @SuppressWarnings("deprecation")
     private Type readType(final IWireInputStream reader) throws IOException{
         reader.next();
         switch (reader.message()) {
@@ -606,6 +607,7 @@ public class IValueReader {
         return returnAndStore(backReference, valueWindow, result.done());
     }
 
+    @SuppressWarnings("deprecation")
     private IValue readNode(final IWireInputStream reader) throws IOException {
         String name = null;
         IValue[] children = new IValue[0];

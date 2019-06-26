@@ -114,10 +114,10 @@ public class StandardTextReader extends AbstractTextReader {
 		    boolean escaped = current == '\\';
 		  String id = readIdentifier();
 		  
-		  if (!escaped && id.equals("true")) {
+		  if (!escaped && id.equals("true") && !expected.isAbstractData()) {
 		      return factory.bool(true);
 		  }
-		  else if (!escaped && id.equals("false")) {
+		  else if (!escaped && id.equals("false") && !expected.isAbstractData()) {
 		      return factory.bool(false);
 		  }
 		  else if (current == '=') {
@@ -745,7 +745,8 @@ public class StandardTextReader extends AbstractTextReader {
 		return factory.string(str);
 	}
 
-	private IValue readAnnos(Type expected, INode result) throws IOException {
+	@SuppressWarnings("deprecation")
+    private IValue readAnnos(Type expected, INode result) throws IOException {
 		current = stream.read();
 		
 		while (current != ']') {
@@ -813,7 +814,7 @@ public class StandardTextReader extends AbstractTextReader {
 		checkAndRead(end);
 	}
 
-	private IValue readContainer(Type elemType, IWriter w, char end) throws FactTypeUseException, IOException {
+	private IValue readContainer(Type elemType, IWriter<?> w, char end) throws FactTypeUseException, IOException {
 		current = stream.read();
 		while(current != end) {
 			w.insert(readValue(elemType));

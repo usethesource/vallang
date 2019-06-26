@@ -13,31 +13,25 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractList;
-import io.usethesource.vallang.impl.func.ListFunctions;
 import io.usethesource.vallang.type.Type;
 
-/*package*/ class List extends AbstractList {
+/*package*/ class List implements IList {
 
 	private final Type type;
 	private final java.util.List<IValue> content;
 
 	/*package*/ List(Type elementType, java.util.List<IValue> content) {
 		super();
-		this.type = inferListOrRelType(elementType, content);
+		this.type = TF.listType(elementType);
 		this.content = content;
 	}
 
 	@Override
 	public Type getType() {
 		return type;
-	}
-
-	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
 	}
 
 	@Override
@@ -67,17 +61,26 @@ import io.usethesource.vallang.type.Type;
 
 	@Override
 	public boolean equals(Object that) {
-		return ListFunctions.equals(getValueFactory(), this, that);
+		return defaultEquals(that);
 	}
 
 	@Override
-	public boolean isEqual(IValue that) {
-		return ListFunctions.isEqual(getValueFactory(), this, that);
+	public String toString() {
+	    return defaultToString();
 	}
 	
     @Override
-    public boolean match(IValue that) {
-        return ListFunctions.match(getValueFactory(), this, that);
+    public IListWriter writer() {
+        return new ListWriter();
     }
 
+    @Override
+    public int size() {
+        return content.size();
+    }
+
+    @Override
+    public Type getElementType() {
+        return type.getElementType();
+    }
 }

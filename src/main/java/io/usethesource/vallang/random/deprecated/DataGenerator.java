@@ -65,7 +65,8 @@ public class DataGenerator {
 	 * 
 	 * @return An iterator over values of the given type.
 	 */
-	public <T> Iterable<T> generate(Class<T> type, int n) {
+	@SuppressWarnings("unchecked")
+    public <T> Iterable<T> generate(Class<T> type, int n) {
 		if(staticValues.containsKey(type)) {
 			return new DataIterable<>((List<T>)staticValues.get(type), (RandomGenerator<T>)random.get(type), n);
 		}

@@ -20,23 +20,27 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractSet;
-import io.usethesource.vallang.impl.DefaultRelationViewOnSet;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
-public final class EmptySet extends AbstractSet {
-
+public final class EmptySet implements ISet {
+  private static final Type EMPTY_SET_TYPE = TypeFactory.getInstance().setType(TypeFactory.getInstance().voidType());
   public static final EmptySet EMPTY_SET = new EmptySet();
 
   private EmptySet() {}
 
   public static final ISet of() {
     return EMPTY_SET;
+  }
+
+  @Override
+  public String toString() {
+      return defaultToString();
   }
 
   public static final ISet of(final IValue firstElement) {
@@ -52,19 +56,13 @@ public final class EmptySet extends AbstractSet {
   }
 
   @Override
-  public ISetRelation<ISet> asRelation() {
-    validateIsRelation(this);
-    return new DefaultRelationViewOnSet(getValueFactory(), this);
-  }
-
-  @Override
-  protected IValueFactory getValueFactory() {
-    return ValueFactory.getInstance();
+  public ISetWriter writer() {
+      return ValueFactory.getInstance().setWriter();
   }
 
   @Override
   public Type getType() {
-    return getTypeFactory().setType(getTypeFactory().voidType());
+    return EMPTY_SET_TYPE;
   }
 
   @Override
@@ -141,6 +139,56 @@ public final class EmptySet extends AbstractSet {
   @Override
   public boolean isSubsetOf(ISet other) {
     return true;
+  }
+  
+  @Override
+  public IRelation<ISet> asRelation() {
+      return new IRelation<ISet>() {
+        @Override
+        public ISet asContainer() {
+            return EmptySet.this;
+        }
+        
+        @Override
+        public ISet compose(IRelation<ISet> that) {
+            return EmptySet.this;
+        }
+        
+        @Override
+        public ISet closure() {
+            return EmptySet.this;
+        }
+        
+        @Override
+        public ISet closureStar() {
+            return EmptySet.this;
+        }
+          
+        @Override
+        public ISet carrier() {
+            return EmptySet.this;
+        }
+        
+        @Override
+        public ISet domain() {
+            return EmptySet.this;
+        }
+        
+        @Override
+        public ISet range() {
+            return EmptySet.this;
+        }
+        
+        @Override
+        public ISet empty() {
+            return EmptySet.this;
+        }
+        
+        @Override
+        public ISet index(IValue key) {
+            return EmptySet.this;
+        }
+      };
   }
 
 }

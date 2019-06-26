@@ -20,10 +20,8 @@ import java.util.TimeZone;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.InvalidDateTimeException;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 
 /** A concrete instance of IDateTime, representing either a date,
@@ -41,7 +39,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new DateTimeValues.DateValue(year, month, day);
 	}
 	
-	private static class DateValue extends AbstractValue implements IDateTime {
+	private static class DateValue implements IDateTime {
 
 		private int year;
 		private int month;
@@ -76,11 +74,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public Type getType() {
 			return DATE_TIME_TYPE;
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			return v.visitDateTime(this);
 		}
 
 		@Override
@@ -257,7 +250,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset);
 	}
 	
-	private static class TimeValue extends AbstractValue implements IDateTime {
+	private static class TimeValue  implements IDateTime {
 
 		private int hour;
 		private int minute;
@@ -363,11 +356,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public Type getType() {
 			return DATE_TIME_TYPE;
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			return v.visitDateTime(this);
 		}
 
 		@Override
@@ -563,7 +551,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		return new DateTimeValues.DateTimeValue(instant, timezoneHours, timezoneMinutes);
 	}
 	
-	private static class DateTimeValue extends AbstractValue implements IDateTime {
+	private static class DateTimeValue  implements IDateTime {
 
 		private int year;
 		private int month;
@@ -683,13 +671,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 
 		@Override
+		public String toString() {
+		    return defaultToString();
+		}
+		
+		@Override
 		public Type getType() {
 			return DATE_TIME_TYPE;
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			return v.visitDateTime(this);
 		}
 
 		@Override

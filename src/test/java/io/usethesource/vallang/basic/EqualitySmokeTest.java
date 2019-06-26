@@ -12,59 +12,45 @@
 
 package io.usethesource.vallang.basic;
 
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.Setup;
+import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-@RunWith(Parameterized.class)
 public final class EqualitySmokeTest {
 
-  @Parameterized.Parameters
-  public static Iterable<? extends Object> data() {
-    return Setup.valueFactories();
-  }
-
-  private final IValueFactory vf;
-
-  public EqualitySmokeTest(final IValueFactory vf) {
-    this.vf = vf;
-  }
-
-  private TypeFactory tf = TypeFactory.getInstance();
-
-  @Test
-  public void testInteger() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testInteger(IValueFactory vf) {
     assertTrue(vf.integer(0).isEqual(vf.integer(0)));
     assertFalse(vf.integer(0).isEqual(vf.integer(1)));
   }
 
-  @Test
-  public void testDouble() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testDouble(IValueFactory vf) {
     assertTrue(vf.real(0.0).isEqual(vf.real(0.0)));
     assertTrue(vf.real(1.0).isEqual(vf.real(1.00000)));
     assertFalse(vf.real(0.0).isEqual(vf.real(1.0)));
   }
 
-  @Test
-  public void testString() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testString(IValueFactory vf) {
     assertTrue(vf.string("").isEqual(vf.string("")));
     assertTrue(vf.string("a").isEqual(vf.string("a")));
     assertFalse(vf.string("a").isEqual(vf.string("b")));
   }
 
-  @Test
-  public void testEmptyCollectionsAreVoid() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testEmptyCollectionsAreVoid(IValueFactory vf, TypeFactory tf) {
     assertTrue(vf.list().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.set().getElementType().isSubtypeOf(tf.voidType()));
     assertTrue(vf.map().getKeyType().isSubtypeOf(tf.voidType()));
@@ -76,10 +62,9 @@ public final class EqualitySmokeTest {
     assertTrue(vf.mapWriter().done().getValueType().isSubtypeOf(tf.voidType()));
   }
 
-  @Test
-  public void testList() {
-    assertTrue("empty lists are always equal",
-        vf.list().isEqual(vf.list()));
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testList(IValueFactory vf) {
+    assertTrue(vf.list().isEqual(vf.list()), "empty lists are always equal");
 
     assertTrue(vf.list(vf.integer(1)).isEqual(vf.list(vf.integer(1))));
     assertFalse(vf.list(vf.integer(1)).isEqual(vf.list(vf.integer(0))));
@@ -87,9 +72,9 @@ public final class EqualitySmokeTest {
     assertTrue(vf.list(vf.list()).isEqual(vf.list(vf.list())));
   }
 
-  @Test
-  public void testSet() {
-    assertTrue("empty sets are always equal", vf.set().isEqual(vf.set()));
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testSet(IValueFactory vf) {
+    assertTrue(vf.set().isEqual(vf.set()), "empty sets are always equal");
 
     assertTrue(vf.set(vf.integer(1)).isEqual(vf.set(vf.integer(1))));
     assertFalse(vf.set(vf.integer(1)).isEqual(vf.set(vf.integer(0))));
@@ -101,8 +86,8 @@ public final class EqualitySmokeTest {
    * Documenting the current relationship between Node and Constructor in terms of equality and hash
    * codes.
    */
-  @Test
-  public void testConstructorIsEqualToConstructor() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testConstructorIsEqualToConstructor(IValueFactory vf, TypeFactory tf) {
     final INode n = vf.node("constructorComparableName", vf.integer(1), vf.integer(2));
 
     final TypeStore ts = new TypeStore();
@@ -127,8 +112,8 @@ public final class EqualitySmokeTest {
     assertFalse(c.isEqual(n));
   }
   
-  @Test
-  public void testNodeMatch() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testNodeMatch(IValueFactory vf) {
       final INode n = vf.node("hello");
       final INode m = n.asWithKeywordParameters().setParameter("x", vf.integer(0));
       
@@ -165,8 +150,8 @@ public final class EqualitySmokeTest {
       assertTrue(map1.done().match(map2.done()));
   }
   
-  @Test
-  public void testConstructorMatch() {
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testConstructorMatch(IValueFactory vf, TypeFactory tf) {
       final TypeStore store = new TypeStore();
       final Type Hello = tf.abstractDataType(store, "Hello");
       final Type Cons = tf.constructor(store, Hello, "bye");

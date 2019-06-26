@@ -17,14 +17,14 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.reference;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
-import io.usethesource.vallang.impl.AbstractWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -32,56 +32,53 @@ import io.usethesource.vallang.type.TypeFactory;
  * This class does not guarantee thread-safety. Users must lock the writer object for thread safety.
  * It is thread-friendly however.
  */
-/*package*/ class ListWriter extends AbstractWriter implements IListWriter {
-    protected Type eltType;
-    protected final java.util.List<IValue> listContent;
+/*package*/ class ListWriter implements IListWriter {
+    private Type eltType;
+    private final java.util.List<IValue> listContent;
+    private IList constructedList;
+    private boolean unique;
 
-    protected IList constructedList;
-    private final boolean inferred;
-
-    /*package*/ ListWriter(Type eltType){
-        super();
-
-        this.eltType = eltType;
-        this.inferred = false;
-        listContent = new LinkedList<>();
-
-        constructedList = null;
-    }
-
-    /*package*/ ListWriter(){
+    /*package*/ ListWriter() {
         super();
 
         this.eltType = TypeFactory.getInstance().voidType();
-        inferred = true;
         listContent = new LinkedList<>();
 
         constructedList = null;
+        unique = false;
+    }
+    
+    private ListWriter(boolean unique) {
+        this();
+        this.unique = unique;
+    }
+    
+    @Override
+    public IWriter<IList> unique() {
+        return new ListWriter(true);
+    }
+    
+    @Override
+    public Iterator<IValue> iterator() {
+        return listContent.iterator();
     }
 
     private void checkMutation(){
         if(constructedList != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
     }
 
-    private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException{
-        Type type = elem.getType();
-        if(!type.isSubtypeOf(eltType)){
-            throw new UnexpectedElementTypeException(eltType, type);
+    private void put(int index, IValue elem) {
+        if (unique && listContent.contains(elem)) {
+            return;
         }
-    }
-
-    private void put(int index, IValue elem){
-        if (inferred) {
-            eltType = eltType.lub(elem.getType());
-        }
-        else {
-            checkInsert(elem, eltType);
-        }
+        
+        eltType = eltType.lub(elem.getType());
         listContent.add(index, elem);
     }
 
     public void insert(IValue elem) throws FactTypeUseException {
         checkMutation();
+       
         put(0, elem);
     }
 
@@ -100,7 +97,6 @@ import io.usethesource.vallang.type.TypeFactory;
 	public IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
         checkMutation();
         updateType(elem);
-        checkInsert(elem, eltType);
         return listContent.set(index, elem);
     }
 
@@ -115,9 +111,7 @@ import io.usethesource.vallang.type.TypeFactory;
         checkBounds(elems, start, length);
 
         for(int i = start + length - 1; i >= start; i--) {
-            if (inferred) {
-                eltType = eltType.lub(elems[i].getType());
-            }
+            eltType = eltType.lub(elems[i].getType());
             put(index, elems[i]);
         }
     }
@@ -142,30 +136,27 @@ import io.usethesource.vallang.type.TypeFactory;
             put(listContent.size(), elem);
         }
     }
+    
+    @Override
+    public void appendTuple(IValue... fields) {
+        append(new Tuple(fields));
+    }
 
     @Override
 	public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
         checkMutation();
 
         for(IValue v : collection){
-            updateType(v);
             put(listContent.size(), v);
         }
     }
 
     private void updateType(IValue v) {
-        if (inferred) {
-            eltType = eltType.lub(v.getType());
-        }
+        eltType = eltType.lub(v.getType());
     }
-
+    
     @Override
 	public IList done() {
-    	// Temporary fix of the static vs dynamic type issue
-    	eltType = TypeFactory.getInstance().voidType();
-    	for(IValue el : listContent)
-    		eltType = eltType.lub(el.getType());
-    	// ---
         if (constructedList == null) {
             constructedList = new List(eltType, listContent);
         }
@@ -186,6 +177,11 @@ import io.usethesource.vallang.type.TypeFactory;
     @Override
     public int length() {
     	return listContent.size();
+    }
+
+    @Override
+    public void insertTuple(IValue... fields) {
+        insert(ValueFactory.getInstance().tuple(fields));
     }
 
 }

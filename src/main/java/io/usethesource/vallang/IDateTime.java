@@ -10,6 +10,8 @@
 *******************************************************************************/
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.visitors.IValueVisitor;
+
 /**
  * Provides methods for accessing the components of a datetime value
  * (e.g., years, hours) and determining if the value represents a
@@ -126,4 +128,9 @@ public interface IDateTime extends IValue, Comparable<IDateTime> {
 	 * @return true if this is a datetime, false otherwise
 	 */
 	public boolean isDateTime();
+	
+	@Override
+	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+	    return v.visitDateTime(this);
+	}
 }

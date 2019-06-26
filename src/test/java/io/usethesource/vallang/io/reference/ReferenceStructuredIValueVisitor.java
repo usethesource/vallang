@@ -37,8 +37,8 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
-import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.io.binary.util.StructuredIValueVisitor;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -145,16 +145,17 @@ public class ReferenceStructuredIValueVisitor {
                         IWithKeywordParameters<? extends INode> okw = o.asWithKeywordParameters();
                         if(okw.hasParameters()){
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
-                            AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(okw);
+                            AbstractDefaultWithKeywordParameters<? extends INode> nodeKw = (AbstractDefaultWithKeywordParameters<? extends INode>)(okw);
                             Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterNodeKeywordParameters();
                             visitNamedValues(params);
                         }
                     } else {
+                        @SuppressWarnings("deprecation")
                         IAnnotatable<? extends INode> oan = o.asAnnotatable();
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
-                            AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)(oan);
+                            AbstractDefaultAnnotatable<? extends INode> nodeAnno = (AbstractDefaultAnnotatable<? extends INode>)(oan);
                             Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterNodeAnnotations();
                             visitNamedValues(annos);
@@ -192,16 +193,17 @@ public class ReferenceStructuredIValueVisitor {
                         IWithKeywordParameters<? extends IConstructor> okw = o.asWithKeywordParameters();
                         if(okw.hasParameters()){
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
-                            AbstractDefaultWithKeywordParameters<IConstructor> nodeKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(okw);
+                            AbstractDefaultWithKeywordParameters<? extends IConstructor> nodeKw = (AbstractDefaultWithKeywordParameters<? extends IConstructor>)(okw);
                             Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterConstructorKeywordParameters();
                             visitNamedValues(params);
                         }
                     } else {
+                        @SuppressWarnings("deprecation")
                         IAnnotatable<? extends IConstructor> oan = o.asAnnotatable();
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
-                            AbstractDefaultAnnotatable<IConstructor> nodeAnno = (AbstractDefaultAnnotatable<IConstructor>)(oan);
+                            AbstractDefaultAnnotatable<? extends IConstructor> nodeAnno = (AbstractDefaultAnnotatable<? extends IConstructor>)(oan);
                             Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterConstructorAnnotations();
                             visitNamedValues(annos);

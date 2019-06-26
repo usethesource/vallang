@@ -12,6 +12,7 @@
 package io.usethesource.vallang.impl.persistent;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -66,7 +67,7 @@ public class SetWriter implements ISetWriter {
 
   private final BiFunction<IValue, IValue, ITuple> constructTuple;
   
-  private static interface Builder {
+  private static interface Builder extends Iterable<IValue> {
       void put(IValue element, Type elementType);
       ISet done();
   }
@@ -85,6 +86,11 @@ public class SetWriter implements ISetWriter {
       @Override
       public ISet done() {
           return PersistentSetFactory.from(elementTypeBag, set.freeze());
+      }
+      
+      @Override
+      public Iterator<IValue> iterator() {
+          return set.iterator();
       }
   }
   
@@ -107,6 +113,11 @@ public class SetWriter implements ISetWriter {
       @Override
       public ISet done() {
           return PersistentSetFactory.from(keyTypeBag, valTypeBag, map.freeze());
+      }
+      
+      @Override
+      public Iterator<IValue> iterator() {
+          throw new UnsupportedOperationException();
       }
 
   }
@@ -213,6 +224,16 @@ public class SetWriter implements ISetWriter {
   @Override
   public String toString() {
     return setContent.toString();
+  }
+
+  @Override
+  public void insertTuple(IValue... fields) {
+      insert(Tuple.newTuple(fields));
+  }
+
+  @Override
+  public Iterator<IValue> iterator() {
+      return builder.iterator();
   }
 
 }

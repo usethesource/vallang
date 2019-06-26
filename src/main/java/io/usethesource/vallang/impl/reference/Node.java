@@ -13,22 +13,17 @@
 package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.impl.AbstractNode;
-import io.usethesource.vallang.impl.func.NodeFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * Naive implementation of an untyped tree node, using array of children.
  */
-/*package*/ class Node extends AbstractNode implements INode {
+/*package*/ class Node implements INode {
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 
 	@Override
@@ -40,14 +35,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	protected final IValue[] fChildren;
 	protected final String fName;
 	protected int fHash = 0;
-	protected final String[] keyArgNames;
 	
 	/*package*/ Node(String name, IValue[] children) {
 		super();
 		fType = TypeFactory.getInstance().nodeType();
 		fName = name;
 		fChildren = children.clone();
-		keyArgNames = null;
 	}
 		
 	protected Node(String name, Type type, IValue[] children) {
@@ -55,36 +48,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		fType = type;
 		fName = name;
 		fChildren = children.clone();
-		keyArgNames = null;
 	}
 	
-	/*package*/ Node(String name, IValue[] children, Map<String, IValue> keyArgValues){
-		super();
-		fType = TypeFactory.getInstance().nodeType();
-		fName = (name != null ? name.intern() : null); // Handle (weird) special case.
-		if(keyArgValues != null){
-			int nkw = keyArgValues.size();
-			IValue[] extendedChildren = new IValue[children.length + nkw];
-			for(int i = 0; i < children.length;i++){
-				extendedChildren[i] = children[i];
-			}
-
-			String keyArgNames[]= new String[nkw];
-			int k = 0;
-			for(String kw : keyArgValues.keySet()){
-				keyArgNames[k++] = kw;
-			}
-			for(int i = 0; i < nkw; i++){
-				extendedChildren[children.length + i] = keyArgValues.get(keyArgNames[i]);
-			}
-			this.fChildren = extendedChildren;
-			this.keyArgNames = keyArgNames;
-		} else {
-			this.fChildren = children;
-			this.keyArgNames = null;
-		}
-	}
-				
 	/*package*/ Node(String name) {
 		this(name, new IValue[0]);
 	}
@@ -101,22 +66,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fChildren[index] = newChild;
-		keyArgNames = null;
 	}
 	
 	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-		return v.visitNode(this);
+	public INode setChildren(IValue[] childArray) {
+	    return new Node(fName, childArray);
 	}
-
+	
 	@Override
 	public int arity() {
 		return fChildren.length;
-	}
-
-	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
 	}
 
 	@Override
@@ -187,14 +146,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public boolean isEqual(IValue value){
-		return NodeFunctions.isEqual(getValueFactory(), this, value);
+	public String toString() {
+	    return defaultToString();
 	}
-	
-	@Override
-    public boolean match(IValue value){
-        return NodeFunctions.match(getValueFactory(), this, value);
-    }
 	
 	public int computeHashCode() {
        int hash = fName != null ? fName.hashCode() : 0;

@@ -12,8 +12,8 @@
  */ 
 package io.usethesource.vallang.io;
 
-import io.usethesource.vallang.io.binary.util.TrackLastRead;
 import io.usethesource.vallang.io.binary.util.LinearCircularLookupWindow;
+import io.usethesource.vallang.io.binary.util.TrackLastRead;
 
 public class LinearCircularLookupWindowTest extends TrackReadsTestBase {
 

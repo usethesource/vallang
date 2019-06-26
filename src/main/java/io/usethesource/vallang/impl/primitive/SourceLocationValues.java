@@ -22,10 +22,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * This is a container class for a number of implementations of ISourceLocation. Each implementation is extremely similar to the others.
@@ -142,7 +140,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 	
 	
-	private abstract static class Incomplete extends AbstractValue implements ISourceLocation {
+	private abstract static class Incomplete implements ISourceLocation {
 		protected ISourceLocation root;
 
 		public Incomplete(ISourceLocation root) {
@@ -150,22 +148,22 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		}
 		
 		@Override
-		public Boolean hasAuthority() {
+		public boolean hasAuthority() {
 			return root.hasAuthority();
 		}
 		
 		@Override
-		public Boolean hasFragment() {
+		public boolean hasFragment() {
 			return root.hasFragment();
 		}
 		
 		@Override
-		public Boolean hasPath() {
+		public boolean hasPath() {
 			return root.hasPath();
 		}
 		
 		@Override
-		public Boolean hasQuery() {
+		public boolean hasQuery() {
 			return root.hasQuery();
 		}
 		
@@ -255,11 +253,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		@Override
 		public int getOffset() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
-	    	return v.visitSourceLocation(this);
 		}
 		
 		@Override

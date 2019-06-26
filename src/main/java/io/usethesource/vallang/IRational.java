@@ -11,131 +11,147 @@
 
 package io.usethesource.vallang;
 
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IRational extends INumber {
 	/**
 	 * @return this + other;
 	 */
-    IRational add(IRational other);
+    @Override
+    public IRational add(IRational other);
     
     /**
      * @return this - other;
      */
-    IRational subtract(IRational other);
+    @Override
+    public IRational subtract(IRational other);
     
     /**
      * @return this * other;
      */
-    IRational multiply(IRational other);
+    @Override
+    public IRational multiply(IRational other);
     
     /**
      * @return this / other;
      */
-    IRational divide(IRational other);
+    public IRational divide(IRational other);
     
     /**
      * @return this / other;
      */
-    IRational divide(IInteger other);
+    public IRational divide(IInteger other);
     
     /**
      * @return this rem other, which is the remainder after dividing this by other.
      * This may be a negative number.
      */
-    IRational remainder(IRational other);
+    public IRational remainder(IRational other);
     
     /**
      * @return -1 * this;
      */
-    IRational negate();
+    @Override
+    public IRational negate();
     
     /**
      * @return an IReal that approximates this IRational
      */
-    IReal  toReal(int precision);
+    @Override
+    public IReal toReal(int precision);
 
     /**
      * @return a double that approximates this IRational
      */
-    double doubleValue();
+    public double doubleValue();
 
 
     /**
      * @return the integer value nearest to this number
      * (equal to numerator()/denominator())
      */
-    IInteger toInteger();
+    @Override
+    public IInteger toInteger();
 
     /**
      * @return true iff this < other
      */
-    IBool less(IRational other);
+    @Override
+    public IBool less(IRational other);
     
     /**
      * @return true iff this > other
      */
-    IBool greater(IRational other);
+    @Override
+    public IBool greater(IRational other);
  
     /**
      * @return true iff this <= other
      */
-    IBool lessEqual(IRational other);
+    @Override
+    public IBool lessEqual(IRational other);
     
     /**
      * @return true iff this >= other
      */
-    IBool greaterEqual(IRational other);
+    @Override
+    public IBool greaterEqual(IRational other);
     
     /**
      * @return the value of the IRational represent as a string of decimal numbers in ASCII encoding.
      */
-    String getStringRepresentation();
+    public String getStringRepresentation();
     
     /**
      * @return The rational's numerator
      */
-    IInteger numerator();
-    
-    
+    public IInteger numerator();
     
     /**
      * @return The rational's denominator
      */
-    IInteger denominator();
+    public IInteger denominator();
 
     /**
      * numerator() == (toInteger() * denominator()) + remainder()
      *  
      * @return numerator() % denominator()
      */
-    IInteger remainder();
+    public IInteger remainder();
 
     /**
      * Compares two rationals
      * @param other
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
      */
-    int compare(IRational other);
+    public int compare(IRational other);
     
     /**
      * @return return -1, 0 or 1 iff this rational is less than, equal to or greater than zero.
      */
-    int signum();
+    @Override
+    public int signum();
 
     /**
      * @return absolute value of this rational
      */
-	IRational abs();
+    @Override
+    public IRational abs();
 	
     /**
      * @return this number rounded down to the nearest integer number that is
      * less than this number.
      */
-    IInteger floor();
+    public IInteger floor();
     
     /**
      * @return this number rounded to the nearest integer number.
      */
-    IInteger round();
+    public IInteger round();
+    
+    @Override
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitRational(this);
+    }
     
 }

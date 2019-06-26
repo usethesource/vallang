@@ -14,12 +14,10 @@ package io.usethesource.vallang.impl.primitive;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.AbstractValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
-/*package*/ abstract class BoolValue extends AbstractValue implements IBool {
+/*package*/ abstract class BoolValue implements IBool {
 	/*package*/ final static BoolValue TRUE = new BoolValue() {
 		@Override
 		public boolean getValue() {
@@ -54,7 +52,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		public IBool implies(IBool other) {
 			return other;
 		}
+	
 	};
+	
 	/*package*/ final static BoolValue FALSE = new BoolValue() {
 		@Override
 		public boolean getValue() {
@@ -102,6 +102,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 	public abstract int hashCode();
 
+    @Override
+    public String toString() {
+        return defaultToString();
+    }
+    
 	public boolean equals(Object o) {
 		return this == o;
 	}
@@ -109,11 +114,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	@Override
 	public Type getType() {
 		return BOOL_TYPE;
-	}
-
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return v.visitBoolean(this);
 	}
 
 	@Override
