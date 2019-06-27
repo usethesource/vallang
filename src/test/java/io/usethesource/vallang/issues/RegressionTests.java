@@ -21,6 +21,9 @@ public class RegressionTests {
         // and contained tuples, while the other was not. Still a cast to
         // ITuple was performed.
         
+        // To trigger the bug both sets had to be of equal arity,
+        // to avoid short-circuiting the equality check on that.
+        
         if (!rel.isEmpty() && !set.isEmpty()) {
             assertTrue(!rel.equals(set));
             assertTrue(!set.equals(rel));
