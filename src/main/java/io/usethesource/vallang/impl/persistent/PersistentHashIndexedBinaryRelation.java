@@ -18,6 +18,7 @@ import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTw
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -258,17 +259,17 @@ private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       return false;
     }
 
-    if (other instanceof ISet) {
-      ISet that = (ISet) other;
+    if (other instanceof PersistentHashIndexedBinaryRelation) {
+      PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
       if (this.size() != that.size()) {
         return false;
       }
       
-      for (IValue value : that) {
-        final ITuple tuple = (ITuple) value;
-        final IValue key = tuple.get(0);
-        final IValue val = tuple.get(1);
+      Iterator<Entry<IValue, IValue>> it = that.content.entryIterator();
+      
+      while (it.hasNext()) {
+        Entry<IValue, IValue> entry = it.next();
 
         /*
          * TODO: reconsider hiding of comparator vs exposition via argument
@@ -276,12 +277,15 @@ private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
          * TODO: containsEntry in isEquals does not use equivalence explicitly here
          * content.containsEntryEquivalent(key, val, equivalenceComparator);
          */
-        if (!content.containsEntry(key, val)) {
+        if (!content.containsEntry(entry.getKey(), entry.getValue())) {
           return false;
         }
       }
 
       return true;
+    }
+    else if (other instanceof ISet) {
+        return defaultEquals(other);
     }
 
     return false;
