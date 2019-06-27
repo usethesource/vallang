@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.SetMultimap;
@@ -24,6 +25,7 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
@@ -236,4 +238,8 @@ public class SetWriter implements ISetWriter {
       return builder.iterator();
   }
 
+  @Override
+    public Supplier<IWriter<ISet>> supplier() {
+      return () -> ValueFactory.getInstance().setWriter();
+    }
 }

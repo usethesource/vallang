@@ -20,11 +20,13 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.util.AbstractTypeBag;
 
@@ -128,4 +130,8 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 		return constructedMap;
 	}	
 	
+	@Override
+    public Supplier<IWriter<IMap>> supplier() {
+        return () -> ValueFactory.getInstance().mapWriter();
+    }
 }

@@ -14,6 +14,8 @@ package io.usethesource.vallang.impl.persistent;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
@@ -302,6 +304,11 @@ public final class PersistentHashMap implements IMap {
         return new MapWriter();
     }
 
+    @Override
+    public Stream<IValue> stream() {
+        return StreamSupport.stream(spliterator(), false).map(key -> Tuple.newTuple(key, get(key)));
+    }
+    
     @Override
     public IRelation<IMap> asRelation() {
         throw new UnsupportedOperationException();

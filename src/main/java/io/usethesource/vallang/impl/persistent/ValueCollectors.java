@@ -19,7 +19,7 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.util.AbstractTypeBag;
 
-public class ValueCollectors {
+/*package*/ class ValueCollectors {
 
     @SuppressWarnings("unchecked")
     public static <T extends IValue> Collector<T, ?, ISet> toSet() {

@@ -19,10 +19,12 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.function.Supplier;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -87,5 +89,10 @@ import io.usethesource.vallang.type.TypeFactory;
     private void checkMutation() {
         if (constructedSet != null)
             throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
+    }
+    
+    @Override
+    public Supplier<IWriter<ISet>> supplier() {
+        return () -> ValueFactory.getInstance().setWriter();
     }
 }

@@ -14,6 +14,7 @@ package io.usethesource.vallang.impl.persistent;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
@@ -21,6 +22,7 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
@@ -159,5 +161,10 @@ final class MapWriter implements IMapWriter {
     @Override
     public IValue get(IValue key) {
         return mapContent.get(key);
+    }
+
+    @Override
+    public Supplier<IWriter<IMap>> supplier() {
+        return () -> ValueFactory.getInstance().mapWriter();
     }
 }

@@ -19,6 +19,7 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.function.Supplier;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -182,6 +183,11 @@ import io.usethesource.vallang.type.TypeFactory;
     @Override
     public void insertTuple(IValue... fields) {
         insert(ValueFactory.getInstance().tuple(fields));
+    }
+
+    @Override
+    public Supplier<IWriter<IList>> supplier() {
+        return () -> ValueFactory.getInstance().listWriter();
     }
 
 }

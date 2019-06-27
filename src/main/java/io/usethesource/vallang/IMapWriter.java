@@ -13,6 +13,7 @@
 package io.usethesource.vallang;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
@@ -48,4 +49,12 @@ public interface IMapWriter extends IWriter<IMap> {
      * @return null if no value exists with this key, otherwise the respective value.
      */
     IValue get(IValue key);
+    
+    /**
+     * The map writer collects key/value tuples
+     */
+    @Override
+    default BiConsumer<IWriter<IMap>, IValue> accumulator() {
+        return (writer, elem) -> ((IMapWriter) writer).put(((ITuple) elem).get(0), ((ITuple) elem).get(1));
+    }
 }

@@ -11,6 +11,7 @@
 package io.usethesource.vallang.impl.persistent;
 
 import java.util.Iterator;
+import java.util.function.Supplier;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -224,5 +225,10 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		return constructedList;
+	}
+	
+	@Override
+	public Supplier<IWriter<IList>> supplier() {
+	    return () -> new ListWriter();
 	}
 }

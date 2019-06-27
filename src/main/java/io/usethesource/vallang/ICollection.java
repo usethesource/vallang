@@ -1,5 +1,8 @@
 package io.usethesource.vallang;
 
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 
@@ -78,5 +81,12 @@ public interface ICollection<T extends ICollection<T>> extends IValue, Iterable<
         w.appendAll(this);
         w.appendAll(that);
         return w.done();
+    }
+    
+    /**
+     * @return a stream of IValues from the current collection
+     */
+    public default Stream<IValue> stream() {
+        return StreamSupport.stream(spliterator(), false);
     }
 }

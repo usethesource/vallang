@@ -19,6 +19,8 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -112,5 +114,10 @@ import io.usethesource.vallang.type.Type;
     @Override
     public boolean equals(Object obj) {
         return defaultEquals(obj);
+    }
+    
+    @Override
+    public Stream<IValue> stream() {
+        return StreamSupport.stream(spliterator(), false).map(key -> new Tuple(key, get(key)));
     }
 }

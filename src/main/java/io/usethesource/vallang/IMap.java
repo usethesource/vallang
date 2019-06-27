@@ -14,6 +14,7 @@ package io.usethesource.vallang;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -335,5 +336,10 @@ public interface IMap extends ICollection<IMap> {
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitMap(this);
     }
-	
+    
+    @Override
+    /**
+     * a map should stream key/value tuples
+     */
+    abstract Stream<IValue> stream();
 }

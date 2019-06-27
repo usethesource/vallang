@@ -26,7 +26,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
  * Smart constructors for choosing (or converting to) the most appropriate representations based on
  * dynamic types and data.
  */
-public class PersistentSetFactory {
+/*package*/ class PersistentSetFactory {
 
   /**
    * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation
