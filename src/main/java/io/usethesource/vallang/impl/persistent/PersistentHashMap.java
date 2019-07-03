@@ -241,7 +241,7 @@ public final class PersistentHashMap implements IMap {
 				keyBagNew = keyTypeBag.setLabel(mergeLabels(keyTypeBag.getLabel(),
 								that.keyTypeBag.getLabel()));
 
-				isModified |= (keyBagNew.getLabel() != keyTypeBag.getLabel());
+				isModified |= (!keyBagNew.getLabel().equals(keyTypeBag.getLabel()));
 			} else {
 				keyBagNew = keyTypeBag;
 			}
@@ -251,7 +251,7 @@ public final class PersistentHashMap implements IMap {
 				valBagNew = valTypeBag.setLabel(mergeLabels(valTypeBag.getLabel(),
 								that.valTypeBag.getLabel()));
 
-				isModified |= (valBagNew.getLabel() != valTypeBag.getLabel());
+				isModified |= (!valBagNew.getLabel().equals(valTypeBag.getLabel()));
 			} else {
 				valBagNew = valTypeBag;
 			}
