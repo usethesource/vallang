@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * The void type represents an empty collection of values. I.e. it is a subtype
@@ -280,9 +281,9 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return obj == VoidType.getInstance();
-  }
+}
 
   @Override
   public int hashCode() {

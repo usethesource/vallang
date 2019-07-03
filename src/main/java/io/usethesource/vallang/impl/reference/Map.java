@@ -27,6 +27,7 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ class Map implements IMap {
 	final Type type;
@@ -112,9 +113,9 @@ import io.usethesource.vallang.type.Type;
     }
     
     @Override
-    public boolean equals(Object obj) {
-        return defaultEquals(obj);
-    }
+    public boolean equals(@Nullable Object obj) {
+    return defaultEquals(obj);
+}
     
     @Override
     public Stream<IValue> stream() {

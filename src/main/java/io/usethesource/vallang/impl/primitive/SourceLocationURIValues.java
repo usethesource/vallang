@@ -11,6 +11,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
@@ -126,14 +127,14 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				return scheme == ((BaseURI)obj).scheme;
 			}
 			return false;
-		}
+}
 		@Override
 		public int hashCode() {
 			return scheme.hashCode(); 
@@ -335,8 +336,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				AuthorityURI u = (AuthorityURI)obj;
@@ -345,7 +346,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class PathURI extends BaseURI {
@@ -382,8 +383,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return hash;
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				PathURI u = (PathURI)obj;
@@ -393,7 +394,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					&& path.equals(u.path);
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class PathAuthorityURI extends AuthorityURI {
@@ -422,8 +423,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + path.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				PathAuthorityURI u = (PathAuthorityURI)obj;
@@ -432,7 +433,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					&& path.equals(u.path);
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class QueryURI extends BaseURI {
@@ -465,8 +466,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + query.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				QueryURI u = (QueryURI)obj;
@@ -475,7 +476,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class QueryAuthorityURI extends AuthorityURI {
@@ -504,8 +505,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + query.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				QueryAuthorityURI u = (QueryAuthorityURI)obj;
@@ -515,7 +516,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class QueryPathURI extends PathURI {
@@ -548,8 +549,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + path.hashCode() + query.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				QueryPathURI u = (QueryPathURI)obj;
@@ -559,7 +560,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class QueryPathAuthorityURI extends PathAuthorityURI {
@@ -588,8 +589,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + path.hashCode() + query.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				QueryPathAuthorityURI u = (QueryPathAuthorityURI)obj;
@@ -600,7 +601,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class FragmentURI extends BaseURI {
@@ -633,8 +634,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				FragmentURI u = (FragmentURI)obj;
@@ -643,7 +644,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class FragmentAuthorityURI extends AuthorityURI {
@@ -672,8 +673,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				FragmentAuthorityURI u = (FragmentAuthorityURI)obj;
@@ -683,7 +684,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class FragmentPathURI extends PathURI {
@@ -716,8 +717,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + path.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				FragmentPathURI u = (FragmentPathURI)obj;
@@ -727,7 +728,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class FragmentPathAuthorityURI extends PathAuthorityURI {
@@ -756,8 +757,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + path.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				FragmentPathAuthorityURI u = (FragmentPathAuthorityURI)obj;
@@ -768,7 +769,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	private static class FragmentQueryURI extends QueryURI {
 		protected final String fragment;
@@ -800,8 +801,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + query.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				FragmentQueryURI u = (FragmentQueryURI)obj;
@@ -811,7 +812,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class FragmentQueryAuthorityURI extends QueryAuthorityURI {
@@ -840,8 +841,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + query.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				FragmentQueryAuthorityURI u = (FragmentQueryAuthorityURI)obj;
@@ -852,7 +853,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class FragmentQueryPathURI extends QueryPathURI {
@@ -885,8 +886,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + path.hashCode() + query.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				FragmentQueryPathURI u = (FragmentQueryPathURI)obj;
@@ -897,7 +898,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 	private static class FragmentQueryPathAuthorityURI extends QueryPathAuthorityURI {
@@ -926,8 +927,8 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + path.hashCode() + query.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if(obj.getClass() == getClass()){
 				FragmentQueryPathAuthorityURI u = (FragmentQueryPathAuthorityURI)obj;
@@ -939,7 +940,7 @@ import io.usethesource.vallang.type.TypeFactory;
 					;
 			}
 			return false;
-		}
+}
 	}
 	
 }

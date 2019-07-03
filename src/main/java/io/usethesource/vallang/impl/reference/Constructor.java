@@ -19,6 +19,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of a typed tree node with access to children via labels
@@ -102,8 +103,8 @@ public class Constructor extends Node implements IConstructor {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(this == obj) {
+    public boolean equals(@Nullable Object obj) {
+    if(this == obj) {
             return true;
         }
         else if(obj == null) {
@@ -114,7 +115,7 @@ public class Constructor extends Node implements IConstructor {
             return fType.comparable(other.fType) && super.equals(obj);
         }
         return false;
-    }
+}
 
     @Override
     public int hashCode() {

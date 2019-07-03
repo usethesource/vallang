@@ -19,6 +19,7 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Naive implementation of an untyped tree node, using array of children.
@@ -113,8 +114,8 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		  if(this == obj) {
+	public boolean equals(@Nullable Object obj) {
+    if(this == obj) {
 			  return true;
 		  }
 		  else if(obj == null) {
@@ -122,28 +123,28 @@ import io.usethesource.vallang.type.TypeFactory;
 		  }
 		  else if (getClass() == obj.getClass()) {
 			Node other = (Node) obj;
-			
+
 			if (!fType.comparable(other.fType)) {
 				return false;
 			}
-			
+
 			if (fChildren.length != other.fChildren.length) {
-				return false;		
+				return false;
 			}
-			
+
 			if (fName == other.fName || (fName != null && fName.equals(other.fName))) {
 				for (int i = 0; i < fChildren.length; i++) {
 					if (!fChildren[i].equals(other.fChildren[i])) {
 						return false;
 					}
 				}
-			
+
 				return true;
 			}
 		}
-		
+
 		return false;
-	}
+}
 	
 	@Override
 	public String toString() {

@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class BoolType extends DefaultSubtypeOfValue {
 	private final static class InstanceKeeper {
@@ -61,9 +62,9 @@ import io.usethesource.vallang.IConstructor;
 	 * IntegerType
 	 */
 	@Override
-	public boolean equals(Object obj) {
-		return obj == BoolType.getInstance();
-	}
+	public boolean equals(@Nullable Object obj) {
+    return obj == BoolType.getInstance();
+}
 
 	@Override
 	public int hashCode() {

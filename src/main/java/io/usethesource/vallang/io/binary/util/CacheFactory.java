@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Since we are constructing and deconstructing a lot of windows, use this factory to build them.
@@ -50,9 +51,9 @@ public class CacheFactory<T> {
         }
         
         @Override
-        public boolean equals(Object obj) {
-            return this == obj;
-        }
+        public boolean equals(@Nullable Object obj) {
+    return this == obj;
+}
 	}
 	
 	private static final class SoftPool<T> {

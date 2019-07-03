@@ -24,6 +24,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UndeclaredFieldException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class MapType extends DefaultSubtypeOfValue {
     private final Type fKeyType;
@@ -234,12 +235,12 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof MapType)) {
+    public boolean equals(@Nullable Object obj) {
+    if (!(obj instanceof MapType)) {
             return false;
         }
         MapType other= (MapType) obj;
-        
+
         if (fKeyLabel != null) {
         	if (!fKeyLabel.equals(other.fKeyLabel)) {
         		return false;
@@ -247,7 +248,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         }
         else if(other.fKeyLabel != null)
         	return false;
-        
+
         if (fValueLabel != null) {
         	if (!fValueLabel.equals(other.fValueLabel)) {
         		return false;
@@ -255,12 +256,12 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         }
         else if(other.fValueLabel != null)
         	return false;
-        
+
         // N.B.: The element type must have been created and canonicalized before any
         // attempt to manipulate the outer type (i.e. SetType), so we can use object
         // identity here for the fEltType.
         return fKeyType == other.fKeyType && fValueType == other.fValueType;
-    }
+}
 
     @Override
     public String toString() {

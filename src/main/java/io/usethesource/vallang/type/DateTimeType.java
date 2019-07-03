@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * @author mhills
@@ -59,9 +60,9 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		return obj == DateTimeType.getInstance();
-	}
+	public boolean equals(@Nullable Object obj) {
+    return obj == DateTimeType.getInstance();
+}
 
 	@Override
 	public int hashCode() {

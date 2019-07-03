@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
 * <p>
@@ -48,8 +49,8 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         }
         
         @Override
-        public boolean equals(Object obj) {
-            assert obj instanceof WeakReferenceWrap<?> && obj != null;
+        public boolean equals(@Nullable Object obj) {
+    assert obj instanceof WeakReferenceWrap<?> && obj != null;
             @SuppressWarnings("unchecked")
             WeakReferenceWrap<T> wrappedObj = (WeakReferenceWrap<T>) obj;
             if (wrappedObj.hash == hash) {
@@ -61,7 +62,7 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
                 return other != null && self.equals(other);
             }
             return false;
-        }
+}
     }
     
     /**
@@ -82,8 +83,8 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         }
         
         @Override
-        public boolean equals(Object obj) {
-            // only internal use of this class
+        public boolean equals(@Nullable Object obj) {
+    // only internal use of this class
             assert obj instanceof WeakReferenceWrap<?> && obj != null;
             @SuppressWarnings("unchecked")
             WeakReferenceWrap<T> wrappedObj = (WeakReferenceWrap<T>) obj;
@@ -92,7 +93,7 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
                 return other != null && ref.equals(other);
             }
             return false;
-        }
+}
     }
     
     

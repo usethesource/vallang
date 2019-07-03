@@ -27,6 +27,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.exceptions.UndeclaredFieldException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
     protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
@@ -413,8 +414,8 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
      * for equality while they do not count for isSubtypeOf and lub.
      */
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof TupleType)) {
+    public boolean equals(@Nullable Object obj) {
+    if (!(obj instanceof TupleType)) {
             return false;
         }
 
@@ -448,7 +449,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         }
 
         return true;
-    }
+}
 
     @Override
     public String toString() {
