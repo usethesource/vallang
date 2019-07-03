@@ -228,21 +228,7 @@ import io.usethesource.vallang.type.TypeFactory;
         if(o == null) return false;
 
         if (o instanceof IList) {
-            IList otherList = (IList) o;
-
-            if (getType() != otherList.getType()) return false;
-
-
-            if(otherList instanceof List) {
-                List oList = (List) o;
-
-                if (hashCode != oList.hashCode) return false;
-
-                return data.equals(oList.data);
-            }
-            else {
-                return defaultEquals(otherList);
-            }
+            return defaultEquals(o);
         }
 
         return false;
