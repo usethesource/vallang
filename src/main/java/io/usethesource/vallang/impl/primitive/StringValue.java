@@ -344,14 +344,19 @@ import io.usethesource.vallang.type.TypeFactory;
             }
         }
 
-        @Override
         /**
          * Note that this algorithm can not be changed, unless you also have change
          * BinaryBalancedTreeNode.hashCode() and DefaultString.hashCode() (to not break the hashCode/equals
          * contract).
          */
+        @Override
         public int hashCode() {
             return value.hashCode();
+        }
+        
+        @Override
+        public boolean equals(Object other) {
+            return super.equals(other);
         }
 
         @Override
@@ -999,6 +1004,11 @@ import io.usethesource.vallang.type.TypeFactory;
             }
 
             return hash;
+        }
+        
+        @Override
+        public boolean equals(Object other) {
+            return super.equals(other);
         }
 
         private static AbstractString balance(AbstractString left, AbstractString right) {
