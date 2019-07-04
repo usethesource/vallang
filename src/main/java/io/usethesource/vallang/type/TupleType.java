@@ -19,6 +19,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -27,27 +31,26 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.exceptions.UndeclaredFieldException;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
     protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
-    protected final String[] fFieldNames;
+    protected final @Nullable String[] fFieldNames;
     protected int fHashcode = -1;
 
     /**
-     * Creates a tuple type with the given field types. Copies the array.
+     * Creates a tuple type with the given field types. Does not copy the array..
      */
-    /* package */TupleType(Type[] fieldTypes) {
+    /*package*/ TupleType(Type[] fieldTypes) {
         fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
         // up being a bottleneck
         fFieldNames = null;
     }
 
     /**
-     * Creates a tuple type with the given field types and names. Copies the
-     * arrays.
+     * Creates a tuple type with the given field types and names. 
+     * Does not copy the arrays.
      */
-    /* package */TupleType(Type[] fieldTypes, String[] fieldNames) {
+    /*package*/ TupleType(Type[] fieldTypes, String[] fieldNames) {
         fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
         // up being a bottleneck
         if (fieldNames.length != 0) {
@@ -134,6 +137,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
+    @EnsuresNonNullIf(expression="getFieldFieldNames()", result=true)
     public boolean hasFieldNames() {
         return fFieldNames != null;
     }
@@ -154,6 +158,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
+    @EnsuresNonNull("getFieldType(#1)")
     public int getFieldIndex(String fieldName) throws FactTypeUseException {
         if (fFieldNames != null) {
             for (int i = fFieldNames.length - 1; i >= 0; i--) {
@@ -558,12 +563,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    public String getFieldName(int i) {
+    public @Nullable String getFieldName(int i) {
         return fFieldNames != null ? fFieldNames[i] : null;
     }
 
     @Override
-    public String[] getFieldNames(){
+    public @Nullable String[] getFieldNames(){
         return fFieldNames;
     }
 
