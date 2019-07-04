@@ -19,6 +19,8 @@ import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.stream.DefaultCollector;
 import io.usethesource.vallang.type.Type;
@@ -48,7 +50,7 @@ public abstract class AbstractTypeBag implements Cloneable {
         return of(null, ts);
     }
 
-    public static AbstractTypeBag of(String label, Type... ts) {
+    public static AbstractTypeBag of(@Nullable String label, Type... ts) {
         return TypeBag.of(label, ts);
     }
 
@@ -64,12 +66,12 @@ public abstract class AbstractTypeBag implements Cloneable {
      * Implementation of <@link AbstractTypeBag/> that cached the current least upper bound.
      */
     private static class TypeBag extends AbstractTypeBag {
-        private final String label;
+        private final @Nullable String label;
         private final Map.Immutable<Type, Integer> countMap;
 
         private Type cachedLub;
 
-        private TypeBag(String label, Map.Immutable<Type, Integer> countMap) {
+        private TypeBag(@Nullable String label, Map.Immutable<Type, Integer> countMap) {
             this(label, countMap, null);
         }
 
@@ -202,9 +204,14 @@ public abstract class AbstractTypeBag implements Cloneable {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+        public boolean equals(@Nullable Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            
             TypeBag typeBag = (TypeBag) o;
             return Objects.equals(label, typeBag.label) &&
                     Objects.equals(countMap, typeBag.countMap);
