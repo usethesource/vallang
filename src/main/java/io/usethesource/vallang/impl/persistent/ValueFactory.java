@@ -112,12 +112,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         return Tuple.newTuple(args.clone());
     }
 
-    @Deprecated
-    @Override
-    public ITuple tuple(Type type, IValue... args) {
-        return Tuple.newTuple(args.clone());
-    }
-
 	@Override
 	public ISetWriter setWriter() {
 		return new SetWriter((a,b) -> tuple(a,b));

@@ -365,26 +365,6 @@ public interface IValueFactory {
 	public ITuple tuple(IValue... args);
 
 	/**
-	 * Construct a tuple of the given TupleType
-	 * 
-	 * The length of the argument list must match the number of children in the
-	 * tuple type. Use this method if you need to create tuples with labeled
-	 * children.
-	 * 
-	 * @param args
-	 *            a variable length argument list or an array of IValue
-	 * @return a tuple with as many children as there are args
-	 * @deprecated will be replaced by tuple(IValue ... arg).checkBounds(Type
-	 *             ... types)
-	 *             
-	 * TODO: this method will dissappear when field names will no longer be recorded 
-     * the vallang library. This is necessary to be able to provide canonical types
-     * and use reference equality for type equality; a major factor in CPU performance.            
-	 */
-	@Deprecated
-	public ITuple tuple(Type type, IValue... args);
-
-	/**
 	 * Construct a nullary generic tree node
 	 * 
 	 * @param name

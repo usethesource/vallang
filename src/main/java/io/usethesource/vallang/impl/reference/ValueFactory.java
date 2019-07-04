@@ -97,14 +97,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 
 	@Override
-	@Deprecated
-	public ITuple tuple(Type type, IValue... args) {
-		checkNull((Object[]) args);
-
-		return new Tuple(args.clone());
-	}
-	
-	@Override
 	public INode node(String name) {
 		checkNull(name);
 		return new Node(name);
