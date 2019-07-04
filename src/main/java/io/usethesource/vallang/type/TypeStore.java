@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeRedeclaredException;
@@ -64,7 +66,9 @@ public class TypeStore {
 	 * Note that imports are not transitive.
 	 */
 	public TypeStore(TypeStore... imports) {
-	  importStore(imports);
+        for (TypeStore s : imports) {
+          fImports.add(s);
+        }
 	}
 	
 	@Override
@@ -216,6 +220,10 @@ public class TypeStore {
 	      Set<Type> signature1 = fConstructors.get(type);
 	      Set<Type> signature2 = s.fConstructors.get(type);
 
+	      if (signature1 == null || signature2 == null) {
+	          continue;
+	      }
+	      
 	      for (Type alt : signature2) {
 	        Type children = alt.getFieldTypes();
 	        checkOverloading(signature1, alt.getName(), children);
@@ -416,7 +424,7 @@ public class TypeStore {
 	 * @param name the name of the type to lookup
 	 * @return the AliasType
 	 */
-	public Type lookupAlias(final String name) {
+	public @Nullable Type lookupAlias(final String name) {
 	  synchronized (fAliases) {
 	    synchronized (fImports) {
 	      Type result = fAliases.get(name);
@@ -518,7 +526,7 @@ public class TypeStore {
 	 * @return the first constructor that matches
 	 * @throws a FactTypeError if the type was not declared before
 	 */
-	public Type lookupFirstConstructor(final String cons, final Type args) {
+	public @Nullable Type lookupFirstConstructor(final String cons, final Type args) {
 	  Collection<Type> adts = allAbstractDataTypes();
 
 	  for (Type adt : adts) {
@@ -555,7 +563,7 @@ public class TypeStore {
 	 * @return a ConstructorType if it was declared before
 	 * @throws a FactTypeError if the type was not declared before
 	 */
-	public Type lookupConstructor(Type adt, String cons, Type args) {
+	public @Nullable Type lookupConstructor(Type adt, String cons, Type args) {
 	  Set<Type> sig = lookupConstructor(adt, cons);
 
 	  if (sig != null) {
@@ -612,7 +620,7 @@ public class TypeStore {
 	 * @param name  the supposed name of the abstract data-type
 	 * @return null if such type does not exist, or the type if it was declared earlier
 	 */
-	public Type lookupAbstractDataType(String name) {
+	public @Nullable Type lookupAbstractDataType(String name) {
 	  synchronized (fADTs) {
 	    synchronized (fImports) {
 
@@ -955,7 +963,7 @@ public class TypeStore {
 	 * @param key    the label of the annotation to find the corresponding type of
 	 * @return the type of the requested annotation value or null if none exists
 	 */
-	public Type getAnnotationType(Type onType, String key) {
+	public @Nullable Type getAnnotationType(Type onType, String key) {
 	  Map<String, Type> annotationsFor = getAnnotations(onType);
 	  Type result = annotationsFor.get(key);
 
@@ -973,7 +981,7 @@ public class TypeStore {
 	 * @param key    the label of the parameter to find the corresponding type of
 	 * @return the type of the requested parameter value or null if none exists
 	 */
-	public Type getKeywordParameterType(Type onType, String key) {
+	public @Nullable Type getKeywordParameterType(Type onType, String key) {
 		assert onType.isConstructor() || onType.isAbstractData();
 		Map<String, Type> kwParamsFor = getKeywordParameters(onType);
 		return kwParamsFor != null ? kwParamsFor.get(key) : null;
@@ -1045,7 +1053,7 @@ public class TypeStore {
         }
     }
 
-	public Type getAlias(String name) {
+	public @Nullable Type getAlias(String name) {
 	  synchronized (fAliases) {
 	    synchronized (fImports) {
 	      Type result = fAliases.get(name);

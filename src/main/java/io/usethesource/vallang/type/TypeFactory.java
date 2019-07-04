@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
@@ -57,7 +59,9 @@ public class TypeFactory {
 	 * Caches all types to implement canonicalization
 	 */
 	private final HashConsingMap<Type> fCache = new WeakWriteLockingHashConsingMap<>(8*1024);
-    private TypeValues typeValues;
+    
+	@Nullable
+	private TypeValues typeValues;
     
 	private static class InstanceHolder {
 		public static final TypeFactory sInstance = new TypeFactory();
@@ -851,7 +855,13 @@ public class TypeFactory {
 		
 		public void initialize() {
 			try {
-			    Enumeration<URL> resources = getClass().getClassLoader().getResources(TYPES_CONFIG);
+                ClassLoader loader = getClass().getClassLoader();
+                
+                if (loader == null) {
+                    throw new Error("WARNING: Could not load type definitions because class loader of " + getClass() + " is null");
+                }
+                
+                Enumeration<URL> resources = loader.getResources(TYPES_CONFIG);
 			    Collections.list(resources).forEach(f -> loadServices(f));
 			} catch (IOException e) {
 			    throw new Error("WARNING: Could not load type kind definitions from " + TYPES_CONFIG, e);
@@ -868,7 +878,12 @@ public class TypeFactory {
 						continue;
 					}
 
-					Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+					ClassLoader loader = Thread.currentThread().getContextClassLoader();
+					if (loader == null) {
+					    throw new NullPointerException("could not find class loader for the current thread?");
+					}
+					
+                    Class<?> clazz = loader.loadClass(name);
 					Object instance = clazz.newInstance();
 
 					if (instance instanceof TypeReifier) {
