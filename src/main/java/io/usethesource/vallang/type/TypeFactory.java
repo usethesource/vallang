@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
@@ -57,7 +59,7 @@ public class TypeFactory {
 	 * Caches all types to implement canonicalization
 	 */
 	private final HashConsingMap<Type> fCache = new WeakWriteLockingHashConsingMap<>(8*1024);
-    private TypeValues typeValues;
+    private @Nullable TypeValues typeValues;
     
 	private static class InstanceHolder {
 		public static final TypeFactory sInstance = new TypeFactory();
@@ -851,6 +853,7 @@ public class TypeFactory {
 		
 		public void initialize() {
 			try {
+			    @SuppressWarnings("dereference.of.nullable")
 			    Enumeration<URL> resources = getClass().getClassLoader().getResources(TYPES_CONFIG);
 			    Collections.list(resources).forEach(f -> loadServices(f));
 			} catch (IOException e) {
@@ -868,6 +871,7 @@ public class TypeFactory {
 						continue;
 					}
 
+					@SuppressWarnings("dereference.of.nullable")
 					Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
 					Object instance = clazz.newInstance();
 

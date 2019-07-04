@@ -154,13 +154,13 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 	
 	@Override
-  public IConstructor constructor(Type constructorType,  IValue[] children, java.util.Map<String,IValue> kwParams) {
-    checkNull(constructorType);
-    checkNull(kwParams);
-    checkNull((Object[]) children);
-        
-    return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
-  }
+	public IConstructor constructor(Type constructorType,  IValue[] children, java.util.Map<String,IValue> kwParams) {
+	    checkNull(constructorType);
+	    checkNull(kwParams);
+	    checkNull((Object[]) children);
+
+	    return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
+	}
 	
 	@Override
 	public IConstructor constructor(Type constructorType) {
