@@ -31,7 +31,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
     protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
-    protected final @Nullable String[] fFieldNames;
+    protected final String[] fFieldNames;
     protected int fHashcode = -1;
 
     /**
@@ -559,19 +559,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     public String getFieldName(int i) {
-        if (fFieldNames == null) {
-            throw new UnsupportedOperationException("this tuple type does not have field names");
-        }
-        
-        return fFieldNames[i];
+        return fFieldNames != null ? fFieldNames[i] : null;
     }
 
     @Override
     public String[] getFieldNames(){
-        if (fFieldNames == null) {
-            throw new UnsupportedOperationException("this tuple type does not have field names");
-        }
-        
         return fFieldNames;
     }
 

@@ -42,7 +42,7 @@ public interface IConstructor extends INode {
 	 * @param label the name of the child
 	 * @return a value at the position indicated by the label.
 	 */
-	public IValue get(String label);
+	public IValue  get(String label);
 	
 	/**
 	 * Replace a child at a labeled position in the tree. 

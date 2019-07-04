@@ -13,8 +13,6 @@
 
 package io.usethesource.vallang;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -51,7 +49,7 @@ public interface IValue {
      * @param other object to compare to
      * @return true iff the other object is equal to the receiver object
      */
-    public boolean equals(@Nullable Object other);
+    public boolean equals(Object other);
     
     /**
      * Compute logical equality of two values, which means that the data they
