@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
@@ -42,7 +40,7 @@ final class MapWriter implements IMapWriter {
 	private final boolean checkUpperBound;
 	private final Type upperBoundKeyType;
 	private final Type upperBoundValType;
-	private @Nullable IMap constructedMap;
+	private IMap constructedMap;
 
 	MapWriter() {
 		super();
