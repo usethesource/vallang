@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
@@ -110,7 +112,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *          index of the field to retrieve
    * @return type of the field at index i
    */
-  public Type getFieldType(int i) {
+  public @Nullable Type getFieldType(int i) {
     throw new IllegalOperationException("getFieldType", this);
   }
 
@@ -126,7 +128,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *           when the type has no field labels (tuples and relations
    *           optionally have field labels).          
    */
-  public Type getFieldType(String fieldName) throws FactTypeUseException {
+  public @Nullable Type getFieldType(String fieldName) throws FactTypeUseException {
     throw new IllegalOperationException("getFieldType", this);
   }
 
@@ -136,7 +138,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * 
    * @return a tuple type representing the field types
    */
-  public Type getFieldTypes() {
+  public @Nullable Type getFieldTypes() {
     throw new IllegalOperationException("getFieldTypes", this);
   }
 
@@ -151,13 +153,20 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *           when this type does not have field labels. Tuples and relations
    *           optionally have field labels.
    */
-  public String getFieldName(int i) {
+  public @Nullable String getFieldName(int i) {
     throw new IllegalOperationException("getFieldName", this);
   }
 
-  public Optional<String> getOptionalFieldName(int index) {
+  /**
+   * Retrieve the field name at a certain index for a tuple type, a relation
+   * type or a tree node type.
+   * 
+   * @param i index of the field name to retrieve
+   * @return the field name at the given index, optionally.
+   */
+  public Optional<String> getOptionalFieldName(int i) {
     if (hasFieldNames()) {
-      return Optional.of(getFieldName(index));
+      return Optional.of(getFieldName(i));
     } else {
       return Optional.empty();
     }

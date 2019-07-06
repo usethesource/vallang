@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -853,8 +854,7 @@ public class TypeFactory {
 		
 		public void initialize() {
 			try {
-			    @SuppressWarnings("dereference.of.nullable")
-			    Enumeration<URL> resources = getClass().getClassLoader().getResources(TYPES_CONFIG);
+			    Enumeration<URL> resources = Objects.requireNonNull(getClass().getClassLoader()).getResources(TYPES_CONFIG);
 			    Collections.list(resources).forEach(f -> loadServices(f));
 			} catch (IOException e) {
 			    throw new Error("WARNING: Could not load type kind definitions from " + TYPES_CONFIG, e);
@@ -871,8 +871,7 @@ public class TypeFactory {
 						continue;
 					}
 
-					@SuppressWarnings("dereference.of.nullable")
-					Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+					Class<?> clazz = Objects.requireNonNull(Thread.currentThread().getContextClassLoader()).loadClass(name);
 					Object instance = clazz.newInstance();
 
 					if (instance instanceof TypeReifier) {

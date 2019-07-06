@@ -14,13 +14,12 @@ package io.usethesource.vallang.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -34,15 +33,14 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
 /*package*/final class TupleType extends DefaultSubtypeOfValue {
     protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
-    protected final @Nullable String[] fFieldNames;
+    protected final String @Nullable[] fFieldNames;
     protected int fHashcode = -1;
 
     /**
      * Creates a tuple type with the given field types. Does not copy the array..
      */
     /*package*/ TupleType(Type[] fieldTypes) {
-        fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
-        // up being a bottleneck
+        fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended up being a bottleneck
         fFieldNames = null;
     }
 
@@ -51,8 +49,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
      * Does not copy the arrays.
      */
     /*package*/ TupleType(Type[] fieldTypes, String[] fieldNames) {
-        fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended
-        // up being a bottleneck
+        fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended up being a bottleneck
         if (fieldNames.length != 0) {
             fFieldNames = fieldNames; // fieldNames.clone(); same here
         } else {
@@ -137,7 +134,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
 
     @Override
-    @EnsuresNonNullIf(expression="getFieldFieldNames()", result=true)
     public boolean hasFieldNames() {
         return fFieldNames != null;
     }
@@ -158,7 +154,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
 
     @Override
-    @EnsuresNonNull("getFieldType(#1)")
     public int getFieldIndex(String fieldName) throws FactTypeUseException {
         if (fFieldNames != null) {
             for (int i = fFieldNames.length - 1; i >= 0; i--) {
@@ -205,8 +200,8 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         }
 
         if (hasFieldNames() && other.hasFieldNames()) {
-            String fieldNameLeft = this.getFieldName(0);
-            String fieldNameRight = other.getFieldName(1);
+            String fieldNameLeft = Objects.requireNonNull(this.getFieldName(0));
+            String fieldNameRight = Objects.requireNonNull(other.getFieldName(1));
 
             if (!fieldNameLeft.equals(fieldNameRight)) {
                 return TF.tupleType(this.getFieldType(0), fieldNameLeft,
@@ -466,7 +461,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
                 sb.append(",");
             sb.append(elemType.toString());
             if (hasFieldNames()) {
-                sb.append(" " + fFieldNames[idx - 1]);
+                sb.append(" " + Objects.requireNonNull(fFieldNames)[idx - 1]);
             }
         }
         sb.append("]");
@@ -568,7 +563,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
 
     @Override
-    public @Nullable String[] getFieldNames(){
+    public String @Nullable[] getFieldNames(){
         return fFieldNames;
     }
 
@@ -645,7 +640,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
             for (int i = width - 1; i >= 0; i--) {
                 fieldTypes[i] = getFieldType(fields[i]);
-                fieldNames[i] = getFieldName(fields[i]);
+                fieldNames[i] = Objects.requireNonNull(getFieldName(fields[i]));
 
                 for (int j = width - 1; j > i; j--) {
                     if (fieldNames[j].equals(fieldNames[i])) {
