@@ -14,10 +14,13 @@ package io.usethesource.vallang.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
@@ -112,7 +115,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *          index of the field to retrieve
    * @return type of the field at index i
    */
-  public @Nullable Type getFieldType(int i) {
+  public Type getFieldType(int i) {
     throw new IllegalOperationException("getFieldType", this);
   }
 
@@ -138,7 +141,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * 
    * @return a tuple type representing the field types
    */
-  public @Nullable Type getFieldTypes() {
+  public Type getFieldTypes() {
     throw new IllegalOperationException("getFieldTypes", this);
   }
 
@@ -166,7 +169,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    */
   public Optional<String> getOptionalFieldName(int i) {
     if (hasFieldNames()) {
-      return Optional.of(getFieldName(i));
+      return Optional.of(Objects.requireNonNull(getFieldName(i)));
     } else {
       return Optional.empty();
     }
@@ -181,7 +184,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *           when this type does not have field labels. Tuples and relations
    *           optionally have field labels.
    */
-  public String[] getFieldNames() {
+  @Pure
+  public String @Nullable[] getFieldNames() {
     throw new IllegalOperationException("getFieldNames", this);
   }
 
@@ -360,6 +364,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * 
    * @return if the fields of a type or relation have been labelled
    */
+  @EnsuresNonNullIf(expression="getFieldNames()", result=true)
+  @Pure
   public boolean hasFieldNames() {
     return false;
   }

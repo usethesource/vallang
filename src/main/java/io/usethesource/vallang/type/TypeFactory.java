@@ -595,7 +595,7 @@ public class TypeFactory {
 			throw new IndexOutOfBoundsException();
 		}
 		if (fields.hasFieldNames()) {
-			return mapType(fields.getFieldType(0), fields.getFieldName(0), fields.getFieldType(1), fields.getFieldName(1));
+			return mapType(fields.getFieldType(0), Objects.requireNonNull(fields.getFieldName(0)), fields.getFieldType(1), Objects.requireNonNull(fields.getFieldName(1)));
 		} else {
 			return mapType(fields.getFieldType(0), fields.getFieldType(1));
 		}

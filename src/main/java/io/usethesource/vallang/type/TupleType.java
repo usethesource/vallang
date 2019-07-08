@@ -20,7 +20,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -75,7 +78,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
             if (type.hasFieldNames()) {
                 for (int i = 0; i < type.getArity(); i++) {
-                    w.append(symbols().labelSymbol(vf, type.getFieldType(i).asSymbol(vf, store, grammar, done), type.getFieldName(i)));
+                    w.append(symbols().labelSymbol(vf, type.getFieldType(i).asSymbol(vf, store, grammar, done), Objects.requireNonNull(type.getFieldName(i))));
                 }
             }
             else {
@@ -134,8 +137,10 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
 
     @Override
+    @EnsuresNonNullIf(expression="getFieldNames()", result=true)
+    @EnsuresNonNull("fFieldNames")
     public boolean hasFieldNames() {
-        return fFieldNames != null;
+        return getFieldNames() != null;
     }
 
     @Override
@@ -558,21 +563,27 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
 
     @Override
+    @Pure
     public @Nullable String getFieldName(int i) {
-        return fFieldNames != null ? fFieldNames[i] : null;
+        return getFieldNames() != null ? fFieldNames[i] : null;
     }
 
     @Override
+    @Pure
     public String @Nullable[] getFieldNames(){
         return fFieldNames;
     }
 
     protected boolean sameFieldNamePrefix (String[] o){
-        if(getArity() > o.length)
+        if (getArity() > o.length) {
             return false;
-        for(int i = getArity() - 1; i >= 0; i--)
-            if(!fFieldNames[i].equals(o[i]))
+        }
+        
+        for (int i = getArity() - 1; i >= 0; i--) {
+            if(!fFieldNames[i].equals(o[i])) {
                 return false;
+            }
+        }
         return true;
     }
 

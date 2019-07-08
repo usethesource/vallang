@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -394,10 +395,10 @@ public class TypeStore {
 	    }
 	    for (int i = tupleType.getArity() - 1; i >= 0; i--) {
 	      Type type = tupleType.getFieldType(i);
-	      String label = tupleType.getFieldName(i);
+	      String label = Objects.requireNonNull(tupleType.getFieldName(i));
 
 	      for (int j = altArgs.getArity() - 1; j >= 0; j--) {
-	        if (altArgs.getFieldName(j).equals(label)) {
+	        if (label.equals(altArgs.getFieldName(j))) {
 	          if (!altArgs.getFieldType(j).equivalent(type)) {
 	        	throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(j), tupleType);
 	          }
