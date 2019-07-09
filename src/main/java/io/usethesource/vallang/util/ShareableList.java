@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -505,7 +504,7 @@ public class ShareableList<E> implements Iterable<E>{
 	 * @see java.lang.Iterable#iterator()
 	 */
 	public Iterator<E> iterator(){
-		return new ListIterator<>(this);
+		return new ListIterator<E>(this);
 	}
 	
 	/**
@@ -617,7 +616,7 @@ public class ShareableList<E> implements Iterable<E>{
 			
 			currentIndex = shareableList.backIndex - 1;
 			front = false;
-			if (currentIndex < 0){
+			if (currentIndex < 0) {
 				currentIndex = 0;
 				front = true;
 			}
@@ -630,7 +629,6 @@ public class ShareableList<E> implements Iterable<E>{
 		 * 
 		 * @see java.util.Iterator#hasNext()
 		 */
-		@EnsuresNonNull("next()")
 		public boolean hasNext(){
 			return front ? (currentIndex < shareableList.frontIndex) : (currentIndex >= 0);
 		}
@@ -653,9 +651,9 @@ public class ShareableList<E> implements Iterable<E>{
 			E element;
 			
 			if (front) {
-				element = shareableList.frontData[currentIndex++];
+				element = Objects.requireNonNull(shareableList.frontData[currentIndex++]);
 			} else {
-				element = shareableList.backData[currentIndex--];
+				element = Objects.requireNonNull(shareableList.backData[currentIndex--]);
 				
 				if(currentIndex == -1){
 					front = true;
@@ -663,7 +661,7 @@ public class ShareableList<E> implements Iterable<E>{
 				}
 			}
 			
-			return Objects.requireNonNull(element);
+			return element;
 		}
 		
 		/**

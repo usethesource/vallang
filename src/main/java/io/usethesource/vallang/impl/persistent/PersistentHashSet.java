@@ -14,6 +14,8 @@ package io.usethesource.vallang.impl.persistent;
 import java.util.Iterator;
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IRelation;
@@ -29,7 +31,7 @@ public final class PersistentHashSet implements ISet {
   private static final EqualityComparator<Object> equivalenceComparator =
       EqualityUtils.getEquivalenceComparator();
 
-  private Type cachedSetType;
+  private @Nullable Type cachedSetType = null;
   private final AbstractTypeBag elementTypeBag;
   private final Set.Immutable<IValue> content;
 
@@ -134,7 +136,7 @@ public final class PersistentHashSet implements ISet {
   }
   
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (other == this) {
       return true;
     }

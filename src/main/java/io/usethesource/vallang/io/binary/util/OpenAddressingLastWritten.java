@@ -12,6 +12,10 @@
  */ 
 package io.usethesource.vallang.io.binary.util;
 
+import java.util.Objects;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * A track last written implementation that uses linear open addressing to implement the very specific hashmap
  * 
@@ -45,13 +49,13 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     public static <T> OpenAddressingLastWritten<T> referenceEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
-            protected boolean equals(T a, T b) {
+            protected boolean equals(@Nullable T a, @Nullable T b) {
                 return a == b;
             }
 
             @Override
             protected int hash(T obj) {
-                return System.identityHashCode(obj);
+                return System.identityHashCode(Objects.requireNonNull(obj));
             }
         };
     }
@@ -59,13 +63,17 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     public static <T> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
-            protected boolean equals(T a, T b) {
+            protected boolean equals(@Nullable T a, @Nullable T b) {
+                if (a == null) {
+                    return b == null;
+                }
+                
                 return a.equals(b);
             }
 
             @Override
             protected int hash(T obj) {
-                return obj.hashCode();
+                return Objects.requireNonNull(obj).hashCode();
             }
         };
     }
@@ -96,11 +104,20 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     
     //http://stackoverflow.com/a/20798440/11098
     private static boolean isPrime(int num) {
-        if (num < 2) return false;
-        if (num == 2) return true;
-        if (num % 2 == 0) return false;
-        for (int i = 3; i * i <= num; i += 2)
-            if (num % i == 0) return false;
+        if (num < 2) {
+            return false;
+        }
+        if (num == 2) {
+            return true;
+        }
+        if (num % 2 == 0) {
+            return false;
+        }
+        for (int i = 3; i * i <= num; i += 2) {
+            if (num % i == 0) {
+                return false;
+            }
+        }
         return true;
     }
     
@@ -142,7 +159,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         if (current == null) {
             return -1;
         }
-        while (!equals((T)current, obj)) {
+        while (!equals((T) current, obj)) {
             pos = (pos + 1) % tableSize;
             current = keys[pos];
             if (current == null) {
@@ -152,7 +169,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         return pos;
     }
 
-    protected abstract boolean equals(T a, T b);
+    protected abstract boolean equals(@Nullable T a, @Nullable T b);
     protected abstract int hash(T obj);
 
     private int findSpace(int hash) {
