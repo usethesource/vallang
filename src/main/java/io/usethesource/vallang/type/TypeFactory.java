@@ -260,15 +260,16 @@ public class TypeFactory {
 			}
 			try {
 				String name = (String) fieldTypesAndLabels[i + 1];
-				if (!isIdentifier(name))
+				if (!isIdentifier(name)) {
 					throw new IllegalIdentifierException(name);
+				}
 				protoFieldNames[pos] = name;
 			} catch (ClassCastException e) {
 				throw new IllegalFieldNameException(pos, fieldTypesAndLabels[i + 1], e);
 			}
 		}
 
-		return getFromCache(new TupleType(protoFieldTypes, protoFieldNames));
+		return getFromCache(new TupleTypeWithFieldNames(protoFieldTypes, protoFieldNames));
 	}
 
 	/**
@@ -285,7 +286,8 @@ public class TypeFactory {
   public Type tupleType(Type[] types, String[] labels) {
     checkNull((Object[]) types);
     checkNull((Object[]) labels);
-    return getFromCache(new TupleType(types, labels));
+    assert types.length == labels.length;
+    return getFromCache(new TupleTypeWithFieldNames(types, labels));
   }
 
 	/**

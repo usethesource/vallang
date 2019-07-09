@@ -18,8 +18,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IConstructor;
@@ -131,7 +129,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *           when the type has no field labels (tuples and relations
    *           optionally have field labels).          
    */
-  public @Nullable Type getFieldType(String fieldName) throws FactTypeUseException {
+  public Type getFieldType(String fieldName) throws FactTypeUseException {
     throw new IllegalOperationException("getFieldType", this);
   }
 
@@ -156,7 +154,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *           when this type does not have field labels. Tuples and relations
    *           optionally have field labels.
    */
-  public @Nullable String getFieldName(int i) {
+  public String getFieldName(int i) {
     throw new IllegalOperationException("getFieldName", this);
   }
 
@@ -185,7 +183,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *           optionally have field labels.
    */
   @Pure
-  public String @Nullable[] getFieldNames() {
+  public String[] getFieldNames() {
     throw new IllegalOperationException("getFieldNames", this);
   }
 
@@ -364,7 +362,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * 
    * @return if the fields of a type or relation have been labelled
    */
-  @EnsuresNonNullIf(expression="getFieldNames()", result=true)
   @Pure
   public boolean hasFieldNames() {
     return false;

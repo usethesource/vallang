@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
+import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
@@ -74,7 +75,7 @@ public interface IExternalValue extends IValue {
 
             @Override
             public IValue get(String label) {
-                return null;
+                throw new UndeclaredFieldException(getConstructorType(), label);
             }
 
             @Override
@@ -102,8 +103,6 @@ public interface IExternalValue extends IValue {
                 return false;
             }
 
-            
-
             @Override
             public boolean isAnnotatable() {
                 return true;
@@ -126,7 +125,7 @@ public interface IExternalValue extends IValue {
             
             @Override
             public IValue get(int i) {
-                return null;
+                throw new IndexOutOfBoundsException(Integer.toString(i));
             }
             
             @Override

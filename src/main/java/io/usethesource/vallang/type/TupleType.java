@@ -14,16 +14,12 @@ package io.usethesource.vallang.type;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -32,11 +28,9 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
-/*package*/final class TupleType extends DefaultSubtypeOfValue {
+/*package*/ class TupleType extends DefaultSubtypeOfValue {
     protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
-    protected final String @Nullable[] fFieldNames;
     protected int fHashcode = -1;
 
     /**
@@ -44,20 +38,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
      */
     /*package*/ TupleType(Type[] fieldTypes) {
         fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended up being a bottleneck
-        fFieldNames = null;
-    }
-
-    /**
-     * Creates a tuple type with the given field types and names. 
-     * Does not copy the arrays.
-     */
-    /*package*/ TupleType(Type[] fieldTypes, String[] fieldNames) {
-        fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended up being a bottleneck
-        if (fieldNames.length != 0) {
-            fFieldNames = fieldNames; // fieldNames.clone(); same here
-        } else {
-            fFieldNames = null;
-        }
     }
 
     public static class Info implements TypeFactory.TypeReifier {
@@ -76,15 +56,8 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
                 Set<IConstructor> done) {
             IListWriter w = vf.listWriter();
 
-            if (type.hasFieldNames()) {
-                for (int i = 0; i < type.getArity(); i++) {
-                    w.append(symbols().labelSymbol(vf, type.getFieldType(i).asSymbol(vf, store, grammar, done), Objects.requireNonNull(type.getFieldName(i))));
-                }
-            }
-            else {
-                for (Type f : type) {
-                    w.append(f.asSymbol(vf, store, grammar, done));
-                }
+            for (Type f : type) {
+                w.append(f.asSymbol(vf, store, grammar, done));
             }
 
             return vf.constructor(getSymbolConstructorType(), w.done());
@@ -108,7 +81,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
             return randomInstance(next, store, rnd, rnd.nextInt(5));
         }
 
-        @SuppressWarnings("deprecation")
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd, int arity) {
             Type[] types = new Type[arity];
 
@@ -116,31 +88,13 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
                 types[i] = next.get();
             }
 
-            if (rnd.nextBoolean()) {
-                return tf().tupleType(types);
-            }
-
-            String[] labels = new String[arity];
-            for (int i = 0; i < arity; i++) {
-                labels[i] = randomLabel(rnd);
-            }
-
-            return tf().tupleType(types, labels);
+            return tf().tupleType(types);
         }
-
-
     }
 
     @Override
     public TypeFactory.TypeReifier getTypeReifier() {
         return new Info();
-    }
-
-    @Override
-    @EnsuresNonNullIf(expression="getFieldNames()", result=true)
-    @EnsuresNonNull("fFieldNames")
-    public boolean hasFieldNames() {
-        return getFieldNames() != null;
     }
 
     @Override
@@ -154,42 +108,10 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
 
     @Override
-    public Type getFieldType(String fieldName) {
-        return getFieldType(getFieldIndex(fieldName));
-    }
-
-    @Override
-    public int getFieldIndex(String fieldName) throws FactTypeUseException {
-        if (fFieldNames != null) {
-            for (int i = fFieldNames.length - 1; i >= 0; i--) {
-                if (fFieldNames[i].equals(fieldName)) {
-                    return i;
-                }
-            }
-        }
-
-        throw new UndeclaredFieldException(this, fieldName);
-    }
-
-    @Override
-    public boolean hasField(String fieldName) {
-        if (fFieldNames != null) {
-            for (int i = fFieldNames.length - 1; i >= 0; i--) {
-                if (fFieldNames[i].equals(fieldName)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    @Override
     public int getArity() {
         return fFieldTypes.length;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public Type compose(Type other) {
         if (other.equivalent(TF.voidType())) {
@@ -202,16 +124,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
         if (!getFieldType(1).comparable(other.getFieldType(0))) {
             return TF.voidType(); // since nothing will be composable
-        }
-
-        if (hasFieldNames() && other.hasFieldNames()) {
-            String fieldNameLeft = Objects.requireNonNull(this.getFieldName(0));
-            String fieldNameRight = Objects.requireNonNull(other.getFieldName(1));
-
-            if (!fieldNameLeft.equals(fieldNameRight)) {
-                return TF.tupleType(this.getFieldType(0), fieldNameLeft,
-                        other.getFieldType(1), fieldNameRight);
-            }
         }
 
         return TF.tupleType(this.getFieldType(0), other.getFieldType(1));
@@ -250,28 +162,15 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
      * @param t2
      * @return a TupleType which is the lub of t1 and t2
      */
-    @SuppressWarnings("deprecation")
     static Type lubTupleTypes(Type t1, Type t2) {
         int N = t1.getArity();
         Type[] fieldTypes = new Type[N];
-        String[] fieldNames = new String[N];
 
         for (int i = 0; i < N; i++) {
             fieldTypes[i] = t1.getFieldType(i).lub(t2.getFieldType(i));
-
-            if (t1.hasFieldNames()) {
-                fieldNames[i] = t1.getFieldName(i);
-            } else if (t2.hasFieldNames()) {
-                fieldNames[i] = t2.getFieldName(i);
-            }
         }
 
-        if(t1.hasFieldNames() || t2.hasFieldNames()) {
-            return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
-        }
-        else {
-            return TypeFactory.getInstance().tupleType(fieldTypes);
-        }
+        return TypeFactory.getInstance().tupleType(fieldTypes);
     }
 
     /**
@@ -282,123 +181,15 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
      * @param t2
      * @return a TupleType which is the glb of t1 and t2
      */
-    @SuppressWarnings("deprecation")
     static Type glbTupleTypes(Type t1, Type t2) {
         int N = t1.getArity();
         Type[] fieldTypes = new Type[N];
-        String[] fieldNames = new String[N];
 
         for (int i = 0; i < N; i++) {
             fieldTypes[i] = t1.getFieldType(i).glb(t2.getFieldType(i));
-
-            if (t1.hasFieldNames()) {
-                fieldNames[i] = t1.getFieldName(i);
-            } else if (t2.hasFieldNames()) {
-                fieldNames[i] = t2.getFieldName(i);
-            }
         }
 
-        if(t1.hasFieldNames() || t2.hasFieldNames()) {
-            return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
-        }
-        else {
-            return TypeFactory.getInstance().tupleType(fieldTypes);
-        }
-    }
-
-
-    /**
-     * Compute a new tupleType that is the lub of t1 and t2. Precondition: t1
-     * and t2 have the same arity.
-     * 
-     * @param t1
-     * @param t2
-     * @return a TupleType which is the lub of t1 and t2, if all the names are
-     *         equal at every position, they remain, otherwise we get an
-     *         unlabeled tuple.
-     */
-    @SuppressWarnings("deprecation")
-    static Type lubNamedTupleTypes(Type t1, Type t2) {
-        int N = t1.getArity();
-        Object[] fieldTypes = new Object[N * 2];
-        Type[] types = new Type[N];
-        boolean first = t1.hasFieldNames();
-        boolean second = t2.hasFieldNames();
-        boolean consistent = true;
-
-        for (int i = 0, j = 0; i < N; i++, j++) {
-            Type lub = t1.getFieldType(i).lub(t2.getFieldType(i));
-            types[i] = lub;
-            fieldTypes[j++] = lub;
-
-            if (first && second) {
-                String fieldName1 = t1.getFieldName(i);
-                String fieldName2 = t2.getFieldName(i);
-
-                if (fieldName1.equals(fieldName2)) {
-                    fieldTypes[j] = fieldName1;
-                } else {
-                    consistent = false;
-                }
-            } else if (first) {
-                fieldTypes[j] = t1.getFieldName(i);
-            } else if (second) {
-                fieldTypes[i] = t2.getFieldName(i);
-            }
-        }
-
-        if (consistent && first && second) {
-            return TypeFactory.getInstance().tupleType(fieldTypes);
-        } else {
-            return TypeFactory.getInstance().tupleType(types);
-        }
-    }
-
-    /**
-     * Compute a new tupletype that is the glb of t1 and t2. Precondition: t1
-     * and t2 have the same arity.
-     * 
-     * @param t1
-     * @param t2
-     * @return a TupleType which is the glb of t1 and t2, if all the names are
-     *         equal at every position, they remain, otherwise we get an
-     *         unlabeled tuple.
-     */
-    @SuppressWarnings("deprecation")
-    static Type glbNamedTupleTypes(Type t1, Type t2) {
-        int N = t1.getArity();
-        Object[] fieldTypes = new Object[N * 2];
-        Type[] types = new Type[N];
-        boolean first = t1.hasFieldNames();
-        boolean second = t2.hasFieldNames();
-        boolean consistent = true;
-
-        for (int i = 0, j = 0; i < N; i++, j++) {
-            Type lub = t1.getFieldType(i).glb(t2.getFieldType(i));
-            types[i] = lub;
-            fieldTypes[j++] = lub;
-
-            if (first && second) {
-                String fieldName1 = t1.getFieldName(i);
-                String fieldName2 = t2.getFieldName(i);
-
-                if (fieldName1.equals(fieldName2)) {
-                    fieldTypes[j] = fieldName1;
-                } else {
-                    consistent = false;
-                }
-            } else if (first) {
-                fieldTypes[j] = t1.getFieldName(i);
-            } else if (second) {
-                fieldTypes[i] = t2.getFieldName(i);
-            }
-        }
-
-        if (consistent && first && second) {
-            return TypeFactory.getInstance().tupleType(fieldTypes);
-        } else {
-            return TypeFactory.getInstance().tupleType(types);
-        }
+        return TypeFactory.getInstance().tupleType(fieldTypes);
     }
 
     @Override
@@ -414,10 +205,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         return h;
     }
 
-    /**
-     * Compute tuple type equality. Note that field labels are significant here
-     * for equality while they do not count for isSubtypeOf and lub.
-     */
     @Override
     public boolean equals(@Nullable Object obj) {
     if (!(obj instanceof TupleType)) {
@@ -440,19 +227,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
             }
         }
 
-        if (fFieldNames != null) {
-            if (other.fFieldNames == null) {
-                return false;
-            }
-            for (int i = fFieldNames.length - 1; i >= 0; i--) {
-                if (!fFieldNames[i].equals(other.fFieldNames[i])) {
-                    return false;
-                }
-            }
-        } else if (other.fFieldNames != null) {
-            return false;
-        }
-
         return true;
 }
 
@@ -462,12 +236,10 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         sb.append("tuple[");
         int idx = 0;
         for (Type elemType : fFieldTypes) {
-            if (idx++ > 0)
+            if (idx++ > 0) {
                 sb.append(",");
-            sb.append(elemType.toString());
-            if (hasFieldNames()) {
-                sb.append(" " + Objects.requireNonNull(fFieldNames)[idx - 1]);
             }
+            sb.append(elemType.toString());
         }
         sb.append("]");
         return sb.toString();
@@ -530,10 +302,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     @Override
     protected Type lubWithTuple(Type type) {
         if (getArity() == type.getArity()) {
-            if(hasFieldNames() && type.hasFieldNames())
-                return TupleType.lubNamedTupleTypes(this, type);
-            else
-                return TupleType.lubTupleTypes(this, type);
+            return TupleType.lubTupleTypes(this, type);
         }
 
         return TF.valueType();
@@ -542,10 +311,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     @Override
     protected Type glbWithTuple(Type type) {
         if (getArity() == type.getArity()) {
-            if(hasFieldNames() && type.hasFieldNames())
-                return TupleType.glbNamedTupleTypes(this, type);
-            else
-                return TupleType.glbTupleTypes(this, type);
+            return TupleType.glbTupleTypes(this, type);
         }
 
         return TF.voidType();
@@ -560,31 +326,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         }
 
         return false;
-    }
-
-    @Override
-    @Pure
-    public @Nullable String getFieldName(int i) {
-        return getFieldNames() != null ? fFieldNames[i] : null;
-    }
-
-    @Override
-    @Pure
-    public String @Nullable[] getFieldNames(){
-        return fFieldNames;
-    }
-
-    protected boolean sameFieldNamePrefix (String[] o){
-        if (getArity() > o.length) {
-            return false;
-        }
-        
-        for (int i = getArity() - 1; i >= 0; i--) {
-            if(!fFieldNames[i].equals(o[i])) {
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
@@ -603,21 +344,8 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public Type instantiate(Map<Type, Type> bindings) {
-        if (hasFieldNames()) {
-            Type[] fTypes = new Type[getArity()];
-            String[] fLabels = new String[getArity()];
-
-            for (int i = fTypes.length - 1; i >= 0; i--) {
-                fTypes[i] = getFieldType(i).instantiate(bindings);
-                fLabels[i] = getFieldName(i);
-            }
-
-            return TypeFactory.getInstance().tupleType(fTypes, fLabels);
-        }
-
         Type[] fChildren = new Type[getArity()];
         for (int i = fChildren.length - 1; i >= 0; i--) {
             fChildren[i] = getFieldType(i).instantiate(bindings);
@@ -626,7 +354,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         return TypeFactory.getInstance().tupleType(fChildren);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public Type select(int... fields) {
         int width = fields.length;
@@ -636,46 +363,12 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         } else if (width == 1) {
             return getFieldType(fields[0]);
         } else {
-            if (!hasFieldNames()) {
-                Type[] fieldTypes = new Type[width];
-                for (int i = width - 1; i >= 0; i--) {
-                    fieldTypes[i] = getFieldType(fields[i]);
-                }
-
-                return TypeFactory.getInstance().tupleType(fieldTypes);
-            }
-
             Type[] fieldTypes = new Type[width];
-            String[] fieldNames = new String[width];
-            boolean seenDuplicate = false;
-
             for (int i = width - 1; i >= 0; i--) {
                 fieldTypes[i] = getFieldType(fields[i]);
-                fieldNames[i] = Objects.requireNonNull(getFieldName(fields[i]));
-
-                for (int j = width - 1; j > i; j--) {
-                    if (fieldNames[j].equals(fieldNames[i])) {
-                        seenDuplicate = true;
-                    }
-                }
             }
 
-            if (!seenDuplicate) {
-                return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
-            } else {
-                return TypeFactory.getInstance().tupleType(fieldTypes);
-            }
+            return TypeFactory.getInstance().tupleType(fieldTypes);
         }
-    }
-
-    @Override
-    public Type select(String... names) {
-        int[] indexes = new int[names.length];
-        int i = 0;
-        for (String name : names) {
-            indexes[i] = getFieldIndex(name);
-        }
-
-        return select(indexes);
     }
 }
