@@ -12,6 +12,10 @@ package io.usethesource.vallang.util;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * This list implementation is shareable and guarantees that the following operations can be done
@@ -36,11 +40,11 @@ public class ShareableList<E> implements Iterable<E>{
 	private final static int INITIAL_LOG_SIZE = 2;
 
 	private int frontCapacity;
-	private E[] frontData;
+	private @Nullable E[] frontData;
 	private int frontIndex;
 
 	private int backCapacity;
-	private E[] backData;
+	private @Nullable E[] backData;
 	private int backIndex;
 	
 	/**
@@ -351,7 +355,7 @@ public class ShareableList<E> implements Iterable<E>{
 			E oldElement = frontData[realIndex];
 			frontData[realIndex] = element;
 			
-			return oldElement;
+			return Objects.requireNonNull(oldElement);
 		}
 		
 		realIndex = -1 - realIndex;
@@ -361,7 +365,7 @@ public class ShareableList<E> implements Iterable<E>{
 		E oldElement = backData[realIndex];
 		backData[realIndex] = element;
 		
-		return oldElement;
+		return Objects.requireNonNull(oldElement);
 	}
 	
 	/**
@@ -378,14 +382,16 @@ public class ShareableList<E> implements Iterable<E>{
 				throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
 			}
 			
-			return frontData[realIndex];
+			return Objects.requireNonNull(frontData[realIndex]);
 		}
 		
 		realIndex = -1 - realIndex;
 		
-		if(realIndex >= backIndex) throw new ArrayIndexOutOfBoundsException(index+" < 0");
+		if (realIndex >= backIndex) {
+		    throw new ArrayIndexOutOfBoundsException(index+" < 0");
+		}
 		
-		return backData[realIndex];
+		return Objects.requireNonNull(backData[realIndex]);
 	}
 	
 	/**
@@ -399,12 +405,16 @@ public class ShareableList<E> implements Iterable<E>{
 	public E remove(int index){
 		int realIndex = index - backIndex;
 		if(realIndex >= 0){
-			if(realIndex >= frontIndex) throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
+			if (realIndex >= frontIndex) {
+			    throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
+			}
 			
-			E oldElement = frontData[realIndex];
+			E oldElement = Objects.requireNonNull(frontData[realIndex]);
 			
 			int elementsToMove = --frontIndex - realIndex;
-			if(elementsToMove > 0) System.arraycopy(frontData, realIndex + 1, frontData, realIndex, elementsToMove);
+			if (elementsToMove > 0) {
+			    System.arraycopy(frontData, realIndex + 1, frontData, realIndex, elementsToMove);
+			}
 			frontData[frontIndex] = null; // Remove the 'old' reference at the end of the array.
 			
 			return oldElement;
@@ -414,10 +424,12 @@ public class ShareableList<E> implements Iterable<E>{
 		
 		if(realIndex >= backIndex) throw new ArrayIndexOutOfBoundsException(index+" < 0");
 		
-		E oldElement = backData[realIndex];
+		E oldElement = Objects.requireNonNull(backData[realIndex]);
 		
 		int elementsToMove = --backIndex - realIndex;
-		if(elementsToMove > 0) System.arraycopy(backData, realIndex + 1, backData, realIndex, elementsToMove);
+		if (elementsToMove > 0) {
+		    System.arraycopy(backData, realIndex + 1, backData, realIndex, elementsToMove);
+		}
 		backData[backIndex] = null; // Remove the 'old' reference at the end of the array.
 		
 		return oldElement;
@@ -433,9 +445,15 @@ public class ShareableList<E> implements Iterable<E>{
 	 * @return The constructed sublist.
 	 */
 	public ShareableList<E> subList(int offset, int length){
-		if(offset < 0) throw new IndexOutOfBoundsException("Offset may not be smaller then 0.");
-		if(length < 0) throw new IndexOutOfBoundsException("Length may not be smaller then 0.");
-		if((offset + length) > size()) throw new IndexOutOfBoundsException("'offset + length' may not be larger then 'list.size()'");
+		if(offset < 0) {
+		    throw new IndexOutOfBoundsException("Offset may not be smaller then 0.");
+		}
+		if(length < 0) {
+		    throw new IndexOutOfBoundsException("Length may not be smaller then 0.");
+		}
+		if((offset + length) > size()) {
+		    throw new IndexOutOfBoundsException("'offset + length' may not be larger then 'list.size()'");
+		}
 		
 		return new ShareableList<>(this, offset, length);
 	}
@@ -447,7 +465,7 @@ public class ShareableList<E> implements Iterable<E>{
 	 */
 	public ShareableList<E> reverse(){
 		int tempCapacity = frontCapacity;
-		E[] tempData = frontData;
+		@Nullable E[] tempData = frontData;
 		int tempIndex = frontIndex;
 		
 		frontCapacity = backCapacity;
@@ -516,19 +534,26 @@ public class ShareableList<E> implements Iterable<E>{
 	 * 
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(Object o){
-		if(o == null) return false;
+	public boolean equals(@Nullable Object o){
+		if (o == null) {
+		    return false;
+		}
 		
-		if(o.getClass() == getClass()){
+		if (o.getClass() == getClass()) {
 			ShareableList<?> other = (ShareableList<?>) o;
 			
-			if(other.size() == size()){
-				if(isEmpty()) return true; // No need to check if the lists are empty.
+			if (other.size() == size()) {
+				if (isEmpty()) {
+				    return true; // No need to check if the lists are empty.
+				}
 				
 				Iterator<E> thisIterator = iterator();
 				Iterator<?> otherIterator = other.iterator();
-				while(thisIterator.hasNext()){
-					if(!thisIterator.next().equals(otherIterator.next())) return false;
+				
+				while (thisIterator.hasNext()) {
+					if (!thisIterator.next().equals(otherIterator.next())) {
+					    return false;
+					}
 				}
 				return true;
 			}
@@ -592,7 +617,7 @@ public class ShareableList<E> implements Iterable<E>{
 			
 			currentIndex = shareableList.backIndex - 1;
 			front = false;
-			if(currentIndex < 0){
+			if (currentIndex < 0){
 				currentIndex = 0;
 				front = true;
 			}
@@ -605,6 +630,7 @@ public class ShareableList<E> implements Iterable<E>{
 		 * 
 		 * @see java.util.Iterator#hasNext()
 		 */
+		@EnsuresNonNull("next()")
 		public boolean hasNext(){
 			return front ? (currentIndex < shareableList.frontIndex) : (currentIndex >= 0);
 		}
@@ -620,21 +646,24 @@ public class ShareableList<E> implements Iterable<E>{
 		 * @see java.util.Iterator#next()
 		 */
 		public E next(){
-			if(!hasNext()) throw new NoSuchElementException("There are no more elements in this iteration.");
+			if(!hasNext()) {
+			    throw new NoSuchElementException("There are no more elements in this iteration.");
+			}
 			
 			E element;
 			
-			if(front){
+			if (front) {
 				element = shareableList.frontData[currentIndex++];
-			}else{
+			} else {
 				element = shareableList.backData[currentIndex--];
+				
 				if(currentIndex == -1){
 					front = true;
 					currentIndex = 0;
 				}
 			}
 			
-			return element;
+			return Objects.requireNonNull(element);
 		}
 		
 		/**

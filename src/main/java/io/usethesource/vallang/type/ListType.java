@@ -21,6 +21,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
@@ -46,8 +48,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 				// TODO remove; this is for bootstrapping with an old version
 				return tf().listType(symbols().fromSymbols((IList) symbol.get("symbols"), store, grammar));
 			}
-			
-			
 		}
 		
 		@Override
@@ -91,10 +91,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         @Override
         public boolean isRecursive() {
             return false;
-        }
-
-        public String randomLabel() {
-            return null;
         }
 	}
 
@@ -203,7 +199,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if(o == this) {
 			return true;
 		}

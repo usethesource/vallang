@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 
 /**
@@ -47,10 +49,6 @@ import io.usethesource.vallang.IConstructor;
 		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
 		    return tf().numberType();
 		}
-
-        public String randomLabel() {
-            return null;
-        }
 	}
 
 	@Override
@@ -127,7 +125,7 @@ import io.usethesource.vallang.IConstructor;
 	 * Should never be called, NodeType is a singleton
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return o == NumberType.getInstance();
 	}
 

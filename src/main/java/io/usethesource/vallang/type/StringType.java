@@ -46,10 +46,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
             return tf().stringType();
         }
-
-        public String randomLabel() {
-            return null;
-        }
 	}
     
     @Override

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -107,7 +109,7 @@ import io.usethesource.vallang.type.TypeFactory;
         return defaultToString();
     }
     
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return this == o;
 	}
 
