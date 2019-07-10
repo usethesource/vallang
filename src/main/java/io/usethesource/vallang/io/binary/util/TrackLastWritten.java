@@ -12,6 +12,8 @@
  */ 
 package io.usethesource.vallang.io.binary.util;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 /**
  * A lookback window in how long ago a certain object was written.
  * Commonly there is a window size, so only the last X are tracked.
@@ -25,11 +27,12 @@ public interface TrackLastWritten<T> {
      * It is very important that this object is not in the window anymore (eg <code>howLongAgo(obj) == -1</code>)
      * @param obj the new object to track.
      */
-    void write(T obj);
+    void write(@NonNull T obj);
+    
     /**
      * How long ago an object was written.
      * @param obj which object
      * @return how many objects ago it was written. 0 means is was the last, 1 means it was the second to last. -1 means that it isn't written yet, or longer than the windows size ago.
      */
-    int howLongAgo(T obj);
+    int howLongAgo(@NonNull T obj);
 }

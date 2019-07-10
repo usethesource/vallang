@@ -27,7 +27,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     private final int maximumSize;
     private int tableSize;
     private int resizeAfter;
-    private Object[] keys;
+    private @Nullable Object[] keys;
     private long[] writtenAt;
     /**
      * We store the hashes at the cost of extra memory, however, this improves the speed of the remove method when the hash is not a simple System.identityHashCode
@@ -49,13 +49,13 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     public static <T> OpenAddressingLastWritten<T> referenceEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
-            protected boolean equals(@Nullable T a, @Nullable T b) {
+            protected boolean equals(T a, T b) {
                 return a == b;
             }
 
             @Override
             protected int hash(T obj) {
-                return System.identityHashCode(Objects.requireNonNull(obj));
+                return System.identityHashCode(obj);
             }
         };
     }
@@ -63,17 +63,13 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     public static <T> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
-            protected boolean equals(@Nullable T a, @Nullable T b) {
-                if (a == null) {
-                    return b == null;
-                }
-                
+            protected boolean equals(T a, T b) {
                 return a.equals(b);
             }
 
             @Override
             protected int hash(T obj) {
-                return Objects.requireNonNull(obj).hashCode();
+                return obj.hashCode();
             }
         };
     }
@@ -154,7 +150,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     @SuppressWarnings("unchecked")
     private int locate(T obj) {
         int pos = (hash(obj) & 0x7FFFFFFF) % tableSize; // 0x7FFFFF to make it positive, Math.abs can fail when MAX_INT is returned
-        final Object[] keys = this.keys;
+        final @Nullable Object[] keys = this.keys;
         Object current = keys[pos];
         if (current == null) {
             return -1;
@@ -169,7 +165,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         return pos;
     }
 
-    protected abstract boolean equals(@Nullable T a, @Nullable T b);
+    protected abstract boolean equals(T a, T b);
     protected abstract int hash(T obj);
 
     private int findSpace(int hash) {
@@ -208,10 +204,10 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
      */
     private void remove(int oldestEntry) {
         int space = oldestEntry;
-        final Object[] keys = this.keys;
+        final @Nullable Object[] keys = this.keys;
         while (true) {
            int candidate = space;
-           Object curr;
+           Object curr = null;
            while (true) {
                candidate = (candidate + 1) % tableSize;
                curr = keys[candidate];
@@ -224,7 +220,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
                    break;
                }
            }
-           keys[space] = curr;
+           keys[space] = Objects.requireNonNull(curr);
            writtenAt[space] = writtenAt[candidate];
            hashes[space] = hashes[candidate];
            //assert oldest[translateOldest(writtenAt[space])] == candidate;
@@ -237,7 +233,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         if (written == resizeAfter && tableSize != maximumSize) {
             tableSize = Math.min(closestPrime(tableSize * 2), maximumSize);
             resizeAfter = Math.min(tableSize / 3, maximumEntries);
-            Object[] oldKeys = keys;
+            @Nullable Object[] oldKeys = keys;
             long[] oldWrittenAt = writtenAt;
             int[] oldHashes = hashes;
 
