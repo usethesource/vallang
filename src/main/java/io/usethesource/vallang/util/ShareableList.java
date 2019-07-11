@@ -504,7 +504,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 	 * 
 	 * @see java.lang.Iterable#iterator()
 	 */
-	public Iterator<E> iterator(){
+	public Iterator<@NonNull E> iterator(){
 		return new ListIterator<E>(this);
 	}
 	
@@ -518,7 +518,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 	public int hashCode(){
 		int hash = 0;
 		
-		Iterator<E> iterator = iterator();
+		Iterator<@NonNull E> iterator = iterator();
 		while(iterator.hasNext()){
 			E element = iterator.next();
 			hash = (hash << 1) ^ element.hashCode();
@@ -547,8 +547,8 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 				    return true; // No need to check if the lists are empty.
 				}
 				
-				Iterator<E> thisIterator = iterator();
-				Iterator<?> otherIterator = other.iterator();
+				Iterator<@NonNull E> thisIterator = iterator();
+				Iterator<@NonNull ?> otherIterator = other.iterator();
 				
 				while (thisIterator.hasNext()) {
 					if (!thisIterator.next().equals(otherIterator.next())) {
@@ -598,7 +598,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 	 * @param <E>
 	 *            The element type.
 	 */
-	private static class ListIterator<E> implements Iterator<E>{
+	private static class ListIterator<E> implements Iterator<@NonNull E>{
 		private final ShareableList<E> shareableList;
 		
 		private int currentIndex;
@@ -644,7 +644,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 		 * 
 		 * @see java.util.Iterator#next()
 		 */
-		public E next(){
+		public @NonNull E next(){
 			if(!hasNext()) {
 			    throw new NoSuchElementException("There are no more elements in this iteration.");
 			}
