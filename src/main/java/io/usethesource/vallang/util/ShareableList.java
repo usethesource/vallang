@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -35,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @param <E>
  *            The element type.
  */
-public class ShareableList<E> implements Iterable<E>{
+public class ShareableList<E> implements Iterable<@NonNull E>{
 	private final static int INITIAL_LOG_SIZE = 2;
 
 	private int frontCapacity;

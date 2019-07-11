@@ -21,7 +21,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  *
  * @param <T>
  */
-public interface TrackLastWritten<T> {
+public interface TrackLastWritten<@NonNull T> {
     /**
      * Register that an object has just been written. 
      * It is very important that this object is not in the window anymore (eg <code>howLongAgo(obj) == -1</code>)

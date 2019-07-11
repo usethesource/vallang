@@ -14,6 +14,7 @@ package io.usethesource.vallang.io.binary.util;
 
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -22,7 +23,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * This implementation is just as fast as using the IdentityHashMap, however it uses less memory on average and we can also use value equality.
  * @author Davy Landman
  */
-public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T>, ClearableWindow {
+public abstract class OpenAddressingLastWritten<@NonNull T> implements TrackLastWritten<T>, ClearableWindow {
     private final int maximumEntries;
     private final int maximumSize;
     private int tableSize;
@@ -46,29 +47,29 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
      * Create a n OpenAddressingLastWritten container using reference equality and identiy hashcode.
      * @param maximumEntries larger than 0 and smaller than Integer.MAX_VALUE  / 2
      */
-    public static <T> OpenAddressingLastWritten<T> referenceEquality(int maximumEntries) {
+    public static <@NonNull T> OpenAddressingLastWritten<T> referenceEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
-            protected boolean equals(T a, T b) {
+            protected boolean equals(@NonNull T a, @NonNull T b) {
                 return a == b;
             }
 
             @Override
-            protected int hash(T obj) {
+            protected int hash(@NonNull T obj) {
                 return System.identityHashCode(obj);
             }
         };
     }
 
-    public static <T> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
+    public static <@NonNull T> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
-            protected boolean equals(T a, T b) {
+            protected boolean equals(@NonNull T a, @NonNull T b) {
                 return a.equals(b);
             }
-
+ 
             @Override
-            protected int hash(T obj) {
+            protected int hash(@NonNull T obj) {
                 return obj.hashCode();
             }
         };
@@ -135,7 +136,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     }
 
     @Override
-    public int howLongAgo(T obj) {
+    public int howLongAgo(@NonNull T obj) {
         int pos = locate(obj);
         if (pos != -1) {
             return (int) ((written - writtenAt[pos]) - 1);
@@ -148,25 +149,27 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     }
     
     @SuppressWarnings("unchecked")
-    private int locate(T obj) {
+    private int locate(@NonNull T obj) {
         int pos = (hash(obj) & 0x7FFFFFFF) % tableSize; // 0x7FFFFF to make it positive, Math.abs can fail when MAX_INT is returned
         final @Nullable Object[] keys = this.keys;
-        Object current = keys[pos];
+        @Nullable Object current = keys[pos];
         if (current == null) {
             return -1;
         }
-        while (!equals((T) current, obj)) {
+        
+        while (!equals(Objects.requireNonNull((T) current), obj)) {
             pos = (pos + 1) % tableSize;
             current = keys[pos];
             if (current == null) {
                 return -1;
             }
         }
+        
         return pos;
     }
 
-    protected abstract boolean equals(T a, T b);
-    protected abstract int hash(T obj);
+    protected abstract boolean equals(@NonNull T a, @NonNull T b);
+    protected abstract int hash(@NonNull T obj);
 
     private int findSpace(int hash) {
         int pos = (hash & 0x7FFFFFFF) % tableSize; 
@@ -177,7 +180,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     }
 
     @Override
-    public void write(T obj) {
+    public void write(@NonNull T obj) {
         growIfNeeded();
         int historyPos = translateOldest(written);
         int oldestEntry = oldest[historyPos];
