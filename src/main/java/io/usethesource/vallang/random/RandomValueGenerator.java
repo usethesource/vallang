@@ -270,18 +270,25 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
             ISourceLocation result = vf.sourceLocation(scheme, authority, path, query, fragment);
             if (oneEvery(10) && depthLeft() > 1) {
-                // also generate offset and line and friends
-                int bound = oneEvery(10) ? Integer.MAX_VALUE : 512;
-                if (oneEvery(3)) {
-                    result = vf.sourceLocation(result, random.nextInt(bound), random.nextInt(bound), random.nextInt(bound),
-                                    random.nextInt(bound), random.nextInt(bound), random.nextInt(bound));
+                try {
+                    // also generate offset and line and friends
+                    int bound = oneEvery(10) ? Integer.MAX_VALUE : 512;
+                    if (oneEvery(3)) {
+                        int startLine = random.nextInt(bound);
+                        int endLine = Math.addExact(startLine, random.nextInt(bound));
+                        result = vf.sourceLocation(result, random.nextInt(bound), random.nextInt(bound), startLine,
+                                endLine, random.nextInt(bound), random.nextInt(bound));
+                    } else {
+                        result = vf.sourceLocation(result, random.nextInt(bound), random.nextInt(bound));
+                    }
                 }
-                else {
-                    result = vf.sourceLocation(result, random.nextInt(bound), random.nextInt(bound));
+                catch (IllegalArgumentException | ArithmeticException ignored) {
+                    // something went wrong with generating the the offset, so let's just fall back to returning the
+                    // plain result without added offsets
                 }
             }
             return result;
-        } catch (URISyntaxException | IllegalArgumentException e) {
+        } catch (URISyntaxException e) {
             // generated illegal URI?
             try {
                 return vf.sourceLocation("tmp", "", "/");
