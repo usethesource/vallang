@@ -1,7 +1,12 @@
 package io.usethesource.vallang.issues;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.io.StandardTextWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -30,5 +35,13 @@ public class RegressionTests {
             assertTrue(!rel.isEqual(set));
             assertTrue(!set.isEqual(rel));
         }
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    void toStringSourceLocationEqualsTextWriter(IValueFactory vf, ISourceLocation loc) throws IOException {
+        StandardTextWriter writer = new StandardTextWriter(false);
+        StringWriter target = new StringWriter();
+        writer.write(loc, target);
+        assertEquals(target.toString(), loc.toString());
     }
 }
