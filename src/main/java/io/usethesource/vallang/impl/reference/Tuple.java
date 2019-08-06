@@ -42,12 +42,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		return fType;
 	}
 
-	/*package*/ Tuple(Type tupleType, IValue[] elems) {
-		super();
-		this.fType = tupleType;
-		this.fElements = elems;
-	}
-
 	@Override
 	public Iterator<IValue> iterator() {
 		return new Iterator<IValue>() {
@@ -179,6 +173,6 @@ import io.usethesource.vallang.type.TypeFactory;
 			elems[i] = get(fields[i]);
 			elemTypes[i] = elems[i].getType();
 		}
-		return new Tuple(TypeFactory.getInstance().tupleType(elemTypes), elems);
+		return new Tuple(elems);
 	}
 }

@@ -230,10 +230,11 @@ import io.usethesource.vallang.type.TypeFactory;
         if (o instanceof IList) {
             IList otherList = (IList) o;
 
-            if (getType() != otherList.getType()) return false;
+            if (getType() != otherList.getType()) {
+                return false;
+            }
 
-
-            if(otherList instanceof List) {
+            if (otherList instanceof List) {
                 List oList = (List) o;
 
                 if (hashCode != oList.hashCode) return false;
@@ -317,14 +318,11 @@ class SubList implements IList {
         return hashCode;
     }
 
-    @SuppressWarnings("unlikely-arg-type")
+    @Override
     public boolean equals(Object o){
         if(o == this) return true;
         if(o == null) return false;
 
-        if(o instanceof List) {		
-            return ((List) o).equals(this);
-        }
 
         if(o instanceof SubList){
             SubList otherList = (SubList) o;
@@ -332,6 +330,10 @@ class SubList implements IList {
             return base.equals(otherList.base) && offset == otherList.offset && length == otherList.length;
         }
 
+        if (o instanceof IList) {
+            return defaultEquals(o);
+        }
+        
         return false;
     }
 

@@ -284,12 +284,6 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    @Deprecated
-    public ITuple tuple(Type type, IValue... args) {
-        return adapted.tuple(type, args);
-    }
-
-    @Override
     public INode node(String name, Map<String, IValue> annotations, IValue... children) {
         return adapted.node(name, annotations, children);
     }
