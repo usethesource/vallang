@@ -15,6 +15,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.EnsuresKeyFor;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.util.ShareableHashSet;
 
@@ -147,7 +150,8 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		}
 	}
 	
-	public IValue put(IValue key, IValue value){
+	@EnsuresKeyFor(value="key", map="this")
+	public @Nullable IValue put(IValue key, IValue value){
 		ensureCapacity();
 		
 		int hash = key.hashCode();
@@ -177,7 +181,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return null;
 	}
 	
-	public IValue remove(Object object){
+	public @Nullable IValue remove(Object object){
 		IValue key = (IValue) object;
 		
 		int hash = key.hashCode();
@@ -212,7 +216,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return null; // Not found.
 	}
 	
-	public IValue get(Object object){
+	public @Nullable IValue get(Object object){
 		IValue key = (IValue) object;
 		
 		int hash = key.hashCode();
@@ -262,7 +266,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		}
 	}
 	
-	public boolean containsKey(Object object){
+	public boolean containsKey(@Nullable Object object){
 		IValue key = (IValue) object;
 		
 		int hash = key.hashCode();

@@ -89,10 +89,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 				Set<IConstructor> done) {
 			type.getElementType().asProductions(vf, store, grammar, done);
 		}
-
-        public String randomLabel() {
-            return null;
-        }
 	}
 	
 

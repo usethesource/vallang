@@ -2,6 +2,7 @@ package io.usethesource.vallang.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -19,7 +20,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /*package*/ class SourceLocationURIValues {
     private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
     private static final Pattern doubleSlashes = Pattern.compile("//+");
-    static ISourceLocation newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException  {
+    
+    static ISourceLocation newURI(@Nullable String scheme, @Nullable String authority, @Nullable String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException  {
         scheme = nullifyIfEmpty(scheme);
         authority = nullifyIfEmpty(authority);
         if (path != null) {
@@ -106,16 +108,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     private static class BaseURI implements ISourceLocation {
         protected final String scheme;
 
-
         public BaseURI(String scheme)  {
-            this.scheme = INTERNED_SCHEMES.get(scheme);
+            this.scheme = Objects.requireNonNull(INTERNED_SCHEMES.get(scheme));
         }
-
 
         @Override
         public URI getURI() {
             try {
-                return new URI(scheme,"","/",null,null);
+                return new URI(scheme, "", "/", null, null);
             } catch (URISyntaxException e) {
                 throw new RuntimeException("Internal state corrupted?", e);
             }
@@ -136,9 +136,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                 return true;
             }
 
-            if(obj.getClass() == getClass()){
+            if (obj.getClass() == getClass()){
                 return scheme == ((BaseURI)obj).scheme;
             }
+            
             return false;
         }
 

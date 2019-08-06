@@ -29,15 +29,16 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
+import io.usethesource.vallang.impl.reference.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 // TODO: add support for values of type Value, for this we need overloading resolving
 public class ATermReader extends AbstractBinaryReader {
-	private IValueFactory vf;
-	private TypeFactory tf = TypeFactory.getInstance();
-	private TypeStore ts;
+	private final TypeFactory tf = TypeFactory.getInstance();
+	private IValueFactory vf = ValueFactory.getInstance();
+	private TypeStore ts = new TypeStore();
 
 	public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
 			throws FactParseError, IOException {

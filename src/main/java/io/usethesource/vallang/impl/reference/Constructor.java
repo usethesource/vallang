@@ -19,6 +19,8 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
+
+import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -172,7 +174,7 @@ public class Constructor extends Node implements IConstructor {
             }
 
             @Override
-            public java.util.Set<String> getParameterNames() {
+            public java.util.Set<@KeyFor("this.parameters") String> getParameterNames() {
                 return parameters.keySet();
             }
 

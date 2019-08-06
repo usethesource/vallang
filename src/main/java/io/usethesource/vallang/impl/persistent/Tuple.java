@@ -13,6 +13,8 @@ package io.usethesource.vallang.impl.persistent;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -157,11 +159,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (o == this)
+	public boolean equals(@Nullable Object o) {
+		if (o == this) {
 			return true;
-		if (o == null)
+		}
+		
+		if (o == null) {
 			return false;
+		}
 
 		if (o.getClass() == getClass()) {
 			Tuple otherTuple = (Tuple) o;
@@ -182,10 +187,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 	@Override
 	public boolean isEqual(IValue value) {
-		if (value == this)
+		if (value == this) {
 			return true;
-		if (value == null)
+		}
+		if (value == null) {
 			return false;
+		}
 
 		if (value instanceof Tuple) {
 			Tuple otherTuple = (Tuple) value;
@@ -210,10 +217,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	
 	@Override
     public boolean match(IValue value) {
-        if (value == this)
+        if (value == this) {
             return true;
-        if (value == null)
+        }
+        if (value == null) {
             return false;
+        }
 
         if (value instanceof Tuple) {
             Tuple otherTuple = (Tuple) value;

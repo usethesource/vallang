@@ -12,6 +12,8 @@ package io.usethesource.vallang.impl.util.sharing;
 
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * This cache stores a predefined range of values.<br /><br />
  * Note that this class provides lock-free thread-safe access.
@@ -21,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * @param <T> The content type.
  */
 public class IndexedCache<T>{
-	private final AtomicReferenceArray<T> atomicCacheArray;
+	private final AtomicReferenceArray<@Nullable T> atomicCacheArray;
 	private final int size;
 	
 	/**

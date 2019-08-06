@@ -17,6 +17,8 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IBool;
@@ -52,13 +54,13 @@ public class StacklessStructuredVisitor {
 
     @FunctionalInterface
     private static interface NextStepConsumer<E extends Throwable> {
-        void accept(IValue current, Deque<NextStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E;
+        void accept(@Nullable IValue current, Deque<NextStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E;
     }
     
     private final static class NextStep<E extends Throwable> {
-        final IValue val;
+        final @Nullable IValue val;
         final NextStepConsumer<E> next;
-        public NextStep(IValue val, NextStepConsumer<E> next) {
+        public NextStep(@Nullable IValue val, NextStepConsumer<E> next) {
             this.val = val;
             this.next = next;
         }

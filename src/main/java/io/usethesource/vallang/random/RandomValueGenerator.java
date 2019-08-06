@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     protected final int maxWidth;
     
     protected int currentDepth;
-    protected TypeStore currentStore;
+    protected Optional<TypeStore> currentStore;
     protected Map<Type, Type> typeParameters;
     
     
@@ -66,7 +67,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         this.generateAnnotations = generateAnnotations;
         this.rt = new RandomTypeGenerator(random);
 
-        this.currentStore = null;
+        this.currentStore = Optional.empty();
         this.currentDepth = -1;
         this.typeParameters = null;
     }
@@ -91,13 +92,13 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
             throw new IllegalStateException("Don't call this method in a nested scenario, RandomValueGenerator's should only be re-used sequentually");
         }
         currentDepth = 0;
-        currentStore = store;
+        currentStore = Optional.of(store);
         this.typeParameters = typeParameters;
         try {
             return type.accept(this);
         } finally {
             currentDepth = -1;
-            currentStore = null;
+            currentStore = Optional.empty();
             this.typeParameters = null;
         }
     }
@@ -396,7 +397,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitAbstractData(Type type) throws RuntimeException {
-        Set<Type> candidates = currentStore.lookupAlternatives(type);
+        Set<Type> candidates = currentStore.orElse(new TypeStore()).lookupAlternatives(type);
         if (candidates.isEmpty()) {
             throw new UnsupportedOperationException("The "+type+" ADT has no constructors in the type store");
         }
@@ -420,8 +421,9 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     @SuppressWarnings("deprecation")
     @Override
     public IValue visitConstructor(Type type) throws RuntimeException {
-        Map<String, Type> kwParamsType = currentStore.getKeywordParameters(type);
-        Map<String, Type> annoType = currentStore.getAnnotations(type);
+        TypeStore store = currentStore.orElse(new TypeStore());
+        Map<String, Type> kwParamsType = store.getKeywordParameters(type);
+        Map<String, Type> annoType = store.getAnnotations(type);
         
         if (type.getArity() == 0 && kwParamsType.size() == 0 && annoType.size() == 0) { 
             return vf.constructor(type);

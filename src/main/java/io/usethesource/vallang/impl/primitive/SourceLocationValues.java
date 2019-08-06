@@ -15,7 +15,10 @@ package io.usethesource.vallang.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -199,7 +202,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		@Override
 		public URI getURI() {
-		    return reverseLocationCache.get(root, u -> {
+		    return Objects.requireNonNull(reverseLocationCache.get(root, u -> {
                 URI result = u.getURI();
                 try {
                     // assure correct encoding, side effect of JRE's implementation of URIs
@@ -207,7 +210,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 } catch (URISyntaxException e) {
                 } 
                 return result;
-		    });
+		    }));
 		}
 		
 		@Override
@@ -328,7 +331,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -413,7 +416,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -498,7 +501,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -579,7 +582,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -660,7 +663,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -714,7 +717,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -764,7 +767,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -819,7 +822,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
