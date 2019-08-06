@@ -25,6 +25,8 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.SetMultimap;
@@ -219,7 +221,7 @@ private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (other == this) {
       return true;
     }

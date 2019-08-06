@@ -30,6 +30,8 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -199,7 +201,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
             return other == this;
         }
 
@@ -355,7 +357,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
             return super.equals(other);
         }
 
@@ -891,7 +893,11 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
+            if (other == null) {
+                return false;
+            }
+            
             if (other == this) {
                 return true;
             }
@@ -1007,7 +1013,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
             return super.equals(other);
         }
 

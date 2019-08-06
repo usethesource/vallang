@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
@@ -70,7 +72,7 @@ class NodeType extends DefaultSubtypeOfValue {
 	 * Should never be called, NodeType is a singleton
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return o == NodeType.getInstance();
 	}
 

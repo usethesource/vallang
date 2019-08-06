@@ -14,6 +14,8 @@ package io.usethesource.vallang.impl.persistent;
 
 import java.util.Iterator;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
@@ -113,10 +115,11 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 
 	@Override
-	public boolean equals(Object o){
+	public boolean equals(@Nullable Object o){
 		if (o == this) {
 		  return true;
 		}
+		
 		if (o == null) {
 		  return false;
 		}

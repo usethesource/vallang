@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -95,9 +97,14 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(o == this) return true;
-        if(o == null) return false;
+    public boolean equals(@Nullable Object o) {
+        if (o == this) {
+            return true;
+        }
+        
+        if (o == null) {
+            return false;
+        }
 
         if(o.getClass() == getClass()){
             ConstructorWithKeywordParametersFacade other = (ConstructorWithKeywordParametersFacade) o;

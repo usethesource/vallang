@@ -17,6 +17,8 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
@@ -150,11 +152,14 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	public boolean equals(Object other) {
-		if (other == this)
+	public boolean equals(@Nullable Object other) {
+		if (other == this) {
 			return true;
-		if (other == null)
+		}
+		
+		if (other == null) {
 			return false;
+		}
 		
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
@@ -178,11 +183,10 @@ public final class PersistentHashMap implements IMap {
 	@Override
 	@SuppressWarnings("deprecation")
 	public boolean isEqual(IValue other) {
-		if (other == this)
+		if (other == this) {
 			return true;
-		if (other == null)
-			return false;
-
+		}
+		
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
 

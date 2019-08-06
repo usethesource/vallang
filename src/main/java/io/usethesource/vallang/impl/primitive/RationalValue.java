@@ -12,6 +12,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
@@ -227,9 +229,15 @@ import io.usethesource.vallang.type.TypeFactory;
 		return equals(other);
 	}
 
-	public boolean equals(Object o) {
-		if(o == null) return false;
-		if(o == this) return true;
+	@Override
+	public boolean equals(@Nullable Object o) {
+		if (o == null) {
+		    return false;
+		}
+		
+		if (o == this) {
+		    return true;
+		}
 
 		if(o.getClass() == getClass()){
 			RationalValue other = (RationalValue) o;

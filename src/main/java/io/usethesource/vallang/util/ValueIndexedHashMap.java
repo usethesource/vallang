@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 
@@ -477,8 +479,10 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * 
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(Object o){
-		if(o == null) return false;
+	public boolean equals(@Nullable Object o){
+		if(o == null) {
+		    return false;
+		}
 		
 		if(o.getClass() == getClass()){
             ValueIndexedHashMap<?> other = (ValueIndexedHashMap<?>) o;

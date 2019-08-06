@@ -15,6 +15,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * This set implementation is shareable and can be easily cloned
  * (simple arraycopy of the entries array).
@@ -446,20 +448,31 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 	 * 
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(Object o){
-		if(o == null) return false;
+	@Override
+	public boolean equals(@Nullable Object o){
+		if (o == null) {
+		    return false;
+		}
 		
-		if(o.getClass() == getClass()){
+		if (o.getClass() == getClass()){
             ShareableHashSet<?> other = (ShareableHashSet<?>) o;
 			
-			if(other.currentHashCode != currentHashCode) return false;
-			if(other.size() != size()) return false;
+			if (other.currentHashCode != currentHashCode) {
+			    return false;
+			}
+			if (other.size() != size()) {
+			    return false;
+			}
 			
-			if(isEmpty()) return true; // No need to check if the sets are empty.
+			if (isEmpty()) {
+			    return true; // No need to check if the sets are empty.
+			}
 			
 			Iterator<?> otherIterator = other.iterator();
-			while(otherIterator.hasNext()){
-				if(!contains(otherIterator.next())) return false;
+			while (otherIterator.hasNext()){
+				if (!contains(otherIterator.next())) {
+				    return false;
+				}
 			}
 			return true;
 		}

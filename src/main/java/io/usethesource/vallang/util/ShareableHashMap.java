@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * This map implementation is shareable and can be easily cloned
  * (simple arraycopy of the entries array).
@@ -476,8 +478,10 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 	 * 
 	 * @see java.lang.Object#equals(Object)
 	 */
-	public boolean equals(Object o){
-		if(o == null) return false;
+	public boolean equals(@Nullable Object o){
+		if(o == null) {
+		    return false;
+		}
 		
 		if(o.getClass() == getClass()){
 			ShareableHashMap<?, ?> other = (ShareableHashMap<?, ?>) o;

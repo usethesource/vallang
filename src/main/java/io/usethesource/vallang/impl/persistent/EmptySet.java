@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -102,7 +104,7 @@ public final class EmptySet implements ISet {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     return other == this;
   }
 

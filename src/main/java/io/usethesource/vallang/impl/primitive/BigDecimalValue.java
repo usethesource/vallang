@@ -20,6 +20,8 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
@@ -306,6 +308,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	 * // might lead to many collisions.
 	 * // return Double.valueOf(value.doubleValue()).hashCode();
 	 */
+	@Override
 	public int hashCode(){
 		// BigDecimals don't generate consistent hashcodes for things that are actually 'equal'.
 		// This code rectifies this problem.
@@ -313,8 +316,11 @@ import io.usethesource.vallang.type.TypeFactory;
 		return (int) (bits ^ (bits >>> 32));
 	}
 	
-	public boolean equals(Object o){
-		if(o == null) return false;
+	@Override
+	public boolean equals(@Nullable Object o){
+		if(o == null) {
+		    return false;
+		}
 		
 		if(o.getClass() == getClass()){
 			BigDecimalValue otherDouble = (BigDecimalValue) o;

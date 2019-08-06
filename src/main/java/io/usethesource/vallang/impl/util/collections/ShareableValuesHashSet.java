@@ -15,6 +15,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
 
@@ -402,8 +404,10 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		return false;
 	}
 	
-	public boolean equals(Object o){
-		if(o == null) return false;
+	public boolean equals(@Nullable Object o){
+		if(o == null) {
+		    return false;
+		}
 		
 		if(o.getClass() == getClass()){
 			ShareableValuesHashSet other = (ShareableValuesHashSet) o;

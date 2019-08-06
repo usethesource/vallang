@@ -443,7 +443,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return null;
 	}
 	
-	public boolean equals(Object o){
+	public boolean equals(@Nullable Object o){
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){
