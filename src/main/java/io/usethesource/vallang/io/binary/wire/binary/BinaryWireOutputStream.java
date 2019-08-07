@@ -38,13 +38,13 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public BinaryWireOutputStream(OutputStream stream, int stringSharingWindowSize, int bufferSize) throws IOException {
         assert stringSharingWindowSize > 0;
         if (stream instanceof BufferedOutputStream || stream instanceof ByteBufferOutputStream) {
-            this.__stream = stream;
+            __stream = stream;
         }
         else {
-            this.__stream = new BufferedOutputStream(stream, bufferSize);
+            __stream = new BufferedOutputStream(stream, bufferSize);
         }
-        writeBytes(WIRE_VERSION);
-        encodeInteger(stringSharingWindowSize);
+        __stream.write(WIRE_VERSION);
+        encodeInteger(__stream, stringSharingWindowSize);
         this.stringsWritten = WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(stringSharingWindowSize);
     }
     
@@ -58,16 +58,20 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         __stream.write(bytes);
     }
 
+    private static void encodeInteger(OutputStream stream, int value) throws IOException {
+        // unrolling this loop made it slower
+        while((value & ~0x7F) != 0) {
+            stream.write((byte)((value & 0x7F) | 0x80));
+            value >>>= 7;
+        }
+        stream.write((byte)value);
+    }
+
     /*
      * LEB128 encoding (or actually LEB32) of positive and negative integers, negative integers always take 5 bytes, positive integers are compact.
      */
     private void encodeInteger(int value) throws IOException {
-        // unrolling this loop made it slower
-        while((value & ~0x7F) != 0) {
-            __stream.write((byte)((value & 0x7F) | 0x80));
-            value >>>= 7;
-        }
-        __stream.write((byte)value);
+        encodeInteger(__stream, value);
     }
 
     /*

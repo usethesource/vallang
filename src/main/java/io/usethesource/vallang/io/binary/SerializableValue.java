@@ -16,6 +16,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.type.TypeStore;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Experimental wrapper class for serializable IValues. When writing, it persists the class name of
@@ -93,8 +94,10 @@ public class SerializableValue<T extends IValue> implements Serializable {
       byte[] bytes = new byte[amountOfBytes];
       in.read(bytes);
 
-      final Class<?> clazz = getClass().getClassLoader().loadClass(new String(factoryName, "UTF8"));
-      this.vf = (IValueFactory) clazz.getMethod("getInstance").invoke(null);
+      final Class<?> clazz = Objects.requireNonNull(getClass().getClassLoader()).loadClass(new String(factoryName, "UTF8"));
+      @SuppressWarnings("nullness") // CF cannot "handle" the null that goes into the invoke, see: https://github.com/typetools/checker-framework/issues/1365
+      @Nullable IValueFactory newVF =(IValueFactory)clazz.getMethod("getInstance").invoke(null);
+      this.vf = Objects.requireNonNull(newVF);
 
       /**
        * NOTE: does allocate a new empty {@link TypeStore} instance when reading in values.
