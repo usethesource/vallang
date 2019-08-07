@@ -37,8 +37,11 @@ public class LinearCircularLookupWindow<T> implements TrackLastRead<T>, Clearabl
     @Override
     public T lookBack(int offset) {
         assert offset + 1 <= written && offset < maxSize;
-        return Objects.requireNonNull(data[translate(written - (offset + 1))]);
-        
+        T result = data[translate(written - (offset + 1))];
+        if (result == null) {
+            throw new RuntimeException("Lookback of " + offset + "was invalid");
+        }
+        return result;
     }
     
     @Override

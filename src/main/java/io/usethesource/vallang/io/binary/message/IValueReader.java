@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.usethesource.capsule.Map;
@@ -38,12 +39,15 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An utility class for the {@link IValueInputStream}. Only directly use methods in this class if you have nested IValues in an existing {@link IWireInputStream}.
  */
 public class IValueReader {
     private static final TypeFactory tf = TypeFactory.getInstance();
+    private static final Type VOID_TYPE = tf.voidType();
 
     /**
      * Read a value from the wire reader. <br/>
@@ -192,9 +196,9 @@ public class IValueReader {
                 // Composite types
 
             case IValueIDs.ADTType.ID: {   
-                String name = null;
+                String name = "";
                 boolean backReference = false;
-                Type typeParam = null;
+                Type typeParam = VOID_TYPE;
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
@@ -212,17 +216,16 @@ public class IValueReader {
                             break;
                     }
                 }
-
-                assert name != null && typeParam != null;
+                assert !name.isEmpty();
 
                 return returnAndStore(backReference, typeWindow, tf.abstractDataTypeFromTuple(store, name, typeParam));
             }
 
             case IValueIDs.AliasType.ID:   {   
-                String name = null;
+                String name = "";
                 boolean backReference = false;
-                Type typeParameters = tf.voidType();
-                Type aliasedType = null;
+                Type typeParameters = VOID_TYPE;
+                Type aliasedType = VOID_TYPE;
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
@@ -244,16 +247,17 @@ public class IValueReader {
                     }
                 }
 
-                assert name != null;
+                assert !name.isEmpty() && aliasedType != VOID_TYPE;
+
 
                 return returnAndStore(backReference, typeWindow, tf.aliasTypeFromTuple(store, name, aliasedType, typeParameters));
             }
 
             case IValueIDs.ConstructorType.ID:     {
-                String name = null;
+                String name = "";
                 boolean backReference = false;
-                Type fieldTypes = null;
-                Type adtType = null;
+                Type fieldTypes = VOID_TYPE;
+                Type adtType = VOID_TYPE;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
@@ -271,7 +275,7 @@ public class IValueReader {
                     }
                 }
 
-                assert name != null;
+                assert !name.isEmpty() && fieldTypes != VOID_TYPE && adtType != VOID_TYPE;
 
                 return returnAndStore(backReference, typeWindow, tf.constructorFromTuple(store, adtType, name, fieldTypes));
             }
@@ -280,7 +284,7 @@ public class IValueReader {
             case IValueIDs.ExternalType.ID: {
 
                 boolean backReference = false; 
-                IConstructor symbol = null;
+                @MonotonicNonNull IConstructor symbol = null;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
@@ -292,6 +296,10 @@ public class IValueReader {
                     }
                 }
 
+                if (symbol == null) {
+                    throw new IOException("ExternalType is missing the SYMBOL field");
+                }
+
                 /**
                  * TODO previous code allocated a new {@link TypeStore} instance from the
                  * {@link RascalValueFactory}. Is creating a new instance necessary here?
@@ -301,7 +309,7 @@ public class IValueReader {
 
             case IValueIDs.ListType.ID:    {
                 boolean backReference = false;
-                Type elemType = null;
+                Type elemType = VOID_TYPE;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
@@ -317,8 +325,8 @@ public class IValueReader {
 
             case IValueIDs.MapType.ID: {   
                 boolean backReference = false;
-                Type valType = null;
-                Type keyType = null;
+                Type valType = VOID_TYPE;
+                Type keyType = VOID_TYPE;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
@@ -336,9 +344,9 @@ public class IValueReader {
             }
 
             case IValueIDs.ParameterType.ID:   {
-                String name = null;
+                String name = "";
                 boolean backReference = false;
-                Type bound = null;
+                Type bound = VOID_TYPE;
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
@@ -354,14 +362,14 @@ public class IValueReader {
                             
                     }
                 }
-                assert name != null;
+                assert !name.isEmpty();
 
                 return returnAndStore(backReference, typeWindow, tf.parameterType(name, bound));
             }
 
             case IValueIDs.SetType.ID: {
                 boolean backReference = false;
-                Type elemType = null;
+                Type elemType = VOID_TYPE;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
@@ -377,8 +385,8 @@ public class IValueReader {
 
             case IValueIDs.TupleType.ID: {
                 boolean backReference = false;
-                String [] fieldNames = null;
-                Type[] elemTypes = null;
+                String [] fieldNames = new String[0];
+                Type[] elemTypes = new Type[0];
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
@@ -397,7 +405,7 @@ public class IValueReader {
                     }
                 }
 
-                if(fieldNames != null){
+                if(fieldNames.length != 0){
                     assert fieldNames.length == elemTypes.length;
                     return returnAndStore(backReference, typeWindow, tf.tupleType(elemTypes, fieldNames));
                 } else {
@@ -406,7 +414,7 @@ public class IValueReader {
             }
 
             case IValueIDs.PreviousType.ID: {
-                Integer n = null;
+                int n = -1;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
                         case IValueIDs.PreviousType.HOW_LONG_AGO:
@@ -417,14 +425,11 @@ public class IValueReader {
                             break;
                     }
                 }
-
-                assert n != null;
-
-                Type type = typeWindow.lookBack(n);
-                if(type == null){
-                    throw new RuntimeException("Unexpected type cache miss");
+                if (n == -1) {
+                    throw new IOException("Missing HOW_LOG_AGO field in PreviousType");
                 }
-                return type;
+
+                return typeWindow.lookBack(n);
             }
             default:
                 throw new IOException("Unexpected new message: " + reader.message());
