@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.Objects;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class FileChannelDirectInputStream extends ByteBufferInputStream {
     private final FileChannel channel;
@@ -48,7 +50,7 @@ public class FileChannelDirectInputStream extends ByteBufferInputStream {
         }
     }
     // from: http://stackoverflow.com/a/19447758/11098
-    private static void closeDirectBuffer(ByteBuffer cb) {
+    private static void closeDirectBuffer(@Nullable ByteBuffer cb) {
         if (cb==null || !cb.isDirect()) return;
 
         // we could use this type cast and call functions without reflection code,
@@ -59,7 +61,7 @@ public class FileChannelDirectInputStream extends ByteBufferInputStream {
             cleaner.setAccessible(true);
             Method clean = Class.forName("sun.misc.Cleaner").getMethod("clean");
             clean.setAccessible(true);
-            clean.invoke(cleaner.invoke(cb));
+            clean.invoke(Objects.requireNonNull(cleaner.invoke(cb)));
         } catch(Exception ex) { }
         cb = null;
     }
