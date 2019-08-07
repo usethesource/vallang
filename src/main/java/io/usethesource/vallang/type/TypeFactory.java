@@ -244,6 +244,10 @@ public class TypeFactory {
 	 */
 	@Deprecated
 	public Type tupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
+	    if (fieldTypesAndLabels.length == 0) {
+	        return tupleEmpty();
+	    }
+	    
 		int N = fieldTypesAndLabels.length;
 		int arity = N / 2;
 		Type[] protoFieldTypes = new Type[arity];
@@ -499,8 +503,7 @@ public class TypeFactory {
 	 *           , UndeclaredAbstractDataTypeException,
 	 *           RedeclaredFieldNameException, RedeclaredConstructorException
 	 */
-	public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType)
-			throws FactTypeDeclarationException {
+	public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType) throws FactTypeDeclarationException {
 		checkNull(store, adt, name, tupleType);
 
 		if (!isIdentifier(name)) {
