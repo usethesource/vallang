@@ -40,6 +40,7 @@ import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
+import java.util.Objects;
 
 /**
  * An utility class for the {@link IValueOutputStream}. Only directly use methods in this class if you have nested IValues in an exisiting {@link IWireOutputStream}.
@@ -275,9 +276,9 @@ public class IValueWriter {
                     type.getFieldType(i).accept(this);
                 }
 
-                String[] fieldNames = type.getFieldNames();
-                if(fieldNames != null){
-                    writer.writeField(IValueIDs.TupleType.NAMES, fieldNames);
+
+                if( type.hasFieldNames()){
+                    writer.writeField(IValueIDs.TupleType.NAMES, type.getFieldNames());
                 }
 
                 writer.endMessage();

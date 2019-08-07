@@ -641,8 +641,7 @@ public class IValueReader {
                     break;
             }
         }
-        assert !name.isEmpty();
-        
+
         INode node;
         if (!annos.isEmpty()) {
             node =  vf.node(name, children).asAnnotatable().setAnnotations(annos);
