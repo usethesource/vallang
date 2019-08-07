@@ -93,11 +93,12 @@
 					</execution>
 				</executions>
 				<configuration>
-                    <argLine>
-                        @{argLine} 
-                        -Xmx2G
-		        -ea
-					</argLine>
+				<trimStackTrace>false</trimStackTrace>
+				<argLine>
+				@{argLine} 
+				-Xmx2G
+				-ea
+				</argLine>
 				</configuration>
 			</plugin>
             <plugin>

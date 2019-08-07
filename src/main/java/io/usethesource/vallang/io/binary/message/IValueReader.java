@@ -17,8 +17,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.function.Supplier;
+
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IConstructor;
@@ -39,8 +40,6 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An utility class for the {@link IValueInputStream}. Only directly use methods in this class if you have nested IValues in an existing {@link IWireInputStream}.
