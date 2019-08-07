@@ -825,7 +825,7 @@ public class IValueReader {
 
 
     private IValue readSourceLocation(final IWireInputStream reader) throws IOException {
-        String scheme = null;
+        String scheme = "";
         String authority = "";
         String path = "";
         String query = null;
@@ -880,7 +880,7 @@ public class IValueReader {
 
     private IValue readInteger(final IWireInputStream reader) throws IOException {
         @MonotonicNonNull Integer small = null;
-        @MonotonicNonNull byte[] big = null;
+        byte @MonotonicNonNull[] big = null;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.IntegerValue.INTVALUE:  small = reader.getInteger(); break;

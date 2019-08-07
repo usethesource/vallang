@@ -96,7 +96,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
 
-    private static String nullifyIfEmpty(String str) {
+    private static @Nullable String nullifyIfEmpty(String str) {
         if (str == null || str.isEmpty()) {
             return null;
         }

@@ -19,6 +19,7 @@ import java.util.Map;
 
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An IValueFactory is an AbstractFactory for values. Implementations of this
@@ -335,7 +336,7 @@ public interface IValueFactory {
 	 * @return
 	 */
 	public ISourceLocation sourceLocation(String scheme, String authority,
-			String path, String query, String fragment)
+			String path, @Nullable String query, @Nullable String fragment)
 			throws URISyntaxException;
 
 	/**

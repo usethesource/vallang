@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.github.luben.zstd.ZstdDirectBufferCompressingStream;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 public class DelayedZstdOutputStream extends ByteBufferOutputStream {
 
@@ -24,7 +25,7 @@ public class DelayedZstdOutputStream extends ByteBufferOutputStream {
     private int compressHeader;
     private final int level;
     private boolean firstFlush = true;
-    private ZstdDirectBufferCompressingStream compressor = null;
+    private @MonotonicNonNull ZstdDirectBufferCompressingStream compressor = null;
     
 
     public DelayedZstdOutputStream(ByteBufferOutputStream out, int compressHeader, int level) throws IOException {
