@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -35,6 +36,7 @@ import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A generator of RandomValues, based on Wietse Venema's Cobra generator in the rascal project
@@ -51,8 +53,8 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     protected final int maxWidth;
     
     protected int currentDepth;
-    protected Optional<TypeStore> currentStore;
-    protected Map<Type, Type> typeParameters;
+    protected @Nullable TypeStore currentStore;
+    protected @Nullable Map<Type, Type> typeParameters;
     
     
 
@@ -67,7 +69,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         this.generateAnnotations = generateAnnotations;
         this.rt = new RandomTypeGenerator(random);
 
-        this.currentStore = Optional.empty();
+        this.currentStore = null;
         this.currentDepth = -1;
         this.typeParameters = null;
     }
@@ -92,13 +94,13 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
             throw new IllegalStateException("Don't call this method in a nested scenario, RandomValueGenerator's should only be re-used sequentually");
         }
         currentDepth = 0;
-        currentStore = Optional.of(store);
+        currentStore = store;
         this.typeParameters = typeParameters;
         try {
             return type.accept(this);
         } finally {
             currentDepth = -1;
-            currentStore = Optional.empty();
+            currentStore = null;
             this.typeParameters = null;
         }
     }
@@ -397,7 +399,11 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitAbstractData(Type type) throws RuntimeException {
-        Set<Type> candidates = currentStore.orElse(new TypeStore()).lookupAlternatives(type);
+        TypeStore store = currentStore;
+        if (store == null) {
+            throw new RuntimeException("Missing TypeStore");
+        }
+        Set<Type> candidates = store.lookupAlternatives(type);
         if (candidates.isEmpty()) {
             throw new UnsupportedOperationException("The "+type+" ADT has no constructors in the type store");
         }
@@ -421,7 +427,10 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     @SuppressWarnings("deprecation")
     @Override
     public IValue visitConstructor(Type type) throws RuntimeException {
-        TypeStore store = currentStore.orElse(new TypeStore());
+        TypeStore store = currentStore;
+        if (store == null) {
+            throw new RuntimeException("Missing TypeStore");
+        }
         Map<String, Type> kwParamsType = store.getKeywordParameters(type);
         Map<String, Type> annoType = store.getAnnotations(type);
         
@@ -465,7 +474,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitParameter(Type parameterType) throws RuntimeException {
-        Type type = typeParameters.get(parameterType);
+        Type type = Objects.requireNonNull(typeParameters, "Type Parameters not set").get(parameterType);
         if(type == null){
             throw new IllegalArgumentException("Unbound type parameter " + parameterType);
         }
