@@ -121,7 +121,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
-			String path, String query, String fragment) throws URISyntaxException {
+			String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException {
 		return SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
 	}
 

@@ -30,6 +30,7 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
 
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IString;
@@ -180,10 +181,7 @@ import io.usethesource.vallang.type.TypeFactory;
             return InstanceHolder.instance;
         }
 
-        private EmptyString() { 
-            // the contract is that all String implementations use the same hashCode algorithm as java.lang.String
-            assert hashCode() == getValue().hashCode();
-        }
+        private EmptyString() {  }
 
         @Override
         boolean hasNonBMPCodePoints() {
@@ -332,7 +330,7 @@ import io.usethesource.vallang.type.TypeFactory;
             AbstractString o = (AbstractString) other;
             int newLineCount;
 
-            if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = concatLineCount(this, o)) <= 1) {
+            if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = IIndentableString.concatLineCount(this, o)) <= 1) {
                 StringBuilder buffer = new StringBuilder();
                 buffer.append(getValue());
                 buffer.append(other.getValue());
@@ -695,7 +693,18 @@ import io.usethesource.vallang.type.TypeFactory;
             return length() != 0 && charAt(length() - 1) == NEWLINE;
         }
 
-        default int concatLineCount(IIndentableString left, IIndentableString right) {
+        /**
+         * Utility function for use in the construction of IIndentableString implementations.
+         * There are details to be handled with respect to the final line of left and the 
+         * first line of right.
+         * 
+         * @param left
+         * @param right
+         * @return the sum of linecounts of left and right, which depends on whether the concatenation
+         *        merges the last line of left with the first line of right or that such
+         *        a merge does not happen.
+         */
+        public static int concatLineCount(IIndentableString left, IIndentableString right) {
             return left.lineCount() - (left.isNewlineTerminated() ? 0 : 1) + right.lineCount(); 
         }
 
@@ -1044,7 +1053,7 @@ import io.usethesource.vallang.type.TypeFactory;
             this.right = right;
             this.length = left.length() + right.length();
             this.depth = Math.max(left.depth(), right.depth()) + 1;
-            this.lineCount = concatLineCount(left, right);
+            this.lineCount = IIndentableString.concatLineCount(left, right);
             this.terminated = right.isNewlineTerminated();
 
 //          great but really expensive asserts. good for debugging, but not for testing
@@ -1183,7 +1192,7 @@ import io.usethesource.vallang.type.TypeFactory;
         public OfInt iterator() {
             return new OfInt() {
                 final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-                OfInt currentLeaf = leftmostLeafIterator(LazyConcatString.this);
+                OfInt currentLeaf = leftmostLeafIterator(todo, LazyConcatString.this);
 
                 @Override
                 public boolean hasNext() {
@@ -1197,7 +1206,7 @@ import io.usethesource.vallang.type.TypeFactory;
                     if (!currentLeaf.hasNext() && !todo.isEmpty()) {
                         // now we back track to the previous node we went left from,
                         // take the right branch and continue with its first leaf:
-                        currentLeaf = leftmostLeafIterator(todo.pop());
+                        currentLeaf = leftmostLeafIterator(todo, todo.pop());
                     }
 
                     assert currentLeaf.hasNext() || todo.isEmpty();
@@ -1209,7 +1218,8 @@ import io.usethesource.vallang.type.TypeFactory;
                  * the path of nodes to this leaf as a side-effect in the todo 
                  * stack.
                  */
-                private OfInt leftmostLeafIterator(IStringTreeNode start) {
+                @UnderInitialization // this helper method does not refer to 'this'
+                private OfInt leftmostLeafIterator(Deque<AbstractString> todo, IStringTreeNode start) {
                     IStringTreeNode cur = start;
 
                     while (cur.depth() > 1) {
