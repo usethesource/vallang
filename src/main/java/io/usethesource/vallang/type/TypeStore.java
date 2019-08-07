@@ -808,7 +808,6 @@ public class TypeStore {
 			public Type visitTuple(Type type) throws RuntimeException {
 				int arity = type.getArity();
 				Type fieldTypes[] = new Type[arity];
-				String fieldNames[] = type.getFieldNames();
 				boolean aliasFound = false;
 				for(int i = 0; i < arity; i++){
 					Type fieldType = type.getFieldType(i);
@@ -822,7 +821,7 @@ public class TypeStore {
 				}
 				
 				if (aliasFound){
-					return fieldNames == null ? factory.tupleType(fieldTypes) : factory.tupleType(fieldTypes, fieldNames);
+					return type.hasFieldNames() ? factory.tupleType(fieldTypes) : factory.tupleType(fieldTypes, type.getFieldNames());
 				}
 				return type;
 			}
