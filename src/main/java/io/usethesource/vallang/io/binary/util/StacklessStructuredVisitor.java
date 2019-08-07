@@ -17,7 +17,6 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IAnnotatable;
@@ -53,14 +52,14 @@ public class StacklessStructuredVisitor {
     }
 
     @FunctionalInterface
-    private static interface NextStepConsumer<E extends Throwable> {
-        void accept(@Nullable IValue current, Deque<NextStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E;
+    private interface NextStepConsumer<E extends Throwable> {
+        void accept(IValue current, Deque<NextStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E;
     }
     
     private final static class NextStep<E extends Throwable> {
-        final @Nullable IValue val;
+        final IValue val;
         final NextStepConsumer<E> next;
-        public NextStep(@Nullable IValue val, NextStepConsumer<E> next) {
+        public NextStep(IValue val, NextStepConsumer<E> next) {
             this.val = val;
             this.next = next;
         }
@@ -136,7 +135,7 @@ public class StacklessStructuredVisitor {
                             assert withKW instanceof AbstractDefaultWithKeywordParameters;
                             @SuppressWarnings("unchecked")
                             AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(withKW);
-                            pushKWPairs(nodeKw.internalGetParameters());
+                            pushKWPairs(node, nodeKw.internalGetParameters());
                             workList.push(new NextStep<>(node, (l, w, v) -> {
                                 v.enterNodeKeywordParameters();
                             }));
@@ -149,7 +148,7 @@ public class StacklessStructuredVisitor {
                             assert withAnno instanceof AbstractDefaultAnnotatable;
                             @SuppressWarnings("unchecked")
                             AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)withAnno;
-                            pushKWPairs(nodeAnno.internalGetAnnotations());
+                            pushKWPairs(node, nodeAnno.internalGetAnnotations());
                             workList.push(new NextStep<>(node, (l, w, v) -> {
                                 v.enterNodeAnnotations();
                             }));
@@ -163,8 +162,8 @@ public class StacklessStructuredVisitor {
             }
 
 
-            private void pushKWPairs(Map.Immutable<String, IValue> namedValues) {
-                workList.push(new NextStep<>(null, (l,w,v) -> {
+            private void pushKWPairs(IValue root, Map.Immutable<String, IValue> namedValues) {
+                workList.push(new NextStep<>(root, (l,w,v) -> {
                     v.leaveNamedValue();
                 }));
 
@@ -178,7 +177,7 @@ public class StacklessStructuredVisitor {
                     names[i] = param.getKey();
                 }
                 assert i == 0;
-                workList.push(new NextStep<>(null, (l,w,v) -> {
+                workList.push(new NextStep<>(root, (l,w,v) -> {
                     v.enterNamedValues(names, names.length);
                 }));
             }
@@ -196,7 +195,7 @@ public class StacklessStructuredVisitor {
                             assert withKW instanceof AbstractDefaultWithKeywordParameters;
                             @SuppressWarnings("unchecked")
                             AbstractDefaultWithKeywordParameters<IConstructor> constrKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(withKW);
-                            pushKWPairs(constrKw.internalGetParameters());
+                            pushKWPairs(constr, constrKw.internalGetParameters());
                             workList.push(new NextStep<>(constr, (l, w, v) -> {
                                 v.enterConstructorKeywordParameters();
                             }));
@@ -209,7 +208,7 @@ public class StacklessStructuredVisitor {
                             assert withAnno instanceof AbstractDefaultAnnotatable;
                             @SuppressWarnings("unchecked")
                             AbstractDefaultAnnotatable<IConstructor> constrAnno = (AbstractDefaultAnnotatable<IConstructor>)withAnno;
-                            pushKWPairs(constrAnno.internalGetAnnotations());
+                            pushKWPairs(constr, constrAnno.internalGetAnnotations());
                             workList.push(new NextStep<>(constr, (l, w, v) -> {
                                 v.enterConstructorAnnotations();
                             }));
