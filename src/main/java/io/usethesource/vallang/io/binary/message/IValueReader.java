@@ -477,13 +477,11 @@ public class IValueReader {
             }
         }
 
-        assert n != -1;
-
-        IValue result = valueWindow.lookBack(n);
-        if (result == null) {
-            throw new IOException("Unexpected value cache miss");
+        if (n == -1) {
+            throw new IOException("Missing or incorrect HOW_FAR_BACK field");
         }
-        return result;   
+
+        return valueWindow.lookBack(n);
     }
 
 
@@ -522,7 +520,7 @@ public class IValueReader {
     }
 
     private IValue readSet(final IWireInputStream reader) throws IOException {
-        ISet result = null;
+        ISet result = vf.set();
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
@@ -556,7 +554,7 @@ public class IValueReader {
     }
 
     private IValue readList(final IWireInputStream reader) throws IOException {
-        IList result = null;
+        IList result = vf.list();
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
@@ -614,10 +612,10 @@ public class IValueReader {
 
     @SuppressWarnings("deprecation")
     private IValue readNode(final IWireInputStream reader) throws IOException {
-        String name = null;
+        String name = "";
         IValue[] children = new IValue[0];
-        Map.Immutable<String, IValue> annos = null;
-        Map.Immutable<String, IValue> kwParams = null;
+        Map.Immutable<String, IValue> annos = Map.Immutable.of();
+        Map.Immutable<String, IValue> kwParams = Map.Immutable.of();
 
 
         boolean backReference = false;
@@ -643,13 +641,13 @@ public class IValueReader {
                     break;
             }
         }
-        assert name != null;
+        assert !name.isEmpty();
         
         INode node;
-        if (annos != null) {
+        if (!annos.isEmpty()) {
             node =  vf.node(name, children).asAnnotatable().setAnnotations(annos);
         }
-        else if (kwParams != null) {
+        else if (!kwParams.isEmpty()) {
             node = vf.node(name, children, kwParams);
         }
         else {
@@ -660,10 +658,10 @@ public class IValueReader {
 
     @SuppressWarnings("deprecation")
     private IValue readConstructor(final IWireInputStream reader) throws IOException {
-        Type type = null;
+        Type type = VOID_TYPE;
         IValue[] children = new IValue[0];
-        Map.Immutable<String, IValue> annos = null;
-        Map.Immutable<String, IValue> kwParams = null;
+        Map.Immutable<String, IValue> annos = Map.Immutable.of();
+        Map.Immutable<String, IValue> kwParams = Map.Immutable.of();
 
 
         boolean backReference = false;
@@ -706,12 +704,16 @@ public class IValueReader {
                     break;
             }
         }
-        
+
+        if (type == VOID_TYPE) {
+            throw new IOException("Constructor was missing type");
+        }
+
         IConstructor constr;
-        if (annos != null) {
+        if (!annos.isEmpty()) {
             constr =  vf.constructor(type, annos, children);
         }
-        else if (kwParams != null) {
+        else if (!kwParams.isEmpty()) {
             constr = vf.constructor(type, children, kwParams);
         }
         else {
@@ -719,9 +721,6 @@ public class IValueReader {
         }
         return returnAndStore(backReference, valueWindow, constr);
     }
-
-
-
 
     private boolean paramsAreCorrectType(IValue[] children, Type type) {
         assert children.length == type.getArity();
@@ -735,7 +734,7 @@ public class IValueReader {
 
     private Map.Immutable<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
         Map.Transient<String, IValue> result = Map.Transient.of();
-        String[] names = null;
+        String[] names = new String[0];
         reader.next();
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
@@ -743,7 +742,7 @@ public class IValueReader {
                     names = reader.getStrings();
                     break;
                 case IValueIDs.NamedValues.VALUES:
-                    assert names != null && names.length == reader.getRepeatedLength();
+                    assert names.length == reader.getRepeatedLength();
                     for (String name: names) {
                         result.__put(name, readValue(reader));
                     }
@@ -754,7 +753,7 @@ public class IValueReader {
     }
 
     private IValue readString(final IWireInputStream reader) throws IOException {
-        String str = null;
+        String str = "";
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
@@ -769,16 +768,13 @@ public class IValueReader {
                     break;
             }
         }
-
-        assert str != null;
-
         return returnAndStore(backReference, valueWindow, vf.string(str));
     }
 
 
     private IValue readReal(final IWireInputStream reader) throws IOException {
-        byte[] bytes = null;
-        Integer scale = null;
+        byte[] bytes = new byte[0];
+        int scale = 0;
 
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
@@ -798,16 +794,14 @@ public class IValueReader {
             }
         }
 
-        assert bytes != null && scale != null;
-
         return returnAndStore(backReference, valueWindow, vf.real(new BigDecimal(new BigInteger(bytes), scale).toString())); // TODO: Improve this?
     }
 
 
     private IValue readRational(final IWireInputStream reader) throws IOException {
         boolean backReference = false;
-        IInteger denominator = null;
-        IInteger numerator = null;
+        IInteger denominator = vf.integer(0);
+        IInteger numerator = vf.integer(0);
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
@@ -886,8 +880,8 @@ public class IValueReader {
 
 
     private IValue readInteger(final IWireInputStream reader) throws IOException {
-        Integer small = null;
-        byte[] big = null;
+        @MonotonicNonNull Integer small = null;
+        @MonotonicNonNull byte[] big = null;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.IntegerValue.INTVALUE:  small = reader.getInteger(); break;
@@ -906,17 +900,17 @@ public class IValueReader {
 
 
     private IValue readDateTime(final IWireInputStream reader) throws IOException {
-        Integer year = null;;
-        Integer month = null;
-        Integer day = null;
+        int year = -1;
+        int month = -1;
+        int day = -1;
 
-        Integer hour = null;
-        Integer minute = null;
-        Integer second = null;
-        Integer millisecond = null;
+        int hour = -1;
+        int minute = -1;
+        int second = -1;
+        int millisecond = -1;
 
-        Integer timeZoneHourOffset = null;
-        Integer timeZoneMinuteOffset = null;
+        int timeZoneHourOffset = Integer.MAX_VALUE;
+        int timeZoneMinuteOffset = Integer.MAX_VALUE;
 
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
@@ -933,19 +927,17 @@ public class IValueReader {
         }
 
 
-        if (hour != null && year != null) {
+        if (hour != -1 && year != -1) {
             return vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
         }
-        else if (hour != null) {
+        else if (hour != -1) {
             return vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
         }
         else {
-            assert year != null;
+            assert year != -1;
             return vf.datetime(year, month, day);
         }
     }
-
-
 
 
     private IValue readBoolean(final IWireInputStream reader) throws IOException {

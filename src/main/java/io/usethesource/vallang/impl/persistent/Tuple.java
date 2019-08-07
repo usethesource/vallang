@@ -28,7 +28,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private Type cachedTupleType;
 	protected final IValue[] elements;
 
+	private static final ITuple EMPTY_TUPLE = new Tuple();
+
 	public static ITuple newTuple(IValue... elements) {
+		if (elements.length == 0) {
+			return EMPTY_TUPLE;
+		}
 		return new Tuple(elements);
 	}
 

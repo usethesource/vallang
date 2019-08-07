@@ -11,6 +11,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
+import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
+import io.usethesource.vallang.type.TypeFactory;
 import java.util.Map;
 
 import io.usethesource.vallang.IConstructor;
@@ -43,9 +45,14 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     public IListWriter listWriter() {
         return new ListWriter();
     }
+
+    private static final IList EMPTY_LIST = List.newList(TypeFactory.getInstance().voidType(), new ShareableValuesList());
     
     @Override
     public IList list(IValue... elements){
+	    if (elements.length == 0) {
+	        return EMPTY_LIST;
+        }
         IListWriter listWriter = listWriter();
         listWriter.append(elements);
         
@@ -54,6 +61,9 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 
     @Override
     public ISet set(IValue... elements){
+        if (elements.length == 0) {
+            return EmptySet.EMPTY_SET;
+        }
         ISetWriter setWriter = setWriter();
         setWriter.insert(elements);
         return setWriter.done();
