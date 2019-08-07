@@ -42,7 +42,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         query = nullifyIfEmpty(query);
         fragment = nullifyIfEmpty(fragment);
         if (scheme == null || scheme.equals("")) {
-            throw new URISyntaxException(scheme, "scheme cannot be empty or null");
+            throw new URISyntaxException("null or empty", "scheme cannot be empty or null");
         }
         if (INTERNED_SCHEMES.getIfPresent(scheme) == null  && !schemePattern.matcher(scheme).matches()) {
             throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
@@ -96,7 +96,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
 
-    private static @Nullable String nullifyIfEmpty(String str) {
+    private static @Nullable String nullifyIfEmpty(@Nullable String str) {
         if (str == null || str.isEmpty()) {
             return null;
         }
@@ -113,9 +113,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         @Override
+        @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             try {
-                return new URI(scheme, "", "/", null, null);
+                return new URI(scheme, "", "/",  null, null);
             } catch (URISyntaxException e) {
                 throw new RuntimeException("Internal state corrupted?", e);
             }
@@ -264,8 +265,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     private static final Pattern squareBrackets = Pattern.compile("(\\[|\\])");
 
+    @SuppressWarnings("nullness") // jdk of CF doesn't have the URI class in there
     private static URI buildURIWithAuthority(String scheme, String authority,
-            String path, String query, String fragment) {
+            @Nullable  String path, @Nullable String query, @Nullable String fragment) {
         try {
             return new URI(scheme, authority, path, query, fragment);
         } catch (URISyntaxException e) {
@@ -371,6 +373,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         @Override
+        @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             try {
                 return new URI(scheme, "", path, null, null);
@@ -465,6 +468,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         @Override
+        @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             try {
                 return new URI(scheme, "", "/", query, null);
@@ -556,6 +560,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         @Override
+        @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             try {
                 return new URI(scheme, "", path, query, null);
@@ -649,6 +654,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         @Override
+        @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             try {
                 return new URI(scheme, "", "/", null, fragment);
@@ -740,6 +746,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         @Override
+        @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             try {
                 return new URI(scheme, "", path, null, fragment);
@@ -832,6 +839,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         @Override
+        @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             try {
                 return new URI(scheme, "", "/", query, fragment);
