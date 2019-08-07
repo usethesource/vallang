@@ -291,9 +291,6 @@ import io.usethesource.vallang.type.TypeFactory;
 
             this.value = value;
             this.lineCount = lineCount;
-
-            // the contract is that all String implementations use the same hashCode algorithm as java.lang.String
-            assert hashCode() == getValue().hashCode();
         }
 
         @Override
@@ -334,7 +331,6 @@ import io.usethesource.vallang.type.TypeFactory;
                 StringBuilder buffer = new StringBuilder();
                 buffer.append(getValue());
                 buffer.append(other.getValue());
-
 
                 return StringValue.newString(buffer.toString(), hasNonBMPCodePoints() || o.hasNonBMPCodePoints(), newLineCount);
             } else {

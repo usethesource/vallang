@@ -408,8 +408,7 @@ public class TypeStore {
 	  }
 	}
 
-	private void checkOverloading(Set<Type> signature, String name,
-	    Type tupleType) throws FactTypeDeclarationException {
+	private void checkOverloading(Set<Type> signature, String name, Type tupleType) throws FactTypeDeclarationException {
 	  for (Type alt : signature) {
 	    if (alt.getName().equals(name)) {
 	      Type fieldTypes = alt.getFieldTypes();
