@@ -14,10 +14,11 @@ package io.usethesource.vallang.io.binary.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class MapLastWritten<T> implements TrackLastWritten<T> {
-    public static class IdentityWrapper<T> {
+public class MapLastWritten<T extends @NonNull Object> implements TrackLastWritten<T> {
+    public static class IdentityWrapper<T extends @NonNull Object> {
         private final T wrapped;
         private final int hashCode;
         public IdentityWrapper(T wrapped) {

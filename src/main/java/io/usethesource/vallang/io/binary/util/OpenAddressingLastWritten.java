@@ -23,7 +23,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * This implementation is just as fast as using the IdentityHashMap, however it uses less memory on average and we can also use value equality.
  * @author Davy Landman
  */
-public abstract class OpenAddressingLastWritten<@NonNull T> implements TrackLastWritten<T>, ClearableWindow {
+public abstract class OpenAddressingLastWritten<T extends @NonNull Object> implements TrackLastWritten<T>, ClearableWindow {
     private final int maximumEntries;
     private final int maximumSize;
     private int tableSize;
@@ -47,29 +47,29 @@ public abstract class OpenAddressingLastWritten<@NonNull T> implements TrackLast
      * Create a n OpenAddressingLastWritten container using reference equality and identiy hashcode.
      * @param maximumEntries larger than 0 and smaller than Integer.MAX_VALUE  / 2
      */
-    public static <@NonNull T> OpenAddressingLastWritten<T> referenceEquality(int maximumEntries) {
+    public static <T extends @NonNull Object> OpenAddressingLastWritten<T> referenceEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
-            protected boolean equals(@NonNull T a, @NonNull T b) {
+            protected boolean equals(T a, T b) {
                 return a == b;
             }
 
             @Override
-            protected int hash(@NonNull T obj) {
+            protected int hash(T obj) {
                 return System.identityHashCode(obj);
             }
         };
     }
 
-    public static <@NonNull T> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
+    public static <T extends @NonNull Object> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
-            protected boolean equals(@NonNull T a, @NonNull T b) {
+            protected boolean equals(T a, T b) {
                 return a.equals(b);
             }
  
             @Override
-            protected int hash(@NonNull T obj) {
+            protected int hash(T obj) {
                 return obj.hashCode();
             }
         };
@@ -136,7 +136,7 @@ public abstract class OpenAddressingLastWritten<@NonNull T> implements TrackLast
     }
 
     @Override
-    public int howLongAgo(@NonNull T obj) {
+    public int howLongAgo(T obj) {
         int pos = locate(obj);
         if (pos != -1) {
             return (int) ((written - writtenAt[pos]) - 1);
@@ -149,7 +149,7 @@ public abstract class OpenAddressingLastWritten<@NonNull T> implements TrackLast
     }
     
     @SuppressWarnings("unchecked")
-    private int locate(@NonNull T obj) {
+    private int locate(T obj) {
         int pos = (hash(obj) & 0x7FFFFFFF) % tableSize; // 0x7FFFFF to make it positive, Math.abs can fail when MAX_INT is returned
         final @Nullable Object[] keys = this.keys;
         @Nullable Object current = keys[pos];
@@ -157,7 +157,7 @@ public abstract class OpenAddressingLastWritten<@NonNull T> implements TrackLast
             return -1;
         }
         
-        while (!equals(Objects.requireNonNull((T) current), obj)) {
+        while (!equals((T)current, obj)) {
             pos = (pos + 1) % tableSize;
             current = keys[pos];
             if (current == null) {
@@ -168,8 +168,8 @@ public abstract class OpenAddressingLastWritten<@NonNull T> implements TrackLast
         return pos;
     }
 
-    protected abstract boolean equals(@NonNull T a, @NonNull T b);
-    protected abstract int hash(@NonNull T obj);
+    protected abstract boolean equals(T a, T b);
+    protected abstract int hash(T obj);
 
     private int findSpace(int hash) {
         int pos = (hash & 0x7FFFFFFF) % tableSize; 
@@ -180,7 +180,7 @@ public abstract class OpenAddressingLastWritten<@NonNull T> implements TrackLast
     }
 
     @Override
-    public void write(@NonNull T obj) {
+    public void write(T obj) {
         growIfNeeded();
         int historyPos = translateOldest(written);
         int oldestEntry = oldest[historyPos];
