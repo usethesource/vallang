@@ -111,13 +111,13 @@ import io.usethesource.vallang.type.TypeFactory;
 		if (uri.isOpaque()) {
 			throw new UnsupportedOperationException("Opaque URI schemes are not supported; the scheme-specific part must start with a / character.");
 		}
-		return locationCache.get(uri, (u) -> {
+		return Objects.requireNonNull(locationCache.get(uri, (u) -> {
 			try {
 				return newSourceLocation(u.getScheme(), u.getAuthority(), u.getPath(), u.getQuery(), u.getFragment());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("We can't get a URISyntaxException when we start with an URI");
 			}
-		});
+		}));
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
@@ -206,10 +206,10 @@ import io.usethesource.vallang.type.TypeFactory;
                 URI result = u.getURI();
                 try {
                     // assure correct encoding, side effect of JRE's implementation of URIs
-                    result = new URI(result.toASCIIString());
-                } catch (URISyntaxException e) {
+                    return new URI(result.toASCIIString());
+                } catch (URISyntaxException ignored) {
+                	return result;
                 } 
-                return result;
 		    }));
 		}
 		
