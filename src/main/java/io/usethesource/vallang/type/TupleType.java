@@ -191,6 +191,16 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 
         return TypeFactory.getInstance().tupleType(fieldTypes);
     }
+    
+    @Override
+    public boolean hasFieldNames() {
+        return false;
+    }
+    
+    @Override
+    public boolean hasField(String fieldName) {
+        return false;
+    }
 
     @Override
     public int hashCode() {
@@ -207,7 +217,12 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 
     @Override
     public boolean equals(@Nullable Object obj) {
-    if (!(obj instanceof TupleType)) {
+        if (obj == null) {
+            return false;
+            
+        }
+        
+        if (!obj.getClass().equals(getClass())) {
             return false;
         }
 
@@ -228,7 +243,7 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
         }
 
         return true;
-}
+    }
 
     @Override
     public String toString() {

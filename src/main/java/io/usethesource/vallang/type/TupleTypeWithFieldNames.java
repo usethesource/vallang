@@ -214,7 +214,11 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
      */
     @Override
     public boolean equals(@Nullable Object obj) {
-        if (!(obj instanceof TupleTypeWithFieldNames)) {
+        if (obj == null) {
+            return false;
+        }
+        
+        if (!obj.getClass().equals(getClass())) {
             return false;
         }
 
@@ -270,7 +274,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
         return TF.valueType();
     }
-
+    
     @Override
     protected Type glbWithTuple(Type type) {
         if (getArity() == type.getArity()) {
