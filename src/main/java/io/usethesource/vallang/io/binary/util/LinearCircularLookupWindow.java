@@ -15,9 +15,10 @@ package io.usethesource.vallang.io.binary.util;
 import java.util.Arrays;
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class LinearCircularLookupWindow<T> implements TrackLastRead<T>, ClearableWindow {
+public class LinearCircularLookupWindow<T extends @NonNull Object> implements TrackLastRead<T>, ClearableWindow {
     private @Nullable T[] data;
     private long written;
     private final int maxSize;
@@ -37,7 +38,7 @@ public class LinearCircularLookupWindow<T> implements TrackLastRead<T>, Clearabl
     @Override
     public T lookBack(int offset) {
         assert offset + 1 <= written && offset < maxSize;
-        T result = data[translate(written - (offset + 1))];
+        @Nullable T result = data[translate(written - (offset + 1))];
         if (result == null) {
             throw new RuntimeException("Lookback of " + offset + "was invalid");
         }

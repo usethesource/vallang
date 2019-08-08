@@ -40,6 +40,7 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * An utility class for the {@link IValueInputStream}. Only directly use methods in this class if you have nested IValues in an existing {@link IWireInputStream}.
@@ -435,7 +436,7 @@ public class IValueReader {
         }
     }
 
-    private static <T> T returnAndStore(boolean backReferenced, TrackLastRead<T> window, T value) {
+    private static <T extends @NonNull Object> T returnAndStore(boolean backReferenced, TrackLastRead<T> window, T value) {
         if (backReferenced) {
             window.read(value);
         }
