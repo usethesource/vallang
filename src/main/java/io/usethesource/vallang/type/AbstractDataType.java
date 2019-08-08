@@ -316,7 +316,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
             return false;
         }
         
-        if (o instanceof AbstractDataType) {
+        if (o.getClass().equals(getClass())) {
             AbstractDataType other = (AbstractDataType) o;
             return fName.equals(other.fName) && fParameters == other.fParameters;
         }

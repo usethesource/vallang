@@ -192,7 +192,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	        return false;
 	    }
 	    
-		if (o instanceof ConstructorType) {
+		if (o.getClass().equals(getClass())) {
 			ConstructorType other = (ConstructorType) o;
 
 			if (fName != other.fName) { // fName is interned, change to equals when intern() is removed
