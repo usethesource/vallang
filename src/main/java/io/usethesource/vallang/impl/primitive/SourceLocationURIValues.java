@@ -360,7 +360,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", path, null, null);
+				URI result = new URI(scheme, "", path, null, null);
+				return new URI(result.toASCIIString());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -446,7 +447,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", "/", query, null);
+				URI result = new URI(scheme, "", "/", query, null);
+				return new URI(result.toASCIIString());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -529,7 +531,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", path, query, null);
+				URI result = new URI(scheme, "", path, query, null);
+				return new URI(result.toASCIIString());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -614,7 +617,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", "/", null, fragment);
+				URI result = new URI(scheme, "", "/", null, fragment);
+				return new URI(result.toASCIIString());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -697,7 +701,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", path, null, fragment);
+				URI result = new URI(scheme, "", path, null, fragment);
+				return new URI(result.toASCIIString());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -781,7 +786,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", "/", query, fragment);
+				URI result = new URI(scheme, "", "/", query, fragment);
+				return new URI(result.toASCIIString());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -866,7 +872,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", path, query, fragment);
+				URI result = new URI(scheme, "", path, query, fragment);
+				return new URI(result.toASCIIString());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
