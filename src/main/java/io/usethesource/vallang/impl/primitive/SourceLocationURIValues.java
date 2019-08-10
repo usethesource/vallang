@@ -109,7 +109,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		protected final String scheme;
 		
 		public BaseURI(String scheme)  {
-			this.scheme = INTERNED_SCHEMES.get(scheme);
+			this.scheme = Objects.requireNonNull(INTERNED_SCHEMES.get(scheme));
 		}
 		
 
@@ -258,6 +258,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	
 	private static final Pattern squareBrackets = Pattern.compile("(\\[|\\])");
 
+	@SuppressWarnings("nullness") // jdk of CF doesn't have the URI class in there
 	private static URI buildURIWithAuthority(String scheme, String authority,
 			String path, String query, String fragment) {
 		try {
