@@ -12,6 +12,8 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*
@@ -130,13 +132,21 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+		        return false;
+		    }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				return scheme == ((BaseURI)obj).scheme;
 			}
+			
 			return false;
 		}
+		
 		@Override
 		public int hashCode() {
 			return scheme.hashCode(); 
@@ -304,24 +314,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		return squareBracketClose.matcher(authority).replaceAll("\0\0\uFFF1\0\0");
 	}
 
-
-
-
-	private static final LoadingCache<String, String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
+	private static final LoadingCache<@NonNull String, @NonNull String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
 		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
-			this.authority = INTERNED_AUTHORIES.get(authority);
+			this.authority = Objects.requireNonNull(INTERNED_AUTHORIES.get(authority));
 		}
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-public URI getURI() {
-			return buildURIWithAuthority(scheme, authority, null,null,null);
+		public URI getURI() {
+			return buildURIWithAuthority(scheme, authority, null, null, null);
 		}
-		
 
 		@Override
 		public boolean hasPath() {
@@ -350,12 +356,12 @@ public URI getURI() {
 				return true;
 			}
 			
-			if(obj.getClass() == getClass()){
+			if (obj.getClass() == getClass()){
 				AuthorityURI u = (AuthorityURI)obj;
 				return scheme == u.scheme
-					&& authority == u.authority
-					;
+					&& authority == u.authority;
 			}
+			
 			return false;
 		}
 	}
@@ -371,7 +377,7 @@ public URI getURI() {
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-public URI getURI() {
+		public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", path, null, null);
 				return new URI(result.toASCIIString());
@@ -384,17 +390,21 @@ public URI getURI() {
 		public boolean hasPath() {
 			return true;
 		}
+		
 		@Override
 		public String getPath() {
 			return path;
 		}
+		
 		@Override
 		public int hashCode() {
 		  if (hash == 0) {
 		    hash = scheme.hashCode() + path.hashCode();
 		  }
-			return hash;
+		  
+		  return hash;
 		}
+		
 		@Override
 		public boolean equals(@Nullable Object obj) {
 		    if (obj == null) {
@@ -428,7 +438,7 @@ public URI getURI() {
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-public URI getURI() {
+		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, path, null, null);
 		}
 		
@@ -526,7 +536,7 @@ public URI getURI() {
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-public URI getURI() {
+		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, null, query, null);
 		}
 		
@@ -625,7 +635,7 @@ public URI getURI() {
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-public URI getURI() {
+		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, path,query,null);
 		}
 		
@@ -724,7 +734,7 @@ public URI getURI() {
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-public URI getURI() {
+		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, null, null, fragment);
 		}
 		
@@ -823,7 +833,7 @@ public URI getURI() {
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-public URI getURI() {
+		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, path, null, fragment);
 		}
 		
@@ -922,7 +932,7 @@ public URI getURI() {
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-public URI getURI() {
+		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, null, query, fragment);
 		}
 		
