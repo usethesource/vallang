@@ -12,6 +12,7 @@
  */ 
 package io.usethesource.vallang.random;
 
+import io.usethesource.vallang.ISourceLocation;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.Calendar;
@@ -269,8 +270,27 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
             if (oneEvery(30) && depthLeft() > 1) {
                 fragment = RandomUtil.stringAlphaNumeric(random, 1 + random.nextInt(5));
             }
-            
-            return vf.sourceLocation(scheme, authority, path, query, fragment);
+
+            ISourceLocation result = vf.sourceLocation(scheme, authority, path, query, fragment);
+            if (oneEvery(10) && depthLeft() > 1) {
+                try {
+                    // also generate offset and line and friends
+                    int bound = oneEvery(10) ? Integer.MAX_VALUE : 512;
+                    if (oneEvery(3)) {
+                        int startLine = random.nextInt(bound);
+                        int endLine = Math.addExact(startLine, random.nextInt(bound));
+                        result = vf.sourceLocation(result, random.nextInt(bound), random.nextInt(bound), startLine,
+                                endLine, random.nextInt(bound), random.nextInt(bound));
+                    } else {
+                        result = vf.sourceLocation(result, random.nextInt(bound), random.nextInt(bound));
+                    }
+                }
+                catch (IllegalArgumentException | ArithmeticException ignored) {
+                    // something went wrong with generating the the offset, so let's just fall back to returning the
+                    // plain result without added offsets
+                }
+            }
+            return result;
         } catch (URISyntaxException e) {
             // generated illegal URI?
             try {

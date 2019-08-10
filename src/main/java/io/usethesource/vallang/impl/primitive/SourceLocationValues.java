@@ -164,7 +164,13 @@ import io.usethesource.vallang.type.TypeFactory;
 		public boolean hasPath() {
 			return root.hasPath();
 		}
-		
+
+		@Override
+		public String toString() {
+			return defaultToString();
+		}
+
+
 		@Override
 		public boolean hasQuery() {
 			return root.hasQuery();
