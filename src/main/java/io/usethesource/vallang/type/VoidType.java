@@ -54,10 +54,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
         return tf().voidType();
     }
-
-    public String randomLabel() {
-        return null;
-    }
   }
   
   @Override
@@ -327,22 +323,22 @@ import org.checkerframework.checker.nullness.qual.Nullable;
   
   @Override
   public String getFieldName(int i) {
-    return null;
+    return "";
   }
   
   @Override
-	public String[] getFieldNames() {
-	  return new String[0];
-	}
+  public String[] getFieldNames() {
+      return new String[0];
+  }
 
   @Override
   public String getKeyLabel() {
-    return null;
+    return "";
   }
 
   @Override
   public String getValueLabel() {
-    return null;
+    return "";
   }
 
   @Override
