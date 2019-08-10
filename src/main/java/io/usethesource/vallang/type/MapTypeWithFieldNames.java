@@ -35,6 +35,11 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 		return fValueLabel;
 	}
 	
+	@Override
+	public String getKeyLabel() {
+	    return fKeyLabel;
+	}
+	 
     @Override
     public boolean hasFieldNames() {
     	return true;

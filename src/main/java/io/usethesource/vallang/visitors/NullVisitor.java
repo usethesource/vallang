@@ -10,6 +10,8 @@
 *******************************************************************************/
 package io.usethesource.vallang.visitors;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -30,7 +32,7 @@ import io.usethesource.vallang.ITuple;
  * to easily implement a visitor that visits selected types of IValues.
  * 
  */
-public abstract class NullVisitor<T, E extends Throwable> implements IValueVisitor<T, E> {
+public abstract class NullVisitor<T extends @Nullable Object, E extends Throwable> implements IValueVisitor<T, E> {
 	public T visitReal(IReal o)  throws E{
 		return null;
 	}

@@ -1,6 +1,7 @@
 package io.usethesource.vallang.specification;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -74,5 +75,10 @@ public class IValueTests {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testToStringIsStandardardTextWriter(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
         assertEquals(val.toString(), StandardTextWriter.valueToString(val), "toString of " + val + " is not equal to the standard notation");
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testNoValueInstancesShouldEverHaveFieldNamesInTheirDynamicTypes(IValue val) {
+        assertFalse(val.getType().hasFieldNames());
     }
 }
