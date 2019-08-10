@@ -39,12 +39,208 @@ public final class BasicValueSmokeTest {
   public void testRationalToReal(IValueFactory vf) {
     assertTrue(vf.rational(1, 4).toReal(3).isEqual(vf.real(0.25)));
   }
+  
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testBrokenGetURI(IValueFactory vf) {
+      try {
+  
+          // PathURI
+        ISourceLocation loc1 = vf.sourceLocation("UJ", "", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
+        assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc1.toString());
+        
+        // PathAuthorityURI
+        ISourceLocation loc2 = vf.sourceLocation("UJ", "UK", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc2.toString());
+        
+        // PathAuthorityURI
+        ISourceLocation loc3 = vf.sourceLocation("UJ", "UK", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc3.toString());
+        // QueryURI
+        ISourceLocation loc4 = vf.sourceLocation("UJ", "", "", "bla=𒉻𒂮𠇯", "");
+        assertEquals("|UJ:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc4.toString());
+        
+        // QueryAuthorityURI
+        ISourceLocation loc5 = vf.sourceLocation("UJ", "UK", "", "bla=𒉻𒂮𠇯", "");
+        assertEquals("|UJ://UK?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc5.toString());
+        
+        // QueryPathURI
+        ISourceLocation loc6 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯", "bla=𒉻𒂮𠇯", "");
+        assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc6.toString());
+        
+        // QueryPathAuthorityURI
+        ISourceLocation loc7 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯", "bla=𒉻𒂮𠇯", "");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc7.toString());
+        
+        // FragmentURI
+        ISourceLocation loc8 = vf.sourceLocation("UJ", "", "","", "𒉻𒂮𠇯");
+        assertEquals("|UJ:///#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc8.toString());
+        
+        // FragmentAuthorityURI
+        ISourceLocation loc9 = vf.sourceLocation("UJ", "UK", "","", "𒉻𒂮𠇯");
+        assertEquals("|UJ://UK#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc9.toString());
+        
+        // FragmentPathURI
+        ISourceLocation loc10 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯","", "𒉻𒂮𠇯");
+        assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc10.toString());
+        
+        // FragmentPathAuthorityURI
+        ISourceLocation loc11 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯","", "𒉻𒂮𠇯");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc11.toString());
+        
+        // FragmentQueryURI
+        ISourceLocation loc12 = vf.sourceLocation("UJ", "", "","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
+        assertEquals("|UJ:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc12.toString());
+        
+        // FragmentQueryAuthorityURI
+        ISourceLocation loc13 = vf.sourceLocation("UJ", "UK", "","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
+        assertEquals("|UJ://UK?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc13.toString());
+        
+        // FragmentQueryPathURI
+        ISourceLocation loc14 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
+        assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc14.toString());
+
+        // FragmentQueryPathAuthorityURI
+        ISourceLocation loc15 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc15.toString());
+    } catch (URISyntaxException e) {
+        fail(e.getMessage());
+    }
+  }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringRepresentation(IValueFactory vf) {
     assertTrue(vf.string("\uD83C\uDF5D").isEqual(vf.string("🍝")));
     assertTrue(vf.string(new String(Character.toChars(0x1F35D))).isEqual(vf.string("🍝")));
   }
+  
+  /*
+   * org.opentest4j.AssertionFailedError: expected: 
+   * <|UJ:///pkZ/T5/17152/7/%25F0%2592%2589%25BB%25F0%2592%2582%25AE%25F0%25A0%2587%25AF|> but was: 
+   * <|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|>
+    at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:52)
+    at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:177)
+    at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:172)
+    at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:163)
+    at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:481)
+    at io.usethesource.vallang.basic.BasicValueSmokeTest.testBrokenGetURI(BasicValueSmokeTest.java:48)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:497)
+    at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:389)
+    at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:115)
+    at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$6(TestMethodTestDescriptor.java:167)
+    at org.junit.jupiter.engine.execution.ThrowableCollector.execute(ThrowableCollector.java:40)
+    at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:163)
+    at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:110)
+    at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:57)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.lambda$execute$3(HierarchicalTestExecutor.java:83)
+    at org.junit.platform.engine.support.hierarchical.SingleTestExecutor.executeSafely(SingleTestExecutor.java:66)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:77)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.lambda$null$0(HierarchicalTestExecutor.java:85)
+    at org.junit.jupiter.engine.descriptor.TestTemplateTestDescriptor.execute(TestTemplateTestDescriptor.java:114)
+    at org.junit.jupiter.engine.descriptor.TestTemplateTestDescriptor.lambda$execute$2(TestTemplateTestDescriptor.java:86)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+    at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+    at java.util.stream.ReferencePipeline$11$1.accept(ReferencePipeline.java:373)
+    at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193)
+    at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+    at java.util.stream.SliceOps$1$1.accept(SliceOps.java:204)
+    at java.util.Spliterators$IteratorSpliterator.tryAdvance(Spliterators.java:1812)
+    at java.util.stream.ReferencePipeline.forEachWithCancel(ReferencePipeline.java:126)
+    at java.util.stream.AbstractPipeline.copyIntoWithCancel(AbstractPipeline.java:498)
+    at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:485)
+    at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471)
+    at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+    at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+    at java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:418)
+    at java.util.stream.ReferencePipeline$7$1.accept(ReferencePipeline.java:270)
+    at java.util.stream.Streams$StreamBuilderImpl.forEachRemaining(Streams.java:419)
+    at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481)
+    at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471)
+    at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+    at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+    at java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:418)
+    at java.util.stream.ReferencePipeline$7$1.accept(ReferencePipeline.java:270)
+    at java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:948)
+    at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481)
+    at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471)
+    at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+    at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+    at java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:418)
+    at java.util.stream.ReferencePipeline$7$1.accept(ReferencePipeline.java:270)
+    at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193)
+    at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193)
+    at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193)
+    at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1374)
+    at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481)
+    at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471)
+    at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+    at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+    at java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:418)
+    at java.util.stream.ReferencePipeline$7$1.accept(ReferencePipeline.java:270)
+    at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1374)
+    at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481)
+    at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471)
+    at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+    at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+    at java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:418)
+    at org.junit.jupiter.engine.descriptor.TestTemplateTestDescriptor.execute(TestTemplateTestDescriptor.java:86)
+    at org.junit.jupiter.engine.descriptor.TestTemplateTestDescriptor.execute(TestTemplateTestDescriptor.java:36)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.lambda$execute$3(HierarchicalTestExecutor.java:83)
+    at org.junit.platform.engine.support.hierarchical.SingleTestExecutor.executeSafely(SingleTestExecutor.java:66)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:77)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.lambda$null$2(HierarchicalTestExecutor.java:92)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+    at java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:175)
+    at java.util.Iterator.forEachRemaining(Iterator.java:116)
+    at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801)
+    at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481)
+    at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471)
+    at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+    at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+    at java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:418)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.lambda$execute$3(HierarchicalTestExecutor.java:92)
+    at org.junit.platform.engine.support.hierarchical.SingleTestExecutor.executeSafely(SingleTestExecutor.java:66)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:77)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.lambda$null$2(HierarchicalTestExecutor.java:92)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+    at java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:175)
+    at java.util.Iterator.forEachRemaining(Iterator.java:116)
+    at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801)
+    at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:481)
+    at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:471)
+    at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
+    at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
+    at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+    at java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:418)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.lambda$execute$3(HierarchicalTestExecutor.java:92)
+    at org.junit.platform.engine.support.hierarchical.SingleTestExecutor.executeSafely(SingleTestExecutor.java:66)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:77)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:51)
+    at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:43)
+    at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:170)
+    at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:154)
+    at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:90)
+    at org.eclipse.jdt.internal.junit5.runner.JUnit5TestReference.run(JUnit5TestReference.java:86)
+    at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:538)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:760)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:460)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:206)
+
+
+   */
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class) public void testRascalIssue1192(IValueFactory vf) {
       assertTrue(vf.integer("-2147483648").subtract(vf.integer("2147483648")).isEqual(vf.integer("-4294967296")));
