@@ -258,7 +258,8 @@ import io.usethesource.vallang.type.TypeFactory;
 	private static URI buildURIWithAuthority(String scheme, String authority,
 			String path, String query, String fragment) {
 		try {
-				return new URI(scheme, authority, path, query, fragment);
+				URI result = new URI(scheme, authority, path, query, fragment);
+				return new URI(result.toASCIIString());
 		} catch (URISyntaxException e) {
 			if (authority != null && squareBrackets.matcher(authority).find()) {
 				// Java URI do not correctly quote the brackets inside the authority 
@@ -407,7 +408,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		@Override
 		public URI getURI() {
-			return buildURIWithAuthority(scheme, authority, path,null,null);
+			return buildURIWithAuthority(scheme, authority, path, null, null);
 		}
 		
 		@Override
@@ -424,14 +425,17 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				PathAuthorityURI u = (PathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
 					&& path.equals(u.path);
 			}
+			
 			return false;
 		}
 	}
