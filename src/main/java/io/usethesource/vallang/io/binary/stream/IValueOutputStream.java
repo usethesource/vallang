@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
@@ -27,7 +29,6 @@ import io.usethesource.vallang.io.binary.util.FileChannelDirectOutputStream;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A binary serializer for IValues. <br/>

@@ -21,6 +21,8 @@ import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.message.IValueReader;
@@ -28,8 +30,6 @@ import io.usethesource.vallang.io.binary.util.FileChannelDirectInputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
 import io.usethesource.vallang.io.old.BinaryReader;
 import io.usethesource.vallang.type.TypeStore;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Reader for binary serialized IValues written using the {@linkplain IValueOutputStream}. <br />

@@ -12,7 +12,6 @@
  */ 
 package io.usethesource.vallang.random;
 
-import io.usethesource.vallang.ISourceLocation;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.Calendar;
@@ -22,14 +21,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.random.util.RandomUtil;
@@ -37,7 +38,6 @@ import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A generator of RandomValues, based on Wietse Venema's Cobra generator in the rascal project

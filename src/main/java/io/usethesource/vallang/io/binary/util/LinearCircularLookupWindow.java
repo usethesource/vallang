@@ -13,7 +13,6 @@
 package io.usethesource.vallang.io.binary.util;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;

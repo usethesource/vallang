@@ -11,12 +11,13 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.type.TypeStore;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Experimental wrapper class for serializable IValues. When writing, it persists the class name of

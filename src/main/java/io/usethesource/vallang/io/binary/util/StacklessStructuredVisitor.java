@@ -17,7 +17,6 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IBool;

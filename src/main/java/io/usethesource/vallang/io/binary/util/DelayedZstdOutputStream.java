@@ -15,8 +15,9 @@ package io.usethesource.vallang.io.binary.util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.github.luben.zstd.ZstdDirectBufferCompressingStream;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
+import com.github.luben.zstd.ZstdDirectBufferCompressingStream;
 
 public class DelayedZstdOutputStream extends ByteBufferOutputStream {
 
