@@ -1214,7 +1214,6 @@ import io.usethesource.vallang.type.TypeFactory;
                  * the path of nodes to this leaf as a side-effect in the todo 
                  * stack.
                  */
-                @UnderInitialization // this helper method does not refer to 'this'
                 private OfInt leftmostLeafIterator(Deque<AbstractString> todo, IStringTreeNode start) {
                     IStringTreeNode cur = start;
 

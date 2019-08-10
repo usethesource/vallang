@@ -17,6 +17,8 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.capsule.Map;
@@ -34,16 +36,16 @@ public final class PersistentHashMap implements IMap {
 	private static final EqualityComparator<Object> equivalenceComparator =
 			EqualityUtils.getEquivalenceComparator();
 	
-	private Type cachedMapType;
+	private @MonotonicNonNull Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag;
 	private final AbstractTypeBag valTypeBag;
-	private final Map.Immutable<IValue,IValue> content;
+	private final Map.Immutable<@NonNull IValue, @NonNull IValue> content;
 	
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
 	protected PersistentHashMap(AbstractTypeBag keyTypeBag,
-                              AbstractTypeBag valTypeBag, Map.Immutable<IValue, IValue> content) {
+                              AbstractTypeBag valTypeBag, Map.Immutable<@NonNull IValue, @NonNull IValue> content) {
 		Objects.requireNonNull(content);
 		this.cachedMapType = null;
 		this.keyTypeBag = keyTypeBag;
@@ -240,7 +242,7 @@ public final class PersistentHashMap implements IMap {
 			boolean isModified = false;
 			int previousSize = size();
 
-			AbstractTypeBag keyBagNew = null;
+			@MonotonicNonNull AbstractTypeBag keyBagNew = null;
 			if (that.keyTypeBag.getLabel() != null) {
 				keyBagNew = keyTypeBag.setLabel(mergeLabels(keyTypeBag.getLabel(),
 								that.keyTypeBag.getLabel()));
@@ -250,7 +252,7 @@ public final class PersistentHashMap implements IMap {
 				keyBagNew = keyTypeBag;
 			}
 
-			AbstractTypeBag valBagNew = null;
+			@MonotonicNonNull AbstractTypeBag valBagNew = null;
 			if (that.valTypeBag.getLabel() != null) {
 				valBagNew = valTypeBag.setLabel(mergeLabels(valTypeBag.getLabel(),
 								that.valTypeBag.getLabel()));

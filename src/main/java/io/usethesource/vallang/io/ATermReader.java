@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
@@ -57,7 +60,6 @@ public class ATermReader extends AbstractBinaryReader {
 
 		if (typeByte == '!') {
 			SharingStream sreader = new SharingStream(stream);
-			sreader.initializeSharing();
 			sreader.readSkippingWS();
 			return parse(sreader, type);
 		} else if (typeByte == '?') {
@@ -314,6 +316,10 @@ public class ATermReader extends AbstractBinaryReader {
 				String key = parseStringLiteral(reader);
 				Type annoType = ts.getAnnotationType(result.getType(), key);
 
+				if (annoType == null) {
+				    annoType = tf.valueType();
+				}
+				
 				if (reader.readSkippingWS() == ',') {
 					reader.readSkippingWS();
 					IValue value = parse(reader, annoType);
@@ -621,7 +627,7 @@ public class ATermReader extends AbstractBinaryReader {
 		private int pos;
 
 		private int nr_terms;
-		private IValue[] table;
+		private @Nullable IValue [] table;
 
 		private byte[] buffer;
 		private int limit;
@@ -636,17 +642,16 @@ public class ATermReader extends AbstractBinaryReader {
 			last_char = -1;
 			pos = 0;
 
-			if (bufferSize < INITIAL_BUFFER_SIZE)
+			if (bufferSize < INITIAL_BUFFER_SIZE) {
 				buffer = new byte[bufferSize];
-			else
+			}
+			else {
 				buffer = new byte[INITIAL_BUFFER_SIZE];
+			}
 			limit = -1;
 			bufferPos = -1;
-		}
-
-		public void initializeSharing() {
 			table = new IValue[INITIAL_TABLE_SIZE];
-			nr_terms = 0;
+            nr_terms = 0;
 		}
 
 		public void storeNextTerm(IValue t, int size) {
@@ -663,11 +668,18 @@ public class ATermReader extends AbstractBinaryReader {
 			table[nr_terms++] = t;
 		}
 
-		public IValue getTerm(int index) {
+		private IValue getTerm(int index) {
 			if (index < 0 || index >= nr_terms) {
 				throw new RuntimeException("illegal index");
 			}
-			return table[index];
+			
+			IValue result = table[index];
+			
+			if (result == null) {
+			    throw new RuntimeException("illegal index");
+			}
+			
+			return result;
 		}
 
 		public int read() throws IOException {
