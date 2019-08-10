@@ -363,7 +363,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		return num.remainder(denom);
 	}
 
-	protected IInteger gcd(IInteger n, IInteger d) {
+	protected static IInteger gcd(IInteger n, IInteger d) {
 		n = n.abs();
 		d = d.abs();
 		while(d.signum() > 0) {
@@ -373,7 +373,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		return n;
 	}
-	protected IInteger intOne() {
+	
+	protected static IInteger intOne() {
 		return IntegerValue.INTEGER_ONE;
 	}
 
