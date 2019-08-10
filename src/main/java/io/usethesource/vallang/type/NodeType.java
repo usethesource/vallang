@@ -51,10 +51,6 @@ class NodeType extends DefaultSubtypeOfValue {
 		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
 		    return tf().nodeType();
 		}
-
-        public String randomLabel() {
-            return null;
-        }
 	}
 
 	@Override

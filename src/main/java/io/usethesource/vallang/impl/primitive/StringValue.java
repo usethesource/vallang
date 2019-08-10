@@ -31,6 +31,7 @@ import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
 
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IString;
@@ -1214,7 +1215,7 @@ import io.usethesource.vallang.type.TypeFactory;
                  * the path of nodes to this leaf as a side-effect in the todo 
                  * stack.
                  */
-                private OfInt leftmostLeafIterator(Deque<AbstractString> todo, IStringTreeNode start) {
+                private @UnderInitialization OfInt leftmostLeafIterator(Deque<AbstractString> todo, IStringTreeNode start) {
                     IStringTreeNode cur = start;
 
                     while (cur.depth() > 1) {
@@ -1232,9 +1233,9 @@ import io.usethesource.vallang.type.TypeFactory;
         // if indent == null, then wrapped contains an eagerly indented value already.
         // if indent != null, then wrapped is the string to be indented.
         // clients can not set indent to null.
-        private IString indent; 
-        private AbstractString wrapped;
-        private volatile AbstractString flattened = null;
+        private @Nullable IString indent; 
+        private @Nullable AbstractString wrapped;
+        private volatile @MonotonicNonNull AbstractString flattened = null;
         private final boolean indentFirstLine;
 
         IndentedString(AbstractString istring, IString whiteSpace, boolean indentFirstLine) {

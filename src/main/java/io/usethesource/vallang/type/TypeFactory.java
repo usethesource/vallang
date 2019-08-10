@@ -612,7 +612,7 @@ public class TypeFactory {
 			throw new IllegalArgumentException("Key and value labels must both be non-null or null: " + keyLabel + ", "
 					+ valueLabel);
 		}
-		return getFromCache(new MapType(key, keyLabel, value, valueLabel));
+		return getFromCache(new MapTypeWithFieldNames(key, keyLabel, value, valueLabel));
 	}
 
 	/**
