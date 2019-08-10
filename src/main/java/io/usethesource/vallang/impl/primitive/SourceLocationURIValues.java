@@ -342,8 +342,14 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+		        return false;
+		    }
+		    
+			if (this == obj) {
 				return true;
+			}
+			
 			if(obj.getClass() == getClass()){
 				AuthorityURI u = (AuthorityURI)obj;
 				return scheme == u.scheme
@@ -391,12 +397,20 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+		        return false;
+		    }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				PathURI u = (PathURI)obj;
-				if (hash != 0 && u.hash != 0 && hash != u.hash)
-				  return false;
+				if (hash != 0 && u.hash != 0 && hash != u.hash) {
+				   return false;
+				}
+				
 				return scheme == u.scheme
 					&& path.equals(u.path);
 			}
@@ -432,6 +446,10 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+		        return false;
+		    }
+		    
 			if (this == obj) {
 				return true;
 			}
@@ -480,9 +498,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				QueryURI u = (QueryURI)obj;
 				return scheme == u.scheme
 					&& query.equals(u.query)
@@ -520,9 +544,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				QueryAuthorityURI u = (QueryAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -566,9 +596,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				QueryPathURI u = (QueryPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -607,8 +643,14 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
+			}
+			
 			if(obj.getClass() == getClass()){
 				QueryPathAuthorityURI u = (QueryPathAuthorityURI)obj;
 				return scheme == u.scheme
@@ -654,9 +696,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentURI u = (FragmentURI)obj;
 				return scheme == u.scheme
 					&& fragment.equals(u.fragment)
@@ -694,9 +742,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentAuthorityURI u = (FragmentAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -740,9 +794,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentPathURI u = (FragmentPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -781,9 +841,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentPathAuthorityURI u = (FragmentPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -827,9 +893,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentQueryURI u = (FragmentQueryURI)obj;
 				return scheme == u.scheme
 					&& query.equals(u.query)
@@ -868,9 +940,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentQueryAuthorityURI u = (FragmentQueryAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -915,9 +993,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentQueryPathURI u = (FragmentQueryPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -957,9 +1041,15 @@ public URI getURI() {
 		}
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentQueryPathAuthorityURI u = (FragmentQueryPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority

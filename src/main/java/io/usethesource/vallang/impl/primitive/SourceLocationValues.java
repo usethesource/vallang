@@ -338,7 +338,9 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		@Override
 		public boolean equals(@Nullable Object o){
-			if(o == null) return false;
+			if (o == null) {
+			    return false;
+			}
 			
 			if(o.getClass() == getClass()){
 				IntIntIntIntIntInt otherSourceLocation = (IntIntIntIntIntInt) o;
@@ -423,9 +425,11 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		@Override
 		public boolean equals(@Nullable Object o){
-			if(o == null) return false;
+			if (o == null) {
+			    return false;
+			}
 			
-			if(o.getClass() == getClass()){
+			if (o.getClass() == getClass()){
 				CharCharByteByteByteByte otherSourceLocation = (CharCharByteByteByteByte) o;
 				return (root.equals(otherSourceLocation.root)
 						&& (beginLine == otherSourceLocation.beginLine)
