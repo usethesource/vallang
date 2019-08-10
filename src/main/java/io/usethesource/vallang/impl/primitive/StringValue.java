@@ -1231,10 +1231,10 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private static class IndentedString extends AbstractString {
-        private IString indent; 
-        private AbstractString wrapped;
-        private volatile @MonotonicNonNull AbstractString flattened = null;
+        private final IString indent; 
+        private final AbstractString wrapped;
         private final boolean indentFirstLine;
+        private volatile @MonotonicNonNull AbstractString flattened = null;
 
         IndentedString(AbstractString istring, IString whiteSpace, boolean indentFirstLine) {
             assert istring != null && whiteSpace != null;
