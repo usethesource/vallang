@@ -37,7 +37,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	Node(String name, IValue[] children) {
 		super();
 		
-		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
+		this.name = name.intern();
 		this.children = children;
 	}
 
@@ -48,7 +48,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	private Node(String name, IList children) {
 		super();
 		IValue[] childArray = new IValue[children.length()];
-		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
+		this.name = name.intern();
 		for(int i = 0; i < childArray.length; i++){
 			childArray[i] = children.get(i);
 		}
