@@ -32,44 +32,44 @@ import io.usethesource.vallang.ITuple;
  * to easily implement a visitor that visits selected types of IValues.
  * 
  */
-public abstract class NullVisitor<T extends @Nullable Object, E extends Throwable> implements IValueVisitor<T, E> {
-	public T visitReal(IReal o)  throws E{
+public abstract class NullVisitor<@Nullable T, E extends Throwable> implements IValueVisitor<T, E> {
+	public T visitReal(IReal o)  throws E {
 		return null;
 	}
 
-	public T visitInteger(IInteger o)  throws E{
+	public T visitInteger(IInteger o)  throws E {
 		return null;
 	}
 
-	public T visitRational(IRational o)  throws E{
+	public T visitRational(IRational o)  throws E {
 		return null;
 	}
 
-	public T visitList(IList o)  throws E{
+	public T visitList(IList o)  throws E {
 		return null;
 	}
 
-	public T visitMap(IMap o)  throws E{
+	public T visitMap(IMap o)  throws E {
 		return null;
 	}
 
-	public T visitRelation(ISet o)  throws E{
+	public T visitRelation(ISet o)  throws E {
 		return null;
 	}
 
-	public T visitSet(ISet o)  throws E{
+	public T visitSet(ISet o)  throws E {
 		return null;
 	}
 
-	public T visitSourceLocation(ISourceLocation o)  throws E{
+	public T visitSourceLocation(ISourceLocation o)  throws E {
 		return null;
 	}
 
-	public T visitString(IString o)  throws E{
+	public T visitString(IString o)  throws E {
 		return null;
 	}
 
-	public T visitNode(INode o)  throws E{
+	public T visitNode(INode o)  throws E {
 		return null;
 	}
 
@@ -77,7 +77,7 @@ public abstract class NullVisitor<T extends @Nullable Object, E extends Throwabl
 		return null;
 	}
 	
-	public T visitTuple(ITuple o)  throws E{
+	public T visitTuple(ITuple o)  throws E {
 		return null;
 	}
 	
