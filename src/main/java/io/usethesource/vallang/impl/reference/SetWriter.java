@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
@@ -32,7 +34,7 @@ import io.usethesource.vallang.type.TypeFactory;
 /*package*/ class SetWriter implements ISetWriter {
     protected final HashSet<IValue> setContent;
     protected Type eltType;
-    protected Set constructedSet;
+    protected @MonotonicNonNull Set constructedSet = null;
 
     /*package*/ SetWriter() {
         super();
@@ -87,8 +89,9 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private void checkMutation() {
-        if (constructedSet != null)
+        if (constructedSet != null) {
             throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
+        }
     }
     
     @Override
