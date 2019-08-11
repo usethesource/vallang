@@ -29,7 +29,6 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.util.AbstractTypeBag;
@@ -61,8 +60,6 @@ public class SetWriter implements ISetWriter {
   protected AbstractTypeBag elementTypeBag;
   protected Set.Transient<IValue> setContent;
 
-  protected final boolean checkUpperBound;
-  protected final Type upperBoundType;
   protected @MonotonicNonNull ISet constructedSet;
 
   private Type leastUpperBound = TypeFactory.getInstance().voidType();
@@ -126,23 +123,9 @@ public class SetWriter implements ISetWriter {
 
   }
   
-
-  SetWriter(Type upperBoundType, BiFunction<IValue, IValue, ITuple> constructTuple) {
+  /*package*/ SetWriter(BiFunction<IValue, IValue, ITuple> constructTuple) {
     super();
 
-    this.checkUpperBound = true;
-    this.upperBoundType = upperBoundType;
-    this.constructTuple = constructTuple;
-
-    elementTypeBag = AbstractTypeBag.of();
-    constructedSet = null;
-  }
-
-  SetWriter(BiFunction<IValue, IValue, ITuple> constructTuple) {
-    super();
-
-    this.checkUpperBound = false;
-    this.upperBoundType = null;
     this.constructTuple = constructTuple;
 
     elementTypeBag = AbstractTypeBag.of();
@@ -152,10 +135,6 @@ public class SetWriter implements ISetWriter {
   private void put(IValue element) {
     final Type elementType = element.getType();
 
-    if (checkUpperBound && !elementType.isSubtypeOf(upperBoundType)) {
-      throw new UnexpectedElementTypeException(upperBoundType, elementType);
-    }
-   
     if (builder == null || elementType != leastUpperBound) {
         if (elementType.isTuple() && elementType.getArity() == 2) {
             if (builder == null) {

@@ -43,9 +43,7 @@ public final class PersistentHashMap implements IMap {
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
-	protected PersistentHashMap(AbstractTypeBag keyTypeBag,
-                              AbstractTypeBag valTypeBag, Map.Immutable<@NonNull IValue, @NonNull IValue> content) {
-		this.cachedMapType = null;
+	protected PersistentHashMap(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag, Map.Immutable<@NonNull IValue, @NonNull IValue> content) {
 		this.keyTypeBag = keyTypeBag;
 		this.valTypeBag = valTypeBag;
 		this.content = content;

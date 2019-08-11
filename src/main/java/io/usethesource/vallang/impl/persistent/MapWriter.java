@@ -23,7 +23,6 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWriter;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
@@ -37,17 +36,10 @@ final class MapWriter implements IMapWriter {
 	private AbstractTypeBag valTypeBag;
 	private final Map.Transient<IValue, IValue> mapContent;
 
-	private final boolean checkUpperBound;
-	private final Type upperBoundKeyType;
-	private final Type upperBoundValType;
 	private IMap constructedMap;
 
 	MapWriter() {
 		super();
-
-		this.checkUpperBound = false;
-		this.upperBoundKeyType = null;
-		this.upperBoundValType = null;
 
 		keyTypeBag = AbstractTypeBag.of();
 		valTypeBag = AbstractTypeBag.of();
@@ -62,16 +54,6 @@ final class MapWriter implements IMapWriter {
 
 		final Type keyType = key.getType();
 		final Type valType = value.getType();
-
-		if (checkUpperBound) {
-			if (!keyType.isSubtypeOf(upperBoundKeyType)) {
-				throw new UnexpectedElementTypeException(upperBoundKeyType, keyType);
-			}
-
-			if (!valType.isSubtypeOf(upperBoundValType)) {
-				throw new UnexpectedElementTypeException(upperBoundValType, valType);
-			}
-		}
 
 		final IValue replaced = mapContent.__putEquivalent(key, value, equivalenceComparator);
 
