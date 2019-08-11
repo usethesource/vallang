@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
@@ -19,9 +21,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-
-import org.checkerframework.checker.nullness.qual.KeyFor;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of a typed tree node with access to children via labels

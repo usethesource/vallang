@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
@@ -36,7 +38,7 @@ import io.usethesource.vallang.type.TypeFactory;
 /*package*/ class ListWriter implements IListWriter {
     private Type eltType;
     private final java.util.List<IValue> listContent;
-    private IList constructedList;
+    private @MonotonicNonNull IList constructedList;
     private boolean unique;
 
     /*package*/ ListWriter() {
@@ -44,7 +46,6 @@ import io.usethesource.vallang.type.TypeFactory;
 
         this.eltType = TypeFactory.getInstance().voidType();
         listContent = new LinkedList<>();
-
         constructedList = null;
         unique = false;
     }

@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -56,7 +58,7 @@ public interface IMap extends ICollection<IMap> {
      * @param key
      * @return the value that is mapped to this key, or null if no such value exists
      */
-    public IValue get(IValue key);
+    public @Nullable IValue get(IValue key);
 
     /**
      * Determine whether a certain key exists in this map.
@@ -100,16 +102,25 @@ public interface IMap extends ICollection<IMap> {
         return false;
     }
     
-    public default boolean defaultEquals(Object other){
-        if (other == this) return true;
-        if (other == null) return false;
+    public default boolean defaultEquals(@Nullable Object other){
+        if (other == this) {
+            return true;
+        }
+        
+        if (other == null) {
+            return false;
+        }
 
         if (other instanceof IMap) {
             IMap map2 = (IMap) other;
 
-            if (getType() != map2.getType()) return false;
+            if (getType() != map2.getType()) {
+                return false;
+            }
 
-            if (hashCode() != map2.hashCode()) return false;
+            if (hashCode() != map2.hashCode()) {
+                return false;
+            }
 
             if (size() == map2.size()) {
 
@@ -132,10 +143,8 @@ public interface IMap extends ICollection<IMap> {
                             continue outer;
                         }
                     }
-                    
                     return false;
                 }
-
                 return true;
             }
         }

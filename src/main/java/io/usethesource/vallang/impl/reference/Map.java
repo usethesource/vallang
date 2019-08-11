@@ -55,7 +55,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	}
 
 	@Override
-	public IValue get(IValue key) {
+	public @Nullable IValue get(IValue key) {
 	    // see how we can't use the hash tabel due to the semantics of isEqual
 	    for (Entry<IValue,IValue> entry : content.entrySet()) {
 	        if (key.isEqual(entry.getKey())) {
@@ -114,8 +114,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     
     @Override
     public boolean equals(@Nullable Object obj) {
-    return defaultEquals(obj);
-}
+        return defaultEquals(obj);
+    }
     
     @Override
     public Stream<IValue> stream() {

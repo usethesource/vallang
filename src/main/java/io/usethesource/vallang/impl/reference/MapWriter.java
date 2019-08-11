@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
@@ -34,7 +36,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 	private AbstractTypeBag keyTypeBag;
     private AbstractTypeBag valTypeBag;
 	private final java.util.HashMap<IValue, IValue> mapContent;
-	private Map constructedMap;
+	private @MonotonicNonNull Map constructedMap;
 
 	/*package*/ MapWriter() {
 		super();
