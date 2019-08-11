@@ -18,6 +18,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.SetMultimap;
 import io.usethesource.capsule.util.EqualityComparator;
@@ -61,11 +63,11 @@ public class SetWriter implements ISetWriter {
 
   protected final boolean checkUpperBound;
   protected final Type upperBoundType;
-  protected ISet constructedSet;
+  protected @MonotonicNonNull ISet constructedSet;
 
   private Type leastUpperBound = TypeFactory.getInstance().voidType();
   
-  private Builder builder = null;
+  private @MonotonicNonNull Builder builder = null;
 
   private final BiFunction<IValue, IValue, ITuple> constructTuple;
   
@@ -133,7 +135,6 @@ public class SetWriter implements ISetWriter {
     this.constructTuple = constructTuple;
 
     elementTypeBag = AbstractTypeBag.of();
-    // setContent = Set.Transient.of();
     constructedSet = null;
   }
 
@@ -144,9 +145,7 @@ public class SetWriter implements ISetWriter {
     this.upperBoundType = null;
     this.constructTuple = constructTuple;
 
-
     elementTypeBag = AbstractTypeBag.of();
-    // setContent = Set.Transient.of();
     constructedSet = null;
   }
 

@@ -86,8 +86,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
     if (isTupleOfArityTwo.test(elementType)) {
       // convert to binary relation
       return content.stream().map(asInstanceOf(ITuple.class))
-          .collect(ValueCollectors.toSetMultimap(elementType.getOptionalFieldName(0),
-              tuple -> tuple.get(0), elementType.getOptionalFieldName(1), tuple -> tuple.get(1)));
+          .collect(ValueCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
     }
 
     // keep current representation

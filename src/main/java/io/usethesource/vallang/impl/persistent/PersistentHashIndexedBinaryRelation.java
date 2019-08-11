@@ -80,8 +80,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       return this;
   }
 
-  @SuppressWarnings("deprecation")
-private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
+  private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       final AbstractTypeBag valTypeBag, final SetMultimap.Immutable<IValue, IValue> content) {
 
     AbstractTypeBag expectedKeyTypeBag = content.entrySet().stream().map(Map.Entry::getKey)
@@ -89,12 +88,6 @@ private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
 
     AbstractTypeBag expectedValTypeBag = content.entrySet().stream().map(Map.Entry::getValue)
         .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
-
-    // the label is not on the stream of values and keys
-    // so we have to set that back to the type bag,
-    // else the equals that does compare the labels can fail.
-    expectedKeyTypeBag = expectedKeyTypeBag.setLabel(keyTypeBag.getLabel());
-    expectedValTypeBag = expectedValTypeBag.setLabel(valTypeBag.getLabel());
 
     boolean keyTypesEqual = expectedKeyTypeBag.equals(keyTypeBag);
     boolean valTypesEqual = expectedValTypeBag.equals(valTypeBag);
@@ -107,21 +100,10 @@ private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       return ValueFactory.getInstance().setWriter();
   }
 
-  @SuppressWarnings("deprecation")
-@Override
+  @Override
   public Type getType() {
     if (cachedRelationType == null) {
-      final String keyLabel = keyTypeBag.getLabel();
-      final String valLabel = valTypeBag.getLabel();
-
-      if (keyLabel != null && valLabel != null) {
-        final Type tupleType = TF.tupleType(
-            new Type[] {keyTypeBag.lub(), valTypeBag.lub()}, new String[] {keyLabel, valLabel});
-
-        cachedRelationType = TF.relTypeFromTuple(tupleType);
-      } else {
         cachedRelationType = TF.relType(keyTypeBag.lub(), valTypeBag.lub());
-      }
     }
     return cachedRelationType;
   }
@@ -572,8 +554,7 @@ private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       if (isTupleOfArityTwo.test(fieldType0)) {
           // TODO: use lazy keySet view instead of materialized data structure
           return this.content.keySet().stream().map(asInstanceOf(ITuple.class))
-                  .collect(ValueCollectors.toSetMultimap(fieldType0.getOptionalFieldName(0), tuple -> tuple.get(0),
-                          fieldType0.getOptionalFieldName(1), tuple -> tuple.get(1)));
+                  .collect(ValueCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
       }
 
       /**

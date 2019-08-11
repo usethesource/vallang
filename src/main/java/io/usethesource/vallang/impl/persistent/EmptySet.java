@@ -50,8 +50,7 @@ public final class EmptySet implements ISet {
 
     if (isTupleOfArityTwo.test(firstElementType)) {
       return Stream.of(firstElement).map(asInstanceOf(ITuple.class))
-          .collect(toSetMultimap(firstElementType.getOptionalFieldName(0), tuple -> tuple.get(0),
-              firstElementType.getOptionalFieldName(1), tuple -> tuple.get(1)));
+          .collect(toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
     } else {
       return Stream.of(firstElement).collect(toSet());
     }
