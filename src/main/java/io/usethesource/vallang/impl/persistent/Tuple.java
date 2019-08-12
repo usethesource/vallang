@@ -13,6 +13,7 @@ package io.usethesource.vallang.impl.persistent;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.ITuple;
@@ -24,8 +25,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 /*package*/ class Tuple implements ITuple{
 	
 	protected static final TypeFactory typeFactory = TypeFactory.getInstance();
-
-	private Type cachedTupleType;
+	private @MonotonicNonNull Type cachedTupleType;
 	protected final IValue[] elements;
 
 	private static final ITuple EMPTY_TUPLE = new Tuple();
@@ -40,7 +40,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	private Tuple(IValue... elements) {
 		super();
 		
-		this.cachedTupleType = null;
 		this.elements = elements;
 	}
 

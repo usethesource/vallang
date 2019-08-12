@@ -25,6 +25,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.capsule.Set;
@@ -48,8 +49,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
  * is faster for compose and closure because the index has been pre-computed.
  */
 public final class PersistentHashIndexedBinaryRelation implements ISet, IRelation<ISet> {
-
-  private Type cachedRelationType;
+  private @MonotonicNonNull Type cachedRelationType;
   private final AbstractTypeBag keyTypeBag;
   private final AbstractTypeBag valTypeBag;
   private final SetMultimap.Immutable<IValue, IValue> content;

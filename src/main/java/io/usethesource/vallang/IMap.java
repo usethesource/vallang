@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.type.Type;
@@ -46,9 +47,11 @@ public interface IMap extends ICollection<IMap> {
      */
     public default IMap removeKey(IValue key) {
         IMapWriter sw = writer();
-        for (IValue c : this) {
-            if (!c.isEqual(key)) {
-                sw.put(c, get(c));
+        Iterator<Entry<IValue, IValue>> it = entryIterator();
+        while (it.hasNext()) {
+            Entry<IValue,IValue> c = it.next();
+            if (!c.getKey().isEqual(key)) {
+                sw.put(c.getKey(), c.getValue());
             }
         }
         return sw.done();
@@ -65,6 +68,8 @@ public interface IMap extends ICollection<IMap> {
      * @param key
      * @return true iff there is a value mapped to this key
      */
+    @EnsuresNonNullIf(expression="get(#1)", result=true)
+    @SuppressWarnings("contracts.conditional.postcondition.not.satisfied")
     public default boolean containsKey(IValue key) {
         for (IValue cursor : this) {
             if (cursor.isEqual(key)) {
@@ -85,13 +90,14 @@ public interface IMap extends ICollection<IMap> {
             if (size() == map2.size()) {
 
                 for (IValue k1 : this) {
-                    if (!containsKey(k1)) { 
-                        return false;
-                    } else {
+                    if (containsKey(k1)) {
                         IValue v1 = map2.get(k1);
                         if (v1 == null || !v1.isEqual(get(k1))) { 
                             return false;
                         }
+                    }
+                    else {
+                        return false;
                     }
                 }
 

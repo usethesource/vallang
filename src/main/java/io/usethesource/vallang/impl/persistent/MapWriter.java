@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
@@ -32,20 +34,11 @@ final class MapWriter implements IMapWriter {
 	private static final EqualityComparator<Object> equivalenceComparator =
 			EqualityUtils.getEquivalenceComparator();
 
-	private AbstractTypeBag keyTypeBag;
-	private AbstractTypeBag valTypeBag;
-	private final Map.Transient<IValue, IValue> mapContent;
+	private AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
+	private AbstractTypeBag valTypeBag = AbstractTypeBag.of();
+	private final Map.Transient<IValue, IValue> mapContent = Map.Transient.of();
 
-	private IMap constructedMap;
-
-	MapWriter() {
-		super();
-
-		keyTypeBag = AbstractTypeBag.of();
-		valTypeBag = AbstractTypeBag.of();
-		mapContent = Map.Transient.of();
-		constructedMap = null;
-	}
+	private @MonotonicNonNull IMap constructedMap;
 
 	@Override
 	@SuppressWarnings("deprecation")

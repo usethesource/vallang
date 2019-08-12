@@ -13,6 +13,8 @@ package io.usethesource.vallang.impl.persistent;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
@@ -29,7 +31,7 @@ import io.usethesource.vallang.type.TypeFactory;
 /*package*/ class ListWriter implements IListWriter{
     private Type elementType;
 	private final ShareableValuesList data;
-	private IList constructedList;
+	private @MonotonicNonNull IList constructedList;
 	private boolean unique = false;
 	
 	/*package*/ ListWriter() {
@@ -37,8 +39,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		this.elementType = TypeFactory.getInstance().voidType();
 		data = new ShareableValuesList();
-		
-		constructedList = null;
 	}
 	
 	private ListWriter(boolean unique) {
@@ -61,8 +61,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		this.elementType = elementType;
 		this.data = data;
-		
-		constructedList = null;
 	}
 	
 	@Override
@@ -209,13 +207,20 @@ import io.usethesource.vallang.type.TypeFactory;
 		return data.size();
 	}
 	
-	protected void checkMutation(){
-		if(constructedList != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
+	protected void checkMutation() {
+		if (constructedList != null) {
+		    throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
+		}
 	}
 	
 	private void checkBounds(IValue[] elems, int start, int length){
-		if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
-		if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
+		if (start < 0) {
+		    throw new ArrayIndexOutOfBoundsException("start < 0");
+		}
+		
+		if ((start + length) > elems.length) {
+		    throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
+		}
 	}
 	
 	@Override
