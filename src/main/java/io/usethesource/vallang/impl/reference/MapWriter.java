@@ -22,7 +22,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -48,12 +50,12 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 	}
 
 	@Override
-	public Iterator<IValue> iterator() {
+	public Iterator<@KeyFor("this") IValue> iterator() {
 	    return mapContent.keySet().iterator();
 	}
 	
 	@Override
-	public IValue get(IValue key) {
+	public @Nullable IValue get(IValue key) {
 	    return mapContent.get(key);
 	}
 	
@@ -67,9 +69,9 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 	}
 	
 	private void checkMutation() {
-		if (constructedMap != null)
-			throw new UnsupportedOperationException(
-					"Mutation of a finalized list is not supported.");
+		if (constructedMap != null) {
+			throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
+		}
 	}
 	
 	@Override

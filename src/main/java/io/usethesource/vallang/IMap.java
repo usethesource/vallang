@@ -13,13 +13,11 @@
 package io.usethesource.vallang;
 
 import java.util.Iterator;
-import java.util.Spliterator;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.KeyFor;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -351,7 +349,7 @@ public interface IMap extends ICollection<IMap> {
      * @return an iterator over the keys of the map 
      */
     @Override
-    public Iterator<@NonNull @KeyFor("this") IValue> iterator();
+    public Iterator<@KeyFor("this") IValue> iterator();
     
     /**
      * @return an iterator over the values of the map
