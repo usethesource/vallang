@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -117,7 +119,8 @@ public final class PersistentHashMap implements IMap {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
+	@EnsuresNonNullIf(expression="get(#1)", result=true)
+    @SuppressWarnings({"deprecation", "contracts.conditional.postcondition.not.satisfied"}) // that's impossible to prove for the Checker Framework
 	public boolean containsKey(IValue key) {
 		return content.containsKeyEquivalent(key, equivalenceComparator);
 	}
@@ -129,7 +132,7 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	 @SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation")
 	public IValue get(IValue key) {
 		return content.getEquivalent(key, equivalenceComparator);
 	}
@@ -192,7 +195,7 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	public Iterator<IValue> iterator() {
+	public Iterator<@NonNull @KeyFor("this") IValue> iterator() {
 		return content.keyIterator();
 	}
 	
@@ -202,7 +205,7 @@ public final class PersistentHashMap implements IMap {
 	}
 
 	@Override
-	public Iterator<Entry<IValue, IValue>> entryIterator() {
+	public Iterator<Entry<@KeyFor("this") IValue, IValue>> entryIterator() {
 		return content.entryIterator();
 	}
 
