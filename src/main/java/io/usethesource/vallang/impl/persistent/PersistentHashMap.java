@@ -40,7 +40,7 @@ public final class PersistentHashMap implements IMap {
 	private @MonotonicNonNull Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag;
 	private final AbstractTypeBag valTypeBag;
-	private final Map.Immutable<@NonNull IValue, @NonNull IValue> content;
+	private final Map.Immutable<@NonNull @KeyFor("this") IValue, @NonNull IValue> content;
 	
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
@@ -120,7 +120,7 @@ public final class PersistentHashMap implements IMap {
 
 	@Override
 	@EnsuresNonNullIf(expression="get(#1)", result=true)
-    @SuppressWarnings({"deprecation", "contracts.conditional.postcondition.not.satisfied"}) // that's impossible to prove for the Checker Framework
+    @SuppressWarnings({"deprecation", "contracts.conditional.postcondition.not.satisfied", "contracts.conditional.postcondition.true.override.invalid"}) // that's impossible to prove for the Checker Framework
 	public boolean containsKey(IValue key) {
 		return content.containsKeyEquivalent(key, equivalenceComparator);
 	}
