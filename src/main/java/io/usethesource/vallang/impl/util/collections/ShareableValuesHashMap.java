@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.checkerframework.checker.nullness.qual.EnsuresKeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValue;
@@ -150,7 +149,6 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		}
 	}
 	
-	@EnsuresKeyFor(value="key", map="this")
 	public @Nullable IValue put(IValue key, IValue value){
 		ensureCapacity();
 		

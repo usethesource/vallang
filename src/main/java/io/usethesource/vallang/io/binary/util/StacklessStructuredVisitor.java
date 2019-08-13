@@ -100,9 +100,10 @@ public class StacklessStructuredVisitor {
                     workList.push(new NextStep<>(map, (l, w, v) -> {
                         v.leaveMap(l);
                     }));
-                    for (IValue k: map) {
-                        workList.push(new NextStep<>(map.get(k), StacklessStructuredVisitor::visitValue));
-                        workList.push(new NextStep<>(k, StacklessStructuredVisitor::visitValue));
+                    
+                    for (Entry<IValue,IValue> entry : (Iterable<Entry<IValue,IValue>>) () -> map.entryIterator()) {
+                        workList.push(new NextStep<>(entry.getValue(), StacklessStructuredVisitor::visitValue));
+                        workList.push(new NextStep<>(entry.getKey(), StacklessStructuredVisitor::visitValue));
                     }
                 }
                 return null;

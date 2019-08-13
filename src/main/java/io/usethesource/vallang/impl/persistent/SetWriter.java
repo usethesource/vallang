@@ -182,7 +182,8 @@ public class SetWriter implements ISetWriter {
                 // special case, previous values were all binary tuples, but the new value isn't
                 MultiMapBuilder oldBuilder = (MultiMapBuilder) builder;
                 builder = new SetBuilder();
-                oldBuilder.map.tupleStream(constructTuple).forEach(t -> builder.put(t, t.getType()));        
+                final Builder finalSetBuilder = builder;
+                oldBuilder.map.tupleStream(constructTuple).forEach(t -> finalSetBuilder.put(t, t.getType()));        
             }
         }
 

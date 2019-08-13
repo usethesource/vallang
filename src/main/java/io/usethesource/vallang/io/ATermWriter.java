@@ -115,21 +115,23 @@ public class ATermWriter implements IValueTextWriter {
 		public IValue visitMap(IMap o) throws IOException {
 			append('[');
 		
-			Iterator<IValue> mapIterator = o.iterator();
-			if(mapIterator.hasNext()){
+			Iterator<Entry<IValue,IValue>> mapIterator = o.entryIterator();
+			if (mapIterator.hasNext()) {
+			    Entry<IValue, IValue> entry = mapIterator.next();
 				append('(');
-				IValue key = mapIterator.next();
+				IValue key = entry.getKey();
 				key.accept(this);
 				append(',');
-				o.get(key).accept(this);
+				entry.getValue().accept(this);
 				append(')');
 				
-				while(mapIterator.hasNext()){
+				while(mapIterator.hasNext()) {
+				    entry = mapIterator.next();
 					append(',');
 					append('(');
-					key = mapIterator.next();
+					key = entry.getKey();
 					append(',');
-					o.get(key).accept(this);
+					entry.getValue().accept(this);
 					append(')');
 				}
 			}

@@ -14,6 +14,7 @@ package io.usethesource.vallang.io;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -21,6 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -38,6 +42,7 @@ import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.OverloadingNotSupportedException;
 import io.usethesource.vallang.exceptions.UnexpectedTypeException;
+import io.usethesource.vallang.impl.reference.ValueFactory;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -74,20 +79,20 @@ public class StandardTextReader extends AbstractTextReader {
 	private static final char END_OF_DATETIME = '$';
 	
 	private static final char NEGATIVE_SIGN = '-';
+	private static final TypeFactory types = TypeFactory.getInstance();
 	
+	// three dummies guarantees non-nullness for temporary fields during a read
+	private TypeStore store = new TypeStore(); 
+	private NoWhiteSpaceReader stream = new NoWhiteSpaceReader(new StringReader(""));
+	private IValueFactory factory = ValueFactory.getInstance();
 	
-	private TypeStore store;
-	private NoWhiteSpaceReader stream;
-	private IValueFactory factory;
-	private TypeFactory types;
 	private int current;
-	private Cache<String, ISourceLocation> sourceLocationCache;
+	private @Nullable Cache<String, ISourceLocation> sourceLocationCache;
 
   public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
 		this.store = store;
 		this.stream = new NoWhiteSpaceReader(stream);
 		this.factory = factory;
-		this.types = TypeFactory.getInstance();
 
 		try {
 			sourceLocationCache = Caffeine.newBuilder().maximumSize(1000).build();
@@ -179,13 +184,8 @@ public class StandardTextReader extends AbstractTextReader {
 		try {
 
 			String url = parseURL();
-			ISourceLocation loc = sourceLocationCache.get(url, u -> {
-			    try {
-			        return factory.sourceLocation(new URI(u));
-			    } catch (URISyntaxException e) {
-			        throw new RuntimeException(e);
-			    }
-			});
+			ISourceLocation loc = getCachedLocation(url);
+			
 			if (current == START_OF_ARGUMENTS) {
 				ArrayList<IValue> args = new ArrayList<>(4);
 				readFixed(types.valueType(), ')', args, null);
@@ -239,6 +239,19 @@ public class StandardTextReader extends AbstractTextReader {
 		    throw e;
 		}
 	}
+
+    private ISourceLocation getCachedLocation(String url) {
+        assert sourceLocationCache != null : "@AssumeAssertion(nullness)";
+        
+        ISourceLocation loc = sourceLocationCache.get(url, u -> {
+            try {
+                return factory.sourceLocation(new URI(u));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return loc;
+    }
 
 	private String parseURL() throws IOException {
 		current = stream.read();
