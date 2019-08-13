@@ -46,7 +46,6 @@ import io.usethesource.vallang.type.TypeFactory;
 
         this.eltType = TypeFactory.getInstance().voidType();
         listContent = new LinkedList<>();
-        constructedList = null;
         unique = false;
     }
     

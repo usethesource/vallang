@@ -37,7 +37,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 /*package*/ class MapWriter implements IMapWriter {
 	private AbstractTypeBag keyTypeBag;
     private AbstractTypeBag valTypeBag;
-	private final java.util.HashMap<IValue, IValue> mapContent;
+	private final java.util.Map<@KeyFor("this") IValue, IValue> mapContent;
 	private @MonotonicNonNull Map constructedMap;
 
 	/*package*/ MapWriter() {
@@ -78,10 +78,9 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 	public void putAll(IMap map) throws FactTypeUseException{
 		checkMutation();
 		
-		for(IValue key : map){
-			IValue value = map.get(key);
-			updateTypes(key, value);
-			mapContent.put(key, value);
+		for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> map.entryIterator()) {
+		    updateTypes(entry.getKey(), entry.getValue());
+		    mapContent.put(entry.getKey(), entry.getValue());
 		}
 	}
 	
