@@ -103,8 +103,7 @@ public abstract class AbstractTypeBag implements Cloneable {
             } else if (oldCount > 1) {
                 // update and decrease count; lub stays the same
                 final Map.Immutable<Type, Integer> newCountMap = countMap.__put(t, oldCount - 1);
-                assert cachedLub != null : "@AssumeAssertion(nullness)";
-                return new TypeBag(newCountMap, cachedLub);
+                return cachedLub != null ? new TypeBag(newCountMap, cachedLub) : new TypeBag(newCountMap);
             } else {
                 // count was zero, thus remove entry and invalidate cached type
                 final Map.Immutable<Type, Integer> newCountMap = countMap.__remove(t);

@@ -34,6 +34,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnsupportedTypeException;
+import io.usethesource.vallang.impl.reference.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -66,9 +67,11 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class XMLReader extends AbstractTextReader {
 	private DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-	private IValueFactory vf;
 	private static final TypeFactory TF = TypeFactory.getInstance();
-	private TypeStore ts;
+
+	// two dummies guarantee non-nullness for temporaries during read
+	private IValueFactory vf = ValueFactory.getInstance();
+	private TypeStore ts = new TypeStore();
 
 	public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream)
 			throws FactTypeUseException, IOException {
