@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
-import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -33,7 +32,7 @@ public interface IMap extends ICollection<IMap> {
      * @param value
      * @return a copy of the map with the new key/value mapping
      */
-    public default IMap put(@KeyFor("put(#1,#2)") IValue key, IValue value) {
+    public default IMap put(IValue key, IValue value) {
         IMapWriter sw = writer();
         sw.putAll(this);
         sw.put(key, value);
@@ -47,7 +46,7 @@ public interface IMap extends ICollection<IMap> {
      * @param key
      * @return a map without entries that are isEqual to the key
      */
-    public default IMap removeKey(@KeyFor("this") IValue key) {
+    public default IMap removeKey(IValue key) {
         IMapWriter sw = writer();
         
         for (Entry<IValue, IValue> c : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
@@ -349,7 +348,7 @@ public interface IMap extends ICollection<IMap> {
      * @return an iterator over the keys of the map 
      */
     @Override
-    public Iterator<@KeyFor("this") IValue> iterator();
+    public Iterator<IValue> iterator();
     
     /**
      * @return an iterator over the values of the map
@@ -359,7 +358,7 @@ public interface IMap extends ICollection<IMap> {
     /**
      * @return an iterator over the keys-value pairs of the map
      */
-    public Iterator<Entry<@KeyFor("this") IValue, IValue>> entryIterator();
+    public Iterator<Entry<IValue, IValue>> entryIterator();
     
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {

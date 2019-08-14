@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
-import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -37,7 +36,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 /*package*/ class MapWriter implements IMapWriter {
 	private AbstractTypeBag keyTypeBag;
     private AbstractTypeBag valTypeBag;
-	private final java.util.Map<@KeyFor("this") IValue, IValue> mapContent;
+	private final java.util.Map<IValue, IValue> mapContent;
 	private @MonotonicNonNull Map constructedMap;
 
 	/*package*/ MapWriter() {
@@ -50,7 +49,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 	}
 
 	@Override
-	public Iterator<@KeyFor("this") IValue> iterator() {
+	public Iterator<IValue> iterator() {
 	    return mapContent.keySet().iterator();
 	}
 	

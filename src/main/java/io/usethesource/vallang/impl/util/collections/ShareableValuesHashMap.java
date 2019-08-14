@@ -15,7 +15,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.EnsuresKeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.util.ShareableHashSet;
@@ -148,7 +151,8 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 			e = e.next;
 		}
 	}
-	
+
+	@EnsuresKeyFor(value="#1", map="this")
 	public @Nullable IValue put(IValue key, IValue value){
 		ensureCapacity();
 		
@@ -214,7 +218,12 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return null; // Not found.
 	}
 	
-	public @Nullable IValue get(Object object){
+	@Pure
+	public @Nullable IValue get(@Nullable Object object){
+	    if (object == null) {
+	        return null;
+	    }
+	    
 		IValue key = (IValue) object;
 		
 		int hash = key.hashCode();
@@ -234,10 +243,12 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return (get(key) != null);
 	}
 	
+	@Pure
 	public int size(){
 		return load;
 	}
 	
+	@Pure
 	public boolean isEmpty(){
 		return (load == 0);
 	}
@@ -305,6 +316,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return entrySet;
 	}
 	
+	@SideEffectFree
 	public Set<IValue> keySet(){
 		ShareableHashSet<IValue> keysSet = new ShareableHashSet<>();
 		
@@ -316,6 +328,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return keysSet;
 	}
 	
+	@SideEffectFree
 	public Collection<IValue> values(){
 		ShareableHashSet<IValue> valuesSet = new ShareableHashSet<>();
 		

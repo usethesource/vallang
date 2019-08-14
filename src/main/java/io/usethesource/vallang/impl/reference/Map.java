@@ -22,18 +22,17 @@ import java.util.Map.Entry;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
-import org.checkerframework.checker.nullness.qual.KeyFor;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 /*package*/ class Map implements IMap {
 	final Type type;
-	final java.util.Map<@KeyFor("this") IValue, IValue> content;
+	final java.util.Map<IValue, IValue> content;
 
 	/*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content) {
 		super();
@@ -69,7 +68,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	}
 
 	@Override
-	public Iterator<@KeyFor("this") IValue> iterator() {
+	public Iterator<IValue> iterator() {
 		return content.keySet().iterator();
 	}
 
@@ -79,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	}
 
 	@Override
-	public Iterator<Entry<@KeyFor("this") IValue, IValue>> entryIterator() {
+	public Iterator<Entry<IValue, IValue>> entryIterator() {
 		return content.entrySet().iterator();
 	}
 

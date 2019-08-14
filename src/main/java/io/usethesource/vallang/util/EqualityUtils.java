@@ -12,6 +12,7 @@
 package io.usethesource.vallang.util;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
@@ -39,4 +40,5 @@ public class EqualityUtils {
 			(a, b) -> Objects.equals(a.keySet(), b.keySet()) && a.keySet().stream()
 					.allMatch(key -> getEquivalenceComparator().equals(a.get(key), b.get(key)));
 
+			 public static final BiFunction<java.util.List<Object>, Object, Boolean> func = (a, b) -> a.stream().map(e -> e == b) == null;
 }

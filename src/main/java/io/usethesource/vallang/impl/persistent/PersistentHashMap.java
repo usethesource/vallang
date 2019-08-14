@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
-import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -40,7 +39,7 @@ public final class PersistentHashMap implements IMap {
 	private @MonotonicNonNull Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag;
 	private final AbstractTypeBag valTypeBag;
-	private final Map.Immutable<@NonNull @KeyFor("this") IValue, @NonNull IValue> content;
+	private final Map.Immutable<@NonNull IValue, @NonNull IValue> content;
 	
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
@@ -195,7 +194,7 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	public Iterator<@NonNull @KeyFor("this") IValue> iterator() {
+	public Iterator<IValue> iterator() {
 		return content.keyIterator();
 	}
 	
@@ -205,7 +204,7 @@ public final class PersistentHashMap implements IMap {
 	}
 
 	@Override
-	public Iterator<Entry<@KeyFor("this") IValue, IValue>> entryIterator() {
+	public Iterator<Entry<IValue, IValue>> entryIterator() {
 		return content.entryIterator();
 	}
 
