@@ -14,9 +14,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.EnsuresKeyFor;
+import org.checkerframework.checker.nullness.qual.EnsuresKeyForIf;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
@@ -29,13 +35,14 @@ import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
  * @param <V>
  *          The value type
  */
+
 public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	private final static int INITIAL_LOG_SIZE = 4;
 
 	private int modSize;
 	private int hashMask;
 	
-	private Entry<V>[] data;
+	private @Nullable Entry<V>[] data;
 	
 	private int threshold;
 	
@@ -100,11 +107,11 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
 		@SuppressWarnings("unchecked")
-        Entry<V>[] newData = (Entry<V>[]) new Entry[tableSize];
+        @Nullable Entry<V>[] newData = (Entry<V>[]) new Entry[tableSize];
 
 		threshold = tableSize;
 		
-		Entry<V>[] oldData = data;
+		@Nullable Entry<V>[] oldData = data;
 		for(int i = oldData.length - 1; i >= 0; i--){
 			Entry<V> entry = oldData[i];
 			
@@ -130,7 +137,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 				while(entry != lastUnchangedEntryChain){
 					int hash = entry.hash;
 					int position = hash & hashMask;
-					newData[position] = new Entry<>(hash, entry.key, entry.value, newData[position]);
+					newData[position] = new Entry<>(hash, entry.key, entry.value, Objects.requireNonNull(newData[position]));
 					
 					entry = entry.next;
 				}
@@ -161,7 +168,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 *            The value.
 	 */
 	private void replaceValue(int position, Entry<V> entry, V newValue){
-		Entry<V> e = data[position];
+		Entry<V> e = Objects.requireNonNull(data[position]);
 		
 		// Reconstruct the updated entry.
 		data[position] = new Entry<>(entry.hash, entry.key, newValue, entry.next);
@@ -184,7 +191,10 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 *            The value
 	 * @return The previous value that was associated with the key (if any); null otherwise.
 	 */
-	public V put(IValue key, V value){
+	@Override
+	@EnsuresKeyFor(value="#1", map="this")
+	@SuppressWarnings("contracts.postcondition.not.satisfied")
+	public @Nullable V put(IValue key, V value){
 		ensureCapacity();
 		
 		int hash = key.hashCode();
@@ -192,20 +202,20 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		
 		Entry<V> currentStartEntry = data[position];
 		// Check if the key is already in here.
-		if(currentStartEntry != null){
-			Entry<V> entry = currentStartEntry;
-			do{
-				if(hash == entry.hash && entry.key.isEqual(key)){ // Replace if present.
+		if (currentStartEntry != null) {
+			@Nullable Entry<V> entry = currentStartEntry;
+			do {
+				if (hash == entry.hash && entry.key.isEqual(key)) { // Replace if present.
 					replaceValue(position, entry, value);
 					
 					return entry.value; // Return the old value.
 				}
 				
 				entry = entry.next;
-			}while(entry != null);
+			} while (entry != null);
 		}
 		
-		data[position] = new Entry<>(hash, key, value, currentStartEntry); // Insert the new entry.
+		data[position] = new Entry<>(hash, key, value, Objects.requireNonNull(currentStartEntry)); // Insert the new entry.
 		
 		load++;
 		
@@ -220,23 +230,29 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * @return The value that was associated with the given key; null if the key was not present in
 	 * the map.
 	 */
-	public V remove(Object object){
+	@Override
+	public @Nullable V remove(@Nullable Object object){
+	    if (object == null) {
+	        return null;
+	    }
+	    
 		IValue key = (IValue) object;
 		
 		int hash = key.hashCode();
 		int position = hash & hashMask;
 		
 		Entry<V> currentStartEntry = data[position];
-		if(currentStartEntry != null){
+		if (currentStartEntry != null){
 			Entry<V> entry = currentStartEntry;
-			do{
-				if(hash == entry.hash && entry.key.isEqual(key)){
+			do {
+				if (hash == entry.hash && entry.key.isEqual(key)){
 					Entry<V> e = data[position];
 					
 					data[position] = entry.next;
 					// Reconstruct the other entries (if necessary).
-					while(e != entry){
-						data[position] = new Entry<>(e.hash, e.key, e.value, data[position]);
+					while (e != entry) {
+					    assert e != null : "@AssumeAssertion(nullness)";
+						data[position] = new Entry<>(e.hash, e.key, e.value, Objects.requireNonNull(data[position]));
 						
 						e = e.next;
 					}
@@ -261,7 +277,13 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 *            The key that identifies the entry that contains the value.
 	 * @return The retrieved value; null if not present.
 	 */
-	public V get(Object object){
+	@Pure
+	@Override
+	public @Nullable V get(@Nullable Object object){
+	    if (object == null) {
+	        return null;
+	    }
+	    
 		IValue key = (IValue) object;
 		
 		int hash = key.hashCode();
@@ -285,6 +307,9 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * @return True if this map contains an entry which is identified by the given key;
 	 * false otherwise.
 	 */
+	@EnsuresNonNullIf(expression="get(#1)", result=true)
+	@EnsuresKeyForIf(expression="#1", map="this", result=true)
+	@SuppressWarnings("contracts.conditional.postcondition.not.satisfied")
 	public boolean contains(IValue key){
 		return (get(key) != null);
 	}
@@ -294,6 +319,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * 
 	 * @return The number of entries this map contains.
 	 */
+	@Pure
+	@Override
 	public int size(){
 		return load;
 	}
@@ -303,6 +330,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * 
 	 * @return True if this map was empty; false otherwise.
 	 */
+	@Pure
+	@Override
 	public boolean isEmpty(){
 		return (load == 0);
 	}
@@ -312,7 +341,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * 
 	 * @return An iterator for the entries in this map.
 	 */
-	public Iterator<Map.Entry<IValue, V>> entryIterator(){
+	@SuppressWarnings("return.type.incompatible")
+	public Iterator<Map.Entry<@KeyFor("this") IValue, V>> entryIterator(){
 		return new EntryIterator<>(data);
 	}
 	
@@ -321,7 +351,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * 
 	 * @return An iterator for the keys in this map.
 	 */
-	public Iterator<IValue> keysIterator(){
+	@SuppressWarnings("return.type.incompatible")
+	public Iterator<@KeyFor("this") IValue> keysIterator(){
 		return new KeysIterator<>(data);
 	}
 	
@@ -337,6 +368,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	/**
 	 * Copies over all entries from the given map, to this map.
 	 */
+	@Override
 	public void putAll(Map<? extends IValue, ? extends V> otherMap){
 		@SuppressWarnings("unchecked")
         Set<Map.Entry<IValue, V>> entrySet = (Set<Map.Entry<IValue, V>>) (Set<?>) otherMap.entrySet();
@@ -350,15 +382,25 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	/**
 	 * Checks if this map contains an entry with the given key.
 	 */
-	public boolean containsKey(Object object){
+    @EnsuresKeyForIf(expression="#1", map="this", result=true)
+    @SuppressWarnings("contracts.conditional.postcondition.not.satisfied")
+	@Pure
+	@Override
+	public boolean containsKey(@Nullable Object object){
+        if (object == null) {
+            return false;
+        }
+        
 		IValue key = (IValue) object;
 		
 		int hash = key.hashCode();
 		int position = hash & hashMask;
 		
 		Entry<V> entry = data[position];
-		while(entry != null){
-			if(hash == entry.hash && key.isEqual(entry.key)) return true;
+		while (entry != null){
+			if(hash == entry.hash && key.isEqual(entry.key)) {
+			    return true;
+			}
 			
 			entry = entry.next;
 		}
@@ -369,7 +411,9 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	/**
 	 * Checks if this map contains an entry with the given value.
 	 */
-	public boolean containsValue(Object value){
+	@Override
+	@Pure
+	public boolean containsValue(@Nullable Object value) {
 		Iterator<V> valuesIterator = valuesIterator();
 		while(valuesIterator.hasNext()){
 			V nextValue = valuesIterator.next();
@@ -384,7 +428,9 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	/**
 	 * Constructs a set containing all entries from this map.
 	 */
-	public Set<Map.Entry<IValue, V>> entrySet(){
+	@Override
+	@Pure
+	public Set<Map.Entry<@KeyFor("this") IValue, V>> entrySet(){
 		ShareableHashSet<Map.Entry<IValue, V>> entrySet = new ShareableHashSet<>();
 		
 		Iterator<Map.Entry<IValue, V>> entriesIterator = entryIterator();
@@ -398,6 +444,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	/**
 	 * Constructs a set containing all keys from this map.
 	 */
+	@Override
+	@Pure
 	public Set<IValue> keySet(){
 		ShareableValuesHashSet keysSet = new ShareableValuesHashSet();
 		
@@ -412,6 +460,8 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	/**
 	 * Constructs a collection containing all values from this map.
 	 */
+	@Override
+	@Pure
 	public Collection<V> values(){
 		ShareableHashSet<V> valuesSet = new ShareableHashSet<>();
 		
@@ -428,6 +478,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString(){
 		StringBuilder buffer = new StringBuilder();
 		
@@ -454,13 +505,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		return buffer.toString();
 	}
 	
-	/**
-	 * Returns the current hash code of this map.
-	 * 
-	 * @return The current hash code of this map.
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
+	@Override
 	public int hashCode(){
 		int hash = 0;
 		
@@ -472,32 +517,34 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		return hash;
 	}
 	
-	/**
-	 * Check whether or not the current content of this set is equal to that of the given object / map. 
-	 * 
-	 * @return True if the content of this set is equal to the given object / map.
-	 * 
-	 * @see java.lang.Object#equals(Object)
-	 */
+	@Override
 	public boolean equals(@Nullable Object o){
 		if(o == null) {
 		    return false;
 		}
 		
-		if(o.getClass() == getClass()){
-            ValueIndexedHashMap<?> other = (ValueIndexedHashMap<?>) o;
+		if (o.getClass() == getClass()){
+            @SuppressWarnings("unchecked")
+            ValueIndexedHashMap<V> other = (ValueIndexedHashMap<V>) o;
 			
-			if(other.size() != size()) return false;
+			if (other.size() != size()) {
+			    return false;
+			}
 		
-			if(isEmpty()) return true; // No need to check if the maps are empty.
+			if (isEmpty()) {
+			    return true; // No need to check if the maps are empty.
+			}
 			
-			Iterator<?> otherIterator = other.entryIterator();
+			Iterator<Map.Entry<IValue, V>> otherIterator = other.entryIterator();
 			while(otherIterator.hasNext()){
-				@SuppressWarnings("unchecked")
-                Map.Entry<IValue, ?> entry = (Map.Entry<IValue, ?>) otherIterator.next();
+				
+                Map.Entry<IValue, V> entry = otherIterator.next();
 				Object otherValue = entry.getValue();
 				V thisValue = get(entry.getKey());
-				if(otherValue != thisValue && thisValue != null && !thisValue.equals(entry.getValue())) return false;
+				
+				if (otherValue != thisValue && thisValue != null && !thisValue.equals(entry.getValue())) {
+				    return false;
+				}
 			}
 			return true;
 		}
@@ -605,9 +652,9 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 *            The value type.
 	 */
 	private static class EntryIterator<V> implements Iterator<Map.Entry<IValue, V>>{
-		private final Entry<V>[] data;
+		private final @Nullable Entry<V>[] data;
 		
-		private Entry<V> current;
+		private @Nullable Entry<V> current;
 		private int index;
 		
 		/**
@@ -616,7 +663,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		 * @param entries
 		 *            The entries to iterator over.
 		 */
-		public EntryIterator(Entry<V>[] entries){
+		public EntryIterator(@Nullable Entry<V>[] entries){
 			super();
 			
 			data = entries;
@@ -708,7 +755,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		 * @param entries
 		 *            The entries to iterate over.
 		 */
-		public KeysIterator(Entry<V>[] entries){
+		public KeysIterator(@Nullable Entry<V>[] entries){
 			super();
 			
 			entryIterator = new EntryIterator<>(entries);
@@ -768,7 +815,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		 * @param entries
 		 *            The entries to iterate over.
 		 */
-		public ValuesIterator(Entry<V>[] entries){
+		public ValuesIterator(@Nullable Entry<V>[] entries){
 			super();
 			
 			entryIterator = new EntryIterator<>(entries);
