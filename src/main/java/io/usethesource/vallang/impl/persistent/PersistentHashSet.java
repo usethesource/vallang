@@ -285,12 +285,15 @@ public final class PersistentHashSet implements ISet {
   }
 
   @SuppressWarnings("deprecation")
-@Override
+  @Override
   public ISet subtract(ISet other) {
-    if (other == this)
+    if (other == this) {
       return EmptySet.EMPTY_SET;
-    if (other == null)
+    }
+    
+    if (other == null) {
       return this;
+    }
 
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;

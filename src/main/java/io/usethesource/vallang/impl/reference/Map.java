@@ -120,6 +120,7 @@ import io.usethesource.vallang.type.Type;
     
     @Override
     public Stream<IValue> stream() {
-        return StreamSupport.stream(spliterator(), false).map(key -> new Tuple(key, get(key)));
+        Iterable<Entry<IValue, IValue>> it = () -> entryIterator();
+        return StreamSupport.stream(it.spliterator(), false).map(entry -> new Tuple(entry.getKey(), entry.getValue()));
     }
 }

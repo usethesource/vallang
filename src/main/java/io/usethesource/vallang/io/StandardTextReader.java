@@ -18,11 +18,13 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -162,6 +164,8 @@ public class StandardTextReader extends AbstractTextReader {
 			}
 		}
 		
+		assert result != null : "@AssumeAssertion(nullness)";
+		
 		if (!result.getType().isSubtypeOf(expected)) {
 			throw new UnexpectedTypeException(expected, result.getType());
 		}
@@ -187,7 +191,7 @@ public class StandardTextReader extends AbstractTextReader {
 			
 			if (current == START_OF_ARGUMENTS) {
 				ArrayList<IValue> args = new ArrayList<>(4);
-				readFixed(types.valueType(), ')', args, null);
+				readFixed(types.valueType(), ')', args, Collections.emptyMap());
 
 				if (args.size() >= 2) {
 					if (!args.get(0).getType().isSubtypeOf(types.integerType())) {
@@ -249,6 +253,8 @@ public class StandardTextReader extends AbstractTextReader {
                 throw new RuntimeException(e);
             }
         });
+        
+        assert loc != null : "@AssumeAssertion(nullness)";
         return loc;
     }
 
@@ -300,9 +306,9 @@ public class StandardTextReader extends AbstractTextReader {
 
 	private IValue readTuple(Type expected) throws IOException {
 		ArrayList<IValue> arr = new ArrayList<>();
-		readFixed(expected, END_OF_TUPLE, arr, null);
+		readFixed(expected, END_OF_TUPLE, arr, Collections.emptyMap());
 		IValue[] result = new IValue[arr.size()];
-		return factory.tuple(arr.toArray(result));
+		return factory.tuple(arr.<IValue>toArray(result));
 	}
 	
 	private static final Type genericSetType = TF.setType(TF.valueType());
@@ -404,7 +410,7 @@ public class StandardTextReader extends AbstractTextReader {
 	  Map<String, IValue> kwParams = new HashMap<>();
 	  readFixed(args, END_OF_ARGUMENTS, arr, kwParams);
 	  IValue[] result = new IValue[arr.size()];
-	  result = arr.toArray(result);
+	  result = arr.<IValue>toArray(result);
 
 	  if (expected.isTop()) {
 	    constr = store.lookupFirstConstructor(id, TF.tupleType(result));
@@ -631,12 +637,19 @@ public class StandardTextReader extends AbstractTextReader {
 		}
 
 		if (isDate) {
-			return factory.date(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay());				
+		    assert dateParts != null : "@AssumeAssertion(nullness)";
+			
+		    return factory.date(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay());				
 		} else { 
 			if (isTime) {
-				return factory.time(timeParts.getHour(), timeParts.getMinute(), timeParts.getSecond(), timeParts.getMillisecond(), timeParts.getTimezoneHours(), timeParts.getTimezoneMinutes());
+			    assert timeParts != null : "@AssumeAssertion(nullness)";
+				
+			    return factory.time(timeParts.getHour(), timeParts.getMinute(), timeParts.getSecond(), timeParts.getMillisecond(), timeParts.getTimezoneHours(), timeParts.getTimezoneMinutes());
 			} else {
-				return factory.datetime(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay(), timeParts.getHour(), timeParts.getMinute(), timeParts.getSecond(), timeParts.getMillisecond(), timeParts.getTimezoneHours(), timeParts.getTimezoneMinutes());
+			    assert dateParts != null : "@AssumeAssertion(nullness)";
+			    assert timeParts != null : "@AssumeAssertion(nullness)";
+			
+			    return factory.datetime(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay(), timeParts.getHour(), timeParts.getMinute(), timeParts.getSecond(), timeParts.getMillisecond(), timeParts.getTimezoneHours(), timeParts.getTimezoneMinutes());
 			}
 		}
 	}
@@ -749,8 +762,8 @@ public class StandardTextReader extends AbstractTextReader {
 			Map<String,IValue> kwParams = new HashMap<>();
 			readFixed(expected, END_OF_ARGUMENTS, arr, kwParams);
 			IValue[] result = new IValue[arr.size()];
-			result = arr.toArray(result);
-
+			result = arr.<IValue>toArray(result);
+			
 			return factory.node(str, result, kwParams);
 		}
 

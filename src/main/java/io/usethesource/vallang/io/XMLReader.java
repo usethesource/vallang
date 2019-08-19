@@ -14,6 +14,7 @@ package io.usethesource.vallang.io;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -185,7 +186,7 @@ public class XMLReader extends AbstractTextReader {
 
 	// TODO: implement this
 	private IValue parseRational(Node node) {
-		String contents = node.getNodeValue().trim();
+		String contents = getSafeNodeValue(node).trim();
 		String[] parts = contents.split("r");
 		if (parts.length == 2) {
 			return vf.rational(vf.integer(Integer.parseInt(parts[0])), vf.integer(Integer.parseInt(parts[0])));
@@ -194,16 +195,20 @@ public class XMLReader extends AbstractTextReader {
 	}
 
 	private IValue parseDouble(Node node) {
-		return vf.real(Double.parseDouble(node.getNodeValue().trim()));
+		return vf.real(Double.parseDouble(getSafeNodeValue(node).trim()));
 	}
 
 	private IValue parseInt(Node node) {
-		return vf.integer(Integer.parseInt(node.getNodeValue().trim()));
+		return vf.integer(Integer.parseInt(getSafeNodeValue(node).trim()));
 	}
 
 	private IValue parseString(Node node) {
-		return vf.string(node.getNodeValue());
+		return vf.string(getSafeNodeValue(node));
 	}
+
+    private String getSafeNodeValue(Node node) {
+        return Objects.requireNonNull(node.getNodeValue());
+    }
 
 	private IValue parseMap(Node node, Type expected) {
 		Set<Type> nodeTypes = ts.lookupConstructor(expected, node.getNodeName());

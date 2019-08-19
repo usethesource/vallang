@@ -13,6 +13,8 @@ package io.usethesource.vallang.impl.fields;
 
 import java.util.Iterator;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
@@ -129,9 +131,14 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if(o == this) return true;
-		if(o == null) return false;
+	public boolean equals(@Nullable Object o) {
+		if (o == this) {
+		    return true;
+		}
+		
+		if (o == null) {
+		    return false;
+		}
 		
 		if(o.getClass() == getClass()){
 			AnnotatedConstructorFacade other = (AnnotatedConstructorFacade) o;

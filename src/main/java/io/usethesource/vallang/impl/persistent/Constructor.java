@@ -879,7 +879,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         switch (children.length) {
-        case 0: return EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType);
+        case 0: return Objects.requireNonNull(EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType));
         case 1: return new Constructor1(constructorType, children[0]);
         case 2: return new Constructor2(constructorType, children[0], children[1]);
         case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
