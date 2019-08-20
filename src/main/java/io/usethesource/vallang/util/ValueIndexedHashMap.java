@@ -11,6 +11,8 @@
 package io.usethesource.vallang.util;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -25,7 +27,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 
 /**
  * This map is similar to the ShareableHashMap, but is indexed by a value (check with isEqual).
@@ -431,14 +432,14 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	@Override
 	@Pure
 	public Set<Map.Entry<@KeyFor("this") IValue, V>> entrySet(){
-		ShareableHashSet<Map.Entry<IValue, V>> entrySet = new ShareableHashSet<>();
+		Set<Map.Entry<IValue, V>> entrySet = new HashSet<>();
 		
 		Iterator<Map.Entry<IValue, V>> entriesIterator = entryIterator();
 		while(entriesIterator.hasNext()){
 			entrySet.add(entriesIterator.next());
 		}
 		
-		return entrySet;
+		return Collections.unmodifiableSet(entrySet);
 	}
 	
 	/**
@@ -447,14 +448,14 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	@Override
 	@Pure
 	public Set<IValue> keySet(){
-		ShareableValuesHashSet keysSet = new ShareableValuesHashSet();
+		Set<IValue> keysSet = new HashSet<>();
 		
 		Iterator<IValue> keysIterator = keysIterator();
 		while(keysIterator.hasNext()){
 			keysSet.add(keysIterator.next());
 		}
 		
-		return keysSet;
+		return Collections.unmodifiableSet(keysSet);
 	}
 	
 	/**
@@ -463,14 +464,14 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	@Override
 	@Pure
 	public Collection<V> values(){
-		ShareableHashSet<V> valuesSet = new ShareableHashSet<>();
+		Set<V> valuesSet = new HashSet<>();
 		
 		Iterator<V> valuesIterator = valuesIterator();
 		while(valuesIterator.hasNext()){
 			valuesSet.add(valuesIterator.next());
 		}
 		
-		return valuesSet;
+		return Collections.unmodifiableSet(valuesSet);
 	}
 	
 	/**
