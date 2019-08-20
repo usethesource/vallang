@@ -140,6 +140,10 @@ public class PersistentSetRelation implements IRelation<ISet> {
             }
             
             leftValues.put(value);
+            if (rightValues == null) {
+                rightValues = new ShareableValuesHashSet();
+            }
+            
             rightValues.add(value);
         }
         

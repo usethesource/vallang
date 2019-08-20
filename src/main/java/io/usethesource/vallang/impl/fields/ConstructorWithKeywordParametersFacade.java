@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
@@ -186,11 +187,13 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
             }
 
             @Override
+            @Pure
             public Set<String> getParameterNames() {
                 return parameters.keySet();		
             }
 
             @Override
+            @Pure
             public Map<String, IValue> getParameters() {
                 return Collections.unmodifiableMap(parameters);
             }

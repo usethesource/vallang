@@ -74,10 +74,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 				Set<IConstructor> done) {
 			type.getBound().asProductions(vf, store, grammar, done);
 		}
-
-        public String randomLabel() {
-            return null;
-        }
 	}
 
 	@Override

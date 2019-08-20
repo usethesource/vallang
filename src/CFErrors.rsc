@@ -8,7 +8,7 @@ import String;
 public loc LOG = |home:///git/vallang/LOG11|;
 
 int offset(loc file, int l) 
-  = ( 0 | it + size(line) + 1 | line <- readFileLines(file)[..l-1]);
+  = ( 0 | it + size(line) | line <- readFileLines(file)[..l-1]);
 
 loc path(str path, str l, str c) {
   p = |project://vallang| + path;

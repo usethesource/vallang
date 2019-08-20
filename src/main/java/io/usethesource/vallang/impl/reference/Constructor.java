@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
@@ -168,11 +169,13 @@ public class Constructor extends Node implements IConstructor {
             }
 
             @Override
+            @Pure
             public boolean hasParameters() {
                 return parameters != null && parameters.size() > 0;
             }
 
             @Override
+            @Pure
             public java.util.Set<String> getParameterNames() {
                 return parameters.keySet();
             }
