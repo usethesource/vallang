@@ -1,6 +1,8 @@
 package io.usethesource.vallang.impl.persistent;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
@@ -12,7 +14,7 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.util.RotatingQueue;
-import io.usethesource.vallang.util.ShareableHashMap;
+import io.usethesource.vallang.util.ValueEqualsWrapper;
 import io.usethesource.vallang.util.ValueIndexedHashMap;
 
 public class PersistentSetRelation implements IRelation<ISet> {
@@ -53,11 +55,11 @@ public class PersistentSetRelation implements IRelation<ISet> {
         // relation is already indexed.
         
         // Index
-        ShareableHashMap<IValue, ShareableValuesList> rightSides = new ShareableHashMap<>();
+        Map<ValueEqualsWrapper, ShareableValuesList> rightSides = new HashMap<>();
         
         for (IValue val : set2) {
             ITuple tuple = (ITuple) val;
-            IValue key = tuple.get(0);
+            ValueEqualsWrapper key = new ValueEqualsWrapper(tuple.get(0));
             ShareableValuesList values = rightSides.get(key);
             if (values == null) {
                 values = new ShareableValuesList();
@@ -72,7 +74,7 @@ public class PersistentSetRelation implements IRelation<ISet> {
         IWriter<ISet> resultWriter = writer();
         for (IValue thisVal : this) {
             ITuple thisTuple = (ITuple) thisVal;
-            IValue key = thisTuple.get(1);
+            ValueEqualsWrapper key = new ValueEqualsWrapper(thisTuple.get(1));
             ShareableValuesList values = rightSides.get(key);
             if (values != null){
                 Iterator<IValue> valuesIterator = values.iterator();
