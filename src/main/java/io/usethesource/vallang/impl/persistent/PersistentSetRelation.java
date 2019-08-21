@@ -13,11 +13,9 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.util.RotatingQueue;
 import io.usethesource.vallang.util.ValueEqualsWrapper;
-import io.usethesource.vallang.util.ValueIndexedHashMap;
 
 public class PersistentSetRelation implements IRelation<ISet> {
     private final ISet set;
