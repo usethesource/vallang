@@ -19,7 +19,7 @@ public class IllegalFieldTypeException extends FactTypeDeclarationException {
 		return pos;
 	}
 	
-	public synchronized ClassCastException getCause() {
-		return (ClassCastException) super.getCause();
+	public synchronized Throwable getCause() {
+		return super.getCause();
 	}
 }

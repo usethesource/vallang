@@ -161,8 +161,10 @@ public class PersistentSetRelation implements IRelation<ISet> {
             for(; size > 0; size--){
                 ValueEqualsWrapper leftKey = iLeftKeys.get();
                 RotatingQueue<ValueEqualsWrapper> leftValues = iLefts.get();
-                
                 RotatingQueue<ValueEqualsWrapper> interestingLeftValues = null;
+                
+                assert leftKey != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
+                assert leftValues != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
                 
                 ValueEqualsWrapper rightKey;
                 while((rightKey =  leftValues.get()) != null){

@@ -187,9 +187,9 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
             }
 
             @Override
-            @Pure
+            @SuppressWarnings("return.type.incompatible")
             public Set<String> getParameterNames() {
-                return parameters.keySet();		
+                return Collections.unmodifiableSet(parameters.keySet());		
             }
 
             @Override
