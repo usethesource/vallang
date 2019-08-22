@@ -52,7 +52,7 @@ public class EqualityUtils {
             Entry<String, IValue> aNext = aIt.next();
             Entry<String, IValue> bNext = bIt.next();
             
-            if (!comp.equals(aNext.getKey(), bNext.getKey())) {
+            if (!aNext.getKey().equals(bNext.getKey())) {
                 return false;
             }
             
