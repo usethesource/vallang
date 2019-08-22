@@ -19,7 +19,6 @@ import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class IValueTests {
     

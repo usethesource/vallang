@@ -95,7 +95,11 @@ public class XMLReader extends AbstractTextReader {
 		}
 	}
 	
-	private IValue parse(Node node, Type expected) {
+	private IValue parse(@Nullable Node node, Type expected) {
+	    if (node == null) {
+	        throw new IllegalArgumentException();
+	    }
+	    
 		if (expected.isAbstractData()) {
 			Type sort = expected;
 			String name = node.getNodeName();
