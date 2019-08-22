@@ -4,19 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.usethesource.vallang.IMapWriter;
-import io.usethesource.vallang.INode;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.persistent.ValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.NoAnnotations;
@@ -24,6 +19,7 @@ import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class IValueTests {
     
@@ -58,10 +54,9 @@ public class IValueTests {
         assertEquals(val, result, "reading back " + val + " produced something different");
     }
 
+    @SuppressWarnings("deprecation")
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
     public void bug39Repo(IValueFactory vf) throws IOException {
-        TypeFactory tf = TypeFactory.getInstance();
-
         INode val = vf.node("59", vf.bool(false), vf.integer(-6));
 
         IMapWriter mapForAnno = vf.mapWriter();
