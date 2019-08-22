@@ -51,11 +51,6 @@ public class CacheFactory<T> {
             }
             return false;
         }
-        
-        @Override
-        public boolean equals(@Nullable Object obj) {
-    return this == obj;
-}
 	}
 	
 	private static final class SoftPool<T> {
