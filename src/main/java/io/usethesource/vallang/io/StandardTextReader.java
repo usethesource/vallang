@@ -100,7 +100,7 @@ public class StandardTextReader extends AbstractTextReader {
 			current = this.stream.read();
 			IValue result = readValue(type);
 			if (current != -1 || this.stream.read() != -1) {
-				unexpected();
+				throw unexpectedException();
 			}
 			return result;
 		}
@@ -160,7 +160,7 @@ public class StandardTextReader extends AbstractTextReader {
 				result = readDateTime(expected);
 				break;
 			default:
-				unexpected();
+				throw unexpectedException();
 			}
 		}
 		
@@ -175,7 +175,7 @@ public class StandardTextReader extends AbstractTextReader {
 				result = readAnnos(expected, (INode) result);
 			}
 			else {
-				unexpected(']');
+				throw unexpectedException((int) ']');
 			}
 		}
 		
@@ -266,7 +266,7 @@ public class StandardTextReader extends AbstractTextReader {
 			result.append((char) current);
 			current = stream.read();
 			if (current == -1) {
-				unexpected();
+				throw unexpectedException();
 			}
 		}
 		
@@ -307,8 +307,8 @@ public class StandardTextReader extends AbstractTextReader {
 	private IValue readTuple(Type expected) throws IOException {
 		ArrayList<IValue> arr = new ArrayList<>();
 		readFixed(expected, END_OF_TUPLE, arr, Collections.emptyMap());
-		IValue[] result = new IValue[arr.size()];
-		return factory.tuple(arr.<IValue>toArray(result));
+		IValue[] result = arr.toArray(new IValue[0]);
+		return factory.tuple(result);
 	}
 	
 	private static final Type genericSetType = TF.setType(TF.valueType());
@@ -381,8 +381,7 @@ public class StandardTextReader extends AbstractTextReader {
 			// could happen
 		}
 		
-		unexpected(current);
-		return null;
+		throw unexpectedException(current);
 	}
 
 	private IValue readConstructor(String id, Type expected) throws IOException {
@@ -409,8 +408,8 @@ public class StandardTextReader extends AbstractTextReader {
 
 	  Map<String, IValue> kwParams = new HashMap<>();
 	  readFixed(args, END_OF_ARGUMENTS, arr, kwParams);
-	  IValue[] result = new IValue[arr.size()];
-	  result = arr.<IValue>toArray(result);
+	  
+	  @NonNull IValue[] result = arr.toArray(new IValue[0]);
 
 	  if (expected.isTop()) {
 	    constr = store.lookupFirstConstructor(id, TF.tupleType(result));
@@ -760,10 +759,10 @@ public class StandardTextReader extends AbstractTextReader {
 		if (current == START_OF_ARGUMENTS) {
 			ArrayList<IValue> arr = new ArrayList<>();
 			Map<String,IValue> kwParams = new HashMap<>();
-			readFixed(expected, END_OF_ARGUMENTS, arr, kwParams);
-			IValue[] result = new IValue[arr.size()];
-			result = arr.<IValue>toArray(result);
 			
+			readFixed(expected, END_OF_ARGUMENTS, arr, kwParams);
+			
+			IValue[] result = arr.toArray(new IValue[0]);
 			return factory.node(str, result, kwParams);
 		}
 
@@ -794,22 +793,18 @@ public class StandardTextReader extends AbstractTextReader {
 	}
 
 	private Type getAnnoType(Type expected, String key) {
-		Type annoType;
+		Type annoType = null;
+		
 		if (expected.isStrictSubtypeOf(TF.nodeType())) {
 			if (expected.declaresAnnotation(store, key)) {
 				annoType = store.getAnnotationType(expected, key);
 			}
-			else {
-				annoType = types.valueType();
-			}
 		}
-		else {
-			annoType = types.valueType();
-		}
-		return annoType;
+		
+		return annoType != null ? annoType : types.valueType();
 	}
 
-	private void readFixed(Type expected, char end, List<IValue> arr, Map<String,IValue> kwParams) throws IOException {
+	private void readFixed(Type expected, char end, List<@NonNull IValue> arr, Map<String,IValue> kwParams) throws IOException {
 		current = stream.read();
 		
 		for (int i = 0; current != end; i++) {
@@ -873,18 +868,18 @@ public class StandardTextReader extends AbstractTextReader {
 
 	private void checkAndRead(char c) throws IOException {
 		if (current != c) {
-			unexpected(c);
+			throw unexpectedException((int) c);
 		}
 		current = stream.read();
 	}
 
-	private void unexpected(int c) {
-		throw new FactParseError("Expected " + ((char) c) + " but got " + ((char) current), stream.getOffset());
-	}
+	private FactParseError unexpectedException(int c) {
+        return new FactParseError("Expected " + ((char) c) + " but got " + ((char) current), stream.getOffset());
+    }
 
-	private void unexpected() {
-		throw new FactParseError("Unexpected " + ((char) current), stream.getOffset());
-	}
+	private FactParseError unexpectedException() {
+        return new FactParseError("Unexpected " + ((char) current), stream.getOffset());
+    }
 
   private static class NoWhiteSpaceReader extends Reader {
 		private Reader wrapped;

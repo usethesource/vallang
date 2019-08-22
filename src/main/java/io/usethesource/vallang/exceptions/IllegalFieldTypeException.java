@@ -1,5 +1,7 @@
 package io.usethesource.vallang.exceptions;
 
+import java.util.Objects;
+
 public class IllegalFieldTypeException extends FactTypeDeclarationException {
 	private static final long serialVersionUID = -8845629423612702596L;
 	private int pos;
@@ -20,6 +22,6 @@ public class IllegalFieldTypeException extends FactTypeDeclarationException {
 	}
 	
 	public synchronized Throwable getCause() {
-		return super.getCause();
+		return Objects.requireNonNull(super.getCause());
 	}
 }

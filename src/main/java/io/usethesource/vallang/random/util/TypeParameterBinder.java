@@ -12,44 +12,41 @@
  */ 
 package io.usethesource.vallang.random.util;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.type.DefaultTypeVisitor;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
-/**
- * Based on rascal's type parameter binder by Jurgen Vinju and Wietse Venema
- */
 public class TypeParameterBinder extends DefaultTypeVisitor<Void,RuntimeException> {
 
-    private HashMap<Type, Type> typeParameters;
-    private final RandomTypeGenerator randomType;
+    private final HashMap<Type, Type> typeParameters = new HashMap<>();
+    private final RandomTypeGenerator randomType = new RandomTypeGenerator();
 
-    public TypeParameterBinder(){
+    private TypeParameterBinder() {
         super(null);
-        randomType = new RandomTypeGenerator();
     }
 
-    public Map<Type, Type> bind(Type type){
-        try {
-            typeParameters = new HashMap<Type, Type>();
-            type.accept(this);
-            return typeParameters;
-        }
-        finally {
-            typeParameters = null;
-        }
+    public static Map<Type, Type> bind(Type type) { 
+        TypeParameterBinder tb = new TypeParameterBinder();
+        type.accept(tb);
+        return Collections.unmodifiableMap(tb.typeParameters);
     }
 
     @Override
     public Void visitParameter(Type parameterType) {
         Type type = typeParameters.get(parameterType);
-        if(type == null){
+        
+        if (type == null){
             Type bound = parameterType.getBound();
             while (bound.isOpen()){
                 bound = typeParameters.get(bound);
+                if (bound == null) {
+                    bound = TypeFactory.getInstance().valueType();
+                }
             }
 
             do {

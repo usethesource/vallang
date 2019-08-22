@@ -20,6 +20,8 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -225,12 +227,15 @@ public class XMLReader extends AbstractTextReader {
 			
 			if (keyType.isFixedWidth()) {
 				Type tuple = keyType;
-				IValue [] elements = new IValue[tuple.getArity()];
+				@Nullable IValue [] elements = new IValue[tuple.getArity()];
 				for (int j = 0; j < tuple.getArity(); j++) {
 					elements[i] = parse(children.item(i++), tuple.getFieldType(j));
 				}
 				
-				key = vf.tuple(elements);
+				@SuppressWarnings("nullness")
+				@NonNull IValue[] finalElements = elements;
+				
+				key = vf.tuple(finalElements);
 			}
 			else {
 			  key = parse(children.item(i++), keyType);
@@ -243,7 +248,9 @@ public class XMLReader extends AbstractTextReader {
 					elements[i] = parse(children.item(i++), tuple.getFieldType(j));
 				}
 				
-				value = vf.tuple(elements);
+				@SuppressWarnings("nullness")
+                @NonNull IValue[] finalElements = elements;
+				value = vf.tuple(finalElements);
 			}
 			else {
 			  value = parse(children.item(i++), valueType);
@@ -272,7 +279,9 @@ public class XMLReader extends AbstractTextReader {
 			   elements[j] = parse(children.item(i++), fields.getFieldType(j));	
 			}
 				
-				writer.insert(vf.tuple(elements));
+			@SuppressWarnings("nullness")
+            @NonNull IValue[] finalElements = elements;
+			writer.insert(vf.tuple(finalElements));
 		}
 		
 		return vf.constructor(nodeType, writer.done());
@@ -300,7 +309,9 @@ public class XMLReader extends AbstractTextReader {
 				  elements[j] = parse(children.item(i++), tuple.getFieldType(j));	
 				}
 				
-				writer.insert(vf.tuple(elements));
+				@SuppressWarnings("nullness")
+                @NonNull IValue[] finalElements = elements;
+				writer.insert(vf.tuple(finalElements));
 			}
 		}
 		
@@ -329,7 +340,9 @@ public class XMLReader extends AbstractTextReader {
 				  elements[j] = parse(children.item(i++), tuple.getFieldType(j));	
 				}
 				
-				writer.append(vf.tuple(elements));
+				@SuppressWarnings("nullness")
+                @NonNull IValue[] finalElements = elements;
+				writer.append(vf.tuple(finalElements));
 			}
 		}
 		
@@ -358,7 +371,10 @@ public class XMLReader extends AbstractTextReader {
 				  elements[tupleIndex] = parse(children.item(sourceIndex), tuple.getFieldType(tupleIndex));
 			    }
 				
-				values[targetIndex++] = vf.tuple(elements);
+				@SuppressWarnings("nullness")
+                @NonNull IValue[] finalElements = elements;
+				
+				values[targetIndex++] = vf.tuple(finalElements);
 			}
 			else {
 			  values[targetIndex++] = parse(children.item(sourceIndex++), childType);
