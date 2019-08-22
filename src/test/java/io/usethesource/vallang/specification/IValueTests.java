@@ -4,9 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.impl.persistent.ValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 import java.io.IOException;
 import java.io.StringReader;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -50,7 +57,33 @@ public class IValueTests {
         IValue result = reader.read(vf, val.getType(), new StringReader(string));
         assertEquals(val, result, "reading back " + val + " produced something different");
     }
-    
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
+    public void bug39Repo(IValueFactory vf) throws IOException {
+        TypeFactory tf = TypeFactory.getInstance();
+
+        INode val = vf.node("59", vf.bool(false), vf.integer(-6));
+
+        IMapWriter mapForAnno = vf.mapWriter();
+        mapForAnno.put(vf.datetime(6404, 3, 11, 9, 37, 6, 202, 0, 0),
+                vf.tuple(vf.string(""), vf.string("")));
+        mapForAnno.put(vf.datetime(2020, 10,26, 18, 36, 56, 342, 0,0),
+                vf.tuple(vf.string("kc"), vf.string("햿ŏŤD")));
+        mapForAnno.put(vf.datetime(374,2,28, 13, 59, 16, 535, 0,0),
+                vf.tuple(vf.string(""), vf.string("")));
+        mapForAnno.put(vf.datetime(5254,11,30, 22, 54, 53, 946, 0, 0),
+                vf.tuple(vf.string(""), vf.string("f792")));
+
+        val  = val.asAnnotatable().setAnnotation("FgG1217", mapForAnno.done());
+        val = val.asAnnotatable().setAnnotation("JhI4449", vf.list(
+                vf.datetime(2020, 5, 31, 23, 30, 19, 184, 0,0),
+                vf.datetime(2020, 3, 24, 1,33, 1, 663, 0, 0)));
+        val = val.asAnnotatable().setAnnotation("vRf1459", vf.bool(false));
+        val = val.asAnnotatable().setAnnotation("Okrg81h", vf.rational(1193539202, 2144242729));
+        System.out.println(val.toString());
+        testWysiwyg(vf, val);
+    }
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
     public void testIsomorphicText(IValue val1, IValue val2) throws FactTypeUseException, IOException {
         // (val1 == val2) <==> (val1.toString() == val2.toString())
