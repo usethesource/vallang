@@ -1,5 +1,6 @@
 package io.usethesource.vallang.specification;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.io.StringReader;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -30,6 +32,15 @@ public class TypeTest {
             assertTrue(t.equals(u));
             assertTrue(u.equals(t));
         }
+    }
+    
+    @SuppressWarnings("deprecation")
+    public void emptyTupleNeverHasLabels(TypeFactory tf) {
+        assertFalse(tf.tupleType(new Object[0]).hasFieldNames());
+        assertFalse(tf.tupleType(new Type[0], new String[0]).hasFieldNames());
+        assertTrue(tf.tupleEmpty() == tf.tupleType(new IValue[0]));
+        assertTrue(tf.tupleEmpty() == tf.tupleType(new Object[0]));
+        assertTrue(tf.tupleEmpty() == tf.tupleType(new Type[0], new String[0]));
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
