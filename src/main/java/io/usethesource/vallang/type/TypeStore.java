@@ -794,7 +794,10 @@ public class TypeStore {
 
 			@Override
 			public Type visitConstructor(Type type) throws RuntimeException {
-				return new ConstructorType(type.getName(), expandAliases1(type.getFieldTypes(), seen), type.getAbstractDataType());
+			    // TODO: this cache is nasty coupling with TypeFactory, but we 
+			    // can not call factory.constructor directly because that would produce
+			    // an infinite recursion. 
+				return factory.getFromCache(new ConstructorType(type.getName(), expandAliases1(type.getFieldTypes(), seen), type.getAbstractDataType()));
 			}
 
 			@Override
@@ -820,7 +823,7 @@ public class TypeStore {
 				}
 				
 				if (aliasFound){
-					return type.hasFieldNames() ? factory.tupleType(fieldTypes) : factory.tupleType(fieldTypes, type.getFieldNames());
+					return type.hasFieldNames() ? factory.tupleType(fieldTypes, type.getFieldNames()) : factory.tupleType(fieldTypes);
 				}
 				return type;
 			}

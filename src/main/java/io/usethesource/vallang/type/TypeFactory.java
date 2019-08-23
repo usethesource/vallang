@@ -115,7 +115,7 @@ public class TypeFactory {
 		return VoidType.getInstance();
 	}
 
-	private Type getFromCache(Type t) {
+	/*package*/ Type getFromCache(Type t) {
 		return fCache.get(t);
 	}
 
