@@ -291,6 +291,11 @@ public class TypeFactory {
     checkNull((Object[]) types);
     checkNull((Object[]) labels);
     assert types.length == labels.length;
+    
+    if (types.length == 0) {
+        return tupleEmpty();
+    }
+    
     return getFromCache(new TupleTypeWithFieldNames(types, labels));
   }
 
