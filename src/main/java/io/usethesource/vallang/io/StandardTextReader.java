@@ -14,7 +14,6 @@ package io.usethesource.vallang.io;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -43,7 +41,6 @@ import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.OverloadingNotSupportedException;
 import io.usethesource.vallang.exceptions.UnexpectedTypeException;
-import io.usethesource.vallang.impl.reference.ValueFactory;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
