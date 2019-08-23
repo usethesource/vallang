@@ -56,8 +56,15 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
                 Set<IConstructor> done) {
             IListWriter w = vf.listWriter();
 
-            for (Type f : type) {
-                w.append(f.asSymbol(vf, store, grammar, done));
+            if (type.hasFieldNames()) {
+                for (int i = 0; i < type.getArity(); i++) {
+                    w.append(symbols().labelSymbol(vf, type.getFieldType(i).asSymbol(vf, store, grammar, done), type.getFieldName(i)));
+                }
+            }
+            else {
+                for (Type f : type) {
+                    w.append(f.asSymbol(vf, store, grammar, done));
+                }
             }
 
             return vf.constructor(getSymbolConstructorType(), w.done());
@@ -81,6 +88,7 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
             return randomInstance(next, store, rnd, rnd.nextInt(5));
         }
 
+        @SuppressWarnings("deprecation")
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd, int arity) {
             Type[] types = new Type[arity];
 
@@ -88,7 +96,16 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
                 types[i] = next.get();
             }
 
-            return tf().tupleType(types);
+            if (rnd.nextBoolean()) {
+                return tf().tupleType(types);
+            }
+
+            String[] labels = new String[arity];
+            for (int i = 0; i < arity; i++) {
+                labels[i] = randomLabel(rnd);
+            }
+
+            return tf().tupleType(types, labels);
         }
     }
 
