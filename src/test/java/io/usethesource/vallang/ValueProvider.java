@@ -138,7 +138,7 @@ public class ValueProvider implements ArgumentsProvider {
          */
         long valueArity = Arrays.stream(method.getParameterTypes()).filter(x -> IValue.class.isAssignableFrom(x) || Type.class.isAssignableFrom(x)).count()
                 - Arrays.stream(method.getParameters()).filter(x -> x.getAnnotation(GivenValue.class) != null).count();
-        int numberOfTests = Math.max(1, 100 * (int) Math.pow(10, valueArity - 1));
+        int numberOfTests = Math.max(1, 500 * (int) Math.pow(10, valueArity - 1));
         
         return Stream.of(
                    Tuple.of(factories[0], generators[0]), // every factory has its own generator
