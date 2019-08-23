@@ -31,6 +31,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
      */
     /*package*/ TupleTypeWithFieldNames(Type[] fieldTypes, String[] fieldNames) {
         super(fieldTypes);
+        assert fieldTypes.length != 0 : "nullary tuples should be instances of TupleType without field names";
         fFieldNames = fieldNames; // fieldNames.clone() was a bottleneck
     }
 
