@@ -122,7 +122,7 @@ public class TypeTest {
         assertTrue(alias.instantiate(bindings).hasFieldNames());
         
         @SuppressWarnings("deprecation")
-        Type alias2 = tf.aliasType(store, "B ", tf.relType(T, "x", U, "y"), T, U);
+        Type alias2 = tf.aliasType(store, "B", tf.relType(T, "x", U, "y"), T, U);
         assertTrue(alias2.instantiate(bindings) == alias2.instantiate(bindings));
         assertTrue(alias2.instantiate(bindings).hasFieldNames());
         
