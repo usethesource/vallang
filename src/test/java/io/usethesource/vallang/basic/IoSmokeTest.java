@@ -41,14 +41,22 @@ public class IoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testSerializable(IValueFactory vf, @ExpectedType("Boolean") IConstructor t) throws IOException {
-        SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        v.write(buf);
-        SerializableValue<IValue> w =
-                SerializableValue.<IValue>read(new ByteArrayInputStream(buf.toByteArray()));
+        try {
+            SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            v.write(buf);
+            SerializableValue<IValue> w =
+                    SerializableValue.<IValue>read(new ByteArrayInputStream(buf.toByteArray()));
 
-        if (!v.getValue().equals(w.getValue())) {
-            fail();
+            if (!v.getValue().equals(w.getValue())) {
+                fail();
+            }
+        }
+        catch (IOException e) {
+            System.err.println("serialization test failed: " + e.getMessage());
+            e.printStackTrace();
+            System.err.println("(Boolean) value was: " + t);
+            fail(e.getMessage());
         }
     }
 
