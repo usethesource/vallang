@@ -59,6 +59,12 @@ public class IoSmokeTest extends BooleanStoreProvider {
             fail(e.getMessage());
         }
     }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression40(IValueFactory vf, TypeStore store) throws FactTypeUseException, IOException {
+        IConstructor t = (IConstructor) new StandardTextReader().read(vf, store, Boolean, new StringReader("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\false()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\false())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)"));
+        testSerializable(vf, t);
+    }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testToString(IValueFactory vf) throws FactTypeUseException, IOException {
