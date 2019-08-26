@@ -379,10 +379,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
                 kwName += RandomUtil.stringAlphaNumeric(random, 4);
                 kwParams.put(kwName, generateOneDeeper(TypeFactory.getInstance().valueType()));
             }
-            // normally they are kw params, but sometimes they are annotations
-            if (oneEvery(10)) {
-                return vf.node(name, kwParams, args);
-            }
+
             return vf.node(name, args, kwParams);
         }
         return vf.node(name, args);	
@@ -444,7 +441,6 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     }
 
 
-    @SuppressWarnings("deprecation")
     @Override
     public IValue visitConstructor(Type type) throws RuntimeException {
         TypeStore store = currentStore;
@@ -452,9 +448,8 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
             throw new RuntimeException("Missing TypeStore");
         }
         Map<String, Type> kwParamsType = store.getKeywordParameters(type);
-        Map<String, Type> annoType = store.getAnnotations(type);
         
-        if (type.getArity() == 0 && kwParamsType.size() == 0 && annoType.size() == 0) { 
+        if (type.getArity() == 0 && kwParamsType.size() == 0) { 
             return vf.constructor(type);
         } 
         
@@ -465,10 +460,6 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         
         if (kwParamsType.size() > 0 && oneEvery(3) && depthLeft() > 0) {
             return vf.constructor(type, args, generateMappedArgs(kwParamsType));
-        }
-
-        if (generateAnnotations && annoType.size() > 0 && oneEvery(5) && depthLeft() > 0) {
-            return vf.constructor(type, generateMappedArgs(annoType), args);
         }
 
         return vf.constructor(type, args);

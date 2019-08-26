@@ -28,15 +28,6 @@ public class EqualityUtils {
 		return Object::equals;
 	}
 
-	/**
-	 * Temporary function in order to support equivalence. Note, this
-	 * implementation is only works for {@link IValue} arguments. If arguments
-	 * are of a different type, an unchecked exception will be thrown.
-	 */
-	public static EqualityComparator<Object> getEquivalenceComparator() {
-		return (a, b) -> EqualityComparator.equals((IValue) a, (IValue) b, IValue::isEqual);
-	}
-
 	public static final EqualityComparator<Map.Immutable<String, IValue>> KEYWORD_PARAMETER_COMPARATOR = EqualityUtils::compareKwParams;
 			
     private static boolean compareKwParams(Map.Immutable<String, IValue> a, Map.Immutable<String, IValue> b) {
@@ -46,7 +37,6 @@ public class EqualityUtils {
         
         Iterator<Entry<String, IValue>> aIt = a.entryIterator();
         Iterator<Entry<String, IValue>> bIt = a.entryIterator();
-        EqualityComparator<Object> comp = getEquivalenceComparator();
         
         while (aIt.hasNext() && bIt.hasNext()) {
             Entry<String, IValue> aNext = aIt.next();
@@ -56,7 +46,7 @@ public class EqualityUtils {
                 return false;
             }
             
-            if (!comp.equals(aNext.getValue(), bNext.getValue())) {
+            if (!aNext.getValue().equals(bNext.getValue())) {
                 return false;
             }
         }

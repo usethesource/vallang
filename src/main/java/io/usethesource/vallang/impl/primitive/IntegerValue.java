@@ -22,7 +22,6 @@ import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -194,11 +193,6 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	@Override
-	public boolean isEqual(IValue other) {
-		return equals(other);
-	}
-	
-	@Override
 	public IInteger add(IInteger other){
 		if(value == 0)
 			return other;
@@ -349,7 +343,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	
 	@Override
 	public IInteger divide(IInteger other) {
-		if (other.isEqual(INTEGER_ZERO)) {
+		if (other.equals(INTEGER_ZERO)) {
 			throw new ArithmeticException("/ by zero");
 		}
 		

@@ -20,7 +20,6 @@ import java.util.ListIterator;
 import java.util.Map.Entry;
 
 import io.usethesource.capsule.Map;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -37,7 +36,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.io.binary.util.StructuredIValueVisitor;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -150,24 +148,15 @@ public class ReferenceStructuredIValueVisitor {
                             visit.enterNodeKeywordParameters();
                             visitNamedValues(params);
                         }
-                    } else {
-                        @SuppressWarnings("deprecation")
-                        IAnnotatable<? extends INode> oan = o.asAnnotatable();
-                        if(oan.hasAnnotations()){
-                            assert oan instanceof AbstractDefaultAnnotatable;
-                            AbstractDefaultAnnotatable<? extends INode> nodeAnno = (AbstractDefaultAnnotatable<? extends INode>)(oan);
-                            Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
-                            visit.enterNodeAnnotations();
-                            visitNamedValues(annos);
-                        }
-                    }
+                    } 
+                    
                     visit.leaveNode(o);
                 }
                 return null;
             }
 
             private void visitNamedValues(Map.Immutable<String, IValue> namedValues) throws E {
-                // since the PrePostValueIterator uses a stack, we see the annotations an keyword params in reverse (but in pairs)
+                // since the PrePostValueIterator uses a stack, we see the annotations and keyword params in reverse (but in pairs)
                 List<Entry<String, IValue>> reverseEntries = new ArrayList<>();
                 Iterator<Entry<String, IValue>> iterator = namedValues.entryIterator();
                 while (iterator.hasNext()) {
@@ -198,17 +187,8 @@ public class ReferenceStructuredIValueVisitor {
                             visit.enterConstructorKeywordParameters();
                             visitNamedValues(params);
                         }
-                    } else {
-                        @SuppressWarnings("deprecation")
-                        IAnnotatable<? extends IConstructor> oan = o.asAnnotatable();
-                        if(oan.hasAnnotations()){
-                            assert oan instanceof AbstractDefaultAnnotatable;
-                            AbstractDefaultAnnotatable<? extends IConstructor> nodeAnno = (AbstractDefaultAnnotatable<? extends IConstructor>)(oan);
-                            Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
-                            visit.enterConstructorAnnotations();
-                            visitNamedValues(annos);
-                        }
-                    }
+                    } 
+                    
                     visit.leaveConstructor(o);
                 }
                 return null;

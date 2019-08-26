@@ -185,7 +185,7 @@ public final class RelationSmokeTest {
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testClosure(IValueFactory vf) {
     try {
-      if (!integerRelation(vf).asRelation().closure().isEqual(integerRelation(vf))) {
+      if (!integerRelation(vf).asRelation().closure().equals(integerRelation(vf))) {
         fail("closure adds extra tuples?");
       }
     } catch (FactTypeUseException e) {
@@ -218,7 +218,7 @@ public final class RelationSmokeTest {
         fail("closure contains too few elements");
       }
 
-      if (!closed.intersect(test).isEqual(test)) {
+      if (!closed.intersect(test).equals(test)) {
         fail("closure should contain all original elements");
       }
 
@@ -268,7 +268,7 @@ public final class RelationSmokeTest {
           "Non-comparable types should yield empty composition result.");
       ISet comp = rel1.asRelation().compose(rel2.asRelation());
 
-      if (!comp.isEqual(rel3)) {
+      if (!comp.equals(rel3)) {
         fail("composition does not produce expected result");
       }
     } catch (FactTypeUseException e) {
@@ -294,7 +294,7 @@ public final class RelationSmokeTest {
     try {
       ISet rel = integerRelation(vf).insert(vf.tuple(vf.integer(0), vf.integer(0)));
 
-      if (!rel.isEqual(integerRelation(vf))) {
+      if (!rel.equals(integerRelation(vf))) {
         fail("insert into a relation of an existing tuple should not change the relation");
       }
 
@@ -330,10 +330,10 @@ public final class RelationSmokeTest {
       ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
       ISet result = vf.set(integerTuples(vf)[2]);
 
-      if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
+      if (!oneTwoThree.intersect(threeFourFive).equals(result)) {
         fail("intersection failed");
       }
-      if (!threeFourFive.intersect(oneTwoThree).isEqual(result)) {
+      if (!threeFourFive.intersect(oneTwoThree).equals(result)) {
         fail("intersection should be commutative");
       }
 
@@ -375,10 +375,10 @@ public final class RelationSmokeTest {
       ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
       ISet result = vf.set(integerTuples(vf)[2]);
 
-      if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
+      if (!oneTwoThree.intersect(threeFourFive).equals(result)) {
         fail("intersection failed");
       }
-      if (!threeFourFive.intersect(oneTwoThree).isEqual(result)) {
+      if (!threeFourFive.intersect(oneTwoThree).equals(result)) {
         fail("intersection should be commutative");
       }
 
@@ -413,10 +413,10 @@ public final class RelationSmokeTest {
       ISet result1 = vf.set(integerTuples(vf)[0], integerTuples(vf)[1]);
       ISet result2 = vf.set(integerTuples(vf)[3], integerTuples(vf)[4]);
 
-      if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
+      if (!oneTwoThree.subtract(threeFourFive).equals(result1)) {
         fail("subtraction failed");
       }
-      if (!threeFourFive.subtract(oneTwoThree).isEqual(result2)) {
+      if (!threeFourFive.subtract(oneTwoThree).equals(result2)) {
         fail("subtraction failed");
       }
 
@@ -450,7 +450,7 @@ public final class RelationSmokeTest {
       ISet threeFourFive = vf.set(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
       ISet result1 = vf.set(integerTuples(vf)[0], integerTuples(vf)[1]);
 
-      if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
+      if (!oneTwoThree.subtract(threeFourFive).equals(result1)) {
         fail("subtraction failed");
       }
 
@@ -478,15 +478,15 @@ public final class RelationSmokeTest {
       ISet result = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2], integerTuples(vf)[3],
           integerTuples(vf)[4]);
 
-      if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
+      if (!oneTwoThree.union(threeFourFive).equals(result)) {
         fail("union failed");
       }
-      if (!threeFourFive.union(oneTwoThree).isEqual(result)) {
+      if (!threeFourFive.union(oneTwoThree).equals(result)) {
         fail("union should be commutative");
       }
 
       if (!oneTwoThree.union(vf.set())
-          .isEqual(oneTwoThree)) {
+          .equals(oneTwoThree)) {
         fail("union with empty set should produce same set");
       }
 
@@ -522,15 +522,15 @@ public final class RelationSmokeTest {
       ISet result = vf.set(integerTuples(vf)[0], integerTuples(vf)[1], integerTuples(vf)[2], integerTuples(vf)[3],
           integerTuples(vf)[4]);
 
-      if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
+      if (!oneTwoThree.union(threeFourFive).equals(result)) {
         fail("union failed");
       }
-      if (!threeFourFive.union(oneTwoThree).isEqual(result)) {
+      if (!threeFourFive.union(oneTwoThree).equals(result)) {
         fail("union should be commutative");
       }
 
       if (!oneTwoThree.union(vf.set())
-          .isEqual(oneTwoThree)) {
+          .equals(oneTwoThree)) {
         fail("union with empty set should produce same set");
       }
 
@@ -565,7 +565,7 @@ public final class RelationSmokeTest {
   public void testCarrier(IValueFactory vf, TypeFactory tf) {
     ISet carrier = integerRelation(vf).asRelation().carrier();
 
-    if (!carrier.isEqual(setOfIntegers(vf))) {
+    if (!carrier.equals(setOfIntegers(vf))) {
       fail("carrier should be equal to this set");
     }
 
@@ -614,7 +614,7 @@ public final class RelationSmokeTest {
           ISet values = targetRel.asRelation().index(key);
           for (IValue val : targetRel) {
               ITuple t = (ITuple) val;
-              if (t.get(0).isEqual(key)) {
+              if (t.get(0).equals(key)) {
                   assertTrue(values.contains(t.get(1)));
                   values = values.delete(t.get(1));
               }

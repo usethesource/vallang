@@ -386,27 +386,11 @@ public interface IValueFactory {
 	public INode node(String name, IValue... children);
 
 	/**
-	 * Construct a node
-	 * 
-	 * @param name
-	 *            the name of the node
-	 * @param annotations
-	 *            to immediately put on the constructor
-	 * @param children
-	 *            an array or variable length argument list of children
-	 * @return a new tree value
-	 * @throws FactTypeUseException
-	 *             if the children are not of the expected types for this node
-	 *             type
-	 */
-	public INode node(String name, Map<String, IValue> annotations, IValue... children);
-
-	/**
 	 * Construct a node with keyword arguments
 	 * 
 	 * @param name
 	 *            the name of the node
-	 * @param annotations
+	 * @param keyArgValues
 	 *            to immediately put on the constructor
 	 * @param keyArgValues
 	 *            the keyword parameters with their values
@@ -443,37 +427,19 @@ public interface IValueFactory {
 	public IConstructor constructor(Type constructor, IValue... children);
 
 	/**
-	 * Make a constructor value.
+	 * Make a constructor value with keyword parameters
 	 * 
 	 * @param constructor
 	 *            the constructor to use
-	 * @param annotations
-	 *            to immediately put on the constructor
 	 * @param children
 	 *            an array or variable length argument list of children
+	 * @param kwParams keyword parameters
 	 * @return a new tree value
 	 * @throws FactTypeUseException
 	 *             if the children are not of the expected types for this node
 	 *             type
-	 * @deprecated annotations will be replaced by keyword parameters
 	 */
-	@Deprecated
-	public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children);
-	
- /**
-   * Make a constructor value with keyword parameters
-   * 
-   * @param constructor
-   *            the constructor to use
-   * @param children
-   *            an array or variable length argument list of children
-   * @param kwParams keyword parameters
-   * @return a new tree value
-   * @throws FactTypeUseException
-   *             if the children are not of the expected types for this node
-   *             type
-   */
-  public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams);
+	public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams);
 
 	/**
 	 * Get a set writer of which the element type will be the least upper bound

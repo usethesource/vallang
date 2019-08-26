@@ -41,14 +41,12 @@ public class RandomValues {
 	    ts.declareKeywordParameter(Name, "moreName", Name);
 	    ts.declareKeywordParameter(Name, "listName", tf.listType(Name));
 	    ts.declareKeywordParameter(Name, "anyValue", tf.valueType());
-	    ts.declareAnnotation(Boolean, "boolAnno", tf.boolType());
 	}
 
 	private static IValue name(IValueFactory vf, String n){
 		return vf.constructor(NameNode, vf.string(n));
 	}
 	
-	@SuppressWarnings("deprecation")
     public static IValue[] getTestValues(IValueFactory vf) {
 	    return new IValue[] {
 			vf.constructor(True),
@@ -57,7 +55,6 @@ public class RandomValues {
 			vf.constructor(TwoTups, vf.tuple(vf.constructor(True), vf.constructor(False)),vf.tuple(vf.constructor(True), vf.constructor(False))),
 			vf.constructor(Or, vf.list(vf.constructor(True), vf.constructor(False), vf.constructor(True))),
 			vf.constructor(Friends, vf.list(name(vf, "Hans").asWithKeywordParameters().setParameter("listName", vf.list(name(vf,"Hansie"))), name(vf, "Bob"))),
-			vf.constructor(Or, vf.list()).asAnnotatable().setAnnotation("boolAnno", vf.bool(true)),
 			vf.constructor(Couples, vf.list(vf.tuple(name(vf, "A"), name(vf, "B")), vf.tuple(name(vf, "C"), name(vf, "D")))),
 			vf.integer(0),
 			vf.integer(1),
@@ -66,7 +63,6 @@ public class RandomValues {
 			vf.integer(Integer.MAX_VALUE),
 			vf.integer(Integer.MIN_VALUE),
 			vf.integer(new byte[]{(byte)0xfe, (byte)0xdc, (byte)0xba, (byte)0x98, (byte)0x76, (byte)0x54}),
-			vf.constructor(True).asAnnotatable().setAnnotation("test", vf.integer(1))
 	    };
 	};
 	

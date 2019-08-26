@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import io.usethesource.capsule.Map;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -35,7 +34,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -141,19 +139,8 @@ public class StacklessStructuredVisitor {
                             }));
                         }
 
-                    } else {
-                        @SuppressWarnings("deprecation")
-                        IAnnotatable<? extends INode> withAnno = node.asAnnotatable();
-                        if(withAnno.hasAnnotations()){
-                            assert withAnno instanceof AbstractDefaultAnnotatable;
-                            @SuppressWarnings("unchecked")
-                            AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)withAnno;
-                            pushKWPairs(node, nodeAnno.internalGetAnnotations());
-                            workList.push(new NextStep<>(node, (l, w, v) -> {
-                                v.enterNodeAnnotations();
-                            }));
-                        }
-                    }
+                    } 
+                    
                     for(int i = node.arity() - 1; i >= 0; i--){
                         workList.push(new NextStep<>(node.get(i), StacklessStructuredVisitor::visitValue));
                     }
@@ -201,19 +188,8 @@ public class StacklessStructuredVisitor {
                             }));
                         }
 
-                    } else {
-                        @SuppressWarnings("deprecation")
-                        IAnnotatable<? extends IConstructor> withAnno = constr.asAnnotatable();
-                        if(withAnno.hasAnnotations()){
-                            assert withAnno instanceof AbstractDefaultAnnotatable;
-                            @SuppressWarnings("unchecked")
-                            AbstractDefaultAnnotatable<IConstructor> constrAnno = (AbstractDefaultAnnotatable<IConstructor>)withAnno;
-                            pushKWPairs(constr, constrAnno.internalGetAnnotations());
-                            workList.push(new NextStep<>(constr, (l, w, v) -> {
-                                v.enterConstructorAnnotations();
-                            }));
-                        }
-                    }
+                    } 
+                    
                     for(int i = constr.arity() - 1; i >= 0; i--){
                         workList.push(new NextStep<>(constr.get(i), StacklessStructuredVisitor::visitValue));
                     }

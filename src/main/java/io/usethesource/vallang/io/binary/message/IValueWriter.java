@@ -407,11 +407,6 @@ public class IValueWriter {
             }
 
             @Override
-            public void enterConstructorAnnotations() throws IOException {
-                writer.writeNestedField(IValueIDs.ConstructorValue.ANNOS);
-            }
-
-            @Override
             public void leaveConstructor(IValue cons) throws IOException {
                 writer.endMessage();
                 valueCache.write(cons);
@@ -434,11 +429,6 @@ public class IValueWriter {
             @Override
             public void enterNodeKeywordParameters() throws IOException {
                 writer.writeNestedField(IValueIDs.NodeValue.KWPARAMS);
-            }
-
-            @Override
-            public void enterNodeAnnotations() throws IOException {
-                writer.writeNestedField(IValueIDs.NodeValue.ANNOS);
             }
 
             @Override

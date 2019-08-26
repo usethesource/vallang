@@ -7,19 +7,15 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UnexpectedChildTypeException;
-import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
-import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
 import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
@@ -128,30 +124,9 @@ public class Constructor extends Node implements IConstructor {
         return v.visitConstructor(this);
     }
 
-    public boolean declaresAnnotation(TypeStore store, String label) {
-        return store.getAnnotationType(getType(), label) != null;
-    }
-
+    @Override
     public boolean has(String label) {
         return getConstructorType().hasField(label);
-    }
-
-    @Override
-    @Deprecated
-    public boolean isAnnotatable() {
-        return true;
-    }
-
-    @Override
-    @Deprecated
-    public IAnnotatable<? extends IConstructor> asAnnotatable() {
-        return new AbstractDefaultAnnotatable<IConstructor>(this) {
-            @Override
-            protected IConstructor wrap(IConstructor content,
-                    io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-                return new AnnotatedConstructorFacade(content, annotations);
-            }
-        };
     }
 
     @Override

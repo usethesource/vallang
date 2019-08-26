@@ -691,7 +691,7 @@ public class TypeFactory {
 	}
 
 	/**
-	 * Checks to see if a string is a valid PDB type, field or annotation
+	 * Checks to see if a string is a valid PDB type, or field name 
 	 * identifier
 	 * 
 	 * @param str

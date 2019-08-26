@@ -16,9 +16,7 @@ import java.util.Map;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.exceptions.UndeclaredFieldException;
-import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
-import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
 import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
@@ -99,16 +97,6 @@ public interface IExternalValue extends IValue {
             }
 
             @Override
-            public boolean declaresAnnotation(TypeStore store, String label) {
-                return false;
-            }
-
-            @Override
-            public boolean isAnnotatable() {
-                return true;
-            }
-
-            @Override
             public boolean mayHaveKeywordParameters() {
                 return true;
             }
@@ -137,18 +125,6 @@ public interface IExternalValue extends IValue {
             @Override
             public Iterator<IValue> iterator() {
                 return Collections.emptyIterator();
-            }
-            
-            
-            @Override
-            public IAnnotatable<? extends IConstructor> asAnnotatable() {
-                return new AbstractDefaultAnnotatable<IConstructor>(this) {
-                    @Override
-                    protected IConstructor wrap(IConstructor content,
-                            io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-                        return new AnnotatedConstructorFacade(content, annotations);
-                    }
-                };
             }
             
             @Override

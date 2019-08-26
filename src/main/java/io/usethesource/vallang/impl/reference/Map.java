@@ -49,6 +49,23 @@ import io.usethesource.vallang.type.Type;
 	public int size() {
 		return content.size();
 	}
+	
+	@Override
+	public boolean containsKey(IValue key) {
+	    return content.containsKey(key);
+	}
+	
+	@Override
+	public IMap removeKey(IValue key) {
+	    IMapWriter w = writer();
+	    for (Entry<IValue,IValue> cursor :(Iterable<Entry<IValue,IValue>>) () -> entryIterator()) {
+	        if (cursor.getKey().equals(key)) {
+	            w.put(cursor.getKey(), cursor.getValue());
+	        }
+	    }
+	    
+	    return w.done();
+	}
 
 	@Override
 	public boolean isEmpty() {
@@ -59,7 +76,7 @@ import io.usethesource.vallang.type.Type;
 	public @Nullable IValue get(IValue key) {
 	    // see how we can't use the hash tabel due to the semantics of isEqual
 	    for (Entry<IValue,IValue> entry : content.entrySet()) {
-	        if (key.isEqual(entry.getKey())) {
+	        if (key.equals(entry.getKey())) {
 	            return entry.getValue();
 	        }
 	    }

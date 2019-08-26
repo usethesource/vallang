@@ -32,12 +32,12 @@ import io.usethesource.vallang.type.TypeFactory;
 public final class BasicValueSmokeTest {
 
   protected void assertEqual(IValue l, IValue r) {
-    assertTrue(l.isEqual(r), () -> "Expected " + l + " got " + r);
+    assertTrue(l.equals(r), () -> "Expected " + l + " got " + r);
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRationalToReal(IValueFactory vf) {
-    assertTrue(vf.rational(1, 4).toReal(3).isEqual(vf.real(0.25)));
+    assertTrue(vf.rational(1, 4).toReal(3).equals(vf.real(0.25)));
   }
   
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -109,12 +109,12 @@ public final class BasicValueSmokeTest {
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringRepresentation(IValueFactory vf) {
-    assertTrue(vf.string("\uD83C\uDF5D").isEqual(vf.string("🍝")));
-    assertTrue(vf.string(new String(Character.toChars(0x1F35D))).isEqual(vf.string("🍝")));
+    assertTrue(vf.string("\uD83C\uDF5D").equals(vf.string("🍝")));
+    assertTrue(vf.string(new String(Character.toChars(0x1F35D))).equals(vf.string("🍝")));
   }
   
   @ParameterizedTest @ArgumentsSource(ValueProvider.class) public void testRascalIssue1192(IValueFactory vf) {
-      assertTrue(vf.integer("-2147483648").subtract(vf.integer("2147483648")).isEqual(vf.integer("-4294967296")));
+      assertTrue(vf.integer("-2147483648").subtract(vf.integer("2147483648")).equals(vf.integer("-4294967296")));
   }
   
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -129,20 +129,20 @@ public final class BasicValueSmokeTest {
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringReverse(IValueFactory vf) {
-    assertTrue(vf.string("").reverse().isEqual(vf.string("")));
-    assertTrue(vf.string("🍝").reverse().isEqual(vf.string("🍝")));
-    assertTrue(vf.string("🍝🍝").reverse().isEqual(vf.string("🍝🍝")));
-    assertTrue(vf.string("🍝x🍝").reverse().isEqual(vf.string("🍝x🍝")));
+    assertTrue(vf.string("").reverse().equals(vf.string("")));
+    assertTrue(vf.string("🍝").reverse().equals(vf.string("🍝")));
+    assertTrue(vf.string("🍝🍝").reverse().equals(vf.string("🍝🍝")));
+    assertTrue(vf.string("🍝x🍝").reverse().equals(vf.string("🍝x🍝")));
     assertTrue(vf.string("🍝🍞").reverse().getValue().equals("🍞🍝"));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringSubString(IValueFactory vf) {
-    assertTrue(vf.string("").substring(0, 0).isEqual(vf.string("")));
-    assertTrue(vf.string("🍝").substring(0, 1).isEqual(vf.string("🍝")));
-    assertTrue(vf.string("🍝🍝").substring(0, 1).isEqual(vf.string("🍝")));
-    assertTrue(vf.string("🍝x🍝").substring(1, 2).isEqual(vf.string("x")));
-    assertTrue(vf.string("🍝x🍝").substring(1, 3).isEqual(vf.string("x🍝")));
+    assertTrue(vf.string("").substring(0, 0).equals(vf.string("")));
+    assertTrue(vf.string("🍝").substring(0, 1).equals(vf.string("🍝")));
+    assertTrue(vf.string("🍝🍝").substring(0, 1).equals(vf.string("🍝")));
+    assertTrue(vf.string("🍝x🍝").substring(1, 2).equals(vf.string("x")));
+    assertTrue(vf.string("🍝x🍝").substring(1, 3).equals(vf.string("x🍝")));
   }
   
 
@@ -186,38 +186,38 @@ public final class BasicValueSmokeTest {
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringConcat(IValueFactory vf) {
-    assertTrue(vf.string("").concat(vf.string("")).isEqual(vf.string("")));
-    assertTrue(vf.string("x").concat(vf.string("y")).isEqual(vf.string("xy")));
-    assertTrue(vf.string("🍝").concat(vf.string("y")).isEqual(vf.string("🍝y")));
-    assertTrue(vf.string("x").concat(vf.string("🍝")).isEqual(vf.string("x🍝")));
-    assertTrue(vf.string("🍝").concat(vf.string("🍝")).isEqual(vf.string("🍝🍝")));
+    assertTrue(vf.string("").concat(vf.string("")).equals(vf.string("")));
+    assertTrue(vf.string("x").concat(vf.string("y")).equals(vf.string("xy")));
+    assertTrue(vf.string("🍝").concat(vf.string("y")).equals(vf.string("🍝y")));
+    assertTrue(vf.string("x").concat(vf.string("🍝")).equals(vf.string("x🍝")));
+    assertTrue(vf.string("🍝").concat(vf.string("🍝")).equals(vf.string("🍝🍝")));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringReplace(IValueFactory vf) {
-    assertTrue(vf.string("").replace(0, 1, 0, vf.string("x")).isEqual(vf.string("x")));
-    assertTrue(vf.string("x").replace(0, 1, 0, vf.string("")).isEqual(vf.string("x")));
-    assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("py")));
-    assertTrue(vf.string("xy").replace(1, 1, 0, vf.string("p")).isEqual(vf.string("xp")));
-    assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("pq")).isEqual(vf.string("pqy")));
-    assertTrue(vf.string("xy").replace(1, 1, 0, vf.string("pq")).isEqual(vf.string("xqp")));
-    assertTrue(vf.string("xy").replace(0, 1, 0, vf.string("pq")).isEqual(vf.string("pqxy")));
-    assertTrue(vf.string("xy").replace(1, 1, 1, vf.string("pq")).isEqual(vf.string("xpqy")));
+    assertTrue(vf.string("").replace(0, 1, 0, vf.string("x")).equals(vf.string("x")));
+    assertTrue(vf.string("x").replace(0, 1, 0, vf.string("")).equals(vf.string("x")));
+    assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("p")).equals(vf.string("py")));
+    assertTrue(vf.string("xy").replace(1, 1, 0, vf.string("p")).equals(vf.string("xp")));
+    assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("pq")).equals(vf.string("pqy")));
+    assertTrue(vf.string("xy").replace(1, 1, 0, vf.string("pq")).equals(vf.string("xqp")));
+    assertTrue(vf.string("xy").replace(0, 1, 0, vf.string("pq")).equals(vf.string("pqxy")));
+    assertTrue(vf.string("xy").replace(1, 1, 1, vf.string("pq")).equals(vf.string("xpqy")));
 
-    assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("py")));
-    assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p")).isEqual(vf.string("🍝p")));
-    assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("🍝")).isEqual(vf.string("🍝y")));
-    assertTrue(vf.string("").replace(0, 1, 0, vf.string("🍝")).isEqual(vf.string("🍝")));
-    assertTrue(vf.string("🍝").replace(0, 1, 0, vf.string("")).isEqual(vf.string("🍝")));
-    assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("py")));
-    assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p")).isEqual(vf.string("🍝p")));
-    assertTrue(vf.string("x🍝").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("p🍝")));
-    assertTrue(vf.string("x🍝").replace(1, 1, 0, vf.string("p")).isEqual(vf.string("xp")));
-    assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p🍝")).isEqual(vf.string("p🍝y")));
-    assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p🍝")).isEqual(vf.string("🍝🍝p")));
-    assertTrue(vf.string("🍝y").replace(0, 1, 0, vf.string("🍝q")).isEqual(vf.string("🍝q🍝y")));
-    assertTrue(vf.string("x🍝").replace(1, 1, 1, vf.string("🍝q")).isEqual(vf.string("x🍝q🍝")));
-    assertTrue(vf.string("🍝y🍝").replace(1, 1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
+    assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p")).equals(vf.string("py")));
+    assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p")).equals(vf.string("🍝p")));
+    assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("🍝")).equals(vf.string("🍝y")));
+    assertTrue(vf.string("").replace(0, 1, 0, vf.string("🍝")).equals(vf.string("🍝")));
+    assertTrue(vf.string("🍝").replace(0, 1, 0, vf.string("")).equals(vf.string("🍝")));
+    assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p")).equals(vf.string("py")));
+    assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p")).equals(vf.string("🍝p")));
+    assertTrue(vf.string("x🍝").replace(0, 1, 1, vf.string("p")).equals(vf.string("p🍝")));
+    assertTrue(vf.string("x🍝").replace(1, 1, 0, vf.string("p")).equals(vf.string("xp")));
+    assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p🍝")).equals(vf.string("p🍝y")));
+    assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p🍝")).equals(vf.string("🍝🍝p")));
+    assertTrue(vf.string("🍝y").replace(0, 1, 0, vf.string("🍝q")).equals(vf.string("🍝q🍝y")));
+    assertTrue(vf.string("x🍝").replace(1, 1, 1, vf.string("🍝q")).equals(vf.string("x🍝q🍝")));
+    assertTrue(vf.string("🍝y🍝").replace(1, 1, 2, vf.string("🍝")).equals(vf.string("🍝🍝🍝")));
   }
   
   private static final String[] commonNewlines = new String[] { "\n"};
@@ -434,13 +434,13 @@ public final class BasicValueSmokeTest {
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testIntAddition(IValueFactory vf) {
-    assertTrue(vf.integer(1).add(vf.integer(1)).isEqual(vf.integer(2)));
+    assertTrue(vf.integer(1).add(vf.integer(1)).equals(vf.integer(2)));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testReal(IValueFactory vf) {
-    assertTrue(vf.real("1.5").floor().isEqual(vf.real("1")));
-    assertTrue(vf.real("1.5").round().isEqual(vf.real("2")));
+    assertTrue(vf.real("1.5").floor().equals(vf.real("1")));
+    assertTrue(vf.real("1.5").round().equals(vf.real("2")));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)

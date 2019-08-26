@@ -7,7 +7,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWriter;
-import io.usethesource.vallang.util.ValueEqualsWrapper;
 
 public class ListRelation implements IRelation<IList> {
     private final IList list;
@@ -30,13 +29,13 @@ public class ListRelation implements IRelation<IList> {
 
         int prevCount = 0;
 
-        Set<ValueEqualsWrapper> addedTuples = new HashSet<>();
+        Set<IValue> addedTuples = new HashSet<>();
         while (prevCount != tmp.asContainer().length()) {
             prevCount = tmp.asContainer().length();
             IList tcomp = tmp.compose(tmp);
             IWriter<IList> w = writer();
             for (IValue t1 : tcomp) {
-                ValueEqualsWrapper w1 = new ValueEqualsWrapper(t1);
+                IValue w1 = t1;
                 if (!tmp.asContainer().contains(t1) && !addedTuples.contains(w1)) {
                     addedTuples.add(w1);
                     w.append(t1);

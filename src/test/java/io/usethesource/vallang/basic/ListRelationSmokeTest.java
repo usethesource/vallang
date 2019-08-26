@@ -184,7 +184,7 @@ public class ListRelationSmokeTest {
 //  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void xtestClosure(IValueFactory vf) {
     try {
-      if (!integerListRelation(vf).asRelation().closure().isEqual(integerListRelation(vf))) {
+      if (!integerListRelation(vf).asRelation().closure().equals(integerListRelation(vf))) {
         fail("closure adds extra tuples?");
       }
     } catch (FactTypeUseException e) {
@@ -219,7 +219,7 @@ public class ListRelationSmokeTest {
         fail("closure contains too few elements");
       }
 
-      if (!closed.intersect(test).isEqual(test)) {
+      if (!closed.intersect(test).equals(test)) {
         fail("closure should contain all original elements");
       }
 
@@ -267,7 +267,7 @@ public class ListRelationSmokeTest {
 
       IList comp = rel1.asRelation().compose(rel2.asRelation());
 
-      if (!comp.isEqual(rel3)) {
+      if (!comp.equals(rel3)) {
         fail("composition does not produce expected result");
       }
     } catch (FactTypeUseException e) {
@@ -293,7 +293,7 @@ public class ListRelationSmokeTest {
     try {
       // IList rel = integerListRelation(vf).insert(vf.tuple(vf.integer(0),vf.integer(0)));
       //
-      // if (!rel.isEqual(integerListRelation)) {
+      // if (!rel.equals(integerListRelation)) {
       // fail("insert into a relation of an existing tuple should not change the relation");
       // }
 
@@ -345,10 +345,10 @@ public class ListRelationSmokeTest {
       IList threeFourFive = vf.list(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
       IList result = vf.list(integerTuples(vf)[2]);
 
-      if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
+      if (!oneTwoThree.intersect(threeFourFive).equals(result)) {
         fail("intersection failed");
       }
-      if (!threeFourFive.intersect(oneTwoThree).isEqual(result)) {
+      if (!threeFourFive.intersect(oneTwoThree).equals(result)) {
         fail("intersection should be commutative");
       }
 
@@ -390,10 +390,10 @@ public class ListRelationSmokeTest {
       IList threeFourFive = vf.list(integerTuples(vf)[2], integerTuples(vf)[3], integerTuples(vf)[4]);
       IList result = vf.list(integerTuples(vf)[2]);
 
-      if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
+      if (!oneTwoThree.intersect(threeFourFive).equals(result)) {
         fail("intersection failed");
       }
-      if (!threeFourFive.intersect(oneTwoThree).isEqual(result)) {
+      if (!threeFourFive.intersect(oneTwoThree).equals(result)) {
         fail("intersection should be commutative");
       }
 
@@ -440,15 +440,15 @@ public class ListRelationSmokeTest {
       IList result2 = vf.list(integerTuples(vf)[3], integerTuples(vf)[4], integerTuples(vf)[0],
           integerTuples(vf)[1], integerTuples(vf)[2]);
 
-      if (!oneTwoThree.concat(threeFourFive).isEqual(result1)) {
+      if (!oneTwoThree.concat(threeFourFive).equals(result1)) {
         fail("concat 1 failed");
       }
-      if (!threeFourFive.concat(oneTwoThree).isEqual(result2)) {
+      if (!threeFourFive.concat(oneTwoThree).equals(result2)) {
         fail("concat 2 failed");
       }
 
       if (!oneTwoThree.concat(vf.list())
-          .isEqual(oneTwoThree)) {
+          .equals(oneTwoThree)) {
         fail("concat with empty set should produce same set");
       }
 
@@ -483,7 +483,7 @@ public class ListRelationSmokeTest {
   public void testCarrier(IValueFactory vf, TypeFactory tf) {
     IList carrier = integerListRelation(vf).asRelation().carrier();
 
-    if (!carrier.isEqual(listOfIntegers(vf))) {
+    if (!carrier.equals(listOfIntegers(vf))) {
       fail("carrier should be equal to this set");
     }
 

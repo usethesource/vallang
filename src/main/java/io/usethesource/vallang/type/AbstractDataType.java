@@ -27,7 +27,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
-import io.usethesource.vallang.exceptions.UndeclaredAnnotationException;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 /**
@@ -368,21 +367,5 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
     @Override
     public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
         return super.match(matched, bindings) && fParameters.match(matched.getTypeParameters(), bindings);
-    }
-
-    @Override
-    public boolean declaresAnnotation(TypeStore store, String label) {
-        return store.getAnnotationType(this, label) != null;
-    }
-
-    @Override
-    public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
-        Type type = store.getAnnotationType(this, label);
-
-        if (type == null) {
-            throw new UndeclaredAnnotationException(this, label);
-        }
-
-        return type;
     }
 }

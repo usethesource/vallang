@@ -16,7 +16,6 @@ import java.util.Iterator;
 
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
@@ -50,7 +49,7 @@ public interface IConstructor extends INode {
 	 * @param newChild the new value of the child
 	 * @return a new tree node that is the same as the receiver except for
 	 * the fact that at the labeled position the new value has replaced the old value.
-	 * All annotations remain equal.
+	 * All keyword fields remain equal.
 	 * 
 	 * @throws FactTypeUseException when this label does not exist for the given tree node, or 
 	 *         when the given value has a type that is not a sub-type of the declared type
@@ -72,7 +71,7 @@ public interface IConstructor extends INode {
 	 * @param newChild the new value of the child
 	 * @return a new tree node that is the same as the receiver except for
 	 * the fact that at the labeled position the new value has replaced the old value.
-	 * All annotations remain equal.
+	 * All keyword fields remain equal.
 	 * 
 	 * @throws FactTypeUseException when the index is greater than the arity of this tree node, or 
 	 *         when the given value has a type that is not a sub-type of the declared type
@@ -85,21 +84,6 @@ public interface IConstructor extends INode {
 	 * @return a tuple type representing the children types of this node/
 	 */
 	public Type getChildrenTypes();
-	
-	/**
-	 * Check whether a certain annotation label is declared for this type of node.
-	 * @param label
-	 * @return true iff the given annotation label was declared for this type of node.
-	 */
-	public boolean declaresAnnotation(TypeStore store, String label);
-	
-	/*
-	 * (non-Javadoc)
-	 * @see IValue#asAnnotatable()
-	 */
-	@Override
-	@Deprecated
-	public IAnnotatable<? extends IConstructor> asAnnotatable();
 	
 	/*
 	 * (non-Javadoc)
@@ -132,38 +116,6 @@ public interface IConstructor extends INode {
 	        }
 
 	        return true;
-	    }
-
-	    return false;
-	}
-	
-	@Override
-	default boolean isEqual(IValue value) {
-	    if(value == this) return true;
-	    if(value == null) return false;
-
-	    if (value instanceof IConstructor){
-	        IConstructor otherTree = (IConstructor) value;
-
-	        // TODO: should this not be `current.getConstructorType() != otherTree.getConstructorType()` for the sake of efficiency?
-	        // TODO: this expensive test might be a left-over from a previous workaround...
-	        if(!getConstructorType().comparable(otherTree.getConstructorType())) {
-	            return false;
-	        }
-
-	        final Iterator<IValue> it1 = iterator();
-	        final Iterator<IValue> it2 = otherTree.iterator();
-
-	        while (it1.hasNext() && it2.hasNext()) {
-	            // call to IValue.isEqual(IValue)
-	            if (!it1.next().isEqual(it2.next())) {
-	                return false;
-	            }
-	        }
-
-	        // if this has keyword parameters, then isEqual is overriden by the wrapper
-	        // but if the other has keyword parameters, then we should fail here:
-	        return otherTree.mayHaveKeywordParameters() ? !otherTree.asWithKeywordParameters().hasParameters() : true;
 	    }
 
 	    return false;

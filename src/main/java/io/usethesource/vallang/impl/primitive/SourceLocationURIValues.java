@@ -5,16 +5,15 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
@@ -200,11 +199,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		@Override
 		public Type getType() {
 			return TypeFactory.getInstance().sourceLocationType();
-		}
-
-		@Override
-		public boolean isEqual(IValue arg0) {
-		    return equals(arg0);
 		}
 
 		@Override

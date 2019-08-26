@@ -610,11 +610,9 @@ public class IValueReader {
         return returnAndStore(backReference, valueWindow, result.done());
     }
 
-    @SuppressWarnings("deprecation")
     private IValue readNode(final IWireInputStream reader) throws IOException {
         String name = "";
         IValue[] children = new IValue[0];
-        Map.Immutable<String, IValue> annos = Map.Immutable.of();
         Map.Immutable<String, IValue> kwParams = Map.Immutable.of();
 
 
@@ -636,17 +634,11 @@ public class IValueReader {
                 case IValueIDs.NodeValue.KWPARAMS: 
                     kwParams = readNamedValues(reader);
                     break;
-                case IValueIDs.NodeValue.ANNOS: 
-                    annos = readNamedValues(reader);
-                    break;
             }
         }
 
         INode node;
-        if (!annos.isEmpty()) {
-            node =  vf.node(name, children).asAnnotatable().setAnnotations(annos);
-        }
-        else if (!kwParams.isEmpty()) {
+        if (!kwParams.isEmpty()) {
             node = vf.node(name, children, kwParams);
         }
         else {
@@ -655,11 +647,9 @@ public class IValueReader {
         return returnAndStore(backReference, valueWindow, node);
     }
 
-    @SuppressWarnings("deprecation")
     private IValue readConstructor(final IWireInputStream reader) throws IOException {
         Type type = VOID_TYPE;
         IValue[] children = new IValue[0];
-        Map.Immutable<String, IValue> annos = Map.Immutable.of();
         Map.Immutable<String, IValue> kwParams = Map.Immutable.of();
 
 
@@ -698,9 +688,6 @@ public class IValueReader {
                 case IValueIDs.ConstructorValue.KWPARAMS: 
                     kwParams = readNamedValues(reader);
                     break;
-                case IValueIDs.ConstructorValue.ANNOS: 
-                    annos = readNamedValues(reader);
-                    break;
             }
         }
 
@@ -709,10 +696,7 @@ public class IValueReader {
         }
 
         IConstructor constr;
-        if (!annos.isEmpty()) {
-            constr =  vf.constructor(type, annos, children);
-        }
-        else if (!kwParams.isEmpty()) {
+        if (!kwParams.isEmpty()) {
             constr = vf.constructor(type, children, kwParams);
         }
         else {

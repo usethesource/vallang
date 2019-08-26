@@ -17,20 +17,14 @@ import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.capsule.Set;
-import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
-import io.usethesource.vallang.util.EqualityUtils;
 
 public final class PersistentHashSet implements ISet {
-
-  private static final EqualityComparator<Object> equivalenceComparator =
-      EqualityUtils.getEquivalenceComparator();
-
   private @Nullable Type cachedSetType = null;
   private final AbstractTypeBag elementTypeBag;
   private final Set.Immutable<IValue> content;
@@ -88,9 +82,8 @@ public final class PersistentHashSet implements ISet {
 
   @Override
   public ISet insert(IValue value) {
-    @SuppressWarnings("deprecation")
     final Set.Immutable<IValue> contentNew =
-        content.__insertEquivalent(value, equivalenceComparator);
+        content.__insert(value);
 
     if (content == contentNew)
       return this;
@@ -102,9 +95,8 @@ public final class PersistentHashSet implements ISet {
 
   @Override
   public ISet delete(IValue value) {
-    @SuppressWarnings("deprecation")
     final Set.Immutable<IValue> contentNew =
-        content.__removeEquivalent(value, equivalenceComparator);
+        content.__remove(value);
 
     if (content == contentNew)
       return this;
@@ -119,10 +111,9 @@ public final class PersistentHashSet implements ISet {
     return content.size();
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public boolean contains(IValue value) {
-    return content.containsEquivalent(value, equivalenceComparator);
+    return content.contains(value);
   }
 
   @Override
@@ -166,31 +157,6 @@ public final class PersistentHashSet implements ISet {
     return false;
   }
 
-  @SuppressWarnings("deprecation")
-  @Override
-  public boolean isEqual(IValue other) {
-    if (other == this)
-      return true;
-    if (other == null)
-      return false;
-
-    if (other instanceof PersistentHashSet) {
-      PersistentHashSet that = (PersistentHashSet) other;
-
-      if (this.size() != that.size())
-        return false;
-
-      return content.equivalent(that.content, equivalenceComparator);
-    }
-
-    if (other instanceof ISet) {
-      return ISet.super.isEqual(other);
-    }
-
-    return false;
-  }
-  
-  @SuppressWarnings("deprecation")
   @Override
   public ISet union(ISet other) {
     if (other == this) {
@@ -221,7 +187,7 @@ public final class PersistentHashSet implements ISet {
       boolean modified = false;
 
       for (IValue key : two) {
-        if (tmp.__insertEquivalent(key, equivalenceComparator)) {
+        if (tmp.__insert(key)) {
           modified = true;
           bag = bag.increase(key.getType());
         }
@@ -236,7 +202,6 @@ public final class PersistentHashSet implements ISet {
     }
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public ISet intersect(ISet other) {
     if (other == this) {
@@ -268,7 +233,7 @@ public final class PersistentHashSet implements ISet {
 
       for (Iterator<IValue> it = tmp.iterator(); it.hasNext();) {
         final IValue key = it.next();
-        if (!two.containsEquivalent(key, equivalenceComparator)) {
+        if (!two.contains(key)) {
           it.remove();
           modified = true;
           bag = bag.decrease(key.getType());
@@ -284,7 +249,6 @@ public final class PersistentHashSet implements ISet {
     }
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public ISet subtract(ISet other) {
     if (other == this) {
@@ -312,7 +276,7 @@ public final class PersistentHashSet implements ISet {
       boolean modified = false;
 
       for (IValue key : two) {
-        if (tmp.__removeEquivalent(key, equivalenceComparator)) {
+        if (tmp.__remove(key)) {
           modified = true;
           bag = bag.decrease(key.getType());
         }

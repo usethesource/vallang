@@ -24,7 +24,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -262,11 +261,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		@Override
 		public int getOffset() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		public boolean isEqual(IValue value){
-			return equals(value);
 		}
 	}
 	

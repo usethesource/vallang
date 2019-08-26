@@ -367,23 +367,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return false;
   }
 
-  /**
-   * For a AbstractDataType or a ConstructorType, return whether a certain
-   * annotation label was declared.
-   * 
-   * @param label
-   * @param store
-   *          to find the declaration in
-   * @return true if this type has an annotation named label declared for it.
-   */
-  public boolean declaresAnnotation(TypeStore store, String label) {
-    return false;
-  }
-
-  public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
-    throw new IllegalOperationException("getAnnotationType", this);
-  }
-
   public String getKeyLabel() {
     throw new IllegalOperationException("getKeyLabel", this);
   }

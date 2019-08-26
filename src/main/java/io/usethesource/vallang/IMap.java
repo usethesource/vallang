@@ -40,23 +40,12 @@ public interface IMap extends ICollection<IMap> {
     }
     
     /**
-     * Remove all values with the given key (due to annotations there may be more
-     * than one key to match in the map).
+     * Remove the values with the given key.
      * 
      * @param key
      * @return a map without entries that are isEqual to the key
      */
-    public default IMap removeKey(IValue key) {
-        IMapWriter sw = writer();
-        
-        for (Entry<IValue, IValue> c : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
-            if (!c.getKey().isEqual(key)) {
-                sw.put(c.getKey(), c.getValue());
-            }
-        }
-        
-        return sw.done();
-    }
+    public IMap removeKey(IValue key);
 
     /**
      * @param key
@@ -71,44 +60,7 @@ public interface IMap extends ICollection<IMap> {
      * @return true iff there is a value mapped to this key
      */
     @EnsuresNonNullIf(expression="get(#1)", result=true)
-    @SuppressWarnings("contracts.conditional.postcondition.not.satisfied") // that's impossible to prove for the Checker Framework
-    public default boolean containsKey(IValue key) {
-        for (IValue cursor : this) {
-            if (cursor.isEqual(key)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    @Override
-    public default boolean isEqual(IValue other) {
-        if (other == this) {
-            return true;
-        }
-
-        if (other instanceof IMap) {
-            IMap map2 = (IMap) other;
-
-            if (size() == map2.size()) {
-
-                for (IValue k1 : this) {
-                    if (!containsKey(k1)) { 
-                        return false;
-                    } else {
-                        IValue v1 = map2.get(k1);
-                        if (v1 == null || !v1.isEqual(get(k1))) { 
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
+    public boolean containsKey(IValue key);
     
     public default boolean defaultEquals(@Nullable Object other){
         if (other == this) {
@@ -218,7 +170,7 @@ public interface IMap extends ICollection<IMap> {
      */
     public default boolean containsValue(IValue value) {
         for (IValue elem : (Iterable<IValue>) () -> valueIterator()) {
-            if (elem.isEqual(value)) {
+            if (elem.equals(value)) {
                 return true;
             }
         }
@@ -333,7 +285,7 @@ public interface IMap extends ICollection<IMap> {
                 return false;
             }
             
-            if (!other.get(key).isEqual(entry.getValue())) {
+            if (!other.get(key).equals(entry.getValue())) {
                 return false;
             }
         }

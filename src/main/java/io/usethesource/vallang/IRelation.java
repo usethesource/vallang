@@ -70,7 +70,7 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
             ITuple tuple1 = (ITuple) elem1;
             for (IValue elem2 : that) {
                 ITuple tuple2 = (ITuple) elem2;
-                if (tuple1.get(1).isEqual(tuple2.get(0))) {
+                if (tuple1.get(1).equals(tuple2.get(0))) {
                     w.appendTuple(tuple1.get(0), tuple2.get(1));
                 }
             }
@@ -244,7 +244,7 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
         IWriter<C> result = writer();
         for (IValue val : this) {
             ITuple tup = (ITuple) val;
-            if (tup.get(0).isEqual(key)) {
+            if (tup.get(0).equals(key)) {
                 result.insert(mapper.apply(tup));
             }
         }

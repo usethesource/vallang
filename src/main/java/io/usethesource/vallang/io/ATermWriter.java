@@ -141,7 +141,6 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
-		@SuppressWarnings("deprecation")
         public IValue visitNode(INode o) throws IOException {
 			String name = o.getName();
 			
@@ -157,16 +156,16 @@ public class ATermWriter implements IValueTextWriter {
 			}
 			append(')');
 			
-			if (o.asAnnotatable().hasAnnotations()) {
+			if (o.asWithKeywordParameters().hasParameters()) {
 				append("{[");
 				int i = 0;
-				Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
-				for (Entry<String, IValue> entry : annotations.entrySet()) {
+				Map<String, IValue> kwFields = o.asWithKeywordParameters().getParameters();
+				for (Entry<String, IValue> entry : kwFields.entrySet()) {
 					append("[" + entry.getKey() + ",");
 					entry.getValue().accept(this);
 					append("]");
 					
-					if (++i < annotations.size()) {
+					if (++i < kwFields.size()) {
 						append(",");
 					}
 				}

@@ -12,13 +12,10 @@
  */ 
 package io.usethesource.vallang.io.binary.stream;
 
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.SequenceInputStream;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -28,7 +25,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.util.FileChannelDirectInputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
-import io.usethesource.vallang.io.old.BinaryReader;
 import io.usethesource.vallang.type.TypeStore;
 
 /**
@@ -36,14 +32,11 @@ import io.usethesource.vallang.type.TypeStore;
  * <br />
  * At the moment, it automatically detects the old serializer format, and try to read using the old {@linkplain  BinaryReader}.
  */
-@SuppressWarnings("deprecation")
 public class IValueInputStream implements Closeable {
     
     private final @Nullable BinaryWireInputStream reader;
     private final IValueFactory vf;
     private final Supplier<TypeStore> typeStoreSupplier;
-
-    private final @Nullable BinaryReader legacyReader;
 
     /**
      * This will <strong>consume</strong> the whole stream (or at least more than needed due to buffering), don't use the InputStream afterwards!
@@ -56,19 +49,6 @@ public class IValueInputStream implements Closeable {
         while (read < currentHeader.length) {
             read += in.read(currentHeader, read, currentHeader.length - read);
         }
-        if (!Arrays.equals(Header.MAIN, currentHeader)) {
-            byte firstByte = currentHeader[0];
-            // possible an old binary stream
-            firstByte &= (BinaryReader.SHARED_FLAG ^ 0xFF); // remove the possible set shared bit
-            if (BinaryReader.BOOL_HEADER <= firstByte && firstByte <= BinaryReader.IEEE754_ENCODED_DOUBLE_HEADER) {
-                System.err.println("Old value format used, switching to legacy mode!");
-                legacyReader = new BinaryReader(vf, new TypeStore(), new SequenceInputStream(new ByteArrayInputStream(currentHeader), in));
-                reader = null;
-                return;
-            }
-            throw new IOException("Unsupported file");
-        }
-        legacyReader = null;
 
         int compression = in.read();
         in = Compressor.wrapStream(in, compression);
@@ -81,9 +61,6 @@ public class IValueInputStream implements Closeable {
     }
 
     public IValue read() throws IOException {
-        if (legacyReader != null) {
-            return legacyReader.deserialize();
-        }
         if (reader == null) {
             throw new IllegalStateException("Incorrect initialization");
         }
@@ -92,9 +69,6 @@ public class IValueInputStream implements Closeable {
     
     @Override
     public void close() throws IOException {
-        if (legacyReader != null) {
-            legacyReader.close();
-        }
         if (reader != null) {
             reader.close();
         }

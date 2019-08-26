@@ -31,22 +31,22 @@ public final class EqualitySmokeTest {
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testInteger(IValueFactory vf) {
-    assertTrue(vf.integer(0).isEqual(vf.integer(0)));
-    assertFalse(vf.integer(0).isEqual(vf.integer(1)));
+    assertTrue(vf.integer(0).equals(vf.integer(0)));
+    assertFalse(vf.integer(0).equals(vf.integer(1)));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testDouble(IValueFactory vf) {
-    assertTrue(vf.real(0.0).isEqual(vf.real(0.0)));
-    assertTrue(vf.real(1.0).isEqual(vf.real(1.00000)));
-    assertFalse(vf.real(0.0).isEqual(vf.real(1.0)));
+    assertTrue(vf.real(0.0).equals(vf.real(0.0)));
+    assertTrue(vf.real(1.0).equals(vf.real(1.00000)));
+    assertFalse(vf.real(0.0).equals(vf.real(1.0)));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testString(IValueFactory vf) {
-    assertTrue(vf.string("").isEqual(vf.string("")));
-    assertTrue(vf.string("a").isEqual(vf.string("a")));
-    assertFalse(vf.string("a").isEqual(vf.string("b")));
+    assertTrue(vf.string("").equals(vf.string("")));
+    assertTrue(vf.string("a").equals(vf.string("a")));
+    assertFalse(vf.string("a").equals(vf.string("b")));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -64,22 +64,22 @@ public final class EqualitySmokeTest {
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testList(IValueFactory vf) {
-    assertTrue(vf.list().isEqual(vf.list()), "empty lists are always equal");
+    assertTrue(vf.list().equals(vf.list()), "empty lists are always equal");
 
-    assertTrue(vf.list(vf.integer(1)).isEqual(vf.list(vf.integer(1))));
-    assertFalse(vf.list(vf.integer(1)).isEqual(vf.list(vf.integer(0))));
+    assertTrue(vf.list(vf.integer(1)).equals(vf.list(vf.integer(1))));
+    assertFalse(vf.list(vf.integer(1)).equals(vf.list(vf.integer(0))));
 
-    assertTrue(vf.list(vf.list()).isEqual(vf.list(vf.list())));
+    assertTrue(vf.list(vf.list()).equals(vf.list(vf.list())));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testSet(IValueFactory vf) {
-    assertTrue(vf.set().isEqual(vf.set()), "empty sets are always equal");
+    assertTrue(vf.set().equals(vf.set()), "empty sets are always equal");
 
-    assertTrue(vf.set(vf.integer(1)).isEqual(vf.set(vf.integer(1))));
-    assertFalse(vf.set(vf.integer(1)).isEqual(vf.set(vf.integer(0))));
+    assertTrue(vf.set(vf.integer(1)).equals(vf.set(vf.integer(1))));
+    assertFalse(vf.set(vf.integer(1)).equals(vf.set(vf.integer(0))));
 
-    assertTrue(vf.set(vf.set()).isEqual(vf.set(vf.set())));
+    assertTrue(vf.set(vf.set()).equals(vf.set(vf.set())));
   }
 
   /**
@@ -101,15 +101,15 @@ public final class EqualitySmokeTest {
     assertFalse(n.equals(c));
     assertFalse(c.equals(n));
     /*
-     * TODO: what is the general contract between isEqual() and hashCode()?
+     * TODO: what is the general contract between equals() and hashCode()?
      */
     assertFalse(n.hashCode() == c.hashCode());
 
     // unidirectional: n -> c = false
-    assertFalse(n.isEqual(c));
+    assertFalse(n.equals(c));
 
     // unidirectional: c -> n = false
-    assertFalse(c.isEqual(n));
+    assertFalse(c.equals(n));
   }
   
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -121,8 +121,8 @@ public final class EqualitySmokeTest {
       assertFalse(m.equals(n));
       assertTrue(n.match(m));
       assertTrue(m.match(n));
-      assertFalse(m.isEqual(n));
-      assertFalse(n.isEqual(m));
+      assertFalse(m.equals(n));
+      assertFalse(n.equals(m));
       
       final INode a = vf.node("hello", vf.string("bye"));
       final INode b = a.asWithKeywordParameters().setParameter("x", vf.integer(0));
@@ -133,8 +133,8 @@ public final class EqualitySmokeTest {
       assertTrue(b.match(a));
       assertTrue(a.match(a));
       assertTrue(b.match(b));
-      assertFalse(b.isEqual(a));
-      assertFalse(a.isEqual(b));
+      assertFalse(b.equals(a));
+      assertFalse(a.equals(b));
       
       assertTrue(vf.list(a).match(vf.list(b)));
       assertTrue(vf.list(b).match(vf.list(a)));
@@ -166,8 +166,8 @@ public final class EqualitySmokeTest {
       assertTrue(m.match(n));
       assertTrue(n.match(n));
       assertTrue(m.match(m));
-      assertFalse(m.isEqual(n));
-      assertFalse(n.isEqual(m));
+      assertFalse(m.equals(n));
+      assertFalse(n.equals(m));
       
       Type AR = tf.constructor(store, Hello, "aurevoir", tf.stringType(), "greeting");
       store.declareKeywordParameter(AR, "x", tf.integerType());
@@ -181,8 +181,8 @@ public final class EqualitySmokeTest {
       assertTrue(b.match(a));
       assertTrue(a.match(a));
       assertTrue(b.match(b));
-      assertFalse(b.isEqual(a));
-      assertFalse(a.isEqual(b));
+      assertFalse(b.equals(a));
+      assertFalse(a.equals(b));
       
       assertTrue(vf.list(a).match(vf.list(b)));
       assertTrue(vf.list(b).match(vf.list(a)));

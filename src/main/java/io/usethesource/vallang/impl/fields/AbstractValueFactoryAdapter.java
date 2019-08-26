@@ -285,20 +285,8 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public INode node(String name, Map<String, IValue> annotations, IValue... children) {
-        return adapted.node(name, annotations, children);
-    }
-
-    @Override
     public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
         return adapted.node(name, children, keyArgValues);
-    }
-
-    @Override
-    @Deprecated
-    public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children)
-            throws FactTypeUseException {
-        return adapted.constructor(constructor, annotations, children);
     }
 
     @Override
@@ -306,5 +294,4 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
             throws FactTypeUseException {
         return adapted.constructor(constructor, children, kwParams);
     }
-
 }

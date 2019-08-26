@@ -42,17 +42,12 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
-import io.usethesource.vallang.io.old.BinaryWriter;
 import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
 
-/**
- * @author Arnold Lankamp
- */
-@SuppressWarnings("deprecation")
 public final class BinaryIoSmokeTest {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -205,17 +200,6 @@ public final class BinaryIoSmokeTest {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testOldFilesStillSupported(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        Type name = RandomValues.addNameType(ts);
-        Random r = new Random(42);
-        for (int i = 0; i < 20; i++) {
-            IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
-            ioRoundTripOld(vf, ts, value, 42);
-        }
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testConstructorWithParameterized1(IValueFactory vf) throws IOException {
         TypeStore ts = new TypeStore();
         TypeFactory tf = TypeFactory.getInstance();
@@ -270,7 +254,7 @@ public final class BinaryIoSmokeTest {
         }
         try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, () -> ts)) {
             IValue result = read.read();
-            if (!value.isEqual(result)) {
+            if (!value.equals(result)) {
                 String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
                 System.err.println(message);
@@ -306,7 +290,7 @@ public final class BinaryIoSmokeTest {
         fileSize = Files.size(target.toPath());
         try (IValueInputStream read = new IValueInputStream(FileChannel.open(target.toPath(), StandardOpenOption.READ), vf, () -> ts)) {
             IValue result = read.read();
-            if (!value.isEqual(result)) {
+            if (!value.equals(result)) {
                 String message = "Not equal: (seed: " + seed + ", size: " + fileSize +") \n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
                 System.err.println(message);
@@ -328,7 +312,7 @@ public final class BinaryIoSmokeTest {
         fileSize = Files.size(target.toPath());
         try (IValueInputStream read = new IValueInputStream(new FileInputStream(target), vf, () -> ts)) {
             IValue result = read.read();
-            if (!value.isEqual(result)) {
+            if (!value.equals(result)) {
                 String message = "Not equal: (seed: " + seed + ", size: " + fileSize +") \n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
                 System.err.println(message);
@@ -337,24 +321,6 @@ public final class BinaryIoSmokeTest {
         }
         finally {
             target.delete();
-        }
-    }
-
-    private void ioRoundTripOld(IValueFactory vf, TypeStore ts, IValue value, int seed) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-        BinaryWriter w = new BinaryWriter(value, buffer, new TypeStore());
-        w.serialize();
-        buffer.flush();
-        try (IValueInputStream read = new IValueInputStream(
-                new ByteArrayInputStream(buffer.toByteArray()), vf, () -> ts)) {
-            IValue result = read.read();
-            if (!value.isEqual(result)) {
-                String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
-                + "\n\t" + result + " : " + result.getType();
-                System.err.println(message);
-                fail(message);
-            }
         }
     }
 }

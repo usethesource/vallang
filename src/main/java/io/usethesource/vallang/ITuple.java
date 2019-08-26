@@ -88,34 +88,6 @@ public interface ITuple extends Iterable<IValue>, IValue {
     public IValue selectByFieldNames(String... fields) throws FactTypeUseException;
     
     @Override
-    public default boolean isEqual(IValue o) {
-        if (this == o) {
-            return true;
-        } else if (o == null) {
-            return false;
-        } else if (o instanceof ITuple) {
-            ITuple peer = (ITuple) o;
-
-            // TODO: if types become canonical, this can be !=
-            if (!getType().comparable(peer.getType())) {
-                return false;
-            }
-
-            int arity = arity();
-            if (arity != peer.arity()) {
-                return false;
-            }
-            for (int i = 0; i < arity; i++) {
-                if (!get(i).isEqual(peer.get(i))) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-    
-    @Override
     public default boolean match(IValue o) {
         if (this == o) {
             return true;

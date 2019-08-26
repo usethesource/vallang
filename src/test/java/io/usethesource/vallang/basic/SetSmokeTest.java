@@ -203,11 +203,11 @@ public final class SetSmokeTest {
         fail("subtract with empty set");
       }
 
-      if (!set3.subtract(set1).isEqual(set3)) {
+      if (!set3.subtract(set1).equals(set3)) {
         fail("subtract with empty set");
       }
 
-      if (!set1.subtract(set3).isEqual(set1)) {
+      if (!set1.subtract(set3).equals(set1)) {
         fail("subtract with empty set");
       }
 
@@ -246,15 +246,15 @@ public final class SetSmokeTest {
         fail("union of empty sets");
       }
 
-      if (!set1.union(set3).isEqual(set3)) {
+      if (!set1.union(set3).equals(set3)) {
         fail("union with empty set");
       }
 
-      if (!set3.union(set1).isEqual(set3)) {
+      if (!set3.union(set1).equals(set3)) {
         fail("union with empty set");
       }
 
-      if (!set1.union(set3).isEqual(set3)) {
+      if (!set1.union(set3).equals(set3)) {
         fail("union with empty set");
       }
 

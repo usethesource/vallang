@@ -73,7 +73,7 @@ public final class ListSmokeTest {
                 fail("append failed");
             }
 
-            if (!longer.get(integersList(vf).length()).isEqual(newValue)) {
+            if (!longer.get(integersList(vf).length()).equals(newValue)) {
                 fail("element was not appended");
             }
 
@@ -93,7 +93,7 @@ public final class ListSmokeTest {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testGet(IValueFactory vf) {
         for (int i = 0; i < integers(vf).length; i++) {
-            if (!integersList(vf).get(i).isEqual(integers(vf)[i])) {
+            if (!integersList(vf).get(i).equals(integers(vf)[i])) {
                 fail("get failed");
             }
         }
@@ -109,7 +109,7 @@ public final class ListSmokeTest {
                 fail("append failed");
             }
 
-            if (!longer.get(0).isEqual(newValue)) {
+            if (!longer.get(0).equals(newValue)) {
                 fail("element was not insrrted");
             }
 
@@ -150,7 +150,7 @@ public final class ListSmokeTest {
         }
 
         for (int i = 0; i < integers(vf).length; i++) {
-            if (!reverse.get(i).isEqual(integers(vf)[integers(vf).length - i - 1])) {
+            if (!reverse.get(i).equals(integers(vf)[integers(vf).length - i - 1])) {
                 fail("reverse did something funny: " + reverse + " is not reverse of " + integersList(vf));
             }
         }
@@ -210,7 +210,7 @@ public final class ListSmokeTest {
         int i;
         for (i = 0; it.hasNext(); i++) {
             IValue v = it.next();
-            if (!v.isEqual(integers(vf)[i])) {
+            if (!v.equals(integers(vf)[i])) {
                 fail("iterator does not iterate in order");
             }
         }
@@ -280,7 +280,7 @@ public final class ListSmokeTest {
     }
 
     private static void checkSubListEquality(IList fList, IList bList, IList oList) {
-        if (!fList.isEqual(bList) || !bList.isEqual(oList))
+        if (!fList.equals(bList) || !bList.equals(oList))
             fail("IList#subList is broken: " + fList + " " + bList + " " + oList);
     }
 

@@ -34,7 +34,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
 import io.usethesource.vallang.type.Type;
@@ -819,11 +818,6 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
-        public boolean isEqual(IValue value) {
-            return this.equals(value);
-        }
-
-        @Override
         public IString indent(IString whitespace, boolean indentFirstLine) {
             assert !whitespace.getValue().contains("\n") && !whitespace.getValue().contains("\r");
 
@@ -836,11 +830,6 @@ import io.usethesource.vallang.type.TypeFactory;
             }
             
             return new IndentedString(this, whitespace, indentFirstLine);
-        }
-
-        @Override
-        public boolean match(IValue other) {
-            return isEqual(other);
         }
 
         @Override

@@ -28,7 +28,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UndeclaredAnnotationException;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 /**
@@ -396,22 +395,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		store.declareConstructor(this);
 
 		return TypeFactory.getInstance().constructorFromTuple(store, adt, getName(), fields);
-	}
-
-	@Override
-	public boolean declaresAnnotation(TypeStore store, String label) {
-		return store.getAnnotationType(this, label) != null;
-	}
-
-	@Override
-	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
-		Type type = store.getAnnotationType(this, label);
-
-		if (type == null) {
-			throw new UndeclaredAnnotationException(getAbstractDataType(), label);
-		}
-
-		return type;
 	}
 
 	@Override

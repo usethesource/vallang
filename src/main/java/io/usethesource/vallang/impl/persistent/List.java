@@ -349,23 +349,6 @@ class SubList implements IList {
     }
 
     @Override
-    public boolean isEqual(IValue value){
-        if(value == this) return true;
-        if(value == null) return false;
-
-        if(value instanceof List){
-            List otherList = (List) value;
-
-            return otherList.isEqual(this);
-        }
-        else if (value instanceof IList) {
-            return IList.super.isEqual(value);
-        }
-
-        return false;
-    }
-
-    @Override
     public String toString() {
         return defaultToString();
     }
@@ -480,7 +463,7 @@ class SubList implements IList {
             for(int i = offset; i < end; i++){
                 IValue elm = base.get(i);
                 while(j < lst.length()){
-                    if (elm.isEqual(lst.get(j))) {
+                    if (elm.equals(lst.get(j))) {
                         j++;
                         continue nextchar;
                     } else {

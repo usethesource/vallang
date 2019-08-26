@@ -66,7 +66,7 @@ public class INumberTests {
     }
     
     protected void assertEqual(IValue l, IValue r) {
-        Assertions.assertTrue(l.isEqual(r), "Expected " + l + " got " + r);
+        Assertions.assertTrue(l.equals(r), "Expected " + l + " got " + r);
     }
 
     protected void assertEqualNumber(INumber l, INumber r) {
@@ -74,7 +74,7 @@ public class INumberTests {
     }
 
     protected void assertEqual(String message, IValue l, IValue r) {
-        Assertions.assertTrue(l.isEqual(r), message + ": Expected " + l + " got " + r);
+        Assertions.assertTrue(l.equals(r), message + ": Expected " + l + " got " + r);
     }
 
     protected void assertEqualNumber(String message, INumber l, INumber r) {

@@ -32,8 +32,6 @@ public class RegressionTests {
         if (!rel.isEmpty() && !set.isEmpty()) {
             assertTrue(!rel.equals(set));
             assertTrue(!set.equals(rel));
-            assertTrue(!rel.isEqual(set));
-            assertTrue(!set.isEqual(rel));
         }
     }
 

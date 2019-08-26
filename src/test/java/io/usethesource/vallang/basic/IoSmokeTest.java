@@ -47,7 +47,7 @@ public class IoSmokeTest extends BooleanStoreProvider {
         SerializableValue<IValue> w =
                 SerializableValue.<IValue>read(new ByteArrayInputStream(buf.toByteArray()));
 
-        if (!v.getValue().isEqual(w.getValue())) {
+        if (!v.getValue().equals(w.getValue())) {
             fail();
         }
     }

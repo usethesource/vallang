@@ -67,7 +67,7 @@ public final class LazyStringOperationsTest {
 	protected TypeFactory tf = TypeFactory.getInstance();
 
 	protected void assertEqual(IValue l, IValue r) {
-		assertTrue(l.isEqual(r), () -> "Expected " + l + " got " + r);
+		assertTrue(l.equals(r), () -> "Expected " + l + " got " + r);
 	}
 
 	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -124,9 +124,9 @@ public final class LazyStringOperationsTest {
 	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
 	public void testConcat(IValueFactory vf) {
 		assertTrue(example1(vf)
-				.isEqual(example1(vf)));
+				.equals(example1(vf)));
 		assertTrue(example1(vf)
-				.isEqual(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef").concat(vf.string("gh")))));
+				.equals(vf.string("ab").concat(vf.string("cd")).concat(vf.string("ef").concat(vf.string("gh")))));
 	}
 
 	@ParameterizedTest @ArgumentsSource(ValueProvider.class)

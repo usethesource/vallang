@@ -102,16 +102,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		return new Node(name);
 	}
 	
-	@SuppressWarnings("deprecation")
-    @Override
-	public INode node(String name, java.util.Map<String, IValue> annotations, IValue... children) {
-		checkNull(name);
-		checkNull(annotations);
-		checkNull((Object[]) children);
-				
-		return new Node(name, children).asAnnotatable().setAnnotations(annotations);
-	}
-	
 	@Override
 	public INode node(String name, IValue... children) {
 		checkNull(name);
@@ -134,16 +124,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		checkNull(constructorType);
 		checkNull((Object[]) children);
 		return new Constructor(constructorType, children);
-	}
-	
-	@SuppressWarnings("deprecation")
-    @Override
-	public IConstructor constructor(Type constructorType, java.util.Map<String,IValue> annotations, IValue... children) {
-		checkNull(constructorType);
-		checkNull(annotations);
-		checkNull((Object[]) children);
-				
-		return new Constructor(constructorType, children).asAnnotatable().setAnnotations(annotations);
 	}
 	
 	@Override

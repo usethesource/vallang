@@ -26,17 +26,15 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeRedeclaredException;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.IllegalAnnotationDeclaration;
 import io.usethesource.vallang.exceptions.IllegalIdentifierException;
 import io.usethesource.vallang.exceptions.IllegalKeywordParameterDeclarationException;
-import io.usethesource.vallang.exceptions.RedeclaredAnnotationException;
 import io.usethesource.vallang.exceptions.RedeclaredConstructorException;
 import io.usethesource.vallang.exceptions.RedeclaredFieldNameException;
 import io.usethesource.vallang.exceptions.RedeclaredKeywordParameterException;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 
 /**
- * This class manages type declarations. It stores declarations of annotations, 
+ * This class manages type declarations. It stores declarations of keyword fields, 
  * type aliases and abstract data-type constructors. 
  * TypeStores can import others, but the imports are not transitive.
  * Cyclic imports are allowed.
@@ -44,14 +42,11 @@ import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
  * @see {@link TypeFactory}, {@link Type} and {@link IValueFactory} for more information.
  */
 public class TypeStore {
-	private static final Type NODE_TYPE = TypeFactory.getInstance().nodeType();
-
 	private final TypeFactory factory = TypeFactory.getInstance();
 
 	private final Map<String, Type> fAliases= new HashMap<>();
 	private final Map<String, Type> fADTs= new HashMap<>();
 	private final Map<Type, Set<Type>> fConstructors = new HashMap<>();
-	private final Map<Type, Map<String, Type>> fAnnotations = new HashMap<>();
 	private final Map<Type, Map<String, Type>> fkeywordParameters = new HashMap<>();
 	private final Set<TypeStore> fImports = new HashSet<>();
 	
@@ -94,26 +89,11 @@ public class TypeStore {
 	}
 
 	/**
-	 * Retrieves all annotations declared in this TypeStore. Note that it does
-	 * not return the annotations of imported TypeStores.
-	 * 
-	 * @return a map of types for which annotations are declared to a map of names of these
-	 * annotations to the types of the values that give access to these annotations.
-	 */
-	public Map<Type, Map<String, Type>> getAnnotations() {
-	  Map<Type, Map<String,Type>> unmodifiableMap = new HashMap<>();
-	  for (Type key : fAnnotations.keySet()) {
-	    unmodifiableMap.put(key, Collections.unmodifiableMap(fAnnotations.get(key)));
-	  }
-	  return unmodifiableMap;
-	}
-	
-	/**
 	 * Retrieves all keyword parameters declared in this TypeStore. Note that it does
-	 * not return the annotations of imported TypeStores.
+	 * not return the keyword parameters of imported TypeStores.
 	 * 
 	 * @return a map of types for which keyword parameters are declared to a map of names of these
-	 * annotations to the types of the values that give access to these annotations.
+	 * keyword parameters to the types of the values that give access to these keyword parameters.
 	 */
 	public Map<Type, Map<String, Type>> getKeywordParameters() {
 	  Map<Type, Map<String,Type>> unmodifiableMap = new HashMap<>();
@@ -201,10 +181,6 @@ public class TypeStore {
 	    }
 	  }
 
-	  synchronized (fAnnotations) {
-	    fAnnotations.putAll(other.fAnnotations);
-	  }
-	  
 	  synchronized (fkeywordParameters) {
 		  fkeywordParameters.putAll(other.fkeywordParameters);
 		  }
@@ -643,45 +619,6 @@ public class TypeStore {
 	}
 
 	/**
-	 * Declare that certain tree node types may have an annotation with a certain
-	 * label. The annotation with that label will have a specific type.
-	 * 
-	 * @param onType the type of values that carry this annotation
-	 * @param key    the label of the annotation
-	 * @param valueType the type of values that represent the annotation
-	 * @throws FactTypeDeclarationException when an attempt is made to define annotations for anything
-	 * but NamedTreeTypes orTreeNodeTypes.
-	 */
-	public void declareAnnotation(Type onType, String key, Type valueType) {
-	  if (!onType.isSubtypeOf(NODE_TYPE)) {
-	    throw new IllegalAnnotationDeclaration(onType);
-	  }
-
-	  synchronized (fAnnotations) {
-	    Map<String, Type> annotationsForType = fAnnotations.get(onType);
-
-	    if (!factory.isIdentifier(key)) {
-	      throw new IllegalIdentifierException(key);
-	    }
-
-	    if (annotationsForType == null) {
-	      annotationsForType = new HashMap<>();
-	      fAnnotations.put(onType, annotationsForType);
-	    }
-
-	    Map<String, Type> declaredEarlier = getAnnotations(onType);
-
-	    if (!declaredEarlier.containsKey(key)) {
-	      annotationsForType.put(key, valueType);
-	    }
-	    else if (!declaredEarlier.get(key).equivalent(valueType)) {
-	      throw new RedeclaredAnnotationException(key, declaredEarlier.get(key));
-	    }
-	    // otherwise its a safe re-declaration and we do nothing
-	  }
-	}
-
-	/**
 	 * Declare that certain  constructor types may have an keyword parameter with a certain
 	 * label. The keyword parameter with that label will have a specific type. Note that we
 	 * do not store keyword parameters directly inside the constructor type because keyword 
@@ -864,52 +801,6 @@ public class TypeStore {
 	}
 	
 	/**
-	 * Locates all declared annotations for a type, including the annotations declared
-	 * for all the node type.
-	 * 
-	 * @param onType 
-	 * @return a map of all annotations declared for onType
-	 */
-	public Map<String, Type> getAnnotations(Type onType) {
-	  if (!onType.isSubtypeOf(NODE_TYPE)) {
-	    return Collections.<String,Type>emptyMap();
-	  }
-
-	  synchronized(fAnnotations) {
-	    synchronized (fImports) {
-	      Map<String, Type> result = new HashMap<>();
-
-	      if (onType != NODE_TYPE) {
-	        Map<String, Type> local = fAnnotations.get(onType);
-	        if (local != null) {
-	          result.putAll(local); 
-	        }
-	      }
-
-	      Map<String, Type> onNode = fAnnotations.get(NODE_TYPE);
-	      if (onNode != null) {
-	        result.putAll(onNode);
-	      }
-
-
-	      for (TypeStore s : fImports) {
-	        Map<String, Type> local = s.fAnnotations.get(onType);
-	        if (local != null) {
-	          result.putAll(local);
-	        }
-
-	        onNode = s.fAnnotations.get(NODE_TYPE);
-	        if (onNode != null) {
-	          result.putAll(onNode);
-	        }
-	      }
-
-	      return result;
-	    }
-	  }
-	}
-
-	/**
 	 * Locates all declared keyword parameters for a constructor.
 	 * 
 	 * @param onType 
@@ -956,24 +847,6 @@ public class TypeStore {
 	      return result;
 	    }
 	  }
-	}
-
-	/**
-	 * Retrieve the type of values that are declared to be valid for a certain kind of 
-	 * annotations on certain kinds of values
-	 * @param onType the type of values that this annotation can be found on
-	 * @param key    the label of the annotation to find the corresponding type of
-	 * @return the type of the requested annotation value or null if none exists
-	 */
-	public @Nullable Type getAnnotationType(Type onType, String key) {
-	  Map<String, Type> annotationsFor = getAnnotations(onType);
-	  Type result = annotationsFor.get(key);
-
-	  if (result != null) {
-	    return result;
-	  }
-
-	  return null;
 	}
 
 	/**

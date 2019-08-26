@@ -129,11 +129,6 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void enterConstructorAnnotations() throws RuntimeException {
-            result.add("an");
-        }
-
-        @Override
         public void leaveConstructor(IValue cons) throws RuntimeException {
             result.add("leave");
         }
@@ -148,11 +143,6 @@ public class StacklessStructuredVisitorTest {
         @Override
         public void enterNodeKeywordParameters() throws RuntimeException {
             result.add("kw");
-        }
-
-        @Override
-        public void enterNodeAnnotations() throws RuntimeException {
-            result.add("an");
         }
 
         @Override

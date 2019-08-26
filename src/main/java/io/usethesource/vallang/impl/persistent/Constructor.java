@@ -23,19 +23,15 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
-import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
 import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ class Constructor {
@@ -63,31 +59,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean isAnnotatable() {
-            return true;
-        }
-
-        @Override
-        public boolean declaresAnnotation(TypeStore store, String label) {
-            return (store.getAnnotationType(constructorType.getAbstractDataType(), label) != null);
-        }
-
-        @Override
         public IConstructor replace(int first, int second, int end, IList repl) {
             throw new UnsupportedOperationException("Replace not supported on constructor.");
-        }
-
-
-        @Override
-        @Deprecated
-        public IAnnotatable<IConstructor> asAnnotatable() {
-            return new AbstractDefaultAnnotatable<IConstructor>(this) {
-                @Override
-                protected IConstructor wrap(IConstructor content,
-                        io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-                    return new AnnotatedConstructorFacade(content, annotations);
-                }
-            };
         }
 
         @Override
@@ -263,28 +236,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             return o == this;
         }
 
-        @SuppressWarnings("deprecation")
-        @Override
-        public boolean isEqual(IValue value) {
-            if (value == this) {
-                return true;
-            }
-            if (value instanceof IConstructor) {
-                IConstructor cons = (IConstructor)value;
-                if (cons.isAnnotatable() && cons.asAnnotatable().hasAnnotations()) {
-                    // isEquals ignores annotations, so let's skip them and just compare
-                    return cons.arity() == 0 && cons.getConstructorType() == this.constructorType;
-                }
-                // no need to check kw params, since Constructor0 doesn't have kw params
-                // this means that it can never be isEqual to the `cons`
-            }
-            return false;
-        }
-
         @Override
         public boolean match(IValue value) {
             // either value is the same instance
-            // or the other could be a wrapped IConstructor (with annotations or keyword params) so compare the constructor type and the arity
+            // or the other could be a wrapped IConstructor (with keyword params) so compare the constructor type and the arity
             return value == this || (value instanceof IConstructor && (((IConstructor)value).arity() == 0 && ((IConstructor)value).getConstructorType() == this.constructorType));
         }
     }

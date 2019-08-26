@@ -37,9 +37,9 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	 * provided {@link #parameters}.
 	 * 
 	 * @param content
-	 *            is the wrapped object that supports annotations
+	 *            is the wrapped object that supports keywod fields
 	 * @param parameters
-	 *            is the map of annotations associated to {@link #content}
+	 *            is the map of fields associated to {@link #content}
 	 */
 	public AbstractDefaultWithKeywordParameters(T content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
 		this.content = content;
@@ -52,9 +52,9 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	 * new immutable view is returned.
 	 * 
 	 * @param content
-	 *            is the wrapped object that supports annotations
+	 *            is the wrapped object that supports keyword fields
 	 * @param annotations
-	 *            is the map of annotations associated to {@link #content}
+	 *            is the map of fields associated to {@link #content}
 	 * @return a new representations of {@link #content} with associated
 	 *         {@link #parameters}
 	 */
@@ -129,7 +129,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
 		AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
 
-		if (!content.isEqual(o.content)) {
+		if (!content.equals(o.content)) {
 			return false;
 		}
 
@@ -165,7 +165,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 			if (parameter == null && o.getParameter(key) != null) {
 				return false;
 			}
-			else if (parameter != null && !parameter.isEqual(o.getParameter(key))) {
+			else if (parameter != null && !parameter.equals(o.getParameter(key))) {
 				return false;
 			}
 		}

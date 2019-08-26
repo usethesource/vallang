@@ -1,7 +1,6 @@
 package io.usethesource.vallang.impl.persistent;
 
 import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
-import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceEqualityComparator;
 
 import java.util.Collections;
 import java.util.function.BiConsumer;
@@ -59,9 +58,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
         class SetMultimapStruct {
             AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
             AbstractTypeBag valTypeBag = AbstractTypeBag.of();
-            @SuppressWarnings("deprecation")
-            SetMultimap.Transient<K, V> map =
-            SetMultimap.Transient.of(equivalenceEqualityComparator);
+            SetMultimap.Transient<K, V> map = SetMultimap.Transient.of();
         }
 
         /** extract key/value from type {@code T} and insert into multimap */
