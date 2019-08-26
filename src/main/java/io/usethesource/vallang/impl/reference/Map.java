@@ -59,7 +59,7 @@ import io.usethesource.vallang.type.Type;
 	public IMap removeKey(IValue key) {
 	    IMapWriter w = writer();
 	    for (Entry<IValue,IValue> cursor :(Iterable<Entry<IValue,IValue>>) () -> entryIterator()) {
-	        if (cursor.getKey().equals(key)) {
+	        if (!cursor.getKey().equals(key)) {
 	            w.put(cursor.getKey(), cursor.getValue());
 	        }
 	    }
