@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
@@ -72,10 +74,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 				Set<IConstructor> done) {
 			type.getBound().asProductions(vf, store, grammar, done);
 		}
-
-        public String randomLabel() {
-            return null;
-        }
 	}
 
 	@Override
@@ -120,7 +118,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
+	    if (o == null) {
+	        return false;
+	    }
+	    
 		if (o instanceof ParameterType) {
 			ParameterType other = (ParameterType) o;
 			return fName.equals(other.fName) && fBound == other.fBound;

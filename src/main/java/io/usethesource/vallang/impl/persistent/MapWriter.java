@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
@@ -23,7 +25,6 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWriter;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.EqualityUtils;
@@ -33,27 +34,11 @@ final class MapWriter implements IMapWriter {
 	private static final EqualityComparator<Object> equivalenceComparator =
 			EqualityUtils.getEquivalenceComparator();
 
-	private AbstractTypeBag keyTypeBag;
-	private AbstractTypeBag valTypeBag;
-	private final Map.Transient<IValue, IValue> mapContent;
+	private AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
+	private AbstractTypeBag valTypeBag = AbstractTypeBag.of();
+	private final Map.Transient<IValue, IValue> mapContent = Map.Transient.of();
 
-	private final boolean checkUpperBound;
-	private final Type upperBoundKeyType;
-	private final Type upperBoundValType;
-	private IMap constructedMap;
-
-	MapWriter() {
-		super();
-
-		this.checkUpperBound = false;
-		this.upperBoundKeyType = null;
-		this.upperBoundValType = null;
-
-		keyTypeBag = AbstractTypeBag.of();
-		valTypeBag = AbstractTypeBag.of();
-		mapContent = Map.Transient.of();
-		constructedMap = null;
-	}
+	private @MonotonicNonNull IMap constructedMap;
 
 	@Override
 	@SuppressWarnings("deprecation")
@@ -62,16 +47,6 @@ final class MapWriter implements IMapWriter {
 
 		final Type keyType = key.getType();
 		final Type valType = value.getType();
-
-		if (checkUpperBound) {
-			if (!keyType.isSubtypeOf(upperBoundKeyType)) {
-				throw new UnexpectedElementTypeException(upperBoundKeyType, keyType);
-			}
-
-			if (!valType.isSubtypeOf(upperBoundValType)) {
-				throw new UnexpectedElementTypeException(upperBoundValType, valType);
-			}
-		}
 
 		final IValue replaced = mapContent.__putEquivalent(key, value, equivalenceComparator);
 

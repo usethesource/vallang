@@ -24,6 +24,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * Since we are constructing and deconstructing a lot of windows, use this factory to build them.
  * For caching reasons, also return the windows to this factory, so they can be reused again.
@@ -48,11 +51,6 @@ public class CacheFactory<T> {
             }
             return false;
         }
-        
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj;
-        }
 	}
 	
 	private static final class SoftPool<T> {
@@ -68,7 +66,7 @@ public class CacheFactory<T> {
             }
 	    }
 
-        public SoftReference<T> poll() {
+        public @Nullable SoftReference<T> poll() {
             return dequeue.poll();
         }
 
@@ -84,7 +82,7 @@ public class CacheFactory<T> {
 	private final Map<Integer, SoftPool<T>> caches = new ConcurrentHashMap<>();
 	private final Function<T, T> cleaner;
 	private final long expireNanos;
-	
+
 	public CacheFactory(int expireAfter, TimeUnit unit, Function<T, T> clearer) {
 	    this.expireNanos = unit.toNanos(expireAfter);
 		this.cleaner = clearer;
@@ -141,8 +139,9 @@ public class CacheFactory<T> {
         private final CleanupThread thread;
         private Cleanup() {
             thread = new CleanupThread();
+            thread.start();
         }
-        public void register(CacheFactory<?> cache) {
+        public void register(@UnknownInitialization CacheFactory<?> cache) {
             thread.register(cache);
         }
 
@@ -155,14 +154,16 @@ public class CacheFactory<T> {
     */
     private static class CleanupThread extends Thread {
         private final ConcurrentLinkedQueue<WeakReference<CacheFactory<?>>> caches = new ConcurrentLinkedQueue<>();
-        
-        private CleanupThread() { 
+
+        @Override
+        public synchronized void start() {
             setDaemon(true);
             setName("Cleanup Thread for " + CacheFactory.class.getName());
-            start();
+            super.start();
         }
 
-        public void register(CacheFactory<?> cache) {
+        @SuppressWarnings("initialization") // passed in reference might not be completly initialized
+        public void register(@UnknownInitialization CacheFactory<?> cache) {
             caches.add(new WeakReference<>(cache));
         }
         

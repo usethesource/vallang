@@ -10,6 +10,8 @@
 *******************************************************************************/
 package io.usethesource.vallang.util;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 /**
  * This is a hashset which assigns a unique identifier to every inserted entry. Identifiers will be
  * generated in order, starting at 0. 
@@ -18,7 +20,7 @@ package io.usethesource.vallang.util;
  *
  * @param <E> The value type.
  */
-public final class IndexedSet<E>{
+public final class IndexedSet<E extends @NonNull Object>{
 	private final static int INITIAL_LOG_SIZE = 4;
 
 	private int modSize;

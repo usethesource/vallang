@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
@@ -93,8 +95,10 @@ public class SerializableValue<T extends IValue> implements Serializable {
       byte[] bytes = new byte[amountOfBytes];
       in.read(bytes);
 
-      final Class<?> clazz = getClass().getClassLoader().loadClass(new String(factoryName, "UTF8"));
-      this.vf = (IValueFactory) clazz.getMethod("getInstance").invoke(null);
+      final Class<?> clazz = Objects.requireNonNull(getClass().getClassLoader()).loadClass(new String(factoryName, "UTF8"));
+      @SuppressWarnings("nullness") // CF cannot "handle" the null that goes into the invoke, see: https://github.com/typetools/checker-framework/issues/1365
+      @Nullable IValueFactory newVF =(IValueFactory)clazz.getMethod("getInstance").invoke(null);
+      this.vf = Objects.requireNonNull(newVF);
 
       /**
        * NOTE: does allocate a new empty {@link TypeStore} instance when reading in values.

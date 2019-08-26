@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -48,8 +50,7 @@ public final class EmptySet implements ISet {
 
     if (isTupleOfArityTwo.test(firstElementType)) {
       return Stream.of(firstElement).map(asInstanceOf(ITuple.class))
-          .collect(toSetMultimap(firstElementType.getOptionalFieldName(0), tuple -> tuple.get(0),
-              firstElementType.getOptionalFieldName(1), tuple -> tuple.get(1)));
+          .collect(toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
     } else {
       return Stream.of(firstElement).collect(toSet());
     }
@@ -102,7 +103,7 @@ public final class EmptySet implements ISet {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     return other == this;
   }
 

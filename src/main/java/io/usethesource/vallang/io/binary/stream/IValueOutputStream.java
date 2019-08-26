@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
@@ -27,7 +29,7 @@ import io.usethesource.vallang.io.binary.util.FileChannelDirectOutputStream;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
-            
+
 /**
  * A binary serializer for IValues. <br/>
  * <br />
@@ -68,7 +70,7 @@ public class IValueOutputStream implements Closeable {
     
     private CompressionRate compression;
     private OutputStream rawStream;
-    private IWireOutputStream writer;
+    private @MonotonicNonNull IWireOutputStream writer;
     private final IValueFactory vf;
 
     public IValueOutputStream(OutputStream out, IValueFactory vf) throws IOException {
@@ -84,7 +86,6 @@ public class IValueOutputStream implements Closeable {
         out.write(Header.MAIN);
         this.rawStream = out;
         this.compression = compression;
-        this.writer = null;
         this.vf = vf;
     }
 

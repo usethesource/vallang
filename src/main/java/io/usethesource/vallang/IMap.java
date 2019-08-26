@@ -16,6 +16,10 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
+
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -44,11 +48,13 @@ public interface IMap extends ICollection<IMap> {
      */
     public default IMap removeKey(IValue key) {
         IMapWriter sw = writer();
-        for (IValue c : this) {
-            if (!c.isEqual(key)) {
-                sw.put(c, get(c));
+        
+        for (Entry<IValue, IValue> c : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
+            if (!c.getKey().isEqual(key)) {
+                sw.put(c.getKey(), c.getValue());
             }
         }
+        
         return sw.done();
     }
 
@@ -56,13 +62,16 @@ public interface IMap extends ICollection<IMap> {
      * @param key
      * @return the value that is mapped to this key, or null if no such value exists
      */
-    public IValue get(IValue key);
+    @Pure
+    public @Nullable IValue get(IValue key);
 
     /**
      * Determine whether a certain key exists in this map.
      * @param key
      * @return true iff there is a value mapped to this key
      */
+    @EnsuresNonNullIf(expression="get(#1)", result=true)
+    @SuppressWarnings("contracts.conditional.postcondition.not.satisfied") // that's impossible to prove for the Checker Framework
     public default boolean containsKey(IValue key) {
         for (IValue cursor : this) {
             if (cursor.isEqual(key)) {
@@ -74,8 +83,9 @@ public interface IMap extends ICollection<IMap> {
     
     @Override
     public default boolean isEqual(IValue other) {
-        if (other == this) return true;
-        if (other == null) return false;
+        if (other == this) {
+            return true;
+        }
 
         if (other instanceof IMap) {
             IMap map2 = (IMap) other;
@@ -100,16 +110,25 @@ public interface IMap extends ICollection<IMap> {
         return false;
     }
     
-    public default boolean defaultEquals(Object other){
-        if (other == this) return true;
-        if (other == null) return false;
+    public default boolean defaultEquals(@Nullable Object other){
+        if (other == this) {
+            return true;
+        }
+        
+        if (other == null) {
+            return false;
+        }
 
         if (other instanceof IMap) {
             IMap map2 = (IMap) other;
 
-            if (getType() != map2.getType()) return false;
+            if (getType() != map2.getType()) {
+                return false;
+            }
 
-            if (hashCode() != map2.hashCode()) return false;
+            if (hashCode() != map2.hashCode()) {
+                return false;
+            }
 
             if (size() == map2.size()) {
 
@@ -132,10 +151,8 @@ public interface IMap extends ICollection<IMap> {
                             continue outer;
                         }
                     }
-                    
                     return false;
                 }
-
                 return true;
             }
         }
@@ -157,8 +174,9 @@ public interface IMap extends ICollection<IMap> {
     
     @Override
     public default boolean match(IValue other) {
-        if (other == this) return true;
-        if (other == null) return false;
+        if (other == this) {
+            return true;
+        }
 
         if (other instanceof IMap) {
             IMap map2 = (IMap) other;
@@ -167,12 +185,14 @@ public interface IMap extends ICollection<IMap> {
                 next:for (IValue k1 : this) {
                     IValue v1 = get(k1);
 
+                    assert v1 != null : "@AssumeAssertion(nullness)";
+                    
                     for (Iterator<IValue> iterator = map2.iterator(); iterator.hasNext();) {
                         IValue k2 = iterator.next();
                         if (k2.match(k1)) {
                             IValue v2 = map2.get(k2);
 
-                            if (!v2.match(v1)) {
+                            if (v2 == null || !v2.match(v1)) {
                                 return false;
                             }
                             else {
@@ -197,11 +217,12 @@ public interface IMap extends ICollection<IMap> {
      * @return true iff there is at least one key that maps to the given value.
      */
     public default boolean containsValue(IValue value) {
-        for (Iterator<IValue> iterator = valueIterator(); iterator.hasNext();) {
-            if (iterator.next().isEqual(value)) {
+        for (IValue elem : (Iterable<IValue>) () -> valueIterator()) {
+            if (elem.isEqual(value)) {
                 return true;
             }
         }
+        
         return false;
     }
 
@@ -239,11 +260,13 @@ public interface IMap extends ICollection<IMap> {
      */
     public default IMap remove(IMap other) {
         IMapWriter sw = writer();
-        for (IValue key : this) {
-            if (!other.containsKey(key)) {
-                sw.put(key, get(key));
+        
+        for (Entry<IValue,IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
+            if (!other.containsKey(entry.getKey())) {
+                sw.put(entry.getKey(), entry.getValue());
             }
         }
+        
         return sw.done();
     }
     
@@ -257,9 +280,7 @@ public interface IMap extends ICollection<IMap> {
     public default IMap compose(IMap other) {
         IMapWriter w = writer();
 
-        Iterator<Entry<IValue, IValue>> iter = entryIterator();
-        while (iter.hasNext()) {
-            Entry<IValue, IValue> e = iter.next();
+        for (Entry<IValue, IValue> e : (Iterable<Entry<IValue,IValue>>) () -> entryIterator()) {
             IValue value = other.get(e.getValue());
             if (value != null) {
                 w.put(e.getKey(), value);
@@ -283,13 +304,16 @@ public interface IMap extends ICollection<IMap> {
     public default IMap common(IMap other) {
         IMapWriter sw = writer();
 
-        for (IValue key : this) {
-            IValue thisValue = this.get(key);
-            IValue otherValue = other.get(key);
-            if (otherValue != null && thisValue.isEqual(otherValue)) {
-                sw.put(key, thisValue);
+        for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
+            IValue thisKey = entry.getKey();
+            IValue thisValue = entry.getValue();
+            IValue otherValue = other.get(thisKey);
+            
+            if (otherValue != null && thisValue.equals(otherValue)) {
+                sw.put(thisKey, thisValue);
             }
         }
+        
         return sw.done();
     }
     
@@ -302,14 +326,18 @@ public interface IMap extends ICollection<IMap> {
 	 *         in the other map.
 	 */
     public default boolean isSubMap(IMap other) {
-        for (IValue key : this) {
+        for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
+            IValue key = entry.getKey();
+            
             if (!other.containsKey(key)) {
                 return false;
             }
-            if (!other.get(key).isEqual(this.get(key))) {
+            
+            if (!other.get(key).isEqual(entry.getValue())) {
                 return false;
             }
         }
+
         return true;
     }
     

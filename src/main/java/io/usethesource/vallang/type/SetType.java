@@ -26,6 +26,7 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/class SetType extends DefaultSubtypeOfValue {
 	protected final Type fEltType;
@@ -88,10 +89,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 				Set<IConstructor> done) {
 			type.getElementType().asProductions(vf, store, grammar, done);
 		}
-
-        public String randomLabel() {
-            return null;
-        }
 	}
 	
 
@@ -182,8 +179,8 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SetType)) {
+	public boolean equals(@Nullable Object obj) {
+    if (!(obj instanceof SetType)) {
 			return false;
 		}
 		SetType other = (SetType) obj;
@@ -192,7 +189,7 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 		// attempt to manipulate the outer type (i.e. SetType), so we can use object
 		// identity here for the fEltType.
 		return fEltType == other.fEltType;
-	}
+}
 
 	@Override
 	public String toString() {

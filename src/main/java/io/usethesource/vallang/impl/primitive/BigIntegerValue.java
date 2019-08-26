@@ -15,6 +15,8 @@ package io.usethesource.vallang.impl.primitive;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
@@ -321,9 +323,14 @@ import io.usethesource.vallang.type.TypeFactory;
 		return value.hashCode();
 	}
 	
-	public boolean equals(Object o){
-		if(o == null) return false;
-		else if(o == this) return true;
+	public boolean equals(@Nullable Object o){
+		if (o == null) {
+		    return false;
+		}
+		
+		if (o == this) {
+		    return true;
+		}
 		
 		if(o.getClass() == getClass()){
 			BigIntegerValue otherInteger = (BigIntegerValue) o;

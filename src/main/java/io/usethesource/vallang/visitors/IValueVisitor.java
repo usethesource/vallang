@@ -11,6 +11,8 @@
 
 package io.usethesource.vallang.visitors;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -26,7 +28,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 
-public interface IValueVisitor<R,E extends Throwable>  {
+public interface IValueVisitor<R extends @Nullable Object, E extends Throwable>  {
    public R visitString(IString o) throws E;
    public R visitReal(IReal o) throws E;
    public R visitRational(IRational o) throws E;

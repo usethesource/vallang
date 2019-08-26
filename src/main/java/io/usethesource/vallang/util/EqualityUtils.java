@@ -11,7 +11,9 @@
  *******************************************************************************/
 package io.usethesource.vallang.util;
 
-import java.util.Objects;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.function.BiFunction;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
@@ -35,8 +37,32 @@ public class EqualityUtils {
 		return (a, b) -> EqualityComparator.equals((IValue) a, (IValue) b, IValue::isEqual);
 	}
 
-	public static final EqualityComparator<Map.Immutable<String, IValue>> KEYWORD_PARAMETER_COMPARATOR =
-			(a, b) -> Objects.equals(a.keySet(), b.keySet()) && a.keySet().stream()
-					.allMatch(key -> getEquivalenceComparator().equals(a.get(key), b.get(key)));
+	public static final EqualityComparator<Map.Immutable<String, IValue>> KEYWORD_PARAMETER_COMPARATOR = EqualityUtils::compareKwParams;
+			
+    private static boolean compareKwParams(Map.Immutable<String, IValue> a, Map.Immutable<String, IValue> b) {
+        if (a.size() != b.size()) {
+            return false;
+        }
+        
+        Iterator<Entry<String, IValue>> aIt = a.entryIterator();
+        Iterator<Entry<String, IValue>> bIt = a.entryIterator();
+        EqualityComparator<Object> comp = getEquivalenceComparator();
+        
+        while (aIt.hasNext() && bIt.hasNext()) {
+            Entry<String, IValue> aNext = aIt.next();
+            Entry<String, IValue> bNext = bIt.next();
+            
+            if (!aNext.getKey().equals(bNext.getKey())) {
+                return false;
+            }
+            
+            if (!comp.equals(aNext.getValue(), bNext.getValue())) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
 
+    public static final BiFunction<java.util.List<Object>, Object, Boolean> func = (a, b) -> a.stream().map(e -> e == b) == null;
 }

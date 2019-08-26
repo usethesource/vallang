@@ -19,6 +19,8 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
@@ -60,7 +62,7 @@ import io.usethesource.vallang.type.Type;
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(@Nullable Object other) {
 		return defaultEquals(other);
 	}
 	

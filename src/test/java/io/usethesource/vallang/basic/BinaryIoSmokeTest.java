@@ -69,6 +69,7 @@ public final class BinaryIoSmokeTest {
         TypeStore ts = new TypeStore();
         RandomValues.addNameType(ts);
         for (IValue value : RandomValues.getTestValues(vf)) {
+            RandomValues.addNameType(ts);
             ioRoundTripFile(vf, ts, value, 0);
         }
     }

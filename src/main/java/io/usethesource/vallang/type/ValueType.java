@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 
 /* package */class ValueType extends Type {
@@ -45,10 +47,6 @@ import io.usethesource.vallang.IConstructor;
 		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
 		    return tf().valueType();
 		}
-
-        public String randomLabel() {
-            return null;
-        }
 	}
 	
 	
@@ -66,7 +64,7 @@ import io.usethesource.vallang.IConstructor;
 	 * Should never be called, ValueType is a singleton
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return o == ValueType.getInstance();
 	}
 

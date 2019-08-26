@@ -12,7 +12,6 @@
  */ 
 package io.usethesource.vallang.random;
 
-import io.usethesource.vallang.ISourceLocation;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.Calendar;
@@ -21,13 +20,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.random.util.RandomUtil;
@@ -51,8 +54,8 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     protected final int maxWidth;
     
     protected int currentDepth;
-    protected TypeStore currentStore;
-    protected Map<Type, Type> typeParameters;
+    protected @Nullable TypeStore currentStore;
+    protected @Nullable Map<Type, Type> typeParameters;
     
     
 
@@ -416,7 +419,11 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitAbstractData(Type type) throws RuntimeException {
-        Set<Type> candidates = currentStore.lookupAlternatives(type);
+        TypeStore store = currentStore;
+        if (store == null) {
+            throw new RuntimeException("Missing TypeStore");
+        }
+        Set<Type> candidates = store.lookupAlternatives(type);
         if (candidates.isEmpty()) {
             throw new UnsupportedOperationException("The "+type+" ADT has no constructors in the type store");
         }
@@ -440,8 +447,12 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
     @SuppressWarnings("deprecation")
     @Override
     public IValue visitConstructor(Type type) throws RuntimeException {
-        Map<String, Type> kwParamsType = currentStore.getKeywordParameters(type);
-        Map<String, Type> annoType = currentStore.getAnnotations(type);
+        TypeStore store = currentStore;
+        if (store == null) {
+            throw new RuntimeException("Missing TypeStore");
+        }
+        Map<String, Type> kwParamsType = store.getKeywordParameters(type);
+        Map<String, Type> annoType = store.getAnnotations(type);
         
         if (type.getArity() == 0 && kwParamsType.size() == 0 && annoType.size() == 0) { 
             return vf.constructor(type);
@@ -483,7 +494,7 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
 
     @Override
     public IValue visitParameter(Type parameterType) throws RuntimeException {
-        Type type = typeParameters.get(parameterType);
+        Type type = Objects.requireNonNull(typeParameters, "Type Parameters not set").get(parameterType);
         if(type == null){
             throw new IllegalArgumentException("Unbound type parameter " + parameterType);
         }

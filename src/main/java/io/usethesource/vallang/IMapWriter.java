@@ -15,6 +15,8 @@ package io.usethesource.vallang;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 
@@ -48,7 +50,7 @@ public interface IMapWriter extends IWriter<IMap> {
      * @param key
      * @return null if no value exists with this key, otherwise the respective value.
      */
-    IValue get(IValue key);
+    @Nullable IValue get(IValue key);
     
     /**
      * The map writer collects key/value tuples

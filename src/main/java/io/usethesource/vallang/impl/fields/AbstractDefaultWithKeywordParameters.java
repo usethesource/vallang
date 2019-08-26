@@ -15,6 +15,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
+
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -88,6 +91,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
+	@Pure
 	public boolean hasParameter(String label) {
 		return parameters.containsKey(label);
 	}
@@ -98,8 +102,9 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
+	@Pure
 	public Set<String> getParameterNames() {
-		return parameters.keySet();
+		return Collections.unmodifiableSet(parameters.keySet());
 	}
 
 	@Override
@@ -113,7 +118,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 	
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(@Nullable Object other) {
 	    if (other == null) {
 	        return false;
 	    }

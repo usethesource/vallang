@@ -2,6 +2,7 @@ package io.usethesource.vallang.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -12,91 +13,95 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
  */
 /*package*/ class SourceLocationURIValues {
-	private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
-	private static final Pattern doubleSlashes = Pattern.compile("//+");
-	static ISourceLocation newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException  {
-	    scheme = nullifyIfEmpty(scheme);
-	    authority = nullifyIfEmpty(authority);
-		if (path != null) {
-			if (path.isEmpty() || path.equals("/")) {
-				path = null;
-			}
-			else if (!path.startsWith("/")) {
-				path = "/" + path;
-			}
-			if (path != null && path.contains("//")) {
-				// normalize double or longer slashes
-				path = doubleSlashes.matcher(path).replaceAll("/");
-				if (path.equals("/")) {
-				    path  = null;
-				}
-			}
-		}
-		query = nullifyIfEmpty(query);
-		fragment = nullifyIfEmpty(fragment);
-		if (scheme == null || scheme.equals("")) {
-			throw new URISyntaxException(scheme, "scheme cannot be empty or null");
-		}
-		if (INTERNED_SCHEMES.getIfPresent(scheme) == null  && !schemePattern.matcher(scheme).matches()) {
-			throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
-		}
-		if (authority == null) {
-			if (path == null) {
-				if (query == null) {
-					if (fragment == null) {
-						return new SourceLocationURIValues.BaseURI(scheme);
-					}
-					return new SourceLocationURIValues.FragmentURI(scheme, fragment);
-				}
-				if (fragment == null) {
-					return new SourceLocationURIValues.QueryURI(scheme, query);
-				}
-				return new SourceLocationURIValues.FragmentQueryURI(scheme, query, fragment);
-			}
-			if (query == null) {
-				if (fragment == null) {
-					return new SourceLocationURIValues.PathURI(scheme, path);
-				}
-				return new SourceLocationURIValues.FragmentPathURI(scheme, path, fragment);
-			}
-			if (fragment == null) {
-				return new SourceLocationURIValues.QueryPathURI(scheme, path, query);
-			}
-			return new SourceLocationURIValues.FragmentQueryPathURI(scheme, path, query, fragment);
-		}
-		if (path == null) {
-			if (query == null) {
-				if (fragment == null) {
-					return new SourceLocationURIValues.AuthorityURI(scheme, authority);
-				}
-				return new SourceLocationURIValues.FragmentAuthorityURI(scheme, authority, fragment);
-			}
-			if (fragment == null) {
-				return new SourceLocationURIValues.QueryAuthorityURI(scheme, authority, query);
-			}
-			return new SourceLocationURIValues.FragmentQueryAuthorityURI(scheme, authority, query, fragment);
-		}
-		if (query == null) {
-			if (fragment == null) {
-				return new SourceLocationURIValues.PathAuthorityURI(scheme, authority, path);
-			}
-			return new SourceLocationURIValues.FragmentPathAuthorityURI(scheme, authority, path, fragment);
-		}
-		if (fragment == null) {
-			return new SourceLocationURIValues.QueryPathAuthorityURI(scheme, authority, path, query);
-		}
-		return new SourceLocationURIValues.FragmentQueryPathAuthorityURI(scheme, authority, path, query, fragment);
-	}
-	
-	
-	private static String nullifyIfEmpty(String str) {
-	    if (str == null || str.isEmpty()) {
-	        return null;
-	    }
+    private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
+    private static final Pattern doubleSlashes = Pattern.compile("//+");
+    
+    static ISourceLocation newURI(@Nullable String scheme, @Nullable String authority, @Nullable String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException  {
+        scheme = nullifyIfEmpty(scheme);
+        authority = nullifyIfEmpty(authority);
+        if (path != null) {
+            if (path.isEmpty() || path.equals("/")) {
+                path = null;
+            }
+            else if (!path.startsWith("/")) {
+                path = "/" + path;
+            }
+            if (path != null && path.contains("//")) {
+                // normalize double or longer slashes
+                path = doubleSlashes.matcher(path).replaceAll("/");
+                if (path.equals("/")) {
+                    path  = null;
+                }
+            }
+        }
+        query = nullifyIfEmpty(query);
+        fragment = nullifyIfEmpty(fragment);
+        if (scheme == null || scheme.equals("")) {
+            throw new URISyntaxException("null or empty", "scheme cannot be empty or null");
+        }
+        if (INTERNED_SCHEMES.getIfPresent(scheme) == null  && !schemePattern.matcher(scheme).matches()) {
+            throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
+        }
+        if (authority == null) {
+            if (path == null) {
+                if (query == null) {
+                    if (fragment == null) {
+                        return new SourceLocationURIValues.BaseURI(scheme);
+                    }
+                    return new SourceLocationURIValues.FragmentURI(scheme, fragment);
+                }
+                if (fragment == null) {
+                    return new SourceLocationURIValues.QueryURI(scheme, query);
+                }
+                return new SourceLocationURIValues.FragmentQueryURI(scheme, query, fragment);
+            }
+            if (query == null) {
+                if (fragment == null) {
+                    return new SourceLocationURIValues.PathURI(scheme, path);
+                }
+                return new SourceLocationURIValues.FragmentPathURI(scheme, path, fragment);
+            }
+            if (fragment == null) {
+                return new SourceLocationURIValues.QueryPathURI(scheme, path, query);
+            }
+            return new SourceLocationURIValues.FragmentQueryPathURI(scheme, path, query, fragment);
+        }
+        if (path == null) {
+            if (query == null) {
+                if (fragment == null) {
+                    return new SourceLocationURIValues.AuthorityURI(scheme, authority);
+                }
+                return new SourceLocationURIValues.FragmentAuthorityURI(scheme, authority, fragment);
+            }
+            if (fragment == null) {
+                return new SourceLocationURIValues.QueryAuthorityURI(scheme, authority, query);
+            }
+            return new SourceLocationURIValues.FragmentQueryAuthorityURI(scheme, authority, query, fragment);
+        }
+        if (query == null) {
+            if (fragment == null) {
+                return new SourceLocationURIValues.PathAuthorityURI(scheme, authority, path);
+            }
+            return new SourceLocationURIValues.FragmentPathAuthorityURI(scheme, authority, path, fragment);
+        }
+        if (fragment == null) {
+            return new SourceLocationURIValues.QueryPathAuthorityURI(scheme, authority, path, query);
+        }
+        return new SourceLocationURIValues.FragmentQueryPathAuthorityURI(scheme, authority, path, query, fragment);
+    }
+
+
+    private static @Nullable String nullifyIfEmpty(@Nullable String str) {
+        if (str == null || str.isEmpty()) {
+            return null;
+        }
         return str;
     }
 
@@ -105,13 +110,13 @@ import io.usethesource.vallang.type.TypeFactory;
     private static class BaseURI implements ISourceLocation {
 		protected final String scheme;
 		
-		
 		public BaseURI(String scheme)  {
-			this.scheme = INTERNED_SCHEMES.get(scheme);
+			this.scheme = Objects.requireNonNull(INTERNED_SCHEMES.get(scheme));
 		}
 		
 
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			try {
 				return new URI(scheme,"","/",null,null);
@@ -126,14 +131,22 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+		        return false;
+		    }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				return scheme == ((BaseURI)obj).scheme;
 			}
+			
 			return false;
 		}
+		
 		@Override
 		public int hashCode() {
 			return scheme.hashCode(); 
@@ -255,6 +268,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	
 	private static final Pattern squareBrackets = Pattern.compile("(\\[|\\])");
 
+	@SuppressWarnings("nullness") // jdk of CF doesn't have the URI class in there
 	private static URI buildURIWithAuthority(String scheme, String authority,
 			String path, String query, String fragment) {
 		try {
@@ -300,23 +314,20 @@ import io.usethesource.vallang.type.TypeFactory;
 		return squareBracketClose.matcher(authority).replaceAll("\0\0\uFFF1\0\0");
 	}
 
-
-
-
-	private static final LoadingCache<String, String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
+	private static final LoadingCache<@NonNull String, @NonNull String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
 		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
-			this.authority = INTERNED_AUTHORIES.get(authority);
+			this.authority = Objects.requireNonNull(INTERNED_AUTHORIES.get(authority));
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
-			return buildURIWithAuthority(scheme, authority, null,null,null);
+			return buildURIWithAuthority(scheme, authority, null, null, null);
 		}
-		
 
 		@Override
 		public boolean hasPath() {
@@ -336,15 +347,21 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+		        return false;
+		    }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				AuthorityURI u = (AuthorityURI)obj;
 				return scheme == u.scheme
-					&& authority == u.authority
-					;
+					&& authority == u.authority;
 			}
+			
 			return false;
 		}
 	}
@@ -359,6 +376,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", path, null, null);
@@ -372,25 +390,37 @@ import io.usethesource.vallang.type.TypeFactory;
 		public boolean hasPath() {
 			return true;
 		}
+		
 		@Override
 		public String getPath() {
 			return path;
 		}
+		
 		@Override
 		public int hashCode() {
 		  if (hash == 0) {
 		    hash = scheme.hashCode() + path.hashCode();
 		  }
-			return hash;
+		  
+		  return hash;
 		}
+		
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+		        return false;
+		    }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				PathURI u = (PathURI)obj;
-				if (hash != 0 && u.hash != 0 && hash != u.hash)
-				  return false;
+				if (hash != 0 && u.hash != 0 && hash != u.hash) {
+				   return false;
+				}
+				
 				return scheme == u.scheme
 					&& path.equals(u.path);
 			}
@@ -407,6 +437,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, path, null, null);
 		}
@@ -424,7 +455,11 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + path.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+		        return false;
+		    }
+		    
 			if (this == obj) {
 				return true;
 			}
@@ -449,7 +484,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public URI getURI() {
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
+public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", "/", query, null);
 				return new URI(result.toASCIIString());
@@ -471,10 +507,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + query.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				QueryURI u = (QueryURI)obj;
 				return scheme == u.scheme
 					&& query.equals(u.query)
@@ -493,6 +535,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, null, query, null);
 		}
@@ -510,10 +553,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + query.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				QueryAuthorityURI u = (QueryAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -533,7 +582,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public URI getURI() {
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
+public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", path, query, null);
 				return new URI(result.toASCIIString());
@@ -555,10 +605,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + path.hashCode() + query.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				QueryPathURI u = (QueryPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -578,6 +634,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, path,query,null);
 		}
@@ -595,9 +652,15 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + path.hashCode() + query.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
+			}
+			
 			if(obj.getClass() == getClass()){
 				QueryPathAuthorityURI u = (QueryPathAuthorityURI)obj;
 				return scheme == u.scheme
@@ -619,7 +682,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public URI getURI() {
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
+public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", "/", null, fragment);
 				return new URI(result.toASCIIString());
@@ -641,10 +705,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentURI u = (FragmentURI)obj;
 				return scheme == u.scheme
 					&& fragment.equals(u.fragment)
@@ -663,6 +733,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, null, null, fragment);
 		}
@@ -680,10 +751,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentAuthorityURI u = (FragmentAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -703,7 +780,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public URI getURI() {
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
+public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", path, null, fragment);
 				return new URI(result.toASCIIString());
@@ -725,10 +803,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + path.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentPathURI u = (FragmentPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -748,6 +832,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, path, null, fragment);
 		}
@@ -765,10 +850,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + path.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentPathAuthorityURI u = (FragmentPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -788,7 +879,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public URI getURI() {
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
+public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", "/", query, fragment);
 				return new URI(result.toASCIIString());
@@ -810,10 +902,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + query.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentQueryURI u = (FragmentQueryURI)obj;
 				return scheme == u.scheme
 					&& query.equals(u.query)
@@ -833,6 +931,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, null, query, fragment);
 		}
@@ -850,10 +949,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + query.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentQueryAuthorityURI u = (FragmentQueryAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -874,7 +979,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public URI getURI() {
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
+public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", path, query, fragment);
 				return new URI(result.toASCIIString());
@@ -896,10 +1002,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + path.hashCode() + query.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentQueryPathURI u = (FragmentQueryPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -920,6 +1032,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
+		@SuppressWarnings("nullness") // CF doesn't have a model for URI
 		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, path, query, fragment);
 		}
@@ -937,10 +1050,16 @@ import io.usethesource.vallang.type.TypeFactory;
 			return scheme.hashCode() + authority.hashCode() + path.hashCode() + query.hashCode() + fragment.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+		    if (obj == null) {
+                return false;
+            }
+		    
+			if (this == obj) {
 				return true;
-			if(obj.getClass() == getClass()){
+			}
+			
+			if (obj.getClass() == getClass()){
 				FragmentQueryPathAuthorityURI u = (FragmentQueryPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -952,5 +1071,4 @@ import io.usethesource.vallang.type.TypeFactory;
 			return false;
 		}
 	}
-	
 }

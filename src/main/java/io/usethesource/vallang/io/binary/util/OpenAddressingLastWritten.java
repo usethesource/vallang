@@ -12,18 +12,23 @@
  */ 
 package io.usethesource.vallang.io.binary.util;
 
+import java.util.Objects;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * A track last written implementation that uses linear open addressing to implement the very specific hashmap
  * 
  * This implementation is just as fast as using the IdentityHashMap, however it uses less memory on average and we can also use value equality.
  * @author Davy Landman
  */
-public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T>, ClearableWindow {
+public abstract class OpenAddressingLastWritten<T extends @NonNull Object> implements TrackLastWritten<T>, ClearableWindow {
     private final int maximumEntries;
     private final int maximumSize;
     private int tableSize;
     private int resizeAfter;
-    private Object[] keys;
+    private @Nullable Object[] keys;
     private long[] writtenAt;
     /**
      * We store the hashes at the cost of extra memory, however, this improves the speed of the remove method when the hash is not a simple System.identityHashCode
@@ -42,7 +47,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
      * Create a n OpenAddressingLastWritten container using reference equality and identiy hashcode.
      * @param maximumEntries larger than 0 and smaller than Integer.MAX_VALUE  / 2
      */
-    public static <T> OpenAddressingLastWritten<T> referenceEquality(int maximumEntries) {
+    public static <T extends @NonNull Object> OpenAddressingLastWritten<T> referenceEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
             protected boolean equals(T a, T b) {
@@ -56,13 +61,13 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         };
     }
 
-    public static <T> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
+    public static <T extends @NonNull Object> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
         return new OpenAddressingLastWritten<T>(maximumEntries) {
             @Override
             protected boolean equals(T a, T b) {
                 return a.equals(b);
             }
-
+ 
             @Override
             protected int hash(T obj) {
                 return obj.hashCode();
@@ -96,11 +101,20 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     
     //http://stackoverflow.com/a/20798440/11098
     private static boolean isPrime(int num) {
-        if (num < 2) return false;
-        if (num == 2) return true;
-        if (num % 2 == 0) return false;
-        for (int i = 3; i * i <= num; i += 2)
-            if (num % i == 0) return false;
+        if (num < 2) {
+            return false;
+        }
+        if (num == 2) {
+            return true;
+        }
+        if (num % 2 == 0) {
+            return false;
+        }
+        for (int i = 3; i * i <= num; i += 2) {
+            if (num % i == 0) {
+                return false;
+            }
+        }
         return true;
     }
     
@@ -137,11 +151,12 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     @SuppressWarnings("unchecked")
     private int locate(T obj) {
         int pos = (hash(obj) & 0x7FFFFFFF) % tableSize; // 0x7FFFFF to make it positive, Math.abs can fail when MAX_INT is returned
-        final Object[] keys = this.keys;
-        Object current = keys[pos];
+        final @Nullable Object[] keys = this.keys;
+        @Nullable Object current = keys[pos];
         if (current == null) {
             return -1;
         }
+        
         while (!equals((T)current, obj)) {
             pos = (pos + 1) % tableSize;
             current = keys[pos];
@@ -149,6 +164,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
                 return -1;
             }
         }
+        
         return pos;
     }
 
@@ -191,10 +207,10 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
      */
     private void remove(int oldestEntry) {
         int space = oldestEntry;
-        final Object[] keys = this.keys;
+        final @Nullable Object[] keys = this.keys;
         while (true) {
            int candidate = space;
-           Object curr;
+           Object curr = null;
            while (true) {
                candidate = (candidate + 1) % tableSize;
                curr = keys[candidate];
@@ -207,7 +223,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
                    break;
                }
            }
-           keys[space] = curr;
+           keys[space] = Objects.requireNonNull(curr);
            writtenAt[space] = writtenAt[candidate];
            hashes[space] = hashes[candidate];
            //assert oldest[translateOldest(writtenAt[space])] == candidate;
@@ -220,7 +236,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         if (written == resizeAfter && tableSize != maximumSize) {
             tableSize = Math.min(closestPrime(tableSize * 2), maximumSize);
             resizeAfter = Math.min(tableSize / 3, maximumEntries);
-            Object[] oldKeys = keys;
+            @Nullable Object[] oldKeys = keys;
             long[] oldWrittenAt = writtenAt;
             int[] oldHashes = hashes;
 

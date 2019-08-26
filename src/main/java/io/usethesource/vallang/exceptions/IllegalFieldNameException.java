@@ -1,5 +1,7 @@
 package io.usethesource.vallang.exceptions;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 public class IllegalFieldNameException extends FactTypeDeclarationException {
 	private static final long serialVersionUID = -2480224409679761754L;
 	private int pos;
@@ -10,7 +12,7 @@ public class IllegalFieldNameException extends FactTypeDeclarationException {
 		this.pos = pos;
 		this.elem = elem;
 	}
-
+	
 	public Object getElement() {
 		return elem;
 	}
@@ -19,13 +21,7 @@ public class IllegalFieldNameException extends FactTypeDeclarationException {
 		return pos;
 	}
 	
-	public synchronized ClassCastException getCause() {
+	public synchronized @Nullable ClassCastException getCause() {
 		return (ClassCastException) super.getCause();
 	}
-
-	public IllegalFieldNameException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	
 }

@@ -15,6 +15,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IRelation;
@@ -223,9 +225,14 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-    public boolean equals(Object o){
-        if(o == this) return true;
-        if(o == null) return false;
+    public boolean equals(@Nullable Object o){
+        if (o == this) {
+            return true;
+        }
+        
+        if (o == null) {
+            return false;
+        }
 
         if (o instanceof IList) {
             IList otherList = (IList) o;
@@ -319,12 +326,16 @@ class SubList implements IList {
     }
 
     @Override
-    public boolean equals(Object o){
-        if(o == this) return true;
-        if(o == null) return false;
+    public boolean equals(@Nullable Object o){
+        if (o == this) {
+            return true;
+        }
+        
+        if (o == null) {
+            return false;
+        }
 
-
-        if(o instanceof SubList){
+        if (o instanceof SubList){
             SubList otherList = (SubList) o;
 
             return base.equals(otherList.base) && offset == otherList.offset && length == otherList.length;

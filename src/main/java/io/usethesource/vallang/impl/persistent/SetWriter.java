@@ -12,11 +12,14 @@
 package io.usethesource.vallang.impl.persistent;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.SetMultimap;
@@ -27,7 +30,6 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UnexpectedElementTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.util.AbstractTypeBag;
@@ -39,207 +41,225 @@ import io.usethesource.vallang.util.EqualityUtils;
  */
 public class SetWriter implements ISetWriter {
 
-  /****************************************/
+    /****************************************/
 
-  public static final boolean USE_MULTIMAP_BINARY_RELATIONS = true;
-  // static final boolean USE_MULTIMAP_BINARY_RELATIONS = Boolean.getBoolean(String.format("%s.%s",
-  // "org.rascalmpl.value", "useMultimapBinaryRelations"));
+    public static final boolean USE_MULTIMAP_BINARY_RELATIONS = true;
+    // static final boolean USE_MULTIMAP_BINARY_RELATIONS = Boolean.getBoolean(String.format("%s.%s",
+    // "org.rascalmpl.value", "useMultimapBinaryRelations"));
 
-  /****************************************/
+    /****************************************/
 
-  static final EqualityComparator<Object> equivalenceEqualityComparator =
-      EqualityUtils.getEquivalenceComparator();
+    static final EqualityComparator<Object> equivalenceEqualityComparator =
+            EqualityUtils.getEquivalenceComparator();
 
-  public static Predicate<Type> isTuple = (type) -> type.isTuple();
-  public static Predicate<Type> arityEqualsTwo = (type) -> type.getArity() == 2;
-  public static Predicate<Type> isTupleOfArityTwo = isTuple.and(arityEqualsTwo);
+    public static Predicate<Type> isTuple = (type) -> type.isTuple();
+    public static Predicate<Type> arityEqualsTwo = (type) -> type.getArity() == 2;
+    public static Predicate<Type> isTupleOfArityTwo = isTuple.and(arityEqualsTwo);
 
-  /****************************************/
+    /****************************************/
 
-  protected AbstractTypeBag elementTypeBag;
-  protected Set.Transient<IValue> setContent;
+    protected AbstractTypeBag elementTypeBag;
 
-  protected final boolean checkUpperBound;
-  protected final Type upperBoundType;
-  protected ISet constructedSet;
+    protected @MonotonicNonNull ISet constructedSet;
 
-  private Type leastUpperBound = TypeFactory.getInstance().voidType();
-  
-  private Builder builder = null;
+    private Type leastUpperBound = TypeFactory.getInstance().voidType();
 
-  private final BiFunction<IValue, IValue, ITuple> constructTuple;
-  
-  private static interface Builder extends Iterable<IValue> {
-      void put(IValue element, Type elementType);
-      ISet done();
-  }
-  
-  private final static class SetBuilder implements Builder {
-      private final Set.Transient<IValue> set = Set.Transient.of();
-      private AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
+    private @MonotonicNonNull Builder builder;
 
-      @Override
-      public void put(IValue element, Type elementType) {
-          if (set.__insert(element)) {
-              elementTypeBag = elementTypeBag.increase(elementType);
-          }
-      }
-      
-      @Override
-      public ISet done() {
-          return PersistentSetFactory.from(elementTypeBag, set.freeze());
-      }
-      
-      @Override
-      public Iterator<IValue> iterator() {
-          return set.iterator();
-      }
-  }
-  
-  private final static class MultiMapBuilder implements Builder {
-      AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
-      AbstractTypeBag valTypeBag = AbstractTypeBag.of();
-      @SuppressWarnings("deprecation")
-      SetMultimap.Transient<IValue, IValue> map = SetMultimap.Transient.of(equivalenceEqualityComparator);
+    private final BiFunction<IValue, IValue, ITuple> constructTuple;
 
-      @Override
-      public void put(IValue element, Type elementType) {
-          IValue key = ((ITuple)element).get(0);
-          IValue value = ((ITuple)element).get(1);
-          if (map.__insert(key, value)) {
-              keyTypeBag = keyTypeBag.increase(elementType.getFieldType(0));
-              valTypeBag = valTypeBag.increase(elementType.getFieldType(1));
-          }
-      }
-      
-      @Override
-      public ISet done() {
-          return PersistentSetFactory.from(keyTypeBag, valTypeBag, map.freeze());
-      }
-      
-      @Override
-      public Iterator<IValue> iterator() {
-          throw new UnsupportedOperationException();
-      }
-
-  }
-  
-
-  SetWriter(Type upperBoundType, BiFunction<IValue, IValue, ITuple> constructTuple) {
-    super();
-
-    this.checkUpperBound = true;
-    this.upperBoundType = upperBoundType;
-    this.constructTuple = constructTuple;
-
-    elementTypeBag = AbstractTypeBag.of();
-    // setContent = Set.Transient.of();
-    constructedSet = null;
-  }
-
-  SetWriter(BiFunction<IValue, IValue, ITuple> constructTuple) {
-    super();
-
-    this.checkUpperBound = false;
-    this.upperBoundType = null;
-    this.constructTuple = constructTuple;
-
-
-    elementTypeBag = AbstractTypeBag.of();
-    // setContent = Set.Transient.of();
-    constructedSet = null;
-  }
-
-  private void put(IValue element) {
-    final Type elementType = element.getType();
-
-    if (checkUpperBound && !elementType.isSubtypeOf(upperBoundType)) {
-      throw new UnexpectedElementTypeException(upperBoundType, elementType);
+    private static interface Builder extends Iterable<IValue> {
+        void put(IValue element, Type elementType);
+        ISet done();
     }
-   
-    if (builder == null || elementType != leastUpperBound) {
-        if (elementType.isTuple() && elementType.getArity() == 2) {
-            if (builder == null) {
-                // first tuple was a binary one, so let's assume all will be binary
-                builder = new MultiMapBuilder();
+
+    private final static class SetBuilder implements Builder {
+        private final Set.Transient<IValue> set = Set.Transient.of();
+        private AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
+
+        @Override
+        public void put(IValue element, Type elementType) {
+            if (set.__insert(element)) {
+                elementTypeBag = elementTypeBag.increase(elementType);
             }
         }
-        else if (builder == null) {
-            // first values was not a binary tuple, so let's build a normal set
-            builder = new SetBuilder(); 
+
+        @Override
+        public ISet done() {
+            return PersistentSetFactory.from(elementTypeBag, set.freeze());
         }
-        else if (builder instanceof MultiMapBuilder) {
-            // special case, previous values were all binary tuples, but the new value isn't
-            MultiMapBuilder oldBuilder = (MultiMapBuilder) builder;
-            builder = new SetBuilder();
-            oldBuilder.map.tupleStream(constructTuple).forEach(t -> builder.put(t, t.getType()));        
+
+        @Override
+        public Iterator<IValue> iterator() {
+            return set.iterator();
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder b = new StringBuilder();
+            b.append("{");
+            for (IValue e : this) {
+                b.append(e.toString());
+                b.append(",");
+            }
+            b.append("}");
+
+            return b.toString();
         }
     }
-    
-    builder.put(element, elementType);
-    
-    leastUpperBound = leastUpperBound.lub(elementType);
-  }
 
-  @Override
-  public void insert(IValue... values) throws FactTypeUseException {
-    checkMutation();
-    Arrays.stream(values).forEach(this::put);
-  }
+    private final static class MultiMapBuilder implements Builder {
+        AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
+        AbstractTypeBag valTypeBag = AbstractTypeBag.of();
+        @SuppressWarnings("deprecation")
+        SetMultimap.Transient<IValue, IValue> map = SetMultimap.Transient.of(equivalenceEqualityComparator);
 
-  @Override
-  public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException {
-    checkMutation();
-    collection.forEach(this::put);
-  }
+        @Override
+        public void put(IValue element, Type elementType) {
+            IValue key = ((ITuple)element).get(0);
+            IValue value = ((ITuple)element).get(1);
+            if (map.__insert(key, value)) {
+                keyTypeBag = keyTypeBag.increase(elementType.getFieldType(0));
+                valTypeBag = valTypeBag.increase(elementType.getFieldType(1));
+            }
+        }
 
-  @Override
-  public ISet done() {
-    if (constructedSet != null)
-      return constructedSet;
+        @Override
+        public ISet done() {
+            return PersistentSetFactory.from(keyTypeBag, valTypeBag, map.freeze());
+        }
 
-    if (leastUpperBound == TypeFactory.getInstance().voidType() || builder == null) {
-      constructedSet = EmptySet.EMPTY_SET;
-      return constructedSet;
+        @Override
+        public Iterator<IValue> iterator() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder b = new StringBuilder();
+            b.append("{");
+            Iterator<IValue> keys = map.keyIterator();
+            while (keys.hasNext()) {
+                IValue key = keys.next();
+
+                for (IValue val : map.get(key)) {
+                    b.append("<");
+                    b.append(key);
+                    b.append(",");
+                    b.append(val);
+                    b.append(">");
+                }
+            }
+            b.append("}");
+
+            return b.toString();
+        }
     }
-    
-    return constructedSet = builder.done();
-  }
 
-  // TODO: extract to a utilities class
-  @SuppressWarnings("unchecked")
-  public static <T, R> Function<T, R> asInstanceOf(Class<R> resultClass) {
-    return item -> (R) item;
-  }
+    /*package*/ SetWriter(BiFunction<IValue, IValue, ITuple> constructTuple) {
+        super();
 
-  // TODO: extract to a utilities class
-  public static <T> Predicate<T> isInstanceOf(Class<T> inputClass) {
-    return item -> inputClass.isInstance(item);
-  }
+        this.constructTuple = constructTuple;
 
-  private void checkMutation() {
-    if (constructedSet != null) {
-      throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
+        elementTypeBag = AbstractTypeBag.of();
     }
-  }
 
-  @Override
-  public String toString() {
-    return setContent.toString();
-  }
+    private void put(IValue element) {
+        final Type elementType = element.getType();
 
-  @Override
-  public void insertTuple(IValue... fields) {
-      insert(Tuple.newTuple(fields));
-  }
+        if (builder == null || elementType != leastUpperBound) {
+            if (elementType.isTuple() && elementType.getArity() == 2) {
+                if (builder == null) {
+                    // first tuple was a binary one, so let's assume all will be binary
+                    builder = new MultiMapBuilder();
+                }
+            }
+            else if (builder == null) {
+                // first values was not a binary tuple, so let's build a normal set
+                builder = new SetBuilder(); 
+            }
+            else if (builder instanceof MultiMapBuilder) {
+                // special case, previous values were all binary tuples, but the new value isn't
+                MultiMapBuilder oldBuilder = (MultiMapBuilder) builder;
+                builder = new SetBuilder();
+                final Builder finalSetBuilder = builder;
+                oldBuilder.map.tupleStream(constructTuple).forEach(t -> finalSetBuilder.put(t, t.getType()));        
+            }
+        }
 
-  @Override
-  public Iterator<IValue> iterator() {
-      return builder.iterator();
-  }
+        builder.put(element, elementType);
 
-  @Override
+        leastUpperBound = leastUpperBound.lub(elementType);
+    }
+
+    @Override
+    public void insert(IValue... values) throws FactTypeUseException {
+        checkMutation();
+        Arrays.stream(values).forEach(this::put);
+    }
+
+    @Override
+    public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException {
+        checkMutation();
+        collection.forEach(this::put);
+    }
+
+    @Override
+    public ISet done() {
+        if (constructedSet != null) {
+            return constructedSet;
+        }
+
+        if (leastUpperBound == TypeFactory.getInstance().voidType() || builder == null) {
+            constructedSet = EmptySet.EMPTY_SET;
+            return constructedSet;
+        }
+
+        return constructedSet = builder.done();
+    }
+
+    // TODO: extract to a utilities class
+    @SuppressWarnings("unchecked")
+    public static <T, R> Function<T, R> asInstanceOf(Class<R> resultClass) {
+        return item -> (R) item;
+    }
+
+    // TODO: extract to a utilities class
+    public static <T> Predicate<T> isInstanceOf(Class<T> inputClass) {
+        return item -> inputClass.isInstance(item);
+    }
+
+    private void checkMutation() {
+        if (constructedSet != null) {
+            throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (builder == null) {
+            return "{}";
+        }
+
+        return builder.toString();
+    }
+
+    @Override
+    public void insertTuple(IValue... fields) {
+        insert(Tuple.newTuple(fields));
+    }
+
+    @Override
+    public Iterator<IValue> iterator() {
+        if (builder == null) {
+            return Collections.emptyIterator();
+        }
+
+        return builder.iterator();
+    }
+
+    @Override
     public Supplier<IWriter<ISet>> supplier() {
-      return () -> ValueFactory.getInstance().setWriter();
+        return () -> ValueFactory.getInstance().setWriter();
     }
 }

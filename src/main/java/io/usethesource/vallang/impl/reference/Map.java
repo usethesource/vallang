@@ -22,6 +22,8 @@ import java.util.Map.Entry;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
@@ -54,7 +56,7 @@ import io.usethesource.vallang.type.Type;
 	}
 
 	@Override
-	public IValue get(IValue key) {
+	public @Nullable IValue get(IValue key) {
 	    // see how we can't use the hash tabel due to the semantics of isEqual
 	    for (Entry<IValue,IValue> entry : content.entrySet()) {
 	        if (key.isEqual(entry.getKey())) {
@@ -112,12 +114,13 @@ import io.usethesource.vallang.type.Type;
     }
     
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         return defaultEquals(obj);
     }
     
     @Override
     public Stream<IValue> stream() {
-        return StreamSupport.stream(spliterator(), false).map(key -> new Tuple(key, get(key)));
+        Iterable<Entry<IValue, IValue>> it = () -> entryIterator();
+        return StreamSupport.stream(it.spliterator(), false).map(entry -> new Tuple(entry.getKey(), entry.getValue()));
     }
 }

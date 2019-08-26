@@ -13,6 +13,9 @@ package io.usethesource.vallang.impl.persistent;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -22,18 +25,21 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 /*package*/ class Tuple implements ITuple{
 	
 	protected static final TypeFactory typeFactory = TypeFactory.getInstance();
-
-	private Type cachedTupleType;
+	private @MonotonicNonNull Type cachedTupleType;
 	protected final IValue[] elements;
 
+	private static final ITuple EMPTY_TUPLE = new Tuple();
+
 	public static ITuple newTuple(IValue... elements) {
+		if (elements.length == 0) {
+			return EMPTY_TUPLE;
+		}
 		return new Tuple(elements);
 	}
 
 	private Tuple(IValue... elements) {
 		super();
 		
-		this.cachedTupleType = null;
 		this.elements = elements;
 	}
 
@@ -157,11 +163,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (o == this)
+	public boolean equals(@Nullable Object o) {
+		if (o == this) {
 			return true;
-		if (o == null)
+		}
+		
+		if (o == null) {
 			return false;
+		}
 
 		if (o.getClass() == getClass()) {
 			Tuple otherTuple = (Tuple) o;
@@ -182,10 +191,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 	@Override
 	public boolean isEqual(IValue value) {
-		if (value == this)
+		if (value == this) {
 			return true;
-		if (value == null)
+		}
+		if (value == null) {
 			return false;
+		}
 
 		if (value instanceof Tuple) {
 			Tuple otherTuple = (Tuple) value;
@@ -210,10 +221,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	
 	@Override
     public boolean match(IValue value) {
-        if (value == this)
+        if (value == this) {
             return true;
-        if (value == null)
+        }
+        if (value == null) {
             return false;
+        }
 
         if (value instanceof Tuple) {
             Tuple otherTuple = (Tuple) value;

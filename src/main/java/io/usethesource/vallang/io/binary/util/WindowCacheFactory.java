@@ -14,6 +14,8 @@ package io.usethesource.vallang.io.binary.util;
 
 import java.util.concurrent.TimeUnit;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 /**
  * Since we are constructing and deconstructing a lot of windows, use this factory to build them.
  * For caching reasons, also return the windows to this factory, so they can be reused again.
@@ -54,14 +56,14 @@ public class WindowCacheFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> TrackLastWritten<T> getTrackLastWrittenReferenceEquality(int size) {
+    public <T extends @NonNull Object> TrackLastWritten<T> getTrackLastWrittenReferenceEquality(int size) {
         if (size == 0) {
             return (TrackLastWritten<T>) disabledWriteWindow;
         }
         return (TrackLastWritten<T>) lastWrittenReference.get(size, OpenAddressingLastWritten::referenceEquality);
     }
     @SuppressWarnings("unchecked")
-    public <T> TrackLastWritten<T> getTrackLastWrittenObjectEquality(int size) {
+    public <T extends @NonNull Object> TrackLastWritten<T> getTrackLastWrittenObjectEquality(int size) {
         if (size == 0) {
             return (TrackLastWritten<T>) disabledWriteWindow;
         }
@@ -69,26 +71,26 @@ public class WindowCacheFactory {
     }
     
     @SuppressWarnings("unchecked")
-    public <T> void returnTrackLastRead(TrackLastRead<T> returned) {
+    public <T extends @NonNull Object> void returnTrackLastRead(TrackLastRead<T> returned) {
         if (returned != disabledReadWindow) {
             doReturn(lastReads, (TrackLastRead<Object>) returned);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public <T> void returnTrackLastWrittenReferenceEquality(TrackLastWritten<T> returned) {
+    public <T extends @NonNull Object> void returnTrackLastWrittenReferenceEquality(TrackLastWritten<T> returned) {
         if (returned != disabledWriteWindow) {
             doReturn(lastWrittenReference, (TrackLastWritten<Object>) returned);
         }
     }
     @SuppressWarnings("unchecked")
-    public <T> void returnTrackLastWrittenObjectEquality(TrackLastWritten<T> returned) {
+    public <T extends @NonNull Object> void returnTrackLastWrittenObjectEquality(TrackLastWritten<T> returned) {
         if (returned != disabledWriteWindow) {
             doReturn(lastWrittenObject, (TrackLastWritten<Object>) returned);
         }
     }
     
-    private <T> void doReturn(CacheFactory<T> target, T returned) {
+    private <T extends @NonNull Object> void doReturn(CacheFactory<T> target, T returned) {
         if (returned instanceof ClearableWindow) {
             int windowSize = ((ClearableWindow) returned).size();
 			if (windowSize >= 1000) {

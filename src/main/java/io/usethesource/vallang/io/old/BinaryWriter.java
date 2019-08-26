@@ -42,6 +42,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.IndexedSet;
 import io.usethesource.vallang.visitors.IValueVisitor;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 // TODO Change this thing so it doesn't use recursion.
 /**
@@ -62,9 +63,9 @@ public class BinaryWriter{
     }
 
     @Override
-    public boolean equals(Object obj) {
-      return obj instanceof IdentityValue && wrapped == ((IdentityValue)obj).wrapped;
-    }
+    public boolean equals(@Nullable Object obj) {
+    return obj instanceof IdentityValue && wrapped == ((IdentityValue)obj).wrapped;
+}
     
     @Override
     public boolean match(IValue other) {

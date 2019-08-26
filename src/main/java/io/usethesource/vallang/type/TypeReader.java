@@ -2,6 +2,7 @@ package io.usethesource.vallang.type;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -13,16 +14,15 @@ public class TypeReader {
     private static final char START_OF_ARGUMENTS = '[';
     private static final char END_OF_ARGUMENTS = ']';
     private static final char COMMA_SEPARATOR = ',';
-
-    private TypeStore store;
-    private NoWhiteSpaceReader stream;
-    private TypeFactory types;
+    private static final TypeFactory types = TypeFactory.getInstance();
+    
+    private TypeStore store = new TypeStore(); // dummy guarantees non-nullness
+    private NoWhiteSpaceReader stream = new NoWhiteSpaceReader(new StringReader("")); // dummy guarantees non-nullness
     private int current;
 
     public Type read(TypeStore store, Reader stream) throws IOException {
         this.store = store;
         this.stream = new NoWhiteSpaceReader(stream);
-        this.types = TypeFactory.getInstance();
 
         current = this.stream.read();
         Type result = readType();

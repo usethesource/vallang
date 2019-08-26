@@ -17,7 +17,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
@@ -64,7 +67,9 @@ public class TypeStore {
 	 * Note that imports are not transitive.
 	 */
 	public TypeStore(TypeStore... imports) {
-	  importStore(imports);
+        for (TypeStore s : imports) {
+          fImports.add(s);
+        }
 	}
 	
 	@Override
@@ -158,7 +163,7 @@ public class TypeStore {
 	 * 
 	 * @param stores to be removed
 	 */
-	public void unimportStores(TypeStore... stores) {
+	public final void unimportStores(TypeStore... stores) {
 	  synchronized (fImports) {
 	    fImports.removeAll(Arrays.asList(stores));
 	  }
@@ -216,6 +221,10 @@ public class TypeStore {
 	      Set<Type> signature1 = fConstructors.get(type);
 	      Set<Type> signature2 = s.fConstructors.get(type);
 
+	      if (signature2 == null || signature1 == null) {
+	          continue; // nothing to check
+	      }
+	      
 	      for (Type alt : signature2) {
 	        Type children = alt.getFieldTypes();
 	        checkOverloading(signature1, alt.getName(), children);
@@ -386,10 +395,10 @@ public class TypeStore {
 	    }
 	    for (int i = tupleType.getArity() - 1; i >= 0; i--) {
 	      Type type = tupleType.getFieldType(i);
-	      String label = tupleType.getFieldName(i);
+	      String label = Objects.requireNonNull(tupleType.getFieldName(i));
 
 	      for (int j = altArgs.getArity() - 1; j >= 0; j--) {
-	        if (altArgs.getFieldName(j).equals(label)) {
+	        if (label.equals(altArgs.getFieldName(j))) {
 	          if (!altArgs.getFieldType(j).equivalent(type)) {
 	        	throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(j), tupleType);
 	          }
@@ -399,8 +408,7 @@ public class TypeStore {
 	  }
 	}
 
-	private void checkOverloading(Set<Type> signature, String name,
-	    Type tupleType) throws FactTypeDeclarationException {
+	private void checkOverloading(Set<Type> signature, String name, Type tupleType) throws FactTypeDeclarationException {
 	  for (Type alt : signature) {
 	    if (alt.getName().equals(name)) {
 	      Type fieldTypes = alt.getFieldTypes();
@@ -416,7 +424,7 @@ public class TypeStore {
 	 * @param name the name of the type to lookup
 	 * @return the AliasType
 	 */
-	public Type lookupAlias(final String name) {
+	public @Nullable Type lookupAlias(final String name) {
 	  synchronized (fAliases) {
 	    synchronized (fImports) {
 	      Type result = fAliases.get(name);
@@ -518,7 +526,7 @@ public class TypeStore {
 	 * @return the first constructor that matches
 	 * @throws a FactTypeError if the type was not declared before
 	 */
-	public Type lookupFirstConstructor(final String cons, final Type args) {
+	public @Nullable Type lookupFirstConstructor(final String cons, final Type args) {
 	  Collection<Type> adts = allAbstractDataTypes();
 
 	  for (Type adt : adts) {
@@ -555,7 +563,7 @@ public class TypeStore {
 	 * @return a ConstructorType if it was declared before
 	 * @throws a FactTypeError if the type was not declared before
 	 */
-	public Type lookupConstructor(Type adt, String cons, Type args) {
+	public @Nullable Type lookupConstructor(Type adt, String cons, Type args) {
 	  Set<Type> sig = lookupConstructor(adt, cons);
 
 	  if (sig != null) {
@@ -612,7 +620,7 @@ public class TypeStore {
 	 * @param name  the supposed name of the abstract data-type
 	 * @return null if such type does not exist, or the type if it was declared earlier
 	 */
-	public Type lookupAbstractDataType(String name) {
+	public @Nullable Type lookupAbstractDataType(String name) {
 	  synchronized (fADTs) {
 	    synchronized (fImports) {
 
@@ -786,7 +794,10 @@ public class TypeStore {
 
 			@Override
 			public Type visitConstructor(Type type) throws RuntimeException {
-				return new ConstructorType(type.getName(), expandAliases1(type.getFieldTypes(), seen), type.getAbstractDataType());
+			    // TODO: this cache is nasty coupling with TypeFactory, but we 
+			    // can not call factory.constructor directly because that would produce
+			    // an infinite recursion. 
+				return factory.getFromCache(new ConstructorType(type.getName(), expandAliases1(type.getFieldTypes(), seen), type.getAbstractDataType()));
 			}
 
 			@Override
@@ -799,7 +810,6 @@ public class TypeStore {
 			public Type visitTuple(Type type) throws RuntimeException {
 				int arity = type.getArity();
 				Type fieldTypes[] = new Type[arity];
-				String fieldNames[] = type.getFieldNames();
 				boolean aliasFound = false;
 				for(int i = 0; i < arity; i++){
 					Type fieldType = type.getFieldType(i);
@@ -813,7 +823,7 @@ public class TypeStore {
 				}
 				
 				if (aliasFound){
-					return fieldNames == null ? factory.tupleType(fieldTypes) : factory.tupleType(fieldTypes, fieldNames);
+					return type.hasFieldNames() ? factory.tupleType(fieldTypes, type.getFieldNames()) : factory.tupleType(fieldTypes);
 				}
 				return type;
 			}
@@ -955,7 +965,7 @@ public class TypeStore {
 	 * @param key    the label of the annotation to find the corresponding type of
 	 * @return the type of the requested annotation value or null if none exists
 	 */
-	public Type getAnnotationType(Type onType, String key) {
+	public @Nullable Type getAnnotationType(Type onType, String key) {
 	  Map<String, Type> annotationsFor = getAnnotations(onType);
 	  Type result = annotationsFor.get(key);
 
@@ -973,7 +983,7 @@ public class TypeStore {
 	 * @param key    the label of the parameter to find the corresponding type of
 	 * @return the type of the requested parameter value or null if none exists
 	 */
-	public Type getKeywordParameterType(Type onType, String key) {
+	public @Nullable Type getKeywordParameterType(Type onType, String key) {
 		assert onType.isConstructor() || onType.isAbstractData();
 		Map<String, Type> kwParamsFor = getKeywordParameters(onType);
 		return kwParamsFor != null ? kwParamsFor.get(key) : null;
@@ -1045,7 +1055,7 @@ public class TypeStore {
         }
     }
 
-	public Type getAlias(String name) {
+	public @Nullable Type getAlias(String name) {
 	  synchronized (fAliases) {
 	    synchronized (fImports) {
 	      Type result = fAliases.get(name);

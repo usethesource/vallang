@@ -3,10 +3,12 @@ package io.usethesource.vallang;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 
-public interface ICollection<T extends ICollection<T>> extends IValue, Iterable<IValue> {
+public interface ICollection<T extends ICollection<T>> extends IValue, Iterable<@NonNull IValue> {
     /**
      * @return the most concrete type (least upper bound) of the elements' types
      */

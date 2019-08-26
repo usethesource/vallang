@@ -15,6 +15,8 @@ import static io.usethesource.vallang.util.EqualityUtils.KEYWORD_PARAMETER_COMPA
 
 import java.util.Iterator;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
@@ -91,9 +93,13 @@ public class NodeWithKeywordParametersFacade implements INode {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if(o == this) return true;
-		if(o == null) return false;
+	public boolean equals(@Nullable Object o) {
+		if(o == this) {
+		    return true;
+		}
+		if(o == null) {
+		    return false;
+		}
 		
 		if(o.getClass() == getClass()){
 			NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;

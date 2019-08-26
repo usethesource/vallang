@@ -30,6 +30,9 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -178,10 +181,7 @@ import io.usethesource.vallang.type.TypeFactory;
             return InstanceHolder.instance;
         }
 
-        private EmptyString() { 
-            // the contract is that all String implementations use the same hashCode algorithm as java.lang.String
-            assert hashCode() == getValue().hashCode();
-        }
+        private EmptyString() {  }
 
         @Override
         boolean hasNonBMPCodePoints() {
@@ -199,7 +199,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
             return other == this;
         }
 
@@ -291,9 +291,6 @@ import io.usethesource.vallang.type.TypeFactory;
 
             this.value = value;
             this.lineCount = lineCount;
-
-            // the contract is that all String implementations use the same hashCode algorithm as java.lang.String
-            assert hashCode() == getValue().hashCode();
         }
 
         @Override
@@ -330,11 +327,10 @@ import io.usethesource.vallang.type.TypeFactory;
             AbstractString o = (AbstractString) other;
             int newLineCount;
 
-            if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = concatLineCount(this, o)) <= 1) {
+            if (length() + other.length() <= MAX_FLAT_STRING && (newLineCount = IIndentableString.concatLineCount(this, o)) <= 1) {
                 StringBuilder buffer = new StringBuilder();
                 buffer.append(getValue());
                 buffer.append(other.getValue());
-
 
                 return StringValue.newString(buffer.toString(), hasNonBMPCodePoints() || o.hasNonBMPCodePoints(), newLineCount);
             } else {
@@ -355,7 +351,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
             return super.equals(other);
         }
 
@@ -693,7 +689,18 @@ import io.usethesource.vallang.type.TypeFactory;
             return length() != 0 && charAt(length() - 1) == NEWLINE;
         }
 
-        default int concatLineCount(IIndentableString left, IIndentableString right) {
+        /**
+         * Utility function for use in the construction of IIndentableString implementations.
+         * There are details to be handled with respect to the final line of left and the 
+         * first line of right.
+         * 
+         * @param left
+         * @param right
+         * @return the sum of linecounts of left and right, which depends on whether the concatenation
+         *        merges the last line of left with the first line of right or that such
+         *        a merge does not happen.
+         */
+        public static int concatLineCount(IIndentableString left, IIndentableString right) {
             return left.lineCount() - (left.isNewlineTerminated() ? 0 : 1) + right.lineCount(); 
         }
 
@@ -891,7 +898,11 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
+            if (other == null) {
+                return false;
+            }
+            
             if (other == this) {
                 return true;
             }
@@ -1007,7 +1018,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         
         @Override
-        public boolean equals(Object other) {
+        public boolean equals(@Nullable Object other) {
             return super.equals(other);
         }
 
@@ -1038,7 +1049,7 @@ import io.usethesource.vallang.type.TypeFactory;
             this.right = right;
             this.length = left.length() + right.length();
             this.depth = Math.max(left.depth(), right.depth()) + 1;
-            this.lineCount = concatLineCount(left, right);
+            this.lineCount = IIndentableString.concatLineCount(left, right);
             this.terminated = right.isNewlineTerminated();
 
 //          great but really expensive asserts. good for debugging, but not for testing
@@ -1177,7 +1188,7 @@ import io.usethesource.vallang.type.TypeFactory;
         public OfInt iterator() {
             return new OfInt() {
                 final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-                OfInt currentLeaf = leftmostLeafIterator(LazyConcatString.this);
+                OfInt currentLeaf = leftmostLeafIterator(todo, LazyConcatString.this);
 
                 @Override
                 public boolean hasNext() {
@@ -1191,40 +1202,39 @@ import io.usethesource.vallang.type.TypeFactory;
                     if (!currentLeaf.hasNext() && !todo.isEmpty()) {
                         // now we back track to the previous node we went left from,
                         // take the right branch and continue with its first leaf:
-                        currentLeaf = leftmostLeafIterator(todo.pop());
+                        currentLeaf = leftmostLeafIterator(todo, todo.pop());
                     }
 
                     assert currentLeaf.hasNext() || todo.isEmpty();
                     return next;
                 }
-
-                /*
-                 * We find the left-most leaf of the tree, and collect
-                 * the path of nodes to this leaf as a side-effect in the todo 
-                 * stack.
-                 */
-                private OfInt leftmostLeafIterator(IStringTreeNode start) {
-                    IStringTreeNode cur = start;
-
-                    while (cur.depth() > 1) {
-                        todo.push(cur.right());
-                        cur = cur.left();
-                    }
-
-                    return cur.iterator();
-                }
             };
+        }
+        
+        /**
+         * Static helper function for the iterator() method.
+         *
+         * It finds the left-most leaf of the tree, and collects
+         * the path of nodes to this leaf as a side-effect in the todo 
+         * stack.
+         */
+        private static OfInt leftmostLeafIterator(Deque<AbstractString> todo, IStringTreeNode start) {
+            IStringTreeNode cur = start;
+
+            while (cur.depth() > 1) {
+                todo.push(cur.right());
+                cur = cur.left();
+            }
+
+            return cur.iterator();
         }
     }
 
     private static class IndentedString extends AbstractString {
-        // if indent == null, then wrapped contains an eagerly indented value already.
-        // if indent != null, then wrapped is the string to be indented.
-        // clients can not set indent to null.
-        private IString indent; 
-        private AbstractString wrapped;
-        private volatile AbstractString flattened = null;
+        private final IString indent; 
+        private final AbstractString wrapped;
         private final boolean indentFirstLine;
+        private volatile @MonotonicNonNull AbstractString flattened = null;
 
         IndentedString(AbstractString istring, IString whiteSpace, boolean indentFirstLine) {
             assert istring != null && whiteSpace != null;
@@ -1241,7 +1251,11 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         protected boolean hasNonBMPCodePoints() {
-            return flattened != null ? flattened.hasNonBMPCodePoints() : wrapped.hasNonBMPCodePoints();
+            if (flattened != null) {
+                return flattened.hasNonBMPCodePoints();
+            }
+            
+            return wrapped.hasNonBMPCodePoints();
         }
 
         @Override
@@ -1250,16 +1264,21 @@ import io.usethesource.vallang.type.TypeFactory;
                 return this;
             }
             
+            if (flattened != null) {
+                return LazyConcatString.build(flattened, (AbstractString) other);
+            }
+            
             if (other instanceof IndentedString) {
                 IndentedString o = (IndentedString) other;
-                
-                if (o.indent.equals(this.indent)) {
+
+                if (o.indent != null && o.wrapped != null && o.indent.equals(this.indent)) {
                     // we factor out the duplicate identical indentation which has two effects:
                     // (a) fewer indentation nodes and (b) longer indentation nodes because we
                     // generate directly nested indentation which is flattened/concatenated (see this.indent)
                     return LazyConcatString.build(this.wrapped, o.wrapped).indent(this.indent, indentFirstLine);
                 }
             }
+
             return LazyConcatString.build(this, (AbstractString) other);
         }
 
@@ -1271,13 +1290,11 @@ import io.usethesource.vallang.type.TypeFactory;
                 return this;
             }
             
-            if (flattened == null) {
-                // this special case flattens directly nested concats 
-                return new IndentedString(wrapped, indent.concat(this.indent), indentFirstLine);
-            }
-            else {
+            if (flattened != null) {
                 return new IndentedString(flattened, indent, indentFirstLine);
             }
+            
+            return new IndentedString(wrapped, indent.concat(this.indent), indentFirstLine);
         }
 
 
@@ -1336,12 +1353,6 @@ import io.usethesource.vallang.type.TypeFactory;
         private IString applyIndentation() {
             if (flattened == null) {
                 flattened = (AbstractString) newString(getValue());
-
-                // the following might help the GC, otherwise it's unnecessary.
-                // please do not move this code above the assignment to the `volatile flattened` field 
-                // because that would introduce a hard to debug race condition
-                wrapped = null;
-                indent = null;
             }
 
             return flattened;
@@ -1364,52 +1375,59 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public void write(Writer w) throws IOException {
-            if (flattened == null) {
-                Deque<IString> indents = new ArrayDeque<>(10);
-                indents.push(indent);
-                wrapped.indentedWrite(w, indents, indentFirstLine);
-                indents.pop();
-                assert indents.isEmpty();
-            }
-            else {
+            if (flattened != null){
                 flattened.write(w);
+                return;
             }
+            
+            Deque<IString> indents = new ArrayDeque<>(10);
+            indents.push(indent);
+            wrapped.indentedWrite(w, indents, indentFirstLine);
+            indents.pop();
+            assert indents.isEmpty();
         }
 
         @Override
         public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
-            if (flattened == null) {
-                // TODO: this concat on whitespace is worrying for longer files which consist of about 40% of indentation.
-                // for those files this concat is particular quadratic since the strings are short and they
-                // are copied over and over again.
-                whitespace.push(indent);
-                wrapped.indentedWrite(w, whitespace, indentFirstLine);
-                whitespace.pop();
-            }
-            else {
+            if (flattened != null) {
                 flattened.indentedWrite(w, whitespace, indentFirstLine);
+                return;
             }
+            
+            // TODO: this concat on whitespace is worrying for longer files which consist of about 40% of indentation.
+            // for those files this concat is particular quadratic since the strings are short and they
+            // are copied over and over again.
+            whitespace.push(indent);
+            wrapped.indentedWrite(w, whitespace, indentFirstLine);
+            whitespace.pop();
         }
 
         @Override
         public int length() {
-            if (flattened == null) {
-                // for every non-empty line an indent would be added to the total number of characters
-                return wrapped.length() + (wrapped.lineCount() - (indentFirstLine?0:1)) * indent.length();
-            }
-            else {
+            if (flattened != null) {
                 return flattened.length();
             }
+            
+            // for every non-empty line an indent would be added to the total number of characters
+            return wrapped.length() + (wrapped.lineCount() - (indentFirstLine?0:1)) * indent.length();
         }
 
         @Override
         public int lineCount() {
-            return flattened == null ? wrapped.lineCount() : flattened.lineCount();
+            if (flattened != null) {
+                return flattened.lineCount();
+            }
+            
+            return wrapped.lineCount();
         }
 
         @Override
         public boolean isNewlineTerminated() {
-            return flattened == null ? wrapped.isNewlineTerminated() : flattened.isNewlineTerminated();
+            if (flattened != null) {
+                return flattened.isNewlineTerminated();
+            }
+            
+            return wrapped.isNewlineTerminated();
         }
     }
 

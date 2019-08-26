@@ -15,8 +15,11 @@ package io.usethesource.vallang.io.binary.util;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MapLastWritten<T> implements TrackLastWritten<T> {
-    public static class IdentityWrapper<T> {
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+public class MapLastWritten<T extends @NonNull Object> implements TrackLastWritten<T> {
+    public static class IdentityWrapper<T extends @NonNull Object> {
         private final T wrapped;
         private final int hashCode;
         public IdentityWrapper(T wrapped) {
@@ -31,8 +34,8 @@ public class MapLastWritten<T> implements TrackLastWritten<T> {
 
         @Override
         @SuppressWarnings("unchecked")
-        public boolean equals(Object obj) {
-            return getClass().equals(obj.getClass()) && ((IdentityWrapper<T>)obj).wrapped == wrapped;
+        public boolean equals(@Nullable Object obj) {
+            return obj != null && getClass().equals(obj.getClass()) && ((IdentityWrapper<T>)obj).wrapped == wrapped;
         }
     }
     private final Map<IdentityWrapper<T>, Long> lookupData;

@@ -28,6 +28,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -66,12 +67,12 @@ public class WeakHashConsingMapTest {
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof FixedHashEquals) {
+        public boolean equals(@Nullable Object obj) {
+    if (obj instanceof FixedHashEquals) {
                 return ((FixedHashEquals)obj).hash == hash && ((FixedHashEquals)obj).equals == equals;
             }
             return false;
-        }
+}
 
         @Override
         public String toString() {

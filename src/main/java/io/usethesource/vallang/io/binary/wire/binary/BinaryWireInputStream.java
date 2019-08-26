@@ -19,6 +19,9 @@ import java.io.InputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.io.binary.util.ByteBufferInputStream;
 import io.usethesource.vallang.io.binary.util.TaggedInt;
@@ -29,7 +32,6 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 
 
 public class BinaryWireInputStream implements IWireInputStream {
-
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
     private final InputStream __stream;
     private final TrackLastRead<String> stringsRead;
@@ -38,12 +40,12 @@ public class BinaryWireInputStream implements IWireInputStream {
     private int messageID;
     private int fieldType;
     private int fieldID;
-    private String stringValue;
+    private @Nullable String stringValue;
     private int intValue;
-    private byte[] bytesValue;
+    private byte @Nullable [] bytesValue;
     private int nestedType;
-    private String[] stringValues;
-    private int[] intValues;
+    private String @Nullable [] stringValues;
+    private int @Nullable [] intValues;
     private int nestedLength;
 
     public BinaryWireInputStream(InputStream stream) throws IOException {
@@ -58,11 +60,11 @@ public class BinaryWireInputStream implements IWireInputStream {
             this.__stream = new BufferedInputStream(stream, bufferSize);
         }
         
-        byte[] header = readBytes(WIRE_VERSION.length);
+        byte[] header = readBytes(stream, WIRE_VERSION.length);
         if (!Arrays.equals(WIRE_VERSION, header)) {
             throw new IOException("Unsupported wire format");
         }
-        int stringReadSize = decodeInteger();
+        int stringReadSize = decodeInteger(__stream);
         this.stringsRead = WindowCacheFactory.getInstance().getTrackLastRead(stringReadSize);
     }
 
@@ -88,51 +90,60 @@ public class BinaryWireInputStream implements IWireInputStream {
     }
 
     private byte[] readBytes(int len) throws IOException {
+        return readBytes(__stream, len);        
+    }
+
+    private static byte[] readBytes(InputStream stream, int len) throws IOException, EOFException {
         byte[] result = new byte[len];
         
         int pos = 0;        
         while (pos < len) {
-            int read = __stream.read(result, pos, len - pos);
+            int read = stream.read(result, pos, len - pos);
             if (read == -1) {
                 throw new EOFException();
             }
             pos += read;
         }
         
-        return result;        
+        return result;
     }
+    
     /*
      * LEB128 decoding (or actually LEB32) of positive and negative integers, negative integers always use 5 bytes, positive integers are compact.
      */
-    private int decodeInteger() throws IOException {
+    private int decodeInteger()  throws IOException {
+        return decodeInteger(__stream);
+    }
+    
+    private static int decodeInteger(InputStream stream) throws IOException {
         try {
             // manually unrolling the loop was the fastest for reading, yet not for writing
-            byte b = (byte) __stream.read();
+            byte b = (byte) stream.read();
             if ((b & 0x80) == 0) {
                 return b;
             }
 
             int result = b & 0x7F;
 
-            b = (byte) __stream.read();
+            b = (byte) stream.read();
             result ^= ((b & 0x7F) << 7);
             if ((b & 0x80) == 0) {
                 return result;
             }
 
-            b = (byte) __stream.read();
+            b = (byte) stream.read();
             result ^= ((b & 0x7F) << 14);
             if ((b & 0x80) == 0) {
                 return result;
             }
 
-            b = (byte) __stream.read();
+            b = (byte) stream.read();
             result ^= ((b & 0x7F) << 21);
             if ((b & 0x80) == 0) {
                 return result;
             }
 
-            b = (byte) __stream.read();
+            b = (byte) stream.read();
             result ^= ((b & 0x7F) << 28);
             if ((b & 0x80) == 0) {
                 return result;
@@ -267,14 +278,14 @@ public class BinaryWireInputStream implements IWireInputStream {
     @Override
     public String getString() {
         assert fieldType == FieldKind.STRING;
-        return stringValue;
+        return Objects.requireNonNull(stringValue);
     }
     
     
     @Override
     public byte[] getBytes() {
         assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.Repeated.BYTES;
-        return bytesValue;
+        return Objects.requireNonNull(bytesValue);
     }
     
     @Override
@@ -298,13 +309,13 @@ public class BinaryWireInputStream implements IWireInputStream {
     @Override
     public String[] getStrings() {
         assert getRepeatedType() == FieldKind.Repeated.STRINGS;
-        return stringValues;
+        return Objects.requireNonNull(stringValues);
     }
     
     @Override
     public int[] getIntegers() {
         assert getRepeatedType() == FieldKind.Repeated.INTS;
-        return intValues;
+        return Objects.requireNonNull(intValues);
     }
     
     @Override

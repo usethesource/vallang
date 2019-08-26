@@ -1,10 +1,13 @@
 package io.usethesource.vallang.impl.persistent;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWriter;
-import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
+import io.usethesource.vallang.util.ValueEqualsWrapper;
 
 public class ListRelation implements IRelation<IList> {
     private final IList list;
@@ -27,14 +30,15 @@ public class ListRelation implements IRelation<IList> {
 
         int prevCount = 0;
 
-        ShareableValuesHashSet addedTuples = new ShareableValuesHashSet();
+        Set<ValueEqualsWrapper> addedTuples = new HashSet<>();
         while (prevCount != tmp.asContainer().length()) {
             prevCount = tmp.asContainer().length();
             IList tcomp = tmp.compose(tmp);
             IWriter<IList> w = writer();
             for (IValue t1 : tcomp) {
-                if (!tmp.asContainer().contains(t1) && !addedTuples.contains(t1)) {
-                    addedTuples.add(t1);
+                ValueEqualsWrapper w1 = new ValueEqualsWrapper(t1);
+                if (!tmp.asContainer().contains(t1) && !addedTuples.contains(w1)) {
+                    addedTuples.add(w1);
                     w.append(t1);
                 }
             }
