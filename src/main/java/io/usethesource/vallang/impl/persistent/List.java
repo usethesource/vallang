@@ -244,7 +244,9 @@ import io.usethesource.vallang.type.TypeFactory;
             if (otherList instanceof List) {
                 List oList = (List) o;
 
-                if (hashCode != oList.hashCode) return false;
+                if (hashCode() != oList.hashCode()) {
+                    return false;
+                }
 
                 return data.equals(oList.data);
             }
