@@ -12,6 +12,8 @@
  */ 
 package io.usethesource.vallang.io.binary.stream;
 
+import io.usethesource.vallang.io.binary.stream.Header.Compression;
+import io.usethesource.vallang.io.binary.wire.xml.XMLWireOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -53,7 +55,8 @@ public class IValueOutputStream implements Closeable {
         Light(Header.Compression.ZSTD, 1),
         Normal(Header.Compression.ZSTD, 5),
         Strong(Header.Compression.ZSTD, 13),
-        Extreme(Header.Compression.XZ, 6), 
+        Extreme(Header.Compression.XZ, 6),
+        XML(Compression.NONE, 0)
         ;
 
         private final int compressionAlgorithm;
@@ -112,6 +115,9 @@ public class IValueOutputStream implements Closeable {
     }
 
     private IWireOutputStream initializeWriter(WindowSizes sizes) throws IOException {
+        if (compression == CompressionRate.XML) {
+            return new XMLWireOutputStream(rawStream);
+        }
         if (sizes == WindowSizes.NO_WINDOW || sizes == WindowSizes.TINY_WINDOW) {
             compression = CompressionRate.None;
         }
