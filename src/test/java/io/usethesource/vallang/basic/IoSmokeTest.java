@@ -25,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ExpectedType;
+import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -61,8 +62,20 @@ public class IoSmokeTest extends BooleanStoreProvider {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRegression40(IValueFactory vf, TypeStore store) throws FactTypeUseException, IOException {
-        IConstructor t = (IConstructor) new StandardTextReader().read(vf, store, Boolean, new StringReader("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\false()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\false())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)"));
+    public void testRegression40(IValueFactory vf, TypeStore store, 
+            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
+            @ExpectedType("Boolean") 
+            IConstructor t) throws FactTypeUseException, IOException {
+        // this produced: AssertionFailed: Constructor was missing type
+        testSerializable(vf, t);
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression40_2(IValueFactory vf, TypeStore store, 
+            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
+            @ExpectedType("Boolean") 
+            IConstructor t) throws FactTypeUseException, IOException {
+     // this produced: AssertionError for this assert:  'assert current == MESSAGE_START;' in BinaryWiredInputStream.message
         testSerializable(vf, t);
     }
 
