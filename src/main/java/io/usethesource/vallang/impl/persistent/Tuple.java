@@ -23,7 +23,6 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ class Tuple implements ITuple{
-	
 	protected static final TypeFactory typeFactory = TypeFactory.getInstance();
 	private @MonotonicNonNull Type cachedTupleType;
 	protected final IValue[] elements;
@@ -175,6 +174,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		if (o.getClass() == getClass()) {
 			Tuple otherTuple = (Tuple) o;
 
+			if (getType() != otherTuple.getType()) {
+			    return false;
+			    
+			}
+			
 			IValue[] otherElements = otherTuple.elements;
 			int nrOfElements = elements.length;
 			if (otherElements.length == nrOfElements) {
@@ -201,8 +205,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         if (value instanceof Tuple) {
             Tuple otherTuple = (Tuple) value;
 
-            if (!getType().comparable(otherTuple.getType()))
+            if (getType() != otherTuple.getType()) {
                 return false;
+            }
 
             IValue[] otherElements = otherTuple.elements;
             int nrOfElements = elements.length;

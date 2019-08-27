@@ -23,7 +23,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class Tuple  implements ITuple {
-
 	protected final Type fType;
 	protected final IValue[] fElements;
 
@@ -90,7 +89,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		} else if (getClass() == o.getClass()) {
 			Tuple peer = (Tuple) o;
 
-			if (!fType.comparable(peer.fType)) {
+			if (fType != peer.fType) {
 				return false;
 			}
 

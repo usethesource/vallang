@@ -47,6 +47,7 @@ public class IoSmokeTest extends BooleanStoreProvider {
             SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
             v.write(buf);
+            
             SerializableValue<IValue> w =
                     SerializableValue.<IValue>read(new ByteArrayInputStream(buf.toByteArray()));
 
@@ -115,7 +116,6 @@ public class IoSmokeTest extends BooleanStoreProvider {
 
             assertEquals(result, cons);
         }
-
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -131,27 +131,21 @@ public class IoSmokeTest extends BooleanStoreProvider {
         IValue vv = reader.read(vf, new StringReader("\"f\"(\"a b c\", x=1)"));
         assertEquals(vv, vf.node("f", vf.string("a b c")).asWithKeywordParameters().setParameter("x", vf.integer(1)));
 
-        //      System.err.println(vf.constructor(True).asWithKeywordParameters().setParameter("x", vf.integer(1)));
         IValue vvv = reader.read(vf, store, Boolean, new StringReader("\\true(x=1)"));
         assertEquals(vvv, vf.constructor(True).asWithKeywordParameters().setParameter("x", vf.integer(1)));
 
         IValue r = reader.read(vf, new StringReader("[1.7976931348623157E+308]"));
-        System.err.println(r);
         assertEquals(r, vf.list(vf.real("1.7976931348623157E+308")));
 
         IValue m = reader.read(vf, new StringReader("()"));
-        System.err.println(m);
         assertEquals(m, vf.mapWriter().done());
 
         IValue t = reader.read(vf, new StringReader("<()>"));
-        System.err.println(t);
         assertEquals(t, vf.tuple(vf.mapWriter().done()));
 
         StringWriter w = new StringWriter();
         new StandardTextWriter().write(vf.tuple(), w);
         IValue u = reader.read(vf, new StringReader(w.toString()));
-        System.err.println(u);
         assertEquals(u, vf.tuple());
     }
-
 }

@@ -405,7 +405,7 @@ public class IValueReader {
                     }
                 }
 
-                if(fieldNames.length != 0){
+                if (fieldNames.length != 0){
                     assert fieldNames.length == elemTypes.length;
                     return returnAndStore(backReference, typeWindow, tf.tupleType(elemTypes, fieldNames));
                 } else {
@@ -426,7 +426,7 @@ public class IValueReader {
                     }
                 }
                 if (n == -1) {
-                    throw new IOException("Missing HOW_LOG_AGO field in PreviousType");
+                    throw new IOException("Missing HOW_LONG_AGO field in PreviousType");
                 }
 
                 return typeWindow.lookBack(n);

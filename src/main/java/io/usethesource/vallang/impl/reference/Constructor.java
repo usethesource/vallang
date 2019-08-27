@@ -101,7 +101,7 @@ public class Constructor extends Node implements IConstructor {
 
     @Override
     public boolean equals(@Nullable Object obj) {
-    if(this == obj) {
+        if (this == obj) {
             return true;
         }
         else if(obj == null) {
@@ -109,10 +109,11 @@ public class Constructor extends Node implements IConstructor {
         }
         else if (getClass() == obj.getClass()) {
             Constructor other = (Constructor) obj;
-            return fType.comparable(other.fType) && super.equals(obj);
+            return fType == other.fType && super.equals(obj);
         }
+        
         return false;
-}
+    }
 
     @Override
     public int hashCode() {
