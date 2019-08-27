@@ -34,7 +34,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
     protected final ShareableValuesList data;
 
-    protected int hashCode = 0;
+    protected int hashCode = -1;
 
     /*package*/ static IList newList(Type elementType, ShareableValuesList data) {
         return new List(elementType, data);
@@ -213,7 +213,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
     public int hashCode(){
-        if (hashCode == 0) {
+        if (hashCode == -1) {
             hashCode = data.hashCode();
         }
         return hashCode;

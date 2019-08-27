@@ -429,7 +429,6 @@ public interface IList extends ICollection<IList> {
                 final Iterator<IValue> it2 = list2.iterator();
 
                 while (it1.hasNext() && it2.hasNext()) {
-                    // call to Object.equals(Object)
                     if (!it1.next().equals(it2.next())) {
                         return false;
                     }
@@ -481,6 +480,4 @@ public interface IList extends ICollection<IList> {
             }
         };
     }
-    
-   
 }

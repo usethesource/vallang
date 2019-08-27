@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -56,7 +57,7 @@ public class IoSmokeTest extends BooleanStoreProvider {
         catch (IOException e) {
             System.err.println("serialization test failed: " + e.getMessage());
             e.printStackTrace();
-            System.err.println("(Boolean) value was: " + t);
+            new StandardTextWriter(true).write(t, new PrintWriter(System.err));
             fail(e.getMessage());
         }
     }
@@ -66,6 +67,7 @@ public class IoSmokeTest extends BooleanStoreProvider {
             @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
             @ExpectedType("Boolean") 
             IConstructor t) throws FactTypeUseException, IOException {
+
         // this produced: AssertionFailed: Constructor was missing type
         testSerializable(vf, t);
     }
@@ -75,7 +77,8 @@ public class IoSmokeTest extends BooleanStoreProvider {
             @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
             @ExpectedType("Boolean") 
             IConstructor t) throws FactTypeUseException, IOException {
-     // this produced: AssertionError for this assert:  'assert current == MESSAGE_START;' in BinaryWiredInputStream.message
+
+        // this produced: AssertionError for this assert:  'assert current == MESSAGE_START;' in BinaryWiredInputStream.message
         testSerializable(vf, t);
     }
 
