@@ -73,16 +73,6 @@ public class ReferenceStructuredIValueVisitor {
             }
 
             @Override
-            public Void visitRelation(ISet o) throws E {
-                return visitSet(o);
-            }
-
-            @Override
-            public Void visitListRelation(IList o) throws E {
-                return visitList(o);
-            }
-
-            @Override
             public Void visitSet(ISet o) throws E {
                 if (visit.enterSet(o, o.size())) {
                     List<IValue> reversedSet = new ArrayList<>();

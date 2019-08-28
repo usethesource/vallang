@@ -242,19 +242,6 @@ public class StacklessStructuredVisitor {
                 visit.visitRational(o);
                 return null;
             }
-
-            @Override
-            public Void visitRelation(ISet o) throws E {
-                return visitSet(o);
-            }
-
-            @Override
-            public Void visitListRelation(IList o) throws E {
-                return visitList(o);
-            }
         });
-        
     }
-    
-    
 }

@@ -63,20 +63,24 @@ public class ATermWriter implements IValueTextWriter {
 		  stream.write(c);
 		}
 		
+		@Override
 		public IValue visitBoolean(IBool boolValue) throws IOException {
 			append(boolValue.getStringRepresentation());
 			return boolValue;
 		}
 
+		@Override
 		public IValue visitConstructor(IConstructor o) throws IOException {
 			return visitNode(o);
 		}
 
+		@Override
 		public IValue visitReal(IReal o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
 		}
 
+		@Override
 		public IValue visitInteger(IInteger o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
@@ -84,6 +88,7 @@ public class ATermWriter implements IValueTextWriter {
 
 		// TODO: There probably isn't a good ATerm repr of rationals,
 		// what should we do here?
+		@Override
 		public IValue visitRational(IRational o) throws IOException {
 			append("rat");
 			append('(');
@@ -94,6 +99,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 		
+		@Override
 		public IValue visitList(IList o) throws IOException {
 			append('[');
 			
@@ -112,6 +118,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
+		@Override
 		public IValue visitMap(IMap o) throws IOException {
 			append('[');
 		
@@ -141,6 +148,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
+		@Override
         public IValue visitNode(INode o) throws IOException {
 			String name = o.getName();
 			
@@ -175,10 +183,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitRelation(ISet o) throws IOException {
-			return visitSet(o);
-		}
-
+        @Override
 		public IValue visitSet(ISet o) throws IOException {
 			append('[');
 			
@@ -196,6 +201,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
+        @Override
 		public IValue visitSourceLocation(ISourceLocation o)
 				throws IOException {
 			append("loc(");
@@ -212,6 +218,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
+        @Override
 		public IValue visitString(IString o) throws IOException {
 			// TODO optimize this implementation and finish all escapes
 			append('\"');
@@ -220,6 +227,7 @@ public class ATermWriter implements IValueTextWriter {
 		    return o;
 		}
 
+        @Override
 		public IValue visitTuple(ITuple o) throws IOException {
 			 append('(');
 			 
@@ -238,11 +246,13 @@ public class ATermWriter implements IValueTextWriter {
 			 return o;
 		}
 
+        @Override
 		public IValue visitExternal(IExternalValue externalValue) {
 			// ignore external values
 			return externalValue;
 		}
 
+        @Override
 		public IValue visitDateTime(IDateTime o) throws IOException {
 			append("$");
 			if (o.isDate()) {
@@ -258,12 +268,5 @@ public class ATermWriter implements IValueTextWriter {
 			}
 			return o;
 		}
-
-		public IValue visitListRelation(IList o)
-				throws IOException {
-			visitList(o);
-			return o;
-		}
 	}
-
 }
