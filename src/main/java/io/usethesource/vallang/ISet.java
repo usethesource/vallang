@@ -251,22 +251,10 @@ public interface ISet extends ICollection<ISet> {
             }
 
             if (size() == set2.size()) {
-                outer:for (IValue v1 : this) {
-                    
-                    // the extra loop might seem weird but due to the (deprecated)
-                    // semantics of node annotations we must check each element
-                    // for _deep_ equality. This is a big source of inefficiency
-                    // and one of the reasons why the semantics of annotations is
-                    // deprecated for "keyword parameters".
-                    
-                    for (IValue v2 : set2) {
-                        if (v2.equals(v1)) {
-                            continue outer;
-                        }
+                for (IValue v1 : this) {
+                    if (!set2.contains(v1)) {
+                        return false;
                     }
-                    
-                    // v1 is not found in set2
-                    return false;
                 }
 
                 return true;
