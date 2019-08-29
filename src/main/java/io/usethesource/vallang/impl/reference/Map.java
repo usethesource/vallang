@@ -74,14 +74,7 @@ import io.usethesource.vallang.type.Type;
 
 	@Override
 	public @Nullable IValue get(IValue key) {
-	    // see how we can't use the hash tabel due to the semantics of isEqual
-	    for (Entry<IValue,IValue> entry : content.entrySet()) {
-	        if (key.equals(entry.getKey())) {
-	            return entry.getValue();
-	        }
-	    }
-
-	    return null;
+	    return content.get(key);
 	}
 
 	@Override
