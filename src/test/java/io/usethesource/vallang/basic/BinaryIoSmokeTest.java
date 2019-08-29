@@ -98,7 +98,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testRegression42(IValueFactory vf, TypeStore store) {
         try {
-            IValue val = new StandardTextReader().read(vf, new InputStreamReader(getClass().getResourceAsStream("hugeFailingFile1.txt")));
+            IValue val = new StandardTextReader().read(vf, new InputStreamReader(getClass().getResourceAsStream("/hugeFailingFile1.txt")));
             
             BottomUpStreamer.stream(val).forEach(v -> {
                 try {
