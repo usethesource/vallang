@@ -131,35 +131,35 @@ public class ValueStreams  {
         @Override
         public Stream<IValue> visitNode(INode o) {
             return Stream.concat(
-                    StreamSupport.stream(o.getChildren().spliterator(), false),
+                    StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this)),
                     Stream.of(o));
         }
 
         @Override
         public Stream<IValue> visitList(IList o)  {
             return Stream.concat(
-                    o.stream(),
+                    o.stream().flatMap(c -> c.accept(this)),
                     Stream.of(o));
         }
 
         @Override
         public Stream<IValue> visitSet(ISet o)  {
             return Stream.concat(
-                    o.stream(),
+                    o.stream().flatMap(c -> c.accept(this)),
                     Stream.of(o));
         }
 
         @Override
         public Stream<IValue> visitTuple(ITuple o)  {
             return Stream.concat(
-                    StreamSupport.stream(o.spliterator(), false),
+                    StreamSupport.stream(o.spliterator(), false).flatMap(c -> c.accept(this)),
                     Stream.of(o));
         }
 
         @Override
         public Stream<IValue> visitConstructor(IConstructor o)  {
             return Stream.concat(
-                    StreamSupport.stream(o.getChildren().spliterator(), false),
+                    StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this)),
                     Stream.of(o));
         }
 
@@ -169,7 +169,7 @@ public class ValueStreams  {
 
             return Stream.concat(
                     StreamSupport.stream(it.spliterator(), false).flatMap(e -> {
-                        return Stream.of(e.getKey(), e.getValue());
+                        return Stream.of(e.getKey(), e.getValue()).flatMap(c -> c.accept(this));
                     }),
                     Stream.of(o));
         }
@@ -179,28 +179,28 @@ public class ValueStreams  {
         @Override
         public Stream<IValue> visitNode(INode o) {
             return Stream.concat(Stream.of(o),
-                    StreamSupport.stream(o.getChildren().spliterator(), false)
+                    StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this))
                     );
         }
     
         @Override
         public Stream<IValue> visitList(IList o)  {
             return Stream.concat(Stream.of(o),
-                    o.stream()
+                    o.stream().flatMap(c -> c.accept(this))
                     );
         }
     
         @Override
         public Stream<IValue> visitSet(ISet o)  {
             return Stream.concat(Stream.of(o),
-                    o.stream()
+                    o.stream().flatMap(c -> c.accept(this))
                     );
         }
     
         @Override
         public Stream<IValue> visitTuple(ITuple o)  {
             return Stream.concat(Stream.of(o),
-                    StreamSupport.stream(o.spliterator(), false)
+                    StreamSupport.stream(o.spliterator(), false).flatMap(c -> c.accept(this))
                     );
         }
     
@@ -217,7 +217,7 @@ public class ValueStreams  {
     
             return Stream.concat(Stream.of(o),
                     StreamSupport.stream(it.spliterator(), false).flatMap(e -> {
-                        return Stream.of(e.getKey(), e.getValue());
+                        return Stream.of(e.getKey(), e.getValue()).flatMap(c -> c.accept(this));
                     })
                     );
         }
@@ -226,27 +226,27 @@ public class ValueStreams  {
     private static class Leafs extends Single {
         @Override
         public Stream<IValue> visitNode(INode o) {
-            return StreamSupport.stream(o.getChildren().spliterator(), false);
+            return StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this));
         }
     
         @Override
         public Stream<IValue> visitList(IList o)  {
-            return o.stream();
+            return o.stream().flatMap(c -> c.accept(this));
         }
     
         @Override
         public Stream<IValue> visitSet(ISet o)  {
-            return o.stream();
+            return o.stream().flatMap(c -> c.accept(this));
         }
     
         @Override
         public Stream<IValue> visitTuple(ITuple o)  {
-            return StreamSupport.stream(o.spliterator(), false);
+            return StreamSupport.stream(o.spliterator(), false).flatMap(c -> c.accept(this));
         }
     
         @Override
         public Stream<IValue> visitConstructor(IConstructor o)  {
-            return StreamSupport.stream(o.getChildren().spliterator(), false);
+            return StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this));
         }
     
         @Override
@@ -254,7 +254,7 @@ public class ValueStreams  {
             Iterable<Entry<IValue,IValue>> it = (Iterable<Entry<IValue,IValue>>) () -> o.entryIterator();
     
             return StreamSupport.stream(it.spliterator(), false).flatMap(e -> {
-                return Stream.of(e.getKey(), e.getValue());
+                return Stream.of(e.getKey(), e.getValue()).flatMap(c -> c.accept(this));
             });
         }
     }
