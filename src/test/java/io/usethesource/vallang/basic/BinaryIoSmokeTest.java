@@ -84,9 +84,8 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         try {
             IValue val = new StandardTextReader().read(vf, new InputStreamReader(getClass().getResourceAsStream("/hugeFailingFile1.txt")));
             
-            ValueStreams.leaves(val).forEach(v -> {
+            ValueStreams.bottomup(val).forEach(v -> {
                 try {
-                    System.err.println(v);
                     ioRoundTrip(vf, store, v, 0);
                 } catch (IOException e) {
                     fail();
@@ -216,13 +215,13 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
-//    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-//    public void testDeepRandomValuesIO(IValueFactory vf) throws IOException {
-//        Random r = new Random();
-//        int seed = r.nextInt();
-//
-//        testDeepRandomValuesIO(seed, vf);
-//    }
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testDeepRandomValuesIO(IValueFactory vf) throws IOException {
+        Random r = new Random();
+        int seed = r.nextInt();
+
+        testDeepRandomValuesIO(seed, vf);
+    }
 
     private void testDeepRandomValuesIO(int seed, IValueFactory vf) throws IOException {
         TypeFactory tf = TypeFactory.getInstance();
@@ -235,10 +234,10 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
-//    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-//    public void testDeepRandomValuesIORegressions(IValueFactory vf) throws IOException {
-//        testDeepRandomValuesIO(1544959898, vf);
-//    }
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testDeepRandomValuesIORegressions(IValueFactory vf) throws IOException {
+        testDeepRandomValuesIO(1544959898, vf);
+    }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testOldFilesStillSupported(IValueFactory vf) throws IOException {
