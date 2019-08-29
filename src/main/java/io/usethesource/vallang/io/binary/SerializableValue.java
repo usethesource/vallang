@@ -93,7 +93,11 @@ public class SerializableValue<T extends IValue> implements Serializable {
       int amountOfBytes = in.readInt();
       in.read(); // ':'
       byte[] bytes = new byte[amountOfBytes];
-      in.read(bytes);
+      int read;
+      int offset = 0;
+      while ((read = in.read(bytes, offset, amountOfBytes - offset)) != -1 && offset < amountOfBytes) {
+          offset += read;
+      }
 
       final Class<?> clazz = Objects.requireNonNull(getClass().getClassLoader()).loadClass(new String(factoryName, "UTF8"));
       @SuppressWarnings("nullness") // CF cannot "handle" the null that goes into the invoke, see: https://github.com/typetools/checker-framework/issues/1365
