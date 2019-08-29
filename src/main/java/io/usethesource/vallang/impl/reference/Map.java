@@ -22,7 +22,9 @@ import java.util.Map.Entry;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -51,6 +53,8 @@ import io.usethesource.vallang.type.Type;
 	}
 	
 	@Override
+	@EnsuresNonNullIf(expression="get(#1)", result=true)
+	@SuppressWarnings({"contracts.conditional.postcondition.not.satisfied", "contracts.conditional.postcondition.true.override.invalid"})
 	public boolean containsKey(IValue key) {
 	    return content.containsKey(key);
 	}
@@ -73,6 +77,7 @@ import io.usethesource.vallang.type.Type;
 	}
 
 	@Override
+	@Pure
 	public @Nullable IValue get(IValue key) {
 	    return content.get(key);
 	}
