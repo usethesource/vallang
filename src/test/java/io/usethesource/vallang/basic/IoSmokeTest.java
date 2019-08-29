@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -25,6 +26,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ExpectedType;
+import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -41,15 +43,44 @@ public class IoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testSerializable(IValueFactory vf, @ExpectedType("Boolean") IConstructor t) throws IOException {
-        SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        v.write(buf);
-        SerializableValue<IValue> w =
-                SerializableValue.<IValue>read(new ByteArrayInputStream(buf.toByteArray()));
+        try {
+            SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            v.write(buf);
+            
+            SerializableValue<IValue> w =
+                    SerializableValue.<IValue>read(new ByteArrayInputStream(buf.toByteArray()));
 
-        if (!v.getValue().isEqual(w.getValue())) {
-            fail();
+            if (!v.getValue().equals(w.getValue())) {
+                fail();
+            }
         }
+        catch (IOException e) {
+            System.err.println("serialization test failed: " + e.getMessage());
+            e.printStackTrace();
+            new StandardTextWriter(true).write(t, new PrintWriter(System.err));
+            fail(e.getMessage());
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression40(IValueFactory vf, TypeStore store, 
+            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
+            @ExpectedType("Boolean") 
+            IConstructor t) throws FactTypeUseException, IOException {
+
+        // this produced: AssertionFailed: Constructor was missing type
+        testSerializable(vf, t);
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression40_2(IValueFactory vf, TypeStore store, 
+            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
+            @ExpectedType("Boolean") 
+            IConstructor t) throws FactTypeUseException, IOException {
+
+        // this produced: AssertionError for this assert:  'assert current == MESSAGE_START;' in BinaryWiredInputStream.message
+        testSerializable(vf, t);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -85,7 +116,6 @@ public class IoSmokeTest extends BooleanStoreProvider {
 
             assertEquals(result, cons);
         }
-
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -101,27 +131,21 @@ public class IoSmokeTest extends BooleanStoreProvider {
         IValue vv = reader.read(vf, new StringReader("\"f\"(\"a b c\", x=1)"));
         assertEquals(vv, vf.node("f", vf.string("a b c")).asWithKeywordParameters().setParameter("x", vf.integer(1)));
 
-        //      System.err.println(vf.constructor(True).asWithKeywordParameters().setParameter("x", vf.integer(1)));
         IValue vvv = reader.read(vf, store, Boolean, new StringReader("\\true(x=1)"));
         assertEquals(vvv, vf.constructor(True).asWithKeywordParameters().setParameter("x", vf.integer(1)));
 
         IValue r = reader.read(vf, new StringReader("[1.7976931348623157E+308]"));
-        System.err.println(r);
         assertEquals(r, vf.list(vf.real("1.7976931348623157E+308")));
 
         IValue m = reader.read(vf, new StringReader("()"));
-        System.err.println(m);
         assertEquals(m, vf.mapWriter().done());
 
         IValue t = reader.read(vf, new StringReader("<()>"));
-        System.err.println(t);
         assertEquals(t, vf.tuple(vf.mapWriter().done()));
 
         StringWriter w = new StringWriter();
         new StandardTextWriter().write(vf.tuple(), w);
         IValue u = reader.read(vf, new StringReader(w.toString()));
-        System.err.println(u);
         assertEquals(u, vf.tuple());
     }
-
 }
