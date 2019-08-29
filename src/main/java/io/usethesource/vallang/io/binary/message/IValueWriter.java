@@ -111,7 +111,7 @@ public class IValueWriter {
         type.accept(new ITypeVisitor<Void, IOException>() {
 
             private boolean writeFromCache(Type type) throws IOException {
-                int lastSeen = typeCache.howLongAgo(type);
+                int lastSeen = typeCache.howLongAgo(type); 
                 if (lastSeen != -1) { 
                     writeSingleValueMessage(writer, IValueIDs.PreviousType.ID, IValueIDs.PreviousType.HOW_LONG_AGO, lastSeen);
                     return true;
@@ -449,7 +449,6 @@ public class IValueWriter {
                 writer.endMessage();
             }
 
-
             @Override
             public boolean enterList(IList lst, int children) throws IOException {
                 if (writeFromCache(lst)) {
@@ -626,5 +625,4 @@ public class IValueWriter {
             }
         });
     }
-
 }
