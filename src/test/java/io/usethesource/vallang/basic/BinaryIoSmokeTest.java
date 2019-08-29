@@ -32,8 +32,21 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.GivenValue;
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IDateTime;
+import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
@@ -54,6 +67,9 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
+import io.usethesource.vallang.visitors.BottomUpStreamer;
+import io.usethesource.vallang.visitors.BottomUpVisitor;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
  * @author Arnold Lankamp
@@ -83,7 +99,16 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     public void testRegression42(IValueFactory vf, TypeStore store) {
         try {
             IValue val = new StandardTextReader().read(vf, new InputStreamReader(getClass().getResourceAsStream("hugeFailingFile1.txt")));
-            ioRoundTrip(vf, store, val, 0);
+            
+            BottomUpStreamer.stream(val).forEach(v -> {
+                try {
+                    ioRoundTrip(vf, store, v, 0);
+                } catch (IOException e) {
+                    fail();
+                }
+            });
+            
+            
         } catch (FactTypeUseException | IOException e) {
             fail();
         }
