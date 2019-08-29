@@ -13,10 +13,7 @@
 package io.usethesource.vallang.basic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -25,8 +22,6 @@ import java.io.StringWriter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
-import io.usethesource.vallang.ExpectedType;
-import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -34,54 +29,11 @@ import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
-import io.usethesource.vallang.io.binary.SerializableValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class IoSmokeTest extends BooleanStoreProvider {
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testSerializable(IValueFactory vf, @ExpectedType("Boolean") IConstructor t) throws IOException {
-        try {
-            SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
-            ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            v.write(buf);
-            
-            SerializableValue<IValue> w =
-                    SerializableValue.<IValue>read(new ByteArrayInputStream(buf.toByteArray()));
-
-            if (!v.getValue().equals(w.getValue())) {
-                fail();
-            }
-        }
-        catch (IOException e) {
-            System.err.println("serialization test failed: " + e.getMessage());
-            e.printStackTrace();
-            new StandardTextWriter(true).write(t, new PrintWriter(System.err));
-            fail(e.getMessage());
-        }
-    }
-    
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRegression40(IValueFactory vf, TypeStore store, 
-            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
-            @ExpectedType("Boolean") 
-            IConstructor t) throws FactTypeUseException, IOException {
-
-        // this produced: AssertionFailed: Constructor was missing type
-        testSerializable(vf, t);
-    }
-    
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRegression40_2(IValueFactory vf, TypeStore store, 
-            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
-            @ExpectedType("Boolean") 
-            IConstructor t) throws FactTypeUseException, IOException {
-
-        // this produced: AssertionError for this assert:  'assert current == MESSAGE_START;' in BinaryWiredInputStream.message
-        testSerializable(vf, t);
-    }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testToString(IValueFactory vf) throws FactTypeUseException, IOException {

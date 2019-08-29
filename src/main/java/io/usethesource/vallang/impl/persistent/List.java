@@ -30,7 +30,6 @@ import io.usethesource.vallang.type.TypeFactory;
     protected static final Type voidType = typeFactory.voidType();
 
     protected final Type listType;
-    protected final Type elementType;
 
     protected final ShareableValuesList data;
 
@@ -43,15 +42,8 @@ import io.usethesource.vallang.type.TypeFactory;
     private List(Type elementType, ShareableValuesList data){
         super();
 
-        if (data.isEmpty())
-            this.elementType = voidType;
-        else
-            this.elementType = elementType;		
-
-        this.listType = typeFactory.listType(this.elementType);
-
+        this.listType = typeFactory.listType(elementType);
         this.data = data;
-
     }
 
     @Override
@@ -104,7 +96,7 @@ import io.usethesource.vallang.type.TypeFactory;
         ShareableValuesList newData = new ShareableValuesList(data);
         newData.append(element);
 
-        Type newElementType = elementType.lub(element.getType());
+        Type newElementType = getType().getElementType().lub(element.getType());
         return new ListWriter(newElementType, newData).done();
     }
 
@@ -116,7 +108,7 @@ import io.usethesource.vallang.type.TypeFactory;
             newData.append(otherIterator.next());
         }
 
-        Type newElementType = elementType.lub(other.getElementType());
+        Type newElementType = getType().getElementType().lub(other.getElementType());
         return new ListWriter(newElementType, newData).done();
     }
 
@@ -125,7 +117,7 @@ import io.usethesource.vallang.type.TypeFactory;
         ShareableValuesList newData = new ShareableValuesList(data);
         newData.insert(element);
 
-        Type newElementType = elementType.lub(element.getType());
+        Type newElementType = getType().getElementType().lub(element.getType());
         return new ListWriter(newElementType, newData).done();
     }
 
@@ -134,7 +126,7 @@ import io.usethesource.vallang.type.TypeFactory;
         ShareableValuesList newData = new ShareableValuesList(data);
         newData.set(index, element);
 
-        Type newElementType = elementType.lub(element.getType());
+        Type newElementType = getType().getElementType().lub(element.getType());
         return new ListWriter(newElementType, newData).done();
     }
 
@@ -172,7 +164,7 @@ import io.usethesource.vallang.type.TypeFactory;
         ShareableValuesList newData = new ShareableValuesList(data);
         newData.reverse();
 
-        return new ListWriter(elementType, newData).done();
+        return new ListWriter(getType().getElementType(), newData).done();
     }
 
     @Override
@@ -184,7 +176,7 @@ import io.usethesource.vallang.type.TypeFactory;
             // we use the stack as tmp variable :)
             newData.set(i, newData.set(rand.nextInt(i + 1), newData.get(i)));
         }
-        return new ListWriter(elementType, newData).done();
+        return new ListWriter(getType().getElementType(), newData).done();
     }
 
     @Override
@@ -198,9 +190,11 @@ import io.usethesource.vallang.type.TypeFactory;
     IList materializedSublist(int offset, int length){
         ShareableValuesList newData = data.subList(offset, length);
 
+        Type oldElementType = getType().getElementType();
         Type newElementType = TypeFactory.getInstance().voidType();
+        
         for(IValue el : newData) {
-            if (newElementType.equals(this.elementType)) {
+            if (newElementType == oldElementType) {
                 // the type can only get more specific
                 // once we've reached the type of the whole list, we can stop lubbing.
                 break;
