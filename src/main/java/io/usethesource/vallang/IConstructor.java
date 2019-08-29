@@ -100,8 +100,7 @@ public interface IConstructor extends INode {
 	    if (value instanceof IConstructor){
 	        IConstructor otherTree = (IConstructor) value;
 
-	        // TODO: if types are canonical, this can be ==
-	        if(!getConstructorType().comparable(otherTree.getConstructorType())) {
+	        if (getConstructorType() != otherTree.getConstructorType()) {
 	            return false;
 	        }
 

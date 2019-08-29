@@ -96,8 +96,7 @@ public interface ITuple extends Iterable<IValue>, IValue {
         } else if (o instanceof ITuple) {
             ITuple peer = (ITuple) o;
 
-            // TODO: if types become canonical, this can be ==
-            if (!getType().comparable(peer.getType())) {
+            if (getType() != peer.getType()) {
                 return false;
             }
 
