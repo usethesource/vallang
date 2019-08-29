@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
@@ -32,21 +31,8 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.GivenValue;
-import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IDateTime;
-import io.usethesource.vallang.IExternalValue;
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.INode;
-import io.usethesource.vallang.IRational;
-import io.usethesource.vallang.IReal;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
@@ -67,9 +53,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
-import io.usethesource.vallang.visitors.BottomUpStreamer;
-import io.usethesource.vallang.visitors.BottomUpVisitor;
-import io.usethesource.vallang.visitors.IValueVisitor;
+import io.usethesource.vallang.visitors.ValueStreams;
 
 /**
  * @author Arnold Lankamp
@@ -100,8 +84,9 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         try {
             IValue val = new StandardTextReader().read(vf, new InputStreamReader(getClass().getResourceAsStream("/hugeFailingFile1.txt")));
             
-            BottomUpStreamer.stream(val).forEach(v -> {
+            ValueStreams.leaves(val).forEach(v -> {
                 try {
+                    System.err.println(v);
                     ioRoundTrip(vf, store, v, 0);
                 } catch (IOException e) {
                     fail();
@@ -231,13 +216,13 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testDeepRandomValuesIO(IValueFactory vf) throws IOException {
-        Random r = new Random();
-        int seed = r.nextInt();
-
-        testDeepRandomValuesIO(seed, vf);
-    }
+//    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+//    public void testDeepRandomValuesIO(IValueFactory vf) throws IOException {
+//        Random r = new Random();
+//        int seed = r.nextInt();
+//
+//        testDeepRandomValuesIO(seed, vf);
+//    }
 
     private void testDeepRandomValuesIO(int seed, IValueFactory vf) throws IOException {
         TypeFactory tf = TypeFactory.getInstance();
@@ -250,10 +235,10 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testDeepRandomValuesIORegressions(IValueFactory vf) throws IOException {
-        testDeepRandomValuesIO(1544959898, vf);
-    }
+//    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+//    public void testDeepRandomValuesIORegressions(IValueFactory vf) throws IOException {
+//        testDeepRandomValuesIO(1544959898, vf);
+//    }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testOldFilesStillSupported(IValueFactory vf) throws IOException {
