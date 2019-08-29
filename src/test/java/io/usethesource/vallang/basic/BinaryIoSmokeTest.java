@@ -18,7 +18,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -36,6 +38,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
@@ -75,6 +78,17 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
 
         ioRoundTrip(vf, store, t, 0);
     }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression42(IValueFactory vf, TypeStore store) {
+        try {
+            IValue val = new StandardTextReader().read(vf, new InputStreamReader(getClass().getResourceAsStream("hugeFailingFile1.txt")));
+            ioRoundTrip(vf, store, val, 0);
+        } catch (FactTypeUseException | IOException e) {
+            fail();
+        }
+    }
+    
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testBinaryFileIO(IValueFactory vf) throws IOException {
