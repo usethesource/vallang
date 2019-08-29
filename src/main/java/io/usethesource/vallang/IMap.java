@@ -144,7 +144,7 @@ public interface IMap extends ICollection<IMap> {
                         if (cursor.equals(k1)) {
                             // key was found, now check the value
                             IValue val2 = map2.get(k1);
-                            if (val2 != null && !val2.equals(get(k1))) { // call to Object.equals(Object)
+                            if (val2 != null && !val2.equals(get(k1))) { 
                                 return false;
                             }
                             

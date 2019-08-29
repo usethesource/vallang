@@ -80,22 +80,8 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRegression42(IValueFactory vf, TypeStore store) {
-        try {
-            IValue val = new StandardTextReader().read(vf, new InputStreamReader(getClass().getResourceAsStream("/hugeFailingFile1.txt")));
-            
-            ValueStreams.bottomup(val).forEach(v -> {
-                try {
-                    ioRoundTrip(vf, store, v, 0);
-                } catch (IOException e) {
-                    fail();
-                }
-            });
-            
-            
-        } catch (FactTypeUseException | IOException e) {
-            fail();
-        }
+    public void testRegression42(IValueFactory vf, TypeStore store, @GivenValue("(<\"\"()>:0.42982829856985005,<\"\"()[@nrV6069=\"aG\"()]>:3.086982773626822,<\"\"(FLgBA4j=\"\"())>:0.0)") IValue v) throws IOException {
+        ioRoundTrip(vf, store, v, 0);
     }
     
     
