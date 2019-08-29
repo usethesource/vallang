@@ -44,7 +44,7 @@ public class BottomUpStreamer implements IValueVisitor<Stream<IValue>, RuntimeEx
 	@Override
 	public Stream<IValue> visitNode(INode o) {
 	    return Stream.concat(
-	            StreamSupport.stream(o.getChildren().spliterator(), false),
+	            StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this)),
 	            Stream.of(o));
 	}
 
@@ -66,7 +66,7 @@ public class BottomUpStreamer implements IValueVisitor<Stream<IValue>, RuntimeEx
     @Override
     public Stream<IValue> visitList(IList o)  {
         return Stream.concat(
-                StreamSupport.stream(o.spliterator(), false),
+                StreamSupport.stream(o.spliterator(), false).flatMap(c -> c.accept(this)),
                 Stream.of(o));
     }
 
@@ -83,7 +83,7 @@ public class BottomUpStreamer implements IValueVisitor<Stream<IValue>, RuntimeEx
     @Override
     public Stream<IValue> visitSet(ISet o)  {
         return Stream.concat(
-                StreamSupport.stream(o.spliterator(), false),
+                StreamSupport.stream(o.spliterator(), false).flatMap(c -> c.accept(this)),
                 Stream.of(o));
     }
 
@@ -95,14 +95,14 @@ public class BottomUpStreamer implements IValueVisitor<Stream<IValue>, RuntimeEx
     @Override
     public Stream<IValue> visitTuple(ITuple o)  {
         return Stream.concat(
-                StreamSupport.stream(o.spliterator(), false),
+                StreamSupport.stream(o.spliterator(), false).flatMap(c -> c.accept(this)),
                 Stream.of(o));
     }
 
     @Override
     public Stream<IValue> visitConstructor(IConstructor o)  {
         return Stream.concat(
-                StreamSupport.stream(o.getChildren().spliterator(), false),
+                StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this)),
                 Stream.of(o));
     }
 
@@ -118,7 +118,7 @@ public class BottomUpStreamer implements IValueVisitor<Stream<IValue>, RuntimeEx
         return Stream.concat(
                 StreamSupport.stream(it.spliterator(), false).flatMap(e -> {
                     return Stream.of(e.getKey(), e.getValue());
-                }),
+                }).flatMap(c -> c.accept(this)),
                 Stream.of(o));
     }
 

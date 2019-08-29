@@ -324,7 +324,9 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             if (!value.isEqual(result)) {
                 String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
+                System.err.println("Test fail:");
                 System.err.println(message);
+                System.err.flush();
                 fail(message);
             }
             else if (value.getType() != result.getType()) {
