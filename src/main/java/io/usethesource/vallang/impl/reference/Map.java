@@ -84,7 +84,7 @@ import io.usethesource.vallang.type.Type;
 
 	@Override
 	public Iterator<IValue> iterator() {
-		return content.keySet().iterator();
+	    return content.keySet().iterator();
 	}
 
 	@Override
@@ -94,7 +94,7 @@ import io.usethesource.vallang.type.Type;
 
 	@Override
 	public Iterator<Entry<IValue, IValue>> entryIterator() {
-		return content.entrySet().iterator();
+	    return content.entrySet().iterator();
 	}
 
     @Override

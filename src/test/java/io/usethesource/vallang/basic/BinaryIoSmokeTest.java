@@ -28,11 +28,14 @@ import java.util.Random;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.ExpectedType;
+import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
@@ -48,7 +51,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
 
-public final class BinaryIoSmokeTest {
+public final class BinaryIoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testBinaryIO(IValueFactory vf) throws IOException {
@@ -59,6 +62,20 @@ public final class BinaryIoSmokeTest {
         }
     }
 
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression40(IValueFactory vf, TypeStore store, 
+            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
+            @ExpectedType("Boolean") 
+            IConstructor t) throws FactTypeUseException, IOException {
+
+        ioRoundTrip(vf, store, t, 0);
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression42_2(IValueFactory vf, TypeStore store, @GivenValue("(\"\"():4,\"\"():3)") IValue v) throws IOException {
+        ioRoundTrip(vf, store, v, 0);
+    }
+    
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testBinaryFileIO(IValueFactory vf) throws IOException {
         TypeStore ts = new TypeStore();
@@ -257,7 +274,9 @@ public final class BinaryIoSmokeTest {
             if (!value.equals(result)) {
                 String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
+                System.err.println("Test fail:");
                 System.err.println(message);
+                System.err.flush();
                 fail(message);
             }
             else if (value.getType() != result.getType()) {

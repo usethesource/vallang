@@ -84,7 +84,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 	}
 	
 	private void updateTypes(IValue key, IValue value) {
-	    if (mapContent.containsKey(key)) {
+        if (mapContent.containsKey(key)) {
 	        // key will be overwritten, so the corresponding value must be subtracted from the type bag too
 	        valTypeBag = valTypeBag.decrease(mapContent.get(key).getType());
 	        valTypeBag = valTypeBag.increase(value.getType());
