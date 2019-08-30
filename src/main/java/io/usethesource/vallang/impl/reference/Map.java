@@ -17,6 +17,7 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.reference;
 
+import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
@@ -29,12 +30,13 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.util.ValueEqualsWrapper;
 
 /*package*/ class Map implements IMap {
 	final Type type;
-	final java.util.Map<IValue, IValue> content;
+	final java.util.Map<ValueEqualsWrapper, IValue> content;
 
-	/*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content) {
+	/*package*/ Map(Type candidateMapType, java.util.Map<ValueEqualsWrapper, IValue> content) {
 		super();
 		this.content = content;
 		this.type = candidateMapType;
@@ -58,18 +60,24 @@ import io.usethesource.vallang.type.Type;
 	@Override
 	public @Nullable IValue get(IValue key) {
 	    // see how we can't use the hash tabel due to the semantics of isEqual
-	    for (Entry<IValue,IValue> entry : content.entrySet()) {
-	        if (key.isEqual(entry.getKey())) {
-	            return entry.getValue();
-	        }
-	    }
-
-	    return null;
+	    return content.get(new ValueEqualsWrapper(key));
 	}
 
 	@Override
 	public Iterator<IValue> iterator() {
-		return content.keySet().iterator();
+	    return new Iterator<IValue>() {
+            Iterator<ValueEqualsWrapper> it = content.keySet().iterator();
+
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public IValue next() {
+                return it.next().getValue();
+            }
+        };
 	}
 
 	@Override
@@ -79,7 +87,20 @@ import io.usethesource.vallang.type.Type;
 
 	@Override
 	public Iterator<Entry<IValue, IValue>> entryIterator() {
-		return content.entrySet().iterator();
+		return new Iterator<Entry<IValue, IValue>>() {
+            Iterator<Entry<ValueEqualsWrapper, IValue>> it = content.entrySet().iterator();
+
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public Entry<IValue, IValue> next() {
+                Entry<ValueEqualsWrapper, IValue> entry = it.next();
+                return new AbstractMap.SimpleImmutableEntry<>(entry.getKey().getValue(), entry.getValue());
+            }
+        };
 	}
 
     @Override

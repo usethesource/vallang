@@ -23,12 +23,12 @@ public class ValueEqualsWrapper {
             return false;
         }
         
-        if (!(obj instanceof IValue)) {
+        if (!(obj instanceof ValueEqualsWrapper)) {
             return false;
         }
         
         // equals defaults to isEqual which ignores annotations (recursively)
-        return value.isEqual((IValue) obj);
+        return value.isEqual(((ValueEqualsWrapper) obj).value);
     }
     
     @Override

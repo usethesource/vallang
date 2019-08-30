@@ -77,10 +77,9 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRegression42(IValueFactory vf, TypeStore store, @GivenValue("(<\"\"()>:4,<\"\"()>:3)") IValue v) throws IOException {
+    public void testRegression42_2(IValueFactory vf, TypeStore store, @GivenValue("(\"\"():4,\"\"():3)") IValue v) throws IOException {
         ioRoundTrip(vf, store, v, 0);
     }
-    
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testBinaryFileIO(IValueFactory vf) throws IOException {
