@@ -19,7 +19,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -37,7 +36,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
@@ -53,7 +51,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
-import io.usethesource.vallang.visitors.ValueStreams;
 
 /**
  * @author Arnold Lankamp
@@ -80,7 +77,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRegression42(IValueFactory vf, TypeStore store, @GivenValue("(<\"\"()>:0.42982829856985005,<\"\"()[@nrV6069=\"aG\"()]>:3.086982773626822,<\"\"(FLgBA4j=\"\"())>:0.0)") IValue v) throws IOException {
+    public void testRegression42(IValueFactory vf, TypeStore store, @GivenValue("(<\"\"()>:4,<\"\"()>:3)") IValue v) throws IOException {
         ioRoundTrip(vf, store, v, 0);
     }
     
