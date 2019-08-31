@@ -211,7 +211,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         TypeStore ts = new TypeStore();
         Random r = new Random(seed);
         RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6, true);
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 1000; i++) {
             IValue val = gen.generate(tf.valueType(), ts, null);
             
             try {
