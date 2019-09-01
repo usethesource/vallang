@@ -229,7 +229,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 // If only the big original term fails after all, then the BottomUp strategy
                 // will try that (its the last value of the stream) and fail again in 
                 // the same way as above.
-                ValueStreams.bottomup(val).forEach(v -> {
+                ValueStreams.bottomupbf(val).forEach(v -> {
                     try {
                         ioRoundTrip(vf, ts, v, seed);
                     } catch (IOException error) {
