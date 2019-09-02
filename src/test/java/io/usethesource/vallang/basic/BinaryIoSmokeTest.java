@@ -50,6 +50,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
+import io.usethesource.vallang.visitors.ValueStreams;
 
 public final class BinaryIoSmokeTest extends BooleanStoreProvider {
 
@@ -207,7 +208,30 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6, true);
         for (int i = 0; i < 1000; i++) {
             IValue val = gen.generate(tf.valueType(), ts, null);
-            ioRoundTrip(vf, ts, val, seed);
+            
+            try {
+                ioRoundTrip(vf, ts, val, seed);
+            }
+            catch (Throwable e) {
+                System.err.println("Deep random value failed, now trying to find the simplest sub-term which causes the failure...");
+                // Now we've found a bug in a (probably) very, very complex value.
+                // Usually it has several megabytes of random data. 
+                
+                // We try to find a minimal sub-value which still fails somehow by
+                // visiting each sub-term and running the test again on this.
+                // The first sub-term to fail is reported via the AssertionFailed exception.
+                
+                // If only the big original term fails after all, then the BottomUp strategy
+                // will try that (its the last value of the stream) and fail again in 
+                // the same way as above.
+                ValueStreams.bottomupbf(val).forEach(v -> {
+                    try {
+                        ioRoundTrip(vf, ts, v, seed);
+                    } catch (IOException error) {
+                        fail(error);
+                    }
+                });
+            }
         }
     }
 

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.visitors;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -33,16 +35,62 @@ import io.usethesource.vallang.IValue;
 
 public class ValueStreams  {
 
+    /**
+     * Depth-first bottom-up traversal, left-to-right
+     */
     public static Stream<IValue> bottomup(IValue val) {
         return val.accept(new BottomUp());
     }
 
+    /**
+     * Depth-first top-down traversal, left-to-right
+     */
     public static Stream<IValue> topdown(IValue val) {
         return val.accept(new TopDown());
     }
     
-    public static Stream<IValue> leaves(IValue val) {
-        return val.accept(new Leafs());
+    /**
+     * Breadth-first top-down traversal, left-to-right
+     * @param val
+     * @return
+     */
+    public static Stream<IValue> topdownbf(IValue val) {
+        Deque<IValue> queue = new ArrayDeque<>();
+        
+        queue.add(val);
+        
+        return topdownbf(queue);
+    }
+    
+    private static Stream<IValue> topdownbf(Deque<IValue> queue) {
+        if (queue.isEmpty()) {
+            return Stream.empty();
+        }
+        
+        IValue val = queue.remove();
+
+        val.accept(new QueueChildren(queue));
+
+        return Stream.concat(Stream.of(val), topdownbf(queue));
+    }
+    
+    /**
+     * Breadth-first bottom-up traversal, right-to-left
+     * @param val
+     * @return
+     */
+    public static Stream<IValue> bottomupbf(IValue val) {
+        Deque<IValue> queue = new ArrayDeque<>();
+        Deque<IValue> stack = new ArrayDeque<>();
+        queue.add(val);
+        
+        while (!queue.isEmpty()) {
+            val = queue.remove();
+            stack.push(val);
+            val.accept(new QueueChildren(queue));
+        }
+        
+        return stack.stream();
     }
     
     private static abstract class Single implements IValueVisitor<Stream<IValue>, RuntimeException> {
@@ -213,39 +261,52 @@ public class ValueStreams  {
         }
     }
 
-    private static class Leafs extends Single {
-        @Override
-        public Stream<IValue> visitNode(INode o) {
-            return StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this));
+    private static class QueueChildren extends NullVisitor<Void, RuntimeException> {
+        private final Deque<IValue> queue;
+        
+        public QueueChildren(Deque<IValue> queue) {
+            this.queue = queue;
         }
-    
+        
         @Override
-        public Stream<IValue> visitList(IList o)  {
-            return o.stream().flatMap(c -> c.accept(this));
+        public Void visitList(IList o) throws RuntimeException {
+            o.stream().forEach((e) -> queue.add(e));
+            return null;
         }
-    
+
         @Override
-        public Stream<IValue> visitSet(ISet o)  {
-            return o.stream().flatMap(c -> c.accept(this));
+        public Void visitSet(ISet o) throws RuntimeException {
+            o.stream().forEach((e) -> queue.add(e));
+            return null;
         }
-    
-        @Override
-        public Stream<IValue> visitTuple(ITuple o)  {
-            return StreamSupport.stream(o.spliterator(), false).flatMap(c -> c.accept(this));
+
+        public Void visitTuple(ITuple o) throws RuntimeException {
+            StreamSupport.stream(o.spliterator(), false).forEach((e) -> queue.add(e));
+            return null;
         }
-    
+
         @Override
-        public Stream<IValue> visitConstructor(IConstructor o)  {
-            return StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this));
+        public Void visitNode(INode o) throws RuntimeException {
+            StreamSupport.stream(o.getChildren().spliterator(), false).forEach((e) -> queue.add(e));
+            return null;
         }
-    
+
         @Override
-        public Stream<IValue> visitMap(IMap o)  {
+        public Void visitConstructor(IConstructor o) throws RuntimeException {
+            StreamSupport.stream(o.getChildren().spliterator(), false).forEach((e) -> queue.add(e));
+            return null;
+        }
+
+        @Override
+        public Void visitMap(IMap o) throws RuntimeException {
             Iterable<Entry<IValue,IValue>> it = (Iterable<Entry<IValue,IValue>>) () -> o.entryIterator();
-    
-            return StreamSupport.stream(it.spliterator(), false).flatMap(e -> {
-                return Stream.of(e.getKey(), e.getValue()).flatMap(c -> c.accept(this));
+            
+            StreamSupport.stream(it.spliterator(), false).forEach(e -> {
+                queue.add(e.getKey());
+                queue.add(e.getValue());
             });
+            
+            return null;
         }
     }
 }
