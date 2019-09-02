@@ -93,7 +93,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         Type name = RandomValues.addNameType(ts);
         Random r = new Random(42);
         for (int i = 0; i < 20; i++) {
-            IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
+            IValue value = RandomValues.generate(name, ts, vf, r, 10);
             ioRoundTrip(vf, ts, value, 42);
         }
     }
@@ -104,7 +104,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         Type name = RandomValues.addNameType(ts);
         Random r = new Random(42);
         for (int i = 0; i < 20; i++) {
-            IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
+            IValue value = RandomValues.generate(name, ts, vf, r, 10);
             ioRoundTripFile(vf, ts, value, 42);
         }
     }
@@ -118,7 +118,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         r.setSeed(seed);
         IListWriter writer = vf.listWriter();
         for (int i = 0; i < 5; i++) {
-            writer.append(RandomValues.generate(name, ts, vf, r, 10, true));      
+            writer.append(RandomValues.generate(name, ts, vf, r, 10));      
         }
         ioRoundTripFile(vf, ts, writer.done(), seed);
     }
@@ -132,7 +132,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         r.setSeed(seed);
         IListWriter writer = vf.listWriter();
         for (int i = 0; i < 5; i++) {
-            writer.append(RandomValues.generate(name, ts, vf, r, 10, true));      
+            writer.append(RandomValues.generate(name, ts, vf, r, 10));      
         }
         ioRoundTripFile2(vf, ts, writer.done(), seed);
     }
@@ -205,7 +205,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         TypeFactory tf = TypeFactory.getInstance();
         TypeStore ts = new TypeStore();
         Random r = new Random(seed);
-        RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6, true);
+        RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6);
         for (int i = 0; i < 1000; i++) {
             IValue val = gen.generate(tf.valueType(), ts, null);
             

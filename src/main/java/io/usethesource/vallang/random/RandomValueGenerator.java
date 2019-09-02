@@ -45,21 +45,17 @@ import io.usethesource.vallang.type.TypeStore;
  *
  */
 public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeException> {
-
     protected final IValueFactory vf;
     protected final Random random;
     protected final int maxDepth;
     protected final RandomTypeGenerator rt;
-    protected final boolean generateAnnotations;
     protected final int maxWidth;
     
     protected int currentDepth;
     protected @Nullable TypeStore currentStore;
     protected @Nullable Map<Type, Type> typeParameters;
-    
-    
 
-    public RandomValueGenerator(IValueFactory vf, Random random, int maxDepth, int maxWidth, boolean generateAnnotations) {
+    public RandomValueGenerator(IValueFactory vf, Random random, int maxDepth, int maxWidth) {
         if (maxDepth <= 0) {
             throw new IllegalArgumentException("maxDepth is supposed to be 1 or higher");
         }
@@ -67,16 +63,11 @@ public class RandomValueGenerator implements ITypeVisitor<IValue, RuntimeExcepti
         this.random = random;
         this.maxDepth = maxDepth;
         this.maxWidth = maxWidth;
-        this.generateAnnotations = generateAnnotations;
         this.rt = new RandomTypeGenerator(random);
 
         this.currentStore = null;
         this.currentDepth = -1;
         this.typeParameters = null;
-    }
-    
-    public RandomValueGenerator setAnnotations(boolean gen) {
-        return new RandomValueGenerator(vf, random, maxDepth, maxWidth, gen);
     }
     
     public Random getRandom() {

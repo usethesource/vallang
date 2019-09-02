@@ -57,7 +57,6 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class ValueProvider implements ArgumentsProvider {
     private static final Random rnd = new Random();
-    private static final boolean enableAnnotations = true;
     private static final TypeFactory tf = TypeFactory.getInstance();
     
     /**
@@ -82,8 +81,8 @@ public class ValueProvider implements ArgumentsProvider {
      * individual tests. 
      */
     private static final RandomValueGenerator[] generators = {
-            new RandomValueGenerator(factories[0], rnd, 5, 10, enableAnnotations),
-            new RandomValueGenerator(factories[1], rnd, 5, 10, enableAnnotations)
+            new RandomValueGenerator(factories[0], rnd, 5, 10),
+            new RandomValueGenerator(factories[1], rnd, 5, 10)
     };
     
     /**
@@ -180,7 +179,7 @@ public class ValueProvider implements ArgumentsProvider {
      */
     private Arguments arguments(Method method, Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts) {
         previous = null; // never reuse arguments from a previous instance
-        return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class), cl.getAnnotation(NoAnnotations.class) != null, cl.getAnnotation(GivenValue.class))).toArray());    
+        return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class), cl.getAnnotation(GivenValue.class))).toArray());    
     }
     
     /**
@@ -191,7 +190,7 @@ public class ValueProvider implements ArgumentsProvider {
      * @param cls       the class type of the parameter to generate an input for
      * @return a random object which is assignable to cls
      */
-    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType expected, boolean noAnnotations, GivenValue givenValue)  {
+    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType expected, GivenValue givenValue)  {
         if (givenValue != null) {
             try {
                 if (expected != null) {
@@ -218,7 +217,7 @@ public class ValueProvider implements ArgumentsProvider {
             return TypeFactory.getInstance();
         }
         else if (IValue.class.isAssignableFrom(cls)) {
-            return generateValue(vf, ts, cls.asSubclass(IValue.class), expected, noAnnotations);
+            return generateValue(vf, ts, cls.asSubclass(IValue.class), expected);
         }
         else {
             throw new IllegalArgumentException(cls + " is not assignable from IValue, IValueFactory, TypeStore or TypeFactory");
@@ -234,9 +233,9 @@ public class ValueProvider implements ArgumentsProvider {
      * @param noAnnotations 
      * @return an instance assignable to `cl`
      */
-    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType expected, boolean noAnnotations) {
+    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType expected) {
         Type expectedType = expected != null ? readType(ts, expected) : types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, expected);
-        RandomValueGenerator gen = vf.b.setAnnotations(!noAnnotations);
+        RandomValueGenerator gen = vf.b;
         Random rnd = gen.getRandom();
         
         if (previous != null && rnd.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {

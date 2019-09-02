@@ -12,7 +12,6 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.NoAnnotations;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
@@ -21,17 +20,17 @@ import io.usethesource.vallang.io.StandardTextWriter;
 public class IValueTests {
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
-    public void equalsIsReflexive(@NoAnnotations IValue val) {
+    public void equalsIsReflexive(IValue val) {
         assertEquals(val, val);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)  
-    public void equalsIsCommutative(@NoAnnotations IValue val1, @NoAnnotations IValue val2) {
+    public void equalsIsCommutative(IValue val1, IValue val2) {
         assertTrue(!val1.equals(val2) || val2.equals(val1));
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
-    public void equalsIsTransitive(@NoAnnotations IValue val1, @NoAnnotations IValue val2, @NoAnnotations IValue val3) {
+    public void equalsIsTransitive(IValue val1, IValue val2, IValue val3) {
         assertTrue(!(val1.equals(val2) && val2.equals(val3)) || val1.equals(val3));
     }
     
@@ -44,14 +43,14 @@ public class IValueTests {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
-    public void testWysiwyg(IValueFactory vf, @NoAnnotations IValue val) throws FactTypeUseException, IOException {
+    public void testWysiwyg(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
         StandardTextReader reader = new StandardTextReader();
         String string = val.toString();
         IValue result = reader.read(vf, val.getType(), new StringReader(string));
         assertEquals(val, result, "reading back " + val + " produced something different");
     }
 
-    public void testIsomorphicText(@NoAnnotations IValue val1, @NoAnnotations IValue val2) throws FactTypeUseException, IOException {
+    public void testIsomorphicText(IValue val1, IValue val2) throws FactTypeUseException, IOException {
         // (val1 == val2) <==> (val1.toString() == val2.toString())
 
         if (val1.equals(val2)) {
