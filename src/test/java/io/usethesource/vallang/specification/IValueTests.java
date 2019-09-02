@@ -16,6 +16,7 @@ import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.type.TypeStore;
 
 public class IValueTests {
     
@@ -43,10 +44,10 @@ public class IValueTests {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
-    public void testWysiwyg(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
+    public void testWysiwyg(IValueFactory vf, TypeStore store, IValue val) throws FactTypeUseException, IOException {
         StandardTextReader reader = new StandardTextReader();
         String string = val.toString();
-        IValue result = reader.read(vf, val.getType(), new StringReader(string));
+        IValue result = reader.read(vf, store, val.getType(), new StringReader(string));
         assertEquals(val, result, "reading back " + val + " produced something different");
     }
 
@@ -60,14 +61,6 @@ public class IValueTests {
         if (val1.toString().equals(val2.toString())) {
             assertEquals(val1, val2, val1.toString() + " and " + val2.toString() + "should be equal because they look the same.");
         }
-    }
-    
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testWysiwygAnnos(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
-        StandardTextReader reader = new StandardTextReader();
-        String string = val.toString();
-        IValue result = reader.read(vf, val.getType(), new StringReader(string));
-        assertTrue(val.equals(result), val.toString() + " is not read back properly."); // isEqual ignores annotations
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,7 +31,6 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -60,9 +60,9 @@ public final class TypeSmokeTest {
         recombine();
       }
 
-      RandomTypeGenerator rg = new RandomTypeGenerator();
+      Random random = new Random();
       for (int i = 0; i < 1000; i++) {
-        allTypes.add(rg.next(10));
+        allTypes.add(ft.randomType(store, random, 10));
       }
 
     } catch (FactTypeUseException e) {
@@ -205,9 +205,7 @@ public final class TypeSmokeTest {
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testVoid() {
     for (Type t : allTypes) {
-      if (t.isSubtypeOf(ft.voidType())) {
-        assertFalse(true);
-      }
+      assertTrue(t.isSubtypeOf(ft.voidType()));
     }
   }
 
@@ -378,13 +376,13 @@ public final class TypeSmokeTest {
     }
 
     for (Type t1 : allTypes) {
-      if (!t1.isAliased() && t1.glb(TypeFactory.getInstance().valueType()) != t1) {
+      if (!t1.isAliased() && !t1.isOpen() && t1.glb(TypeFactory.getInstance().valueType()) != t1) {
         System.err.println(t1 + " glb value is not " + t1 + "? its "
             + t1.glb(TypeFactory.getInstance().valueType()));
         fail("value should be top: " + t1 + ".lub = "
             + t1.lub(TypeFactory.getInstance().valueType()));
       }
-      if (t1.isAliased() && t1.glb(TypeFactory.getInstance().valueType()) != t1.getAliased()) {
+      if (t1.isAliased() && !t1.isOpen() && t1.glb(TypeFactory.getInstance().valueType()) != t1.getAliased()) {
         fail("value should be top:" + t1);
       }
       if (t1.glb(TypeFactory.getInstance().voidType()) != TypeFactory.getInstance().voidType()) {

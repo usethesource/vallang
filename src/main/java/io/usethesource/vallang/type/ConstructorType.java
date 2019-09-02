@@ -164,7 +164,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-            return tf().constructorFromTuple(store, new AbstractDataType.Info().randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
+            // constructors should not be random types of values (a value never has a constructor type) 
+            return new AbstractDataType.Info().randomInstance(next, store, rnd);
         }
 	}
 

@@ -72,6 +72,6 @@ public class RandomValues {
 	}
 
     public static IValue generate(Type tp, TypeStore ts, IValueFactory vf, Random rand, int maxDepth) {
-        return new RandomValueGenerator(vf, rand, maxDepth, maxDepth * 2).generate(tp, ts, new HashMap<>());
+        return new RandomValueGenerator(rand).generate(tp, vf, ts, new HashMap<>(), maxDepth, maxDepth * 2);
     }
 }

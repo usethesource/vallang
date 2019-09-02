@@ -93,7 +93,7 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
             Type[] types = new Type[arity];
 
             for (int i = 0; i < arity; i++) {
-                types[i] = next.get();
+                while ((types[i] = next.get()).isBottom()); // tuples can not have empty fields
             }
 
             if (rnd.nextBoolean()) {

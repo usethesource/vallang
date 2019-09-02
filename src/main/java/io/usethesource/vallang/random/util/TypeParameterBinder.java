@@ -15,23 +15,28 @@ package io.usethesource.vallang.random.util;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
-import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.type.DefaultTypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class TypeParameterBinder extends DefaultTypeVisitor<Void,RuntimeException> {
-
     private final HashMap<Type, Type> typeParameters = new HashMap<>();
-    private final RandomTypeGenerator randomType = new RandomTypeGenerator();
+    private final TypeStore store;
+    private final int depth;
+    private final Random random;
 
-    private TypeParameterBinder() {
+    private TypeParameterBinder(Random random, TypeStore store, int depth) {
         super(null);
+        this.random = random;
+        this.store = store;
+        this.depth = depth;
     }
 
-    public static Map<Type, Type> bind(Type type) { 
-        TypeParameterBinder tb = new TypeParameterBinder();
+    public static Map<Type, Type> bind(Type type, Random random, TypeStore store, int depth) { 
+        TypeParameterBinder tb = new TypeParameterBinder(random, store, depth);
         type.accept(tb);
         return Collections.unmodifiableMap(tb.typeParameters);
     }
@@ -50,7 +55,7 @@ public class TypeParameterBinder extends DefaultTypeVisitor<Void,RuntimeExceptio
             }
 
             do {
-                type = randomType.next(5);
+                type = TypeFactory.getInstance().randomType(store, random, depth);
             } while (bound != null && !type.isSubtypeOf(bound));
             typeParameters.put(parameterType,  type);
         }

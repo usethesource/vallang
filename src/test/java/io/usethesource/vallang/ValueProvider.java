@@ -20,7 +20,6 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
-import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -58,6 +57,8 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class ValueProvider implements ArgumentsProvider {
     private static final TypeFactory tf = TypeFactory.getInstance();
+    private static final RandomValueGenerator gen;
+
     private static final @Nullable String seedProperty;
     private static final long seed;
     private static final Random rnd;
@@ -72,6 +73,8 @@ public class ValueProvider implements ArgumentsProvider {
            seed = 0;
            rnd = new Random();
        }
+       
+       gen = new RandomValueGenerator(rnd);
     }
     
     /**
@@ -87,18 +90,6 @@ public class ValueProvider implements ArgumentsProvider {
             io.usethesource.vallang.impl.reference.ValueFactory.getInstance(),  
             io.usethesource.vallang.impl.persistent.ValueFactory.getInstance()
             };
-    
-    private static RandomTypeGenerator typeGen = new RandomTypeGenerator(rnd);
-    
-    /**
-     * The random value generator is parametrized by the valuefactory at creation time.
-     * We need to keep the reference due get better randomized results between (re-runs of) 
-     * individual tests. 
-     */
-    private static final RandomValueGenerator[] generators = {
-            new RandomValueGenerator(factories[0], rnd, 5, 10),
-            new RandomValueGenerator(factories[1], rnd, 5, 10)
-    };
     
     /**
      * This trivial class helps with streaming generated test inputs, and some other stuff.
@@ -133,10 +124,10 @@ public class ValueProvider implements ArgumentsProvider {
             Tuple.of(ISourceLocation.class, (ts, n) -> tf.sourceLocationType()),
             Tuple.of(IValue.class,          (ts, n) -> tf.valueType()),
             Tuple.of(INode.class,           (ts, n) -> tf.nodeType()),
-            Tuple.of(IList.class,           (ts, n) -> tf.listType(tf.randomType())),
-            Tuple.of(ISet.class,            (ts, n) -> tf.setType(tf.randomType())),
-            Tuple.of(ITuple.class,          (ts, n) -> tf.tupleType(tf.randomType(), tf.randomType())),
-            Tuple.of(IMap.class,            (ts, n) -> tf.mapType(tf.randomType(), tf.randomType())),
+            Tuple.of(IList.class,           (ts, n) -> tf.listType(tf.randomType(ts))),
+            Tuple.of(ISet.class,            (ts, n) -> tf.setType(tf.randomType(ts))),
+            Tuple.of(ITuple.class,          (ts, n) -> tf.tupleType(tf.randomType(ts), tf.randomType(ts))),
+            Tuple.of(IMap.class,            (ts, n) -> tf.mapType(tf.randomType(ts), tf.randomType(ts))),
             Tuple.of(IConstructor.class,    (ts, n) -> randomADT(ts, n))
         ).collect(Collectors.toMap(t -> t.a, t -> t.b));
             
@@ -155,8 +146,8 @@ public class ValueProvider implements ArgumentsProvider {
         int numberOfTests = Math.max(1, 100 * (int) Math.pow(10, valueArity - 1));
         
         return Stream.of(
-                   Tuple.of(factories[0], generators[0]), // every factory has its own generator
-                   Tuple.of(factories[1], generators[1])
+                factories[0], 
+                factories[1]
                ).flatMap(vf ->                            // all parameters share the same factory
                    generateTypeStore(context).flatMap(ts ->
                        Stream.iterate(arguments(method, vf, ts), p -> arguments(method, vf, ts)).limit(numberOfTests)
@@ -192,18 +183,32 @@ public class ValueProvider implements ArgumentsProvider {
      * @param ts        the TypeStore to request ADTs from, randomly, also passed to parameters of type TypeStore
      * @return an Arguments instance for streaming into JUnits MethodSource interface.
      */
-    private Arguments arguments(Method method, Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts) {
+    private Arguments arguments(Method method, IValueFactory vf, TypeStore ts) {
         previous = null; // never reuse arguments from a previous instance
         
         ArgumentsSeed argSeed = method.getAnnotation(ArgumentsSeed.class);
         if (argSeed != null) {
-            vf.b.getRandom().setSeed(argSeed.value());
+            gen.setSeed(argSeed.value());
         }
         else if (seedProperty != null) {
-            vf.b.getRandom().setSeed(seed);
+            gen.setSeed(seed);
         }
         
-        return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class), cl.getAnnotation(GivenValue.class))).toArray());    
+        ArgumentsMaxDepth depth = method.getAnnotation(ArgumentsMaxDepth.class);
+        ArgumentsMaxWidth width = method.getAnnotation(ArgumentsMaxWidth.class);
+        
+        return Arguments.of(
+                Arrays.stream(method.getParameters()).map(
+                        cl -> argument(
+                                vf, 
+                                ts, 
+                                cl.getType(), 
+                                cl.getAnnotation(ExpectedType.class), 
+                                cl.getAnnotation(GivenValue.class),
+                                depth != null ? depth.value() : 5,
+                                width != null ? width.value() : 10
+                                )).toArray().clone()
+                );    
     }
     
     private static long hashSeed(String string) {
@@ -225,14 +230,14 @@ public class ValueProvider implements ArgumentsProvider {
      * @param cls       the class type of the parameter to generate an input for
      * @return a random object which is assignable to cls
      */
-    private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType expected, GivenValue givenValue)  {
+    private Object argument(IValueFactory vf, TypeStore ts, Class<?> cls, ExpectedType expected, GivenValue givenValue, int depth, int width)  {
         if (givenValue != null) {
             try {
                 if (expected != null) {
-                    return new StandardTextReader().read(vf.a, ts, readType(ts, expected), new StringReader(givenValue.value()));
+                    return new StandardTextReader().read(vf, ts, readType(ts, expected), new StringReader(givenValue.value()));
                 }
                 else {
-                    return new StandardTextReader().read(vf.a, new StringReader(givenValue.value()));
+                    return new StandardTextReader().read(vf, new StringReader(givenValue.value()));
                 }
             } catch (FactTypeUseException | IOException e) {
                 System.err.println("[WARNING] failed to parse given value: " + givenValue.value());
@@ -240,19 +245,19 @@ public class ValueProvider implements ArgumentsProvider {
         }
         
         if (cls.isAssignableFrom(IValueFactory.class)) {
-            return vf.a;
+            return vf;
         }
         else if (cls.isAssignableFrom(TypeStore.class)) {
             return ts;
         }
         else if (cls.isAssignableFrom(Type.class)) {
-            return typeGen.next(5);
+            return TypeFactory.getInstance().randomType(ts, depth);
         }
         else if (cls.isAssignableFrom(TypeFactory.class)) {
             return TypeFactory.getInstance();
         }
         else if (IValue.class.isAssignableFrom(cls)) {
-            return generateValue(vf, ts, cls.asSubclass(IValue.class), expected);
+            return generateValue(vf, ts, cls.asSubclass(IValue.class), expected, depth, width);
         }
         else {
             throw new IllegalArgumentException(cls + " is not assignable from IValue, IValueFactory, TypeStore or TypeFactory");
@@ -268,16 +273,14 @@ public class ValueProvider implements ArgumentsProvider {
      * @param noAnnotations 
      * @return an instance assignable to `cl`
      */
-    private IValue generateValue(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType expected) {
+    private IValue generateValue(IValueFactory vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType expected, int depth, int width) {
         Type expectedType = expected != null ? readType(ts, expected) : types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, expected);
-        RandomValueGenerator gen = vf.b;
-        Random rnd = gen.getRandom();
         
-        if (previous != null && rnd.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {
-            return rnd.nextBoolean() ? previous : reinstantiate(vf.a, ts, previous);
+        if (previous != null && gen.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {
+            return gen.nextBoolean() ? previous : reinstantiate(vf, ts, previous);
         }
         
-        return (previous = gen.generate(expectedType, ts, Collections.emptyMap()));
+        return (previous = gen.generate(expectedType, vf, ts, Collections.emptyMap(), depth, width));
     }
 
     private static Type readType(TypeStore ts, ExpectedType expected) {

@@ -130,17 +130,30 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		           return adts[Math.max(0, (int) Math.round(Math.random() * adts.length - 1))];
 		       }
 		    } 
-		    
+
+            Type adt;
+
 		    if (rnd.nextBoolean()) {
 		        if (rnd.nextBoolean()) {
-		            return tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd)));
+		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd)));
 		        }
 		        else {
-		            return tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd), new ParameterType.Info().randomInstance(next, store, rnd)));
+		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd), new ParameterType.Info().randomInstance(next, store, rnd)));
 		        }
-		    } else {
-		        return tf().abstractDataType(store, randomLabel(rnd));
+		    } 
+		    else {
+		        adt = tf().abstractDataType(store, randomLabel(rnd));
 		    }
+		    
+		    // should be defined by at least one nullary constructor
+		    tf().constructor(store, adt, randomLabel(rnd)); 
+		    
+		    if (rnd.nextBoolean()) {
+		        // and perhaps we generate another one with it:
+		        tf().constructorFromTuple(store, new AbstractDataType.Info().randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
+		    }
+		    
+		    return adt;
 		}
     }
 
