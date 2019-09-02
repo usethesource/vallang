@@ -10,7 +10,6 @@ import java.io.StringReader;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
-import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
@@ -90,13 +89,6 @@ public class IValueTests {
         if (val1.toString().equals(val2.toString())) {
             assertEquals(val1, val2, val1.toString() + " and " + val2.toString() + "should be equal because they look the same.");
         }
-    }
-    
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
-    public void testIsomorphicText_regression_48(
-            @GivenValue("\"(|Da:///7w/gSfqB/Y/avO7N/06/gf96/0/52/5498/622h/4/8KTb/%C2%A9%C2%A3/LCdq|:\\\"y\\\"(4.875329280939582,false,$2020-02-19T01:25:19.036+00:00$),|cj://W03|:\\\"YPE\\\"(),|IZwo:///vcV|:\\\"df\\\"(\\\"iRe\\\"()[@zynZaJw=-404415087088.54184696206636425,@aeI6931=[],@BTlDgfs=0.0],0),|lcJr:///rmG7?C=dqen|:\\\"AHZQ\\\"((),{-1721001437r1218015923})[@Wta4336=true,@TLGcrBZ=false,@UwzdGnJ=[false],@DBnDip4=true],|l:///94/4|:\\\"aRH\\\"(1333314580r109079989))\"") IValue val1, 
-            @GivenValue("\"(|Da:///7w/gSfqB/Y/avO7N/06/gf96/0/52/5498/622h/4/8KTb/%C2%A9%C2%A3/LCdq|:\\\"y\\\"(4.875329280939582,false,$2020-02-19T01:25:19.036+00:00$),|cj://W03|:\\\"YPE\\\"(),|IZwo:///vcV|:\\\"df\\\"(\\\"iRe\\\"()[@zynZaJw=-404415087088.54184696206636425,@aeI6931=[],@BTlDgfs=0.0],0),|lcJr:///rmG7?C=dqen|:\\\"AHZQ\\\"((),{-1721001437r1218015923})[@Wta4336=true,@TLGcrBZ=false,@UwzdGnJ=[false],@DBnDip4=true],|l:///94/4|:\\\"aRH\\\"(1333314580r109079989))\"") IValue val2) throws FactTypeUseException, IOException {
-        testIsomorphicText(val1, val2);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
