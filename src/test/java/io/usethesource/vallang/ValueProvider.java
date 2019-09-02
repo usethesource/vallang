@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
@@ -56,8 +57,22 @@ import io.usethesource.vallang.type.TypeStore;
  *    
  */
 public class ValueProvider implements ArgumentsProvider {
-    private static final Random rnd = new Random();
     private static final TypeFactory tf = TypeFactory.getInstance();
+    private static final @Nullable String seedProperty;
+    private static final long seed;
+    private static final Random rnd;
+    
+    static {
+       seedProperty = System.getProperty("vallang.test.seed");
+       if (seedProperty != null) {
+           seed = hashSeed(seedProperty);
+           rnd = new Random(seed);
+       }
+       else {
+           seed = 0;
+           rnd = new Random();
+       }
+    }
     
     /**
      * We use this to accidentally generate arguments which are the same as the previous
@@ -179,8 +194,28 @@ public class ValueProvider implements ArgumentsProvider {
      */
     private Arguments arguments(Method method, Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts) {
         previous = null; // never reuse arguments from a previous instance
+        
+        ArgumentsSeed argSeed = method.getAnnotation(ArgumentsSeed.class);
+        if (argSeed != null) {
+            vf.b.getRandom().setSeed(argSeed.value());
+        }
+        else if (seedProperty != null) {
+            vf.b.getRandom().setSeed(seed);
+        }
+        
         return Arguments.of(Arrays.stream(method.getParameters()).map(cl -> argument(vf, ts, cl.getType(), cl.getAnnotation(ExpectedType.class), cl.getAnnotation(GivenValue.class))).toArray());    
     }
+    
+    private static long hashSeed(String string) {
+        long h = 1125899906842597L; // prime
+        int len = string.length();
+
+        for (int i = 0; i < len; i++) {
+            h = 31*h + string.charAt(i);
+        }
+        return h;
+    }
+    
     
     /**
      * Generate an argument to a vallang test function. `cls` can be any sub-type of IValue,
