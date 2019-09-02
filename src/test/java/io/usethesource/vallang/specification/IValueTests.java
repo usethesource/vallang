@@ -10,6 +10,7 @@ import java.io.StringReader;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
@@ -22,18 +23,18 @@ import io.usethesource.vallang.io.StandardTextWriter;
 
 public class IValueTests {
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
-    public void equalsIsReflexive(IValue val) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void equalsIsReflexive(@NoAnnotations IValue val) {
         assertEquals(val, val);
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)  @NoAnnotations
-    public void equalsIsCommutative(IValue val1, IValue val2) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)  
+    public void equalsIsCommutative(@NoAnnotations IValue val1, @NoAnnotations IValue val2) {
         assertTrue(!val1.equals(val2) || val2.equals(val1));
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
-    public void equalsIsTransitive(IValue val1, IValue val2, IValue val3) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void equalsIsTransitive(@NoAnnotations IValue val1, @NoAnnotations IValue val2, @NoAnnotations IValue val3) {
         assertTrue(!(val1.equals(val2) && val2.equals(val3)) || val1.equals(val3));
     }
     
@@ -45,8 +46,8 @@ public class IValueTests {
         assertTrue(!val1.equals(val2) || val1.hashCode() == val2.hashCode());
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
-    public void testWysiwyg(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void testWysiwyg(IValueFactory vf, @NoAnnotations IValue val) throws FactTypeUseException, IOException {
         StandardTextReader reader = new StandardTextReader();
         String string = val.toString();
         IValue result = reader.read(vf, val.getType(), new StringReader(string));
@@ -54,7 +55,7 @@ public class IValueTests {
     }
 
     @SuppressWarnings("deprecation")
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void bug39Repo(IValueFactory vf) throws IOException {
         INode val = vf.node("59", vf.bool(false), vf.integer(-6));
 
@@ -74,12 +75,12 @@ public class IValueTests {
                 vf.datetime(2020, 3, 24, 1,33, 1, 663, 0, 0)));
         val = val.asAnnotatable().setAnnotation("vRf1459", vf.bool(false));
         val = val.asAnnotatable().setAnnotation("Okrg81h", vf.rational(1193539202, 2144242729));
-        System.out.println(val.toString());
+
         testWysiwyg(vf, val);
     }
 
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
-    public void testIsomorphicText(IValue val1, IValue val2) throws FactTypeUseException, IOException {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void testIsomorphicText(@NoAnnotations IValue val1, @NoAnnotations IValue val2) throws FactTypeUseException, IOException {
         // (val1 == val2) <==> (val1.toString() == val2.toString())
 
         if (val1.equals(val2)) {
@@ -89,6 +90,13 @@ public class IValueTests {
         if (val1.toString().equals(val2.toString())) {
             assertEquals(val1, val2, val1.toString() + " and " + val2.toString() + "should be equal because they look the same.");
         }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void testIsomorphicText_regression_48(
+            @GivenValue("\"(|Da:///7w/gSfqB/Y/avO7N/06/gf96/0/52/5498/622h/4/8KTb/%C2%A9%C2%A3/LCdq|:\\\"y\\\"(4.875329280939582,false,$2020-02-19T01:25:19.036+00:00$),|cj://W03|:\\\"YPE\\\"(),|IZwo:///vcV|:\\\"df\\\"(\\\"iRe\\\"()[@zynZaJw=-404415087088.54184696206636425,@aeI6931=[],@BTlDgfs=0.0],0),|lcJr:///rmG7?C=dqen|:\\\"AHZQ\\\"((),{-1721001437r1218015923})[@Wta4336=true,@TLGcrBZ=false,@UwzdGnJ=[false],@DBnDip4=true],|l:///94/4|:\\\"aRH\\\"(1333314580r109079989))\"") IValue val1, 
+            @GivenValue("\"(|Da:///7w/gSfqB/Y/avO7N/06/gf96/0/52/5498/622h/4/8KTb/%C2%A9%C2%A3/LCdq|:\\\"y\\\"(4.875329280939582,false,$2020-02-19T01:25:19.036+00:00$),|cj://W03|:\\\"YPE\\\"(),|IZwo:///vcV|:\\\"df\\\"(\\\"iRe\\\"()[@zynZaJw=-404415087088.54184696206636425,@aeI6931=[],@BTlDgfs=0.0],0),|lcJr:///rmG7?C=dqen|:\\\"AHZQ\\\"((),{-1721001437r1218015923})[@Wta4336=true,@TLGcrBZ=false,@UwzdGnJ=[false],@DBnDip4=true],|l:///94/4|:\\\"aRH\\\"(1333314580r109079989))\"") IValue val2) throws FactTypeUseException, IOException {
+        testIsomorphicText(val1, val2);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
