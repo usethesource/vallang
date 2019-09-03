@@ -12,12 +12,13 @@
 
 package io.usethesource.vallang.type;
 
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class IntegerType extends NumberType {
@@ -42,7 +43,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		}
 		
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
 		    return tf().integerType();
 		}
 	}

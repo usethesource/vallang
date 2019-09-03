@@ -14,7 +14,6 @@ package io.usethesource.vallang.type;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -28,6 +27,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /*package*/ class TupleType extends DefaultSubtypeOfValue {
     protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
@@ -84,19 +84,19 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-            return randomInstance(next, store, rnd, rnd.nextInt(5));
+        public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
+            return randomInstance(next, rnd, rnd.nextInt(rnd.getMaxDepth()));
         }
 
         @SuppressWarnings("deprecation")
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd, int arity) {
+        /*package*/ Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd, int arity) {
             Type[] types = new Type[arity];
 
             for (int i = 0; i < arity; i++) {
                 while ((types[i] = next.get()).isBottom()); // tuples can not have empty fields
             }
 
-            if (rnd.nextBoolean()) {
+            if (!rnd.isWithTupleFieldNames() || rnd.nextBoolean()) {
                 return tf().tupleType(types);
             }
 

@@ -15,7 +15,6 @@ package io.usethesource.vallang.type;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -26,6 +25,8 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/class SetType extends DefaultSubtypeOfValue {
@@ -50,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		}
 		
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
 		    return tf().setType(next.get());
 		}
 		

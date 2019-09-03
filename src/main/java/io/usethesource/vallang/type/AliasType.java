@@ -14,7 +14,6 @@ package io.usethesource.vallang.type;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -27,6 +26,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be used to
@@ -95,9 +95,15 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 		}
 
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
 		    // we don't generate aliases because we also never reify them
-		    return TypeFactory.getInstance().randomType(store);
+		    if (!rnd.isWithAliases()) {
+		        return tf().randomType(rnd);
+		    }
+		    else {
+		        // TODO: could generate some type parameters as well
+		        return tf().aliasType(rnd.getStore(), randomLabel(rnd), tf().randomType(rnd));
+		    }
 		}
 	}
 

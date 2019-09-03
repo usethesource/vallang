@@ -12,7 +12,6 @@
 package io.usethesource.vallang.type;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -27,6 +26,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 /**
@@ -122,7 +122,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		}
 
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
+		    TypeStore store = rnd.getStore();
+		    
 		    if (rnd.nextBoolean()) {
 		       Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
 		       
@@ -135,10 +137,10 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 		    if (rnd.nextBoolean()) {
 		        if (rnd.nextBoolean()) {
-		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd)));
+		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, rnd)));
 		        }
 		        else {
-		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd), new ParameterType.Info().randomInstance(next, store, rnd)));
+		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, rnd), new ParameterType.Info().randomInstance(next, rnd)));
 		        }
 		    } 
 		    else {
@@ -150,7 +152,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		    
 		    if (rnd.nextBoolean()) {
 		        // and perhaps we generate another one with it:
-		        tf().constructorFromTuple(store, new AbstractDataType.Info().randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
+		        tf().constructorFromTuple(store, new AbstractDataType.Info().randomInstance(next, rnd), randomLabel(rnd), randomTuple(next, rnd));
 		    }
 		    
 		    return adt;

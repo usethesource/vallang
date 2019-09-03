@@ -12,7 +12,6 @@
 
 package io.usethesource.vallang.type;
 
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -20,6 +19,7 @@ import java.util.function.Supplier;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /* package */class ValueType extends Type {
 	
@@ -44,7 +44,7 @@ import io.usethesource.vallang.IConstructor;
 		}
 		
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
 		    return tf().valueType();
 		}
 	}

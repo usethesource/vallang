@@ -12,7 +12,6 @@
 package io.usethesource.vallang.type;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -24,6 +23,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 
@@ -59,8 +59,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		}
 
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-		    return tf().parameterType(randomLabel(rnd));
+		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
+		    if (rnd.isWithTypeParameters()) {
+		        return tf().parameterType(randomLabel(rnd));
+		    }
+		    
+		    return tf().valueType(); // TODO
 		}
 		
 		@Override
