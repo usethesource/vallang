@@ -11,7 +11,8 @@ public @interface TypeConfig {
     public enum Option {
         TYPE_PARAMETERS,
         ALIASES,
-        TUPLE_FIELDNAMES
+        TUPLE_FIELDNAMES,
+        ALL
     }
     
     Option[] value();

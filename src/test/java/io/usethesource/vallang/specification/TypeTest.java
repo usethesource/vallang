@@ -18,6 +18,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.TypeConfig;
+import io.usethesource.vallang.TypeConfig.Option;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.type.Type;
@@ -27,12 +29,12 @@ import io.usethesource.vallang.type.TypeStore;
 public class TypeTest {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void isomorphicStringTest(TypeFactory tf, TypeStore store, Type t) throws IOException {
+    public void isomorphicStringTest(TypeFactory tf, TypeStore store, @TypeConfig(Option.ALL) Type t) throws IOException {
         assertTrue(tf.fromString(store, new StringReader(t.toString())) == t);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void canonicalTypes(TypeFactory tf, Type t, Type u) {
+    public void canonicalTypes(TypeFactory tf, @TypeConfig(Option.ALL) Type t, @TypeConfig(Option.ALL) Type u) {
         if (t.equals(u)) {
             assertTrue(t == u);
         }
@@ -53,7 +55,7 @@ public class TypeTest {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void covariance(TypeFactory tf, Type t, Type u) {
+    public void covariance(TypeFactory tf, @TypeConfig(Option.ALL) Type t, @TypeConfig(Option.ALL) Type u) {
         if (!t.comparable(u)) {
             return;
         }
@@ -81,24 +83,24 @@ public class TypeTest {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void subtypeIsReflexive(Type t) {
+    public void subtypeIsReflexive(@TypeConfig(Option.ALL) Type t) {
         assertTrue(t.isSubtypeOf(t));
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void equalsReflective(Type t) {
+    public void equalsReflective(@TypeConfig(Option.ALL) Type t) {
         assertTrue(t.equals(t));
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void subtypeIsTransitive(Type t, Type u, Type v) {
+    public void subtypeIsTransitive(@TypeConfig(Option.ALL) Type t, @TypeConfig(Option.ALL) Type u, @TypeConfig(Option.ALL) Type v) {
         if (t.isSubtypeOf(u) && u.isSubtypeOf(v)) {
             assertTrue(t.isSubtypeOf(v));
         }
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void subtypeIsAntiCommutative(Type t, Type u) {
+    public void subtypeIsAntiCommutative(@TypeConfig(Option.ALL) Type t, @TypeConfig(Option.ALL) Type u) {
         if (t.isStrictSubtypeOf(u)) {
             assertTrue(!u.isStrictSubtypeOf(t));
         }

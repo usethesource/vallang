@@ -23,6 +23,7 @@ import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeStore;
 
 /**
@@ -147,6 +148,14 @@ public class ValueProvider implements ArgumentsProvider {
                 - Arrays.stream(method.getParameters()).filter(x -> x.getAnnotation(GivenValue.class) != null).count();
         int numberOfTests = Math.max(1, 100 * (int) Math.pow(10, valueArity - 1));
         
+        ArgumentsSeed argSeed = method.getAnnotation(ArgumentsSeed.class);
+        if (argSeed != null) {
+            gen.setSeed(argSeed.value());
+        }
+        else {
+            gen.setSeed(seed);
+        }
+        
         return Stream.of(
                 factories[0], 
                 factories[1]
@@ -188,14 +197,7 @@ public class ValueProvider implements ArgumentsProvider {
     private Arguments arguments(Method method, IValueFactory vf, TypeStore ts) {
         previous = null; // never reuse arguments from a previous instance
         
-        ArgumentsSeed argSeed = method.getAnnotation(ArgumentsSeed.class);
-        if (argSeed != null) {
-            gen.setSeed(argSeed.value());
-        }
-        else {
-            gen.setSeed(seed);
-        }
-        
+       
         ArgumentsMaxDepth depth = method.getAnnotation(ArgumentsMaxDepth.class);
         ArgumentsMaxWidth width = method.getAnnotation(ArgumentsMaxWidth.class);
         
@@ -207,6 +209,7 @@ public class ValueProvider implements ArgumentsProvider {
                                 cl.getType(), 
                                 cl.getAnnotation(ExpectedType.class), 
                                 cl.getAnnotation(GivenValue.class),
+                                cl.getAnnotation(TypeConfig.class),
                                 depth != null ? depth.value() : 5,
                                 width != null ? width.value() : 10
                                 )).toArray().clone()
@@ -232,7 +235,7 @@ public class ValueProvider implements ArgumentsProvider {
      * @param cls       the class type of the parameter to generate an input for
      * @return a random object which is assignable to cls
      */
-    private Object argument(IValueFactory vf, TypeStore ts, Class<?> cls, ExpectedType expected, GivenValue givenValue, int depth, int width)  {
+    private Object argument(IValueFactory vf, TypeStore ts, Class<?> cls, ExpectedType expected, GivenValue givenValue, TypeConfig typeConfig, int depth, int width)  {
         if (givenValue != null) {
             try {
                 if (expected != null) {
@@ -253,7 +256,7 @@ public class ValueProvider implements ArgumentsProvider {
             return ts;
         }
         else if (cls.isAssignableFrom(Type.class)) {
-            return TypeFactory.getInstance().randomType(ts, depth);
+            return TypeFactory.getInstance().randomType(configureRandomTypes(ts, typeConfig, depth));
         }
         else if (cls.isAssignableFrom(TypeFactory.class)) {
             return TypeFactory.getInstance();
@@ -264,6 +267,31 @@ public class ValueProvider implements ArgumentsProvider {
         else {
             throw new IllegalArgumentException(cls + " is not assignable from IValue, IValueFactory, TypeStore or TypeFactory");
         }
+    }
+
+    private RandomTypesConfig configureRandomTypes(TypeStore ts, TypeConfig typeConfig, int depth) {
+        RandomTypesConfig tc = RandomTypesConfig.defaultConfig(ts, rnd).maxDepth(depth);
+        
+        if (typeConfig != null) {
+            for (TypeConfig.Option p : typeConfig.value()) {
+                switch (p) {
+                case ALIASES:
+                    tc = tc.withAliases();
+                    break;
+                case TUPLE_FIELDNAMES:
+                    tc = tc.withTupleFieldNames();
+                    break;
+                case TYPE_PARAMETERS:
+                    tc = tc.withTypeParameters();
+                    break;
+                case ALL:
+                    tc = tc.withAliases().withTupleFieldNames().withTypeParameters();
+                    break;
+                }
+            }
+        }
+        
+        return tc;
     }
     
     /**
