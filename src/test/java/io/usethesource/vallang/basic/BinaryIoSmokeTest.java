@@ -126,7 +126,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
 
  
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(22) @ArgumentsMaxWidth(6)
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(12) @ArgumentsMaxWidth(6)
     public void testDeepRandomValuesIO(IValueFactory vf, TypeStore ts, IValue val) throws IOException {
         try {
             ioRoundTrip(vf, ts, val);
