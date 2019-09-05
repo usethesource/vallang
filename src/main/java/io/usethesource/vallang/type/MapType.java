@@ -88,7 +88,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 		}
 
         @Override
-        public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().mapType(next.get(), next.get());
         }
 	}

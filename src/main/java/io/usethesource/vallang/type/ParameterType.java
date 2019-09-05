@@ -59,7 +59,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		}
 
 		@Override
-		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    if (rnd.isWithTypeParameters()) {
 		        return tf().parameterType(randomLabel(rnd));
 		    }

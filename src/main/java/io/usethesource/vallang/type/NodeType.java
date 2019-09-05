@@ -48,7 +48,7 @@ class NodeType extends DefaultSubtypeOfValue {
 		}
 		
 		@Override
-		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    return tf().nodeType();
 		}
 	}

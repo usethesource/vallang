@@ -256,7 +256,8 @@ public class ValueProvider implements ArgumentsProvider {
             return ts;
         }
         else if (cls.isAssignableFrom(Type.class)) {
-            return TypeFactory.getInstance().randomType(configureRandomTypes(ts, typeConfig, depth));
+            RandomTypesConfig rtc = configureRandomTypes(typeConfig, depth);
+            return TypeFactory.getInstance().randomType(ts, rtc);
         }
         else if (cls.isAssignableFrom(TypeFactory.class)) {
             return TypeFactory.getInstance();
@@ -269,8 +270,8 @@ public class ValueProvider implements ArgumentsProvider {
         }
     }
 
-    private RandomTypesConfig configureRandomTypes(TypeStore ts, TypeConfig typeConfig, int depth) {
-        RandomTypesConfig tc = RandomTypesConfig.defaultConfig(ts, rnd).maxDepth(depth);
+    private RandomTypesConfig configureRandomTypes(TypeConfig typeConfig, int depth) {
+        RandomTypesConfig tc = RandomTypesConfig.defaultConfig(rnd).maxDepth(depth);
         
         if (typeConfig != null) {
             for (TypeConfig.Option p : typeConfig.value()) {

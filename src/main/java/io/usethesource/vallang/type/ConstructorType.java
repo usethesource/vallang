@@ -163,9 +163,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         }
         
         @Override
-        public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             // constructors should not be random types of values (a value never has a constructor type) 
-            return new AbstractDataType.Info().randomInstance(next, rnd);
+            return new AbstractDataType.Info().randomInstance(next, store, rnd);
         }
 	}
 

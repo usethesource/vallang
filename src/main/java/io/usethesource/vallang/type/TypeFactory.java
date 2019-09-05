@@ -77,24 +77,20 @@ public class TypeFactory {
 	    return "TF";
 	}
 	
-	public Type randomType() {
-	    return cachedTypeValues().randomType(RandomTypesConfig.defaultConfig(new Random()));
-	}
-	
-	public Type randomType(RandomTypesConfig config) {
-        return cachedTypeValues().randomType(config);
+	public Type randomType(TypeStore store, RandomTypesConfig config) {
+        return cachedTypeValues().randomType(store, config);
     }
 	
 	public Type randomType(TypeStore typeStore) {
-	    return cachedTypeValues().randomType(RandomTypesConfig.defaultConfig(new Random()));
+	    return cachedTypeValues().randomType(typeStore, RandomTypesConfig.defaultConfig(new Random()));
 	}
 
 	public Type randomType(TypeStore typeStore, int depth) {
-	    return cachedTypeValues().randomType(RandomTypesConfig.defaultConfig(typeStore, new Random()).maxDepth(depth));
+	    return cachedTypeValues().randomType(typeStore, RandomTypesConfig.defaultConfig(new Random()).maxDepth(depth));
 	}
 
 	public Type randomType(TypeStore typeStore, Random r, int depth) {
-	    return cachedTypeValues().randomType(RandomTypesConfig.defaultConfig(typeStore, r).maxDepth(depth));
+	    return cachedTypeValues().randomType(typeStore, RandomTypesConfig.defaultConfig(r).maxDepth(depth));
 	}
 
 	
@@ -743,7 +739,7 @@ public class TypeFactory {
 		    return false;
 		}
 		
-		Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd);
+		Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd);
 		
 		default IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			// this will work for all nullary type symbols with only one constructor type
@@ -760,25 +756,23 @@ public class TypeFactory {
             return "x" + new BigInteger(32, rnd.getRandom()).toString(32);
         }
         
-        default Type randomTuple(Supplier<Type> next, RandomTypesConfig rnd) {
-            return new TupleType.Info().randomInstance(next, rnd);
+        default Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            return new TupleType.Info().randomInstance(next, store, rnd);
         }
         
-        default Type randomTuple(Supplier<Type> next, RandomTypesConfig rnd, int arity) {
+        default Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
             return new TupleType.Info().randomInstance(next, rnd, arity);
         }
 	}
 
 	public static class RandomTypesConfig {
-	    private final TypeStore store;
 	    private final Random random;
 	    private final int maxDepth;
 	    private final boolean withTypeParameters;
 	    private final boolean withAliases;
 	    private final boolean withTupleFieldNames;
 	    
-	    private RandomTypesConfig(TypeStore store, Random random) {
-	        this.store = store;
+	    private RandomTypesConfig(Random random) {
 	        this.random = random;
 	        this.maxDepth = 5;
 	        this.withAliases = false;
@@ -786,8 +780,7 @@ public class TypeFactory {
 	        this.withTypeParameters = false;
 	    }
 	    
-	    private RandomTypesConfig(TypeStore store, Random random, int maxDepth, boolean withTypeParameters, boolean withAliases, boolean withTupleFieldNames) {
-	        this.store = store;
+	    private RandomTypesConfig(Random random, int maxDepth, boolean withTypeParameters, boolean withAliases, boolean withTupleFieldNames) {
             this.random = random;
             this.maxDepth = maxDepth;
             this.withAliases = withAliases;
@@ -796,15 +789,7 @@ public class TypeFactory {
         }
 	    
 	    public static RandomTypesConfig defaultConfig(Random random) {
-	        return new RandomTypesConfig(new TypeStore(), random);
-	    }
-	    
-	    public static RandomTypesConfig defaultConfig(TypeStore store, Random random) {
-            return new RandomTypesConfig(store, random);
-        }
-	    
-	    public TypeStore getStore() {
-	        return store;
+	        return new RandomTypesConfig(random);
 	    }
 	    
 	    public Random getRandom() {
@@ -836,19 +821,19 @@ public class TypeFactory {
 	    }
 	    
 	    public RandomTypesConfig maxDepth(int newMaxDepth) {
-	        return new RandomTypesConfig(store, random, newMaxDepth, withTypeParameters, withAliases, withTupleFieldNames);
+	        return new RandomTypesConfig(random, newMaxDepth, withTypeParameters, withAliases, withTupleFieldNames);
 	    }
 	    
 	    public RandomTypesConfig withAliases() {
-	        return new RandomTypesConfig(store, random, maxDepth, withTypeParameters, true, withTupleFieldNames);
+	        return new RandomTypesConfig(random, maxDepth, withTypeParameters, true, withTupleFieldNames);
 	    }
 	    
 	    public RandomTypesConfig withTypeParameters() {
-	        return new RandomTypesConfig(store, random, maxDepth, true, withAliases, withTupleFieldNames);
+	        return new RandomTypesConfig(random, maxDepth, true, withAliases, withTupleFieldNames);
 	    }
 	    
 	    public RandomTypesConfig withTupleFieldNames() {
-	        return new RandomTypesConfig(store, random, maxDepth, withTypeParameters, withAliases, true);
+	        return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, true);
 	    }
 	}
 	
@@ -863,25 +848,25 @@ public class TypeFactory {
 		
 		private TypeValues() { 	}
 		
-		public Type randomType(RandomTypesConfig rnd) {
+		public Type randomType(TypeStore store, RandomTypesConfig rnd) {
 		    Supplier<Type> next = new Supplier<Type>() {
 		        int maxTries = rnd.getMaxDepth();
 		        
                 @Override
                 public Type get() {
                     if (maxTries-- > 0) {
-                        return getRandomType(this, rnd); 
+                        return getRandomType(this, store, rnd); 
                     }
                     else {
-                        return getRandomNonRecursiveType(this, rnd);
+                        return getRandomNonRecursiveType(this, store, rnd);
                     }
                 }
 		    };
 		            
-		    return getRandomType(next, rnd);
+		    return getRandomType(next, store, rnd);
 	    }
 		
-		private Type getRandomNonRecursiveType(Supplier<Type> next, RandomTypesConfig rnd) {
+		private Type getRandomNonRecursiveType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    Iterator<TypeReifier> it = symbolConstructorTypes.values().iterator();
             TypeReifier reifier = it.next();
           
@@ -892,10 +877,10 @@ public class TypeFactory {
                 }
             }
             
-            return reifier.randomInstance(next, rnd);
+            return reifier.randomInstance(next, store, rnd);
         }
 
-        private Type getRandomType(Supplier<Type> next, RandomTypesConfig rnd) {
+        private Type getRandomType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             TypeReifier[] alts = symbolConstructorTypes.values().toArray(new TypeReifier[0]);
             TypeReifier selected = alts[Math.max(0, rnd.nextInt(alts.length) - 1)];
             
@@ -904,7 +889,7 @@ public class TypeFactory {
                selected = alts[Math.max(0, rnd.nextInt(alts.length))];
             }
             
-            return selected.randomInstance(next, rnd);
+            return selected.randomInstance(next, store, rnd);
         }
 
         public boolean isLabel(IConstructor symbol) {

@@ -95,14 +95,14 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 		}
 
 		@Override
-		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    // we don't generate aliases because we also never reify them
 		    if (!rnd.isWithAliases()) {
-		        return tf().randomType(rnd);
+		        return tf().randomType(store, rnd);
 		    }
 		    else {
 		        // TODO: could generate some type parameters as well
-		        return tf().aliasType(rnd.getStore(), randomLabel(rnd), tf().randomType(rnd));
+		        return tf().aliasType(store, randomLabel(rnd), tf().randomType(store, rnd));
 		    }
 		}
 	}

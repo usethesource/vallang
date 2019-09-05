@@ -423,19 +423,19 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isSet() {
-    return isSubtypeOf(SET_TYPE);
+    return isSubtypeOf(SET_TYPE) && !isBottom();
   }
   
   public final boolean isList() {
-    return isSubtypeOf(LIST_TYPE);
+    return isSubtypeOf(LIST_TYPE) && !isBottom();
   }
   
   public final boolean isMap() {
-    return isSubtypeOf(MAP_TYPE);
+    return isSubtypeOf(MAP_TYPE) && !isBottom();
   }
   
   public final boolean isBool() {
-    return isSubtypeOf(BOOL_TYPE);
+    return isSubtypeOf(BOOL_TYPE) && !isBottom();
   }
   
   public final boolean isRelation() {
@@ -447,19 +447,19 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isInteger() {
-    return isSubtypeOf(INTEGER_TYPE);
+    return isSubtypeOf(INTEGER_TYPE) && !isBottom();
   }
   
   public final boolean isReal() {
-    return isSubtypeOf(REAL_TYPE);
+    return isSubtypeOf(REAL_TYPE) && !isBottom();
   }
   
   public final boolean isRational() {
-    return isSubtypeOf(RATIONAL_TYPE);
+    return isSubtypeOf(RATIONAL_TYPE) && !isBottom();
   }
   
   public final boolean isNumber() {
-    return isSubtypeOf(NUMBER_TYPE);
+    return isSubtypeOf(NUMBER_TYPE) &&!isBottom();
   }
   
   public final boolean isTop() {
@@ -471,11 +471,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isNode() {
-	  return isSubtypeOf(NODE_TYPE);
+	  return isSubtypeOf(NODE_TYPE) && !isBottom();
   }
   
   public final boolean isAbstractData() {
-    return isStrictSubtypeOf(NODE_TYPE);
+    return isStrictSubtypeOf(NODE_TYPE) && !isBottom();
   }
   
   public final boolean isConstructor() {
@@ -483,15 +483,15 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isString() {
-	  return isSubtypeOf(STRING_TYPE);
+	  return isSubtypeOf(STRING_TYPE) && !isBottom();
   }
   
   public final boolean isSourceLocation() {
-    return isSubtypeOf(SOURCE_LOCATION_TYPE);
+    return isSubtypeOf(SOURCE_LOCATION_TYPE) && !isBottom();
   }
   
   public final boolean isDateTime() {
-	  return isSubtypeOf(DATE_TIME_TYPE);
+	  return isSubtypeOf(DATE_TIME_TYPE) && !isBottom();
   }
   
   public final boolean isTuple() {

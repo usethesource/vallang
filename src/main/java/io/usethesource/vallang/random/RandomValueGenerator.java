@@ -502,7 +502,7 @@ public class RandomValueGenerator  {
         }
         
         private Type randomType() {
-            return TypeFactory.getInstance().randomType(currentStore, depthLeft());
+            return TypeFactory.getInstance().randomType(currentStore, random, depthLeft());
         }
 
         @Override

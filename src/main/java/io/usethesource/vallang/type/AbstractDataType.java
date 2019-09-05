@@ -122,9 +122,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		}
 
 		@Override
-		public Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd) {
-		    TypeStore store = rnd.getStore();
-		    
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    if (rnd.nextBoolean()) {
 		       Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
 		       
@@ -136,11 +134,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
             Type adt;
 
 		    if (rnd.nextBoolean()) {
-		        if (rnd.nextBoolean()) {
-		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, rnd)));
+		        Type param1 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
+                if (rnd.nextBoolean()) {
+		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(param1));
 		        }
 		        else {
-		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, rnd), new ParameterType.Info().randomInstance(next, rnd)));
+		            Type param2 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
+		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(param1, param2));
 		        }
 		    } 
 		    else {
@@ -152,7 +152,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		    
 		    if (rnd.nextBoolean()) {
 		        // and perhaps we generate another one with it:
-		        tf().constructorFromTuple(store, new AbstractDataType.Info().randomInstance(next, rnd), randomLabel(rnd), randomTuple(next, rnd));
+		        tf().constructorFromTuple(store, randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
 		    }
 		    
 		    return adt;
