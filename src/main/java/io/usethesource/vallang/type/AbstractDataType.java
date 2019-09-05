@@ -11,6 +11,8 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -136,11 +138,28 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		    if (rnd.nextBoolean()) {
 		        Type param1 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
                 if (rnd.nextBoolean()) {
+                    // first declare the open type:
 		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(param1));
+		            
+		            // now instantiate if needed:
+		            if (!rnd.isWithTypeParameters() || rnd.nextBoolean()) {
+		                adt = adt.instantiate(Collections.singletonMap(param1, tf().randomType(store, rnd)));
+		                
+		            }
 		        }
 		        else {
 		            Type param2 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
+		            
+		            // first declare the open type
 		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(param1, param2));
+		            
+		            // now instantiate if needed:
+		            if (!rnd.isWithTypeParameters() || rnd.nextBoolean()) {
+		                Map<Type, Type> bindings = new HashMap<>();
+		                bindings.put(param1, tf().randomType(store, rnd));
+		                bindings.put(param2, tf().randomType(store, rnd));
+		                adt = adt.instantiate(bindings);
+                    }
 		        }
 		    } 
 		    else {
