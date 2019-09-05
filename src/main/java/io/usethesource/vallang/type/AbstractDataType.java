@@ -129,7 +129,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		       Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
 		       
 		       if (adts.length > 0) {
-		           return adts[Math.max(0, (int) Math.round(Math.random() * adts.length - 1))];
+		           return instantiateIfNeeded(adts[Math.max(0, (int) Math.round(Math.random() * adts.length - 1))], store, rnd);
 		       }
 		    } 
 
@@ -140,26 +140,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
                 if (rnd.nextBoolean()) {
                     // first declare the open type:
 		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(param1));
-		            
-		            // now instantiate if needed:
-		            if (!rnd.isWithTypeParameters() || rnd.nextBoolean()) {
-		                adt = adt.instantiate(Collections.singletonMap(param1, tf().randomType(store, rnd)));
-		                
-		            }
 		        }
 		        else {
 		            Type param2 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
 		            
 		            // first declare the open type
 		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(param1, param2));
-		            
-		            // now instantiate if needed:
-		            if (!rnd.isWithTypeParameters() || rnd.nextBoolean()) {
-		                Map<Type, Type> bindings = new HashMap<>();
-		                bindings.put(param1, tf().randomType(store, rnd));
-		                bindings.put(param2, tf().randomType(store, rnd));
-		                adt = adt.instantiate(bindings);
-                    }
 		        }
 		    } 
 		    else {
@@ -174,8 +160,20 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		        tf().constructorFromTuple(store, randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
 		    }
 		    
-		    return adt;
+		    return instantiateIfNeeded(adt, store, rnd);
 		}
+
+        private Type instantiateIfNeeded(Type result, TypeStore store, RandomTypesConfig rnd) {
+            if (!rnd.isWithTypeParameters() || rnd.nextBoolean()) {
+                   Map<Type,Type> bindings = new HashMap<>();
+                   for (Type param : result.getTypeParameters()) {
+                       bindings.put(param, tf().randomType(store, rnd));
+                   }
+                   
+                   result = result.instantiate(bindings);
+               }
+            return result;
+        }
     }
 
     @Override
