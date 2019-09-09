@@ -24,7 +24,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public class Constructor extends Node implements IConstructor {
     /*package*/ Constructor(Type type, IValue[] children) {
         super(type.getName(), type, children);
-
+        assert type.getAbstractDataType().isParameterized() ? type.getAbstractDataType().isOpen() : true;
     }
 
     /*package*/ Constructor(Type type) {

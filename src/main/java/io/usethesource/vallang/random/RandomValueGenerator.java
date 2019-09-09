@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,6 +34,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
@@ -428,12 +430,21 @@ public class RandomValueGenerator  {
             if (store == null) {
                 throw new RuntimeException("Missing TypeStore");
             }
-            Set<Type> candidates = store.lookupAlternatives(type);
+            
+            Type uninstantiatedADT = store.lookupAbstractDataType(type.getName());
+            if (uninstantiatedADT == null) {
+                throw new UndeclaredAbstractDataTypeException(type);
+            }
+            Map<Type,Type> bindings = new HashMap<>();
+            uninstantiatedADT.match(type, bindings);
+            
+            Set<Type> candidates = store.lookupAlternatives(uninstantiatedADT);
             if (candidates.isEmpty()) {
                 throw new RuntimeException("can not generate constructors for non-existing ADT: " + type);
             }
             
             Type constructor = pickRandom(candidates);
+            
             if (depthLeft() <= 0) {
                 Type original = constructor;
 
@@ -447,12 +458,10 @@ public class RandomValueGenerator  {
                 }
             }
             
-            return continueGenerating(constructor);
+            return generateConstructor(constructor, bindings);
         }
 
-
-        @Override
-        public IValue visitConstructor(Type type) throws RuntimeException {
+        private IValue generateConstructor(Type type, Map<Type, Type> bindings) {
             TypeStore store = currentStore;
             if (store == null) {
                 throw new RuntimeException("Missing TypeStore");
@@ -464,8 +473,9 @@ public class RandomValueGenerator  {
             } 
 
             IValue[] args = new IValue[type.getArity()];
+            Type instantiatedConstructor = type.instantiate(bindings);
             for (int i = 0; i < args.length; i++) {
-                args[i] = generateOneDeeper(type.getFieldType(i));
+                args[i] = generateOneDeeper(instantiatedConstructor.getFieldType(i));
             }
 
             if (kwParamsType.size() > 0 && oneEvery(3) && depthLeft() > 0) {
@@ -473,6 +483,11 @@ public class RandomValueGenerator  {
             }
 
             return vf.constructor(type, args);
+        }
+
+        @Override
+        public IValue visitConstructor(Type type) throws RuntimeException {
+            return generateConstructor(type, Collections.emptyMap());
         }
 
 

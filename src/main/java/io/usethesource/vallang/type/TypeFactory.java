@@ -863,7 +863,7 @@ public class TypeFactory {
                 }
 		    };
 		            
-		    return getRandomType(next, store, rnd);
+		    return rnd.getMaxDepth() > 0 ? getRandomType(next, store, rnd) : getRandomNonRecursiveType(next, store, rnd);
 	    }
 		
 		private Type getRandomNonRecursiveType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
