@@ -62,7 +62,7 @@ import io.usethesource.vallang.type.Type;
 	@Override
 	public IMap removeKey(IValue key) {
 	    IMapWriter w = writer();
-	    for (Entry<IValue,IValue> cursor :(Iterable<Entry<IValue,IValue>>) () -> entryIterator()) {
+	    for (Entry<IValue,IValue> cursor :(Iterable<Entry<IValue,IValue>>) this::entryIterator) {
 	        if (!cursor.getKey().equals(key)) {
 	            w.put(cursor.getKey(), cursor.getValue());
 	        }
@@ -135,7 +135,7 @@ import io.usethesource.vallang.type.Type;
     
     @Override
     public Stream<IValue> stream() {
-        Iterable<Entry<IValue, IValue>> it = () -> entryIterator();
+        Iterable<Entry<IValue, IValue>> it = this::entryIterator;
         return StreamSupport.stream(it.spliterator(), false).map(entry -> new Tuple(entry.getKey(), entry.getValue()));
     }
 }
