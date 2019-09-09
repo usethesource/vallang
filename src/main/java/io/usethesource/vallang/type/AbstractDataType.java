@@ -127,8 +127,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		    if (rnd.nextBoolean()) {
 		       Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
 		       
-		       if (adts.length > 0) {
-		           return instantiateIfNeeded(adts[Math.max(0, (int) Math.round(Math.random() * adts.length - 1))], store, rnd);
+		       if (adts.length > 0) { // otherwise we will generate a new instance down below
+		           return instantiateIfNeeded(adts[rnd.nextInt(adts.length)], store, rnd);
 		       }
 		    } 
 
