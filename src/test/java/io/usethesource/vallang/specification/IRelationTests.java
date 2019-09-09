@@ -1,6 +1,7 @@
 package io.usethesource.vallang.specification;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Iterator;
@@ -46,5 +47,16 @@ public class IRelationTests {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void transClosure(@ExpectedType("rel[int,int]") ISet src) {
         assertEquals(src.asRelation().closure().intersect(src), src);
+    }
+    
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void carrierForTriples(@ExpectedType("rel[int,int,int]") ISet src) {
+        ISet carrier = src.asRelation().carrier();
+        
+        for (int i = 0; i < 3; i++) {
+            ISet column = src.asRelation().project(i);
+            assertTrue(column.isSubsetOf(carrier));
+        }
     }
 }
