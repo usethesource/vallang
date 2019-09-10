@@ -10,6 +10,7 @@ import java.io.StringReader;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
@@ -49,6 +50,12 @@ public class IValueTests {
         String string = val.toString();
         IValue result = reader.read(vf, store, val.getType(), new StringReader(string));
         assertEquals(val, result, "reading back " + val + " produced something different");
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void testWysiwygConstructors(IValueFactory vf, TypeStore store, IConstructor val) throws FactTypeUseException, IOException {
+        // constructors go wrong more often, this test makes sure we generate more random examples.
+        testWysiwyg(vf, store, val);
     }
 
     public void testIsomorphicText(IValue val1, IValue val2) throws FactTypeUseException, IOException {
