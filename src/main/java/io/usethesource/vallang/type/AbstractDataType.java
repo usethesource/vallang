@@ -134,21 +134,27 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
             Type adt;
 
+            String adtName;
+            do {
+                // do not accidentally generate an ADT which already exists.
+                adtName = randomLabel(rnd);
+            } while (store.lookupAbstractDataType(adtName) != null);
+            
 		    if (rnd.nextBoolean()) {
 		        Type param1 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
                 if (rnd.nextBoolean()) {
                     // first declare the open type:
-		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(param1));
+		            adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1));
 		        }
 		        else {
 		            Type param2 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
 		            
 		            // first declare the open type
-		            adt = tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(param1, param2));
+		            adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1, param2));
 		        }
 		    } 
 		    else {
-		        adt = tf().abstractDataType(store, randomLabel(rnd));
+		        adt = tf().abstractDataType(store, adtName);
 		    }
 		    
 		    // should be defined by at least one nullary constructor
