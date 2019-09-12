@@ -22,7 +22,7 @@ node {
         }
 
         stage('Deploy') {
-            if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
+            if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy" || env.BRANCH_NAME == "remove-annotations-ci") {
                 sh "mvn clean -DskipTests deploy"
             }
         }
