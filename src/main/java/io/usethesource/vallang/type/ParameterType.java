@@ -12,6 +12,7 @@
 package io.usethesource.vallang.type;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -21,6 +22,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
@@ -485,5 +487,16 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	@Override
 	protected Type glbWithDateTime(Type type) {
 		return getBound().glbWithDateTime(type);
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    Type tv = typeParameters.get(this);
+	    if (tv != null) {
+	        return tv.randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+	    }
+	    
+	    return getBound().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
 	}
 }

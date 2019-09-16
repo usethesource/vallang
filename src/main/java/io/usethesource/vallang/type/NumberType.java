@@ -12,6 +12,8 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -19,6 +21,8 @@ import java.util.function.Supplier;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /**
@@ -137,5 +141,18 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	@Override
 	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitNumber(this);
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    switch (random.nextInt(3)) {
+	    case 0:
+	        return TypeFactory.getInstance().integerType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+	    case 1:
+	        return TypeFactory.getInstance().realType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+	    default:
+	        return TypeFactory.getInstance().rationalType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+	    }
 	}
 }

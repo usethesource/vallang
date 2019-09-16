@@ -12,11 +12,15 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -48,6 +52,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 	}
 
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxBreadth) {
+	    return vf.bool(random.nextBoolean());
+	}
+	
 	@Override
 	public TypeFactory.TypeReifier getTypeReifier() {
 		return new Info();

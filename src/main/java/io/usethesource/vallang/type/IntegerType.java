@@ -12,11 +12,18 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static io.usethesource.vallang.random.util.RandomUtil.oneEvery;
+
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -58,8 +65,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
      */
     @Override
     public boolean equals(@Nullable Object obj) {
-    return obj == IntegerType.getInstance();
-}
+        return obj == IntegerType.getInstance();
+    }
     
     @Override
     public int hashCode() {
@@ -114,5 +121,33 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     @Override
     protected Type glbWithNumber(Type type) {
       return this;
+    }
+    
+    @Override
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+            int maxDepth, int maxBreadth) {
+        if (oneEvery(random, 5) && maxDepth > 1) {
+            return vf.integer(random.nextInt());
+        }
+        
+        if (oneEvery(random, 5)) {
+            return vf.integer(random.nextInt(10));
+        }
+        
+        if (oneEvery(random, 5)) {
+            return vf.integer(-random.nextInt(10));
+        }
+        
+        if (oneEvery(random, 20) && maxDepth > 1) {
+            // sometimes, a very huge number
+            IInteger result = vf.integer(random.nextLong());
+            do {
+                result = result.multiply(vf.integer(random.nextLong()));
+            }
+            while (random.nextFloat() > 0.4);
+            return result.add(vf.integer(random.nextInt()));
+        }
+        
+        return vf.integer(0);
     }
 }

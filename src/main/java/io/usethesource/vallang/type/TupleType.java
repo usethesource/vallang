@@ -14,6 +14,7 @@ package io.usethesource.vallang.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -24,6 +25,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
@@ -405,5 +407,16 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
             return TypeFactory.getInstance().tupleType(fieldTypes);
         }
+    }
+    
+    @Override
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+            int maxDepth, int maxWidth) {
+        IValue[] elems = new IValue[getArity()];
+        
+        for (int i = 0; i < elems.length; i++) {
+            elems[i] = getFieldType(i).randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
+        }
+        return vf.tuple(elems);
     }
 }

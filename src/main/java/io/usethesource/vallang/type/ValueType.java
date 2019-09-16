@@ -12,6 +12,8 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -19,6 +21,8 @@ import java.util.function.Supplier;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /* package */class ValueType extends Type {
@@ -341,5 +345,17 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 	protected Type glbWithDateTime(Type type) {
 		return type;
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    Type type;
+	    
+	    do {
+	        type = TypeFactory.getInstance().randomType(store, random, maxDepth);
+	    } while (type.isBottom());
+	    
+        return type.randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
 	}
 }

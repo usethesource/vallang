@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import org.checkerframework.dataflow.qual.Pure;
@@ -685,4 +686,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     // the external type should be the receiver
     return glb(type);
   }
+  
+  abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth);
 }

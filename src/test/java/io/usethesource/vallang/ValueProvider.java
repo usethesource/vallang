@@ -20,7 +20,6 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
-import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
@@ -58,7 +57,6 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class ValueProvider implements ArgumentsProvider {
     private static final TypeFactory tf = TypeFactory.getInstance();
-    private static final RandomValueGenerator gen;
 
     private static final @Nullable String seedProperty;
     private static final long seed;
@@ -77,7 +75,6 @@ public class ValueProvider implements ArgumentsProvider {
        }
        
        System.err.println("Current random seed is: " + seed);
-       gen = new RandomValueGenerator(rnd);
     }
     
     /**
@@ -150,10 +147,10 @@ public class ValueProvider implements ArgumentsProvider {
         
         ArgumentsSeed argSeed = method.getAnnotation(ArgumentsSeed.class);
         if (argSeed != null) {
-            gen.setSeed(argSeed.value());
+            rnd.setSeed(argSeed.value());
         }
         else {
-            gen.setSeed(seed);
+            rnd.setSeed(seed);
         }
         
         return Stream.of(
@@ -307,11 +304,11 @@ public class ValueProvider implements ArgumentsProvider {
     private IValue generateValue(IValueFactory vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType expected, int depth, int width) {
         Type expectedType = expected != null ? readType(ts, expected) : types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, expected);
         
-        if (previous != null && gen.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {
-            return gen.nextBoolean() ? previous : reinstantiate(vf, ts, previous);
+        if (previous != null && rnd.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {
+            return rnd.nextBoolean() ? previous : reinstantiate(vf, ts, previous);
         }
         
-        return (previous = gen.generate(expectedType, vf, ts, Collections.emptyMap(), depth, width));
+        return (previous = expectedType.randomValue(rnd, vf, ts, Collections.emptyMap(), depth, width));
     }
 
     private static Type readType(TypeStore ts, ExpectedType expected) {

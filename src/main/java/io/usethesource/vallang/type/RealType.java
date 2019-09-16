@@ -13,11 +13,17 @@
 
 package io.usethesource.vallang.type;
 
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -122,5 +128,30 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	@Override
 	protected boolean isSubtypeOfReal(Type type) {
 		return true;
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    if (RandomUtil.oneEvery(random, 5)) {
+            return vf.real(10 * random.nextDouble());
+        }
+        if (RandomUtil.oneEvery(random, 5)) {
+            return vf.real(-10 * random.nextDouble());
+        }
+        if (RandomUtil.oneEvery(random, 10)) {
+            return vf.real(random.nextDouble());
+        }
+        if (RandomUtil.oneEvery(random, 10)) {
+            return vf.real(-random.nextDouble());
+        }
+
+        if (RandomUtil.oneEvery(random, 20) && maxDepth > 0) {
+            BigDecimal r = BigDecimal.valueOf(random.nextDouble()).multiply(BigDecimal.valueOf(random.nextInt(10000)));
+            r = r.multiply(BigDecimal.valueOf(random.nextInt()).add(BigDecimal.valueOf(1000)));
+            return vf.real(r.toString());
+        }
+
+        return vf.real(0.0);
 	}
 }

@@ -12,12 +12,10 @@
  */ 
 package io.usethesource.vallang.util;
 
-import java.util.HashMap;
 import java.util.Random;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -72,6 +70,6 @@ public class RandomValues {
 	}
 
     public static IValue generate(Type tp, TypeStore ts, IValueFactory vf, Random rand, int maxDepth) {
-        return new RandomValueGenerator(rand).generate(tp, vf, ts, new HashMap<>(), maxDepth, maxDepth * 2);
+        return tp.randomValue(rand, vf, ts, null, maxDepth, maxDepth * 2);
     }
 }
