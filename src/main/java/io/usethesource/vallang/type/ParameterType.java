@@ -492,11 +492,23 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	@Override
 	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
 	        int maxDepth, int maxWidth) {
-	    Type tv = typeParameters.get(this);
+	    IValue val = getBound().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+	    
+	    inferBinding(typeParameters, val);
+	    
+	    return val;
+	}
+
+    private void inferBinding(Map<Type, Type> typeParameters, IValue val) {
+        Type tv = typeParameters.get(this);
+	    
 	    if (tv != null) {
-	        return tv.randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+	        tv = tv.lub(val.getType());
+	    }
+	    else {
+	        tv = val.getType();
 	    }
 	    
-	    return getBound().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
-	}
+	    typeParameters.put(this, tv);
+    }
 }

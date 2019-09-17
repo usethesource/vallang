@@ -26,34 +26,49 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeStore;
 
 /**
- * This value provider generates automatically/randomly values for test parameters of type:
- *    IValueFactory
- *    TypeFactory
- *    TypeStore
- *    IValue
- *    IList
- *    ISet
- *    IMap
- *    IInteger
- *    IReal
- *    INumber
- *    IRational
- *    INode
- *    IConstructor
- *    ITuple
- *    ISourceLocation
- *    Type
+ * <p>This value provider generates automatically/randomly values for test parameters of type:
+ *    <ul><li>IValueFactory</li>
+ *    <li>TypeFactory</li>
+ *    <li>TypeStore</li>
+ *    <li>IValue</li>
+ *    <li>IList</li>
+ *    <li>ISet</li>
+ *    <li>IMap</li>
+ *    <li>IInteger</li>
+ *    <li>IReal</li>
+ *    <li>INumber</li>
+ *    <li>IRational</li>
+ *    <li>INode</li>
+ *    <li>IConstructor</li>
+ *    <li>ITuple</li>
+ *    <li>ISourceLocation</li>
+ *    <li>Type</li></ul></p>
  *    
- *    If the class under test has a static field called "store" of type TypeStore, then this
- *    typestore will be passed to all parameters of type TypeStore instead of a fresh/empty TypeStore.
+ *    <p>If the class under test has a static field called "store" of type TypeStore, then this
+ *    typestore will be passed to all parameters of type TypeStore instead of a fresh/empty TypeStore.</p>
  *    
- *   If a parameter of a method under test is annotated with @ExpectedType("type") like so:
- *      \@ParameterizedTest \@ArgumentsSource(ValueProvider.class)
- *      public void myTest(\@ExpectedType("set[int]") ISet set) ...
- *
+ *   <p>If a parameter of a method under test is annotated with \@ExpectedType("type") like so:
+ *      <pre>\@ParameterizedTest \@ArgumentsSource(ValueProvider.class)
+ *      public void myTest(\@ExpectedType("set[int]") ISet set) ...</pre>
+ *    
  *   , then the ValueProvider will generate only instances which have as run-time type a
- *   sub-type of the specified expected type. 
+ *   sub-type of the specified expected type.</p> 
  *    
+ *  <p>  
+ *  If a method under test is annotated with \@ArgumentsSeed(long) then that seed is used to
+ *  generate the stream of argument lists for the given method</p>
+ *  
+ *  <p>If a parameter of a method under test is annotate with \@GivenValue("expression") then
+ *  instead of a random parameter, the value expression is parsed as an IValue and passed as given parameter.
+ *  The parser respects the current TypeStore as well as optional \@ExpectedType annotations on the same parameter.</p>
+ *  
+ *  <p>If a parameter of a method under test of type {@link Type} is annotated with \@TypeConfig then the 
+ *  random type generator is configurated using that annotation. For example:
+ *  \@TypeConfig(Option.All) will activate type aliases, open type parameters and field names for tuples.</p>
+ *  
+ *  <p>If a method under test is annotated with \@ArgumentsMaxDepth(int), then none of the random parameters
+ *  will be nested deeper than the given number. \@ArgumentsMaxWidth(int) has a similar meaning but for the width
+ *  of tuples, lists, maps, and sets.</p>
  */
 public class ValueProvider implements ArgumentsProvider {
     private static final TypeFactory tf = TypeFactory.getInstance();
@@ -89,7 +104,7 @@ public class ValueProvider implements ArgumentsProvider {
     private static final IValueFactory[] factories = { 
             io.usethesource.vallang.impl.reference.ValueFactory.getInstance(),  
             io.usethesource.vallang.impl.persistent.ValueFactory.getInstance()
-            };
+    };
     
     /**
      * This trivial class helps with streaming generated test inputs, and some other stuff.

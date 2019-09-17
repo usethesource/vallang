@@ -877,7 +877,13 @@ public class TypeFactory {
                 }
             }
             
-            return reifier.randomInstance(next, store, rnd);
+            if (reifier.isRecursive()) {
+                // TODO: I don't understand this
+                return integerType();
+            }
+            else {
+                return reifier.randomInstance(next, store, rnd);
+            }
         }
 
         private Type getRandomType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {

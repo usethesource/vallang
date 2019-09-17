@@ -278,7 +278,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         if (maxDepth > 0 && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth));
             
-            if (!getElementType().isBottom()) {
+            if (!getElementType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
                 for (int i =0; i < size; i++) {
                     result.append(getElementType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth));
                 }

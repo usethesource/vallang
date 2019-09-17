@@ -687,5 +687,17 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return glb(type);
   }
   
+  /**
+   * Generate a random value which is guaranteed to have a type that is
+   * a (non-strict) sub-type of the receiver.
+   * 
+   * @param random         pass in reused Random instance for better random uniformity between calls to this method.
+   * @param vf             IValueFactory to use when building values
+   * @param store          TypeStore to lookup constructors and fields in
+   * @param typeParameters will be filled with the inferred (least-upper-bound) type for every open type parameter as a side-effect.
+   * @param maxDepth       how deeply to generate recursive values
+   * @param maxWidth       how wide collections and fixed-width data-types should be (maximally)
+   * @return
+   */
   abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth);
 }

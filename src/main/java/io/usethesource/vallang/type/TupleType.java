@@ -87,7 +87,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-            return randomInstance(next, rnd, rnd.nextInt(rnd.getMaxDepth()));
+            return randomInstance(next, rnd, rnd.nextInt(rnd.getMaxDepth() + 1));
         }
 
         @SuppressWarnings("deprecation")
@@ -415,6 +415,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
         IValue[] elems = new IValue[getArity()];
         
         for (int i = 0; i < elems.length; i++) {
+            assert !getFieldType(i).isBottom();
             elems[i] = getFieldType(i).randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
         }
         return vf.tuple(elems);
