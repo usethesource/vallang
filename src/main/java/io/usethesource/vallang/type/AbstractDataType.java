@@ -11,7 +11,6 @@
 
 package io.usethesource.vallang.type;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -131,7 +130,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
                 Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
 
                 if (adts.length > 0) { // otherwise we will generate a new instance down below
-                    return instantiateIfNeeded(adts[rnd.nextInt(adts.length)], store, rnd);
+                    return adts[rnd.nextInt(adts.length)];
                 }
                 
                 // we choose another type to generate since there are no definitions
@@ -172,19 +171,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
                 tf().constructorFromTuple(store, randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
             }
 
-            return instantiateIfNeeded(adt, store, rnd);
-        }
-
-        private Type instantiateIfNeeded(Type result, TypeStore store, RandomTypesConfig rnd) {
-            if (!rnd.isWithTypeParameters() || rnd.nextBoolean()) {
-                Map<Type,Type> bindings = new HashMap<>();
-                for (Type param : result.getTypeParameters()) {
-                    bindings.put(param, tf().randomType(store, rnd));
-                }
-
-                result = result.instantiate(bindings);
-            }
-            return result;
+            return adt;
         }
     }
 
