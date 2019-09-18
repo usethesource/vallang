@@ -126,16 +126,16 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-            if (!rnd.isWithRandomAbstractDatatypes() || rnd.nextBoolean()) {
+            if (!rnd.isWithRandomAbstractDatatypes()) {
+                return next.get();
+            }
+            
+            if (rnd.nextBoolean()) {
                 Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
 
                 if (adts.length > 0) { // otherwise we will generate a new instance down below
                     return adts[rnd.nextInt(adts.length)];
                 }
-                
-                // we choose another type to generate since there are no definitions
-                // available for ADTs
-                return next.get();
             } 
 
             Type adt;
