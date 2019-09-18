@@ -771,6 +771,7 @@ public class TypeFactory {
 	    private final boolean withTypeParameters;
 	    private final boolean withAliases;
 	    private final boolean withTupleFieldNames;
+	    private final boolean withRandomAbstractDatatypes;
 	    
 	    private RandomTypesConfig(Random random) {
 	        this.random = random;
@@ -778,14 +779,16 @@ public class TypeFactory {
 	        this.withAliases = false;
 	        this.withTupleFieldNames = false;
 	        this.withTypeParameters = false;
+	        this.withRandomAbstractDatatypes = true;
 	    }
 	    
-	    private RandomTypesConfig(Random random, int maxDepth, boolean withTypeParameters, boolean withAliases, boolean withTupleFieldNames) {
+	    private RandomTypesConfig(Random random, int maxDepth, boolean withTypeParameters, boolean withAliases, boolean withTupleFieldNames, boolean withRandomAbstractDatatypes) {
             this.random = random;
             this.maxDepth = maxDepth;
             this.withAliases = withAliases;
             this.withTupleFieldNames = withTupleFieldNames;
             this.withTypeParameters = withTypeParameters;
+            this.withRandomAbstractDatatypes = withRandomAbstractDatatypes;
         }
 	    
 	    public static RandomTypesConfig defaultConfig(Random random) {
@@ -816,24 +819,32 @@ public class TypeFactory {
             return withTypeParameters;
         }
 	    
+	    public boolean isWithRandomAbstractDatatypes() {
+	        return withRandomAbstractDatatypes;
+	    }
+	    
 	    public int getMaxDepth() {
 	        return maxDepth;
 	    }
 	    
 	    public RandomTypesConfig maxDepth(int newMaxDepth) {
-	        return new RandomTypesConfig(random, newMaxDepth, withTypeParameters, withAliases, withTupleFieldNames);
+	        return new RandomTypesConfig(random, newMaxDepth, withTypeParameters, withAliases, withTupleFieldNames, withRandomAbstractDatatypes);
 	    }
 	    
 	    public RandomTypesConfig withAliases() {
-	        return new RandomTypesConfig(random, maxDepth, withTypeParameters, true, withTupleFieldNames);
+	        return new RandomTypesConfig(random, maxDepth, withTypeParameters, true, withTupleFieldNames, withRandomAbstractDatatypes);
 	    }
 	    
 	    public RandomTypesConfig withTypeParameters() {
-	        return new RandomTypesConfig(random, maxDepth, true, withAliases, withTupleFieldNames);
+	        return new RandomTypesConfig(random, maxDepth, true, withAliases, withTupleFieldNames, withRandomAbstractDatatypes);
 	    }
 	    
 	    public RandomTypesConfig withTupleFieldNames() {
-	        return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, true);
+	        return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, true, withRandomAbstractDatatypes);
+	    }
+	    
+	    public RandomTypesConfig withoutRandomAbstractDatatypes() {
+	        return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, withTupleFieldNames, false);
 	    }
 	}
 	
