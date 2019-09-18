@@ -34,6 +34,7 @@ public class TypeReader {
 
     private Type readType() throws IOException {
         if (current == TYPE_PARAMETER_TOKEN) {
+            checkAndRead(TYPE_PARAMETER_TOKEN);
             return readTypeParameter();
         }
 
@@ -88,6 +89,7 @@ public class TypeReader {
         String name = readIdentifier();
 
         if (current == '<') {
+            checkAndRead('<');
             checkAndRead(':');
 
             return types.parameterType(name, readType());
