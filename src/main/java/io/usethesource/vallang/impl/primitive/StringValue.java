@@ -20,6 +20,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.nio.Buffer;
 import java.nio.CharBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -381,16 +382,19 @@ import io.usethesource.vallang.type.TypeFactory;
 
         private int nextCP(CharBuffer cbuf) {
             int cp = Character.codePointAt(cbuf, 0);
-            if (cbuf.position() < cbuf.capacity()) {
-                cbuf.position(cbuf.position() + Character.charCount(cp));
+            Buffer buffer = (Buffer) cbuf; // to select the right overloaded `position` method in Java 9
+            if (buffer.position() < buffer.capacity()) {
+                buffer.position(buffer.position() + Character.charCount(cp));
             }
             return cp;
         }
 
         private void skipCP(CharBuffer cbuf) {
             if (cbuf.hasRemaining()) {
+                Buffer buffer = (Buffer) cbuf; // to select the right overloaded `position` method in Java 9
+                
                 int cp = Character.codePointAt(cbuf, 0);
-                cbuf.position(cbuf.position() + Character.charCount(cp));
+                buffer.position(buffer.position() + Character.charCount(cp));
             }
         }
 
@@ -402,7 +406,7 @@ import io.usethesource.vallang.type.TypeFactory;
             CharBuffer valueBuf;
 
             int replLen = repl.length();
-            CharBuffer replBuf = CharBuffer.wrap(repl.getValue());
+            Buffer replBuf = CharBuffer.wrap(repl.getValue());
 
             int increment = Math.abs(second - first);
             if (first <= end) {
@@ -417,7 +421,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 boolean wrapped = false;
                 // Between begin and end
                 while (valueIndex < end) {
-                    buffer.appendCodePoint(nextCP(replBuf));
+                    buffer.appendCodePoint(nextCP((CharBuffer) replBuf));
                     replIndex++;
                     if (replIndex == replLen) {
                         replBuf.position(0);
@@ -433,7 +437,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 }
                 if (!wrapped) {
                     while (replIndex < replLen) {
-                        buffer.appendCodePoint(nextCP(replBuf));
+                        buffer.appendCodePoint(nextCP((CharBuffer) replBuf));
                         replIndex++;
                     }
                 }
@@ -460,7 +464,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 int replIndex = 0;
                 boolean wrapped = false;
                 while (valueIndex > end) {
-                    buffer.appendCodePoint(nextCP(replBuf));
+                    buffer.appendCodePoint(nextCP((CharBuffer) replBuf));
                     replIndex++;
                     if (replIndex == repl.length()) {
                         replBuf.position(0);
@@ -476,7 +480,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 }
                 if (!wrapped) {
                     while (replIndex < replLen) {
-                        buffer.appendCodePoint(nextCP(replBuf));
+                        buffer.appendCodePoint(nextCP((CharBuffer) replBuf));
                         replIndex++;
                     }
                 }
