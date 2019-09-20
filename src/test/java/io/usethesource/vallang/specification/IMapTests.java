@@ -44,7 +44,7 @@ public class IMapTests {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void lubInvariantAfterRemoveKey(TypeFactory tf, @ExpectedType("map[value,value]") IMap m) {
+    public void lubInvariantAfterRemoveKey(TypeFactory tf, @ExpectedType("map[int,int]") IMap m) {
         for (IValue key : m) {
             m = m.removeKey(key);
             lubInvariant(tf, m);
