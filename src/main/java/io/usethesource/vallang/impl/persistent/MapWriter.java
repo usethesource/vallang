@@ -56,6 +56,7 @@ final class MapWriter implements IMapWriter {
 		if (replaced != null) {
 			final Type replacedType = replaced.getType();
 			valTypeBag = valTypeBag.decrease(replacedType);
+			keyTypeBag = keyTypeBag.decrease(key.getType());
 		}
 	}
 
