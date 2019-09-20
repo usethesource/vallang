@@ -91,8 +91,7 @@ public final class PersistentHashMap implements IMap {
 	
 	@Override
 	public IMap removeKey(IValue key) {
-	    final Map.Immutable<IValue, IValue> newContent = 
-				content.__remove(key);
+	    final Map.Immutable<IValue, IValue> newContent = content.__remove(key);
 		
 	    if (newContent == content) {
 	        return this;

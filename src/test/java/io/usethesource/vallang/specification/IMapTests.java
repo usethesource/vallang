@@ -25,7 +25,6 @@ public class IMapTests {
         }
         
         assertTrue(m.isEmpty());
-        assertTrue(m.isEqual(vf.map()));
         assertTrue(m.equals(vf.map()));
     }
     
