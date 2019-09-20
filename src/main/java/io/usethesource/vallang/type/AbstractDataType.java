@@ -403,6 +403,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
-        return RandomUtil.randomADT(this, random, vf, store, typeParameters, maxDepth, maxWidth);
+        IValue done = RandomUtil.randomADT(this, random, vf, store, typeParameters, maxDepth, maxWidth);
+        match(done.getType(), typeParameters);
+        return done;
     }
 }

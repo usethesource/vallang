@@ -285,6 +285,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
             }
         }
         
-        return result.done();
+        IList done = result.done();
+        match(done.getType(), typeParameters);
+        
+        return done;
 	}
 }

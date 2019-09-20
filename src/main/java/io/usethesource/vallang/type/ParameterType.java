@@ -66,7 +66,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		        return tf().parameterType(randomLabel(rnd));
 		    }
 		    
-		    return tf().valueType(); // TODO
+		    return next.get();
 		}
 		
 		@Override

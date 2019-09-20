@@ -25,6 +25,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -418,6 +419,10 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
             assert !getFieldType(i).isBottom();
             elems[i] = getFieldType(i).randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
         }
-        return vf.tuple(elems);
+        
+        ITuple done = vf.tuple(elems);
+        match(done.getType(), typeParameters);
+        
+        return done;
     }
 }

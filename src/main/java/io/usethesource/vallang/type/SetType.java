@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -281,6 +282,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                 }
             }
         }
-        return result.done();
+        
+        ISet done = result.done();
+        match(done.getType(), typeParameters);
+        return done;
 	}
 }

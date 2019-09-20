@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
@@ -246,6 +247,9 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
             }
         }
         
-        return result.done();
+        IMap done = result.done();
+        match(done.getType(), typeParameters);
+        
+        return done;
 	}
 }
