@@ -387,12 +387,6 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
         Type[] fChildren = new Type[getArity()];
         for (int i = fChildren.length - 1; i >= 0; i--) {
             fChildren[i] = getFieldType(i).instantiate(bindings);
-            
-            if (fChildren[i].isBottom()) {
-                // tuples with void elements can not exist, so the result
-                // type is a `void` type (the empty set of values)
-                return fChildren[i];
-            }
         }
 
         return TypeFactory.getInstance().tupleType(fChildren);

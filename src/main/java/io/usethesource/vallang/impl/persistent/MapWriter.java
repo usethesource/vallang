@@ -50,7 +50,7 @@ final class MapWriter implements IMapWriter {
 		if (replaced != null) {
 			final Type replacedType = replaced.getType();
 			valTypeBag = valTypeBag.decrease(replacedType);
-			keyTypeBag = keyTypeBag.decrease(key.getType());
+			keyTypeBag = keyTypeBag.decrease(key.getType()); // they key is not in there twice!
 		}
 	}
 

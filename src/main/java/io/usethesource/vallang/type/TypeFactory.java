@@ -222,10 +222,23 @@ public class TypeFactory {
 	 * 
 	 * @param fieldTypes
 	 *          a list of field types in order of appearance.
-	 * @return a tuple type
+	 * @return a tuple type or `void` in case one of the field types was void
 	 */
 	public Type tupleType(Type... fieldTypes) {
 		checkNull((Object[]) fieldTypes);
+		
+		// tuple values with elements of type void (like tuple[void,void]) 
+		// can not exist, so the type that represents that empty set of values is `void`,
+		// canonically. Without this canonicalization, type instantiation of 
+		// types such as rel[&T, &Y] for empty sets would return rel[void, void] = set[tuple[void,void]]
+		// instead of the correct `set[void]`, also pattern matching and equality would fail seemingly 
+		// randomly on empty relations depending on how they've been instantiated. 
+		for (Type elem : fieldTypes) {
+		    if (elem.isBottom()) {
+		        return elem;
+		    }
+		}
+		
 		return getFromCache(new TupleType(fieldTypes));
 	}
 
@@ -336,6 +349,7 @@ public class TypeFactory {
 
 	public Type lrelTypeFromTuple(Type tupleType) {
 		checkNull(tupleType);
+		
 		return listType(tupleType);
 	}
 
