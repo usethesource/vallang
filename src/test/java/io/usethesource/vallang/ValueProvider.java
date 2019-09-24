@@ -5,7 +5,7 @@ import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.BiFunction;
@@ -323,7 +323,7 @@ public class ValueProvider implements ArgumentsProvider {
             return rnd.nextBoolean() ? previous : reinstantiate(vf, ts, previous);
         }
         
-        return (previous = expectedType.randomValue(rnd, vf, ts, Collections.emptyMap(), depth, width));
+        return (previous = expectedType.randomValue(rnd, vf, ts, new HashMap<>(), depth, width));
     }
 
     private static Type readType(TypeStore ts, ExpectedType expected) {
