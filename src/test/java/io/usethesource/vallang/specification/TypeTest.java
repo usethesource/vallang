@@ -136,12 +136,18 @@ public class TypeTest {
         
         Type alias = tf.aliasType(store, "A", tf.mapType(T, "x", U, "y"), T, U);
         assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
-        assertTrue(alias.instantiate(bindings).hasFieldNames());
+        assertTrue(alias.getAliased().instantiate(bindings).hasFieldNames());
         
         @SuppressWarnings("deprecation")
         Type alias2 = tf.aliasType(store, "B", tf.relType(T, "x", U, "y"), T, U);
         assertTrue(alias2.instantiate(bindings) == alias2.instantiate(bindings));
-        assertTrue(alias2.instantiate(bindings).hasFieldNames());
+        
+        for (Type b : bindings.values()) {
+            if (b.isBottom()) {
+                return; // then the tuple type will reduce to void and we have nothing to check.
+            }
+        }
+        assertTrue(alias2.getAliased().instantiate(bindings).hasFieldNames());
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -234,8 +240,12 @@ public class TypeTest {
         assertFalse(ft.listType(ft.voidType()).isSubtypeOf(ft.voidType()));
         assertFalse(ft.setType(ft.voidType()).isSubtypeOf(ft.voidType()));
         assertFalse(ft.relType(ft.voidType()).isSubtypeOf(ft.voidType()));
-        assertFalse(ft.tupleType(ft.voidType()).isSubtypeOf(ft.voidType()));
         assertFalse(ft.mapType(ft.voidType(), ft.voidType()).isSubtypeOf(ft.voidType()));
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testTupleWithVoidIsVoid(TypeFactory ft) {
+        assertTrue(ft.tupleType(ft.voidType()).isSubtypeOf(ft.voidType()));
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
