@@ -159,8 +159,14 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	@Override
 	protected Type lubWithParameter(Type type) {
 		if (type == this) {
+		    // if the names are the same, we assume a hygienic type environment 
+		    // and we resolve the lub as the given type:
 			return this;
 		}
+		
+		// if the names are different then we don't know
+		// if the types are unifiable or not, and we defer
+		// to their bounds.
 
 		return getBound().lub(type.getBound());
 	}
@@ -305,16 +311,40 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 	@Override
 	protected Type lubWithReal(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
 		return getBound().lubWithReal(type);
 	}
 
 	@Override
 	protected Type lubWithInteger(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
 		return getBound().lubWithInteger(type);
 	}
 
 	@Override
 	protected Type lubWithRational(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
 		return getBound().lubWithRational(type);
 	}
 
@@ -335,16 +365,34 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 	@Override
 	protected Type lubWithSet(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
 		return getBound().lubWithSet(type);
 	}
 
 	@Override
 	protected Type lubWithSourceLocation(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
 		return getBound().lubWithSourceLocation(type);
 	}
 
 	@Override
 	protected Type lubWithString(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
 		return getBound().lubWithString(type);
 	}
 
@@ -365,16 +413,34 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 	@Override
 	protected Type lubWithTuple(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
 		return getBound().lubWithTuple(type);
 	}
 
 	@Override
 	protected Type lubWithValue(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+	        // while this parameter might be instantiated with the given type,
+	        // it is a proper lub:
+	        return this;
+	    }
+	    
 		return getBound().lubWithValue(type);
 	}
 
 	@Override
 	protected Type lubWithVoid(Type type) {
+	    if (type.isSubtypeOf(getBound())) {
+            // while this parameter might be instantiated with the given type,
+            // it is a proper lub:
+            return this;
+        }
+	    
 		return getBound().lubWithVoid(type);
 	}
 

@@ -272,6 +272,12 @@ public class TypeFactory {
 			}
 			try {
 				protoFieldTypes[pos] = (Type) fieldTypesAndLabels[i];
+				if (protoFieldTypes[pos].isBottom()) {
+				    // if one of the fields is void, then the entire tuple could
+				    // never be instantiated and thus its the void type (the empty set of
+				    // values) that represents it canonically:
+				    return voidType();
+				}
 			} catch (ClassCastException e) {
 				throw new IllegalFieldTypeException(pos, fieldTypesAndLabels[i], e);
 			}
@@ -307,6 +313,14 @@ public class TypeFactory {
     
     if (types.length == 0) {
         return tupleEmpty();
+    }
+    
+    // if one of the elements is of type void, then a tuple can never
+    // be instantiated of this type and thus void is the type to represent it:
+    for (Type elem : types) {
+        if (elem.isBottom()) {
+            return voidType();
+        }
     }
     
     return getFromCache(new TupleTypeWithFieldNames(types, labels));
@@ -612,6 +626,11 @@ public class TypeFactory {
 
 	public Type mapTypeFromTuple(Type fields) {
 		checkNull(fields);
+		
+		if (fields.isBottom()) {
+            return mapType(voidType(), voidType());
+        }
+		
 		if (!fields.isFixedWidth()) {
 			throw new UnsupportedOperationException("fields argument should be a tuple. not " + fields);
 		}

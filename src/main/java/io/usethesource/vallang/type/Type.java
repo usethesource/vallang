@@ -626,7 +626,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   protected Type lubWithParameter(Type type) {
-    return lub(type.getBound());
+      if (type == this) {
+          return this;
+      }
+      
+      return lub(type.getBound());
   }
   
   abstract protected Type lubWithReal(Type type) ;
@@ -652,7 +656,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   protected Type glbWithParameter(Type type) {
-    return glb(type.getBound());
+      if (type == this) {
+          return this;
+      }
+      
+      return glb(type.getBound());
   }
   
   abstract protected Type glbWithReal(Type type) ;
