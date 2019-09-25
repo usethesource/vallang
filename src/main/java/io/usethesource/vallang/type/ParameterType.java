@@ -188,6 +188,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		}
 
 		Type earlier = bindings.get(this);
+		
 		if (earlier != null) {
 			Type lub = earlier.lub(matched);
 			if (!lub.isSubtypeOf(getBound())) {
@@ -195,9 +196,14 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 			}
 
 			bindings.put(this, lub);
+			
+			// propagate what we've learned about this parametertype
+			// to possible open type parameters in its bound
+			getBound().match(matched, bindings);
 		}
 		else {
 			bindings.put(this, matched);
+			getBound().match(matched, bindings);
 		}
 
 		return true;
@@ -291,7 +297,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 	@Override
 	protected boolean isSubtypeOfVoid(Type type) {
-		return getBound().isSubtypeOfVoid(type);
+		return true; // it could be..
 	}
 
 	@Override
