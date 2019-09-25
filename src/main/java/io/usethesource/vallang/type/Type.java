@@ -468,7 +468,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isBottom() {
-    return equivalent(VOID_TYPE);
+    return this == VOID_TYPE;
   }
   
   public final boolean isNode() {
