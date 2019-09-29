@@ -101,8 +101,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 		if(o.getClass() == getClass()){
 			NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;
 		
-			return content.equals(other.content) &&
-					parameters.equals(other.parameters);
+			return content.equals(other.content) && parameters.equals(other.parameters);
 		}
 		
 		return false;
