@@ -44,19 +44,14 @@ public class EqualityUtils {
             return false;
         }
         
-        Iterator<Entry<String, IValue>> aIt = a.entryIterator();
-        Iterator<Entry<String, IValue>> bIt = b.entryIterator();
-        EqualityComparator<Object> comp = getEquivalenceComparator();
-        
-        while (aIt.hasNext() && bIt.hasNext()) {
-            Entry<String, IValue> aNext = aIt.next();
-            Entry<String, IValue> bNext = bIt.next();
+        for (Entry<String, IValue> aEntry : (Iterable<Entry<String, IValue>>) () -> a.entryIterator()) {
+            IValue bValue = b.get(aEntry.getKey());
             
-            if (!aNext.getKey().equals(bNext.getKey())) {
+            if (bValue == null) {
                 return false;
             }
             
-            if (!comp.equals(aNext.getValue(), bNext.getValue())) {
+            if (!aEntry.getValue().isEqual(bValue)) {
                 return false;
             }
         }
