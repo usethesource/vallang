@@ -141,12 +141,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		return visitor.visitParameter(this);
 	}
 
-	@Override
 	/**
-	 * Read this as "could be instantiated as a super-type of"
-	 */
+     * Read this as "could be instantiated as a super-type of"
+     */
+	@Override
 	protected boolean isSupertypeOf(Type type) {
 	    if (type == this) {
+	        // here we assume hygenic type parameter binding
 	        return true;
 	    }
 	    
