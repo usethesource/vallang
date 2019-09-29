@@ -142,16 +142,26 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
+	/**
+	 * Read this as "could be instantiated as a super-type of"
+	 */
 	protected boolean isSupertypeOf(Type type) {
 	    if (type == this) {
 	        return true;
 	    }
 	    
-	    if (getBound().isTop() && type.isTop()) {
+	    // if the type parameter is totally free,
+	    // it is bound by `value` only, then it can
+	    // be a supertype of anything. This is also
+	    // a stop condition for an infinite recursion.
+	    if (getBound().isTop()) {
 	        return true;
 	    }
 	    
-	    return getBound().isSubtypeOf(this);
+	    // otherwise, the instantiated type goes no higher than the
+	    // bound, so if the bound is not a supertype,
+	    // then the parameter can't be either:
+	    return getBound().isSupertypeOf(type);
 	}
 
 	@Override
