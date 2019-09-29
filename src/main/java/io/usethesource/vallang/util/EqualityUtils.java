@@ -45,7 +45,7 @@ public class EqualityUtils {
         }
         
         Iterator<Entry<String, IValue>> aIt = a.entryIterator();
-        Iterator<Entry<String, IValue>> bIt = a.entryIterator();
+        Iterator<Entry<String, IValue>> bIt = b.entryIterator();
         EqualityComparator<Object> comp = getEquivalenceComparator();
         
         while (aIt.hasNext() && bIt.hasNext()) {
