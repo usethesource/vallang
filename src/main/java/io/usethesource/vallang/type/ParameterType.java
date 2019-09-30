@@ -226,7 +226,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	public Type instantiate(Map<Type, Type> bindings) {
 		Type result = bindings.get(this);
 
-		if (result != null && result != this) {
+		if (result != null && result != this && !(result instanceof ParameterType)) {
 		    return result.instantiate(bindings);
 		}
 		else {
