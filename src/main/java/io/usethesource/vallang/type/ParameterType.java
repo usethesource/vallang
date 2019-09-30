@@ -166,14 +166,127 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
+	protected boolean isSubtypeOfAbstractData(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+
+	/**
+	 * @return true iff this parameter type when instantiated could
+	 * be a sub-type of the given type.
+	 */
+    private boolean couldBeSubtypeOf(Type type) {
+        // the only way that this is impossible if is the compared type
+        // is not comparable to the bound
+        return getBound().comparable(type);
+    }
+	
+	@Override
+	protected boolean isSubtypeOfBool(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfConstructor(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfDateTime(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfExternal(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfInteger(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfList(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfListRelation(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfMap(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfNode(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfNumber(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfParameter(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfRational(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfReal(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfRelation(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfSet(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfSourceLocation(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfString(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfTuple(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfValue(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfVoid(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
 	public Type lub(Type type) {
 	    if (type == this) {
 	        return this;
 	    }
 	    
 	    if (type.isSubtypeOf(getBound())) {
-            // while this parameter might be instantiated with the given type,
-            // it is a proper lub:
             return this;
         }
         
@@ -227,7 +340,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		Type result = bindings.get(this);
 
 		if (result != null && result != this) {
-		    return result.instantiate(bindings);
+		    try {
+		        return result.instantiate(bindings);
+		    }
+		    catch (StackOverflowError e) {
+		        assert false : "type bindings are not hygenic: cyclic parameter binding leads to infinite recursion";
+		        return result;
+		    }
 		}
 		else {
 		    return TypeFactory.getInstance().parameterType(fName, getBound().instantiate(bindings));
