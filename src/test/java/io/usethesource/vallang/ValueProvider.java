@@ -221,13 +221,20 @@ public class ValueProvider implements ArgumentsProvider {
                                 cl.getType(), 
                                 cl.getAnnotation(ExpectedType.class), 
                                 cl.getAnnotation(GivenValue.class),
-                                cl.getAnnotation(TypeConfig.class),
+                                first(method.getAnnotation(TypeConfig.class), cl.getAnnotation(TypeConfig.class)),
                                 depth != null ? depth.value() : 5,
                                 width != null ? width.value() : 10
                                 )).toArray().clone()
                 );    
     }
     
+    private TypeConfig first(TypeConfig first, TypeConfig second) {
+        if (first != null) {
+            return first;
+        }
+        return second;
+    }
+
     private static long hashSeed(String string) {
         long h = 1125899906842597L; // prime
         int len = string.length();
@@ -268,8 +275,13 @@ public class ValueProvider implements ArgumentsProvider {
             return ts;
         }
         else if (cls.isAssignableFrom(Type.class)) {
-            RandomTypesConfig rtc = configureRandomTypes(typeConfig, depth);
-            return TypeFactory.getInstance().randomType(ts, rtc);
+            if (expected != null) {
+                return readType(ts, expected);
+            }
+            else {
+                RandomTypesConfig rtc = configureRandomTypes(typeConfig, depth);
+                return TypeFactory.getInstance().randomType(ts, rtc);
+            }
         }
         else if (cls.isAssignableFrom(TypeFactory.class)) {
             return TypeFactory.getInstance();

@@ -39,8 +39,8 @@ public class TypeTest {
         assertTrue(tf.fromString(store, new StringReader(t.toString())) == t);
     }
 
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void canonicalTypes(TypeFactory tf, @TypeConfig(Option.ALL) Type t, @TypeConfig(Option.ALL) Type u) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)
+    public void canonicalTypes(TypeFactory tf, Type t, Type u) {
         if (t.equals(u)) {
             assertTrue(t == u);
         }
@@ -60,8 +60,8 @@ public class TypeTest {
         assertTrue(tf.tupleEmpty() == tf.tupleType(new Type[0], new String[0]));
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void covariance(TypeFactory tf, @TypeConfig(Option.ALL) Type t, @TypeConfig(Option.ALL) Type u) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)
+    public void covariance(TypeFactory tf, Type t, Type u) {
         if (!t.comparable(u)) {
             return;
         }
@@ -88,28 +88,28 @@ public class TypeTest {
         assertTrue(t.isSubtypeOf(tf.valueType()));
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void subtypeIsReflexive(@TypeConfig(Option.ALL) Type t) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL) 
+    public void subtypeIsReflexive(Type t) {
         assertTrue(t.isSubtypeOf(t));
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void equalsReflective(@TypeConfig(Option.ALL) Type t) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)
+    public void equalsReflective(Type t) {
         assertTrue(t.equals(t));
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void subtypeIsTransitive(@TypeConfig(Option.ALL) Type t, @TypeConfig({Option.ALIASES, Option.TUPLE_FIELDNAMES}) Type u, @TypeConfig(Option.ALL) Type v) {
-        // because type parameters are variant in both directions they are excluded from the middle u type,
-        // since this variance breaks transitivity (the other type t and v do would not have this variance and
-        // so the transitivity would break).
+    @TypeConfig({Option.ALIASES, Option.TUPLE_FIELDNAMES})
+    public void subtypeIsTransitive(Type t, Type u, Type v) {
+        // because type parameters are variant in both directions they are excluded 
         if (t.isSubtypeOf(u) && u.isSubtypeOf(v)) {
             assertTrue(t.isSubtypeOf(v));
         }
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void subtypeIsAntiCommutative(@TypeConfig(Option.ALL) Type t, @TypeConfig(Option.ALL) Type u) {
+    @TypeConfig(Option.ALL)
+    public void subtypeIsAntiCommutative(Type t, Type u) {
         if (t.isStrictSubtypeOf(u)) {
             assertTrue(!u.isStrictSubtypeOf(t));
         }
