@@ -299,10 +299,10 @@ public class TypeTest {
     public void orderedLub(Type t1, Type t2) {
         if (t1.comparable(t2)) {
             if (t1.isSubtypeOf(t2)) {
-                assertTrue(t1.lub(t2).equivalent(t2));
+                assertTrue(t2.isSubtypeOf(t1.lub(t2)));
             }
             if (t2.isSubtypeOf(t1)) {
-                assertTrue(t1.lub(t2).equivalent(t1));
+                assertTrue(t1.isSubtypeOf(t1.lub(t2)));
             }
         }
     }
@@ -311,14 +311,14 @@ public class TypeTest {
     public void orderedGlb(Type t1, Type t2) {
         if (t1.comparable(t2)) {
             if (t1.isSubtypeOf(t2)) {
-                assertTrue(t1.glb(t2).equivalent(t1));
+                assertTrue(t1.glb(t2).isSubtypeOf(t1));
             }
             if (t2.isSubtypeOf(t1)) {
-                assertTrue(t1.glb(t2).equivalent(t2));
+                assertTrue(t1.glb(t2).isSubtypeOf(t2));
             }
         }
     }
-
+    
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void lubWithVoid(TypeFactory tf, Type t) {
         assertTrue(tf.voidType().lub(t) == t);

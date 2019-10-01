@@ -213,11 +213,13 @@ public class ValueProvider implements ArgumentsProvider {
         ArgumentsMaxDepth depth = method.getAnnotation(ArgumentsMaxDepth.class);
         ArgumentsMaxWidth width = method.getAnnotation(ArgumentsMaxWidth.class);
         
+        TypeStore tsp = new TypeStore(ts);
+        
         return Arguments.of(
                 Arrays.stream(method.getParameters()).map(
                         cl -> argument(
                                 vf, 
-                                ts, 
+                                tsp, 
                                 cl.getType(), 
                                 cl.getAnnotation(ExpectedType.class), 
                                 cl.getAnnotation(GivenValue.class),
