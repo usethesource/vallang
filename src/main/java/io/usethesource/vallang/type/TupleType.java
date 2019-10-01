@@ -336,6 +336,21 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
         return false;
     }
+    
+    @Override
+    protected boolean isSubtypeOfVoid(Type type) {
+        // this can happen if one of the elements is a type parameter which 
+        // might degenerate to void.
+        if (type.isOpen()) {
+            for (Type elem : this) {
+                if (elem.isSubtypeOfVoid(type)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     @Override
     protected Type lubWithTuple(Type type) {
