@@ -213,7 +213,8 @@ public class ValueProvider implements ArgumentsProvider {
         ArgumentsMaxDepth depth = method.getAnnotation(ArgumentsMaxDepth.class);
         ArgumentsMaxWidth width = method.getAnnotation(ArgumentsMaxWidth.class);
         
-        TypeStore tsp = new TypeStore(ts);
+        TypeStore tsp = new TypeStore();
+        tsp.extendStore(ts);
         
         return Arguments.of(
                 Arrays.stream(method.getParameters()).map(
