@@ -172,10 +172,14 @@ public class TypeTest {
         Type IntInstance = ft.relType(ft.integerType(), ft.integerType());
         Type ValueInstance = ft.relType(ft.valueType(), ft.valueType());
 
-        // before instantiation, the parameterized type rel[&T, &T] is a
-        // sub-type of rel[value, value]
+       // after instantiation rel[int,int] is a sub-type of rel[&T, &T]
         assertTrue(IntInstance.isSubtypeOf(DiGraph));
-        assertFalse(DiGraph.isSubtypeOf(IntInstance));
+        
+        // before instantiation, the parameterized type rel[&T, &T] 
+        // could be instantiated later by rel[int, int]
+        assertTrue(DiGraph.isSubtypeOf(IntInstance));
+        
+        // the generic graph is also always a sub-type of the most general instantiation
         assertTrue(DiGraph.isSubtypeOf(ValueInstance));
 
         Map<Type, Type> bindings = new HashMap<>();
@@ -186,7 +190,7 @@ public class TypeTest {
         // int]
         Type ComputedInstance = DiGraph.instantiate(bindings); // DiGraph[int]
         assertTrue(ComputedInstance.equivalent(IntInstance));
-        assertFalse(ValueInstance.isSubtypeOf(ComputedInstance));
+        assertTrue(ValueInstance.isSubtypeOf(ComputedInstance));
 
         // and sub-typing remains co-variant:
         assertTrue(IntInstance.isSubtypeOf(ValueInstance));

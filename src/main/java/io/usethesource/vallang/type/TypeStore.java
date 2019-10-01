@@ -255,7 +255,7 @@ public class TypeStore {
 	      Type oldAlias = lookupAlias(name);
 
 	      if (oldAlias != null) {
-	        if (alias.isSubtypeOf(oldAlias)) {
+	        if (!alias.isOpen() && alias.isSubtypeOf(oldAlias)) {
 	          // instantiating can be ignored.
 	          return;
 	        }
