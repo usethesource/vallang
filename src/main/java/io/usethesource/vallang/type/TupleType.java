@@ -341,7 +341,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     protected boolean isSubtypeOfVoid(Type type) {
         // this can happen if one of the elements is a type parameter which 
         // might degenerate to void.
-        if (type.isOpen()) {
+        if (isOpen()) {
             for (Type elem : this) {
                 if (elem.isSubtypeOfVoid(type)) {
                     return true;

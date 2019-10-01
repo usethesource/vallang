@@ -540,4 +540,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public boolean isBottom() {
         return true;
     }
+    
+    @Override
+    public boolean isTuple() {
+        return true;
+    }
 }
