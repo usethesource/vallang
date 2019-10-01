@@ -99,7 +99,10 @@ public class TypeTest {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void subtypeIsTransitive(@TypeConfig(Option.ALL) Type t, @TypeConfig(Option.ALL) Type u, @TypeConfig(Option.ALL) Type v) {
+    public void subtypeIsTransitive(@TypeConfig(Option.ALL) Type t, @TypeConfig({Option.ALIASES, Option.TUPLE_FIELDNAMES}) Type u, @TypeConfig(Option.ALL) Type v) {
+        // because type parameters are variant in both directions they are excluded from the middle u type,
+        // since this variance breaks transitivity (the other type t and v do would not have this variance and
+        // so the transitivity would break).
         if (t.isSubtypeOf(u) && u.isSubtypeOf(v)) {
             assertTrue(t.isSubtypeOf(v));
         }
