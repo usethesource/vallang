@@ -117,6 +117,10 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     	return fValueType;
     }
 
+    @Override
+    public boolean isMap() {
+        return true;
+    }
   
     @Override
     public boolean hasFieldNames() {

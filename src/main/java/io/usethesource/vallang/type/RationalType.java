@@ -130,4 +130,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	        int maxDepth, int maxWidth) {
         return vf.rational(random.nextInt(), random.nextInt() + 1);
 	}
+	
+	@Override
+	public boolean isRational() {
+	    return true;
+    }
 }

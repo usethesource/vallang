@@ -54,6 +54,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		    return tf().integerType();
 		}
 	}
+    
+    @Override
+    public boolean isInteger() {
+        return true;
+    }
 
     @Override
 	public TypeFactory.TypeReifier getTypeReifier() {

@@ -116,4 +116,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	protected Type glbWithBool(Type type) {
 		return this;
 	}
+	
+	@Override
+	public boolean isBool() {
+	    return true;
+	}
 }

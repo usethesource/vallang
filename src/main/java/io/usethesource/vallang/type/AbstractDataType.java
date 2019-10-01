@@ -407,4 +407,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         match(done.getType(), typeParameters);
         return done;
     }
+    
+    @Override
+    public boolean isAbstractData() {
+        return true;
+    }
 }

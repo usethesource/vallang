@@ -112,6 +112,16 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		return fEltType.hasFieldNames();
 	}
 
+	@Override
+	public boolean isList() {
+	    return true;
+	}
+	
+	@Override
+	public boolean isListRelation() {
+	    return fEltType.isTuple() || fEltType.isBottom();
+	}
+	
 	@Override 
 	public boolean hasField(String fieldName) {
 		return fEltType.hasField(fieldName);

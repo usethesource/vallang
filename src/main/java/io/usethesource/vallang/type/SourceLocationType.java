@@ -180,4 +180,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             }
         }
     }
+    
+    @Override
+    public boolean isSourceLocation() {
+        return true;
+    }
 }

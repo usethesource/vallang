@@ -87,7 +87,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		return new Info();
 	}
 
-
+	@Override
+	public Type getTypeParameters() {
+	    return getBound().getTypeParameters();
+	}
+	
 	@Override
 	public Type getBound() {
 		return fBound;

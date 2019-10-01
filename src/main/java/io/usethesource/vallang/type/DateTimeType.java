@@ -108,6 +108,11 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	}
 
 	@Override
+	public boolean isDateTime() {
+	    return true;
+	}
+	
+	@Override
 	public int hashCode() {
 		return 63097;
 	}

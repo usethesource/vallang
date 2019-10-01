@@ -93,6 +93,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	}
 
 	@Override
+	public boolean isTop() {
+	    return true;
+	}
+	
+	@Override
 	protected boolean isSupertypeOf(Type type) {
 		return type.isSubtypeOfValue(this);
 	}

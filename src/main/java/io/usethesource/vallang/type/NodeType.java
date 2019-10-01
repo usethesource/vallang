@@ -166,4 +166,9 @@ class NodeType extends DefaultSubtypeOfValue {
         }
         return vf.node(name, args); 
 	}
+	
+	@Override
+	public boolean isNode() {
+	    return true;
+	}
 }

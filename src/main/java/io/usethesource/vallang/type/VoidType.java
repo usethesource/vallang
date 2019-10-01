@@ -535,4 +535,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             int maxDepth, int maxWidth) {
         throw new UnsupportedOperationException("void can not be instantiated");
     }
+    
+    @Override
+    public boolean isBottom() {
+        return true;
+    }
 }

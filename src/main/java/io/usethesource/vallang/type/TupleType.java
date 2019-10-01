@@ -425,4 +425,9 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
         
         return done;
     }
+    
+    @Override
+    public boolean isTuple() {
+        return true;
+    }
 }

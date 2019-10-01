@@ -155,4 +155,9 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	        return TypeFactory.getInstance().rationalType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
 	    }
 	}
+	
+	@Override
+	public boolean isNumber() {
+	    return true;
+	}
 }

@@ -121,4 +121,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         
         return vf.string(RandomUtil.string(random, 1 + random.nextInt(maxDepth + 3)));
     }
+    
+    @Override
+    public boolean isString() {
+        return true;
+    }
 }

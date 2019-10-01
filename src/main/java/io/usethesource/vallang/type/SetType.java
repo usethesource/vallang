@@ -115,7 +115,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	public boolean hasField(String fieldName) {
 		return fEltType.hasField(fieldName);
 	}
+	
+	@Override
+	public boolean isSet() {
+	    return true;
+	}
 
+	@Override
+	public boolean isRelation() {
+	    return fEltType.isTuple() || fEltType.isBottom();
+	}
+	
 	@Override
 	public int getFieldIndex(String fieldName) {
 		return fEltType.getFieldIndex(fieldName);

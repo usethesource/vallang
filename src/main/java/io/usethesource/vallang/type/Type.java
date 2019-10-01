@@ -49,24 +49,6 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
  */
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
-
-  // these constants are cached to avoid having to compute their hash-codes
-  // for canonicalization all the time. The types are used to implement predicate
-  // methods below such as isList and isMap, etc.
-  private static final Type DATE_TIME_TYPE = TF.dateTimeType();
-  private static final Type SOURCE_LOCATION_TYPE = TF.sourceLocationType();
-  private static final Type STRING_TYPE = TF.stringType();
-  private static final Type NODE_TYPE = TF.nodeType();
-  private static final Type VOID_TYPE = TF.voidType();
-  private static final Type VALUE_TYPE = TF.valueType();
-  private static final Type NUMBER_TYPE = TF.numberType();
-  private static final Type RATIONAL_TYPE = TF.rationalType();
-  private static final Type REAL_TYPE = TF.realType();
-  private static final Type INTEGER_TYPE = TF.integerType();
-  private static final Type BOOL_TYPE = TF.boolType();
-  private static final Type MAP_TYPE = TF.mapType(VALUE_TYPE, VALUE_TYPE);
-  private static final Type LIST_TYPE = TF.listType(VALUE_TYPE);
-  private static final Type SET_TYPE = TF.setType(VALUE_TYPE);
   
   public abstract TypeFactory.TypeReifier getTypeReifier();
   
@@ -423,80 +405,80 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return false;
   }
   
-  public final boolean isSet() {
-    return isSubtypeOf(SET_TYPE) && !isBottom();
+  public boolean isSet() {
+    return false;
   }
   
-  public final boolean isList() {
-    return isSubtypeOf(LIST_TYPE) && !isBottom();
+  public boolean isList() {
+    return false;
   }
   
-  public final boolean isMap() {
-    return isSubtypeOf(MAP_TYPE) && !isBottom();
+  public boolean isMap() {
+    return false;
   }
   
-  public final boolean isBool() {
-    return isSubtypeOf(BOOL_TYPE) && !isBottom();
+  public boolean isBool() {
+    return false;
   }
   
-  public final boolean isRelation() {
-    return isSet() && getElementType().isFixedWidth();
+  public boolean isRelation() {
+    return false;
   }
   
-  public final boolean isListRelation() {
-    return isList() && getElementType().isFixedWidth();
+  public boolean isListRelation() {
+    return false;
   }
   
-  public final boolean isInteger() {
-    return isSubtypeOf(INTEGER_TYPE) && !isBottom();
+  public boolean isInteger() {
+    return false;
   }
   
-  public final boolean isReal() {
-    return isSubtypeOf(REAL_TYPE) && !isBottom();
+  public boolean isReal() {
+    return false;
   }
   
-  public final boolean isRational() {
-    return isSubtypeOf(RATIONAL_TYPE) && !isBottom();
+  public boolean isRational() {
+    return false;
   }
   
-  public final boolean isNumber() {
-    return isSubtypeOf(NUMBER_TYPE) &&!isBottom();
+  public  boolean isNumber() {
+    return false;
   }
   
-  public final boolean isTop() {
-    return equivalent(VALUE_TYPE);
+  public  boolean isTop() {
+    return false;
   }
   
-  public final boolean isBottom() {
-    return this == VOID_TYPE;
+  public  boolean isBottom() {
+    return false;
   }
   
-  public final boolean isNode() {
-	  return isSubtypeOf(NODE_TYPE) && !isBottom();
+  public  boolean isNode() {
+	  return false;
   }
   
-  public final boolean isAbstractData() {
-    return isStrictSubtypeOf(NODE_TYPE) && !isBottom();
+  public  boolean isAbstractData() {
+    return false;
   }
   
-  public final boolean isConstructor() {
-	  return isAbstractData() && !this.equivalent(this.getAbstractDataType());
+  public  boolean isConstructor() {
+	  return false;
   }
   
-  public final boolean isString() {
-	  return isSubtypeOf(STRING_TYPE) && !isBottom();
+  public  boolean isString() {
+	  return false;
   }
   
-  public final boolean isSourceLocation() {
-    return isSubtypeOf(SOURCE_LOCATION_TYPE) && !isBottom();
+  public  boolean isSourceLocation() {
+    return false;
   }
   
-  public final boolean isDateTime() {
-	  return isSubtypeOf(DATE_TIME_TYPE) && !isBottom();
+  public  boolean isDateTime() {
+	  return false;
   }
   
-  public final boolean isTuple() {
-	  return isFixedWidth();
+  public  boolean isTuple() {
+	  return false;
   }
   
   public boolean isExternalType() {

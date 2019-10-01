@@ -14,6 +14,11 @@ package io.usethesource.vallang.type;
 
 /* package */abstract class DefaultSubtypeOfValue extends ValueType {
 
+    @Override
+    public boolean isTop() {
+        return false;
+    }
+    
 	@Override 
 	public abstract Type glb(Type type);
 

@@ -86,6 +86,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	}
 
 	@Override
+	public boolean isReal() {
+	    return true;
+	}
+	
+	@Override
 	protected boolean isSupertypeOf(Type type) {
 		return type.isSubtypeOfReal(this);
 	}

@@ -402,4 +402,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	public boolean isParameterized() {
 		return fADT.isParameterized();
 	}
+	
+	@Override
+	public boolean isConstructor() {
+	    return true;
+	}
 }
