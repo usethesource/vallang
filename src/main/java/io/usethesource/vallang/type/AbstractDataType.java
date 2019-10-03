@@ -267,7 +267,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
     @Override
     public boolean isParameterized() {
-        return !fParameters.equivalent(VoidType.getInstance());
+        return !fParameters.isBottom();
     }
 
     @Override

@@ -457,7 +457,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	  return false;
   }
   
-  public  boolean isAbstractData() {
+  public boolean isAbstractData() {
     return false;
   }
   

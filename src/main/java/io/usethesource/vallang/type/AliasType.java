@@ -302,25 +302,15 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		Type[] params = new Type[0];
 		if (isParameterized()) {
-			params = new Type[fParameters.getArity()];
-			int i = 0;
-			for (Type p : fParameters) {
-				params[i++] = p.instantiate(bindings);
-			}
-			
-			TypeStore store = new TypeStore();
-	        store.declareAlias(this);
-
-	        return TypeFactory.getInstance().aliasType(store, fName, fAliased.instantiate(bindings), params);
+		    // note how we do not declare the new alias anywhere.
+	        return TypeFactory.getInstance().getFromCache(new AliasType(fName, fAliased.instantiate(bindings), fParameters.instantiate(bindings)));
 		}
-		else {
-		    // if an alias is not parametrized, then instantiation should not have an effect.
-		    // if it would have an effect, then the alias type would contain an unbound type parameter
-		    // which is a bug we assume is absent here.
-		    return this;
-		}
+		
+		// if an alias is not parametrized, then instantiation should not have an effect.
+		// if it would have an effect, then the alias type would contain an unbound type parameter
+		// which is a bug we assume is absent here.
+		return this;
 	}
 
 	@Override
