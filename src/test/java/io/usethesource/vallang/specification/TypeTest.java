@@ -158,7 +158,7 @@ public class TypeTest {
         if (t.isSet() && t.getElementType().isTuple() && !t.isRelation()) {
             fail("Sets of tuples should be relations");
         }
-        if (t.isRelation() && !t.getElementType().isTuple()) {
+        if (t.isRelation() && !t.getElementType().isTuple() && !t.getElementType().isBottom()) {
             fail("Relations should contain tuples");
         }
     }
