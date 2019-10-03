@@ -190,7 +190,7 @@ public class TypeTest {
         // int]
         Type ComputedInstance = DiGraph.instantiate(bindings); // DiGraph[int]
         assertTrue(ComputedInstance.equivalent(IntInstance));
-        assertTrue(ValueInstance.isSubtypeOf(ComputedInstance));
+        assertFalse(ValueInstance.isSubtypeOf(ComputedInstance));
 
         // and sub-typing remains co-variant:
         assertTrue(IntInstance.isSubtypeOf(ValueInstance));
