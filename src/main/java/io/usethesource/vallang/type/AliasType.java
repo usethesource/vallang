@@ -116,7 +116,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 	@Override
 	public boolean isParameterized() {
-		return !fParameters.equivalent(VoidType.getInstance());
+		return !fParameters.isBottom();
 	}
 
 	@Override

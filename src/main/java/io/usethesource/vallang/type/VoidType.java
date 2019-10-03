@@ -81,11 +81,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    public boolean isFixedWidth() {
-        return true;
-    }
-
-    @Override
     protected boolean isSubtypeOfAbstractData(Type type) {
         return true;
     }
@@ -538,11 +533,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     
     @Override
     public boolean isBottom() {
-        return true;
-    }
-    
-    @Override
-    public boolean isTuple() {
         return true;
     }
 }
