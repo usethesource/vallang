@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
@@ -48,5 +49,27 @@ public class IMapTests {
             m = m.removeKey(key);
             lubInvariant(tf, m);
         }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void mapIsVoidAfterAllRemoved(TypeFactory tf, IMap m) {
+        IMap copy = m;
+        for (IValue key : m) {
+            copy = copy.removeKey(key);
+        }
+        
+        assertTrue(copy.getKeyType() == tf.voidType());
+        assertTrue(copy.getValueType() == tf.voidType());
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void canConstructProperMapsWithDuplicateEntries(IValueFactory vf) {
+       IMapWriter w = vf.mapWriter();
+       
+       w.put(vf.string(""), vf.string(""));
+       w.put(vf.string(""), vf.string(""));
+       
+       // internal assertions should fail (see issue #55)
+       assertTrue(true);
     }
  }
