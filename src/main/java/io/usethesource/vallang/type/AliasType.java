@@ -121,7 +121,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 	@Override
 	public boolean isOpen() {
-		return fParameters.isOpen();
+		return fParameters.isOpen() || fAliased.isOpen();
 	}
 
 	@Override

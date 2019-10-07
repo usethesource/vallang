@@ -69,11 +69,6 @@ public class TypeTest {
         if (t.isSubtypeOf(u)) {
             assertTrue(tf.listType(t).isSubtypeOf(tf.listType(u)));
             assertTrue(tf.setType(t).isSubtypeOf(tf.setType(u)));
-            if (!tf.tupleType(t).isSubtypeOf(tf.tupleType(u))) {
-                System.err.println("this happens sometimes?");
-                System.err.println("\ttuple[t]:" + tf.tupleType(t));
-                System.err.println("\ttuple[u]" + tf.tupleType(u));
-            }
             assertTrue(tf.tupleType(t).isSubtypeOf(tf.tupleType(u)));
             assertTrue(tf.mapType(t,tf.integerType()).isSubtypeOf(tf.mapType(u, tf.integerType())));
             assertTrue(tf.mapType(tf.integerType(), t).isSubtypeOf(tf.mapType(tf.integerType(), u)));
