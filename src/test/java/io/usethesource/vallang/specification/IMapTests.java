@@ -58,18 +58,9 @@ public class IMapTests {
             copy = copy.removeKey(key);
         }
         
+        // this failed due to issue #55 but only if the random generator
+        // accidentally adds two of the same key/value pairs to the map
         assertTrue(copy.getKeyType() == tf.voidType());
         assertTrue(copy.getValueType() == tf.voidType());
-    }
-    
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void canConstructProperMapsWithDuplicateEntries(IValueFactory vf) {
-       IMapWriter w = vf.mapWriter();
-       
-       w.put(vf.string(""), vf.string(""));
-       w.put(vf.string(""), vf.string(""));
-       
-       // internal assertions should fail (see issue #55)
-       assertTrue(true);
     }
  }

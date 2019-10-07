@@ -42,19 +42,27 @@ final class MapWriter implements IMapWriter {
 		final Type keyType = key.getType();
 		final Type valType = value.getType();
 
+		int oldSize = mapContent.size();
+		
 		final IValue replaced = mapContent.__put(key, value);
 
-		keyTypeBag = keyTypeBag.increase(keyType);
-		valTypeBag = valTypeBag.increase(valType);
-
-		if (replaced != null) {
-			final Type replacedType = replaced.getType();
-			valTypeBag = valTypeBag.decrease(replacedType);
-			keyTypeBag = keyTypeBag.decrease(key.getType()); // they key is not in there twice!
+		if (oldSize == mapContent.size() && replaced == null) {
+		    // update nothing because they key/value pair was already there
 		}
+		else if (replaced != null) {
+		    // only update the val since the key was already there
+		    valTypeBag = valTypeBag.decrease(replaced.getType()).increase(valType);
+		} 
+		else {
+		    // add the new entry for both bags since its entirely new
+		    keyTypeBag = keyTypeBag.increase(keyType); 
+		    valTypeBag = valTypeBag.increase(valType);
+		}
+
+		assert mapContent.size() == keyTypeBag.sum();
 	}
 
-	@Override
+    @Override
 	public void putAll(IMap map) {
 		putAll(map.entryIterator());
 	}

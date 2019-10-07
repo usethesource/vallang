@@ -43,6 +43,7 @@ public final class PersistentHashMap implements IMap {
 		this.keyTypeBag = keyTypeBag;
 		this.valTypeBag = valTypeBag;
 		this.content = content;
+		assert content.size() == keyTypeBag.sum();
 	}
 	
 	@Override
@@ -97,10 +98,12 @@ public final class PersistentHashMap implements IMap {
 	        return this;
 	    }
 		
+	    // this only happens if something has actually been removed:
 	    final IValue removedValue = content.get(key);
 	    final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
 	    final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
 		
+	    assert !newContent.isEmpty() || (newKeyBag.lub().isBottom() && newValBag.lub().isBottom());
 	    return new PersistentHashMap(newKeyBag, newValBag, newContent);
 	}	
 	
