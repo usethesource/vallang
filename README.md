@@ -144,6 +144,7 @@ Rascal is a language which can be used to easily switch between different repres
 * Robert M. Fuhrer (IBM TJ Watson)
 * Jurgen J. Vinju (IBM TJ Watson and Centrum Wiskunde & Informatica)
 * Arnold Lankamp (Centrum Wiskunde & Informatica)
+* Anya Helene Bagge (University of Bergen)
 * Michael Steindorfer (Centrum Wiskunde & Informatica and TU Delft)
 * Davy Landman (Centrum Wiskunde & Informatica and SWAT.engineering)
 * Paul Klint (Centrum Wiskunde & Informatica)
