@@ -15,7 +15,10 @@ package io.usethesource.vallang.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -108,17 +111,17 @@ import io.usethesource.vallang.type.TypeFactory;
 		if (uri.isOpaque()) {
 			throw new UnsupportedOperationException("Opaque URI schemes are not supported; the scheme-specific part must start with a / character.");
 		}
-		return locationCache.get(uri, (u) -> {
+		return Objects.requireNonNull(locationCache.get(uri, (u) -> {
 			try {
 				return newSourceLocation(u.getScheme(), u.getAuthority(), u.getPath(), u.getQuery(), u.getFragment());
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("We can't get a URISyntaxException when we start with an URI");
 			}
-		});
+		}));
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
-			String path, String query, String fragment) throws URISyntaxException {
+			String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException {
 		return SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
 	}
 
@@ -161,7 +164,13 @@ import io.usethesource.vallang.type.TypeFactory;
 		public boolean hasPath() {
 			return root.hasPath();
 		}
-		
+
+		@Override
+		public String toString() {
+			return defaultToString();
+		}
+
+
 		@Override
 		public boolean hasQuery() {
 			return root.hasQuery();
@@ -199,15 +208,15 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		@Override
 		public URI getURI() {
-		    return reverseLocationCache.get(root, u -> {
+		    return Objects.requireNonNull(reverseLocationCache.get(root, u -> {
                 URI result = u.getURI();
                 try {
                     // assure correct encoding, side effect of JRE's implementation of URIs
-                    result = new URI(result.toASCIIString());
-                } catch (URISyntaxException e) {
+                    return new URI(result.toASCIIString());
+                } catch (URISyntaxException ignored) {
+                	return result;
                 } 
-                return result;
-		    });
+		    }));
 		}
 		
 		@Override
@@ -328,8 +337,10 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
-			if(o == null) return false;
+		public boolean equals(@Nullable Object o){
+			if (o == null) {
+			    return false;
+			}
 			
 			if(o.getClass() == getClass()){
 				IntIntIntIntIntInt otherSourceLocation = (IntIntIntIntIntInt) o;
@@ -413,10 +424,12 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
-			if(o == null) return false;
+		public boolean equals(@Nullable Object o){
+			if (o == null) {
+			    return false;
+			}
 			
-			if(o.getClass() == getClass()){
+			if (o.getClass() == getClass()){
 				CharCharByteByteByteByte otherSourceLocation = (CharCharByteByteByteByte) o;
 				return (root.equals(otherSourceLocation.root)
 						&& (beginLine == otherSourceLocation.beginLine)
@@ -498,7 +511,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -579,7 +592,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -660,7 +673,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -714,7 +727,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -764,7 +777,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
@@ -819,7 +832,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		
 		@Override
-		public boolean equals(Object o){
+		public boolean equals(@Nullable Object o){
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){

@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
@@ -43,14 +45,10 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 			return getInstance();
 		}
 		
-		 @Override
-	        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-	            return tf().dateTimeType();
-	        }
-
-        public String randomLabel() {
-            return null;
-        }
+		@Override
+		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		    return tf().dateTimeType();
+		}
 	}
 
 	@Override
@@ -59,8 +57,8 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		return obj == DateTimeType.getInstance();
+	public boolean equals(@Nullable Object obj) {
+	    return obj == DateTimeType.getInstance();
 	}
 
 	@Override

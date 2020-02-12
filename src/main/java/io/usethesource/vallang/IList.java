@@ -15,6 +15,8 @@ package io.usethesource.vallang;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -430,7 +432,7 @@ public interface IList extends ICollection<IList> {
         return false;
     }
     
-    public default boolean defaultEquals(Object other) {
+    public default boolean defaultEquals(@Nullable Object other) {
         if (other == this) {
             return true;
         }

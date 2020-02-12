@@ -10,6 +10,8 @@
 *******************************************************************************/
 package io.usethesource.vallang.util;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * A simple (fast) queue.
  * 
@@ -21,7 +23,7 @@ public final class RotatingQueue<T>{
 	private final static int DEFAULT_CAPACITY = 16;
 	private final static int DEFAULT_CAPACITY_MASK = DEFAULT_CAPACITY - 1;
 	
-    private T[] queue;
+    private @Nullable T[] queue;
     private int capacity;
     private int capacityMask;
     private int nextPutIndex;
@@ -95,8 +97,10 @@ public final class RotatingQueue<T>{
      * 
      * @return The next element from the queue; null if the queue was empty.
      */
-    public T get(){
-            if(isEmpty()) return null;
+    public @Nullable T get(){
+            if(isEmpty()) {
+                return null;
+            }
 
             getIndex = (getIndex + 1) & capacityMask;
             T element = queue[getIndex];

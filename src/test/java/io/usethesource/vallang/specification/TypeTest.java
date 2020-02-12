@@ -1,13 +1,20 @@
 package io.usethesource.vallang.specification;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -30,6 +37,15 @@ public class TypeTest {
             assertTrue(t.equals(u));
             assertTrue(u.equals(t));
         }
+    }
+    
+    @SuppressWarnings("deprecation")
+    public void emptyTupleNeverHasLabels(TypeFactory tf) {
+        assertFalse(tf.tupleType(new Object[0]).hasFieldNames());
+        assertFalse(tf.tupleType(new Type[0], new String[0]).hasFieldNames());
+        assertTrue(tf.tupleEmpty() == tf.tupleType(new IValue[0]));
+        assertTrue(tf.tupleEmpty() == tf.tupleType(new Object[0]));
+        assertTrue(tf.tupleEmpty() == tf.tupleType(new Type[0], new String[0]));
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -78,4 +94,38 @@ public class TypeTest {
             assertTrue(!u.isStrictSubtypeOf(t));
         }
     }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void aliasInstantiationSharingIsGuaranteed(TypeFactory tf, TypeStore store, Type t) {
+        Type tp = tf.parameterType("T");
+        Map<Type, Type> bindings = Collections.singletonMap(tp, t);
+        
+        Type alias = tf.aliasType(store, "A", tf.listType(tp), tp);
+        assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
+        
+        alias = tf.aliasType(store, "B", tf.setType(tp), tp);
+        assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
+        
+        alias = tf.aliasType(store, "C", tf.mapType(tp, tp), tp);
+        assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void aliasInstantiationKeepsLabels(TypeFactory tf, TypeStore store, Type t, Type u) {
+        Type T = tf.parameterType("T");
+        Type U = tf.parameterType("U");
+        Map<Type, Type> bindings = Stream.of(new AbstractMap.SimpleEntry<>(T,t), new AbstractMap.SimpleEntry<>(U,u))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        
+        Type alias = tf.aliasType(store, "A", tf.mapType(T, "x", U, "y"), T, U);
+        assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
+        assertTrue(alias.instantiate(bindings).hasFieldNames());
+        
+        @SuppressWarnings("deprecation")
+        Type alias2 = tf.aliasType(store, "B", tf.relType(T, "x", U, "y"), T, U);
+        assertTrue(alias2.instantiate(bindings) == alias2.instantiate(bindings));
+        assertTrue(alias2.instantiate(bindings).hasFieldNames());
+        
+    }
+    
 }

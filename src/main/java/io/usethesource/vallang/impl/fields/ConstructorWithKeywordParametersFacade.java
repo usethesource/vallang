@@ -18,6 +18,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
+
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -95,9 +98,14 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(o == this) return true;
-        if(o == null) return false;
+    public boolean equals(@Nullable Object o) {
+        if (o == this) {
+            return true;
+        }
+        
+        if (o == null) {
+            return false;
+        }
 
         if(o.getClass() == getClass()){
             ConstructorWithKeywordParametersFacade other = (ConstructorWithKeywordParametersFacade) o;
@@ -179,11 +187,13 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
             }
 
             @Override
+            @SuppressWarnings("return.type.incompatible")
             public Set<String> getParameterNames() {
-                return parameters.keySet();		
+                return Collections.unmodifiableSet(parameters.keySet());		
             }
 
             @Override
+            @Pure
             public Map<String, IValue> getParameters() {
                 return Collections.unmodifiableMap(parameters);
             }

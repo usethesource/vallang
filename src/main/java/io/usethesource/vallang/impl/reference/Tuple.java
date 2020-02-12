@@ -14,6 +14,8 @@ package io.usethesource.vallang.impl.reference;
 
 import java.util.Iterator;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -80,7 +82,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o) {
 			return true;
 		} else if (o == null) {

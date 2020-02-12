@@ -14,6 +14,8 @@ package io.usethesource.vallang.impl.persistent;
 
 import java.util.Iterator;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.util.iterator.ArrayIterator;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
@@ -35,7 +37,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	Node(String name, IValue[] children) {
 		super();
 		
-		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
+		this.name = name.intern();
 		this.children = children;
 	}
 
@@ -46,7 +48,7 @@ import io.usethesource.vallang.type.TypeFactory;
 	private Node(String name, IList children) {
 		super();
 		IValue[] childArray = new IValue[children.length()];
-		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
+		this.name = name.intern();
 		for(int i = 0; i < childArray.length; i++){
 			childArray[i] = children.get(i);
 		}
@@ -113,10 +115,11 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 
 	@Override
-	public boolean equals(Object o){
+	public boolean equals(@Nullable Object o){
 		if (o == this) {
 		  return true;
 		}
+		
 		if (o == null) {
 		  return false;
 		}

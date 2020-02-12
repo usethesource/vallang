@@ -4,7 +4,7 @@
 
 	<groupId>io.usethesource</groupId>
 	<artifactId>vallang</artifactId>
-	<version>0.10.0-SNAPSHOT</version>
+	<version>0.12.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<scm>
@@ -36,6 +36,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
+
+		<checkerframework.version>3.1.0</checkerframework.version>
 	</properties>
 
 	 <build>
@@ -47,11 +49,16 @@
                 </includes>
             </resource>
         </resources>
+		 <testResources>
+			 <testResource>
+				 <directory>test/main/resources</directory>
+			 </testResource>
+		 </testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -91,11 +98,12 @@
 					</execution>
 				</executions>
 				<configuration>
-                    <argLine>
-                        @{argLine} 
-                        -Xmx2G
-		        -ea
-					</argLine>
+				<trimStackTrace>false</trimStackTrace>
+				<argLine>
+				@{argLine} 
+				-Xmx2G
+				-ea
+				</argLine>
 				</configuration>
 			</plugin>
             <plugin>
@@ -124,13 +132,13 @@
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-engine</artifactId>
-		<version>5.4.2</version>
+		<version>5.6.0</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-params</artifactId>
-		<version>5.5.0</version>
+		<version>5.6.0</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
@@ -151,13 +159,97 @@
         <dependency>
 			<groupId>com.github.luben</groupId>
 			<artifactId>zstd-jni</artifactId>
-			<version>1.4.0-1</version>
+			<version>1.4.4-7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
-			<version>2.7.0</version>
+			<version>2.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.checkerframework</groupId>
+			<artifactId>checker-qual</artifactId>
+			<version>${checkerframework.version}</version>
 		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile> <!-- run with: mvn clean compile -P checker-framework -->
+			<id>checker-framework
+			</id> <!-- Slower but safer profile used to look for errors before pushing to SCM -->
+
+			<properties>
+				<!-- These properties will be set by the Maven Dependency plugin -->
+				<!--suppress UnresolvedMavenProperty -->
+				<annotatedJdk>${org.checkerframework:jdk8:jar}</annotatedJdk>
+			</properties>
+
+			<build>
+				<plugins>
+					<plugin>
+						<!-- This plugin will set properties values using dependency information -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>properties</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.8.0</version>
+						<configuration>
+							<source>1.8</source>
+							<target>1.8</target>
+							<compilerArguments>
+								<Xmaxerrs>1000</Xmaxerrs>
+								<Xmaxwarns>1000</Xmaxwarns>
+							</compilerArguments>
+							<annotationProcessorPaths>
+								<path>
+									<groupId>org.checkerframework</groupId>
+									<artifactId>checker</artifactId>
+									<version>${checkerframework.version}</version>
+								</path>
+							</annotationProcessorPaths>
+							<annotationProcessors>
+								<!-- Add all the checkers you want to enable here -->
+								<annotationProcessor>
+									org.checkerframework.checker.nullness.NullnessChecker
+								</annotationProcessor>
+							</annotationProcessors>
+							<compilerArgs>
+								<!-- checker framework -->
+								<!-- coordinate of the annotated JDK, which comes from a Maven dependency -->
+								<arg>-Xbootclasspath/p:${annotatedJdk}</arg>
+								<!-- -Awarns turns type-checking warnings into errors. -->
+								<!-- <arg>-Awarns</arg> -->
+							</compilerArgs>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+
+			<dependencies>
+				<dependency>
+					<groupId>org.checkerframework</groupId>
+					<artifactId>checker</artifactId>
+					<version>${checkerframework.version}</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.checkerframework</groupId>
+					<artifactId>jdk8</artifactId>
+					<version>${checkerframework.version}</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+
+		</profile>
+	</profiles>
 
 </project>

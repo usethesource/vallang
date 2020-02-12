@@ -2,12 +2,15 @@ package io.usethesource.vallang.basic;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.Collections;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.type.Type;
@@ -36,5 +39,10 @@ public class RegressionTest {
         assertTrue(c1WithKWParams.equals(c1Normal));
         assertTrue(c1Normal.isEqual(c1WithKWParams));
         assertTrue(c1Normal.equals(c1WithKWParams));
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression42_cause(IValueFactory vf, TypeStore store, @GivenValue("(\"\"():4,\"\"():3)") IValue v,  @GivenValue("(\"\"():4,\"\"():3)") IValue u) throws IOException {
+        assertTrue(v.isEqual(u));
     }
 }

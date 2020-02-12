@@ -275,9 +275,9 @@ public class IValueWriter {
                     type.getFieldType(i).accept(this);
                 }
 
-                String[] fieldNames = type.getFieldNames();
-                if(fieldNames != null){
-                    writer.writeField(IValueIDs.TupleType.NAMES, fieldNames);
+
+                if( type.hasFieldNames()){
+                    writer.writeField(IValueIDs.TupleType.NAMES, type.getFieldNames());
                 }
 
                 writer.endMessage();

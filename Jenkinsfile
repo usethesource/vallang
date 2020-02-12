@@ -16,10 +16,14 @@ node {
         stage ('sonar cloud') {
           sh "mvn -DskipTests sonar:sonar -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.projectKey=usethesource_vallang -Dsonar.organization=usethesource  -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${VALLANG_SONAR_CLOUD}"
         }
-    
+
+        stage('QA') {
+            sh "mvn clean compile -P checker-framework"
+        }
+
         stage('Deploy') {
             if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
-                sh "mvn -DskipTests deploy"
+                sh "mvn clean -DskipTests deploy"
             }
         }
     }

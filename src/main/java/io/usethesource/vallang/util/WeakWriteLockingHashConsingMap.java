@@ -19,6 +19,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
 * <p>
 * A Hash Consing implementation that only acquires a lock when the key is not in the connection.
@@ -30,11 +34,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 * </p>
 * @author Davy Landman
 */
-public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
+public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implements HashConsingMap<T> {
     /**
     * Class that adds the hash-code-equals contract on top of a weak reference
     */
-    private static class WeakReferenceWrap<T> extends WeakReference<T> {
+    private static class WeakReferenceWrap<T extends @NonNull Object> extends WeakReference<T> {
         private final int hash;
         
         public WeakReferenceWrap(int hash, T referent, ReferenceQueue<? super T> q) {
@@ -48,27 +52,27 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         }
         
         @Override
-        public boolean equals(Object obj) {
-            assert obj instanceof WeakReferenceWrap<?> && obj != null;
-            @SuppressWarnings("unchecked")
-            WeakReferenceWrap<T> wrappedObj = (WeakReferenceWrap<T>) obj;
-            if (wrappedObj.hash == hash) {
-                T self = get();
-                if (self == null) {
-                    return false;
+        public boolean equals(@Nullable Object obj) {
+            if (obj instanceof WeakReferenceWrap) {
+                WeakReferenceWrap<?> wrappedObj = (WeakReferenceWrap<?>) obj;
+                if (wrappedObj.hash == hash) {
+                    Object self = get();
+                    if (self == null) {
+                        return false;
+                    }
+                    Object other = wrappedObj.get();
+                    return other != null && self.equals(other);
                 }
-                T other = wrappedObj.get();
-                return other != null && self.equals(other);
             }
             return false;
-        }
+}
     }
     
     /**
     * Special wrapper that is used for lookup, so that we don't have to create a weak-reference when we don't need it.
     * It would have been nicer if we could use the normal equals method of the target object, but that won't be able to work together with the WeakReferenceWrap.
     */
-    private static final class LookupWrapper<T> {
+    private static final class LookupWrapper<T extends @NonNull Object> {
         private final int hash;
         private final T ref;
         public LookupWrapper(int hash, T ref) {
@@ -82,17 +86,18 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         }
         
         @Override
-        public boolean equals(Object obj) {
-            // only internal use of this class
-            assert obj instanceof WeakReferenceWrap<?> && obj != null;
-            @SuppressWarnings("unchecked")
-            WeakReferenceWrap<T> wrappedObj = (WeakReferenceWrap<T>) obj;
-            if (wrappedObj.hash == hash) {
-                T other = wrappedObj.get();
-                return other != null && ref.equals(other);
+        public boolean equals(@Nullable Object obj) {
+    // only internal use of this class
+
+            if (obj instanceof WeakReferenceWrap) {
+                WeakReferenceWrap<?> wrappedObj = (WeakReferenceWrap<?>) obj;
+                if (wrappedObj.hash == hash) {
+                    Object other = wrappedObj.get();
+                    return other != null && ref.equals(other);
+                }
             }
             return false;
-        }
+}
     }
     
     
@@ -148,13 +153,13 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
     
     private void cleanup() {
         // do a cheap poll
-        WeakReferenceWrap<?> c = (WeakReferenceWrap<?>) cleared.poll();
+        WeakReferenceWrap<? extends @NonNull Object> c = (WeakReferenceWrap<? extends @NonNull Object>) cleared.poll();
         if (c != null) {
             // acquire a write lock only when it's needed
             synchronized (this) {
                 while (c != null) {
                     data.remove(c);
-                    c = (WeakReferenceWrap<?>) cleared.poll();
+                    c = (WeakReferenceWrap<? extends @NonNull Object>) cleared.poll();
                 }
             }
         }
@@ -168,8 +173,9 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         private final CleanupThread thread;
         private Cleanup() {
             thread = new CleanupThread();
+            thread.start();
         }
-        public void register(WeakWriteLockingHashConsingMap<?> cache) {
+        public void register(@UnknownInitialization WeakWriteLockingHashConsingMap<?> cache) {
             thread.register(cache);
         }
 
@@ -184,12 +190,17 @@ public class WeakWriteLockingHashConsingMap<T> implements HashConsingMap<T> {
         private final ConcurrentLinkedQueue<WeakReference<WeakWriteLockingHashConsingMap<?>>> caches = new ConcurrentLinkedQueue<>();
         
         private CleanupThread() { 
-            setDaemon(true);
-            setName("Cleanup Thread for " + WeakWriteLockingHashConsingMap.class.getName());
-            start();
         }
 
-        public void register(WeakWriteLockingHashConsingMap<?> cache) {
+        @Override
+        public synchronized void start() {
+            setDaemon(true);
+            setName("Cleanup Thread for " + WeakWriteLockingHashConsingMap.class.getName());
+            super.start();
+        }
+
+        @SuppressWarnings("initialization")
+        public void register(@UnknownInitialization WeakWriteLockingHashConsingMap<?> cache) {
             caches.add(new WeakReference<>(cache));
         }
         

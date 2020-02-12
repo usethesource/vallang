@@ -26,6 +26,7 @@ import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Base value factory with optimized representations of primitive values.
@@ -243,7 +244,7 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 	
 	@Override
 	public ISourceLocation sourceLocation(String scheme, String authority,
-			String path, String query, String fragment) throws URISyntaxException {
+			String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException {
 		return SourceLocationValues.newSourceLocation(scheme, authority, path, query, fragment);
 	}
 

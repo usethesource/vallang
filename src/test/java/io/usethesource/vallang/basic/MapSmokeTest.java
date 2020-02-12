@@ -88,15 +88,6 @@ public final class MapSmokeTest {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testNoLabels(IValueFactory vf) {
-        // make a non-labeled map type, and the labels should be null
-        Type type = tf.mapType(a, b);
-
-        assertNull(type.getKeyLabel());
-        assertNull(type.getValueLabel());
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testLabels(IValueFactory vf) {
         // make a labeled map type, and the labels should match
         Type type = tf.mapType(a, "apple", b, "banana");
@@ -111,14 +102,11 @@ public final class MapSmokeTest {
         // and the labels should be kept distinct
         Type type1 = tf.mapType(a, "apple", b, "banana");
         Type type2 = tf.mapType(a, "orange", b, "mango");
-        Type type3 = tf.mapType(a, b);
 
         assertEquals("apple", type1.getKeyLabel());
         assertEquals("banana", type1.getValueLabel());
         assertEquals("orange", type2.getKeyLabel());
         assertEquals("mango", type2.getValueLabel());
-        assertNull(type3.getKeyLabel());
-        assertNull(type3.getValueLabel());
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -152,8 +140,6 @@ public final class MapSmokeTest {
                 IMap newMap = map.put(p.a, p.b);
                 assertTrue(newMap.containsKey(p.a));
                 assertEquals(p.b, newMap.get(p.a));
-                assertEquals(map.getType().getKeyLabel(), newMap.getType().getKeyLabel());
-                assertEquals(map.getType().getValueLabel(), newMap.getType().getValueLabel());
                 assertTrue(map.getType().isSubtypeOf(newMap.getType()));
             }
         }
@@ -171,11 +157,11 @@ public final class MapSmokeTest {
                     for (StringPair q : keyValues(vf)) {
                         IMap newMap = map.put(q.a, q.b);
                         assertEquals(val, map.get(p.a)); // original is never modified
-                        if (!p.a.isEqual(q.a))
+                        if (!p.a.isEqual(q.a)) {
                             assertEquals(val, newMap.get(p.a)); // only element q.a is modified
+                        }
                     }
                 }
-
             }
         }
     }
@@ -197,17 +183,11 @@ public final class MapSmokeTest {
                     Assertions.assertTrue(map2.getType().isSubtypeOf(map3.getType()), map2.getType().toString() + " <: " + map3.getType());
                 }
 
-                // check labels
-                if (!map2.getType().hasFieldNames()) {
-                    assertEquals(map1.getType().getKeyLabel(), map3.getType().getKeyLabel());
-                    assertEquals(map1.getType().getValueLabel(), map3.getType().getValueLabel());
-                }
-                if (!map1.getType().hasFieldNames()) {
-                    assertEquals(map2.getType().getKeyLabel(), map3.getType().getKeyLabel());
-                    assertEquals(map2.getType().getValueLabel(), map3.getType().getValueLabel());
-                }
+                // dynamic map values should never have labels
+                assertFalse(map1.getType().hasFieldNames());
+                assertFalse(map2.getType().hasFieldNames());
+                assertFalse(map3.getType().hasFieldNames());
             }
-
         }
     }
 
@@ -232,18 +212,7 @@ public final class MapSmokeTest {
                     Assertions.assertTrue(map1.getType().isSubtypeOf(map3.getType()), map1.getType().toString() + " <: " + map3.getType());
                     Assertions.assertTrue(map2.getType().isSubtypeOf(map3.getType()), map2.getType().toString() + " <: " + map3.getType());
                 }
-
-                // check labels
-                if (!map2.getType().hasFieldNames()) {
-                    assertEquals(map1.getType().getKeyLabel(), map3.getType().getKeyLabel());
-                    assertEquals(map1.getType().getValueLabel(), map3.getType().getValueLabel());
-                }
-                if (!map1.getType().hasFieldNames()) {
-                    assertEquals(map2.getType().getKeyLabel(), map3.getType().getKeyLabel());
-                    assertEquals(map2.getType().getValueLabel(), map3.getType().getValueLabel());
-                }
             }
-
         }
     }
 

@@ -28,11 +28,14 @@ import java.util.Random;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.ExpectedType;
+import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
@@ -48,12 +51,13 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.util.RandomValues;
+import io.usethesource.vallang.visitors.ValueStreams;
 
 /**
  * @author Arnold Lankamp
  */
 @SuppressWarnings("deprecation")
-public final class BinaryIoSmokeTest {
+public final class BinaryIoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testBinaryIO(IValueFactory vf) throws IOException {
@@ -65,10 +69,25 @@ public final class BinaryIoSmokeTest {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression40(IValueFactory vf, TypeStore store, 
+            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
+            @ExpectedType("Boolean") 
+            IConstructor t) throws FactTypeUseException, IOException {
+
+        ioRoundTrip(vf, store, t, 0);
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testRegression42_2(IValueFactory vf, TypeStore store, @GivenValue("(\"\"():4,\"\"():3)") IValue v) throws IOException {
+        ioRoundTrip(vf, store, v, 0);
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testBinaryFileIO(IValueFactory vf) throws IOException {
         TypeStore ts = new TypeStore();
         RandomValues.addNameType(ts);
         for (IValue value : RandomValues.getTestValues(vf)) {
+            RandomValues.addNameType(ts);
             ioRoundTripFile(vf, ts, value, 0);
         }
     }
@@ -194,7 +213,30 @@ public final class BinaryIoSmokeTest {
         RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6, true);
         for (int i = 0; i < 1000; i++) {
             IValue val = gen.generate(tf.valueType(), ts, null);
-            ioRoundTrip(vf, ts, val, seed);
+            
+            try {
+                ioRoundTrip(vf, ts, val, seed);
+            }
+            catch (Throwable e) {
+                System.err.println("Deep random value failed, now trying to find the simplest sub-term which causes the failure...");
+                // Now we've found a bug in a (probably) very, very complex value.
+                // Usually it has several megabytes of random data. 
+                
+                // We try to find a minimal sub-value which still fails somehow by
+                // visiting each sub-term and running the test again on this.
+                // The first sub-term to fail is reported via the AssertionFailed exception.
+                
+                // If only the big original term fails after all, then the BottomUp strategy
+                // will try that (its the last value of the stream) and fail again in 
+                // the same way as above.
+                ValueStreams.bottomupbf(val).forEach(v -> {
+                    try {
+                        ioRoundTrip(vf, ts, v, seed);
+                    } catch (IOException error) {
+                        fail(error);
+                    }
+                });
+            }
         }
     }
 
@@ -272,7 +314,9 @@ public final class BinaryIoSmokeTest {
             if (!value.isEqual(result)) {
                 String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
+                System.err.println("Test fail:");
                 System.err.println(message);
+                System.err.flush();
                 fail(message);
             }
             else if (value.getType() != result.getType()) {

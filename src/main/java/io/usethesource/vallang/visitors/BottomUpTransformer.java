@@ -11,6 +11,8 @@
 *******************************************************************************/
 package io.usethesource.vallang.visitors;
 
+import java.util.Map.Entry;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IList;
@@ -76,8 +78,8 @@ public class BottomUpTransformer<E extends Throwable> extends VisitorAdapter<IVa
 	@Override
 	public IValue visitMap(IMap o) throws E {
 		IMapWriter w = fFactory.mapWriter();
-		for (IValue elem : o) {
-			w.put(elem.accept(this), o.get(elem).accept(this));
+		for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> o.entryIterator()) {
+		    w.put(entry.getKey().accept(this), entry.getValue().accept(this));
 		}
 		
 		return fVisitor.visitMap(w.done());

@@ -14,8 +14,11 @@ package io.usethesource.vallang.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
@@ -155,9 +158,16 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     throw new IllegalOperationException("getFieldName", this);
   }
 
-  public Optional<String> getOptionalFieldName(int index) {
+  /**
+   * Retrieve the field name at a certain index for a tuple type, a relation
+   * type or a tree node type.
+   * 
+   * @param i index of the field name to retrieve
+   * @return the field name at the given index, optionally.
+   */
+  public Optional<String> getOptionalFieldName(int i) {
     if (hasFieldNames()) {
-      return Optional.of(getFieldName(index));
+      return Optional.of(Objects.requireNonNull(getFieldName(i)));
     } else {
       return Optional.empty();
     }
@@ -172,6 +182,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    *           when this type does not have field labels. Tuples and relations
    *           optionally have field labels.
    */
+  @Pure
   public String[] getFieldNames() {
     throw new IllegalOperationException("getFieldNames", this);
   }
@@ -351,6 +362,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * 
    * @return if the fields of a type or relation have been labelled
    */
+  @Pure
   public boolean hasFieldNames() {
     return false;
   }

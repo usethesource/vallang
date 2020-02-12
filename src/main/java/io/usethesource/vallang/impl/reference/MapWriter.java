@@ -22,6 +22,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
@@ -29,12 +32,13 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.util.AbstractTypeBag;
+import io.usethesource.vallang.util.ValueEqualsWrapper;
 
 /*package*/ class MapWriter implements IMapWriter {
 	private AbstractTypeBag keyTypeBag;
     private AbstractTypeBag valTypeBag;
-	private final java.util.HashMap<IValue, IValue> mapContent;
-	private Map constructedMap;
+	private final java.util.Map<ValueEqualsWrapper, IValue> mapContent;
+	private @MonotonicNonNull Map constructedMap;
 
 	/*package*/ MapWriter() {
 		super();
@@ -47,12 +51,24 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 
 	@Override
 	public Iterator<IValue> iterator() {
-	    return mapContent.keySet().iterator();
+	    return new Iterator<IValue>() {
+	        Iterator<ValueEqualsWrapper> it = mapContent.keySet().iterator();
+
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public IValue next() {
+                return it.next().getValue();
+            }
+        };
 	}
 	
 	@Override
-	public IValue get(IValue key) {
-	    return mapContent.get(key);
+	public @Nullable IValue get(IValue key) {
+	    return mapContent.get(new ValueEqualsWrapper(key));
 	}
 	
 	@Override
@@ -65,26 +81,26 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 	}
 	
 	private void checkMutation() {
-		if (constructedMap != null)
-			throw new UnsupportedOperationException(
-					"Mutation of a finalized list is not supported.");
+		if (constructedMap != null) {
+			throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
+		}
 	}
 	
 	@Override
 	public void putAll(IMap map) throws FactTypeUseException{
 		checkMutation();
 		
-		for(IValue key : map){
-			IValue value = map.get(key);
-			updateTypes(key, value);
-			mapContent.put(key, value);
+		for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> map.entryIterator()) {
+		    updateTypes(entry.getKey(), entry.getValue());
+		    mapContent.put(new ValueEqualsWrapper(entry.getKey()), entry.getValue());
 		}
 	}
 	
 	private void updateTypes(IValue key, IValue value) {
-	    if (mapContent.containsKey(key)) {
+	    ValueEqualsWrapper kw = new ValueEqualsWrapper(key);
+        if (mapContent.containsKey(kw)) {
 	        // key will be overwritten, so the corresponding value must be subtracted from the type bag too
-	        valTypeBag = valTypeBag.decrease(mapContent.get(key).getType());
+	        valTypeBag = valTypeBag.decrease(mapContent.get(kw).getType());
 	        valTypeBag = valTypeBag.increase(value.getType());
 	    }
 	    else {
@@ -99,7 +115,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 		for(Entry<IValue, IValue> entry : map.entrySet()){
 			IValue value = entry.getValue();
 			updateTypes(entry.getKey(), value);
-			mapContent.put(entry.getKey(), value);
+			mapContent.put(new ValueEqualsWrapper(entry.getKey()), value);
 		}
 	}
 
@@ -107,7 +123,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 	public void put(IValue key, IValue value) throws FactTypeUseException{
 		checkMutation();
 		updateTypes(key, value);
-		mapContent.put(key, value);
+		mapContent.put(new ValueEqualsWrapper(key), value);
 	}
 	
 	@Override

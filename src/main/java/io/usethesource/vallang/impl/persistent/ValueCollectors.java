@@ -4,7 +4,6 @@ import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
 import static io.usethesource.vallang.impl.persistent.SetWriter.equivalenceEqualityComparator;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -54,12 +53,12 @@ import io.usethesource.vallang.util.AbstractTypeBag;
      */
     @SuppressWarnings("unchecked")
     public static <T extends ITuple, K extends IValue, V extends IValue> Collector<T, ?, ISet> toSetMultimap(
-            Optional<String> keyLabel, Function<? super T, ? extends K> keyMapper,
-            Optional<String> valueLabel, Function<? super T, ? extends V> valueMapper) {
+            Function<? super T, ? extends K> keyMapper,
+            Function<? super T, ? extends V> valueMapper) {
 
         class SetMultimapStruct {
-            AbstractTypeBag keyTypeBag = AbstractTypeBag.of(keyLabel.orElse(null));
-            AbstractTypeBag valTypeBag = AbstractTypeBag.of(valueLabel.orElse(null));
+            AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
+            AbstractTypeBag valTypeBag = AbstractTypeBag.of();
             @SuppressWarnings("deprecation")
             SetMultimap.Transient<K, V> map =
             SetMultimap.Transient.of(equivalenceEqualityComparator);

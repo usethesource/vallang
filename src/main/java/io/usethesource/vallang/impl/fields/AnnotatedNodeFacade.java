@@ -13,6 +13,8 @@ package io.usethesource.vallang.impl.fields;
 
 import java.util.Iterator;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
@@ -91,11 +93,16 @@ public class AnnotatedNodeFacade implements INode {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(o == this) return true;
-        if(o == null) return false;
+    public boolean equals(@Nullable Object o) {
+        if (o == this) {
+            return true;
+        }
+        
+        if (o == null) {
+            return false;
+        }
 
-        if(o.getClass() == getClass()){
+        if (o.getClass() == getClass()){
             AnnotatedNodeFacade other = (AnnotatedNodeFacade) o;
 
             return content.equals(other.content) &&
@@ -130,8 +137,7 @@ public class AnnotatedNodeFacade implements INode {
         return new AbstractDefaultAnnotatable<INode>(content, annotations) {
 
             @Override
-            protected INode wrap(INode content,
-                    Map.Immutable<String, IValue> annotations) {
+            protected INode wrap(INode content, Map.Immutable<String, IValue> annotations) {
                 return new AnnotatedNodeFacade(content, annotations);
             }
         };

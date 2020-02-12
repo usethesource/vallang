@@ -12,10 +12,14 @@
  */ 
 package io.usethesource.vallang.io.binary.stream;
 
+import io.usethesource.vallang.io.binary.stream.Header.Compression;
+import io.usethesource.vallang.io.binary.wire.xml.XMLWireOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -27,7 +31,7 @@ import io.usethesource.vallang.io.binary.util.FileChannelDirectOutputStream;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
-            
+
 /**
  * A binary serializer for IValues. <br/>
  * <br />
@@ -51,7 +55,8 @@ public class IValueOutputStream implements Closeable {
         Light(Header.Compression.ZSTD, 1),
         Normal(Header.Compression.ZSTD, 5),
         Strong(Header.Compression.ZSTD, 13),
-        Extreme(Header.Compression.XZ, 6), 
+        Extreme(Header.Compression.XZ, 6),
+        XML(Compression.NONE, 0)
         ;
 
         private final int compressionAlgorithm;
@@ -68,7 +73,7 @@ public class IValueOutputStream implements Closeable {
     
     private CompressionRate compression;
     private OutputStream rawStream;
-    private IWireOutputStream writer;
+    private @MonotonicNonNull IWireOutputStream writer;
     private final IValueFactory vf;
 
     public IValueOutputStream(OutputStream out, IValueFactory vf) throws IOException {
@@ -84,7 +89,6 @@ public class IValueOutputStream implements Closeable {
         out.write(Header.MAIN);
         this.rawStream = out;
         this.compression = compression;
-        this.writer = null;
         this.vf = vf;
     }
 
@@ -111,6 +115,9 @@ public class IValueOutputStream implements Closeable {
     }
 
     private IWireOutputStream initializeWriter(WindowSizes sizes) throws IOException {
+        if (compression == CompressionRate.XML) {
+            return new XMLWireOutputStream(rawStream);
+        }
         if (sizes == WindowSizes.NO_WINDOW || sizes == WindowSizes.TINY_WINDOW) {
             compression = CompressionRate.None;
         }

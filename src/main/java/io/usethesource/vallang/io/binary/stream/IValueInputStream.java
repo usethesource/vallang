@@ -21,6 +21,8 @@ import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.message.IValueReader;
@@ -37,12 +39,11 @@ import io.usethesource.vallang.type.TypeStore;
 @SuppressWarnings("deprecation")
 public class IValueInputStream implements Closeable {
     
-    private final BinaryWireInputStream reader;
+    private final @Nullable BinaryWireInputStream reader;
     private final IValueFactory vf;
     private final Supplier<TypeStore> typeStoreSupplier;
 
-    private final boolean legacy;
-    private final BinaryReader legacyReader;
+    private final @Nullable BinaryReader legacyReader;
 
     /**
      * This will <strong>consume</strong> the whole stream (or at least more than needed due to buffering), don't use the InputStream afterwards!
@@ -61,14 +62,12 @@ public class IValueInputStream implements Closeable {
             firstByte &= (BinaryReader.SHARED_FLAG ^ 0xFF); // remove the possible set shared bit
             if (BinaryReader.BOOL_HEADER <= firstByte && firstByte <= BinaryReader.IEEE754_ENCODED_DOUBLE_HEADER) {
                 System.err.println("Old value format used, switching to legacy mode!");
-                legacy = true;
                 legacyReader = new BinaryReader(vf, new TypeStore(), new SequenceInputStream(new ByteArrayInputStream(currentHeader), in));
                 reader = null;
                 return;
             }
             throw new IOException("Unsupported file");
         }
-        legacy = false;
         legacyReader = null;
 
         int compression = in.read();
@@ -82,18 +81,21 @@ public class IValueInputStream implements Closeable {
     }
 
     public IValue read() throws IOException {
-        if (legacy) {
+        if (legacyReader != null) {
             return legacyReader.deserialize();
+        }
+        if (reader == null) {
+            throw new IllegalStateException("Incorrect initialization");
         }
         return IValueReader.readValue(reader, vf, typeStoreSupplier);
     }
     
     @Override
     public void close() throws IOException {
-        if (legacy) {
+        if (legacyReader != null) {
             legacyReader.close();
         }
-        else {
+        if (reader != null) {
             reader.close();
         }
     }

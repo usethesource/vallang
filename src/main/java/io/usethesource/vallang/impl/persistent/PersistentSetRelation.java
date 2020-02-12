@@ -1,6 +1,10 @@
 package io.usethesource.vallang.impl.persistent;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
@@ -9,11 +13,9 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.impl.util.collections.ShareableValuesList;
 import io.usethesource.vallang.util.RotatingQueue;
-import io.usethesource.vallang.util.ShareableHashMap;
-import io.usethesource.vallang.util.ValueIndexedHashMap;
+import io.usethesource.vallang.util.ValueEqualsWrapper;
 
 public class PersistentSetRelation implements IRelation<ISet> {
     private final ISet set;
@@ -53,11 +55,11 @@ public class PersistentSetRelation implements IRelation<ISet> {
         // relation is already indexed.
         
         // Index
-        ShareableHashMap<IValue, ShareableValuesList> rightSides = new ShareableHashMap<>();
+        Map<ValueEqualsWrapper, ShareableValuesList> rightSides = new HashMap<>();
         
         for (IValue val : set2) {
             ITuple tuple = (ITuple) val;
-            IValue key = tuple.get(0);
+            ValueEqualsWrapper key = new ValueEqualsWrapper(tuple.get(0));
             ShareableValuesList values = rightSides.get(key);
             if (values == null) {
                 values = new ShareableValuesList();
@@ -72,7 +74,7 @@ public class PersistentSetRelation implements IRelation<ISet> {
         IWriter<ISet> resultWriter = writer();
         for (IValue thisVal : this) {
             ITuple thisTuple = (ITuple) thisVal;
-            IValue key = thisTuple.get(1);
+            ValueEqualsWrapper key = new ValueEqualsWrapper(thisTuple.get(1));
             ShareableValuesList values = rightSides.get(key);
             if (values != null){
                 Iterator<IValue> valuesIterator = values.iterator();
@@ -98,7 +100,7 @@ public class PersistentSetRelation implements IRelation<ISet> {
     @Override
     public ISet closureStar() {
         // calculate
-        ShareableValuesHashSet closureDelta = computeClosureDelta();
+        Set<IValue> closureDelta = computeClosureDelta();
 
         IWriter<ISet> resultWriter = writer();
         resultWriter.insertAll(this);
@@ -111,21 +113,21 @@ public class PersistentSetRelation implements IRelation<ISet> {
         return resultWriter.done();
     }
     
-    private ShareableValuesHashSet computeClosureDelta() {
+    private Set<IValue> computeClosureDelta() {
         IValueFactory vf = ValueFactory.getInstance();
-        RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
-        RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
+        RotatingQueue<ValueEqualsWrapper> iLeftKeys = new RotatingQueue<>();
+        RotatingQueue<RotatingQueue<ValueEqualsWrapper>> iLefts = new RotatingQueue<>();
         
-        ValueIndexedHashMap<RotatingQueue<IValue>> interestingLeftSides = new ValueIndexedHashMap<>();
-        ValueIndexedHashMap<ShareableValuesHashSet> potentialRightSides = new ValueIndexedHashMap<>();
+        Map<ValueEqualsWrapper, RotatingQueue<ValueEqualsWrapper>> interestingLeftSides = new HashMap<>();
+        Map<ValueEqualsWrapper, Set<ValueEqualsWrapper>> potentialRightSides = new HashMap<>();
         
         // Index
         for (IValue val : this) {
             ITuple tuple = (ITuple) val;
-            IValue key = tuple.get(0);
-            IValue value = tuple.get(1);
-            RotatingQueue<IValue> leftValues = interestingLeftSides.get(key);
-            ShareableValuesHashSet rightValues;
+            ValueEqualsWrapper key = new ValueEqualsWrapper(tuple.get(0));
+            ValueEqualsWrapper value = new ValueEqualsWrapper(tuple.get(1));
+            RotatingQueue<ValueEqualsWrapper> leftValues = interestingLeftSides.get(key);
+            Set<ValueEqualsWrapper> rightValues;
             
             if (leftValues != null) {
                 rightValues = potentialRightSides.get(key);
@@ -135,11 +137,15 @@ public class PersistentSetRelation implements IRelation<ISet> {
                 iLefts.put(leftValues);
                 interestingLeftSides.put(key, leftValues);
                 
-                rightValues = new ShareableValuesHashSet();
+                rightValues = new HashSet<>();
                 potentialRightSides.put(key, rightValues);
             }
             
             leftValues.put(value);
+            if (rightValues == null) {
+                rightValues = new HashSet<>();
+            }
+            
             rightValues.add(value);
         }
         
@@ -147,25 +153,27 @@ public class PersistentSetRelation implements IRelation<ISet> {
         int nextSize = 0;
         
         // Compute
-        final ShareableValuesHashSet newTuples = new ShareableValuesHashSet();
+        final Set<IValue> newTuples = new HashSet<>();
         do{
-            ValueIndexedHashMap<ShareableValuesHashSet> rightSides = potentialRightSides;
-            potentialRightSides = new ValueIndexedHashMap<>();
+            Map<ValueEqualsWrapper, Set<ValueEqualsWrapper>> rightSides = potentialRightSides;
+            potentialRightSides = new HashMap<>();
             
             for(; size > 0; size--){
-                IValue leftKey = iLeftKeys.get();
-                RotatingQueue<IValue> leftValues = iLefts.get();
+                ValueEqualsWrapper leftKey = iLeftKeys.get();
+                RotatingQueue<ValueEqualsWrapper> leftValues = iLefts.get();
+                RotatingQueue<ValueEqualsWrapper> interestingLeftValues = null;
                 
-                RotatingQueue<IValue> interestingLeftValues = null;
+                assert leftKey != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
+                assert leftValues != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
                 
-                IValue rightKey;
-                while((rightKey = leftValues.get()) != null){
-                    ShareableValuesHashSet rightValues = rightSides.get(rightKey);
+                ValueEqualsWrapper rightKey;
+                while((rightKey =  leftValues.get()) != null){
+                    Set<ValueEqualsWrapper> rightValues = rightSides.get(rightKey);
                     if(rightValues != null){
-                        Iterator<IValue> rightValuesIterator = rightValues.iterator();
+                        Iterator<ValueEqualsWrapper> rightValuesIterator = rightValues.iterator();
                         while(rightValuesIterator.hasNext()){
-                            IValue rightValue = rightValuesIterator.next();
-                            if(newTuples.add(vf.tuple(leftKey, rightValue))){
+                            ValueEqualsWrapper rightValue = rightValuesIterator.next();
+                            if(newTuples.add(vf.tuple(leftKey.getValue(), rightValue.getValue()))){
                                 if(interestingLeftValues == null){
                                     nextSize++;
                                     
@@ -175,9 +183,9 @@ public class PersistentSetRelation implements IRelation<ISet> {
                                 }
                                 interestingLeftValues.put(rightValue);
                                 
-                                ShareableValuesHashSet potentialRightValues = potentialRightSides.get(rightKey);
+                                Set<ValueEqualsWrapper> potentialRightValues = potentialRightSides.get(rightKey);
                                 if(potentialRightValues == null){
-                                    potentialRightValues = new ShareableValuesHashSet();
+                                    potentialRightValues = new HashSet<>();
                                     potentialRightSides.put(rightKey, potentialRightValues);
                                 }
                                 potentialRightValues.add(rightValue);

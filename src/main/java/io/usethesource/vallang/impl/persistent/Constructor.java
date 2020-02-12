@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
@@ -103,7 +105,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean equals(Object o){
+        public boolean equals(@Nullable Object o){
             if(o == this) return true;
             if(o == null) return false;
 
@@ -257,7 +259,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             return o == this;
         }
 
@@ -319,7 +321,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (o == this) {
                 return true;
             }
@@ -386,7 +388,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (o == this) {
                 return true;
             }
@@ -448,7 +450,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (o == this) {
                 return true;
             }
@@ -520,7 +522,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (o == this) {
                 return true;
             }
@@ -597,7 +599,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (o == this) {
                 return true;
             }
@@ -684,7 +686,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (o == this) {
                 return true;
             }
@@ -771,7 +773,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (o == this) {
                 return true;
             }
@@ -877,7 +879,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         switch (children.length) {
-        case 0: return EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType);
+        case 0: return Objects.requireNonNull(EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType));
         case 1: return new Constructor1(constructorType, children[0]);
         case 2: return new Constructor2(constructorType, children[0], children[1]);
         case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);

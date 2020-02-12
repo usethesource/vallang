@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -185,8 +187,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (o instanceof ConstructorType) {
+	public boolean equals(@Nullable Object o) {
+	    if (o == null) {
+	        return false;
+	    }
+	    
+		if (o.getClass().equals(getClass())) {
 			ConstructorType other = (ConstructorType) o;
 
 			if (fName != other.fName) { // fName is interned, change to equals when intern() is removed

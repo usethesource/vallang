@@ -39,13 +39,80 @@ public final class BasicValueSmokeTest {
   public void testRationalToReal(IValueFactory vf) {
     assertTrue(vf.rational(1, 4).toReal(3).isEqual(vf.real(0.25)));
   }
+  
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testBrokenGetURI(IValueFactory vf) {
+      try {
+  
+          // PathURI
+        ISourceLocation loc1 = vf.sourceLocation("UJ", "", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
+        assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc1.toString());
+        
+        // PathAuthorityURI
+        ISourceLocation loc2 = vf.sourceLocation("UJ", "UK", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc2.toString());
+        
+        // PathAuthorityURI
+        ISourceLocation loc3 = vf.sourceLocation("UJ", "UK", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc3.toString());
+        // QueryURI
+        ISourceLocation loc4 = vf.sourceLocation("UJ", "", "", "bla=𒉻𒂮𠇯", "");
+        assertEquals("|UJ:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc4.toString());
+        
+        // QueryAuthorityURI
+        ISourceLocation loc5 = vf.sourceLocation("UJ", "UK", "", "bla=𒉻𒂮𠇯", "");
+        assertEquals("|UJ://UK?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc5.toString());
+        
+        // QueryPathURI
+        ISourceLocation loc6 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯", "bla=𒉻𒂮𠇯", "");
+        assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc6.toString());
+        
+        // QueryPathAuthorityURI
+        ISourceLocation loc7 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯", "bla=𒉻𒂮𠇯", "");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc7.toString());
+        
+        // FragmentURI
+        ISourceLocation loc8 = vf.sourceLocation("UJ", "", "","", "𒉻𒂮𠇯");
+        assertEquals("|UJ:///#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc8.toString());
+        
+        // FragmentAuthorityURI
+        ISourceLocation loc9 = vf.sourceLocation("UJ", "UK", "","", "𒉻𒂮𠇯");
+        assertEquals("|UJ://UK#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc9.toString());
+        
+        // FragmentPathURI
+        ISourceLocation loc10 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯","", "𒉻𒂮𠇯");
+        assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc10.toString());
+        
+        // FragmentPathAuthorityURI
+        ISourceLocation loc11 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯","", "𒉻𒂮𠇯");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc11.toString());
+        
+        // FragmentQueryURI
+        ISourceLocation loc12 = vf.sourceLocation("UJ", "", "","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
+        assertEquals("|UJ:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc12.toString());
+        
+        // FragmentQueryAuthorityURI
+        ISourceLocation loc13 = vf.sourceLocation("UJ", "UK", "","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
+        assertEquals("|UJ://UK?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc13.toString());
+        
+        // FragmentQueryPathURI
+        ISourceLocation loc14 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
+        assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc14.toString());
+
+        // FragmentQueryPathAuthorityURI
+        ISourceLocation loc15 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
+        assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc15.toString());
+    } catch (URISyntaxException e) {
+        fail(e.getMessage());
+    }
+  }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringRepresentation(IValueFactory vf) {
     assertTrue(vf.string("\uD83C\uDF5D").isEqual(vf.string("🍝")));
     assertTrue(vf.string(new String(Character.toChars(0x1F35D))).isEqual(vf.string("🍝")));
   }
-
+  
   @ParameterizedTest @ArgumentsSource(ValueProvider.class) public void testRascalIssue1192(IValueFactory vf) {
       assertTrue(vf.integer("-2147483648").subtract(vf.integer("2147483648")).isEqual(vf.integer("-4294967296")));
   }

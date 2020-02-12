@@ -194,7 +194,12 @@ public class ValueProvider implements ArgumentsProvider {
     private Object argument(Tuple<IValueFactory, RandomValueGenerator> vf, TypeStore ts, Class<?> cls, ExpectedType expected, boolean noAnnotations, GivenValue givenValue)  {
         if (givenValue != null) {
             try {
-                return new StandardTextReader().read(vf.a, new StringReader(givenValue.value()));
+                if (expected != null) {
+                    return new StandardTextReader().read(vf.a, ts, readType(ts, expected), new StringReader(givenValue.value()));
+                }
+                else {
+                    return new StandardTextReader().read(vf.a, new StringReader(givenValue.value()));
+                }
             } catch (FactTypeUseException | IOException e) {
                 System.err.println("[WARNING] failed to parse given value: " + givenValue.value());
             }

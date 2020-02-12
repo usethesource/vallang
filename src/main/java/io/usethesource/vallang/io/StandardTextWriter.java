@@ -169,20 +169,22 @@ public class StandardTextWriter implements IValueTextWriter {
             tab();
             boolean indent = checkIndent(o);
             indent(indent);
-            Iterator<IValue> mapIterator = o.iterator();
+            Iterator<Entry<IValue,IValue>> mapIterator = o.entryIterator();
             if(mapIterator.hasNext()){
-                IValue key = mapIterator.next();
+                Entry<IValue, IValue> entry = mapIterator.next();
+                IValue key = entry.getKey();
                 key.accept(this);
                 append(':');
-                o.get(key).accept(this);
+                entry.getValue().accept(this);
 
                 while(mapIterator.hasNext()){
                     append(',');
                     indent(indent);
-                    key = mapIterator.next();
+                    entry = mapIterator.next();
+                    key = entry.getKey();
                     key.accept(this);
                     append(':');
-                    o.get(key).accept(this);
+                    entry.getValue().accept(this);
                 }
             }
             untab();
@@ -464,9 +466,10 @@ public class StandardTextWriter implements IValueTextWriter {
 
         private boolean checkIndent(IMap o) {
             if (indent && o.size() > 1) {
-                for (IValue x : o) {
+                for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> o.entryIterator()) {
+                    IValue x = entry.getKey();
                     Type type = x.getType();
-                    Type vType = o.get(x).getType();
+                    Type vType = entry.getValue().getType();
                     if (indented(type)) {
                         return true;
                     }

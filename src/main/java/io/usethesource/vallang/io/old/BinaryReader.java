@@ -896,9 +896,12 @@ public class BinaryReader implements Closeable {
 		}
 		catch (RedeclaredConstructorException e) {
 		    adtType = typeStore.lookupAbstractDataType(adtType.getName());
-		    for (Type candidate: typeStore.lookupConstructor(adtType, name)) {
-		        if (fieldTypes.isSubtypeOf(candidate.getFieldTypes())) {
-		            return candidate;
+		    
+		    if (adtType != null) {
+		        for (Type candidate: typeStore.lookupConstructor(adtType, name)) {
+		            if (fieldTypes.isSubtypeOf(candidate.getFieldTypes())) {
+		                return candidate;
+		            }
 		        }
 		    }
 		    throw e;

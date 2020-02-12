@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
@@ -102,8 +104,8 @@ public class Constructor extends Node implements IConstructor {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(this == obj) {
+    public boolean equals(@Nullable Object obj) {
+    if(this == obj) {
             return true;
         }
         else if(obj == null) {
@@ -114,7 +116,7 @@ public class Constructor extends Node implements IConstructor {
             return fType.comparable(other.fType) && super.equals(obj);
         }
         return false;
-    }
+}
 
     @Override
     public int hashCode() {
@@ -171,8 +173,9 @@ public class Constructor extends Node implements IConstructor {
             }
 
             @Override
+            @SuppressWarnings("return.type.incompatible")
             public java.util.Set<String> getParameterNames() {
-                return parameters.keySet();
+                return Collections.unmodifiableSet(parameters.keySet());
             }
 
             @Override

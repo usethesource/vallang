@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * The void type represents an empty collection of values. I.e. it is a subtype
@@ -52,10 +53,6 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 	@Override
     public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
         return tf().voidType();
-    }
-
-    public String randomLabel() {
-        return null;
     }
   }
   
@@ -280,9 +277,9 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return obj == VoidType.getInstance();
-  }
+}
 
   @Override
   public int hashCode() {
@@ -326,22 +323,22 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
   
   @Override
   public String getFieldName(int i) {
-    return null;
+    return "";
   }
   
   @Override
-	public String[] getFieldNames() {
-	  return new String[0];
-	}
+  public String[] getFieldNames() {
+      return new String[0];
+  }
 
   @Override
   public String getKeyLabel() {
-    return null;
+    return "";
   }
 
   @Override
   public String getValueLabel() {
-    return null;
+    return "";
   }
 
   @Override

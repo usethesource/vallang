@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
@@ -194,7 +196,15 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
+	    if (o == null) {
+	        return false;
+	    }
+	    
+	    if (o == this) {
+	        return true;
+	    }
+	    
 		if (o instanceof AliasType) {
 			AliasType other = (AliasType) o;
 			return fName.equals(other.fName) && fAliased == other.fAliased && fParameters == other.fParameters;

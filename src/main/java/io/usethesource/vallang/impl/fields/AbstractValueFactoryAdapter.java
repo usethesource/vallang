@@ -23,6 +23,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * This class provides a default way of easily reusing existing implementations
@@ -187,7 +188,7 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     }
 
     @Override
-    public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment)
+    public ISourceLocation sourceLocation(String scheme, String authority, String path, @Nullable String query, @Nullable String fragment)
             throws URISyntaxException {
         return adapted.sourceLocation(scheme, authority, path, query, fragment);
     }

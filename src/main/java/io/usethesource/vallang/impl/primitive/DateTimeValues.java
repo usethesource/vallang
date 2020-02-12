@@ -22,6 +22,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.InvalidDateTimeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 
 /** A concrete instance of IDateTime, representing either a date,
@@ -218,8 +219,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if (obj == null)
 				return false;
@@ -233,7 +234,7 @@ import io.usethesource.vallang.type.TypeFactory;
 			if (year != other.year)
 				return false;
 			return true;
-		}
+}
 
 		@Override
 		public boolean isEqual(IValue other) {
@@ -503,8 +504,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if (obj == null)
 				return false;
@@ -524,7 +525,7 @@ import io.usethesource.vallang.type.TypeFactory;
 			if (timezoneMinutes != other.timezoneMinutes)
 				return false;
 			return true;
-		}
+}
 
 		@Override
 		public boolean isEqual(IValue other) {
@@ -828,8 +829,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(@Nullable Object obj) {
+    if (this == obj)
 				return true;
 			if (obj == null)
 				return false;
@@ -855,7 +856,7 @@ import io.usethesource.vallang.type.TypeFactory;
 			if (year != other.year)
 				return false;
 			return true;
-		}
+}
 
 		@Override
 		public boolean isEqual(IValue other) {

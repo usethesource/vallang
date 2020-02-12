@@ -12,8 +12,8 @@
 package io.usethesource.vallang.io;
 
 import java.io.IOException;
+import java.util.Map.Entry;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -49,13 +49,11 @@ import io.usethesource.vallang.type.TypeStore;
  * It will not serialize all IValues, see <code>XMLReader</code> for limitations. 
  */
 public class XMLWriter implements IValueTextWriter {
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-	private DocumentBuilder fBuilder;
+    private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	
 	public void write(IValue value, java.io.Writer stream) throws IOException {
 		try {
-			fBuilder = dbf.newDocumentBuilder();
-			Document doc = fBuilder.newDocument();
+			Document doc = dbf.newDocumentBuilder().newDocument();
 			
 			Node top = yield(value, doc);
 			doc.appendChild(top);
@@ -69,7 +67,7 @@ public class XMLWriter implements IValueTextWriter {
 		} catch (TransformerException e) {
 			throw new IOException("Exception while serializing XML: " + e.getMessage());
 		} catch (DOMException e) {
-		    throw new UnsupportedTypeException(e.getMessage(), value.getType());
+		    throw new UnsupportedTypeException("" + e.getMessage(), value.getType());
 		}
 	}
 	
@@ -150,12 +148,10 @@ public class XMLWriter implements IValueTextWriter {
 	}
 
 	private Node yieldRational(IRational value, Document doc) {
-/*		Element element = doc.createElementNS("values", "rat");
+		Element element = doc.createElementNS("values", "rat");
 		element.setAttribute("num", value.numerator().toString());
 		element.setAttribute("denom", value.denominator().toString());
 		return element;
-*/	
-		return null;
 	}
 
 	private Node yieldString(IString value, Document doc) {
@@ -170,24 +166,25 @@ public class XMLWriter implements IValueTextWriter {
 		Element treeNode = doc.createElement(node.getName());
 		IMap map = (IMap) node.get(0);
 		
-		for (IValue key : map) {
-			IValue value = map.get(key);
-			
-			if (key.getType().isTuple()) {
-				appendTupleElements(doc, treeNode, key);
-			}
-			else {
-			  treeNode.appendChild(yield(key, doc));
-			}
-			
-			if (value.getType().isTuple()) {
+		for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue,IValue>>) () -> map.entryIterator()) {
+		    IValue key = entry.getKey();
+		    IValue value = entry.getValue();
+		    
+		    if (key.getType().isTuple()) {
+                appendTupleElements(doc, treeNode, key);
+            }
+            else {
+              treeNode.appendChild(yield(key, doc));
+            }
+            
+            if (value.getType().isTuple()) {
                 appendTupleElements(doc, treeNode, value);
-			}
-			else {
-			  treeNode.appendChild(yield(value, doc));
-			}
+            }
+            else {
+                treeNode.appendChild(yield(value, doc));
+            }
 		}
-
+		
 		return treeNode;
 	}
 

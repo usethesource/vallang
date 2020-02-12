@@ -12,6 +12,8 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
@@ -227,9 +229,15 @@ import io.usethesource.vallang.type.TypeFactory;
 		return equals(other);
 	}
 
-	public boolean equals(Object o) {
-		if(o == null) return false;
-		if(o == this) return true;
+	@Override
+	public boolean equals(@Nullable Object o) {
+		if (o == null) {
+		    return false;
+		}
+		
+		if (o == this) {
+		    return true;
+		}
 
 		if(o.getClass() == getClass()){
 			RationalValue other = (RationalValue) o;
@@ -355,7 +363,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		return num.remainder(denom);
 	}
 
-	protected IInteger gcd(IInteger n, IInteger d) {
+	protected static IInteger gcd(IInteger n, IInteger d) {
 		n = n.abs();
 		d = d.abs();
 		while(d.signum() > 0) {
@@ -365,7 +373,8 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 		return n;
 	}
-	protected IInteger intOne() {
+	
+	protected static IInteger intOne() {
 		return IntegerValue.INTEGER_ONE;
 	}
 

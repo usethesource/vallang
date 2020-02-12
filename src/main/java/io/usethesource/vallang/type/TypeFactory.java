@@ -25,10 +25,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -57,7 +60,7 @@ public class TypeFactory {
 	 * Caches all types to implement canonicalization
 	 */
 	private final HashConsingMap<Type> fCache = new WeakWriteLockingHashConsingMap<>(8*1024);
-    private TypeValues typeValues;
+    private @Nullable TypeValues typeValues;
     
 	private static class InstanceHolder {
 		public static final TypeFactory sInstance = new TypeFactory();
@@ -112,7 +115,7 @@ public class TypeFactory {
 		return VoidType.getInstance();
 	}
 
-	private Type getFromCache(Type t) {
+	/*package*/ Type getFromCache(Type t) {
 		return fCache.get(t);
 	}
 
@@ -241,6 +244,10 @@ public class TypeFactory {
 	 */
 	@Deprecated
 	public Type tupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
+	    if (fieldTypesAndLabels.length == 0) {
+	        return tupleEmpty();
+	    }
+	    
 		int N = fieldTypesAndLabels.length;
 		int arity = N / 2;
 		Type[] protoFieldTypes = new Type[arity];
@@ -257,15 +264,16 @@ public class TypeFactory {
 			}
 			try {
 				String name = (String) fieldTypesAndLabels[i + 1];
-				if (!isIdentifier(name))
+				if (!isIdentifier(name)) {
 					throw new IllegalIdentifierException(name);
+				}
 				protoFieldNames[pos] = name;
 			} catch (ClassCastException e) {
 				throw new IllegalFieldNameException(pos, fieldTypesAndLabels[i + 1], e);
 			}
 		}
 
-		return getFromCache(new TupleType(protoFieldTypes, protoFieldNames));
+		return getFromCache(new TupleTypeWithFieldNames(protoFieldTypes, protoFieldNames));
 	}
 
 	/**
@@ -282,7 +290,13 @@ public class TypeFactory {
   public Type tupleType(Type[] types, String[] labels) {
     checkNull((Object[]) types);
     checkNull((Object[]) labels);
-    return getFromCache(new TupleType(types, labels));
+    assert types.length == labels.length;
+    
+    if (types.length == 0) {
+        return tupleEmpty();
+    }
+    
+    return getFromCache(new TupleTypeWithFieldNames(types, labels));
   }
 
 	/**
@@ -494,8 +508,7 @@ public class TypeFactory {
 	 *           , UndeclaredAbstractDataTypeException,
 	 *           RedeclaredFieldNameException, RedeclaredConstructorException
 	 */
-	public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType)
-			throws FactTypeDeclarationException {
+	public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType) throws FactTypeDeclarationException {
 		checkNull(store, adt, name, tupleType);
 
 		if (!isIdentifier(name)) {
@@ -592,7 +605,7 @@ public class TypeFactory {
 			throw new IndexOutOfBoundsException();
 		}
 		if (fields.hasFieldNames()) {
-			return mapType(fields.getFieldType(0), fields.getFieldName(0), fields.getFieldType(1), fields.getFieldName(1));
+			return mapType(fields.getFieldType(0), Objects.requireNonNull(fields.getFieldName(0)), fields.getFieldType(1), Objects.requireNonNull(fields.getFieldName(1)));
 		} else {
 			return mapType(fields.getFieldType(0), fields.getFieldType(1));
 		}
@@ -604,7 +617,7 @@ public class TypeFactory {
 			throw new IllegalArgumentException("Key and value labels must both be non-null or null: " + keyLabel + ", "
 					+ valueLabel);
 		}
-		return getFromCache(new MapType(key, keyLabel, value, valueLabel));
+		return getFromCache(new MapTypeWithFieldNames(key, keyLabel, value, valueLabel));
 	}
 
 	/**
@@ -851,7 +864,7 @@ public class TypeFactory {
 		
 		public void initialize() {
 			try {
-			    Enumeration<URL> resources = getClass().getClassLoader().getResources(TYPES_CONFIG);
+			    Enumeration<URL> resources = Objects.requireNonNull(getClass().getClassLoader()).getResources(TYPES_CONFIG);
 			    Collections.list(resources).forEach(f -> loadServices(f));
 			} catch (IOException e) {
 			    throw new Error("WARNING: Could not load type kind definitions from " + TYPES_CONFIG, e);
@@ -868,7 +881,7 @@ public class TypeFactory {
 						continue;
 					}
 
-					Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+					Class<?> clazz = Objects.requireNonNull(Thread.currentThread().getContextClassLoader()).loadClass(name);
 					Object instance = clazz.newInstance();
 
 					if (instance instanceof TypeReifier) {

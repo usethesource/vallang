@@ -19,32 +19,21 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
-/*package*/ final class MapType extends DefaultSubtypeOfValue {
-    private final Type fKeyType;
-    private final Type fValueType;
-    private final String fKeyLabel;
-    private final String fValueLabel;
+/*package*/ class MapType extends DefaultSubtypeOfValue {
+    protected final Type fKeyType;
+    protected final Type fValueType;
     
     /*package*/ MapType(Type keyType, Type valueType) {
     	fKeyType= keyType;
     	fValueType = valueType;
-    	fKeyLabel = null;
-    	fValueLabel = null;
     }
-    
-    /*package*/ MapType(Type keyType, String keyLabel, Type valueType, String valueLabel) {
-    	fKeyType= keyType;
-    	fValueType = valueType;
-    	fKeyLabel = keyLabel;
-    	fValueLabel = valueLabel;
-    }
-    
     
     public static class Info implements TypeFactory.TypeReifier {
 		@Override
@@ -102,10 +91,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
             return tf().mapType(next.get(), next.get());
         }
-
-        public String randomLabel() {
-            return null;
-        }
 	}
 
 	@Override
@@ -119,18 +104,8 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
     
 	@Override
-	public String getKeyLabel() {
-		return fKeyLabel;
-	}
-	
-	@Override
 	public int getArity() {
 		return 2;
-	}
-	
-	@Override
-	public String getValueLabel() {
-		return fValueLabel;
 	}
 	
     @Override
@@ -141,29 +116,6 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
   
     @Override
     public boolean hasFieldNames() {
-    	return fKeyLabel != null && fValueLabel != null;
-    }
-    
-    @Override
-    public Type getFieldType(String fieldName) throws FactTypeUseException {
-    	if (fKeyLabel.equals(fieldName)) {
-    		return fKeyType;
-    	}
-    	if (fValueLabel.equals(fieldName)) {
-    		return fValueType;
-    	}
-    	throw new UndeclaredFieldException(this, fieldName);
-    }
-    
-    @Override
-    public boolean hasField(String fieldName) {
-    	if (fieldName.equals(fKeyLabel)) {
-    		return true;
-    	}
-    	else if (fieldName.equals(fValueLabel)) {
-    		return true;
-    	}
-    	
     	return false;
     }
     
@@ -178,49 +130,14 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
     
     @Override
-    public String getFieldName(int i) {
-    	switch (i) {
-    	case 0: return fKeyLabel;
-    	case 1: return fValueLabel;
-    	default:
-    		throw new IndexOutOfBoundsException();
-    	}
-
-    }
-    
-    @Override
     public Type select(int... fields) {
     	return TypeFactory.getInstance().setType(getFieldTypes().select(fields));
     }
     
     @Override
-    public Type select(String... names) {
-    	return TypeFactory.getInstance().setType(getFieldTypes().select(names));
-    }
-    
-    @Override
-    public int getFieldIndex(String fieldName) {
-    	if (fKeyLabel.equals(fieldName)) {
-    		return 0;
-    	}
-    	if (fValueLabel.equals(fieldName)) {
-    		return 1;
-    	}
-    	throw new UndeclaredFieldException(this, fieldName);
-    }
-    
-    @SuppressWarnings("deprecation")
-    @Override
     public Type getFieldTypes() {
-    	if (hasFieldNames()) {
-    		return TypeFactory.getInstance().tupleType(fKeyType, fKeyLabel, fValueType, fValueLabel);
-    	}
-    	else {
-    		return TypeFactory.getInstance().tupleType(fKeyType, fValueType);
-    	}
+        return TypeFactory.getInstance().tupleType(fKeyType, fValueType);
     }
-    
-    
     
     @Override
     public Type carrier() {
@@ -234,28 +151,17 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof MapType)) {
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
             return false;
         }
+        
+        if (!obj.getClass().equals(getClass())) {
+            return false;
+        }
+        
         MapType other= (MapType) obj;
-        
-        if (fKeyLabel != null) {
-        	if (!fKeyLabel.equals(other.fKeyLabel)) {
-        		return false;
-        	}
-        }
-        else if(other.fKeyLabel != null)
-        	return false;
-        
-        if (fValueLabel != null) {
-        	if (!fValueLabel.equals(other.fValueLabel)) {
-        		return false;
-        	}
-        }
-        else if(other.fValueLabel != null)
-        	return false;
-        
+
         // N.B.: The element type must have been created and canonicalized before any
         // attempt to manipulate the outer type (i.e. SetType), so we can use object
         // identity here for the fEltType.
@@ -264,10 +170,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
     @Override
     public String toString() {
-    	return "map[" + 
-    	fKeyType + (fKeyLabel != null ? " " + fKeyLabel : "") + ", " 
-    	+ fValueType + (fValueLabel != null ? " " + fValueLabel : "")  + 
-    	"]";
+    	return "map[" + fKeyType + ", " + fValueType + "]";
     }
     
     @Override
@@ -316,16 +219,11 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 			throws FactTypeUseException {
 		return super.match(matched, bindings)
 				&& getKeyType().match(matched.getKeyType(), bindings)
-				&&getValueType().match(matched.getValueType(), bindings);
+				&& getValueType().match(matched.getValueType(), bindings);
 	}
 	
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-	  if (fKeyLabel != null) {
-	    return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), fKeyLabel, getValueType().instantiate(bindings), fValueLabel);
-	  } 
-	  else {
 	    return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
-	  }
 	}
 }

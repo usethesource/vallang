@@ -13,9 +13,13 @@ package io.usethesource.vallang.impl.persistent;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.EqualityComparator;
@@ -32,18 +36,15 @@ public final class PersistentHashMap implements IMap {
 	private static final EqualityComparator<Object> equivalenceComparator =
 			EqualityUtils.getEquivalenceComparator();
 	
-	private Type cachedMapType;
+	private @MonotonicNonNull Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag;
 	private final AbstractTypeBag valTypeBag;
-	private final Map.Immutable<IValue,IValue> content;
+	private final Map.Immutable<@NonNull IValue, @NonNull IValue> content;
 	
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
-	protected PersistentHashMap(AbstractTypeBag keyTypeBag,
-                              AbstractTypeBag valTypeBag, Map.Immutable<IValue, IValue> content) {
-		Objects.requireNonNull(content);
-		this.cachedMapType = null;
+	protected PersistentHashMap(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag, Map.Immutable<@NonNull IValue, @NonNull IValue> content) {
 		this.keyTypeBag = keyTypeBag;
 		this.valTypeBag = valTypeBag;
 		this.content = content;
@@ -55,21 +56,11 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public Type getType() {
 		if (cachedMapType == null) {
-			final Type keyType = keyTypeBag.lub();
-			final Type valType = valTypeBag.lub();
-	
-			final String keyLabel = keyTypeBag.getLabel();
-			final String valLabel = valTypeBag.getLabel();
-
-			if (keyLabel != null && valLabel != null) {
-				cachedMapType = TF.mapType(keyType, keyLabel, valType, valLabel);
-			} else { 
-				cachedMapType = TF.mapType(keyType, valType);
-			}
+			cachedMapType = TF.mapType(keyTypeBag.lub(), valTypeBag.lub());
 		}
+		
 		return cachedMapType;		
 	}
 
@@ -127,7 +118,8 @@ public final class PersistentHashMap implements IMap {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
+	@EnsuresNonNullIf(expression="get(#1)", result=true)
+    @SuppressWarnings({"deprecation", "contracts.conditional.postcondition.not.satisfied", "contracts.conditional.postcondition.true.override.invalid"}) // that's impossible to prove for the Checker Framework
 	public boolean containsKey(IValue key) {
 		return content.containsKeyEquivalent(key, equivalenceComparator);
 	}
@@ -139,7 +131,7 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	 @SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation")
 	public IValue get(IValue key) {
 		return content.getEquivalent(key, equivalenceComparator);
 	}
@@ -150,11 +142,14 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	public boolean equals(Object other) {
-		if (other == this)
+	public boolean equals(@Nullable Object other) {
+		if (other == this) {
 			return true;
-		if (other == null)
+		}
+		
+		if (other == null) {
 			return false;
+		}
 		
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
@@ -178,11 +173,10 @@ public final class PersistentHashMap implements IMap {
 	@Override
 	@SuppressWarnings("deprecation")
 	public boolean isEqual(IValue other) {
-		if (other == this)
+		if (other == this) {
 			return true;
-		if (other == null)
-			return false;
-
+		}
+		
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
 
@@ -214,17 +208,6 @@ public final class PersistentHashMap implements IMap {
 		return content.entryIterator();
 	}
 
-	@Deprecated
-	private static String mergeLabels(String one, String two) {
-		if (one != null && two != null && one.equals(two)) {
-			// both are the same
-			return one;
-		} else {
-			// only one is not null
-			return one != null ? one : two;
-		}
-	}	
-	
 	@Override
 	@SuppressWarnings("deprecation")
 	public IMap join(IMap other) {
@@ -236,25 +219,8 @@ public final class PersistentHashMap implements IMap {
 			boolean isModified = false;
 			int previousSize = size();
 
-			AbstractTypeBag keyBagNew = null;
-			if (that.keyTypeBag.getLabel() != null) {
-				keyBagNew = keyTypeBag.setLabel(mergeLabels(keyTypeBag.getLabel(),
-								that.keyTypeBag.getLabel()));
-
-				isModified |= (!keyBagNew.getLabel().equals(keyTypeBag.getLabel()));
-			} else {
-				keyBagNew = keyTypeBag;
-			}
-
-			AbstractTypeBag valBagNew = null;
-			if (that.valTypeBag.getLabel() != null) {
-				valBagNew = valTypeBag.setLabel(mergeLabels(valTypeBag.getLabel(),
-								that.valTypeBag.getLabel()));
-
-				isModified |= (!valBagNew.getLabel().equals(valTypeBag.getLabel()));
-			} else {
-				valBagNew = valTypeBag;
-			}
+			AbstractTypeBag keyBagNew = keyTypeBag;
+			AbstractTypeBag valBagNew = valTypeBag;
 
 			for (Iterator<Entry<IValue, IValue>> it = that.entryIterator(); it.hasNext();) {
 				Entry<IValue, IValue> tuple = it.next();
