@@ -113,18 +113,17 @@ public class NodeWithKeywordParametersFacade implements INode {
 
 	@Override
 	public boolean isEqual(IValue other) {
-	  if (!other.mayHaveKeywordParameters()) {
+	    if (!other.mayHaveKeywordParameters()) {
+	        return false;
+	    }
+
+	    if (other instanceof NodeWithKeywordParametersFacade) {
+	        NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
+
+	        return content.isEqual(o.content) && KEYWORD_PARAMETER_COMPARATOR.equals(parameters, o.parameters);
+	    }
+
 	    return false;
-	  }
-
-		if (other instanceof NodeWithKeywordParametersFacade) {
-			NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
-
-			return content.isEqual(o.content)
-					&& KEYWORD_PARAMETER_COMPARATOR.equals(parameters, o.parameters);
-		}
-
-		return false;
 	}
 
 	@Override

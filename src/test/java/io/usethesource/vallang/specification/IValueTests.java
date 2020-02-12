@@ -22,18 +22,18 @@ import io.usethesource.vallang.io.StandardTextWriter;
 
 public class IValueTests {
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
-    public void equalsIsReflexive(IValue val) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void equalsIsReflexive(@NoAnnotations IValue val) {
         assertEquals(val, val);
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)  @NoAnnotations
-    public void equalsIsCommutative(IValue val1, IValue val2) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)  
+    public void equalsIsCommutative(@NoAnnotations IValue val1, @NoAnnotations IValue val2) {
         assertTrue(!val1.equals(val2) || val2.equals(val1));
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
-    public void equalsIsTransitive(IValue val1, IValue val2, IValue val3) {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void equalsIsTransitive(@NoAnnotations IValue val1, @NoAnnotations IValue val2, @NoAnnotations IValue val3) {
         assertTrue(!(val1.equals(val2) && val2.equals(val3)) || val1.equals(val3));
     }
     
@@ -45,8 +45,8 @@ public class IValueTests {
         assertTrue(!val1.equals(val2) || val1.hashCode() == val2.hashCode());
     }
     
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
-    public void testWysiwyg(IValueFactory vf, IValue val) throws FactTypeUseException, IOException {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void testWysiwyg(IValueFactory vf, @NoAnnotations IValue val) throws FactTypeUseException, IOException {
         StandardTextReader reader = new StandardTextReader();
         String string = val.toString();
         IValue result = reader.read(vf, val.getType(), new StringReader(string));
@@ -54,7 +54,7 @@ public class IValueTests {
     }
 
     @SuppressWarnings("deprecation")
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void bug39Repo(IValueFactory vf) throws IOException {
         INode val = vf.node("59", vf.bool(false), vf.integer(-6));
 
@@ -74,12 +74,12 @@ public class IValueTests {
                 vf.datetime(2020, 3, 24, 1,33, 1, 663, 0, 0)));
         val = val.asAnnotatable().setAnnotation("vRf1459", vf.bool(false));
         val = val.asAnnotatable().setAnnotation("Okrg81h", vf.rational(1193539202, 2144242729));
-        System.out.println(val.toString());
+
         testWysiwyg(vf, val);
     }
 
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @NoAnnotations
-    public void testIsomorphicText(IValue val1, IValue val2) throws FactTypeUseException, IOException {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
+    public void testIsomorphicText(@NoAnnotations IValue val1, @NoAnnotations IValue val2) throws FactTypeUseException, IOException {
         // (val1 == val2) <==> (val1.toString() == val2.toString())
 
         if (val1.equals(val2)) {

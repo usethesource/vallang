@@ -1,19 +1,25 @@
 package io.usethesource.vallang.issues;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.io.StandardTextWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.GivenValue;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
+import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class RegressionTests {
 
@@ -44,4 +50,18 @@ public class RegressionTests {
         writer.write(loc, target);
         assertEquals(target.toString(), loc.toString());
     }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    void keywordFieldsMakeConstructorsDifferent(IValueFactory vf, TypeFactory tf, TypeStore store)  {
+       Type X = tf.abstractDataType(store, "X");
+       Type cons = tf.constructor(store, X, "x");
+       store.declareKeywordParameter(X, "name", tf.stringType());
+       
+       IConstructor cons1 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("paul"));
+       IConstructor cons2 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("jurgen"));
+
+       assertFalse(cons1.isEqual(cons2));
+       assertFalse(cons1.equals(cons2));
+    }
+    
 }

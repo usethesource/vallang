@@ -211,7 +211,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         TypeStore ts = new TypeStore();
         Random r = new Random(seed);
         RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6, true);
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 1000; i++) {
             IValue val = gen.generate(tf.valueType(), ts, null);
             
             try {
@@ -229,7 +229,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 // If only the big original term fails after all, then the BottomUp strategy
                 // will try that (its the last value of the stream) and fail again in 
                 // the same way as above.
-                ValueStreams.bottomup(val).forEach(v -> {
+                ValueStreams.bottomupbf(val).forEach(v -> {
                     try {
                         ioRoundTrip(vf, ts, v, seed);
                     } catch (IOException error) {
