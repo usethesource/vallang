@@ -1,4 +1,6 @@
 node {
+  env.JAVA_HOME="${tool 'jdk-oracle-8'}"
+  env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
   try { 
     stage('Clone') {
         checkout scm
@@ -23,7 +25,7 @@ node {
 
         stage('Deploy') {
             if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
-                sh "mvn clean -DskipTests deploy"
+                sh "mvn clean -DskipTests package deploy"
             }
         }
     }
