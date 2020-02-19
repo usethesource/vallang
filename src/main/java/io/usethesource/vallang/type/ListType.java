@@ -25,9 +25,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 /*package*/ class ListType extends DefaultSubtypeOfValue {
@@ -84,7 +87,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		}
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().listType(next.get());
         }
         
@@ -109,6 +112,16 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		return fEltType.hasFieldNames();
 	}
 
+	@Override
+	public boolean isList() {
+	    return true;
+	}
+	
+	@Override
+	public boolean isListRelation() {
+	    return fEltType.isTuple() || fEltType.isBottom();
+	}
+	
 	@Override 
 	public boolean hasField(String fieldName) {
 		return fEltType.hasField(fieldName);
@@ -266,5 +279,25 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
 		return TypeFactory.getInstance().listType(getElementType().instantiate(bindings));
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    IListWriter result = vf.listWriter();
+        if (maxDepth > 0 && random.nextBoolean()) {
+            int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth));
+            
+            if (!getElementType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
+                for (int i =0; i < size; i++) {
+                    result.append(getElementType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth));
+                }
+            }
+        }
+        
+        IList done = result.done();
+        match(done.getType(), typeParameters);
+        
+        return done;
 	}
 }

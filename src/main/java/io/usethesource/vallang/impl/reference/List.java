@@ -21,7 +21,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 /*package*/ class List implements IList {
-
 	private final Type type;
 	private final java.util.List<IValue> content;
 
@@ -79,10 +78,5 @@ import io.usethesource.vallang.type.Type;
     @Override
     public int size() {
         return content.size();
-    }
-
-    @Override
-    public Type getElementType() {
-        return type.getElementType();
     }
 }

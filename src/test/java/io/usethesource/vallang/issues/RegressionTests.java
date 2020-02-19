@@ -38,8 +38,6 @@ public class RegressionTests {
         if (!rel.isEmpty() && !set.isEmpty()) {
             assertTrue(!rel.equals(set));
             assertTrue(!set.equals(rel));
-            assertTrue(!rel.isEqual(set));
-            assertTrue(!set.isEqual(rel));
         }
     }
 
@@ -60,7 +58,6 @@ public class RegressionTests {
        IConstructor cons1 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("paul"));
        IConstructor cons2 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("jurgen"));
 
-       assertFalse(cons1.isEqual(cons2));
        assertFalse(cons1.equals(cons2));
     }
     

@@ -74,12 +74,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         return Node.newNode(name, new IValue[0]);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public INode node(String name, Map<String, IValue> annos, IValue... children) {
-        return Node.newNode(name, children.clone()).asAnnotatable().setAnnotations(annos);
-    }
-
     @Override
     public INode node(String name, IValue... children) {
         return Node.newNode(name, children.clone());
@@ -103,13 +97,6 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     @Override
     public IConstructor constructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams){
         return Constructor.newConstructor(constructorType, children.clone(), kwParams);
-    }
-    
-    @SuppressWarnings("deprecation")
-    @Override
-    public IConstructor constructor(Type constructorType,
-            Map<String, IValue> annotations, IValue... children) {
-        return Constructor.newConstructor(constructorType, children.clone()).asAnnotatable().setAnnotations(annotations);
     }
     
     @Override

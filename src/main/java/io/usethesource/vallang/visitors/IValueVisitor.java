@@ -33,8 +33,6 @@ public interface IValueVisitor<R extends @Nullable Object, E extends Throwable> 
    public R visitReal(IReal o) throws E;
    public R visitRational(IRational o) throws E;
    public R visitList(IList o) throws E;
-   public R visitRelation(ISet o) throws E;
-   public R visitListRelation(IList o) throws E;
    public R visitSet(ISet o) throws E;
    public R visitSourceLocation(ISourceLocation o) throws E;
    public R visitTuple(ITuple o) throws E;

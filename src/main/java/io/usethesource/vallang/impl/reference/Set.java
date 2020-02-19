@@ -42,6 +42,11 @@ import io.usethesource.vallang.type.Type;
 	}
 	
 	@Override
+	public boolean contains(IValue e) {
+	    return content.contains(e);
+	}
+	
+	@Override
 	public ISetWriter writer() {
 	    return ValueFactory.getInstance().setWriter();
 	}

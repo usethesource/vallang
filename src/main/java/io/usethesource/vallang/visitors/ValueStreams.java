@@ -120,16 +120,6 @@ public class ValueStreams  {
         }
 
         @Override
-        public Stream<IValue> visitRelation(ISet o)  {
-            return visitSet(o);
-        }
-
-        @Override
-        public Stream<IValue> visitListRelation(IList o)  {
-            return visitList(o);
-        }
-
-        @Override
         public Stream<IValue> visitSet(ISet o)  {
             return Stream.of(o);
         }

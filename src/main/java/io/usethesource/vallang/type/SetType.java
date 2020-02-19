@@ -23,9 +23,13 @@ import java.util.stream.Collectors;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/class SetType extends DefaultSubtypeOfValue {
@@ -50,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		}
 		
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    return tf().setType(next.get());
 		}
 		
@@ -111,7 +115,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	public boolean hasField(String fieldName) {
 		return fEltType.hasField(fieldName);
 	}
+	
+	@Override
+	public boolean isSet() {
+	    return true;
+	}
 
+	@Override
+	public boolean isRelation() {
+	    return fEltType.isTuple() || fEltType.isBottom();
+	}
+	
 	@Override
 	public int getFieldIndex(String fieldName) {
 		return fEltType.getFieldIndex(fieldName);
@@ -263,5 +277,24 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
 		return TypeFactory.getInstance().setType(getElementType().instantiate(bindings));
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    ISetWriter result = vf.setWriter();
+        if (maxDepth > 0 && random.nextBoolean()) {
+            int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth));
+            
+            if (!getElementType().isBottom()) {
+                for (int i =0; i < size; i++) {
+                    result.insert(getElementType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth));
+                }
+            }
+        }
+        
+        ISet done = result.done();
+        match(done.getType(), typeParameters);
+        return done;
 	}
 }

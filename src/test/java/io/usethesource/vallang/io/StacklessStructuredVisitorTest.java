@@ -88,7 +88,7 @@ public class StacklessStructuredVisitorTest {
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random();
         for (int i = 0; i < 10; i++) {
-            testVisitStructure(RandomValues.generate(tp, ts, vf, r, 10, true));
+            testVisitStructure(RandomValues.generate(tp, ts, vf, r, 10));
         }
     }
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -97,7 +97,7 @@ public class StacklessStructuredVisitorTest {
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random();
         for (int i = 0; i < 10; i++) {
-            testVisitStructureSkipped(RandomValues.generate(tp, ts, vf, r, 10, true));
+            testVisitStructureSkipped(RandomValues.generate(tp, ts, vf, r, 10));
         }
     }
 
@@ -129,11 +129,6 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void enterConstructorAnnotations() throws RuntimeException {
-            result.add("an");
-        }
-
-        @Override
         public void leaveConstructor(IValue cons) throws RuntimeException {
             result.add("leave");
         }
@@ -148,11 +143,6 @@ public class StacklessStructuredVisitorTest {
         @Override
         public void enterNodeKeywordParameters() throws RuntimeException {
             result.add("kw");
-        }
-
-        @Override
-        public void enterNodeAnnotations() throws RuntimeException {
-            result.add("an");
         }
 
         @Override

@@ -11,14 +11,11 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.fields;
 
-import static io.usethesource.vallang.util.EqualityUtils.KEYWORD_PARAMETER_COMPARATOR;
-
 import java.util.Iterator;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.capsule.Map;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
@@ -104,41 +101,15 @@ public class NodeWithKeywordParametersFacade implements INode {
 		if(o.getClass() == getClass()){
 			NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;
 		
-			return content.equals(other.content) &&
-					parameters.equals(other.parameters);
+			return content.equals(other.content) && parameters.equals(other.parameters);
 		}
 		
 		return false;
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-	    if (!other.mayHaveKeywordParameters()) {
-	        return false;
-	    }
-
-	    if (other instanceof NodeWithKeywordParametersFacade) {
-	        NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
-
-	        return content.isEqual(o.content) && KEYWORD_PARAMETER_COMPARATOR.equals(parameters, o.parameters);
-	    }
-
-	    return false;
-	}
-
-	@Override
 	public int hashCode() {
 		return 15551 + 7 * content.hashCode() + 11 * parameters.hashCode();
-	}
-	
-	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
-	
-	@Override
-	public IAnnotatable<? extends INode> asAnnotatable() {
-		throw new UnsupportedOperationException("can not annotate a constructor which already has keyword parameters");
 	}
 	
 	@Override

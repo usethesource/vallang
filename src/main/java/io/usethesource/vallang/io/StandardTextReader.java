@@ -30,7 +30,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
-import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
@@ -171,15 +170,6 @@ public class StandardTextReader extends AbstractTextReader {
 
             if (!result.getType().isSubtypeOf(expected)) {
                 throw new UnexpectedTypeException(expected, result.getType());
-            }
-
-            if (current == '[') {
-                if (result.getType().isSubtypeOf(types.nodeType())) {
-                    result = readAnnos(expected, (INode) result);
-                }
-                else {
-                    throw unexpectedException((int) ']');
-                }
             }
 
             return result;
@@ -770,41 +760,6 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             return factory.string(str);
-        }
-
-        @SuppressWarnings("deprecation")
-        private IValue readAnnos(Type expected, INode result) throws IOException {
-            current = stream.read();
-
-            while (current != ']') {
-                checkAndRead('@');
-                String key = readIdentifier();
-                checkAndRead('=');
-
-                Type annoType = getAnnoType(expected, key);
-                IValue value = readValue(annoType);
-
-                result = result.asAnnotatable().setAnnotation(key, value);
-                if (current == ']') {
-                    current = stream.read();
-                    break;
-                }
-                checkAndRead(',');
-            }
-
-            return result;
-        }
-
-        private Type getAnnoType(Type expected, String key) {
-            Type annoType = null;
-
-            if (expected.isStrictSubtypeOf(TF.nodeType())) {
-                if (expected.declaresAnnotation(store, key)) {
-                    annoType = store.getAnnotationType(expected, key);
-                }
-            }
-
-            return annoType != null ? annoType : types.valueType();
         }
 
         private void readFixed(Type expected, char end, List<@NonNull IValue> arr, Map<String,IValue> kwParams) throws IOException {

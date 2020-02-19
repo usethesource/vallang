@@ -108,11 +108,6 @@ public final class EmptySet implements ISet {
   }
 
   @Override
-  public boolean isEqual(IValue other) {
-    return other == this;
-  }
-  
-  @Override
   public boolean match(IValue other) {
     return other == this;
   }

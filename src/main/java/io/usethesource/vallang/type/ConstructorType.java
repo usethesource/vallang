@@ -13,7 +13,6 @@ package io.usethesource.vallang.type;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -28,7 +27,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UndeclaredAnnotationException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 /**
@@ -164,8 +163,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         }
         
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-            return tf().constructorFromTuple(store, new AbstractDataType.Info().randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            // constructors should not be random types of values (a value never has a constructor type) 
+            return new AbstractDataType.Info().randomInstance(next, store, rnd);
         }
 	}
 
@@ -399,23 +399,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
-	public boolean declaresAnnotation(TypeStore store, String label) {
-		return store.getAnnotationType(this, label) != null;
-	}
-
-	@Override
-	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
-		Type type = store.getAnnotationType(this, label);
-
-		if (type == null) {
-			throw new UndeclaredAnnotationException(getAbstractDataType(), label);
-		}
-
-		return type;
-	}
-
-	@Override
 	public boolean isParameterized() {
 		return fADT.isParameterized();
+	}
+	
+	@Override
+	public boolean isConstructor() {
+	    return true;
 	}
 }

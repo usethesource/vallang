@@ -243,7 +243,7 @@ public interface IList extends ICollection<IList> {
      */
     public default boolean contains(IValue e) {
         for (IValue v : this) {
-            if (v.isEqual(e)) {
+            if (v.equals(e)) {
                 return true;
             }
         }
@@ -263,7 +263,7 @@ public interface IList extends ICollection<IList> {
         boolean deleted = false;
         
         for (IValue e : this) {
-            if (!deleted && e.isEqual(v)) {
+            if (!deleted && e.equals(v)) {
                 deleted = true; // skip first occurrence
             } else {
                 w.append(e);
@@ -388,7 +388,7 @@ public interface IList extends ICollection<IList> {
         int j = 0;
         nextValue: for (IValue elm : this) {
             while (j < l.length()) {
-                if (elm.isEqual(l.get(j))) {
+                if (elm.equals(l.get(j))) {
                     j++;
                     continue nextValue;
                 } else {
@@ -400,38 +400,6 @@ public interface IList extends ICollection<IList> {
         return true;
     }
 
-    @Override
-    default boolean isEqual(IValue other) {
-        if (other == this) {
-            return true;
-        }
-
-        if (other == null) {
-            return false;
-        }
-
-        if (other instanceof IList) {
-            IList list2 = (IList) other;
-
-            if (length() == list2.length()) {
-
-                final Iterator<IValue> it1 = iterator();
-                final Iterator<IValue> it2 = list2.iterator();
-
-                while (it1.hasNext() && it2.hasNext()) {
-                    if (!it1.next().isEqual(it2.next())) {
-                        return false;
-                    }
-                }
-
-                assert (!it1.hasNext() && !it2.hasNext());
-                return true;
-            }
-        }
-
-        return false;
-    }
-    
     public default boolean defaultEquals(@Nullable Object other) {
         if (other == this) {
             return true;
@@ -461,7 +429,6 @@ public interface IList extends ICollection<IList> {
                 final Iterator<IValue> it2 = list2.iterator();
 
                 while (it1.hasNext() && it2.hasNext()) {
-                    // call to Object.equals(Object)
                     if (!it1.next().equals(it2.next())) {
                         return false;
                     }
@@ -513,6 +480,4 @@ public interface IList extends ICollection<IList> {
             }
         };
     }
-    
-   
 }

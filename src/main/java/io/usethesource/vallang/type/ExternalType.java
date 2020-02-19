@@ -11,7 +11,12 @@
 *******************************************************************************/
 package io.usethesource.vallang.type;
 
+import java.util.Map;
+import java.util.Random;
+
 import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 /**
  * ExternalType facilitates a limited form of extensibility to the PDB's type system.
@@ -66,4 +71,7 @@ public abstract class ExternalType extends DefaultSubtypeOfValue {
 	
 	@Override
 	abstract protected boolean isSubtypeOfExternal(Type type);
+	
+	@Override
+	abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth);
 }

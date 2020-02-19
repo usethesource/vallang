@@ -68,11 +68,11 @@ public class WeakHashConsingMapTest {
 
         @Override
         public boolean equals(@Nullable Object obj) {
-    if (obj instanceof FixedHashEquals) {
+            if (obj instanceof FixedHashEquals) {
                 return ((FixedHashEquals)obj).hash == hash && ((FixedHashEquals)obj).equals == equals;
             }
             return false;
-}
+        }
 
         @Override
         public String toString() {

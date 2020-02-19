@@ -33,7 +33,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
     protected final ShareableValuesList data;
 
-    protected int hashCode = 0;
+    protected int hashCode = -1;
 
     /*package*/ static IList newList(Type elementType, ShareableValuesList data) {
         return new List(elementType, data);
@@ -207,7 +207,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
     public int hashCode(){
-        if (hashCode == 0) {
+        if (hashCode == -1) {
             hashCode = data.hashCode();
         }
         return hashCode;
@@ -238,7 +238,9 @@ import io.usethesource.vallang.type.TypeFactory;
             if (otherList instanceof List) {
                 List oList = (List) o;
 
-                if (hashCode != oList.hashCode) return false;
+                if (hashCode() != oList.hashCode()) {
+                    return false;
+                }
 
                 return data.equals(oList.data);
             }
@@ -339,23 +341,6 @@ class SubList implements IList {
             return defaultEquals(o);
         }
         
-        return false;
-    }
-
-    @Override
-    public boolean isEqual(IValue value){
-        if(value == this) return true;
-        if(value == null) return false;
-
-        if(value instanceof List){
-            List otherList = (List) value;
-
-            return otherList.isEqual(this);
-        }
-        else if (value instanceof IList) {
-            return IList.super.isEqual(value);
-        }
-
         return false;
     }
 
@@ -474,7 +459,7 @@ class SubList implements IList {
             for(int i = offset; i < end; i++){
                 IValue elm = base.get(i);
                 while(j < lst.length()){
-                    if (elm.isEqual(lst.get(j))) {
+                    if (elm.equals(lst.get(j))) {
                         j++;
                         continue nextchar;
                     } else {

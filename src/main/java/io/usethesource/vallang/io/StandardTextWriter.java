@@ -13,7 +13,6 @@ package io.usethesource.vallang.io;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PrimitiveIterator.OfInt;
 
@@ -120,27 +119,32 @@ public class StandardTextWriter implements IValueTextWriter {
             this.tab--;
         }
 
+        @Override
         public IValue visitBoolean(IBool boolValue)
                 throws IOException {
             append(boolValue.getValue() ? "true" : "false");
             return boolValue;
         }
 
+        @Override
         public IValue visitReal(IReal o) throws IOException {
             append(o.getStringRepresentation());
             return o;
         }
 
+        @Override
         public IValue visitInteger(IInteger o) throws IOException {
             append(o.getStringRepresentation());
             return o;
         }
 
+        @Override
         public IValue visitRational(IRational o) throws IOException {
             append(o.getStringRepresentation());
             return o;
         }
 
+        @Override
         public IValue visitList(IList o) throws IOException {
             append('[');
 
@@ -164,6 +168,7 @@ public class StandardTextWriter implements IValueTextWriter {
             return o;
         }
 
+        @Override
         public IValue visitMap(IMap o) throws IOException {
             append('(');
             tab();
@@ -194,7 +199,7 @@ public class StandardTextWriter implements IValueTextWriter {
             return o;
         }
 
-        @SuppressWarnings("deprecation")
+        @Override
         public IValue visitConstructor(IConstructor o) throws IOException {
             String name = o.getName();
 
@@ -249,25 +254,7 @@ public class StandardTextWriter implements IValueTextWriter {
 
             append(')');
             untab();
-            if (o.isAnnotatable() && o.asAnnotatable().hasAnnotations()) {
-                append('[');
-                tab();
-                indent();
-                int i = 0;
-                Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
-                for (Entry<String, IValue> entry : annotations.entrySet()) {
-                    append("@" + entry.getKey() + "=");
-                    entry.getValue().accept(this);
 
-                    if (++i < annotations.size()) {
-                        append(",");
-                        indent();
-                    }
-                }
-                untab();
-                indent();
-                append(']');
-            }
             try {
                 stream.flush();
             }
@@ -291,10 +278,7 @@ public class StandardTextWriter implements IValueTextWriter {
             }
         }
 
-        public IValue visitRelation(ISet o) throws IOException {
-            return visitSet(o);
-        }
-
+        @Override
         public IValue visitSet(ISet o) throws IOException {
             append('{');
 
@@ -481,6 +465,7 @@ public class StandardTextWriter implements IValueTextWriter {
             return false;
         }
 
+        @Override
         public IValue visitSourceLocation(ISourceLocation o)
                 throws IOException {
             append('|');
@@ -512,6 +497,7 @@ public class StandardTextWriter implements IValueTextWriter {
             return o;
         }
 
+        @Override
         public IValue visitString(IString o) throws IOException {
             append('\"');
             OfInt it = o.iterator();
@@ -581,6 +567,7 @@ public class StandardTextWriter implements IValueTextWriter {
             return o;
         }
 
+        @Override
         public IValue visitTuple(ITuple o) throws IOException {
             append('<');
 
@@ -599,10 +586,12 @@ public class StandardTextWriter implements IValueTextWriter {
             return o;
         }
 
+        @Override
         public IValue visitExternal(IExternalValue externalValue) throws IOException {
             return visitConstructor(externalValue.encodeAsConstructor());
         }
 
+        @Override
         public IValue visitDateTime(IDateTime o) throws IOException {
             append("$");
             if (o.isDate()) {
@@ -654,13 +643,7 @@ public class StandardTextWriter implements IValueTextWriter {
             return o;
         }
 
-        public IValue visitListRelation(IList o)
-                throws IOException {
-            visitList(o);
-            return o;
-        }
-
-        @SuppressWarnings("deprecation")
+        @Override
         public IValue visitNode(INode o) throws IOException {
             visitString(StringValue.newString(o.getName()));
 
@@ -705,28 +688,8 @@ public class StandardTextWriter implements IValueTextWriter {
             }
             append(')');
             untab();
-            if (o.isAnnotatable() && o.asAnnotatable().hasAnnotations()) {
-                append('[');
-                tab();
-                indent();
-                int i = 0;
-                Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
-                for (Entry<String, IValue> entry : annotations.entrySet()) {
-                    append("@" + entry.getKey() + "=");
-                    entry.getValue().accept(this);
-
-                    if (++i < annotations.size()) {
-                        append(",");
-                        indent();
-                    }
-                }
-                untab();
-                indent();
-                append(']');
-            }
 
             return o;
         }
     }
-
 }

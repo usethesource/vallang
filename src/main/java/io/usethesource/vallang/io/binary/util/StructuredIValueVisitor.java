@@ -34,12 +34,10 @@ public interface StructuredIValueVisitor<E extends Throwable> {
     
     boolean enterConstructor(IConstructor cons, int children) throws E;
     void enterConstructorKeywordParameters() throws E;
-    void enterConstructorAnnotations() throws E;
     void leaveConstructor(IValue cons) throws E;
 
     boolean enterNode(INode node, int children) throws E;
     void enterNodeKeywordParameters() throws E;
-    void enterNodeAnnotations() throws E;
     void leaveNode(IValue node) throws E;
 
     boolean enterList(IList lst, int children) throws E;

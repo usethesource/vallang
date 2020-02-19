@@ -15,7 +15,6 @@ package io.usethesource.vallang.impl.primitive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -116,11 +115,6 @@ import io.usethesource.vallang.type.TypeFactory;
 	@Override
 	public Type getType() {
 		return BOOL_TYPE;
-	}
-
-	@Override
-	public boolean isEqual(IValue value) {
-		return this == value;
 	}
 
 	@Override

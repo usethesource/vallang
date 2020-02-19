@@ -22,20 +22,15 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.capsule.Map;
-import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
-import io.usethesource.vallang.util.EqualityUtils;
 
 public final class PersistentHashMap implements IMap {
 
-	private static final EqualityComparator<Object> equivalenceComparator =
-			EqualityUtils.getEquivalenceComparator();
-	
 	private @MonotonicNonNull Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag;
 	private final AbstractTypeBag valTypeBag;
@@ -48,6 +43,7 @@ public final class PersistentHashMap implements IMap {
 		this.keyTypeBag = keyTypeBag;
 		this.valTypeBag = valTypeBag;
 		this.content = content;
+		assert content.size() == keyTypeBag.sum();
 	}
 	
 	@Override
@@ -70,10 +66,9 @@ public final class PersistentHashMap implements IMap {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public IMap put(IValue key, IValue value) {
 		final Map.Immutable<IValue,IValue> contentNew =
-				content.__putEquivalent(key, value, equivalenceComparator);
+				content.__put(key, value);
 		
 		if (content == contentNew)
 			return this;
@@ -83,7 +78,7 @@ public final class PersistentHashMap implements IMap {
 
 		if (content.size() == contentNew.size()) {
 			// value replaced
-			final IValue replaced = content.getEquivalent(key, equivalenceComparator);
+			final IValue replaced = content.get(key);
 			keyBagNew = keyTypeBag;
 			valBagNew = valTypeBag.decrease(replaced.getType()).increase(value.getType());
 		} else {
@@ -96,19 +91,19 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public IMap removeKey(IValue key) {
-	    final Map.Immutable<IValue, IValue> newContent = 
-				content.__removeEquivalent(key, equivalenceComparator);
+	    final Map.Immutable<IValue, IValue> newContent = content.__remove(key);
 		
 	    if (newContent == content) {
 	        return this;
 	    }
 		
-	    final IValue removedValue = content.getEquivalent(key, equivalenceComparator);
+	    // this only happens if something has actually been removed:
+	    final IValue removedValue = content.get(key);
 	    final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
 	    final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
 		
+	    assert !newContent.isEmpty() || (newKeyBag.lub().isBottom() && newValBag.lub().isBottom());
 	    return new PersistentHashMap(newKeyBag, newValBag, newContent);
 	}	
 	
@@ -119,21 +114,19 @@ public final class PersistentHashMap implements IMap {
 
 	@Override
 	@EnsuresNonNullIf(expression="get(#1)", result=true)
-    @SuppressWarnings({"deprecation", "contracts.conditional.postcondition.not.satisfied", "contracts.conditional.postcondition.true.override.invalid"}) // that's impossible to prove for the Checker Framework
+    @SuppressWarnings({"contracts.conditional.postcondition.not.satisfied", "contracts.conditional.postcondition.true.override.invalid"}) // that's impossible to prove for the Checker Framework
 	public boolean containsKey(IValue key) {
-		return content.containsKeyEquivalent(key, equivalenceComparator);
+		return content.containsKey(key);
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public boolean containsValue(IValue value) {
-		return content.containsValueEquivalent(value, equivalenceComparator);
+		return content.containsValue(value);
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public IValue get(IValue key) {
-		return content.getEquivalent(key, equivalenceComparator);
+		return content.get(key);
 	}
 
 	@Override
@@ -150,6 +143,8 @@ public final class PersistentHashMap implements IMap {
 		if (other == null) {
 			return false;
 		}
+		
+	
 		
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
@@ -171,29 +166,6 @@ public final class PersistentHashMap implements IMap {
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
-	public boolean isEqual(IValue other) {
-		if (other == this) {
-			return true;
-		}
-		
-		if (other instanceof PersistentHashMap) {
-			PersistentHashMap that = (PersistentHashMap) other;
-
-			if (this.size() != that.size())
-				return false;
-
-			return content.equivalent(that.content, equivalenceComparator);
-		}
-
-		if (other instanceof IMap) {
-			return IMap.super.isEqual(other);
-		}
-
-		return false;
-	}
-	
-	@Override
 	public Iterator<IValue> iterator() {
 		return content.keyIterator();
 	}
@@ -209,7 +181,6 @@ public final class PersistentHashMap implements IMap {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public IMap join(IMap other) {
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
@@ -227,8 +198,7 @@ public final class PersistentHashMap implements IMap {
 				IValue key = tuple.getKey();
 				IValue value = tuple.getValue();
 
-				final IValue replaced = transientContent.__putEquivalent(key, value,
-								equivalenceComparator);
+				final IValue replaced = transientContent.__put(key, value);
 
 				if (replaced != null) {
 					// value replaced

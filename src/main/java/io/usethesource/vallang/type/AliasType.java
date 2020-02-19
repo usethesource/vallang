@@ -25,8 +25,10 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be used to
@@ -95,9 +97,15 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 		}
 
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    // we don't generate aliases because we also never reify them
-		    return TypeFactory.getInstance().randomType(store);
+		    if (!rnd.isWithAliases()) {
+		        return tf().randomType(store, rnd);
+		    }
+		    else {
+		        // TODO: could generate some type parameters as well
+		        return tf().aliasType(store, randomLabel(rnd), tf().randomType(store, rnd));
+		    }
 		}
 	}
 
@@ -108,12 +116,12 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 	@Override
 	public boolean isParameterized() {
-		return !fParameters.equivalent(VoidType.getInstance());
+		return !fParameters.isBottom();
 	}
 
 	@Override
 	public boolean isOpen() {
-		return fParameters.isOpen();
+		return fParameters.isOpen() || fAliased.isOpen();
 	}
 
 	@Override
@@ -294,25 +302,15 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		Type[] params = new Type[0];
 		if (isParameterized()) {
-			params = new Type[fParameters.getArity()];
-			int i = 0;
-			for (Type p : fParameters) {
-				params[i++] = p.instantiate(bindings);
-			}
-			
-			TypeStore store = new TypeStore();
-	        store.declareAlias(this);
-
-	        return TypeFactory.getInstance().aliasType(store, fName, fAliased.instantiate(bindings), params);
+		    // note how we do not declare the new alias anywhere.
+	        return TypeFactory.getInstance().getFromCache(new AliasType(fName, fAliased.instantiate(bindings), fParameters.instantiate(bindings)));
 		}
-		else {
-		    // if an alias is not parametrized, then instantiation should not have an effect.
-		    // if it would have an effect, then the alias type would contain an unbound type parameter
-		    // which is a bug we assume is absent here.
-		    return this;
-		}
+		
+		// if an alias is not parametrized, then instantiation should not have an effect.
+		// if it would have an effect, then the alias type would contain an unbound type parameter
+		// which is a bug we assume is absent here.
+		return this;
 	}
 
 	@Override
@@ -640,5 +638,11 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 	@Override
 	public Type getAbstractDataType() {
 		return fAliased.getAbstractDataType();
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxBreadth) {
+	    return getAliased().randomValue(random, vf, store, typeParameters, maxDepth, maxBreadth);
 	}
 }

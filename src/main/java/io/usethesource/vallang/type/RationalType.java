@@ -12,12 +12,17 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class RationalType extends NumberType {
@@ -43,7 +48,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		}
 		
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    return tf().rationalType();
 		}
 	}
@@ -119,4 +124,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	protected Type glbWithInteger(Type type) {
 		return VoidType.getInstance();
 	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+        return vf.rational(random.nextInt(), random.nextInt() + 1);
+	}
+	
+	@Override
+	public boolean isRational() {
+	    return true;
+    }
 }

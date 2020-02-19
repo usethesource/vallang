@@ -25,7 +25,6 @@ public class IMapTests {
         }
         
         assertTrue(m.isEmpty());
-        assertTrue(m.isEqual(vf.map()));
         assertTrue(m.equals(vf.map()));
     }
     
@@ -49,5 +48,18 @@ public class IMapTests {
             m = m.removeKey(key);
             lubInvariant(tf, m);
         }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void mapIsVoidAfterAllRemoved(TypeFactory tf, IMap m) {
+        IMap copy = m;
+        for (IValue key : m) {
+            copy = copy.removeKey(key);
+        }
+        
+        // this failed due to issue #55 but only if the random generator
+        // accidentally adds two of the same key/value pairs to the map
+        assertTrue(copy.getKeyType() == tf.voidType());
+        assertTrue(copy.getValueType() == tf.voidType());
     }
  }

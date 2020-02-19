@@ -1,13 +1,13 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    jurgen@vinju.org
-*******************************************************************************/
+ * Copyright (c) 2007 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    jurgen@vinju.org
+ *******************************************************************************/
 
 package io.usethesource.vallang.type;
 
@@ -24,10 +24,12 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
-import io.usethesource.vallang.exceptions.UndeclaredAnnotationException;
+import io.usethesource.vallang.random.util.RandomUtil;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 /**
@@ -38,118 +40,146 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
  * @see ConstructorType
  */
 /* package */ class AbstractDataType extends NodeType {
-	private final String fName;
+    private final String fName;
     private final Type fParameters;
-    
+
     protected AbstractDataType(String name, Type parameters) {
         fName = name;
         fParameters = parameters;
     }
-  
+
     public static class Info implements TypeReifier {
-		@Override
-		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("adt", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters");
-		}
+        @Override
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("adt", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters");
+        }
 
-		@Override
-		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-			IConstructor res = simpleToSymbol(type, vf, store, grammar, done);
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            IConstructor res = simpleToSymbol(type, vf, store, grammar, done);
 
-			if (!done.contains(res)) {
-				done.add(res);
-				
-				if (type.getTypeParameters().getArity() != 0) {
-					// we have to look up the original definition to find the original constructors
-					Type adt = store.lookupAbstractDataType(type.getName());
-					if (adt != null) {
-						type = adt; // then collect the grammar for the uninstantiated adt.
-					}
-				}
-				
-				asProductions(type, vf, store, grammar, done);
-			}
+            if (!done.contains(res)) {
+                done.add(res);
 
-			return res;
-		}
+                if (type.getTypeParameters().getArity() != 0) {
+                    // we have to look up the original definition to find the original constructors
+                    Type adt = store.lookupAbstractDataType(type.getName());
+                    if (adt != null) {
+                        type = adt; // then collect the grammar for the uninstantiated adt.
+                    }
+                }
 
-		private IConstructor simpleToSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-			IListWriter w = vf.listWriter();
-			Type params = type.getTypeParameters();
+                asProductions(type, vf, store, grammar, done);
+            }
 
-			if (params.getArity() > 0) {
-				for (Type param : params) {
-					w.append(param.asSymbol(vf, store, grammar, done));
-				}
-			}
+            return res;
+        }
 
-			return vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), w.done());
-		}
+        private IConstructor simpleToSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            IListWriter w = vf.listWriter();
+            Type params = type.getTypeParameters();
 
-		@Override
-		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-			store.lookupAlternatives(type).stream().forEach(x -> x.asProductions(vf, store, grammar, done));
-		}
+            if (params.getArity() > 0) {
+                for (Type param : params) {
+                    w.append(param.asSymbol(vf, store, grammar, done));
+                }
+            }
 
-		@Override
-		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-			String name = ((IString) symbol.get("name")).getValue();
-			Type adt = store.lookupAbstractDataType(name);
+            return vf.constructor(getSymbolConstructorType(), vf.string(type.getName()), w.done());
+        }
 
-			if (adt != null) {
-				// this stops infinite recursions while exploring the type store.
-				return adt;
-			}
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            store.lookupAlternatives(type).stream().forEach(x -> x.asProductions(vf, store, grammar, done));
+        }
 
-			Type params = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
-			if (params.isBottom() || params.getArity() == 0) {
-				adt = TF.abstractDataType(store, name);
-			}
-			else {
-				adt = TF.abstractDataTypeFromTuple(store, name, params);
-			}
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+            String name = ((IString) symbol.get("name")).getValue();
+            Type adt = store.lookupAbstractDataType(name);
 
-			// explore the rest of the definition and add it to the store
-			for (IConstructor t : grammar.apply(symbol)) {
-				((ConstructorType.Info) t.getConstructorType().getTypeReifier()).fromProduction(t, store, grammar);
-			}
+            if (adt != null) {
+                // this stops infinite recursions while exploring the type store.
+                return adt;
+            }
 
-			return adt;
-		}
-		
-		@Override
-		public boolean isRecursive() {
-		    return true;
-		}
+            Type params = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+            if (params.isBottom() || params.getArity() == 0) {
+                adt = TF.abstractDataType(store, name);
+            }
+            else {
+                adt = TF.abstractDataTypeFromTuple(store, name, params);
+            }
 
-		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-		    if (rnd.nextBoolean()) {
-		       Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
-		       
-		       if (adts.length > 0) {
-		           return adts[Math.max(0, (int) Math.round(Math.random() * adts.length - 1))];
-		       }
-		    } 
-		    
-		    if (rnd.nextBoolean()) {
-		        if (rnd.nextBoolean()) {
-		            return tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd)));
-		        }
-		        else {
-		            return tf().abstractDataTypeFromTuple(store, randomLabel(rnd), tf().tupleType(new ParameterType.Info().randomInstance(next, store, rnd), new ParameterType.Info().randomInstance(next, store, rnd)));
-		        }
-		    } else {
-		        return tf().abstractDataType(store, randomLabel(rnd));
-		    }
-		}
+            // explore the rest of the definition and add it to the store
+            for (IConstructor t : grammar.apply(symbol)) {
+                ((ConstructorType.Info) t.getConstructorType().getTypeReifier()).fromProduction(t, store, grammar);
+            }
+
+            return adt;
+        }
+
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
+
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            if (!rnd.isWithRandomAbstractDatatypes()) {
+                return next.get();
+            }
+            
+            if (rnd.nextBoolean()) {
+                Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
+
+                if (adts.length > 0) { // otherwise we will generate a new instance down below
+                    return adts[rnd.nextInt(adts.length)];
+                }
+            } 
+
+            Type adt;
+
+            String adtName;
+            do {
+                // do not accidentally generate an ADT which already exists.
+                adtName = randomLabel(rnd);
+            } while (store.lookupAbstractDataType(adtName) != null);
+
+            if (rnd.nextBoolean()) {
+                Type param1 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
+                if (rnd.nextBoolean()) {
+                    // first declare the open type:
+                    adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1));
+                }
+                else {
+                    Type param2 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
+
+                    // first declare the open type
+                    adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1, param2));
+                }
+            } 
+            else {
+                adt = tf().abstractDataType(store, adtName);
+            }
+
+            // should be defined by at least one nullary constructor
+            tf().constructor(store, adt, randomLabel(rnd)); 
+
+            if (rnd.nextBoolean()) {
+                // and perhaps we generate another one with it:
+                tf().constructorFromTuple(store, randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd));
+            }
+
+            return adt;
+        }
     }
 
     @Override
     public TypeReifier getTypeReifier() {
-    	return new Info();
+        return new Info();
     }
-    
+
     @Override
     protected boolean isSupertypeOf(Type type) {
         return type.isSubtypeOfAbstractData(this);
@@ -237,7 +267,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
     @Override
     public boolean isParameterized() {
-        return !fParameters.equivalent(VoidType.getInstance());
+        return !fParameters.isBottom();
     }
 
     @Override
@@ -315,12 +345,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         if (o == null) {
             return false;
         }
-        
+
         if (o.getClass().equals(getClass())) {
             AbstractDataType other = (AbstractDataType) o;
             return fName.equals(other.fName) && fParameters == other.fParameters;
         }
-        
+
         return false;
     }
 
@@ -371,18 +401,15 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
     }
 
     @Override
-    public boolean declaresAnnotation(TypeStore store, String label) {
-        return store.getAnnotationType(this, label) != null;
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+            int maxDepth, int maxWidth) {
+        IValue done = RandomUtil.randomADT(this, random, vf, store, typeParameters, maxDepth, maxWidth);
+        match(done.getType(), typeParameters);
+        return done;
     }
-
+    
     @Override
-    public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
-        Type type = store.getAnnotationType(this, label);
-
-        if (type == null) {
-            throw new UndeclaredAnnotationException(this, label);
-        }
-
-        return type;
+    public boolean isAbstractData() {
+        return true;
     }
 }

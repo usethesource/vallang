@@ -23,7 +23,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.SetMultimap;
-import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
@@ -33,7 +32,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.util.AbstractTypeBag;
-import io.usethesource.vallang.util.EqualityUtils;
 
 /*
  * TODO: visibility is currently public to allow set-multimap experiments. Must be set back to
@@ -41,22 +39,13 @@ import io.usethesource.vallang.util.EqualityUtils;
  */
 public class SetWriter implements ISetWriter {
 
-    /****************************************/
-
     public static final boolean USE_MULTIMAP_BINARY_RELATIONS = true;
-    // static final boolean USE_MULTIMAP_BINARY_RELATIONS = Boolean.getBoolean(String.format("%s.%s",
-    // "org.rascalmpl.value", "useMultimapBinaryRelations"));
 
-    /****************************************/
-
-    static final EqualityComparator<Object> equivalenceEqualityComparator =
-            EqualityUtils.getEquivalenceComparator();
 
     public static Predicate<Type> isTuple = (type) -> type.isTuple();
     public static Predicate<Type> arityEqualsTwo = (type) -> type.getArity() == 2;
     public static Predicate<Type> isTupleOfArityTwo = isTuple.and(arityEqualsTwo);
 
-    /****************************************/
 
     protected AbstractTypeBag elementTypeBag;
 
@@ -111,8 +100,7 @@ public class SetWriter implements ISetWriter {
     private final static class MultiMapBuilder implements Builder {
         AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
         AbstractTypeBag valTypeBag = AbstractTypeBag.of();
-        @SuppressWarnings("deprecation")
-        SetMultimap.Transient<IValue, IValue> map = SetMultimap.Transient.of(equivalenceEqualityComparator);
+        SetMultimap.Transient<IValue, IValue> map = SetMultimap.Transient.of();
 
         @Override
         public void put(IValue element, Type elementType) {

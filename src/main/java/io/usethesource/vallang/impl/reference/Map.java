@@ -17,26 +17,26 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.reference;
 
-import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.util.ValueEqualsWrapper;
 
 /*package*/ class Map implements IMap {
 	final Type type;
-	final java.util.Map<ValueEqualsWrapper, IValue> content;
+	final java.util.Map<IValue, IValue> content;
 
-	/*package*/ Map(Type candidateMapType, java.util.Map<ValueEqualsWrapper, IValue> content) {
+	/*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content) {
 		super();
 		this.content = content;
 		this.type = candidateMapType;
@@ -51,6 +51,25 @@ import io.usethesource.vallang.util.ValueEqualsWrapper;
 	public int size() {
 		return content.size();
 	}
+	
+	@Override
+	@EnsuresNonNullIf(expression="get(#1)", result=true)
+	@SuppressWarnings({"contracts.conditional.postcondition.not.satisfied", "contracts.conditional.postcondition.true.override.invalid"})
+	public boolean containsKey(IValue key) {
+	    return content.containsKey(key);
+	}
+	
+	@Override
+	public IMap removeKey(IValue key) {
+	    IMapWriter w = writer();
+	    for (Entry<IValue,IValue> cursor :(Iterable<Entry<IValue,IValue>>) this::entryIterator) {
+	        if (!cursor.getKey().equals(key)) {
+	            w.put(cursor.getKey(), cursor.getValue());
+	        }
+	    }
+	    
+	    return w.done();
+	}
 
 	@Override
 	public boolean isEmpty() {
@@ -58,26 +77,14 @@ import io.usethesource.vallang.util.ValueEqualsWrapper;
 	}
 
 	@Override
+	@Pure
 	public @Nullable IValue get(IValue key) {
-	    // see how we can't use the hash tabel due to the semantics of isEqual
-	    return content.get(new ValueEqualsWrapper(key));
+	    return content.get(key);
 	}
 
 	@Override
 	public Iterator<IValue> iterator() {
-	    return new Iterator<IValue>() {
-            Iterator<ValueEqualsWrapper> it = content.keySet().iterator();
-
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public IValue next() {
-                return it.next().getValue();
-            }
-        };
+	    return content.keySet().iterator();
 	}
 
 	@Override
@@ -87,20 +94,7 @@ import io.usethesource.vallang.util.ValueEqualsWrapper;
 
 	@Override
 	public Iterator<Entry<IValue, IValue>> entryIterator() {
-		return new Iterator<Entry<IValue, IValue>>() {
-            Iterator<Entry<ValueEqualsWrapper, IValue>> it = content.entrySet().iterator();
-
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public Entry<IValue, IValue> next() {
-                Entry<ValueEqualsWrapper, IValue> entry = it.next();
-                return new AbstractMap.SimpleImmutableEntry<>(entry.getKey().getValue(), entry.getValue());
-            }
-        };
+	    return content.entrySet().iterator();
 	}
 
     @Override
@@ -141,7 +135,7 @@ import io.usethesource.vallang.util.ValueEqualsWrapper;
     
     @Override
     public Stream<IValue> stream() {
-        Iterable<Entry<IValue, IValue>> it = () -> entryIterator();
+        Iterable<Entry<IValue, IValue>> it = this::entryIterator;
         return StreamSupport.stream(it.spliterator(), false).map(entry -> new Tuple(entry.getKey(), entry.getValue()));
     }
 }

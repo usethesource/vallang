@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import org.checkerframework.dataflow.qual.Pure;
@@ -48,24 +49,6 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
  */
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
-
-  // these constants are cached to avoid having to compute their hash-codes
-  // for canonicalization all the time. The types are used to implement predicate
-  // methods below such as isList and isMap, etc.
-  private static final Type DATE_TIME_TYPE = TF.dateTimeType();
-  private static final Type SOURCE_LOCATION_TYPE = TF.sourceLocationType();
-  private static final Type STRING_TYPE = TF.stringType();
-  private static final Type NODE_TYPE = TF.nodeType();
-  private static final Type VOID_TYPE = TF.voidType();
-  private static final Type VALUE_TYPE = TF.valueType();
-  private static final Type NUMBER_TYPE = TF.numberType();
-  private static final Type RATIONAL_TYPE = TF.rationalType();
-  private static final Type REAL_TYPE = TF.realType();
-  private static final Type INTEGER_TYPE = TF.integerType();
-  private static final Type BOOL_TYPE = TF.boolType();
-  private static final Type MAP_TYPE = TF.mapType(VALUE_TYPE, VALUE_TYPE);
-  private static final Type LIST_TYPE = TF.listType(VALUE_TYPE);
-  private static final Type SET_TYPE = TF.setType(VALUE_TYPE);
   
   public abstract TypeFactory.TypeReifier getTypeReifier();
   
@@ -367,23 +350,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return false;
   }
 
-  /**
-   * For a AbstractDataType or a ConstructorType, return whether a certain
-   * annotation label was declared.
-   * 
-   * @param label
-   * @param store
-   *          to find the declaration in
-   * @return true if this type has an annotation named label declared for it.
-   */
-  public boolean declaresAnnotation(TypeStore store, String label) {
-    return false;
-  }
-
-  public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
-    throw new IllegalOperationException("getAnnotationType", this);
-  }
-
   public String getKeyLabel() {
     throw new IllegalOperationException("getKeyLabel", this);
   }
@@ -439,80 +405,80 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return false;
   }
   
-  public final boolean isSet() {
-    return isSubtypeOf(SET_TYPE);
+  public boolean isSet() {
+    return false;
   }
   
-  public final boolean isList() {
-    return isSubtypeOf(LIST_TYPE);
+  public boolean isList() {
+    return false;
   }
   
-  public final boolean isMap() {
-    return isSubtypeOf(MAP_TYPE);
+  public boolean isMap() {
+    return false;
   }
   
-  public final boolean isBool() {
-    return isSubtypeOf(BOOL_TYPE);
+  public boolean isBool() {
+    return false;
   }
   
-  public final boolean isRelation() {
-    return isSet() && getElementType().isFixedWidth();
+  public boolean isRelation() {
+    return false;
   }
   
-  public final boolean isListRelation() {
-    return isList() && getElementType().isFixedWidth();
+  public boolean isListRelation() {
+    return false;
   }
   
-  public final boolean isInteger() {
-    return isSubtypeOf(INTEGER_TYPE);
+  public boolean isInteger() {
+    return false;
   }
   
-  public final boolean isReal() {
-    return isSubtypeOf(REAL_TYPE);
+  public boolean isReal() {
+    return false;
   }
   
-  public final boolean isRational() {
-    return isSubtypeOf(RATIONAL_TYPE);
+  public boolean isRational() {
+    return false;
   }
   
-  public final boolean isNumber() {
-    return isSubtypeOf(NUMBER_TYPE);
+  public  boolean isNumber() {
+    return false;
   }
   
-  public final boolean isTop() {
-    return equivalent(VALUE_TYPE);
+  public  boolean isTop() {
+    return false;
   }
   
-  public final boolean isBottom() {
-    return equivalent(VOID_TYPE);
+  public  boolean isBottom() {
+    return false;
   }
   
-  public final boolean isNode() {
-	  return isSubtypeOf(NODE_TYPE);
+  public  boolean isNode() {
+	  return false;
   }
   
-  public final boolean isAbstractData() {
-    return isStrictSubtypeOf(NODE_TYPE);
+  public boolean isAbstractData() {
+    return false;
   }
   
-  public final boolean isConstructor() {
-	  return isAbstractData() && !this.equivalent(this.getAbstractDataType());
+  public  boolean isConstructor() {
+	  return false;
   }
   
-  public final boolean isString() {
-	  return isSubtypeOf(STRING_TYPE);
+  public  boolean isString() {
+	  return false;
   }
   
-  public final boolean isSourceLocation() {
-    return isSubtypeOf(SOURCE_LOCATION_TYPE);
+  public  boolean isSourceLocation() {
+    return false;
   }
   
-  public final boolean isDateTime() {
-	  return isSubtypeOf(DATE_TIME_TYPE);
+  public  boolean isDateTime() {
+	  return false;
   }
   
-  public final boolean isTuple() {
-	  return isFixedWidth();
+  public  boolean isTuple() {
+	  return false;
   }
   
   public boolean isExternalType() {
@@ -642,7 +608,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   protected Type lubWithParameter(Type type) {
-    return lub(type.getBound());
+      if (type == this) {
+          return this;
+      }
+      
+      return lub(type.getBound());
   }
   
   abstract protected Type lubWithReal(Type type) ;
@@ -668,7 +638,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   protected Type glbWithParameter(Type type) {
-    return glb(type.getBound());
+      if (type == this) {
+          return this;
+      }
+      
+      return glb(type.getBound());
   }
   
   abstract protected Type glbWithReal(Type type) ;
@@ -702,4 +676,18 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     // the external type should be the receiver
     return glb(type);
   }
+  
+  /**
+   * Generate a random value which is guaranteed to have a type that is
+   * a (non-strict) sub-type of the receiver.
+   * 
+   * @param random         pass in reused Random instance for better random uniformity between calls to this method.
+   * @param vf             IValueFactory to use when building values
+   * @param store          TypeStore to lookup constructors and fields in
+   * @param typeParameters will be filled with the inferred (least-upper-bound) type for every open type parameter as a side-effect.
+   * @param maxDepth       how deeply to generate recursive values
+   * @param maxWidth       how wide collections and fixed-width data-types should be (maximally)
+   * @return
+   */
+  abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth);
 }

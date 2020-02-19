@@ -24,14 +24,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
-import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
-import io.usethesource.vallang.impl.reference.ValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -157,7 +155,7 @@ public final class MapSmokeTest {
                     for (StringPair q : keyValues(vf)) {
                         IMap newMap = map.put(q.a, q.b);
                         assertEquals(val, map.get(p.a)); // original is never modified
-                        if (!p.a.isEqual(q.a)) {
+                        if (!p.a.equals(q.a)) {
                             assertEquals(val, newMap.get(p.a)); // only element q.a is modified
                         }
                     }
@@ -386,87 +384,4 @@ public final class MapSmokeTest {
         assertEquals(tf.integerType(), m1.getType().getKeyType());
         assertEquals(tf.integerType(), m1.getType().getValueType());
     }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testPutReplaceWithAnnotations_Map(IValueFactory vf, TypeStore ts) {
-        if (vf.getClass() == ValueFactory.class) {
-            return; // this value factory has a know bug wrt annotations which we ignore for now.
-        }
-
-        final Type E = tf.abstractDataType(ts, "E");
-        final Type N = tf.constructor(ts, E, "n", tf.integerType());
-        ts.declareAnnotation(E, "x", tf.integerType());
-
-        final IConstructor n = vf.constructor(N, vf.integer(1));
-        @SuppressWarnings("deprecation")
-        final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
-
-        final IMap m1 = vf.mapWriter().done().put(n, vf.integer(1)).put(na, vf.integer(1));
-
-        assertEquals(1, m1.size());
-        assertEquals(vf.integer(1), m1.get(n));
-        assertEquals(vf.integer(1), m1.get(na));
-    }
-
-    @SuppressWarnings("deprecation")
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testPutReplaceWithAnnotationsValue_Map(IValueFactory vf, TypeStore ts) {
-        final Type E = tf.abstractDataType(ts, "E");
-        final Type N = tf.constructor(ts, E, "n", tf.integerType());
-        ts.declareAnnotation(E, "x", tf.integerType());
-
-        final IConstructor n = vf.constructor(N, vf.integer(1));
-        final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
-
-        final IMap m1 = vf.mapWriter().done().put(vf.integer(1), n).put(vf.integer(1), na);
-
-        assertEquals(1, m1.size());
-        assertEquals(na, m1.get(vf.integer(1)));
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testPutReplaceWithAnnotations_MapWriter(IValueFactory vf, TypeStore ts) {
-        if (vf.getClass() == ValueFactory.class) {
-            return; // this value factory has a know bug wrt annotations which we ignore for now.
-        }
-
-        final Type E = tf.abstractDataType(ts, "E");
-        final Type N = tf.constructor(ts, E, "n", tf.integerType());
-        ts.declareAnnotation(E, "x", tf.integerType());
-
-        final IConstructor n = vf.constructor(N, vf.integer(1));
-        @SuppressWarnings("deprecation")
-        final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
-
-        final IMapWriter w1 = vf.mapWriter();
-        w1.put(n, vf.integer(1));
-        w1.put(na, vf.integer(1));
-
-        final IMap m1 = w1.done();
-
-        assertEquals(1, m1.size());
-        assertEquals(vf.integer(1), m1.get(n));
-        assertEquals(vf.integer(1), m1.get(na));
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testPutReplaceWithAnnotationsValue_MapWriter(IValueFactory vf, TypeStore ts) {
-        final Type E = tf.abstractDataType(ts, "E");
-        final Type N = tf.constructor(ts, E, "n", tf.integerType());
-        ts.declareAnnotation(E, "x", tf.integerType());
-
-        final IConstructor n = vf.constructor(N, vf.integer(1));
-        @SuppressWarnings("deprecation")
-        final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
-
-        final IMapWriter w1 = vf.mapWriter();
-        w1.put(vf.integer(1), n);
-        w1.put(vf.integer(1), na);
-
-        final IMap m1 = w1.done();
-
-        assertEquals(1, m1.size());
-        assertEquals(na, m1.get(vf.integer(1)));
-    }
-
 }

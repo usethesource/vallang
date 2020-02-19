@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface NoAnnotations {
+@Target(ElementType.METHOD)
+public @interface ArgumentsMaxWidth {
+    int value();
 }

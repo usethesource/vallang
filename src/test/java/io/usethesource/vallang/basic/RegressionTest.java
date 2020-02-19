@@ -31,18 +31,14 @@ public class RegressionTest {
     final IConstructor c1Normal = vf.constructor(c1Type, vf.integer(1));
         final IConstructor c1WithKWParams = vf.constructor(c1Type, vf.integer(1)).asWithKeywordParameters().setParameters(Collections.emptyMap());
 
-        assertTrue(c0WithKWParams.isEqual(c0Normal));
         assertTrue(c0WithKWParams.equals(c0Normal));
-        assertTrue(c0Normal.isEqual(c0WithKWParams));
         assertTrue(c0Normal.equals(c0WithKWParams));
-        assertTrue(c1WithKWParams.isEqual(c1Normal));
         assertTrue(c1WithKWParams.equals(c1Normal));
-        assertTrue(c1Normal.isEqual(c1WithKWParams));
         assertTrue(c1Normal.equals(c1WithKWParams));
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testRegression42_cause(IValueFactory vf, TypeStore store, @GivenValue("(\"\"():4,\"\"():3)") IValue v,  @GivenValue("(\"\"():4,\"\"():3)") IValue u) throws IOException {
-        assertTrue(v.isEqual(u));
+        assertTrue(v.equals(u));
     }
 }

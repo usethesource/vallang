@@ -23,15 +23,16 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
-import java.util.Random;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.ArgumentsMaxDepth;
+import io.usethesource.vallang.ArgumentsMaxWidth;
 import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
@@ -45,27 +46,16 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
-import io.usethesource.vallang.io.old.BinaryWriter;
-import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.util.RandomValues;
 import io.usethesource.vallang.visitors.ValueStreams;
 
-/**
- * @author Arnold Lankamp
- */
-@SuppressWarnings("deprecation")
 public final class BinaryIoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testBinaryIO(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        RandomValues.addNameType(ts);
-        for (IValue value : RandomValues.getTestValues(vf)) {
-            ioRoundTrip(vf, ts, value, 0);
-        }
+    public void testSmallBinaryIO(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
+        ioRoundTrip(vf, ts, value);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -73,246 +63,149 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
             @ExpectedType("Boolean") 
             IConstructor t) throws FactTypeUseException, IOException {
-
-        ioRoundTrip(vf, store, t, 0);
+        ioRoundTrip(vf, store, t);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testRegression42_2(IValueFactory vf, TypeStore store, @GivenValue("(\"\"():4,\"\"():3)") IValue v) throws IOException {
-        ioRoundTrip(vf, store, v, 0);
+        ioRoundTrip(vf, store, v);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testBinaryFileIO(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        RandomValues.addNameType(ts);
-        for (IValue value : RandomValues.getTestValues(vf)) {
-            RandomValues.addNameType(ts);
-            ioRoundTripFile(vf, ts, value, 0);
-        }
+    public void testSmallBinaryFileIO(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
+        ioRoundTripFile(vf, ts, value);
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(10) @ArgumentsMaxWidth(20)
+    public void testLargeBinaryIO(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
+        ioRoundTrip(vf, ts, value);
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(4) @ArgumentsMaxWidth(8)
+     public void testRandomBinaryFileIO(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
+        ioRoundTripFile(vf, ts, value);
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(10) @ArgumentsMaxWidth(20)
+    public void testLargeBinaryFileIO(IValueFactory vf, TypeStore ts, IList list) throws IOException {
+        ioRoundTripFile(vf, ts, list);
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(10) @ArgumentsMaxWidth(20)
+    public void testRandomBinaryLargeFilesIO2(IValueFactory vf, TypeStore ts, IList list) throws FileNotFoundException, IOException {
+        ioRoundTripFile2(vf, ts, list);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRandomBinaryIO(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        Type name = RandomValues.addNameType(ts);
-        Random r = new Random(42);
-        for (int i = 0; i < 20; i++) {
-            IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
-            ioRoundTrip(vf, ts, value, 42);
-        }
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRandomBinaryFileIO(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        Type name = RandomValues.addNameType(ts);
-        Random r = new Random(42);
-        for (int i = 0; i < 20; i++) {
-            IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
-            ioRoundTripFile(vf, ts, value, 42);
-        }
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRandomBinaryLargeFilesIO(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        Type name = RandomValues.addNameType(ts);
-        Random r = new Random();
-        int seed = r.nextInt();
-        r.setSeed(seed);
-        IListWriter writer = vf.listWriter();
-        for (int i = 0; i < 5; i++) {
-            writer.append(RandomValues.generate(name, ts, vf, r, 10, true));      
-        }
-        ioRoundTripFile(vf, ts, writer.done(), seed);
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRandomBinaryLargeFilesIO2(IValueFactory vf) throws FileNotFoundException, IOException {
-        TypeStore ts = new TypeStore();
-        Type name = RandomValues.addNameType(ts);
-        Random r = new Random();
-        int seed = r.nextInt();
-        r.setSeed(seed);
-        IListWriter writer = vf.listWriter();
-        for (int i = 0; i < 5; i++) {
-            writer.append(RandomValues.generate(name, ts, vf, r, 10, true));      
-        }
-        ioRoundTripFile2(vf, ts, writer.done(), seed);
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testConstructorTypeWithLabel(IValueFactory vf) throws IOException {
-        TypeFactory tf = TypeFactory.getInstance();
-        TypeStore ts = new TypeStore();
+    public void testConstructorTypeWithLabel(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
         Type adt = tf.abstractDataType(ts, "A");
         Type cons = tf.constructor(ts, adt, "b", tf.integerType(), "i");
-        iopRoundTrip(vf, ts, cons, 0);
+        iopRoundTrip(vf, ts, cons);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testConstructorTypeWithParams(IValueFactory vf) throws IOException {
-        TypeFactory tf = TypeFactory.getInstance();
-        TypeStore ts = new TypeStore();
+    public void testConstructorTypeWithParams(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
         Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
         Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
-        iopRoundTrip(vf, ts, cons, 0);
+        iopRoundTrip(vf, ts, cons);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testConstructorTypeWithInstanciatedParams(IValueFactory vf) throws IOException {
-        TypeFactory tf = TypeFactory.getInstance();
-        TypeStore ts = new TypeStore();
+    public void testConstructorTypeWithInstanciatedParams(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
         Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
         Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
 
         HashMap<Type, Type> binding = new HashMap<>();
         binding.put(tf.parameterType("T"), tf.integerType());
-        iopRoundTrip(vf, ts, cons.instantiate(binding), 0);
+        iopRoundTrip(vf, ts, cons.instantiate(binding));
     }
 
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRandomTypesIO(IValueFactory vf) throws IOException {
-        TypeFactory tf = TypeFactory.getInstance();
-        TypeStore ts = new TypeStore();
-        Random r = new Random();
-        int seed = r.nextInt();
-        r.setSeed(seed);
-        for (int i = 0; i < 1000; i++) {
-            Type tp = tf.randomType(ts, r, 5);
-            iopRoundTrip(vf, ts, tp, seed);
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(3) @ArgumentsMaxWidth(6)
+    public void testSmallRandomTypesIO(IValueFactory vf, TypeStore ts, Type tp) throws IOException {
+        iopRoundTrip(vf, ts, tp);
+    }
+
+ 
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(12) @ArgumentsMaxWidth(6)
+    public void testDeepRandomValuesIO(IValueFactory vf, TypeStore ts, IValue val) throws IOException {
+        try {
+            ioRoundTrip(vf, ts, val);
+        }
+        catch (Throwable e) {
+            System.err.println("Deep random value failed, now trying to find the simplest sub-term which causes the failure...");
+            // Now we've found a bug in a (probably) very, very complex value.
+            // Usually it has several megabytes of random data. 
+
+            // We try to find a minimal sub-value which still fails somehow by
+            // visiting each sub-term and running the test again on this.
+            // The first sub-term to fail is reported via the AssertionFailed exception.
+
+            // If only the big original term fails after all, then the BottomUp strategy
+            // will try that (its the last value of the stream) and fail again in 
+            // the same way as above.
+            ValueStreams.bottomupbf(val).forEach(v -> {
+                try {
+                    ioRoundTrip(vf, ts, v);
+                } catch (IOException error) {
+                    fail(error);
+                }
+            });
         }
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testSmallRandomTypesIO(IValueFactory vf) throws IOException {
-        TypeFactory tf = TypeFactory.getInstance();
-        TypeStore ts = new TypeStore();
-        Random r = new Random();
-        int seed = r.nextInt();
-        r.setSeed(seed);
-        for (int i = 0; i < 1000; i++) {
-            Type tp = tf.randomType(ts, r, 3);
-            iopRoundTrip(vf, ts, tp, seed);
-        }
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testDeepRandomValuesIO(IValueFactory vf) throws IOException {
-        Random r = new Random();
-        int seed = r.nextInt();
-
-        testDeepRandomValuesIO(seed, vf);
-    }
-
-    private void testDeepRandomValuesIO(int seed, IValueFactory vf) throws IOException {
-        TypeFactory tf = TypeFactory.getInstance();
-        TypeStore ts = new TypeStore();
-        Random r = new Random(seed);
-        RandomValueGenerator gen = new RandomValueGenerator(vf, r, 22, 6, true);
-        for (int i = 0; i < 1000; i++) {
-            IValue val = gen.generate(tf.valueType(), ts, null);
-            
-            try {
-                ioRoundTrip(vf, ts, val, seed);
-            }
-            catch (Throwable e) {
-                System.err.println("Deep random value failed, now trying to find the simplest sub-term which causes the failure...");
-                // Now we've found a bug in a (probably) very, very complex value.
-                // Usually it has several megabytes of random data. 
-                
-                // We try to find a minimal sub-value which still fails somehow by
-                // visiting each sub-term and running the test again on this.
-                // The first sub-term to fail is reported via the AssertionFailed exception.
-                
-                // If only the big original term fails after all, then the BottomUp strategy
-                // will try that (its the last value of the stream) and fail again in 
-                // the same way as above.
-                ValueStreams.bottomupbf(val).forEach(v -> {
-                    try {
-                        ioRoundTrip(vf, ts, v, seed);
-                    } catch (IOException error) {
-                        fail(error);
-                    }
-                });
-            }
-        }
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testDeepRandomValuesIORegressions(IValueFactory vf) throws IOException {
-        testDeepRandomValuesIO(1544959898, vf);
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testOldFilesStillSupported(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        Type name = RandomValues.addNameType(ts);
-        Random r = new Random(42);
-        for (int i = 0; i < 20; i++) {
-            IValue value = RandomValues.generate(name, ts, vf, r, 10, true);
-            ioRoundTripOld(vf, ts, value, 42);
-        }
-    }
-
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testConstructorWithParameterized1(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        TypeFactory tf = TypeFactory.getInstance();
+    public void testConstructorWithParameterized1(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
         Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
         Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
 
-        ioRoundTrip(vf, ts, vf.constructor(cons, vf.integer(42)), 0);
+        ioRoundTrip(vf, ts, vf.constructor(cons, vf.integer(42)));
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testConstructorWithParameterized2(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        TypeFactory tf = TypeFactory.getInstance();
+    public void testConstructorWithParameterized2(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
         Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
         Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
 
-        ioRoundTrip(vf, ts, vf.constructor(cons, vf.integer(42)), 0);
+        ioRoundTrip(vf, ts, vf.constructor(cons, vf.integer(42)));
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testAliasedTupleInAdt(IValueFactory vf) throws IOException {
-        TypeStore ts = new TypeStore();
-        TypeFactory tf = TypeFactory.getInstance();
+    public void testAliasedTupleInAdt(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
         Type aliased = tf.aliasType(ts, "XX", tf.integerType());
         Type tuple = tf.tupleType(aliased, tf.stringType());
         Type adt = tf.abstractDataType(ts, "A");
         Type cons = tf.constructor(ts, adt, "b", tuple);
 
-        ioRoundTrip(vf, ts, vf.constructor(cons, vf.tuple(vf.integer(1), vf.string("a"))), 0);
+        ioRoundTrip(vf, ts, vf.constructor(cons, vf.tuple(vf.integer(1), vf.string("a"))));
     }
 
-    private void iopRoundTrip(IValueFactory vf, TypeStore ts, Type tp, int seed) throws IOException {
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void iopRoundTrip(IValueFactory vf, TypeStore ts, Type tp) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try (IWireOutputStream w = new BinaryWireOutputStream(buffer, 1000)) {
             IValueWriter.write(w, vf, WindowSizes.SMALL_WINDOW, tp);
         }
+        
         try (IWireInputStream read =
                 new BinaryWireInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {
             Type result = IValueReader.readType(read, vf, () -> ts);
-            if (!tp.equals(result)) {
-                String message = "Not equal: (seed: " + seed + ") \n\t" + result + " expected: " + seed;
+            if (tp != result) {
+                String message = "Not equal: \n\t" + result + " expected: " + tp;
                 System.err.println(message);
                 fail(message);
             }
         }
     }
 
-    private void ioRoundTrip(IValueFactory vf, TypeStore ts, IValue value, int seed) throws IOException {
+    private void ioRoundTrip(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try (IValueOutputStream w = new IValueOutputStream(buffer, vf, IValueOutputStream.CompressionRate.Normal)) {
             w.write(value);
         }
         try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, () -> ts)) {
             IValue result = read.read();
-            if (!value.isEqual(result)) {
-                String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
+            if (!value.equals(result)) {
+                String message = "Not equal:\n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
                 System.err.println("Test fail:");
                 System.err.println(message);
@@ -320,7 +213,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 fail(message);
             }
             else if (value.getType() != result.getType()) {
-                String message = "Type's not equal: (seed: " + seed + ") \n\t" + value.getType() 
+                String message = "Type's not equal:\n\t" + value.getType() 
                 + "\n\t" + result.getType();
                 System.err.println(message);
                 fail(message);
@@ -329,7 +222,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 Type expectedConstructorType = ((IConstructor)value).getConstructorType();
                 Type returnedConstructorType = ((IConstructor)result).getConstructorType();
                 if (expectedConstructorType != returnedConstructorType) {
-                    String message = "Constructor Type's not equal: (seed: " + seed + ") \n\t" + expectedConstructorType 
+                    String message = "Constructor Type's not equal:\n\t" + expectedConstructorType 
                             + "\n\t" + returnedConstructorType;
                     System.err.println(message);
                     fail(message);
@@ -339,9 +232,9 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
-    private void ioRoundTripFile(IValueFactory vf, TypeStore ts, IValue value, int seed) throws IOException {
+    private void ioRoundTripFile(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
         long fileSize = 0;
-        File target = File.createTempFile("valllang-test-file", "for-" + seed);
+        File target = File.createTempFile("valllang-test-file", "something");
         target.deleteOnExit();
         try (IValueOutputStream w = new IValueOutputStream(FileChannel.open(target.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE), vf, IValueOutputStream.CompressionRate.Normal)) {
             w.write(value);
@@ -349,8 +242,8 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         fileSize = Files.size(target.toPath());
         try (IValueInputStream read = new IValueInputStream(FileChannel.open(target.toPath(), StandardOpenOption.READ), vf, () -> ts)) {
             IValue result = read.read();
-            if (!value.isEqual(result)) {
-                String message = "Not equal: (seed: " + seed + ", size: " + fileSize +") \n\t" + value + " : " + value.getType()
+            if (!value.equals(result)) {
+                String message = "Not equal: size: " + fileSize +") \n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
                 System.err.println(message);
                 fail(message);
@@ -361,9 +254,9 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
-    private void ioRoundTripFile2(IValueFactory vf, TypeStore ts, IValue value, int seed) throws FileNotFoundException, IOException {
+    private void ioRoundTripFile2(IValueFactory vf, TypeStore ts, IValue value) throws FileNotFoundException, IOException {
         long fileSize = 0;
-        File target = File.createTempFile("valllang-test-file", "for-" + seed);
+        File target = File.createTempFile("valllang-test-file", "something");
         target.deleteOnExit();
         try (IValueOutputStream w = new IValueOutputStream(new FileOutputStream(target), vf, IValueOutputStream.CompressionRate.Normal)) {
             w.write(value);
@@ -371,8 +264,8 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         fileSize = Files.size(target.toPath());
         try (IValueInputStream read = new IValueInputStream(new FileInputStream(target), vf, () -> ts)) {
             IValue result = read.read();
-            if (!value.isEqual(result)) {
-                String message = "Not equal: (seed: " + seed + ", size: " + fileSize +") \n\t" + value + " : " + value.getType()
+            if (!value.equals(result)) {
+                String message = "Not equal: (size: " + fileSize +") \n\t" + value + " : " + value.getType()
                 + "\n\t" + result + " : " + result.getType();
                 System.err.println(message);
                 fail(message);
@@ -380,24 +273,6 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
         finally {
             target.delete();
-        }
-    }
-
-    private void ioRoundTripOld(IValueFactory vf, TypeStore ts, IValue value, int seed) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-        BinaryWriter w = new BinaryWriter(value, buffer, new TypeStore());
-        w.serialize();
-        buffer.flush();
-        try (IValueInputStream read = new IValueInputStream(
-                new ByteArrayInputStream(buffer.toByteArray()), vf, () -> ts)) {
-            IValue result = read.read();
-            if (!value.isEqual(result)) {
-                String message = "Not equal: (seed: " + seed + ") \n\t" + value + " : " + value.getType()
-                + "\n\t" + result + " : " + result.getType();
-                System.err.println(message);
-                fail(message);
-            }
         }
     }
 }

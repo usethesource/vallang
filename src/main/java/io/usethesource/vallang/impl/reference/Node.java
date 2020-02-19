@@ -25,147 +25,146 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Naive implementation of an untyped tree node, using array of children.
  */
 /*package*/ class Node implements INode {
-	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
+    protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 
-	@Override
-	public Type getType() {
-		return fType;
-	}
+    @Override
+    public Type getType() {
+        return fType;
+    }
 
-	protected final Type fType;
-	protected final IValue[] fChildren;
-	protected final String fName;
-	protected int fHash = 0;
-	
-	/*package*/ Node(String name, IValue[] children) {
-		super();
-		fType = TypeFactory.getInstance().nodeType();
-		fName = name;
-		fChildren = children.clone();
-	}
-		
-	protected Node(String name, Type type, IValue[] children) {
-		super();
-		fType = type;
-		fName = name;
-		fChildren = children.clone();
-	}
-	
-	/*package*/ Node(String name) {
-		this(name, new IValue[0]);
-	}
+    protected final Type fType;
+    protected final IValue[] fChildren;
+    protected final String fName;
+    protected int fHash = -1;
 
-	/**
-	 * Replaces a child
-	 * @param other
-	 * @param index
-	 * @param newChild
-	 */
-	protected Node(Node other, int index, IValue newChild) {
-		super();
-		fType = other.fType;
-		fName = other.fName;
-		fChildren = other.fChildren.clone();
-		fChildren[index] = newChild;
-	}
-	
-	@Override
-	public INode setChildren(IValue[] childArray) {
-	    return new Node(fName, childArray);
-	}
-	
-	@Override
-	public int arity() {
-		return fChildren.length;
-	}
+    /*package*/ Node(String name, IValue[] children) {
+        super();
+        fType = TypeFactory.getInstance().nodeType();
+        fName = name;
+        fChildren = children.clone();
+    }
 
-	@Override
-	public IValue get(int i) throws IndexOutOfBoundsException {
-		try {
-		 return fChildren[i];
-		}
-		catch (ArrayIndexOutOfBoundsException e) {
-			throw new IndexOutOfBoundsException("Node node does not have child at pos " + i);
-		}
-	}
+    protected Node(String name, Type type, IValue[] children) {
+        super();
+        fType = type;
+        fName = name;
+        fChildren = children.clone();
+    }
 
-	@Override
-	public Iterable<IValue> getChildren() {
-		return this;
-	}
+    /*package*/ Node(String name) {
+        this(name, new IValue[0]);
+    }
 
-	@Override
-	public String getName() {
-		return fName;
-	}
+    /**
+     * Replaces a child
+     * @param other
+     * @param index
+     * @param newChild
+     */
+    protected Node(Node other, int index, IValue newChild) {
+        super();
+        fType = other.fType;
+        fName = other.fName;
+        fChildren = other.fChildren.clone();
+        fChildren[index] = newChild;
+    }
 
-	@Override
-	public  INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
-		try {
-			return new Node(this, i, newChild);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new IndexOutOfBoundsException("Node node does not have child at pos " + i);
-		}
-	}
+    @Override
+    public INode setChildren(IValue[] childArray) {
+        return new Node(fName, childArray);
+    }
 
-	@Override
-	public Iterator<IValue> iterator() {
-		return ArrayIterator.of(fChildren);
-	}
-	
-	@Override
-	public boolean equals(@Nullable Object obj) {
-    if(this == obj) {
-			  return true;
-		  }
-		  else if(obj == null) {
-			  return false;
-		  }
-		  else if (getClass() == obj.getClass()) {
-			Node other = (Node) obj;
+    @Override
+    public int arity() {
+        return fChildren.length;
+    }
 
-			if (!fType.comparable(other.fType)) {
-				return false;
-			}
+    @Override
+    public IValue get(int i) throws IndexOutOfBoundsException {
+        try {
+            return fChildren[i];
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            throw new IndexOutOfBoundsException("Node node does not have child at pos " + i);
+        }
+    }
 
-			if (fChildren.length != other.fChildren.length) {
-				return false;
-			}
+    @Override
+    public Iterable<IValue> getChildren() {
+        return this;
+    }
 
-			if (fName == other.fName || (fName != null && fName.equals(other.fName))) {
-				for (int i = 0; i < fChildren.length; i++) {
-					if (!fChildren[i].equals(other.fChildren[i])) {
-						return false;
-					}
-				}
+    @Override
+    public String getName() {
+        return fName;
+    }
 
-				return true;
-			}
-		}
+    @Override
+    public  INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
+        try {
+            return new Node(this, i, newChild);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IndexOutOfBoundsException("Node node does not have child at pos " + i);
+        }
+    }
 
-		return false;
-}
-	
-	@Override
-	public String toString() {
-	    return defaultToString();
-	}
-	
-	public int computeHashCode() {
-       int hash = fName != null ? fName.hashCode() : 0;
-       
-	   for (int i = 0; i < fChildren.length; i++) {
-	     hash = (hash << 1) ^ (hash >> 1) ^ fChildren[i].hashCode();
-	   }
-	   return hash;
-	}
+    @Override
+    public Iterator<IValue> iterator() {
+        return ArrayIterator.of(fChildren);
+    }
 
-	@Override
-	public int hashCode() {
-		if (fHash == 0) {
-			fHash = computeHashCode();
-		}
-		return fHash;
-	}
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if(obj == null) {
+            return false;
+        }
+        else if (getClass() == obj.getClass()) {
+            Node other = (Node) obj;
 
+            if (fType != other.fType) {
+                return false;
+            }
+
+            if (fChildren.length != other.fChildren.length) {
+                return false;
+            }
+
+            if (fName == other.fName || (fName != null && fName.equals(other.fName))) {
+                for (int i = 0; i < fChildren.length; i++) {
+                    if (!fChildren[i].equals(other.fChildren[i])) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return defaultToString();
+    }
+
+    public int computeHashCode() {
+        int hash = fName.hashCode();
+
+        for (int i = 0; i < fChildren.length; i++) {
+            hash = (hash << 1) ^ (hash >> 1) ^ fChildren[i].hashCode();
+        }
+        return hash;
+    }
+
+    @Override
+    public int hashCode() {
+        if (fHash == -1) {
+            fHash = computeHashCode();
+        }
+        return fHash;
+    }
 }

@@ -37,103 +37,61 @@ public interface IValue {
     public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E;
     
     /**
-     * Warning: you may not want to use this method. The semantics of this 
-     * equals is left entirely to the implementation, although it should follow
-     * the contract as documented by Java's {@link Object} class.
-     * <br>
-     * This method computes object equality for use in implementations of IValue.
-     * This equals method may implement a much more discriminating kind
-     * of equals than you need, for example one where the types of two values are not
-     * only comparable but exactly equal. 
-     * <br>
-     * For logical equality of two values, use {@link #isEqual(IValue)}.
+     * This method computes logical equality between IValues. That means that it
+     * may equalize objects implemented by different classes implementing the 
+     * same interface. It does uphold Java's equals/hashCode contract, nevertheless.
+     * 
+     * <p>In particular, lazy intermediate representations of IList, ISet or IString would
+     * lead to IValue objects being equal even though their internal structure differs greatly.
+     * Implementors should think hard how to uphold equals/hashCode contract in such cases.</p>
+     * 
+     * <p>A note on subtitutability: given that IValue's are immutable, and this equals method
+     * implements an equivalence relation and that it upholds the hashCode/equals contract:
+     * if equals(a,b) then a is substitutable for b and vice versa in _any_ context. This implies
+     * full referential transparancy as well.</p> 
+     * 
+     * <p>On the computational complexity of equals: although equality is worst case linear,
+     * implementations are expected to fail fast, and succeed fast. In particular the implementations 
+     * based on persistent and shared data-structures are expected to test for reference equality at every 
+     * level in a value. The expected/average complexity of equals should be around log(size), as a result.</p> 
      * 
      * @param other object to compare to
-     * @return true iff the other object is equal to the receiver object
+     * @return true iff the other value is logically equal to the receiver object
      */
+    @Override
     public boolean equals(@Nullable Object other);
     
     /**
-     * Compute logical equality of two values, which means that the data they
-     * represent is equal and their types are comparable (one is a sub-type of the other).
-     * 
-     * While the annotations feature of Rascal still exists, this is the preferred method
-     * for testing equality. The isEqual method will ignore the presence of annotations, but
-     * not the presence of keyword parameters.
-     * 
-     * Note that after the newer keyword parameter feature has completely
-     * replaced the annotations feature, the functionality of this method
-     * will be taken by the normal equals method.
-     * 
-     * @param other value to compare to
-     * @return true iff the the contents of the receiver is equal to the contents
-     *         of the other, and their types are comparable (one is a sub-type of the other).
-     */
-    public default boolean isEqual(IValue other) {
-        return equals(other);
-    }
-    
-    
-    /**
      * Another notion of equality which ignores secondary information:
-     * type labels, annotations and keyword parameters. 
+     * namely, keyword parameters (either top-level or deeply nested). 
      * 
-     * The intention is for this notion of equality to match what the notion of pattern
+     * <p>The intention is for this notion of equality to match what the notion of pattern
      * matching is in the Rascal language. In this case the receiver acts
-     * as a "pattern" for the argument.
+     * as a "pattern" for the argument.</p>
      * 
-     * The following theories hold:
+     * <p>The following theories hold:
      * 
-     * a.equals(b) ==> a.match(b)  // and not the inverse
-     * a.isEqual(b) ==> a.match(b)
+     * <ul><li>. a.equals(b) ==> a.match(b)  // and not the inverse</li>
+     *     <li> match() is an equivalence relation</li></ul>
+     * </p>
      * 
-     * structureEqualTo is an equivalence relation
-     * 
-     * Note that match() is linear in the size of the smallest of the
-     * two values.
+     * <p>Note that the match() algorithm is linear in the size of the smallest of the
+     * two values, but implementations are expected to fail fast and succeed fast where
+     * possible (checking for reference equality on the way).</p>
      * 
      * @param other value to compare to
      * @return true iff the other value is equal to the other value, while
-     *         ignoring all non-structural details such as accidental differences
-     *         in type labels, the presence of annotations or the presence of keyword 
-     *         parameters
+     *         ignoring all "non-structural" details such the presence of keyword 
+     *         parameters.
      */
     public default boolean match(IValue other) {
-        return isEqual(other);
+        return equals(other);
     }
     
     /**
      * Prints the value to a string using the {@link StandardTextWriter}
      */
     public String toString();
-    
-    /**
-     * @return if this {@link IValue} object can be annotated
-     * 
-     * TODO: annotations kill structural equality and disable a number of important
-     * optimization techniques because of that. Next to this the semantics of equality
-     * modulo annotations has proven to be confusing to the users of this library.
-     */
-    @Deprecated
-    public default boolean isAnnotatable() {
-        return false;
-    }
-    
-    /**
-     * Creates a view that exposes the {@link IAnnotatable} annotation API. 
-     * 
-     * @return an {@link IAnnotatable} view on this {@link IValue} object 
-     * 
-     * TODO: annotations kill structural equality and disable a number of important
-     * optimization techniques because of that. Next to this the semantics of equality
-     * modulo annotations has proven to be confusing to the users of this library.
-     * 
-     * IAnnotable is replaced by comparable functionality with IWithKeywordParameters
-     */
-    @Deprecated
-    public default IAnnotatable<? extends IValue> asAnnotatable() {
-        throw new UnsupportedOperationException(getType() + " does not support annotations.");
-    }
     
     /**
      * @return if this {@link IValue} object may have keyword parameters

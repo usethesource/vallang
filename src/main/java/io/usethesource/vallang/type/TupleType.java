@@ -25,9 +25,12 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /*package*/ class TupleType extends DefaultSubtypeOfValue {
     protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
@@ -84,19 +87,19 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-            return randomInstance(next, store, rnd, rnd.nextInt(5));
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            return randomInstance(next, rnd, rnd.nextInt(rnd.getMaxDepth() + 1));
         }
 
         @SuppressWarnings("deprecation")
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd, int arity) {
+        /*package*/ Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd, int arity) {
             Type[] types = new Type[arity];
 
             for (int i = 0; i < arity; i++) {
-                types[i] = next.get();
+                while ((types[i] = next.get()).isBottom()); // tuples can not have empty fields
             }
 
-            if (rnd.nextBoolean()) {
+            if (!rnd.isWithTupleFieldNames() || rnd.nextBoolean()) {
                 return tf().tupleType(types);
             }
 
@@ -236,7 +239,10 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
     public boolean equals(@Nullable Object obj) {
         if (obj == null) {
             return false;
-            
+        }
+        
+        if (obj == this) {
+            return true;
         }
         
         if (!obj.getClass().equals(getClass())) {
@@ -330,6 +336,21 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 
         return false;
     }
+    
+    @Override
+    protected boolean isSubtypeOfVoid(Type type) {
+        // this can happen if one of the elements is a type parameter which 
+        // might degenerate to void.
+        if (isOpen()) {
+            for (Type elem : this) {
+                if (elem.isSubtypeOfVoid(type)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     @Override
     protected Type lubWithTuple(Type type) {
@@ -402,5 +423,26 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 
             return TypeFactory.getInstance().tupleType(fieldTypes);
         }
+    }
+    
+    @Override
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+            int maxDepth, int maxWidth) {
+        IValue[] elems = new IValue[getArity()];
+        
+        for (int i = 0; i < elems.length; i++) {
+            assert !getFieldType(i).isBottom();
+            elems[i] = getFieldType(i).randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
+        }
+        
+        ITuple done = vf.tuple(elems);
+        match(done.getType(), typeParameters);
+        
+        return done;
+    }
+    
+    @Override
+    public boolean isTuple() {
+        return true;
     }
 }

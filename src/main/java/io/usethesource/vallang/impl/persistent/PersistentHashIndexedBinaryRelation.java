@@ -18,7 +18,6 @@ import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTw
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -233,48 +232,6 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     return false;
   }
 
-  @Override
-  public boolean isEqual(IValue other) {
-    if (other == this) {
-      return true;
-    }
-    
-    if (other == null) {
-      return false;
-    }
-
-    if (other instanceof PersistentHashIndexedBinaryRelation) {
-      PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
-
-      if (this.size() != that.size()) {
-        return false;
-      }
-      
-      Iterator<Entry<IValue, IValue>> it = that.content.entryIterator();
-      
-      while (it.hasNext()) {
-        Entry<IValue, IValue> entry = it.next();
-
-        /*
-         * TODO: reconsider hiding of comparator vs exposition via argument
-         *
-         * TODO: containsEntry in isEquals does not use equivalence explicitly here
-         * content.containsEntryEquivalent(key, val, equivalenceComparator);
-         */
-        if (!content.containsEntry(entry.getKey(), entry.getValue())) {
-          return false;
-        }
-      }
-
-      return true;
-    }
-    else if (other instanceof ISet) {
-        return defaultEquals(other);
-    }
-
-    return false;
-  }
-  
   @Override
   public ISet union(ISet other) {
     if (other == this) {

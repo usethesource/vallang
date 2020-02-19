@@ -19,9 +19,7 @@ import java.util.Iterator;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
-import io.usethesource.vallang.impl.fields.AnnotatedNodeFacade;
 import io.usethesource.vallang.impl.fields.NodeWithKeywordParametersFacade;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -169,23 +167,6 @@ public interface INode extends IValue, Iterable<IValue> {
 	}
 	
     @Override
-    @Deprecated
-    public default boolean isAnnotatable() {
-        return true;
-    }
-    
-    @Override
-    @Deprecated
-    public default IAnnotatable<? extends INode> asAnnotatable() {
-        return new AbstractDefaultAnnotatable<INode>(this) {
-            @Override
-            protected INode wrap(INode content, Map.Immutable<String, IValue> annotations) {
-                return new AnnotatedNodeFacade(content, annotations);
-            }
-        };
-    }
-    
-    @Override
     public default boolean mayHaveKeywordParameters() {
       return true;
     }
@@ -198,58 +179,6 @@ public interface INode extends IValue, Iterable<IValue> {
           return new NodeWithKeywordParametersFacade(content, parameters);
         }
     };
-    }
-    
-    @Override
-    public default boolean isEqual(IValue value) {
-        if(value == this) return true;
-        if(value == null) return false;
-
-        if (this.getType() != value.getType()) {
-            return false;
-        }
-
-        if (value instanceof INode) {
-            INode node2 = (INode) value;
-
-            // Object equality ('==') is not applicable here
-            // because value is cast to {@link INode}.
-            if (!this.getName().equals(node2.getName())) {
-                return false;
-            }
-
-            if (this.arity() != node2.arity()) {
-                return false;
-            }
-
-            Iterator<IValue> it1 = this.iterator();
-            Iterator<IValue> it2 = node2.iterator();
-
-            while (it1.hasNext()) {
-                IValue o1 = it1.next();
-                IValue o2 = it2.next();
-
-                if (!o1.isEqual(o2)) {
-                    return false;
-                }
-            }
-
-            if (this.mayHaveKeywordParameters() && node2.mayHaveKeywordParameters()) {
-                return this.asWithKeywordParameters().equalParameters(node2.asWithKeywordParameters());
-            }
-
-            if (this.mayHaveKeywordParameters() && this.asWithKeywordParameters().hasParameters()) {
-                return false;
-            }
-
-            if (node2.mayHaveKeywordParameters() && node2.asWithKeywordParameters().hasParameters()) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
     }
     
     @Override

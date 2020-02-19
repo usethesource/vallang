@@ -314,25 +314,24 @@ public class ATermReader extends AbstractBinaryReader {
             return result;
         }
 
-        @SuppressWarnings("deprecation")
         private IValue parseAnno(SharingStream reader, IValue result) throws IOException {
             if (reader.getLastChar() == '[') {
                 int c = reader.readSkippingWS();
 
                 if (c == '"') {
                     String key = parseStringLiteral(reader);
-                    Type annoType = ts.getAnnotationType(result.getType(), key);
+                    Type kwType = ts.getKeywordParameterType(result.getType(), key);
 
-                    if (annoType == null) {
-                        annoType = tf.valueType();
+                    if (kwType == null) {
+                        kwType = tf.valueType();
                     }
 
                     if (reader.readSkippingWS() == ',') {
                         reader.readSkippingWS();
-                        IValue value = parse(reader, annoType);
+                        IValue value = parse(reader, kwType);
 
                         if (result.getType().isAbstractData()) {
-                            result = ((IConstructor) result).asAnnotatable().setAnnotation(key, value);
+                            result = ((IConstructor) result).asWithKeywordParameters().setParameter(key, value);
                         }
 
                         if (reader.getLastChar() != ']') {
@@ -343,13 +342,12 @@ public class ATermReader extends AbstractBinaryReader {
                         return result;
                     }
 
-                    throw new FactParseError("expected a comma before the value of the annotation", reader.getPosition());
+                    throw new FactParseError("expected a comma before the value of the keyword field", reader.getPosition());
                 }
 
-                throw new FactParseError("expected a label for an annotation", reader.getPosition());
+                throw new FactParseError("expected a label for a keyword field", reader.getPosition());
             }
 
-            // no annotations
             return result;
         }
 

@@ -11,8 +11,6 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.fields;
 
-import static io.usethesource.vallang.util.EqualityUtils.KEYWORD_PARAMETER_COMPARATOR;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,7 +19,6 @@ import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
@@ -29,7 +26,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class ConstructorWithKeywordParametersFacade implements IConstructor {
@@ -118,29 +114,6 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
     }
 
     @Override
-    public boolean isEqual(IValue other) {
-        if (!(other instanceof ConstructorWithKeywordParametersFacade)) {
-            if (other instanceof IConstructor) {
-                IConstructor oc = ((IConstructor)other);
-                if (content.isEqual(oc) && oc.mayHaveKeywordParameters()) {
-                    IWithKeywordParameters<? extends IConstructor> ocw = oc.asWithKeywordParameters();
-                    return ocw.getParameters().equals(parameters);
-                }
-                else {
-                    return false;
-                }
-            }
-            else {
-                return false;
-            }
-        }
-
-        ConstructorWithKeywordParametersFacade o = (ConstructorWithKeywordParametersFacade) other;
-
-        return content.isEqual(o.content) && KEYWORD_PARAMETER_COMPARATOR.equals(parameters, o.parameters);
-    }
-
-    @Override
     public boolean match(IValue other) {
         if (other instanceof ConstructorWithKeywordParametersFacade) {
             return content.match(((ConstructorWithKeywordParametersFacade) other).content);    
@@ -156,16 +129,6 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
     @Override
     public int hashCode() {
         return 131 + 3 * content.hashCode() + 101 * parameters.hashCode();
-    }
-
-    @Override
-    public boolean isAnnotatable() {
-        return false;
-    }
-
-    @Override
-    public IAnnotatable<? extends IConstructor> asAnnotatable() {
-        throw new UnsupportedOperationException("can not annotate a constructor which already has keyword parameters");
     }
 
     @Override
@@ -229,10 +192,5 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
     @Override
     public Type getChildrenTypes() {
         return content.getChildrenTypes();
-    }
-
-    @Override
-    public boolean declaresAnnotation(TypeStore store, String label) {
-        return content.declaresAnnotation(store, label);
     }
 }

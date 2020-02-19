@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import io.usethesource.capsule.Map;
-import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ITuple;
@@ -27,12 +26,8 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
-import io.usethesource.vallang.util.EqualityUtils;
 
 final class MapWriter implements IMapWriter {
-
-	private static final EqualityComparator<Object> equivalenceComparator =
-			EqualityUtils.getEquivalenceComparator();
 
 	private AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
 	private AbstractTypeBag valTypeBag = AbstractTypeBag.of();
@@ -41,26 +36,33 @@ final class MapWriter implements IMapWriter {
 	private @MonotonicNonNull IMap constructedMap;
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void put(IValue key, IValue value) {
 		checkMutation();
 
 		final Type keyType = key.getType();
 		final Type valType = value.getType();
 
-		final IValue replaced = mapContent.__putEquivalent(key, value, equivalenceComparator);
+		int oldSize = mapContent.size();
+		
+		final IValue replaced = mapContent.__put(key, value);
 
-		keyTypeBag = keyTypeBag.increase(keyType);
-		valTypeBag = valTypeBag.increase(valType);
-
-		if (replaced != null) {
-			final Type replacedType = replaced.getType();
-			valTypeBag = valTypeBag.decrease(replacedType);
-			keyTypeBag = keyTypeBag.decrease(key.getType());
+		if (oldSize == mapContent.size() && replaced == null) {
+		    // update nothing because they key/value pair was already there
 		}
+		else if (replaced != null) {
+		    // only update the val since the key was already there
+		    valTypeBag = valTypeBag.decrease(replaced.getType()).increase(valType);
+		} 
+		else {
+		    // add the new entry for both bags since its entirely new
+		    keyTypeBag = keyTypeBag.increase(keyType); 
+		    valTypeBag = valTypeBag.increase(valType);
+		}
+
+		assert mapContent.size() == keyTypeBag.sum();
 	}
 
-	@Override
+    @Override
 	public void putAll(IMap map) {
 		putAll(map.entryIterator());
 	}

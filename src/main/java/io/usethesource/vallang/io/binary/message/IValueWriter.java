@@ -111,7 +111,7 @@ public class IValueWriter {
         type.accept(new ITypeVisitor<Void, IOException>() {
 
             private boolean writeFromCache(Type type) throws IOException {
-                int lastSeen = typeCache.howLongAgo(type);
+                int lastSeen = typeCache.howLongAgo(type); 
                 if (lastSeen != -1) { 
                     writeSingleValueMessage(writer, IValueIDs.PreviousType.ID, IValueIDs.PreviousType.HOW_LONG_AGO, lastSeen);
                     return true;
@@ -407,11 +407,6 @@ public class IValueWriter {
             }
 
             @Override
-            public void enterConstructorAnnotations() throws IOException {
-                writer.writeNestedField(IValueIDs.ConstructorValue.ANNOS);
-            }
-
-            @Override
             public void leaveConstructor(IValue cons) throws IOException {
                 writer.endMessage();
                 valueCache.write(cons);
@@ -437,11 +432,6 @@ public class IValueWriter {
             }
 
             @Override
-            public void enterNodeAnnotations() throws IOException {
-                writer.writeNestedField(IValueIDs.NodeValue.ANNOS);
-            }
-
-            @Override
             public void leaveNode(IValue cons) throws IOException {
                 writer.endMessage();
                 valueCache.write(cons);
@@ -458,7 +448,6 @@ public class IValueWriter {
             public void leaveNamedValue() throws IOException {
                 writer.endMessage();
             }
-
 
             @Override
             public boolean enterList(IList lst, int children) throws IOException {
@@ -636,5 +625,4 @@ public class IValueWriter {
             }
         });
     }
-
 }

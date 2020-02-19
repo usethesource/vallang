@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.usethesource</groupId>
@@ -8,7 +10,7 @@
 	<packaging>jar</packaging>
 
 	<scm>
-        <developerConnection>scm:git:ssh://git@github.com/usethesource/vallang.git</developerConnection>
+		<developerConnection>scm:git:ssh://git@github.com/usethesource/vallang.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -40,20 +42,20 @@
 		<checkerframework.version>2.9.0</checkerframework.version>
 	</properties>
 
-	 <build>
-	   <resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.config</include>
-                </includes>
-            </resource>
-        </resources>
-		 <testResources>
-			 <testResource>
-				 <directory>test/main/resources</directory>
-			 </testResource>
-		 </testResources>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.config</include>
+				</includes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>test/main/resources</directory>
+			</testResource>
+		</testResources>
 		<plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -79,10 +81,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-                <configuration>
-                    <tagNameFormat>v@{project.version}</tagNameFormat>
-                </configuration>
+				<configuration>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -91,6 +92,19 @@
 				<configuration>
 					<additionalparam>-Xdoclint:none</additionalparam>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.1</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -106,33 +120,34 @@
 					</execution>
 				</executions>
 				<configuration>
-				<trimStackTrace>false</trimStackTrace>
-				<argLine>
-				@{argLine} 
-				-Xmx2G
-				-ea
-				</argLine>
+					<trimStackTrace>false</trimStackTrace>
+					<argLine>
+						@{argLine}
+						-Xmx2G
+						-ea
+						-Dvallang.test.seed=${buildNumber}
+					</argLine>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.4</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.4</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -164,7 +179,7 @@
 			<artifactId>xz</artifactId>
 			<version>1.8</version>
 		</dependency>
-        <dependency>
+		<dependency>
 			<groupId>com.github.luben</groupId>
 			<artifactId>zstd-jni</artifactId>
 			<version>1.4.4-7</version>

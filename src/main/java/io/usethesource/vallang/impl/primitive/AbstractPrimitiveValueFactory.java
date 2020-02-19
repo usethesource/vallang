@@ -247,5 +247,4 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 			String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException {
 		return SourceLocationValues.newSourceLocation(scheme, authority, path, query, fragment);
 	}
-
 }

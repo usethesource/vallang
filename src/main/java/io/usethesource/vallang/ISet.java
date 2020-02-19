@@ -44,7 +44,7 @@ public interface ISet extends ICollection<ISet> {
         for (Iterator<IValue> iterator = iterator(); iterator.hasNext();) {
             IValue e = iterator.next();
 
-            if (!deleted && e.isEqual(elem)) {
+            if (!deleted && e.equals(elem)) {
                 deleted = true; // skip first occurrence
             } else {
                 w.insert(e);
@@ -71,35 +71,6 @@ public interface ISet extends ICollection<ISet> {
         return w.done();
     }
     
-    @Override
-    public default boolean isEqual(IValue other) {
-        if (other == this) {
-            return true;
-        }
-        
-        if (other == null) {
-            return false;
-        }
-
-        if (other instanceof ISet) {
-            ISet set2 = (ISet) other;
-
-            if (size() == set2.size()) {
-
-                for (IValue v1 : this) {
-                    // function contains() calls isEqual() but used O(n) time
-                    if (!set2.contains(v1)) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     @Override
     public default boolean match(IValue other) {
         if (other == this) {
@@ -216,30 +187,7 @@ public interface ISet extends ICollection<ISet> {
      * @param element
      * @return true if this is an element of the set
      */
-    public default boolean contains(IValue e) {
-        // the loop might seem weird but due to the (deprecated)
-        // semantics of node annotations we must check each element
-        // for _deep_ equality. This is a big source of inefficiency
-        // and one of the reasons why the semantics of annotations is
-        // deprecated for "keyword parameters".
-        for (IValue v : this) {
-            if (v.isEqual(e)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * @param element
-     * @return true if this is an element of the set according to the semantics of `equals`
-     */
-    @Deprecated
-    public default boolean containsEqualElement(IValue e) {
-       
-       
-        return false;
-    }
+    public boolean contains(IValue e);
     
     /**
      * @param element
@@ -303,22 +251,10 @@ public interface ISet extends ICollection<ISet> {
             }
 
             if (size() == set2.size()) {
-                outer:for (IValue v1 : this) {
-                    
-                    // the extra loop might seem weird but due to the (deprecated)
-                    // semantics of node annotations we must check each element
-                    // for _deep_ equality. This is a big source of inefficiency
-                    // and one of the reasons why the semantics of annotations is
-                    // deprecated for "keyword parameters".
-                    
-                    for (IValue v2 : set2) {
-                        if (v2.equals(v1)) {
-                            continue outer;
-                        }
+                for (IValue v1 : this) {
+                    if (!set2.contains(v1)) {
+                        return false;
                     }
-                    
-                    // v1 is not found in set2
-                    return false;
                 }
 
                 return true;

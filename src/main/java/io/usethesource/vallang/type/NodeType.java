@@ -12,6 +12,8 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -20,6 +22,10 @@ import java.util.function.Supplier;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.random.util.RandomUtil;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 /**
@@ -48,7 +54,7 @@ class NodeType extends DefaultSubtypeOfValue {
 		}
 		
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    return tf().nodeType();
 		}
 	}
@@ -130,5 +136,39 @@ class NodeType extends DefaultSubtypeOfValue {
 	@Override
 	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitNode(this);
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    String name = random.nextBoolean() ? RandomUtil.string(random, 1 + random.nextInt(5)) : RandomUtil.stringAlpha(random, random.nextInt(5));
+
+        int arity = maxDepth <= 0 ? 0 : random.nextInt(maxDepth);
+        IValue[] args = new IValue[arity];
+        for (int i = 0; i < arity; i++) {
+            args[i] = TypeFactory.getInstance().valueType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
+        }
+
+        if (RandomUtil.oneEvery(random, 4) &&  maxDepth > 0) {
+            int kwArity = 1 + random.nextInt(maxDepth);
+            Map<String, IValue> kwParams = new HashMap<>(kwArity);
+            for (int i = 0; i < kwArity; i++) {
+                String kwName = "";
+                while (kwName.isEmpty()) {
+                    // names have to start with alpha character
+                    kwName = RandomUtil.stringAlpha(random, 3); 
+                }
+                kwName += RandomUtil.stringAlphaNumeric(random, 4);
+                kwParams.put(kwName, TypeFactory.getInstance().valueType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth));
+            }
+
+            return vf.node(name, args, kwParams);
+        }
+        return vf.node(name, args); 
+	}
+	
+	@Override
+	public boolean isNode() {
+	    return true;
 	}
 }

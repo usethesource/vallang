@@ -23,7 +23,6 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ class Tuple implements ITuple{
-	
 	protected static final TypeFactory typeFactory = TypeFactory.getInstance();
 	private @MonotonicNonNull Type cachedTupleType;
 	protected final IValue[] elements;
@@ -175,6 +174,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		if (o.getClass() == getClass()) {
 			Tuple otherTuple = (Tuple) o;
 
+			if (getType() != otherTuple.getType()) {
+			    return false;
+			    
+			}
+			
 			IValue[] otherElements = otherTuple.elements;
 			int nrOfElements = elements.length;
 			if (otherElements.length == nrOfElements) {
@@ -190,36 +194,6 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 	}
 
 	@Override
-	public boolean isEqual(IValue value) {
-		if (value == this) {
-			return true;
-		}
-		if (value == null) {
-			return false;
-		}
-
-		if (value instanceof Tuple) {
-			Tuple otherTuple = (Tuple) value;
-
-			if (!getType().comparable(otherTuple.getType()))
-				return false;
-
-			IValue[] otherElements = otherTuple.elements;
-			int nrOfElements = elements.length;
-			if (otherElements.length == nrOfElements) {
-				for (int i = nrOfElements - 1; i >= 0; i--) {
-					if (!otherElements[i].isEqual(elements[i]))
-						return false;
-				}
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	
-	@Override
     public boolean match(IValue value) {
         if (value == this) {
             return true;
@@ -231,8 +205,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         if (value instanceof Tuple) {
             Tuple otherTuple = (Tuple) value;
 
-            if (!getType().comparable(otherTuple.getType()))
+            if (getType() != otherTuple.getType()) {
                 return false;
+            }
 
             IValue[] otherElements = otherTuple.elements;
             int nrOfElements = elements.length;

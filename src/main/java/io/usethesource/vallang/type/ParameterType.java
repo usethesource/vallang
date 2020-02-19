@@ -22,8 +22,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 
@@ -33,7 +35,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
  * i.e. a type that needs to be instantiated with an actual type
  * later.
  */
-/*package*/ final class ParameterType extends Type {
+/*package*/ final class ParameterType extends DefaultSubtypeOfValue {
 	private final String fName;
 	private final Type fBound;
 
@@ -59,8 +61,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		}
 
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-		    return tf().parameterType(randomLabel(rnd));
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+		    if (rnd.isWithTypeParameters()) {
+		        return tf().parameterType(randomLabel(rnd));
+		    }
+		    
+		    return next.get();
 		}
 		
 		@Override
@@ -81,7 +87,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		return new Info();
 	}
 
-
+	@Override
+	public Type getTypeParameters() {
+	    return getBound().getTypeParameters();
+	}
+	
 	@Override
 	public Type getBound() {
 		return fBound;
@@ -135,37 +145,169 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		return visitor.visitParameter(this);
 	}
 
+	/**
+     * Read this as "could be instantiated as a super-type of"
+     */
 	@Override
 	protected boolean isSupertypeOf(Type type) {
-		return type.isSubtypeOfParameter(this);
+	    if (type == this) {
+	        // here we assume hygenic type parameter binding
+	        return true;
+	    }
+	    
+	    // if the type parameter is totally free,
+	    // it is bound by `value` only, then it can
+	    // be a supertype of anything. This is also
+	    // a stop condition for an infinite recursion.
+	    if (getBound().isTop()) {
+	        return true;
+	    }
+	    
+	    // otherwise, the instantiated type goes no higher than the
+	    // bound, so if the bound is not a supertype,
+	    // then the parameter can't be either:
+	    return getBound().isSupertypeOf(type);
 	}
 
+	@Override
+	protected boolean isSubtypeOfAbstractData(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+
+	/**
+	 * @return true iff this parameter type when instantiated could
+	 * be a sub-type of the given type.
+	 */
+    private boolean couldBeSubtypeOf(Type type) {
+        // the only way that this is impossible if is the compared type
+        // is not comparable to the bound
+        return getBound().comparable(type);
+    }
+	
+	@Override
+	protected boolean isSubtypeOfBool(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfConstructor(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfDateTime(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfExternal(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfInteger(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfList(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfListRelation(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfMap(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfNode(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfNumber(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfParameter(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfRational(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfReal(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfRelation(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfSet(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfSourceLocation(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfString(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfTuple(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfValue(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfVoid(Type type) {
+	    return couldBeSubtypeOf(type);
+	}
+	
 	@Override
 	public Type lub(Type type) {
-		return type.glbWithParameter(this);
+	    if (type == this) {
+	        return this;
+	    }
+	    
+	    if (type.isSubtypeOf(getBound())) {
+            return this;
+        }
+        
+	    return getBound().lub(type);
 	}
-
+	
 	@Override
 	public Type glb(Type type) {
-		return type.glbWithParameter(this);
-	}
-
-	@Override
-	protected Type lubWithParameter(Type type) {
-		if (type == this) {
-			return this;
-		}
-
-		return getBound().lub(type.getBound());
-	}
-
-	@Override
-	protected Type glbWithParameter(Type type) {
-		if (type == this) {
-			return this;
-		}
-
-		return getBound().glb(type.getBound());
+	    if (type == this) {
+	        return this;
+	    }
+	    
+	    if (type.isSupertypeOf(getBound())) {
+	        return this;
+	    }
+	    
+	    return getBound().glb(type);
 	}
 
 	@Override
@@ -176,6 +318,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		}
 
 		Type earlier = bindings.get(this);
+		
 		if (earlier != null) {
 			Type lub = earlier.lub(matched);
 			if (!lub.isSubtypeOf(getBound())) {
@@ -183,9 +326,14 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 			}
 
 			bindings.put(this, lub);
+			
+			// propagate what we've learned about this parametertype
+			// to possible open type parameters in its bound
+			getBound().match(matched, bindings);
 		}
 		else {
 			bindings.put(this, matched);
+			getBound().match(matched, bindings);
 		}
 
 		return true;
@@ -194,199 +342,20 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
 		Type result = bindings.get(this);
-		return result != null ? result : this;
-	}
 
-	@Override
-	protected boolean isSubtypeOfReal(Type type) {
-		return getBound().isSubtypeOfReal(type);
+		if (result != null && result != this) {
+		    try {
+		        return result.instantiate(bindings);
+		    }
+		    catch (StackOverflowError e) {
+		        assert false : "type bindings are not hygenic: cyclic parameter binding leads to infinite recursion";
+		        return result;
+		    }
+		}
+		else {
+		    return TypeFactory.getInstance().parameterType(fName, getBound().instantiate(bindings));
+		}
 	}
-
-	@Override
-	protected boolean isSubtypeOfInteger(Type type) {
-		return getBound().isSubtypeOfInteger(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfRational(Type type) {
-		return getBound().isSubtypeOfRational(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfList(Type type) {
-		return getBound().isSubtypeOfList(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfMap(Type type) {
-		return getBound().isSubtypeOfMap(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfNumber(Type type) {
-		return getBound().isSubtypeOfNumber(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfRelation(Type type) {
-		return getBound().isSubtypeOfRelation(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfListRelation(Type type) {
-		return getBound().isSubtypeOfListRelation(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfSet(Type type) {
-		return getBound().isSubtypeOfSet(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfSourceLocation(Type type) {
-		return getBound().isSubtypeOfSourceLocation(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfString(Type type) {
-		return getBound().isSubtypeOfString(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfNode(Type type) {
-		return getBound().isSubtypeOfNode(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfConstructor(Type type) {
-		return getBound().isSubtypeOfConstructor(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfAbstractData(Type type) {
-		return getBound().isSubtypeOfAbstractData(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfTuple(Type type) {
-		return getBound().isSubtypeOfTuple(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfValue(Type type) {
-		return getBound().isSubtypeOfValue(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfVoid(Type type) {
-		return getBound().isSubtypeOfVoid(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfBool(Type type) {
-		return getBound().isSubtypeOfBool(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfExternal(Type type) {
-		return getBound().isSubtypeOfExternal(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfDateTime(Type type) {
-		return getBound().isSubtypeOfDateTime(type);
-	}
-
-	@Override
-	protected Type lubWithReal(Type type) {
-		return getBound().lubWithReal(type);
-	}
-
-	@Override
-	protected Type lubWithInteger(Type type) {
-		return getBound().lubWithInteger(type);
-	}
-
-	@Override
-	protected Type lubWithRational(Type type) {
-		return getBound().lubWithRational(type);
-	}
-
-	@Override
-	protected Type lubWithList(Type type) {
-		return getBound().lubWithList(type);
-	}
-
-	@Override
-	protected Type lubWithMap(Type type) {
-		return getBound().lubWithMap(type);
-	}
-
-	@Override
-	protected Type lubWithNumber(Type type) {
-		return getBound().lubWithNumber(type);
-	}
-
-	@Override
-	protected Type lubWithSet(Type type) {
-		return getBound().lubWithSet(type);
-	}
-
-	@Override
-	protected Type lubWithSourceLocation(Type type) {
-		return getBound().lubWithSourceLocation(type);
-	}
-
-	@Override
-	protected Type lubWithString(Type type) {
-		return getBound().lubWithString(type);
-	}
-
-	@Override
-	protected Type lubWithNode(Type type) {
-		return getBound().lubWithNode(type);
-	}
-
-	@Override
-	protected Type lubWithConstructor(Type type) {
-		return getBound().lubWithConstructor(type);
-	}
-
-	@Override
-	protected Type lubWithAbstractData(Type type) {
-		return getBound().lubWithAbstractData(type);
-	}
-
-	@Override
-	protected Type lubWithTuple(Type type) {
-		return getBound().lubWithTuple(type);
-	}
-
-	@Override
-	protected Type lubWithValue(Type type) {
-		return getBound().lubWithValue(type);
-	}
-
-	@Override
-	protected Type lubWithVoid(Type type) {
-		return getBound().lubWithVoid(type);
-	}
-
-	@Override
-	protected Type lubWithBool(Type type) {
-		return getBound().lubWithBool(type);
-	}
-
-	@Override
-	protected Type lubWithExternal(Type type) {
-		return getBound().lubWithExternal(type);
-	}
-
-	@Override
-	protected Type lubWithDateTime(Type type) {
-		return getBound().lubWithDateTime(type);
-	}
-
 
 	@Override
 	public boolean isOpen() {
@@ -394,92 +363,25 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
-	protected Type glbWithReal(Type type) {
-		return getBound().glbWithReal(type);
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    IValue val = getBound().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+	    
+	    inferBinding(typeParameters, val);
+	    
+	    return val;
 	}
 
-	@Override
-	protected Type glbWithInteger(Type type) {
-		return getBound().glbWithInteger(type);
-	}
-
-	@Override
-	protected Type glbWithRational(Type type) {
-		return getBound().glbWithRational(type);
-	}
-
-	@Override
-	protected Type glbWithList(Type type) {
-		return getBound().glbWithList(type);
-	}
-
-	@Override
-	protected Type glbWithMap(Type type) {
-		return getBound().glbWithMap(type);
-	}
-
-	@Override
-	protected Type glbWithNumber(Type type) {
-		return getBound().glbWithNumber(type);
-	}
-
-	@Override
-	protected Type glbWithSet(Type type) {
-		return getBound().glbWithSet(type);
-	}
-
-	@Override
-	protected Type glbWithSourceLocation(Type type) {
-		return getBound().glbWithSourceLocation(type);
-	}
-
-	@Override
-	protected Type glbWithString(Type type) {
-		return getBound().glbWithString(type);
-	}
-
-	@Override
-	protected Type glbWithNode(Type type) {
-		return getBound().glbWithNode(type);
-	}
-
-	@Override
-	protected Type glbWithConstructor(Type type) {
-		return getBound().glbWithConstructor(type);
-	}
-
-	@Override
-	protected Type glbWithAbstractData(Type type) {
-		return getBound().glbWithAbstractData(type);
-	}
-
-	@Override
-	protected Type glbWithTuple(Type type) {
-		return getBound().glbWithTuple(type);
-	}
-
-	@Override
-	protected Type glbWithValue(Type type) {
-		return getBound().glbWithValue(type);
-	}
-
-	@Override
-	protected Type glbWithVoid(Type type) {
-		return getBound().glbWithVoid(type);
-	}
-
-	@Override
-	protected Type glbWithBool(Type type) {
-		return getBound().glbWithBool(type);
-	}
-
-	@Override
-	protected Type glbWithExternal(Type type) {
-		return getBound().glbWithExternal(type);
-	}
-
-	@Override
-	protected Type glbWithDateTime(Type type) {
-		return getBound().glbWithDateTime(type);
-	}
+    private void inferBinding(Map<Type, Type> typeParameters, IValue val) {
+        Type tv = typeParameters.get(this);
+	    
+	    if (tv != null) {
+	        tv = tv.lub(val.getType());
+	    }
+	    else {
+	        tv = val.getType();
+	    }
+	    
+	    typeParameters.put(this, tv);
+    }
 }

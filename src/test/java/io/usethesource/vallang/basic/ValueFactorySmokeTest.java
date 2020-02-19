@@ -65,7 +65,7 @@ public final class ValueFactorySmokeTest {
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRealZeroDotFromString(IValueFactory vf) {
-    assertTrue(vf.real("0.").isEqual(vf.real("0")));
+    assertTrue(vf.real("0.").equals(vf.real("0")));
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)

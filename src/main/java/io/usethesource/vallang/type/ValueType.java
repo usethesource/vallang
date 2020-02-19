@@ -12,6 +12,7 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -20,6 +21,9 @@ import java.util.function.Supplier;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /* package */class ValueType extends Type {
 	
@@ -44,7 +48,7 @@ import io.usethesource.vallang.IConstructor;
 		}
 		
 		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
 		    return tf().valueType();
 		}
 	}
@@ -88,6 +92,11 @@ import io.usethesource.vallang.IConstructor;
 		return type.glbWithValue(this);
 	}
 
+	@Override
+	public boolean isTop() {
+	    return true;
+	}
+	
 	@Override
 	protected boolean isSupertypeOf(Type type) {
 		return type.isSubtypeOfValue(this);
@@ -341,5 +350,18 @@ import io.usethesource.vallang.IConstructor;
 
 	protected Type glbWithDateTime(Type type) {
 		return type;
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	        int maxDepth, int maxWidth) {
+	    Type type;
+	    RandomTypesConfig cfg = RandomTypesConfig.defaultConfig(random).maxDepth(maxDepth).withoutRandomAbstractDatatypes();
+	    
+	    do {
+            type = TypeFactory.getInstance().randomType(store, cfg);
+	    } while (type.isBottom());
+	    
+        return type.randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
 	}
 }

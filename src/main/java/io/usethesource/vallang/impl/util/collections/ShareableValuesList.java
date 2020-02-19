@@ -38,7 +38,9 @@ public class ShareableValuesList extends ShareableList<IValue> {
 		Iterator<IValue> valuesIterator = iterator();
 		while(valuesIterator.hasNext()){
 			IValue next = valuesIterator.next();
-			if(next.isEqual(value)) return true;
+			if(next.equals(value)) {
+			    return true;
+			}
 		}
 		
 		return false;
@@ -47,9 +49,11 @@ public class ShareableValuesList extends ShareableList<IValue> {
 	public boolean remove(IValue value){
 		int index = 0;
 		Iterator<IValue> valuesIterator = iterator();
-		while(valuesIterator.hasNext()){
+		while (valuesIterator.hasNext()){
 			IValue next = valuesIterator.next();
-			if(next.isEqual(value)) break;
+			if (next.equals(value)) {
+			    break;
+			}
 			
 			index++;
 		}
