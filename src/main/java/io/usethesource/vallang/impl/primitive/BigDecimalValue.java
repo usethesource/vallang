@@ -159,8 +159,6 @@ import io.usethesource.vallang.type.TypeFactory;
 	
 	@Override
 	public IReal multiply(IReal other){
-		//int precision = Math.min(Math.max(value.precision(), other.precision()), BaseValueFactory.PRECISION);
-		//MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return BigDecimalValue.newReal(value.multiply(((BigDecimalValue) other).value));
 	}
 	
