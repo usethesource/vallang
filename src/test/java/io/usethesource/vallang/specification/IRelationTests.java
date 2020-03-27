@@ -13,6 +13,7 @@ import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -63,5 +64,29 @@ public class IRelationTests {
             ISet column = src.asRelation().project(i);
             assertTrue(column.isSubsetOf(carrier));
         }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void equalsIsKeyLocs(IValueFactory vf, @ExpectedType("rel[loc,loc]") ISet m, ISourceLocation key1, ISourceLocation key2) {
+        IValue value = key1;
+        ITuple key1Tuple = vf.tuple(key1, value);
+        ISet m2 = m.insert(key1Tuple);
+        
+        if (key1.equals(key2)) {
+            assertTrue(m2.asRelation().index(key2).contains(value));
+        } else {
+            ITuple key2Tuple = vf.tuple(key2, value);
+            
+            if (!m.asRelation().domain().contains(key2)) {
+                assertEquals(m2.size() + 1, m2.insert(key2Tuple).size());
+            }
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void equalsIsKeyLocFailure(IValueFactory vf, @GivenValue("{<|CwRj:///28030|,|KYs:///xr197/75|>,<|R:///|,|IkdM:///35/IR/72852/SYGC/C17|>,<|IhL:///dim/74/8b/65/xQgoC/0Rm#1|,|Q://45511U|>,<|Joq:///df/hh|,|dr:///u97|>}") ISet m,
+                                                        @GivenValue("|oWxyV:///29/956|") ISourceLocation key1,
+                                                        @GivenValue("|R:///|") ISourceLocation key2) {
+        equalsIsKeyLocs(vf, m, key1, key2);                                      
     }
 }

@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
@@ -50,6 +51,39 @@ public class IMapTests {
         }
     }
     
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void equalsIsKey(@ExpectedType("map[value,value]") IMap m, IValue key1, IValue key2) {
+        IValue value = key1;
+        IMap m2 = m.put(key1, value);
+        
+        if (key1.equals(key2)) {
+            assertEquals(m2.get(key2), value);
+        }
+        else if (!m.containsKey(key2)) {
+            assertEquals(m2.size() + 1, m2.put(key2, value).size());
+        }
+        else {
+            assertEquals(m2.size(), m2.put(key2, value).size());
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void equalsIsKeyLocs(@ExpectedType("map[loc,loc]") IMap m, ISourceLocation key1, ISourceLocation key2) {
+        IValue value = key1;
+        IMap m2 = m.put(key1, value);
+        
+        if (key1.equals(key2)) {
+            assertEquals(m2.get(key2), value);
+        }
+        else if (!m.containsKey(key2)) {
+            assertEquals(m2.size() + 1, m2.put(key2, value).size());
+        }
+        else {
+            assertEquals(m2.size(), m2.put(key2, value).size());
+        }
+    }
+
+   
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void lubInvariantAfterRemoveKeyLoc(TypeFactory tf, @ExpectedType("map[loc,loc]") IMap m) {
         for (IValue key : m) {
