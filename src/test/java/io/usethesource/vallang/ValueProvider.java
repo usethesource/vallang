@@ -292,6 +292,9 @@ public class ValueProvider implements ArgumentsProvider {
         else if (IValue.class.isAssignableFrom(cls)) {
             return generateValue(vf, ts, cls.asSubclass(IValue.class), expected, depth, width);
         }
+        else if (Random.class.isAssignableFrom(cls)) {
+            return rnd;
+        }
         else {
             throw new IllegalArgumentException(cls + " is not assignable from IValue, IValueFactory, TypeStore or TypeFactory");
         }

@@ -51,6 +51,14 @@ public class IMapTests {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void lubInvariantAfterRemoveKeyLoc(TypeFactory tf, @ExpectedType("map[loc,loc]") IMap m) {
+        for (IValue key : m) {
+            m = m.removeKey(key);
+            lubInvariant(tf, m);
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void mapIsVoidAfterAllRemoved(TypeFactory tf, IMap m) {
         IMap copy = m;
         for (IValue key : m) {

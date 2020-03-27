@@ -49,6 +49,11 @@ public class IRelationTests {
         assertEquals(src.asRelation().closure().intersect(src), src);
     }
     
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void transClosureLocs(@ExpectedType("rel[loc,loc]") ISet src) {
+        assertEquals(src.asRelation().closure().intersect(src), src);
+    }
+    
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void carrierForTriples(@ExpectedType("rel[int,int,int]") ISet src) {
