@@ -146,7 +146,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                 }
             }
 
-            if (oneEvery(random, 30) && maxDepth > 0) {
+            if (oneEvery(random, 5) && maxDepth > 0) {
                 fragment = RandomUtil.stringAlphaNumeric(random, 1 + random.nextInt(5));
             }
 
