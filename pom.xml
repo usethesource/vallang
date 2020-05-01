@@ -39,7 +39,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 
-		<checkerframework.version>2.9.0</checkerframework.version>
+		<checkerframework.version>3.3.0</checkerframework.version>
 	</properties>
 
 	<build>
