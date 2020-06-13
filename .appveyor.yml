@@ -16,7 +16,7 @@ install:
   - java -version
 
 build_script:
-  - mvn clean compile -DskipTests
-
+  - mvn clean compile -DskipTests -P checker-framework
+ 
 test_script:
   - mvn test
