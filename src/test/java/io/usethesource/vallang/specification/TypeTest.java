@@ -461,8 +461,8 @@ public class TypeTest {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void mapTypesAlwaysIntersect(TypeFactory tf, Type t, Type u, Type v, Type w) {
-        assertTrue(tf.mapType(t, u).intersects(tf.mapType(v, w)));
+    public void mapTypesAlwaysIntersect(TypeFactory tf, Type t, Type u) {
+        assertTrue(tf.mapType(t, u).intersects(tf.mapType(u, t)));
     }
    
 }
