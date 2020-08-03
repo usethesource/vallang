@@ -58,6 +58,11 @@ public abstract class ExternalType extends DefaultSubtypeOfValue {
 	}
 	
 	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithExternal(this);
+	}
+	
+	@Override
 	protected /*final*/ boolean isSupertypeOf(Type type) {
 	  return type.isSubtypeOfExternal(this);
 	}
