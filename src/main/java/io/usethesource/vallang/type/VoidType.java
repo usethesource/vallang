@@ -116,11 +116,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    protected boolean isSubtypeOfListRelation(Type type) {
-        return true;
-    }
-
-    @Override
     protected boolean isSubtypeOfMap(Type type) {
         return true;
     }
@@ -142,11 +137,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected boolean isSubtypeOfReal(Type type) {
-        return true;
-    }
-
-    @Override
-    protected boolean isSubtypeOfRelation(Type type) {
         return true;
     }
 
@@ -436,6 +426,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
+    public boolean intersects(Type other) {
+        // void is the empty type so its intersections are always empty
+        return false;
+    }
+    
+    @Override
     protected Type glbWithReal(Type type) {
         return this;
     }
@@ -534,5 +530,90 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     @Override
     public boolean isBottom() {
         return true;
+    }
+
+    @Override
+    protected boolean intersectsWithReal(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithInteger(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithRational(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithList(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithMap(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithNumber(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithSet(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithSourceLocation(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithString(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithNode(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithConstructor(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithAbstractData(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithTuple(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithValue(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithVoid(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithBool(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithDateTime(Type type) {
+        return false;
     }
 }

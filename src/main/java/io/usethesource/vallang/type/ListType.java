@@ -240,6 +240,17 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithList(this);
+	}
+	
+	@Override
+	protected boolean intersectsWithList(Type type) {
+	    // there is always the empty list!
+	    return true;
+	}
+	
+	@Override
 	protected boolean isSupertypeOf(Type type) {
 		return type.isSubtypeOfList(this);
 	}

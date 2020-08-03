@@ -321,6 +321,28 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     public Type glb(Type type) {
         return type.glbWithTuple(this);
     }
+    
+    @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithTuple(this);
+    }
+    
+    @Override
+    protected boolean intersectsWithTuple(Type type) {
+        int N = this.getArity();
+        
+        if (N != type.getArity()) {
+            return false;
+        }
+        
+        for (int i = 0; i < N; i++) {
+            if (!this.getFieldType(i).intersects(type.getFieldType(i))) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
 
     @Override
     protected boolean isSubtypeOfTuple(Type type) {

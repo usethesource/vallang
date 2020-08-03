@@ -145,6 +145,15 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		return visitor.visitParameter(this);
 	}
 
+	@Override
+	public boolean intersects(Type other) {
+	    if (other == this) {
+	        return true;
+	    }
+	    
+        return getBound().intersects(other);
+	}
+	
 	/**
      * Read this as "could be instantiated as a super-type of"
      */
@@ -215,11 +224,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 	
 	@Override
-	protected boolean isSubtypeOfListRelation(Type type) {
-	    return couldBeSubtypeOf(type);
-	}
-	
-	@Override
 	protected boolean isSubtypeOfMap(Type type) {
 	    return couldBeSubtypeOf(type);
 	}
@@ -246,11 +250,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	
 	@Override
 	protected boolean isSubtypeOfReal(Type type) {
-	    return couldBeSubtypeOf(type);
-	}
-	
-	@Override
-	protected boolean isSubtypeOfRelation(Type type) {
 	    return couldBeSubtypeOf(type);
 	}
 	

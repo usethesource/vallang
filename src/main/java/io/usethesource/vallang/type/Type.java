@@ -359,10 +359,30 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
 
   /**
-   * @return the least upper bound type of the receiver and the argument type
+   * Returns the smallest non-strict supertype of two types, which contains all values of 
+   * the receiver as well as the argument type. Lub can be seen as `type union`, but
+   * not all unions have a representation in the type lattice; so the smallest set which
+   * contains the whole union must be returned (which does have a representation).
+   * 
+   * Consider for example `int.lub(str)`; the smallest union that contains both in 
+   * the vallang type lattica is `value`, even though we by-catch all other values now
+   * as well. Other lubs are more tight: `tuple[int,num].lub(tuple[num,int]])` is
+   * `tuple[num,num]`.
+   * 
+   * @return the least upper bound type of the receiver and the argument type.
    */
   public abstract Type lub(Type type);
 
+  /**
+   * Returns the largest non-strict sub-type of two types which contains the intersection
+   * of both types. Glb is the dual of `lub`. Glb can be seen as "type intersection", but
+   * not all intersections have a representation in the vallang type lattice; so the largest
+   * set which contains the intersection must be returned (which does have a representation)
+   * 
+   * The glb is commonly `void` for non-comparable types, say for example
+   * @param type
+   * @return
+   */
   public abstract Type glb(Type type);
   
   /**
@@ -493,7 +513,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
 
   /**
-   * Compute whether this type is a subtype of the other or vice versa
+   * Compute whether this type is a subtype of the other or vice versa.
    * 
    * @param other
    *          type to compare to
@@ -502,6 +522,28 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public final boolean comparable(Type other) {
     return (other == this) || isSubtypeOf(other) || other.isSubtypeOf(this);
   }
+  
+  /**
+   * Compute whether these types have a non-empty intersection.
+   * 
+   * All types which are `comparable` have a non-empty intersection,
+   * but there are some more. For example `tuple[int, value]` and 
+   * `tuple[value,int]` intersect at `tuple[int, int]`.
+   * 
+   * If the `glb` of two types is not `void` then they have a non-empty 
+   * intersection.
+   * 
+   * Another example is `lrel[int, int]` and `list[tuple[int,int]]`;
+   * their `glb` is `list[void]` and its only element is `[]` 
+   * -the empty list- so indeed their intersection is non-empty.
+   * 
+   * Another way of explaining `t.intersects(u)` is as a fast check of: 
+   * `t.glb(u) != void` without memory allocation.  
+   * 
+   * @param other type to intersect with.
+   * @return true iff these two types share values.
+   */
+  public abstract boolean intersects(Type other);
 
   /**
    * Computer whether this type is equivalent to another.
@@ -511,7 +553,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return true if the two types are sub-types of each-other;
    */
   public final boolean equivalent(Type other) {
-    return (other == this) || (isSubtypeOf(other) && other.isSubtypeOf(this));
+     return (other == this) || (isSubtypeOf(other) && other.isSubtypeOf(this));
   }
 
   /**
@@ -588,8 +630,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected boolean isSubtypeOfList(Type type);
   abstract protected boolean isSubtypeOfMap(Type type);
   abstract protected boolean isSubtypeOfNumber(Type type);
-  abstract protected boolean isSubtypeOfRelation(Type type);
-  abstract protected boolean isSubtypeOfListRelation(Type type);
   abstract protected boolean isSubtypeOfSet(Type type);
   abstract protected boolean isSubtypeOfSourceLocation(Type type);
   abstract protected boolean isSubtypeOfString(Type type);
@@ -602,6 +642,28 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected boolean isSubtypeOfBool(Type type);
   abstract protected boolean isSubtypeOfExternal(Type type);
   abstract protected boolean isSubtypeOfDateTime(Type type);
+  
+  abstract protected boolean intersectsWithReal(Type type);
+  abstract protected boolean intersectsWithInteger(Type type);
+  abstract protected boolean intersectsWithRational(Type type);
+  abstract protected boolean intersectsWithList(Type type);
+  abstract protected boolean intersectsWithMap(Type type);
+  abstract protected boolean intersectsWithNumber(Type type);
+  abstract protected boolean intersectsWithSet(Type type);
+  abstract protected boolean intersectsWithSourceLocation(Type type);
+  abstract protected boolean intersectsWithString(Type type);
+  abstract protected boolean intersectsWithNode(Type type);
+  abstract protected boolean intersectsWithConstructor(Type type);
+  abstract protected boolean intersectsWithAbstractData(Type type);
+  abstract protected boolean intersectsWithTuple(Type type);
+  abstract protected boolean intersectsWithValue(Type type);
+  abstract protected boolean intersectsWithVoid(Type type);
+  abstract protected boolean intersectsWithBool(Type type);
+  protected boolean intersectsWithExternal(Type type) {
+      // delegate to the external type always
+      return type.intersects(this);
+  }
+  abstract protected boolean intersectsWithDateTime(Type type);
   
   protected Type lubWithAlias(Type type) {
     return lub(type.getAliased());
@@ -676,7 +738,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     // the external type should be the receiver
     return glb(type);
   }
-  
+
   /**
    * Generate a random value which is guaranteed to have a type that is
    * a (non-strict) sub-type of the receiver.

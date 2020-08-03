@@ -146,7 +146,17 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	protected boolean isSubtypeOfDateTime(Type type) {
 		return true;
 	}
+	
+	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithDateTime(this);
+	}
 
+	@Override
+	protected boolean intersectsWithDateTime(Type type) {
+	    return true;
+	}
+	
 	@Override
 	protected Type lubWithDateTime(Type type) {
 		return this;

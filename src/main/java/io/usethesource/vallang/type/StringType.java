@@ -98,6 +98,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
     
     @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithString(this);
+    }
+    
+    @Override
+    protected boolean intersectsWithString(Type type) {
+        return true;
+    }
+    
+    @Override
     protected boolean isSubtypeOfString(Type type) {
       return true;
     }

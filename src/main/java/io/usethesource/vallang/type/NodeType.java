@@ -94,6 +94,26 @@ class NodeType extends DefaultSubtypeOfValue {
 	}
 
 	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithNode(this);
+	}
+	
+	@Override
+	protected boolean intersectsWithNode(Type type) {
+	    return true;
+	}
+	
+	@Override
+	protected boolean intersectsWithAbstractData(Type type) {
+	    return true;
+	}
+	
+	@Override
+	protected boolean intersectsWithConstructor(Type type) {
+	    return true;
+	}
+	
+	@Override
 	protected boolean isSubtypeOfNode(Type type) {
 		return true;
 	}

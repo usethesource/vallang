@@ -112,6 +112,26 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     protected Type lubWithInteger(Type type) {
       return this;
     }
+
+    @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithInteger(this);
+    }
+    
+    @Override
+    protected boolean intersectsWithInteger(Type type) {
+        return true;
+    }
+    
+    @Override
+    protected boolean intersectsWithRational(Type type) {
+        return false;
+    }
+    
+    @Override
+    protected boolean intersectsWithReal(Type type) {
+        return false;
+    }
     
     @Override
     protected Type glbWithReal(Type type) {

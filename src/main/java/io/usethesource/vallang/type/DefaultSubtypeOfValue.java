@@ -19,6 +19,84 @@ package io.usethesource.vallang.type;
         return false;
     }
     
+    @Override
+    public abstract boolean intersects(Type other);
+    
+    protected boolean intersectsWithValue(Type type) {
+        // everything intersects with value
+        return true;
+    }
+
+    protected boolean intersectsWithReal(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithInteger(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithRational(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithList(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithMap(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithNumber(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithRelation(Type type) {
+        return false;
+    }
+
+
+    protected boolean intersectsWithSet(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithSourceLocation(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithString(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithNode(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithConstructor(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithAbstractData(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithTuple(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithVoid(Type type) {
+        // the intersection of void, even with itself is empty.
+        return false;
+    }
+
+    protected boolean intersectsWithBool(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithDateTime(Type type) {
+        return false;
+    }
+    
 	@Override 
 	public abstract Type glb(Type type);
 

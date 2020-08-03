@@ -400,4 +400,69 @@ public class TypeTest {
         assertTrue(ft.valueType().isSubtypeOf(alias));
     }
     
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void allComparableTypesIntersect(Type t, Type u) {
+        if (!t.isBottom() && !u.isBottom() && t.comparable(u)) {
+            if (!t.intersects(u)) {
+                fail("comparable types should also intersect: " + t + ", " + u);
+            }
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void intersectionIsCommutative(Type t, Type u) {
+        if (t.intersects(u)) {
+            if (!u.intersects(t)) {
+                fail("intersection should be commutative: " + t + "," + u);
+            }
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void intersectionIsReflexive(Type t) {
+        if (!t.isBottom() && !t.intersects(t)) {
+            fail("intersection should be reflexive: " + t);
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void nothingIntersectsVoid(TypeFactory tf, Type t) {
+        if (t.intersects(tf.voidType())) {
+            fail("intersect with void?");
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void everythingIntersectsValue(TypeFactory tf, Type t) {
+        if (!t.isBottom() && !t.intersects(tf.valueType())) {
+            fail("does not intersect with value?");
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void intersectionIsNonVoidGreatestLowerBound(Type t, Type u) {
+        // t /\ u != {} <==> glb(t, u) != void
+        
+        if (t.intersects(u)) {
+            if(t.glb(u).isBottom()) {
+                fail("glb should not be bottom for intersecting types:" + t + ", " + u + ": glb is " + t.glb(u));
+            }
+        }
+        
+        if (!t.glb(u).isBottom()) {
+            assertTrue(t.intersects(u));
+        }
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void collectionTypesAlwaysIntersect(TypeFactory tf, Type t, Type u) {
+        assertTrue(tf.setType(t).intersects(tf.setType(u)));
+        assertTrue(tf.listType(t).intersects(tf.listType(u)));
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void mapTypesAlwaysIntersect(TypeFactory tf, Type t, Type u, Type v, Type w) {
+        assertTrue(tf.mapType(t, u).intersects(tf.mapType(v, w)));
+    }
+   
 }

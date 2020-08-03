@@ -374,16 +374,6 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	}
 
 	@Override
-	protected boolean isSubtypeOfRelation(Type type) {
-		return fAliased.isSubtypeOfRelation(type);
-	}
-
-	@Override
-	protected boolean isSubtypeOfListRelation(Type type) {
-		return fAliased.isSubtypeOfListRelation(type);
-	}
-
-	@Override
 	protected boolean isSubtypeOfSet(Type type) {
 		return fAliased.isSubtypeOfSet(type);
 	}
@@ -645,4 +635,100 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	        int maxDepth, int maxBreadth) {
 	    return getAliased().randomValue(random, vf, store, typeParameters, maxDepth, maxBreadth);
 	}
+
+    @Override
+    public boolean intersects(Type other) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithReal(Type type) {
+        return fAliased.intersectsWithReal(type);
+    }
+
+    @Override
+    protected boolean intersectsWithInteger(Type type) {
+        return fAliased.intersectsWithInteger(type);
+    }
+
+    @Override
+    protected boolean intersectsWithRational(Type type) {
+        return fAliased.intersectsWithRational(type);
+    }
+
+    @Override
+    protected boolean intersectsWithList(Type type) {
+        return fAliased.intersectsWithList(type);
+    }
+
+    @Override
+    protected boolean intersectsWithMap(Type type) {
+        return fAliased.intersectsWithMap(type);
+    }
+
+    @Override
+    protected boolean intersectsWithNumber(Type type) {
+        return fAliased.intersectsWithNumber(type);
+    }
+
+    @Override
+    protected boolean intersectsWithSet(Type type) {
+        return fAliased.intersectsWithSet(type);
+    }
+
+    @Override
+    protected boolean intersectsWithSourceLocation(Type type) {
+        return fAliased.intersectsWithSourceLocation(type);
+    }
+
+    @Override
+    protected boolean intersectsWithString(Type type) {
+        return fAliased.intersectsWithString(type);
+    }
+
+    @Override
+    protected boolean intersectsWithNode(Type type) {
+        return fAliased.intersectsWithNode(type);
+    }
+
+    @Override
+    protected boolean intersectsWithConstructor(Type type) {
+        return fAliased.intersectsWithConstructor(type);
+    }
+
+    @Override
+    protected boolean intersectsWithAbstractData(Type type) {
+        return fAliased.intersectsWithAbstractData(type);
+    }
+
+    @Override
+    protected boolean intersectsWithTuple(Type type) {
+        return fAliased.intersectsWithTuple(type);
+    }
+
+    @Override
+    protected boolean intersectsWithValue(Type type) {
+        return fAliased.intersectsWithValue(type);
+    }
+
+    @Override
+    protected boolean intersectsWithVoid(Type type) {
+       return fAliased.intersectsWithVoid(type);
+    }
+
+    @Override
+    protected boolean intersectsWithBool(Type type) {
+        return fAliased.intersectsWithBool(type);
+    }
+
+    @Override
+    protected boolean intersectsWithExternal(Type type) {
+        return fAliased.intersectsWithExternal(type);
+    }
+
+    @Override
+    protected boolean intersectsWithDateTime(Type type) {
+        return fAliased.intersectsWithDateTime(type);
+    }
 }

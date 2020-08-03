@@ -199,6 +199,24 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
     public Type glb(Type type) {
         return type.glbWithAbstractData(this);
     }
+    
+    @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithAbstractData(this);
+    }
+    
+    @Override
+    protected boolean intersectsWithAbstractData(Type type) {
+        if (!isParameterized()) {
+            return type == this;
+        }
+        
+        if (type.getName().equals(this.getName())) {
+            return getTypeParameters().intersects(type.getTypeParameters());
+        }
+        
+        return false;
+    }
 
     @Override
     protected boolean isSubtypeOfNode(Type type) {

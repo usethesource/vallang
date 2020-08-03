@@ -81,6 +81,33 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	}
 
 	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithNumber(this);
+	}
+	
+	
+	@Override
+	protected boolean intersectsWithNumber(Type type) {
+	    return true;
+	}
+
+	@Override
+	protected boolean intersectsWithInteger(Type type) {
+	    return true;
+	}
+	
+	@Override
+	protected boolean intersectsWithRational(Type type) {
+	    return true;
+	}
+	
+	@Override
+	protected boolean intersectsWithReal(Type type) {
+	    return true;
+	}
+
+    
+	@Override
 	protected Type lubWithNumber(Type type) {
 		return type;
 	}

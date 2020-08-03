@@ -88,6 +88,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	}
 
 	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithBool(this);
+	}
+	
+	@Override
 	protected boolean isSupertypeOf(Type type) {
 		return type.isSubtypeOfBool(this);
 	}
@@ -102,6 +107,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		return true;
 	}
 
+	
 	@Override
 	protected Type lubWithBool(Type type) {
 		return this;
@@ -110,6 +116,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	@Override
 	public Type glb(Type type) {
 		return type.glbWithBool(this);
+	}
+	
+
+	@Override
+	protected boolean intersectsWithBool(Type type) {
+	    return true;
 	}
 
 	@Override

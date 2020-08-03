@@ -260,6 +260,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	}
 
 	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithSet(this);
+	}
+	
+	@Override
+	protected boolean intersectsWithSet(Type type) {
+	    // there is always the empty set
+	    return true;
+	}
+	
+	@Override
 	protected Type lubWithSet(Type type) {
 		return TF.setType(fEltType.lub(type.getElementType()));
 	}

@@ -101,6 +101,26 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 	}
 
 	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithReal(this);
+	}
+	
+	@Override
+	protected boolean intersectsWithReal(Type type) {
+	  return true;
+	}
+	
+	@Override
+	protected boolean intersectsWithRational(Type type) {
+	    return false;
+	}
+	
+	@Override
+	protected boolean intersectsWithInteger(Type type) {
+	    return false;
+	}
+	
+	@Override
 	public Type glb(Type type) {
 		return type.glbWithReal(this);
 	}

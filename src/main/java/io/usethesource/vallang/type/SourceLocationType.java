@@ -97,6 +97,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
     
     @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithSourceLocation(this);
+    }
+    
+    @Override
+    protected boolean intersectsWithSourceLocation(Type type) {
+        return true;
+    }
+    
+    @Override
     public Type glb(Type type) {
       return type.glbWithSourceLocation(this);
     }

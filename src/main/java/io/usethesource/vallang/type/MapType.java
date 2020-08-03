@@ -187,6 +187,17 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     }
 
     @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithMap(this);
+    }
+    
+    @Override
+    protected boolean intersectsWithMap(Type type) {
+        // there is always the empty map!
+        return true;
+    }
+    
+    @Override
     protected boolean isSupertypeOf(Type type) {
       return type.isSubtypeOfMap(this);
     }

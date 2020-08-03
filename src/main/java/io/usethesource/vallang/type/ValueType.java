@@ -91,6 +91,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	public Type glb(Type type) {
 		return type.glbWithValue(this);
 	}
+	
+	@Override
+	public boolean intersects(Type other) {
+	    return other.intersectsWithValue(this);
+	}
 
 	@Override
 	public boolean isTop() {
@@ -134,16 +139,6 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 	@Override
 	protected boolean isSubtypeOfNumber(Type type) {
-		return false;
-	}
-
-	@Override
-	protected boolean isSubtypeOfRelation(Type type) {
-		return false;
-	}
-
-	@Override
-	protected boolean isSubtypeOfListRelation(Type type) {
 		return false;
 	}
 
@@ -351,6 +346,83 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	protected Type glbWithDateTime(Type type) {
 		return type;
 	}
+	
+	@Override
+    protected boolean intersectsWithValue(Type type) {
+        return true; // such that sub-classes do not have to override
+    }
+
+    protected boolean intersectsWithReal(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithInteger(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithRational(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithList(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithMap(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithNumber(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithRelation(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithListRelation(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithSet(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithSourceLocation(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithString(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithNode(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithConstructor(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithAbstractData(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithTuple(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithVoid(Type type) {
+        return false;
+    }
+
+    protected boolean intersectsWithBool(Type type) {
+        return true;
+    }
+
+    protected boolean intersectsWithDateTime(Type type) {
+        return true;
+    }
 	
 	@Override
 	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
