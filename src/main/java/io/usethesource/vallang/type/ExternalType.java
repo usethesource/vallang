@@ -66,6 +66,9 @@ public abstract class ExternalType extends DefaultSubtypeOfValue {
 	abstract protected Type lubWithExternal(Type type);
 	
 	@Override
+	abstract protected boolean intersectsWithExternal(Type type);
+	
+	@Override
     abstract protected Type glbWithExternal(Type type);
   
 	
