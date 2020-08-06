@@ -634,6 +634,8 @@ public class TypeStore {
 	  if (!onType.isConstructor() && !onType.isAbstractData()) {
 	    throw new IllegalKeywordParameterDeclarationException(onType);
 	  }
+	  
+	  onType = expandAliases(onType);
 
 	  synchronized (fkeywordParameters) {
 	    Map<String, Type> kwParamsForType = fkeywordParameters.get(onType);
@@ -662,6 +664,11 @@ public class TypeStore {
 	// TODO: aliases are right now only expanded in declareConstructor, but this should also be done
 	// in at least declareAlias, declareAnnotation and declareKeywordParameters.
 	
+	@Deprecated
+	/**
+	 * Aliases are deprecated. When we remove this, everything becomes faster.
+	 * @return
+	 */
 	private Type expandAliases(Type type) {
 		return expandAliases1(type, new HashSet<String>());
 	}
@@ -756,7 +763,10 @@ public class TypeStore {
 						AliasType alias = (AliasType) fieldType;
 						fieldType = alias.getAliased();
 					}
-					fieldTypes[i] = fieldType;
+					
+					Type newFieldType = expandAliases1(fieldType, seen);
+					aliasFound |= newFieldType != fieldType;
+					fieldTypes[i] = newFieldType;
 				}
 				
 				if (aliasFound){
@@ -811,6 +821,8 @@ public class TypeStore {
 	    return Collections.<String,Type>emptyMap();
 	  }
 
+	  onType = expandAliases(onType);
+	  
 	  synchronized(fkeywordParameters) {
 	    synchronized (fImports) {
 	      Map<String, Type> result = new HashMap<>();
@@ -894,6 +906,8 @@ public class TypeStore {
         if (!onType.isConstructor()) {
             return false;
         }
+        
+        onType = expandAliases(onType);
 
         synchronized(fkeywordParameters) {
             synchronized (fImports) {
