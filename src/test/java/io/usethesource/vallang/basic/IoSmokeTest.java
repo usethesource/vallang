@@ -12,7 +12,6 @@
 
 package io.usethesource.vallang.basic;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -107,7 +106,7 @@ public class IoSmokeTest extends BooleanStoreProvider {
         StandardTextReader reader = new StandardTextReader();
         IValue s = reader.read(vf, new StringReader(input));
         
-        assertTrue(s.asWithKeywordParameters().getParameter("anno").equals(vf.integer(2)));
+        assertEquals(s.asWithKeywordParameters().getParameter("anno"), vf.integer(2));
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -120,6 +119,6 @@ public class IoSmokeTest extends BooleanStoreProvider {
         StandardTextReader reader = new StandardTextReader();
         IValue s = reader.read(vf, store, A, new StringReader(input));
         
-        assertTrue(s.asWithKeywordParameters().getParameter("anno").equals(vf.integer(2)));
+        assertEquals(s.asWithKeywordParameters().getParameter("anno"), vf.integer(2));
     }
 }
