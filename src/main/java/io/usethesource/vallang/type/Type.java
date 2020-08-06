@@ -575,7 +575,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param matched
    *          a type to matched to the receiver.
    * @throws FactTypeUseException
-   *           when a pattern can not be matches because the matched types do
+   *           when a pattern can not be matched because the matched types do
    *           not fit the bounds of the parameter types, or when a pattern
    *           simply can not be matched because of incompatibility.
    */
