@@ -11,9 +11,11 @@ node {
             sh "mvn clean test"
         }
 
+        /* (a) this takes 15 minutes; (b) they complain about not using Java 11.
         stage ('sonar cloud') {
           sh "mvn -DskipTests sonar:sonar -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.projectKey=usethesource_vallang -Dsonar.organization=usethesource  -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${VALLANG_SONAR_CLOUD}"
         }
+        */
 
         stage('QA') {
             sh "mvn clean compile -P checker-framework"
