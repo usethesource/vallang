@@ -30,6 +30,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
@@ -170,6 +171,15 @@ public class StandardTextReader extends AbstractTextReader {
 
             if (!result.getType().isSubtypeOf(expected)) {
                 throw new UnexpectedTypeException(expected, result.getType());
+            }
+
+            if (current == '[') {
+                if (result.getType().isSubtypeOf(types.nodeType())) {
+                    result = readAnnos(expected, (INode) result);
+                }
+                else {
+                    throw unexpectedException((int) ']');
+                }
             }
 
             return result;
@@ -760,6 +770,60 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             return factory.string(str);
+        }
+
+        @Deprecated
+        /**
+         * The reader still supports the old annotation format for bootstrapping reasons and backward compatibility
+         * (for a while). The annotations are read as annotations but stored as keyword parameters. For the
+         * parse tree type Tree, the `@\loc` annotation is also rewritten to the `.src` keyword field.
+         * 
+         * @param expected
+         * @param result
+         * @return
+         * @throws IOException
+         */
+        private IValue readAnnos(Type expected, INode result) throws IOException {
+            current = stream.read();
+
+            while (current != ']') {
+                checkAndRead('@');
+                String key = readIdentifier();
+                
+                if (isLegacyParseTreeSourceAnnotation(key, result.getType())) {
+                    key = "src";
+                }
+                
+                checkAndRead('=');
+
+                Type annoType = getAnnoType(expected, key);
+                IValue value = readValue(annoType);
+
+                result = result.asWithKeywordParameters().setParameter(key, value);
+                if (current == ']') {
+                    current = stream.read();
+                    break;
+                }
+                checkAndRead(',');
+            }
+
+            return result;
+        }
+
+        private boolean isLegacyParseTreeSourceAnnotation(String key, Type type) {
+            return key.equals("loc") && type.isAbstractData() && type.getName().equals("Tree");
+        }
+
+        private Type getAnnoType(Type expected, String key) {
+            Type annoType = null;
+
+            if (expected.isStrictSubtypeOf(TF.nodeType())) {
+                if (store.hasKeywordParameter(expected, key)) {
+                    annoType = store.getKeywordParameterType(expected, key);
+                }
+            }
+
+            return annoType != null ? annoType : types.valueType();
         }
 
         private void readFixed(Type expected, char end, List<@NonNull IValue> arr, Map<String,IValue> kwParams) throws IOException {

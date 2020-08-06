@@ -141,6 +141,7 @@ public class IValueIDs {
         public static final int NAME = 1;
         public static final int PARAMS = 2;
         public static final int KWPARAMS = 3;
+        public static final int ANNOS = 4;
     }
 
     public static class TupleValue {

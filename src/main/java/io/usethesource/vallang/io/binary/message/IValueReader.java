@@ -17,11 +17,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Map.Entry;
 import java.util.function.Supplier;
 
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import io.usethesource.capsule.Map;
+import io.usethesource.capsule.Map.Immutable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -614,6 +616,7 @@ public class IValueReader {
         String name = "";
         IValue[] children = new IValue[0];
         Map.Immutable<String, IValue> kwParams = Map.Immutable.of();
+        Map.Immutable<String, IValue> annos = Map.Immutable.of();
 
 
         boolean backReference = false;
@@ -634,22 +637,29 @@ public class IValueReader {
                 case IValueIDs.NodeValue.KWPARAMS: 
                     kwParams = readNamedValues(reader);
                     break;
+                case IValueIDs.NodeValue.ANNOS: 
+                    annos = readNamedValues(reader);
+                    break;
             }
         }
 
-        INode node;
+        INode node = vf.node(name, children);
+        
+        if (!annos.isEmpty()) {
+            kwParams = simulateAnnotationsWithKeywordParameters(tf.nodeType(), kwParams, annos);
+        }
+        
         if (!kwParams.isEmpty()) {
-            node = vf.node(name, children, kwParams);
+            node = node.asWithKeywordParameters().setParameters(kwParams);
         }
-        else {
-            node = vf.node(name, children);
-        }
+
         return returnAndStore(backReference, valueWindow, node);
     }
 
     private IValue readConstructor(final IWireInputStream reader) throws IOException {
         Type type = VOID_TYPE;
         IValue[] children = new IValue[0];
+        Map.Immutable<String, IValue> annos = Map.Immutable.of();
         Map.Immutable<String, IValue> kwParams = Map.Immutable.of();
 
 
@@ -688,6 +698,9 @@ public class IValueReader {
                 case IValueIDs.ConstructorValue.KWPARAMS: 
                     kwParams = readNamedValues(reader);
                     break;
+                case IValueIDs.ConstructorValue.ANNOS: 
+                    annos = readNamedValues(reader);
+                    break;
             }
         }
 
@@ -695,14 +708,44 @@ public class IValueReader {
             throw new IOException("Constructor was missing type");
         }
 
-        IConstructor constr;
+        IConstructor constr = vf.constructor(type, children);
+        
+        if (!annos.isEmpty()) {
+            kwParams = simulateAnnotationsWithKeywordParameters(constr.getType(), kwParams, annos);
+        }
+        
         if (!kwParams.isEmpty()) {
-            constr = vf.constructor(type, children, kwParams);
+            constr = constr.asWithKeywordParameters().setParameters(kwParams);
         }
-        else {
-            constr = vf.constructor(type, children);
-        }
+        
         return returnAndStore(backReference, valueWindow, constr);
+    }
+
+    /** 
+     * For bootstrapping purposes we still support annotations in the binary reader (not in the writer).
+     * Here all annotations are converted to corresponding keyword parameters and the `Tree@\loc` annotation
+     * is rewritten to `Tree.src`
+     * @param receiver 
+     * 
+     * @deprecated
+     * @param kwParams
+     * @param annos
+     * @return
+     */
+    @Deprecated
+    private Immutable<String, IValue> simulateAnnotationsWithKeywordParameters(Type receiver, Immutable<String, IValue> kwParams, Immutable<String, IValue> annos) {
+        for (Entry<String,IValue> entry : (Iterable<Entry<String, IValue>>) () -> annos.entryIterator()) {
+            String key = entry.getKey();
+            IValue value = entry.getValue();
+            
+            kwParams = kwParams.__put(isLegacyParseTreeLocAnnotation(key, receiver) ? "src" : key, value);
+        }
+        
+        return kwParams;
+    }
+
+    private boolean isLegacyParseTreeLocAnnotation(String key, Type receiver) {
+        return key.equals("loc") && receiver.isAbstractData() && receiver.getName().equals("Tree");
     }
 
     private boolean paramsAreCorrectType(IValue[] children, Type type) {
