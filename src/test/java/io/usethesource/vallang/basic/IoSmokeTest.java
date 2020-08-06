@@ -12,6 +12,7 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
@@ -98,5 +100,27 @@ public class IoSmokeTest extends BooleanStoreProvider {
         new StandardTextWriter().write(vf.tuple(), w);
         IValue u = reader.read(vf, new StringReader(w.toString()));
         assertEquals(u, vf.tuple());
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testLegacyAnnotationTextReaderNode(IValueFactory vf) throws FactTypeUseException, IOException {
+        String input = "\"node\"()[@anno=2]";
+        StandardTextReader reader = new StandardTextReader();
+        IValue s = reader.read(vf, new StringReader(input));
+        
+        assertTrue(s.asWithKeywordParameters().getParameter("anno").equals(vf.integer(2)));
+    }
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testLegacyAnnotationTextReaderConstructor(IValueFactory vf, TypeFactory tf, TypeStore store) throws FactTypeUseException, IOException {
+        Type A = tf.abstractDataType(store, "A");
+        tf.constructor(store, A, "a");
+        store.declareKeywordParameter(A, "anno", tf.integerType());
+        
+        String input = "a()[@anno=2]";
+        StandardTextReader reader = new StandardTextReader();
+        IValue s = reader.read(vf, store, A, new StringReader(input));
+        
+        assertTrue(s.asWithKeywordParameters().getParameter("anno").equals(vf.integer(2)));
     }
 }
