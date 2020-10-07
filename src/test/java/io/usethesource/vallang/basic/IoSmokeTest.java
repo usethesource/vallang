@@ -57,8 +57,8 @@ public class IoSmokeTest extends BooleanStoreProvider {
         };
 
         for (int i = 0; i < 8; i++) {
-            IValue[] kids = new IValue[i];
-            for (int k = 0; k < i; k++) {
+            IValue[] kids = new IValue[examples[i].getArity()];
+            for (int k = 0; k < examples[i].getArity(); k++) {
                 kids[k] = vf.integer(k);
             }
             IConstructor cons = vf.constructor(examples[i], kids);
