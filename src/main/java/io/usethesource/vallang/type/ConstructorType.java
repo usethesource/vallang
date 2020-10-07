@@ -219,20 +219,26 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
+		boolean hasNames = hasFieldNames();
 		builder.append(fADT);
 		builder.append(" = ");
 		builder.append(fName);
 		builder.append("(");
 
-		Iterator<Type> iter = fChildrenTypes.iterator();
-		while(iter.hasNext()) {
-			builder.append(iter.next());
-
-			if (iter.hasNext()) {
-				builder.append(',');
-			}
+		for (int i = 0; i < getArity(); i++) {
+		    Type argType = fChildrenTypes.getFieldType(i);
+		    builder.append(argType);
+		    
+		    if (hasNames) {
+		        builder.append(' ');
+		        builder.append(fChildrenTypes.getFieldName(i)); 
+		    }
+		    
+		    if (i < getArity() - 1) {
+		        builder.append(',');
+		    }
 		}
-
+		
 		builder.append(")");
 
 		return builder.toString();
