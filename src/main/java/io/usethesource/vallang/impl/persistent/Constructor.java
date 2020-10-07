@@ -829,7 +829,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     private static final LoadingCache<Type, IConstructor> EMPTY_CONSTRUCTOR_SINGLETONS = Caffeine.newBuilder().build(Constructor0::new);
 
     /*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
-        assert constructorType.getArity() == children.length;
+        assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
         
         if (constructorType.isParameterized()) {
             return new TypeParameterizedConstructorN(constructorType, children);
@@ -847,7 +847,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         default: return new ConstructorN(constructorType, children);
         }
     }
-
+    
     /*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
         IConstructor r = newConstructor(constructorType, children);
 

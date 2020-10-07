@@ -124,4 +124,14 @@ public interface IConstructor extends INode {
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitConstructor(this);
     }
+	
+	static boolean assertTypeCorrectConstructorApplication(Type cons, IValue[] children) {
+        assert cons.getArity() == children.length;
+        
+        for (int i = 0; i < cons.getArity(); i++) {
+            assert children[i].getType().isSubtypeOf(cons.getFieldType(i));
+        }
+        
+        return true;
+    }
 }

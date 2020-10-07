@@ -123,6 +123,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	public IConstructor constructor(Type constructorType, IValue... children) {
 		checkNull(constructorType);
 		checkNull((Object[]) children);
+		assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
 		return new Constructor(constructorType, children);
 	}
 	
@@ -131,13 +132,15 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	    checkNull(constructorType);
 	    checkNull(kwParams);
 	    checkNull((Object[]) children);
-
+	    assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
+	    
 	    return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
 	}
 	
 	@Override
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
+		assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, new IValue[0]);
 		return new Constructor(constructorType);
 	}
 
