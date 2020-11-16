@@ -32,17 +32,19 @@ import io.usethesource.vallang.type.TypeFactory;
     private Type elementType;
 	private final ShareableValuesList data;
 	private @MonotonicNonNull IList constructedList;
-	private boolean unique = false;
+	private final boolean unique;
 	
 	/*package*/ ListWriter() {
 		super();
 		
 		this.elementType = TypeFactory.getInstance().voidType();
 		data = new ShareableValuesList();
+		unique = false;
 	}
 	
 	private ListWriter(boolean unique) {
-	    this();
+	    this.elementType = TypeFactory.getInstance().voidType();
+        data = new ShareableValuesList();
 	    this.unique = unique;
 	}
 	
@@ -61,6 +63,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		this.elementType = elementType;
 		this.data = data;
+		this.unique = false;
 	}
 	
 	@Override
