@@ -55,7 +55,7 @@ public class XMLWriter implements IValueTextWriter {
 		try {
 			Document doc = dbf.newDocumentBuilder().newDocument();
 			
-			Node top = yield(value, doc);
+			Node top = give(value, doc);
 			doc.appendChild(top);
 			
 			Transformer t = TransformerFactory.newInstance().newTransformer();
@@ -75,42 +75,42 @@ public class XMLWriter implements IValueTextWriter {
 		write(value, stream);
 	}
 
-	private Node yield(IValue value, Document doc) {
+	private Node give(IValue value, Document doc) {
 		Type type = value.getType();
 		
 		if (type.isAbstractData()) {
 			Type node = ((IConstructor) value).getConstructorType();
 			
 			if (isListWrapper(node)) {
-				return yieldList((INode) value,  doc);
+				return giveList((INode) value,  doc);
 			}
 			else if (isSetWrapper(node)) {
-				return yieldSet((INode) value, doc);
+				return giveSet((INode) value, doc);
 			}
 			else if (isRelationWrapper(node)) {
-				return yieldRelation((INode) value, doc);
+				return giveRelation((INode) value, doc);
 			}
 			else if (isMapWrapper(node)) {
-				return yieldMap((INode) value, doc);
+				return giveMap((INode) value, doc);
 			}
 			else {
-			  return yieldTree((INode) value, doc);
+			  return giveTree((INode) value, doc);
 			}
 		}
 		else if (type.isString()) {
-			return yieldString((IString) value, doc);
+			return giveString((IString) value, doc);
 		}
 		else if (type.isInteger()) {
-			return yieldInt((IInteger) value, doc);
+			return giveInt((IInteger) value, doc);
 		}
 		else if (type.isRational()) {
-			return yieldRational((IRational) value, doc);
+			return giveRational((IRational) value, doc);
 		}
 		else if (type.isReal()) {
-			return yieldDouble((IReal) value, doc);
+			return giveDouble((IReal) value, doc);
 		}
 		else if (type.isExternalType()) {
-			return yieldExternal((IExternalValue) value, doc);
+			return giveExternal((IExternalValue) value, doc);
 		}
 
 		throw new UnsupportedTypeException(
@@ -139,30 +139,30 @@ public class XMLWriter implements IValueTextWriter {
 	}
 
 	
-	private Node yieldDouble(IReal value, Document doc) {
+	private Node giveDouble(IReal value, Document doc) {
 		return doc.createTextNode(value.toString());
 	}
 
-	private Node yieldInt(IInteger value, Document doc) {
+	private Node giveInt(IInteger value, Document doc) {
 		return doc.createTextNode(value.toString());
 	}
 
-	private Node yieldRational(IRational value, Document doc) {
+	private Node giveRational(IRational value, Document doc) {
 		Element element = doc.createElementNS("values", "rat");
 		element.setAttribute("num", value.numerator().toString());
 		element.setAttribute("denom", value.denominator().toString());
 		return element;
 	}
 
-	private Node yieldString(IString value, Document doc) {
+	private Node giveString(IString value, Document doc) {
 		return doc.createTextNode(value.getValue());
 	}
 	
-	private Node yieldExternal(IExternalValue value, Document doc) {
+	private Node giveExternal(IExternalValue value, Document doc) {
 		return doc.createTextNode(value.toString());
 	}
 
-	private Node yieldMap(INode node, Document doc) {
+	private Node giveMap(INode node, Document doc) {
 		Element treeNode = doc.createElement(node.getName());
 		IMap map = (IMap) node.get(0);
 		
@@ -174,14 +174,14 @@ public class XMLWriter implements IValueTextWriter {
                 appendTupleElements(doc, treeNode, key);
             }
             else {
-              treeNode.appendChild(yield(key, doc));
+              treeNode.appendChild(give(key, doc));
             }
             
             if (value.getType().isTuple()) {
                 appendTupleElements(doc, treeNode, value);
             }
             else {
-                treeNode.appendChild(yield(value, doc));
+                treeNode.appendChild(give(value, doc));
             }
 		}
 		
@@ -192,11 +192,11 @@ public class XMLWriter implements IValueTextWriter {
 		ITuple tuple = (ITuple) tupleValue;
 		
 		for (IValue element : tuple) {
-			treeNode.appendChild(yield(element, doc));
+			treeNode.appendChild(give(element, doc));
 		}
 	}
 
-	private Node yieldRelation(INode node, Document doc) {
+	private Node giveRelation(INode node, Document doc) {
 		Element treeNode = doc.createElement(node.getName());
 		ISet relation = (ISet) node.get(0);
 		assert (relation.getType().isRelation());
@@ -208,7 +208,7 @@ public class XMLWriter implements IValueTextWriter {
 		return treeNode;
 	}
 	
-	private Node yieldSet(INode node, Document doc) {
+	private Node giveSet(INode node, Document doc) {
 		Element treeNode = doc.createElement(node.getName());
 		ISet set = (ISet) node.get(0);
 		
@@ -217,14 +217,14 @@ public class XMLWriter implements IValueTextWriter {
 			  appendTupleElements(doc, treeNode, elem);
 			}
 			else {
-			  treeNode.appendChild(yield(elem, doc));
+			  treeNode.appendChild(give(elem, doc));
 			}
 		}
 
 		return treeNode;
 	}
 
-	private Node yieldList(INode node, Document doc) {
+	private Node giveList(INode node, Document doc) {
 		Element treeNode = doc.createElement(node.getName());
 		IList list = (IList) node.get(0);
 		
@@ -233,14 +233,14 @@ public class XMLWriter implements IValueTextWriter {
 				appendTupleElements(doc, treeNode, elem);
 			}
 			else {
-			  treeNode.appendChild(yield(elem, doc));
+			  treeNode.appendChild(give(elem, doc));
 			}
 		}
 
 		return treeNode;
 	}
 
-	private Node yieldTree(INode value,  Document doc) {
+	private Node giveTree(INode value,  Document doc) {
 		Element treeNode = doc.createElement(value.getName());
 		
 		for (IValue child : value) {
@@ -248,7 +248,7 @@ public class XMLWriter implements IValueTextWriter {
 				appendTupleElements(doc, treeNode, child);
 			}
 			else {
-			  treeNode.appendChild(yield(child, doc));
+			  treeNode.appendChild(give(child, doc));
 			}
 		}
 		
