@@ -285,7 +285,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 		if (!super.match(matched, bindings)) {
 			return false;
 		}
-		else if (matched.isSet()) {
+		else if (matched.isSet() || matched.isBottom()) {
 			return getElementType().match(matched.getElementType(), bindings);
 		}
 

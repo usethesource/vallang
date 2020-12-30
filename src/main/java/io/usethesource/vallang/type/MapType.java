@@ -239,7 +239,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
           return false;
         }
 
-        if (matched.isMap()) {
+        if (matched.isMap() || matched.isBottom()) {
 				  return getKeyType().match(matched.getKeyType(), bindings)
           && getValueType().match(matched.getValueType(), bindings);
         }

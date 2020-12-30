@@ -286,7 +286,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		if (!super.match(matched, bindings)) {
 			return false;
 		}
-		else if (matched.isList()) {
+		else if (matched.isList() || matched.isBottom()) {
 			return getElementType().match(matched.getElementType(), bindings);
 		}
 

@@ -418,8 +418,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         if (!super.match(matched, bindings)) {
             return false;
         }
-        
-        if (matched.isAbstractData()) {
+
+        if (matched.isAbstractData() || matched.isBottom()) {
             return getTypeParameters().match(matched.getTypeParameters(), bindings);
         }
 
