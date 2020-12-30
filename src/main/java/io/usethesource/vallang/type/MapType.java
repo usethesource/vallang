@@ -234,11 +234,17 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     }
     
 	@Override
-	public boolean match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeUseException {
-		return super.match(matched, bindings)
-				&& getKeyType().match(matched.getKeyType(), bindings)
-				&& getValueType().match(matched.getValueType(), bindings);
+	public boolean match(Type matched, Map<Type, Type> bindings)throws FactTypeUseException {
+        if (!super.match(matched, bindings)) {
+          return false;
+        }
+
+        if (matched.isMap()) {
+				  return getKeyType().match(matched.getKeyType(), bindings)
+          && getValueType().match(matched.getValueType(), bindings);
+        }
+
+        return true;
 	}
 	
 	@Override

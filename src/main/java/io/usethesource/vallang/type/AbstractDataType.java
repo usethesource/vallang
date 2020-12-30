@@ -415,7 +415,15 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
     @Override
     public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
-        return super.match(matched, bindings) && fParameters.match(matched.getTypeParameters(), bindings);
+        if (!super.match(matched, bindings)) {
+            return false;
+        }
+        
+        if (matched.isAbstractData()) {
+            return getTypeParameters().match(matched.getTypeParameters(), bindings);
+        }
+
+        return true;
     }
 
     @Override

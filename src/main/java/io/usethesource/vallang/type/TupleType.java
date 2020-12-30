@@ -410,9 +410,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
             return false;
         }
 
-        for (int i = getArity() - 1; i >= 0; i--) {
-            if (!getFieldType(i).match(matched.getFieldType(i), bindings)) {
-                return false;
+        if (matched.isTuple()) {
+            for (int i = getArity() - 1; i >= 0; i--) {
+                if (!getFieldType(i).match(matched.getFieldType(i), bindings)) {
+                    return false;
+                }
             }
         }
 

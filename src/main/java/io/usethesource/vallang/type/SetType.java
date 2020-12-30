@@ -282,7 +282,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
-		return super.match(matched, bindings) && getElementType().match(matched.getElementType(), bindings);
+		if (!super.match(matched, bindings)) {
+			return false;
+		}
+		else if (matched.isSet()) {
+			return getElementType().match(matched.getElementType(), bindings);
+		}
+
+		return true;
 	}
 
 	@Override
