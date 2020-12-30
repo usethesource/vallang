@@ -192,7 +192,6 @@ public class XMLReader extends AbstractTextReader {
             return false;
         }
 
-        // TODO: implement this
         private IValue parseRational(Node node) {
             String contents = getSafeNodeValue(node).trim();
             String[] parts = contents.split("r");
