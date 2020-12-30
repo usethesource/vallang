@@ -464,5 +464,14 @@ public class TypeTest {
     public void mapTypesAlwaysIntersect(TypeFactory tf, Type t, Type u) {
         assertTrue(tf.mapType(t, u).intersects(tf.mapType(u, t)));
     }
-   
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void openTypeParametersAlwaysMatch(TypeFactory tf, Type matched) {
+        assertTrue(tf.parameterType("Free").match(matched, new HashMap<>()));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void openTypeParametersAlwaysMatchReversed(TypeFactory tf, Type matched) {
+        assertTrue(matched.match(tf.parameterType("Free"), new HashMap<>()));
+    }
 }
