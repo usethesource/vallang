@@ -154,6 +154,14 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         return getBound().intersects(other);
 	}
 	
+	@Override
+	/**
+	 * Type parameters are universal, extending their semantics over
+	 * possible extensions of the vallang type system.
+	 */
+	protected boolean intersectsWithExternal(Type type) {
+	   return getBound().intersects(type);
+	}
 	/**
      * Read this as "could be instantiated as a super-type of"
      */
