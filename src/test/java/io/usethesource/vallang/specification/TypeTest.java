@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.TypeConfig;
 import io.usethesource.vallang.TypeConfig.Option;
@@ -453,7 +455,6 @@ public class TypeTest {
             assertTrue(t.intersects(u));
         }
     }
-    
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void collectionTypesAlwaysIntersect(TypeFactory tf, Type t, Type u) {
         assertTrue(tf.setType(t).intersects(tf.setType(u)));
@@ -473,5 +474,35 @@ public class TypeTest {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void openTypeParametersAlwaysMatchReversed(TypeFactory tf, Type matched) {
         assertTrue(matched.match(tf.parameterType("Free"), new HashMap<>()));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void embeddableTupleTypesAreAlmostLikeNormalTupleTypes(TypeFactory tf, Type t, Type u) {
+        Type normal = tf.tupleType(t, u);
+        Type embeddable = tf.embeddableTupleType(t, u);
+
+        if (normal != embeddable) {
+            assertTrue(normal.isSubtypeOf(embeddable));
+            if (embeddable.stream().filter(elemType -> elemType.isBottom()).findAny().isPresent()) {
+                assertTrue(normal.isBottom());
+                assertTrue(embeddable.isFixedWidth());
+            }
+        }
+        else {
+            assertTrue(normal == embeddable);
+        }
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void randomTupleTypesNeverHaveVoidElementTypes(Type t) {
+        if (t.isFixedWidth()) {
+            assertFalse(t.stream().filter(elemType -> elemType.isBottom()).findAny().isPresent());
+        }
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void randomTupleValuesTypesNeverHaveVoidElementTypes(ITuple t) {
+        assertTrue(t.getType().isFixedWidth());
+        assertFalse(t.getType().stream().filter(elemType -> elemType.isBottom()).findAny().isPresent());
     }
 }

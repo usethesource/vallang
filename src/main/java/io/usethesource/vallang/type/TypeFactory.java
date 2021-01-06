@@ -253,10 +253,12 @@ public class TypeFactory {
 	 * with void parameters to void. Such tuples can be used
 	 * to construct other types (such as function types)
 	 * without inheriting the natural reduction to void.
-	 * @param fieldTypes
-	 * @return
+	 * 
+	 * Caveat emptor. These tuple types are not to be used
+	 * as top level types of IValue's, because their type
+	 * hierarchy is broken (glb is not a model of type intersection, for example)
 	 */
-	public Type reusableTupleType(Type... fieldTypes) {
+	public Type embeddableTupleType(Type... fieldTypes) {
 		return tupleType(false, fieldTypes);
 	}
 
@@ -278,7 +280,17 @@ public class TypeFactory {
 		return tupleType(true, fieldTypesAndLabels);
 	}
 
-	public Type rawTupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
+	/**
+	 * A variant of tupleType which does not reduce tuples
+	 * with void parameters to void. Such tuples can be used
+	 * to construct other types (such as function types)
+	 * without inheriting the natural reduction to void.
+	 * 
+	 * Caveat emptor. These tuple types are not to be used
+	 * as top level types of IValue's, because their type
+	 * hierarchy is broken (glb is not a model of type intersection, for example)
+	 */
+	public Type embeddableTupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
 		return tupleType(false, fieldTypesAndLabels);
 	}
 
@@ -336,7 +348,17 @@ public class TypeFactory {
 	  return tupleType(true, types, labels);
   }
 
-  public Type rawTupleType(Type[] types, String[] labels) {
+  /**
+	 * A variant of tupleType which does not reduce tuples
+	 * with void parameters to void. Such tuples can be used
+	 * to construct other types (such as function types)
+	 * without inheriting the natural reduction to void.
+	 * 
+	 * Caveat emptor. These tuple types are not to be used
+	 * as top level types of IValue's, because their type
+	 * hierarchy is broken (glb is not a model of type intersection, for example)
+	 */
+  public Type embeddableTupleType(Type[] types, String[] labels) {
 	return tupleType(false, types, labels);
   }
 
@@ -374,7 +396,7 @@ public class TypeFactory {
 		return tupleType(true, elements);
 	}
 
-	public Type rawTupleType(IValue... elements) {
+	public Type embeddableTupleType(IValue... elements) {
 		return tupleType(false, elements);
 	}
 

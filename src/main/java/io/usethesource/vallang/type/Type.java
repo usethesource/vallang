@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -289,6 +291,13 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    */
   public Iterator<Type> iterator() {
     throw new IllegalOperationException("iterator", this);
+  }
+
+  /**
+   * @return a stream of Types using the Type.iterator
+   */
+  public Stream<Type> stream() {
+      return StreamSupport.stream(spliterator(), false);
   }
 
   /**
