@@ -225,6 +225,10 @@ public class TypeFactory {
 	 * @return a tuple type or `void` in case one of the field types was void
 	 */
 	public Type tupleType(Type... fieldTypes) {
+		return tupleType(true, fieldTypes);
+	}
+
+	private Type tupleType(boolean reduceToVoid, Type... fieldTypes) {
 		checkNull((Object[]) fieldTypes);
 		
 		// tuple values with elements of type void (like tuple[void,void]) 
@@ -233,13 +237,27 @@ public class TypeFactory {
 		// types such as rel[&T, &Y] for empty sets would return rel[void, void] = set[tuple[void,void]]
 		// instead of the correct `set[void]`, also pattern matching and equality would fail seemingly 
 		// randomly on empty relations depending on how they've been instantiated. 
-		for (Type elem : fieldTypes) {
-		    if (elem.isBottom()) {
-		        return elem;
-		    }
+		if (reduceToVoid) {
+			for (Type elem : fieldTypes) {
+				if (elem.isBottom()) {
+					return elem;
+				}
+			}
 		}
 		
 		return getFromCache(new TupleType(fieldTypes));
+	}
+
+	/**
+	 * A variant of tupleType which does not reduce tuples
+	 * with void parameters to void. Such tuples can be used
+	 * to construct other types (such as function types)
+	 * without inheriting the natural reduction to void.
+	 * @param fieldTypes
+	 * @return
+	 */
+	public Type reusableTupleType(Type... fieldTypes) {
+		return tupleType(false, fieldTypes);
 	}
 
 	/**
@@ -257,6 +275,14 @@ public class TypeFactory {
 	 */
 	@Deprecated
 	public Type tupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
+		return tupleType(true, fieldTypesAndLabels);
+	}
+
+	public Type rawTupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
+		return tupleType(false, fieldTypesAndLabels);
+	}
+
+	private Type tupleType(boolean reduceToVoid, Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
 	    if (fieldTypesAndLabels.length == 0) {
 	        return tupleEmpty();
 	    }
@@ -272,7 +298,7 @@ public class TypeFactory {
 			}
 			try {
 				protoFieldTypes[pos] = (Type) fieldTypesAndLabels[i];
-				if (protoFieldTypes[pos].isBottom()) {
+				if (reduceToVoid && protoFieldTypes[pos].isBottom()) {
 				    // if one of the fields is void, then the entire tuple could
 				    // never be instantiated and thus its the void type (the empty set of
 				    // values) that represents it canonically:
@@ -307,6 +333,14 @@ public class TypeFactory {
 	 */
   @Deprecated
   public Type tupleType(Type[] types, String[] labels) {
+	  return tupleType(true, types, labels);
+  }
+
+  public Type rawTupleType(Type[] types, String[] labels) {
+	return tupleType(false, types, labels);
+  }
+
+  private Type tupleType(boolean reduceToVoid, Type[] types, String[] labels) {
     checkNull((Object[]) types);
     checkNull((Object[]) labels);
     assert types.length == labels.length;
@@ -316,12 +350,14 @@ public class TypeFactory {
     }
     
     // if one of the elements is of type void, then a tuple can never
-    // be instantiated of this type and thus void is the type to represent it:
-    for (Type elem : types) {
-        if (elem.isBottom()) {
-            return voidType();
-        }
-    }
+	// be instantiated of this type and thus void is the type to represent it:
+	if (reduceToVoid) {
+		for (Type elem : types) {
+			if (elem.isBottom()) {
+				return voidType();
+			}
+		}
+	}
     
     return getFromCache(new TupleTypeWithFieldNames(types, labels));
   }
@@ -335,11 +371,22 @@ public class TypeFactory {
 	 * @return a tuple type
 	 */
 	public Type tupleType(IValue... elements) {
+		return tupleType(true, elements);
+	}
+
+	public Type rawTupleType(IValue... elements) {
+		return tupleType(false, elements);
+	}
+
+	public Type tupleType(boolean reduceToVoid, IValue... elements) {
 		checkNull((Object[]) elements);
 		int N = elements.length;
 		Type[] fieldTypes = new Type[N];
 		for (int i = N - 1; i >= 0; i--) {
 			fieldTypes[i] = elements[i].getType();
+			if (reduceToVoid && fieldTypes[i].isBottom()) {
+				return fieldTypes[i];
+			}
 		}
 		return getOrCreateTuple(fieldTypes);
 	}
