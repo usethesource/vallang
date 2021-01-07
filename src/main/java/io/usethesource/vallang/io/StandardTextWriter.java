@@ -389,6 +389,11 @@ public class StandardTextWriter implements IValueTextWriter {
                 }
 
                 @Override
+                public Boolean visitFunction(Type type) {
+                    return false;
+                }
+
+                @Override
                 public Boolean visitVoid(Type type) {
                     return false;
                 }

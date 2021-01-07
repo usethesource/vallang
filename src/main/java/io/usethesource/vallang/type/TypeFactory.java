@@ -345,6 +345,55 @@ public class TypeFactory {
 	}
 
 	/**
+	 * Construct a function type by composing it from a return type and two tuple types
+	 * for the arguments and the keyword parameters. These respective tuples must not
+	 * have had any void parameters, otherwise this function will throw an exception.
+	 * 
+	 * @param returnType
+	 * @param argumentTypesTuple
+	 * @param keywordParameterTypesTuple
+	 * @return
+	 */
+
+	public Type functionType(Type returnType, Type argumentTypesTuple, Type keywordParameterTypesTuple) {
+		if (argumentTypesTuple.isBottom()) {
+			throw new IllegalArgumentException("argumentTypes must be a proper tuple type (without any void fields)");
+		}
+
+		if (keywordParameterTypesTuple.isBottom()) {
+			throw new IllegalArgumentException("keywordParameterTypes must be a tuple type (without any void fields)");
+		}
+
+		return getFromCache(new FunctionType(returnType, (TupleType) argumentTypesTuple,  (TupleType) keywordParameterTypesTuple));
+	}
+
+	/**
+	 * Construct a function type with labeled parameter and keyword field types
+	 */
+	public Type functionType(Type returnType, Type[] argumentTypes, String[] argumentLabels, Type[] keywordParameterTypes, String[] keywordParameterLabels) {
+		checkNull((Object[]) argumentTypes);
+		checkNull((Object[]) argumentLabels);
+		checkNull((Object[]) keywordParameterTypes);
+    	checkNull((Object[]) keywordParameterLabels);
+		return getFromCache(new FunctionType(returnType, 
+			(TupleType) getFromCache(new TupleTypeWithFieldNames(argumentTypes, argumentLabels)), 
+			(TupleType) getFromCache(new TupleTypeWithFieldNames(keywordParameterTypes, keywordParameterLabels))
+		));
+	}
+
+	/**
+	 * Construct a function type with unlabeled parameter and keyword field types
+	 */
+	public Type functionType(Type returnType, Type[] argumentTypes, Type[] keywordParameterTypes) {
+		checkNull((Object[]) argumentTypes);
+		checkNull((Object[]) keywordParameterTypes);
+		return getFromCache(new FunctionType(returnType, 
+			(TupleType) getFromCache(new TupleType(argumentTypes)), 
+			(TupleType) getFromCache(new TupleType(keywordParameterTypes))
+		));
+	}
+
+	/**
 	 * Construct a set type
 	 * 
 	 * @param eltType
@@ -932,7 +981,7 @@ public class TypeFactory {
 
         private Type getRandomType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             TypeReifier[] alts = symbolConstructorTypes.values().toArray(new TypeReifier[0]);
-            TypeReifier selected = alts[Math.max(0, rnd.nextInt(alts.length) - 1)];
+            TypeReifier selected = alts[Math.max(0, alts.length > 0 ? rnd.nextInt(alts.length) - 1 : 0)];
             
             // increase the chance of recursive types
             while (rnd.nextBoolean() && !selected.isRecursive()) {

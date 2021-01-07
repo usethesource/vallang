@@ -106,4 +106,9 @@ public abstract class DefaultTypeVisitor<T,E extends Throwable> implements IType
   public T visitDateTime(Type type) throws E {
     return def;
   }
+
+  @Override
+  public T visitFunction(Type type) throws E {
+    return def;
+  }
 }

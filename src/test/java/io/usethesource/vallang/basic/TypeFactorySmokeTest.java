@@ -12,6 +12,7 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URI;
@@ -434,5 +435,19 @@ public final class TypeFactorySmokeTest {
     if (t1 != t2) {
       fail("named types should be canonical");
     }
+  }
+
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testFunctionLub(TypeFactory tf) {
+      Type t1 = tf.functionType(tf.integerType(), tf.tupleType(tf.integerType(), tf.integerType()), tf.tupleEmpty());
+      Type t2 = tf.functionType(tf.integerType(), tf.tupleType(tf.rationalType(), tf.rationalType()), tf.tupleEmpty());
+
+      // if the arity is the same, the lub is still a function type (for computing the types of overloaded functions)
+      assertTrue(!t1.lub(t2).isTop());
+      assertTrue(t1.getArity() == t1.lub(t2).getArity());
+
+      // but if its not the same, then we default to value, because we don't know how to call a function with different amounts of parameters
+      Type t3 = tf.functionType(tf.integerType(), tf.tupleType(tf.stringType()), tf.tupleEmpty());
+      assertTrue(t1.lub(t3).isTop());
   }
 }

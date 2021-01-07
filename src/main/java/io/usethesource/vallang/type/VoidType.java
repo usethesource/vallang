@@ -161,6 +161,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
+    protected boolean isSubtypeOfFunction(Type type) {
+        return true;
+    }
+
+    @Override
     protected boolean isSubtypeOfVoid(Type type) {
         return true;
     }
@@ -247,6 +252,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected Type lubWithTuple(Type type) {
+        return type;
+    }
+
+    @Override
+    protected Type lubWithFunction(Type type) {
         return type;
     }
 
@@ -497,6 +507,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
+    protected Type glbWithFunction(Type type) {
+        return this;
+    }
+
+    @Override
     protected Type glbWithValue(Type type) {
         return this;
     }
@@ -594,6 +609,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected boolean intersectsWithTuple(Type type) {
+        return false;
+    }
+
+    @Override
+    protected boolean intersectsWithFunction(Type type) {
         return false;
     }
 

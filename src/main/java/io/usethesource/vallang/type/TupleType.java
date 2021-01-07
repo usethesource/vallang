@@ -33,7 +33,7 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /*package*/ class TupleType extends DefaultSubtypeOfValue {
-    protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
+    final Type[] fFieldTypes; // protected access for the benefit of inner classes
     protected int fHashcode = -1;
 
     /**
@@ -163,6 +163,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     @Override
     public Type getFieldTypes() {
         return this;
+    }
+
+    @Override
+    public String[] getFieldNames() {
+        return new String[0];
     }
 
     @Override

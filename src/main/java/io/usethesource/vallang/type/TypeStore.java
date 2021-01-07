@@ -749,6 +749,14 @@ public class TypeStore {
 				return type;
 			}
 
+			@Override
+			public Type visitFunction(Type type) throws RuntimeException {
+			// this call to getFromCache is nasty coupling with TypeFactory, but we 
+			// can not call factory.constructor directly because that would produce
+			// an infinite recursion.
+				return factory.getFromCache(new FunctionType(expandAliases1(type.getReturnType(), seen), (TupleType) expandAliases1(type.getFieldTypes(), seen), (TupleType) expandAliases1(type.getKeywordParameterTypes(), seen)));
+			}
+
 			@SuppressWarnings("deprecation")
             @Override
 			public Type visitTuple(Type type) throws RuntimeException {

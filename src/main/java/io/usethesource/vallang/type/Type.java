@@ -126,6 +126,20 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     throw new IllegalOperationException("getFieldTypes", this);
   }
 
+  /** 
+   * Get the return type of a function type
+   */
+  public Type getReturnType() {
+    throw new IllegalOperationException("getReturnType", this);
+  }
+
+  /** 
+   * Get the keyword parameter types of a function type
+   */
+  public Type getKeywordParameterTypes() {
+    throw new IllegalOperationException("getKeywordParameterTypes", this);
+  }
+
   /**
    * Retrieve the field name at a certain index for a tuple type, a relation
    * type or a tree node type.
@@ -350,6 +364,22 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return false;
   }
 
+  /**
+   * For function types, return whether or not it has 
+   * keyword parameters
+   */
+  public boolean hasKeywordParameters() {
+    return false;
+  }
+
+	public Type getKeywordParameterType(String label) {
+    throw new IllegalOperationException("getKeywordParameterType", this);
+	}
+	
+	public boolean hasKeywordParameter(String label) {
+	  throw new IllegalOperationException("hasKeywordParameter", this);
+  }
+  
   public String getKeyLabel() {
     throw new IllegalOperationException("getKeyLabel", this);
   }
@@ -501,6 +531,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	  return false;
   }
   
+  public boolean isFunction() {
+    return false;
+  }
+
   public boolean isExternalType() {
     return false;
   }
@@ -637,6 +671,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected boolean isSubtypeOfConstructor(Type type);
   abstract protected boolean isSubtypeOfAbstractData(Type type);
   abstract protected boolean isSubtypeOfTuple(Type type);
+  abstract protected boolean isSubtypeOfFunction(Type type);
   abstract protected boolean isSubtypeOfValue(Type type);
   abstract protected boolean isSubtypeOfVoid(Type type);
   abstract protected boolean isSubtypeOfBool(Type type);
@@ -656,6 +691,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected boolean intersectsWithConstructor(Type type);
   abstract protected boolean intersectsWithAbstractData(Type type);
   abstract protected boolean intersectsWithTuple(Type type);
+  abstract protected boolean intersectsWithFunction(Type type);
   abstract protected boolean intersectsWithValue(Type type);
   abstract protected boolean intersectsWithVoid(Type type);
   abstract protected boolean intersectsWithBool(Type type);
@@ -690,6 +726,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type lubWithConstructor(Type type) ;
   abstract protected Type lubWithAbstractData(Type type) ;
   abstract protected Type lubWithTuple(Type type) ;
+  abstract protected Type lubWithFunction(Type type) ;
   abstract protected Type lubWithValue(Type type) ;
   abstract protected Type lubWithVoid(Type type) ;
   abstract protected Type lubWithBool(Type type) ;
@@ -720,6 +757,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type glbWithConstructor(Type type) ;
   abstract protected Type glbWithAbstractData(Type type) ;
   abstract protected Type glbWithTuple(Type type) ;
+  abstract protected Type glbWithFunction(Type type) ;
   abstract protected Type glbWithValue(Type type) ;
   abstract protected Type glbWithVoid(Type type) ;
   abstract protected Type glbWithBool(Type type) ;

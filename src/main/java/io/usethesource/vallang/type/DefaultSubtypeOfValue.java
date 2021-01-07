@@ -84,6 +84,10 @@ package io.usethesource.vallang.type;
         return false;
     }
 
+    protected boolean intersectsWithFunction(Type type) {
+        return false;
+    }
+
     protected boolean intersectsWithVoid(Type type) {
         // the intersection of void, even with itself is empty.
         return false;
@@ -159,6 +163,10 @@ package io.usethesource.vallang.type;
 	}
 
 	protected Type glbWithTuple(Type type) {
+		return VoidType.getInstance();
+    }
+    
+    protected Type glbWithFunction(Type type) {
 		return VoidType.getInstance();
 	}
 

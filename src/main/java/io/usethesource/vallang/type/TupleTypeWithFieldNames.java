@@ -23,7 +23,7 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
 /*package*/ final class TupleTypeWithFieldNames extends TupleType {
-    protected final String[] fFieldNames;
+    final String[] fFieldNames;
 
     /**
      * Creates a tuple type with the given field types and names. 
@@ -298,7 +298,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
     @Override
     @Pure
-    public String[] getFieldNames(){
+    public String[] getFieldNames() {
         return fFieldNames;
     }
 

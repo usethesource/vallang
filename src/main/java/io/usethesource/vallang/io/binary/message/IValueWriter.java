@@ -286,6 +286,12 @@ public class IValueWriter {
             }
 
             @Override
+            public Void visitFunction(Type type) throws IOException {
+                // TODO: there are no function values yet to serialize
+                return null;
+            }
+
+            @Override
             public Void visitBool(Type t) throws IOException {
                 writer.writeEmptyMessage(IValueIDs.BoolType.ID);
                 return null;

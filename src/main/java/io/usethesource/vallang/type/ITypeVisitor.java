@@ -37,4 +37,5 @@ public interface ITypeVisitor<T,E extends Throwable> {
 	T visitParameter(Type type) throws E;
 	T visitExternal(Type type) throws E;
 	T visitDateTime(Type type) throws E;
+	T visitFunction(Type type) throws E;
 }

@@ -409,6 +409,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	}
 
 	@Override
+	protected boolean isSubtypeOfFunction(Type type) {
+		return fAliased.isSubtypeOfFunction(type);
+	}
+
+	@Override
 	protected boolean isSubtypeOfVoid(Type type) {
 		return fAliased.isSubtypeOfVoid(type);
 	}
@@ -491,6 +496,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	@Override
 	protected Type lubWithTuple(Type type) {
 		return fAliased.lubWithTuple(type);
+	}
+
+	@Override
+	protected Type lubWithFunction(Type type) {
+		return fAliased.lubWithFunction(type);
 	}
 
 	@Override
@@ -601,6 +611,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	}
 
 	@Override
+	protected Type glbWithFunction(Type type) {
+		return fAliased.glbWithFunction(type);
+	}
+
+	@Override
 	protected Type glbWithValue(Type type) {
 		return fAliased.glbWithValue(type);
 	}
@@ -638,7 +653,6 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
     @Override
     public boolean intersects(Type other) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -705,6 +719,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     @Override
     protected boolean intersectsWithTuple(Type type) {
         return fAliased.intersectsWithTuple(type);
+	}
+	
+	@Override
+    protected boolean intersectsWithFunction(Type type) {
+        return fAliased.intersectsWithFunction(type);
     }
 
     @Override
