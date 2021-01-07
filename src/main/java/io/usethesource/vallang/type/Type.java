@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 
 import io.usethesource.vallang.IConstructor;
@@ -368,11 +369,12 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * For function types, return whether or not it has 
    * keyword parameters
    */
+  @Pure
   public boolean hasKeywordParameters() {
     return false;
   }
 
-	public Type getKeywordParameterType(String label) {
+	public @Nullable Type getKeywordParameterType(String label) {
     throw new IllegalOperationException("getKeywordParameterType", this);
 	}
 	

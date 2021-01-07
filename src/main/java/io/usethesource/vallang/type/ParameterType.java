@@ -290,6 +290,96 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	protected boolean isSubtypeOfVoid(Type type) {
 	    return couldBeSubtypeOf(type);
 	}
+	@Override
+	protected boolean intersectsWithValue(Type type) {
+       return true;
+	}
+	
+	@Override
+    protected boolean intersectsWithReal(Type type) {
+        return getBound().intersects(type);
+	}
+	
+	@Override
+    protected boolean intersectsWithInteger(Type type) {
+        return getBound().intersects(type);
+    }
+	@Override
+    protected boolean intersectsWithRational(Type type) {
+        return getBound().intersects(type);
+    }
+	@Override
+    protected boolean intersectsWithList(Type type) {
+        return getBound().intersects(type);
+    }
+	@Override
+    protected boolean intersectsWithMap(Type type) {
+		return getBound().intersects(type);
+    }
+	@Override
+    protected boolean intersectsWithNumber(Type type) {
+        return getBound().intersects(type);
+    }
+	@Override
+    protected boolean intersectsWithRelation(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithSet(Type type) {
+		return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithSourceLocation(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithString(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithNode(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithConstructor(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithAbstractData(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithTuple(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithFunction(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithVoid(Type type) {
+        // the intersection of void, even with itself is empty.
+        return false;
+    }
+
+	@Override
+    protected boolean intersectsWithBool(Type type) {
+        return getBound().intersects(type);
+    }
+
+	@Override
+    protected boolean intersectsWithDateTime(Type type) {
+        return getBound().intersects(type);
+	}
 	
 	@Override
 	public Type lub(Type type) {

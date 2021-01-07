@@ -23,6 +23,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -47,7 +49,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 public class FunctionType extends DefaultSubtypeOfValue {
 	private final Type returnType;
 	private final TupleType argumentTypes;
-	private final TupleType keywordParameters;
+	private final @Nullable TupleType keywordParameters;
 	
 	/*package*/ FunctionType(Type returnType, TupleType argumentTypes, TupleType keywordParameters) {
 		this.argumentTypes = argumentTypes;
