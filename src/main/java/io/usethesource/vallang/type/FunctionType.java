@@ -276,13 +276,9 @@ public class FunctionType extends DefaultSubtypeOfValue {
 			
 			int N = argTypes.getArity();
         
-			if (N != argTypes.getArity()) {
-				return false;
-			}
-			
 			for (int i = 0; i < N; i++) {
-				Type field = this.getFieldType(i);
-				Type otherField = argTypes.getFieldType(i);
+				Type field = argTypes.getFieldType(i);
+				Type otherField = otherArgTypes.getFieldType(i);
 
 				if (field.isBottom() || otherField.isBottom()) {
 					continue;
