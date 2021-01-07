@@ -383,7 +383,15 @@ public class FunctionType extends DefaultSubtypeOfValue {
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
+		if (o == null) {
+			return false;
+		}
+
+		if (o == this) {
+			return true;
+		}
+
 		if (o instanceof FunctionType) {
 			FunctionType other = (FunctionType) o;
 			
