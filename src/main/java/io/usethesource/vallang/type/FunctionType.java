@@ -202,7 +202,7 @@ public class FunctionType extends DefaultSubtypeOfValue {
 	}
     
     @Override
-	public Type getKeywordParameterType(String label) {
+	public @Nullable Type getKeywordParameterType(String label) {
 	  return keywordParameters != null ? keywordParameters.getFieldType(label) : null;
 	}
     
