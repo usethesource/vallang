@@ -11,6 +11,7 @@
 
 package io.usethesource.vallang.type;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -408,8 +409,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
-	public boolean match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeUseException {
+	public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
 		if (!super.match(matched, bindings)) {
 			return false;
 		}
@@ -417,16 +417,36 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		Type earlier = bindings.get(this);
 		
 		if (earlier != null) {
-			Type lub = earlier.lub(matched);
-			if (!lub.isSubtypeOf(getBound())) {
+			// now it is time for earlier bindings to have an effect
+			// on the current binding if there is recursive use of type parameters
+			// such as in self-application of higher-order functions like "curry"
+			Type lub = earlier;
+			Map<Type, Type> newBindings = new HashMap<>(bindings);
+			
+			if (matched.match(earlier, newBindings)) {
+				bindings.put(this, matched.instantiate(newBindings));
+				bindings.putAll(newBindings);
+				return true;
+			}
+			else if ((lub = earlier.lub(matched)).isSubtypeOf(getBound())) {
+				bindings.put(this, lub);
+				getBound().match(matched, bindings);
+				return true;
+			}
+			else {
 				return false;
 			}
-
-			bindings.put(this, lub);
 			
-			// propagate what we've learned about this parametertype
-			// to possible open type parameters in its bound
-			getBound().match(matched, bindings);
+			// Type lub = earlier.lub(matched);
+			// if (!lub.isSubtypeOf(getBound())) {
+			// 	return false;
+			// }
+
+			// bindings.put(this, lub);
+			
+			// // propagate what we've learned about this parametertype
+			// // to possible open type parameters in its bound
+			// getBound().match(matched, bindings);
 		}
 		else {
 			bindings.put(this, matched);
