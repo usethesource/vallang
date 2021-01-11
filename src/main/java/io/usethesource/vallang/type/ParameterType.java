@@ -423,9 +423,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 			Type lub = earlier;
 			Map<Type, Type> newBindings = new HashMap<>(bindings);
 
-			if (matched.match(earlier, newBindings)) {
-				bindings.put(this, matched.instantiate(newBindings));
-				bindings.putAll(newBindings);
+			if (!(matched instanceof ParameterType) && matched.match(earlier, newBindings)) {
+				if (newBindings.size() > bindings.size()) {
+					bindings.put(this, matched.instantiate(newBindings));
+					bindings.putAll(newBindings);
+				}
+
 				return true;
 			}
 			else if ((lub = earlier.lub(matched)).isSubtypeOf(getBound())) {
