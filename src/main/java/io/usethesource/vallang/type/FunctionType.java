@@ -409,6 +409,7 @@ public class FunctionType extends DefaultSubtypeOfValue {
 
 			return true;
 		}
+
 		return false;
 	}
 	
@@ -453,7 +454,7 @@ public class FunctionType extends DefaultSubtypeOfValue {
 				    return false;
 				}
 				
-				for (int i = 0; i < argumentTypes.getArity(); i++) {
+				for (int i = argumentTypes.getArity() - 1; i >= 0; i--) {
 				    Type fieldType = argumentTypes.getFieldType(i);
                     Type otherFieldType = matchedFunction.getFieldTypes().getFieldType(i);
                     Map<Type, Type> originalBindings = new HashMap<>();
