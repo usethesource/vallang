@@ -422,7 +422,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 			// such as in self-application of higher-order functions like "curry"
 			Type lub = earlier;
 			Map<Type, Type> newBindings = new HashMap<>(bindings);
-			
+
 			if (matched.match(earlier, newBindings)) {
 				bindings.put(this, matched.instantiate(newBindings));
 				bindings.putAll(newBindings);
@@ -436,17 +436,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 			else {
 				return false;
 			}
-			
-			// Type lub = earlier.lub(matched);
-			// if (!lub.isSubtypeOf(getBound())) {
-			// 	return false;
-			// }
-
-			// bindings.put(this, lub);
-			
-			// // propagate what we've learned about this parametertype
-			// // to possible open type parameters in its bound
-			// getBound().match(matched, bindings);
 		}
 		else {
 			bindings.put(this, matched);
