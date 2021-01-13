@@ -281,6 +281,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	}
 
 	@Override
+	public boolean isBottom() {
+		return fAliased.isBottom();
+	}
+	
+	@Override
 	public Type getValueType() {
 		return fAliased.getValueType();
 	}
