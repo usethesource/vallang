@@ -15,6 +15,8 @@ package io.usethesource.vallang.basic;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -486,7 +488,7 @@ public final class TypeFactorySmokeTest {
         Type returnType = tf.parameterType("Ret");
         Type arg1 = tf.parameterType("Arg1");
         Type arg2 = tf.parameterType("Arg2");
-         // &Ret curried(&Arg2 arg2)
+        // &Ret curried(&Arg2 arg2)
         Type curriedFunction = tf.functionType(returnType, tf.tupleType(arg2), tf.tupleEmpty());
         // &Ret func (&Arg1 arg1, &Arg2 arg2)
         Type parameterFunction = tf.functionType(returnType, tf.tupleType(arg1, arg2), tf.tupleEmpty());
@@ -504,22 +506,38 @@ public final class TypeFactorySmokeTest {
         Type renamedCurry = curry.instantiate(renamings);
 
         // now we self apply the curry function with an add function
-        Type addFunction = tf.functionType(tf.integerType(), tf.tupleType(tf.integerType(), tf.integerType()), tf.tupleEmpty());
+        Type addFunction = tf.functionType(tf.integerType(), tf.tupleType(tf.integerType(), tf.integerType()),
+                tf.tupleEmpty());
         Type curriedAdd = tf.functionType(tf.integerType(), tf.tupleType(tf.integerType()), tf.tupleEmpty());
         Type curriedCurryReturn = tf.functionType(curriedAdd, tf.tupleType(tf.integerType()), tf.tupleEmpty());
 
-        // the goal is to arrive at a binding of &Ret to an instantiated int (int) curried function, via parameter matching
+        // the goal is to arrive at a binding of &Ret to an instantiated int (int)
+        // curried function, via parameter matching
         Type actualParameterTypes = tf.tupleType(renamedCurry, addFunction);
         Type formalParameterTypes = curry.getFieldTypes();
 
         Map<Type, Type> bindings = new HashMap<>();
 
         // this is where the bug was/is.
-        // applying curry(curry, add) should give `int(int arg2) (int arg1)` as a return type.
+        // applying curry(curry, add) should give `int(int arg2) (int arg1)` as a return
+        // type.
         formalParameterTypes.match(actualParameterTypes, bindings);
 
         // instead we get the uninstantiated version &Ret' (&Arg2') (&Arg1')
-        System.err.println(curry.getReturnType().instantiate(bindings));
         assertTrue(curry.getReturnType().instantiate(bindings) == curriedCurryReturn);
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(ValueProvider.class)
+    public void testUnificationOfNestedNonLinearTypeParameters(TypeFactory tf, TypeStore store) throws IOException {
+        Type formals = tf.fromString(store, new StringReader("tuple[list[tuple[&T0,&T1]],set[&T0]]"));
+        Type actuals = tf.fromString(store, new StringReader("tuple[lrel[int,int],set[void]]"));
+        Type T0 = tf.parameterType("T0");
+        Type T0expected = tf.integerType().lub(tf.voidType());
+
+        Map<Type,Type> bindings = new HashMap<>();
+        formals.match(actuals, bindings);
+
+        assertTrue(T0expected == bindings.get(T0));
     }
 }
