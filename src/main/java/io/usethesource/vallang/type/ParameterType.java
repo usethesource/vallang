@@ -423,7 +423,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 			Type lub = earlier;
 			Map<Type, Type> newBindings = new HashMap<>(bindings);
 
-			if (matched.isOpen() && matched.match(earlier, newBindings)) {
+			if (matched.isOpen() && !matched.isParameter() && matched.match(earlier, newBindings)) {
 				if (newBindings.size() > bindings.size()) {
 					bindings.put(this, matched.instantiate(newBindings));
 					bindings.putAll(newBindings);
@@ -431,7 +431,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 				return true;
 			}
-			else if ((lub = earlier.lub(matched)).isSubtypeOf(getBound())) {
+			// matched must be on the left side of lub here to prevent loss of field names
+			else if ((lub = matched.lub(earlier)).isSubtypeOf(getBound())) {
 				bindings.put(this, lub);
 				getBound().match(matched, bindings);
 				return true;
@@ -468,6 +469,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
 	@Override
 	public boolean isOpen() {
+		return true;
+	}
+
+	@Override
+	public boolean isParameter() {
 		return true;
 	}
 

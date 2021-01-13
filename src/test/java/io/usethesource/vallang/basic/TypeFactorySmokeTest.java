@@ -530,7 +530,7 @@ public final class TypeFactorySmokeTest {
     @ParameterizedTest
     @ArgumentsSource(ValueProvider.class)
     public void testUnificationOfNestedNonLinearTypeParameters(TypeFactory tf, TypeStore store) throws IOException {
-        Type formals = tf.fromString(store, new StringReader("tuple[list[tuple[&T0,&T1]],set[&T0]]"));
+        Type formals = tf.fromString(store, new StringReader("tuple[lrel[&T0,&T1],set[&T0]]"));
         Type actuals = tf.fromString(store, new StringReader("tuple[lrel[int,int],set[void]]"));
         Type T0 = tf.parameterType("T0");
         Type T0expected = tf.integerType().lub(tf.voidType());
@@ -539,5 +539,17 @@ public final class TypeFactorySmokeTest {
         formals.match(actuals, bindings);
 
         assertTrue(T0expected == bindings.get(T0));
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(ValueProvider.class)
+    public void testTupleTypeMatchAndInstantiateMustPreserveLabels(TypeFactory tf) throws IOException {
+        Type unlabeled = tf.listType(tf.tupleType(tf.integerType(), tf.integerType()));
+        Type labeled = tf.listType(tf.tupleType(tf.parameterType("T0"), "first", tf.parameterType("T1"), "second"));
+
+        Map<Type, Type> bindings = new HashMap<>();
+        labeled.match(unlabeled, bindings);
+
+        assertTrue(labeled.instantiate(bindings).getElementType().hasFieldNames());
     }
 }

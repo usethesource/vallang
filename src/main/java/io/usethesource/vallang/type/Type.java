@@ -504,6 +504,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public  boolean isBottom() {
     return false;
   }
+
+  public boolean isParameter() {
+    return false;
+  }
   
   public  boolean isNode() {
 	  return false;

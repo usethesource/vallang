@@ -150,7 +150,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
             }
         }
 
-        if (consistent && first && second) {
+        if (consistent && (first || second)) {
             return TypeFactory.getInstance().tupleType(fieldTypes);
         } else {
             return TypeFactory.getInstance().tupleType(types);
@@ -265,7 +265,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     @Override
     protected Type lubWithTuple(Type type) {
         if (getArity() == type.getArity()) {
-            if (type.hasFieldNames()) {
+            if (type.hasFieldNames() || this.hasFieldNames()) {
                 return TupleTypeWithFieldNames.lubNamedTupleTypes(this, type);
             }
             else {

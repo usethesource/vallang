@@ -7,9 +7,8 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+ *    Jurgen Vinju (Jurgen.Vinju@cwi.nl) - evolution and maintenance
  *******************************************************************************/
-
 package io.usethesource.vallang.type;
 
 import java.util.Iterator;
@@ -455,8 +454,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     }
     
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-            int maxDepth, int maxWidth) {
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         IValue[] elems = new IValue[getArity()];
         
         for (int i = 0; i < elems.length; i++) {
