@@ -9,7 +9,6 @@ node {
     
     withMaven(maven: 'M3', jdk: 'jdk-oracle-8', options: [artifactsPublisher(disabled: true), junitPublisher(disabled: false)] ) {
         stage('Build and Test') {
-            sh "echo \$(env)"
             sh "mvn clean test"
         }
 
