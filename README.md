@@ -1,6 +1,6 @@
 ## Status
 
-* [![Build Status](https://ci.usethesource.io/job/usethesource/job/vallang/job/master/badge/icon)](https://ci.usethesource.io/job/usethesource/job/vallang/job/master/)
+[![Build Status](https://ci.usethesource.io/job/usethesource/job/vallang/job/master/badge/icon)](https://ci.usethesource.io/job/usethesource/job/vallang/job/master/)
  
 ## What is Vallang?
 
