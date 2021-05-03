@@ -1,3 +1,7 @@
+## Status
+
+* ![vallang build status](https://github.com/usethesource/vallang/actions/workflows/build.yaml/badge.svg)
+* 
 ## What is Vallang?
 
 **Vallang** is a highly integrated and mostly-closed collection of mutually recursive fundamental data-types on the Java Virtual Machine:
