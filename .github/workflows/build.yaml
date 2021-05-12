@@ -5,7 +5,9 @@ on:
       - master
     tags:
       - 'v[0-9]+.*'
-    pull_request:
+  pull_request:
+    branches:
+      - master
 
 jobs:
   test:
