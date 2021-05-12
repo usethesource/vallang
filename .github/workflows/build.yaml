@@ -36,7 +36,7 @@ jobs:
         if: ${{ always() }}
         uses: scacap/action-surefire-report@v1
         with:
-          check_name: "Test Report (${{ matrix.os }}"
+          check_name: "Test Report (${{ matrix.os }})"
 
   
   checker-framework:
@@ -53,7 +53,7 @@ jobs:
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-checker-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          restore-keys: ${{ runner.os }}-m2-checker
 
       - name: Verify using checker-framework
         run: mvn -B clean compile -P checker-framework
