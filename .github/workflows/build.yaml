@@ -5,6 +5,9 @@ on:
       - master
     tags:
       - 'v[0-9]+.*'
+  pull_request:
+    branches:
+      - master
 
 jobs:
   test:
@@ -30,7 +33,7 @@ jobs:
         run: mvn -B --update-snapshots clean test
 
       - name: Publish Test Report
-        if: ${{ always() }}
+        if: ${{ always() }} && github.event_name != 'pull_request' # to bad this doesn't work nicely with external pull requests
         uses: scacap/action-surefire-report@v1
         with:
           check_name: "Test Report (${{ matrix.os }})"
