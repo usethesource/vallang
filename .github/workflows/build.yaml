@@ -9,6 +9,10 @@ on:
     branches:
       - master
 
+env:
+  MAVEN_OPTS: "-Xmx4G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+
+
 jobs:
   test:
     strategy:
@@ -30,7 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       
       - name: test
-        run: mvn -B --update-snapshots clean test
+        run: mvn -B clean test
 
       - name: Publish Test Report
         if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
