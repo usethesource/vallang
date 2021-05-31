@@ -1,0 +1,10 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: monthly
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: com.github.ben-manes.caffeine:caffeine
+    versions: ["3.x"] # >3 requires java 11

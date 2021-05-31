@@ -12,23 +12,11 @@
 		<tag>HEAD</tag>
 	</scm>
 
-	<!-- deployment configuration (usethesource) -->
-	<distributionManagement>
-		<repository>
-			<id>usethesource-releases</id>
-			<url>https://nexus.usethesource.io/content/repositories/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>usethesource-snapshots</id>
-			<url>https://nexus.usethesource.io/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<!-- dependency resolution configuration (usethesource) -->
 	<repositories>
 		<repository>
 			<id>usethesource</id>
-			<url>https://nexus.usethesource.io/content/repositories/public/</url>
+			<url>https://releases.usethesource.io/maven/</url>
 		</repository>
 	</repositories>
 
@@ -130,7 +118,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.6</version>
+				<version>0.8.7</version>
 				<executions>
 					<execution>
 						<goals>
@@ -153,13 +141,13 @@
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-engine</artifactId>
-		<version>5.7.0</version>
+		<version>5.7.1</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-params</artifactId>
-		<version>5.7.0</version>
+		<version>5.7.1</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
@@ -170,17 +158,17 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.19</version>
+			<version>1.20</version>
 		</dependency>
 		<dependency>
 			<groupId>org.tukaani</groupId>
 			<artifactId>xz</artifactId>
-			<version>1.8</version>
+			<version>1.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.luben</groupId>
 			<artifactId>zstd-jni</artifactId>
-			<version>1.4.5-2</version>
+			<version>1.4.9-5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
