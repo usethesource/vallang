@@ -1,7 +1,6 @@
-## Status
-
-[![Build Status](https://ci.usethesource.io/job/usethesource/job/vallang/job/master/badge/icon)](https://ci.usethesource.io/job/usethesource/job/vallang/job/master/)
- 
+# Vallang 
+[![Build Status](https://github.com/usethesource/vallang/actions/workflows/build.yaml/badge.svg)](https://github.com/usethesource/vallang/actions/workflows/build.yaml)
+![Maven Release](https://img.shields.io/maven-metadata/v?color=1c9099&metadataUrl=https%3A%2F%2Freleases.usethesource.io%2Fmaven%2Fio%2Fusethesource%2Fvallang%2Fmaven-metadata.xml)
 ## What is Vallang?
 
 **Vallang** is a highly integrated and mostly-closed collection of mutually recursive fundamental data-types on the Java Virtual Machine:
