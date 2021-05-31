@@ -15,6 +15,7 @@
 * tree nodes: `"myNode"(1,2,3)`
 * many-sorted algebraic terms, acting as typed tree nodes: `myNode(1,2,3)`.
 * keyword fields or properties to tree nodes and algebraic data-types: `"myNode"(name="Winston")`, `myNode(age=12)`
+* functions: currently only function types are supported, we are working on adding function values.
 
 Operations on these data-types are too many to list here. A selection is listed below, but you should expect the features to be pretty low level; i.e. directly accessing and manipulating the data rather than providing analysis algorithms. Algorithms in the library are added only if programming them below the abstraction layer of **vallang** provides a major efficiency benefit or it can factors out highly common client code into a reusable feature. More on this design decision later. 
 
