@@ -32,6 +32,7 @@ import io.usethesource.vallang.ArgumentsMaxWidth;
 import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -64,6 +65,11 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             @ExpectedType("Boolean") 
             IConstructor t) throws FactTypeUseException, IOException {
         ioRoundTrip(vf, store, t);
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testDateTimeIO(IValueFactory vf, TypeStore ts, IDateTime value) throws IOException {
+        ioRoundTrip(vf, ts, value);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -205,8 +211,8 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, () -> ts)) {
             IValue result = read.read();
             if (!value.equals(result)) {
-                String message = "Not equal:\n\t" + value + " : " + value.getType()
-                + "\n\t" + result + " : " + result.getType();
+                String message = "Not equal: \n\t" + value + " : " + value.getType() + "( " + value.getClass() + ")"
+                + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
                 System.err.println("Test fail:");
                 System.err.println(message);
                 System.err.flush();
@@ -243,8 +249,8 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         try (IValueInputStream read = new IValueInputStream(FileChannel.open(target.toPath(), StandardOpenOption.READ), vf, () -> ts)) {
             IValue result = read.read();
             if (!value.equals(result)) {
-                String message = "Not equal: size: " + fileSize +") \n\t" + value + " : " + value.getType()
-                + "\n\t" + result + " : " + result.getType();
+                String message = "Not equal: size: " + fileSize +") \n\t" + value + " : " + value.getType() + "( " + value.getClass() + ")"
+                + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
                 System.err.println(message);
                 fail(message);
             }

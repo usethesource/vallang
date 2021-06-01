@@ -12,13 +12,16 @@
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.exceptions.InvalidDateTimeException;
 import io.usethesource.vallang.type.Type;
@@ -34,17 +37,15 @@ import io.usethesource.vallang.type.TypeFactory;
  */
 /*package*/ class DateTimeValues {
 
-    private final static Type DATE_TIME_TYPE = TypeFactory.getInstance().dateTimeType();
+    private static final Type DATE_TIME_TYPE = TypeFactory.getInstance().dateTimeType();
 
     /*package*/ static IDateTime newDate(int year, int month, int day) {
         return new DateTimeValues.DateValue(year, month, day);
     }
 
-    private static class DateValue implements IDateTime {
 
-        private int year;
-        private int month;
-        private int day;
+    private static class DateValue implements IDateTime {
+        private final LocalDate actual;
 
         /**
          * Construct a DateTime object representing a date. 
@@ -54,21 +55,11 @@ import io.usethesource.vallang.type.TypeFactory;
          * @param day			The day of the date
          */
         private DateValue(int year, int month, int day) {
-            super();
-
-            this.year = year;
-            this.month = month;
-            this.day = day;
-
-            // Check to make sure the provided value are valid.
-            // TODO: Failure here should throw a PDB exception.
-            Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
-            cal.setLenient(false);
-            cal.set(year, month-1, day);
             try {
-                cal.get(Calendar.YEAR);
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidDateTimeException("Cannot create date with provided values."); 
+                actual = LocalDate.of(year, month, day);
+            }
+            catch (DateTimeException dt) {
+                throw new InvalidDateTimeException("Cannot create date with provided values.", dt); 
             }
         }
 
@@ -79,18 +70,13 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public int compareTo(IDateTime arg0) {
+            if (arg0 instanceof DateValue) {
+                return actual.compareTo(((DateValue)arg0).actual);
+            }
             if (arg0.isDate()) {
-                long m1 = this.getInstant();
-                long m2 = arg0.getInstant();
-                if (m1 == m2)
-                    return 0;
-                else if (m1 < m2)
-                    return -1;
-                else
-                    return 1;
-            } else {
-                throw new UnsupportedOperationException("Date and non-Date values are not comparable");
-            }				
+                return Long.compare(getInstant(), arg0.getInstant());
+            }
+            throw new UnsupportedOperationException("Date and non-Date values are not comparable");
         }
 
         /* (non-Javadoc)
@@ -98,10 +84,10 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public long getInstant() {
-            Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
-            cal.setTime(new Date(0));
-            cal.set(this.year, this.month-1, this.day);
-            return cal.getTimeInMillis();
+            return actual
+                .atTime(LocalTime.MIN)
+                .atZone(ZoneId.systemDefault())
+                .toEpochSecond() * 1000;
         }
 
         /* (non-Javadoc)
@@ -109,7 +95,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getCentury() {
-            return (year - (year % 100)) / 100;
+            return (getYear() - (getYear() % 100)) / 100;
         }
 
         /* (non-Javadoc)
@@ -117,7 +103,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getYear() {
-            return this.year;
+            return actual.getYear();
         }
 
         /* (non-Javadoc)
@@ -125,7 +111,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getMonthOfYear() {
-            return this.month;
+            return actual.getMonthValue();
         }
 
         /* (non-Javadoc)
@@ -133,7 +119,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getDayOfMonth() {
-            return this.day;
+            return actual.getDayOfMonth();
         }
 
         /* (non-Javadoc)
@@ -210,30 +196,20 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + day;
-            result = prime * result + month;
-            result = prime * result + year;
-            return result;
+            return actual.hashCode();
         }
 
         @Override
         public boolean equals(@Nullable Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            DateValue other = (DateValue) obj;
-            if (day != other.day)
-                return false;
-            if (month != other.month)
-                return false;
-            if (year != other.year)
-                return false;
-            return true;
+            if (obj instanceof DateValue) {
+                return ((DateValue)obj).actual.equals(actual);
+            }
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return defaultToString();
         }
     }
 
@@ -246,34 +222,23 @@ import io.usethesource.vallang.type.TypeFactory;
         return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset);
     }
 
+    private static long currentTotalOffset() {
+        return OffsetDateTime.now().getOffset().getTotalSeconds();
+    }
+
+    private static int currentHourOffset() {
+        return (int) TimeUnit.HOURS.convert(currentTotalOffset(), TimeUnit.SECONDS);
+    }
+
+    private static int currentMinuteOffset() {
+        return (int) (TimeUnit.MINUTES.convert(currentTotalOffset(), TimeUnit.SECONDS) % 60);
+    }
+
+    private static ZoneOffset toOffset(int hourOffset, int minuteOffset) {
+        return ZoneOffset.ofHoursMinutes(hourOffset, minuteOffset);
+    }
     private static class TimeValue  implements IDateTime {
-
-        private int hour;
-        private int minute;
-        private int second;
-        private int millisecond;
-        private int timezoneHours;
-        private int timezoneMinutes;
-
-        private final static int millisInAMinute = 1000 * 60;
-        private final static int millisInAnHour = TimeValue.millisInAMinute * 60;
-
-        /**
-         * Given the hour and minute offset, generate the appropriate Java
-         * timezone string
-         * 
-         * @param hourOffset	The hour offset for the timezone.
-         * @param minuteOffset	The minute offset for the timezone.
-         * 
-         * @return				A string with the proper timezone.
-         */
-        private static String getTZString(int hourOffset, int minuteOffset) {
-            String tzString = "GMT" + 
-                    ((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
-                    String.format("%02d",Math.abs(hourOffset)) +
-                    String.format("%02d",Math.abs(minuteOffset));
-            return tzString;
-        }
+        private final OffsetTime actual;
 
         /**
          * Construct a DateTime object representing a time. 
@@ -284,33 +249,7 @@ import io.usethesource.vallang.type.TypeFactory;
          * @param millisecond	The millisecond of the time
          */
         private TimeValue(int hour, int minute, int second, int millisecond) {
-            super();
-
-            this.hour = hour;
-            this.minute = minute;
-            this.second = second;
-            this.millisecond = millisecond;
-
-            // Check to make sure the provided values are valid.
-            // TODO: Failure here should throw a PDB exception.
-            Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
-            cal.setLenient(false);
-            cal.set(Calendar.HOUR_OF_DAY, hour);
-            cal.set(Calendar.MINUTE, minute);
-            cal.set(Calendar.SECOND, second);
-            cal.set(Calendar.MILLISECOND, millisecond);
-
-            try {
-                cal.get(Calendar.HOUR_OF_DAY);
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidDateTimeException("Cannot create time with provided values."); 
-            }
-
-            // Get back the time zone information so we can store it with
-            // the rest of the date information. This is based on the
-            // current default time zone, since none was provided.
-            this.timezoneHours = cal.get(Calendar.ZONE_OFFSET) / TimeValue.millisInAnHour;
-            this.timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % TimeValue.millisInAnHour / TimeValue.millisInAMinute;
+            this(hour, minute, second, millisecond, currentHourOffset(), currentMinuteOffset());
         }
 
         /**
@@ -324,28 +263,11 @@ import io.usethesource.vallang.type.TypeFactory;
          * @param minuteOffset	The timezone offset of the time, in minutes
          */
         private TimeValue(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
-            super();
-
-            this.hour = hour;
-            this.minute = minute;
-            this.second = second;
-            this.millisecond = millisecond;
-            this.timezoneHours = hourOffset;
-            this.timezoneMinutes = minuteOffset;
-
-            // Check to make sure the provided values are valid.
-            // TODO: Failure here should throw a PDB exception.
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(hourOffset,minuteOffset)),Locale.getDefault());
-            cal.setLenient(false);
-            cal.set(Calendar.HOUR_OF_DAY, hour);
-            cal.set(Calendar.MINUTE, minute);
-            cal.set(Calendar.SECOND, second);
-            cal.set(Calendar.MILLISECOND, millisecond);
-
             try {
-                cal.get(Calendar.HOUR_OF_DAY);
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidDateTimeException("Cannot create time with provided values."); 
+                actual = OffsetTime.of(hour, minute, second, (int)TimeUnit.MILLISECONDS.toNanos(millisecond), toOffset(hourOffset, minuteOffset));
+            }
+            catch (DateTimeException dt) {
+                throw new InvalidDateTimeException("Cannot create date with provided values.", dt); 
             }
         }
 
@@ -356,18 +278,13 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public int compareTo(IDateTime arg0) {
-            if (arg0.isTime()) {
-                long m1 = this.getInstant();
-                long m2 = arg0.getInstant();
-                if (m1 == m2)
-                    return 0;
-                else if (m1 < m2)
-                    return -1;
-                else
-                    return 1;
-            } else {
-                throw new UnsupportedOperationException("Time and non-Time values are not comparable");
+            if (arg0 instanceof TimeValue) {
+                return actual.compareTo(((TimeValue)arg0).actual);
             }
+            if (arg0.isTime()) {
+                return Long.compare(getInstant(), arg0.getInstant());
+            }
+            throw new UnsupportedOperationException("Time and non-Time values are not comparable");
         }
 
         /* (non-Javadoc)
@@ -375,10 +292,10 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public long getInstant() {
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(this.timezoneHours,this.timezoneMinutes)),Locale.getDefault());
-            cal.set(1970, 0, 1, this.hour, this.minute, this.second);
-            cal.set(Calendar.MILLISECOND, this.millisecond);
-            return cal.getTimeInMillis();
+            return actual
+                .atDate(LocalDate.of(1970, 1, 1))
+                .toEpochSecond() * 1000
+                ;
         }
 
         /* (non-Javadoc)
@@ -418,7 +335,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getHourOfDay() {
-            return this.hour;
+            return actual.getHour();
         }
 
         /* (non-Javadoc)
@@ -426,7 +343,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getMinuteOfHour() {
-            return this.minute;
+            return actual.getMinute();
         }
 
         /* (non-Javadoc)
@@ -434,7 +351,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getSecondOfMinute() {
-            return this.second;
+            return actual.getSecond();
         }
 
         /* (non-Javadoc)
@@ -442,7 +359,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getMillisecondsOfSecond() {
-            return this.millisecond;
+            return (int) TimeUnit.MILLISECONDS.convert(actual.getNano(), TimeUnit.NANOSECONDS);
         }
 
         /* (non-Javadoc)
@@ -450,7 +367,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getTimezoneOffsetHours() {
-            return this.timezoneHours;
+            return (int)TimeUnit.HOURS.convert(actual.getOffset().getTotalSeconds(), TimeUnit.SECONDS);
         }
 
         /* (non-Javadoc)
@@ -458,7 +375,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getTimezoneOffsetMinutes() {
-            return this.timezoneMinutes;
+            return (int)(TimeUnit.MINUTES.convert(actual.getOffset().getTotalSeconds(), TimeUnit.SECONDS) % 60);
         }
 
         /* (non-Javadoc)
@@ -487,39 +404,20 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + hour;
-            result = prime * result + millisecond;
-            result = prime * result + minute;
-            result = prime * result + second;
-            result = prime * result + timezoneHours;
-            result = prime * result + timezoneMinutes;
-            return result;
+            return actual.hashCode();
         }
 
         @Override
         public boolean equals(@Nullable Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            TimeValue other = (TimeValue) obj;
-            if (hour != other.hour)
-                return false;
-            if (millisecond != other.millisecond)
-                return false;
-            if (minute != other.minute)
-                return false;
-            if (second != other.second)
-                return false;
-            if (timezoneHours != other.timezoneHours)
-                return false;
-            if (timezoneMinutes != other.timezoneMinutes)
-                return false;
-            return true;
+            if (obj instanceof TimeValue) {
+                return actual.equals(((TimeValue)obj).actual);
+            }
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return defaultToString();
         }
     }
 
@@ -543,16 +441,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private static class DateTimeValue  implements IDateTime {
-
-        private int year;
-        private int month;
-        private int day;
-        private int hour;
-        private int minute;
-        private int second;
-        private int millisecond;
-        private int timezoneHours;
-        private int timezoneMinutes;
+        private final OffsetDateTime actual;
 
         /**
          * Construct a DateTime object representing a date and time.
@@ -566,34 +455,7 @@ import io.usethesource.vallang.type.TypeFactory;
          * @param millisecond	The millisecond of the datetime
          */
         private DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond) {
-            super();
-
-            this.year = year;
-            this.month = month;
-            this.day = day;
-            this.hour = hour;
-            this.minute = minute;
-            this.second = second;
-            this.millisecond = millisecond;
-
-            // Check to make sure the provided values are valid.
-            // TODO: Failure here should throw a PDB exception.
-            Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
-            cal.setLenient(false);
-            cal.set(year, month-1, day, hour, minute, second);
-            cal.set(Calendar.MILLISECOND, millisecond);
-
-            try {
-                cal.get(Calendar.HOUR_OF_DAY);
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidDateTimeException("Cannot create datetime with provided values."); 
-            }
-
-            // Get back the time zone information so we can store it with
-            // the rest of the date information. This is based on the
-            // current default time zone, since none was provided.
-            this.timezoneHours = cal.get(Calendar.ZONE_OFFSET) / TimeValue.millisInAnHour;
-            this.timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % TimeValue.millisInAnHour / TimeValue.millisInAMinute;
+            this(year, month, day, hour, minute, second, millisecond, currentHourOffset(), currentMinuteOffset());
         }
 
         /**
@@ -610,28 +472,11 @@ import io.usethesource.vallang.type.TypeFactory;
          * @param minuteOffset	The timezone offset of the time, in minutes
          */
         private DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
-            super();
-            this.year = year;
-            this.month = month;
-            this.day = day;
-            this.hour = hour;
-            this.minute = minute;
-            this.second = second;
-            this.millisecond = millisecond;
-            this.timezoneHours = hourOffset;
-            this.timezoneMinutes = minuteOffset;
-
-            // Check to make sure the provided values are valid.
-            // TODO: Failure here should throw a PDB exception.
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(TimeValue.getTZString(hourOffset,minuteOffset)),Locale.getDefault());
-            cal.setLenient(false);
-            cal.set(year, month-1, day, hour, minute, second);
-            cal.set(Calendar.MILLISECOND, millisecond);
-
             try {
-                cal.get(Calendar.HOUR_OF_DAY);
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidDateTimeException("Cannot create datetime with provided values."); 
+                actual = OffsetDateTime.of(year, month, day, hour, minute, second, (int)TimeUnit.MILLISECONDS.toNanos(millisecond), toOffset(hourOffset, minuteOffset));
+            }
+            catch (DateTimeException dt) {
+                throw new InvalidDateTimeException("Cannot create date with provided values.", dt); 
             }
         }
 
@@ -644,21 +489,12 @@ import io.usethesource.vallang.type.TypeFactory;
          * @param timezoneMinutes The minute offset for the new object's timezone
          */
         private DateTimeValue(long instant, int timezoneHours, int timezoneMinutes) {
-            super();
-
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(TimeValue.getTZString(timezoneHours, timezoneMinutes)),Locale.getDefault());
-            cal.setLenient(false);
-            cal.setTime(new Date(instant));
-
-            this.year = cal.get(Calendar.YEAR);
-            this.month = cal.get(Calendar.MONTH) + 1;
-            this.day = cal.get(Calendar.DAY_OF_MONTH);
-            this.hour = cal.get(Calendar.HOUR_OF_DAY);
-            this.minute = cal.get(Calendar.MINUTE);
-            this.second = cal.get(Calendar.SECOND);
-            this.millisecond = cal.get(Calendar.MILLISECOND);
-            this.timezoneHours = timezoneHours;
-            this.timezoneMinutes = timezoneMinutes;
+            try {
+                actual = Instant.ofEpochMilli(instant).atOffset(toOffset(timezoneHours, timezoneMinutes));
+            }
+            catch (DateTimeException dt) {
+                throw new InvalidDateTimeException("Cannot create date with provided values.", dt); 
+            }
         }
 
         @Override
@@ -673,18 +509,13 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public int compareTo(IDateTime arg0) {
-            if (arg0.isDateTime()) {
-                long m1 = this.getInstant();
-                long m2 = arg0.getInstant();
-                if (m1 == m2)
-                    return 0;
-                else if (m1 < m2)
-                    return -1;
-                else
-                    return 1;
-            } else {
-                throw new UnsupportedOperationException("DateTime and non-DateTime values are not comparable");
+            if (arg0 instanceof DateTimeValue) {
+                return actual.compareTo(((DateTimeValue)arg0).actual);
             }
+            if (arg0.isDateTime()) {
+                return Long.compare(getInstant(), arg0.getInstant());
+            }
+            throw new UnsupportedOperationException("DateTime and non-DateTime values are not comparable");
         }
 
         /* (non-Javadoc)
@@ -692,10 +523,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public long getInstant() {
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(TimeValue.getTZString(this.timezoneHours,this.timezoneMinutes)),Locale.getDefault());
-            cal.set(this.year, this.month-1, this.day, this.hour, this.minute, this.second);
-            cal.set(Calendar.MILLISECOND, this.millisecond);
-            return cal.getTimeInMillis();
+            return actual.toInstant().toEpochMilli();
         }
 
         /* (non-Javadoc)
@@ -703,7 +531,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getCentury() {
-            return (year - (year % 100)) / 100;
+            return (getYear() - (getYear() % 100)) / 100;
         }
 
         /* (non-Javadoc)
@@ -711,7 +539,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getYear() {
-            return this.year;
+            return actual.getYear();
         }
 
         /* (non-Javadoc)
@@ -719,7 +547,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getMonthOfYear() {
-            return this.month;
+            return actual.getMonthValue();
         }
 
         /* (non-Javadoc)
@@ -727,7 +555,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getDayOfMonth() {
-            return this.day;
+            return actual.getDayOfMonth();
         }
 
         /* (non-Javadoc)
@@ -735,7 +563,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getHourOfDay() {
-            return this.hour;
+            return actual.getHour();
         }
 
         /* (non-Javadoc)
@@ -743,7 +571,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getMinuteOfHour() {
-            return this.minute;
+            return actual.getMinute();
         }
 
         /* (non-Javadoc)
@@ -751,7 +579,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getSecondOfMinute() {
-            return this.second;
+            return actual.getSecond();
         }
 
         /* (non-Javadoc)
@@ -759,7 +587,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getMillisecondsOfSecond() {
-            return this.millisecond;
+            return (int) TimeUnit.MILLISECONDS.convert(actual.getNano(), TimeUnit.NANOSECONDS);
         }
 
         /* (non-Javadoc)
@@ -767,7 +595,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getTimezoneOffsetHours() {
-            return this.timezoneHours;
+            return (int) TimeUnit.HOURS.convert(actual.getOffset().getTotalSeconds(), TimeUnit.SECONDS);
         }
 
         /* (non-Javadoc)
@@ -775,7 +603,7 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         @Override
         public int getTimezoneOffsetMinutes() {
-            return this.timezoneMinutes;
+            return (int) (TimeUnit.MINUTES.convert(actual.getOffset().getTotalSeconds(), TimeUnit.SECONDS) % 60);
         }
 
         /* (non-Javadoc)
@@ -804,48 +632,15 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + day;
-            result = prime * result + hour;
-            result = prime * result + millisecond;
-            result = prime * result + minute;
-            result = prime * result + month;
-            result = prime * result + second;
-            result = prime * result + timezoneHours;
-            result = prime * result + timezoneMinutes;
-            result = prime * result + year;
-            return result;
+            return actual.hashCode();
         }
 
         @Override
         public boolean equals(@Nullable Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            DateTimeValue other = (DateTimeValue) obj;
-            if (day != other.day)
-                return false;
-            if (hour != other.hour)
-                return false;
-            if (millisecond != other.millisecond)
-                return false;
-            if (minute != other.minute)
-                return false;
-            if (month != other.month)
-                return false;
-            if (second != other.second)
-                return false;
-            if (timezoneHours != other.timezoneHours)
-                return false;
-            if (timezoneMinutes != other.timezoneMinutes)
-                return false;
-            if (year != other.year)
-                return false;
-            return true;
+            if (obj instanceof DateTimeValue) {
+                return actual.equals(((DateTimeValue)obj).actual);
+            }
+            return false;
         }
     }
 }

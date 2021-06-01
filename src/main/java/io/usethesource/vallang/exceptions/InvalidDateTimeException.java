@@ -8,4 +8,8 @@ public class InvalidDateTimeException extends FactTypeUseException {
 		super(message);
 	}
 
+	public InvalidDateTimeException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

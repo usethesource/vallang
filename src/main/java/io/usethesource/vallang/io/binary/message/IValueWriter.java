@@ -537,7 +537,7 @@ public class IValueWriter {
             public void visitDateTime(IDateTime dateTime) throws IOException {
                 writer.startMessage(IValueIDs.DateTimeValue.ID);
 
-                if (!dateTime.isTime()) {
+                if (dateTime.isDateTime() || dateTime.isDate()) {
                     writer.writeField(IValueIDs.DateTimeValue.YEAR, dateTime.getYear());
                     writer.writeField(IValueIDs.DateTimeValue.MONTH, dateTime.getMonthOfYear());
                     writer.writeField(IValueIDs.DateTimeValue.DAY, dateTime.getDayOfMonth());

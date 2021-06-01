@@ -42,6 +42,7 @@ import io.usethesource.vallang.type.TypeStore;
  *    <li>IConstructor</li>
  *    <li>ITuple</li>
  *    <li>ISourceLocation</li>
+ *    <li>IDateTime</li>
  *    <li>Type</li></ul></p>
  *    
  *    <p>If the class under test has a static field called "store" of type TypeStore, then this
@@ -131,6 +132,7 @@ public class ValueProvider implements ArgumentsProvider {
     private static final Map<Class<? extends IValue>, BiFunction<TypeStore, ExpectedType, Type>> types = 
         Stream.<Tuple<Class<? extends IValue>, BiFunction<TypeStore, ExpectedType, Type>>>of(
             Tuple.of(IInteger.class,        (ts, n) -> tf.integerType()),
+            Tuple.of(IDateTime.class,       (ts, n) -> tf.dateTimeType()),
             Tuple.of(IBool.class,           (ts, n) -> tf.boolType()),
             Tuple.of(IReal.class,           (ts, n) -> tf.realType()),
             Tuple.of(IRational.class,       (ts, n) -> tf.rationalType()),

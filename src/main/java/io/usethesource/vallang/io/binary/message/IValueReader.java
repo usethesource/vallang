@@ -961,7 +961,7 @@ public class IValueReader {
         }
         else {
             assert year != -1;
-            return vf.datetime(year, month, day);
+            return vf.date(year, month, day);
         }
     }
 

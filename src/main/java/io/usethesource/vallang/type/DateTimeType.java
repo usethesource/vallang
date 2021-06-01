@@ -10,15 +10,19 @@
  *******************************************************************************/
 package io.usethesource.vallang.type;
 
-import java.util.Calendar;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoField;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -60,46 +64,61 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	public TypeReifier getTypeReifier() {
 		return new Info();
 	}
-	
+
+	private static long between(Random r, ChronoField chrono) {
+		return between(r, chrono.range().getMinimum(), chrono.range().getMaximum());
+	}
+
+	private static long between(Random r, long a, long b) {
+		return r.longs(1, a, b).sum();
+	}
+
 	@Override
 	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
 	        int maxDepth, int maxBreadth) {
-	    Calendar cal = Calendar.getInstance();
+		
         try {
-            int milliOffset = random.nextInt(1000) * (random.nextBoolean() ? -1 : 1);
-            cal.roll(Calendar.MILLISECOND, milliOffset);
-            int second = random.nextInt(60) * (random.nextBoolean() ? -1 : 1);
-            cal.roll(Calendar.SECOND, second);
-            int minute = random.nextInt(60) * (random.nextBoolean() ? -1 : 1);
-            cal.roll(Calendar.MINUTE, minute);
-            int hour = random.nextInt(60) * (random.nextBoolean() ? -1 : 1);
-            cal.roll(Calendar.HOUR_OF_DAY, hour);
-            int day = random.nextInt(30) * (random.nextBoolean() ? -1 : 1);
-            cal.roll(Calendar.DAY_OF_MONTH, day);
-            int month = random.nextInt(12) * (random.nextBoolean() ? -1 : 1);
-            cal.roll(Calendar.MONTH, month);
-
-            // make sure we do not go over the 4 digit year limit, which breaks things
-            int year = random.nextInt(5000) * (random.nextBoolean() ? -1 : 1);
-
-            // make sure we don't go into negative territory
-            if (cal.get(Calendar.YEAR) + year < 1) {
-                cal.add(Calendar.YEAR, 1);
-            }
-            else {
-                cal.add(Calendar.YEAR, year);
-            }
-
-            return vf.datetime(cal.getTimeInMillis());
-        }
-        catch (IllegalArgumentException e) {
-            // this may happen if the generated random time does
-            // not exist due to timezone shifting or due to historical
-            // calendar standardization changes
-            // So, we just try again until we hit a better random date
-            return randomValue(random, vf, store, typeParameters, maxDepth, maxBreadth);
-            // The chances of continued failure before we run out of stack are low.
-        }
+			if (random.nextDouble() > 0.8) {
+				LocalTime result = LocalTime.ofSecondOfDay(between(random, ChronoField.SECOND_OF_DAY));
+				return vf.time(
+					result.getHour(), 
+					result.getMinute(), 
+					result.getSecond(), 
+					(int) TimeUnit.MILLISECONDS.convert(result.getNano(), TimeUnit.NANOSECONDS)
+				);
+			}
+			if (random.nextDouble() > 0.8) {
+				LocalDate result = LocalDate.ofEpochDay(between(random, 
+					LocalDate.of(0,1, 1).toEpochDay(),
+					LocalDate.of(9999,1, 1).toEpochDay()
+				));
+				return vf.date(
+					result.getYear(),
+					result.getMonthValue(),
+					result.getDayOfMonth()
+				);
+			}
+        	Instant result = Instant.ofEpochSecond(between(random, 
+				-TimeUnit.DAYS.toSeconds(700),
+				Instant.now().getEpochSecond() + TimeUnit.DAYS.toSeconds(700)
+				), 0
+			);
+			if (random.nextDouble() > 0.5) {
+				return vf.datetime(result.toEpochMilli());
+			}
+			ZoneOffset off = ZoneOffset.ofTotalSeconds((int)between(random, ChronoField.OFFSET_SECONDS));
+			return vf.datetime(result.toEpochMilli(), 
+				(int)TimeUnit.HOURS.convert(off.getTotalSeconds(), TimeUnit.SECONDS), 
+				(int)TimeUnit.MINUTES.convert(off.getTotalSeconds(), TimeUnit.SECONDS) % 60 
+			);
+		} catch (DateTimeException e) {
+			// this may happen if the generated random time does
+			// not exist due to timezone shifting or due to historical
+			// calendar standardization changes
+			// So, we just try again until we hit a better random date
+			return randomValue(random, vf, store, typeParameters, maxDepth, maxBreadth);
+			// The chances of continued failure before we run out of stack are low.
+		}
 	}
 	
 	@Override
