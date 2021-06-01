@@ -604,7 +604,7 @@ public class StandardTextReader extends AbstractTextReader {
                     Integer.parseInt(timeString.substring(4,6)), // seconds
                     Integer.parseInt(timeString.substring(6,9)), // milliseconds
                     Integer.parseInt(timeString.substring(10,12)) * (negativeTZHours ? -1 : 1), // timezone hours
-                    Integer.parseInt(timeString.substring(12))); // timezone minutes
+                    Integer.parseInt(timeString.substring(12)) * (negativeTZHours ? -1 : 1)); // timezone minutes
         }
 
         private IValue readDateTime(Type expected) throws IOException, FactParseError {
