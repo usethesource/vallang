@@ -294,7 +294,8 @@ import io.usethesource.vallang.type.TypeFactory;
         public long getInstant() {
             return actual
                 .atDate(LocalDate.of(1970, 1, 1))
-                .toEpochSecond() * 1000
+                .toInstant()
+                .toEpochMilli()
                 ;
         }
 
