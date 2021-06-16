@@ -133,4 +133,6 @@ public interface IDateTime extends IValue, Comparable<IDateTime> {
 	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 	    return v.visitDateTime(this);
 	}
+
+	IString format(String format);
 }

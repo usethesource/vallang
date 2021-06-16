@@ -20,9 +20,11 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.IDateTime;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.exceptions.InvalidDateTimeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -210,6 +212,11 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public String toString() {
             return defaultToString();
+        }
+
+        @Override
+        public IString format(String format) {
+            return StringValue.newString(actual.format(DateTimeFormatter.ofPattern(format)));
         }
     }
 
@@ -419,6 +426,11 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public String toString() {
             return defaultToString();
+        }
+
+        @Override
+        public IString format(String format) {
+            return StringValue.newString(actual.format(DateTimeFormatter.ofPattern(format)));
         }
     }
 
@@ -642,6 +654,11 @@ import io.usethesource.vallang.type.TypeFactory;
                 return actual.equals(((DateTimeValue)obj).actual);
             }
             return false;
+        }
+
+        @Override
+        public IString format(String format) {
+            return StringValue.newString(actual.format(DateTimeFormatter.ofPattern(format)));
         }
     }
 }
