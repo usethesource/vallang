@@ -836,7 +836,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         switch (children.length) {
-        case 0: return Objects.requireNonNull(EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType));
+        case 0: return nonNull(EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType));
         case 1: return new Constructor1(constructorType, children[0]);
         case 2: return new Constructor2(constructorType, children[0], children[1]);
         case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
@@ -846,6 +846,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         case 7: return new Constructor7(constructorType, children[0], children[1], children[2], children[3], children[4], children[5], children[6]);
         default: return new ConstructorN(constructorType, children);
         }
+    }
+    private static <T> T nonNull(@Nullable T value) {
+        if (value == null) {
+            throw new RuntimeException("Unexpected null value");
+        }
+        return value;
     }
     
     /*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {

@@ -106,11 +106,19 @@ import io.usethesource.vallang.type.TypeFactory;
 
     private static final LoadingCache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build(s -> s);
 
+	private static String safeGetFromCache(LoadingCache<String, String> cache, String key) {
+		String result = cache.get(key);
+		if (result == null) {
+			throw new RuntimeException("Automatic loading cache failed, should not happen, key: " + key);
+		}
+		return result;
+	}
+
     private static class BaseURI implements ISourceLocation {
 		protected final String scheme;
 		
 		public BaseURI(String scheme)  {
-			this.scheme = Objects.requireNonNull(INTERNED_SCHEMES.get(scheme));
+			this.scheme = safeGetFromCache(INTERNED_SCHEMES, scheme);
 		}
 		
 
@@ -308,13 +316,14 @@ import io.usethesource.vallang.type.TypeFactory;
 		return squareBracketClose.matcher(authority).replaceAll("\0\0\uFFF1\0\0");
 	}
 
-	private static final LoadingCache<@NonNull String, @NonNull String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
+	private static final LoadingCache<String, String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
 		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
-			this.authority = Objects.requireNonNull(INTERNED_AUTHORIES.get(authority));
+
+			this.authority = safeGetFromCache(INTERNED_AUTHORIES, authority);
 		}
 		
 		@Override

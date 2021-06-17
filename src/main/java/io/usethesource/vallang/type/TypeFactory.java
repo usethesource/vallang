@@ -1031,11 +1031,18 @@ public class TypeFactory {
 		
 		public void initialize() {
 			try {
-			    Enumeration<URL> resources = Objects.requireNonNull(getClass().getClassLoader()).getResources(TYPES_CONFIG);
+			    Enumeration<URL> resources = checkValidClassLoader(getClass().getClassLoader()).getResources(TYPES_CONFIG);
 			    Collections.list(resources).forEach(f -> loadServices(f));
 			} catch (IOException e) {
 			    throw new Error("WARNING: Could not load type kind definitions from " + TYPES_CONFIG, e);
 			}
+		}
+
+		private ClassLoader checkValidClassLoader(@Nullable ClassLoader cl) {
+			if (cl == null) {
+				throw new Error("Could not find class loader due to bootloader loading of this class");
+			}
+			return cl;
 		}
 		
 		private void loadServices(URL nextElement) {
@@ -1048,7 +1055,7 @@ public class TypeFactory {
 						continue;
 					}
 
-					Class<?> clazz = Objects.requireNonNull(Thread.currentThread().getContextClassLoader()).loadClass(name);
+					Class<?> clazz = checkValidClassLoader(Thread.currentThread().getContextClassLoader()).loadClass(name);
 					Object instance = clazz.newInstance();
 
 					if (instance instanceof TypeReifier) {
