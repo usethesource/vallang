@@ -278,14 +278,21 @@ public class BinaryWireInputStream implements IWireInputStream {
     @Override
     public String getString() {
         assert fieldType == FieldKind.STRING;
-        return Objects.requireNonNull(stringValue);
+        return nonNull(stringValue);
+    }
+
+    private static <T> T nonNull(@Nullable T field) {
+        if (field == null) {
+            throw new RuntimeException("Unexpected null field");
+        }
+        return field;
     }
     
     
     @Override
     public byte[] getBytes() {
         assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.Repeated.BYTES;
-        return Objects.requireNonNull(bytesValue);
+        return nonNull(bytesValue);
     }
     
     @Override
@@ -309,13 +316,13 @@ public class BinaryWireInputStream implements IWireInputStream {
     @Override
     public String[] getStrings() {
         assert getRepeatedType() == FieldKind.Repeated.STRINGS;
-        return Objects.requireNonNull(stringValues);
+        return nonNull(stringValues);
     }
     
     @Override
     public int[] getIntegers() {
         assert getRepeatedType() == FieldKind.Repeated.INTS;
-        return Objects.requireNonNull(intValues);
+        return nonNull(intValues);
     }
     
     @Override

@@ -354,8 +354,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 			
 			E oldElement = frontData[realIndex];
 			frontData[realIndex] = element;
-			
-			return Objects.requireNonNull(oldElement);
+			return nonNull(oldElement);
 		}
 		
 		realIndex = -1 - realIndex;
@@ -365,7 +364,14 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 		E oldElement = backData[realIndex];
 		backData[realIndex] = element;
 		
-		return Objects.requireNonNull(oldElement);
+		return nonNull(oldElement);
+	}
+
+	private E nonNull(@Nullable E result) {
+		if (result == null) {
+			throw new RuntimeException("Internal error, value that should never be null, is null");
+		}
+		return result;
 	}
 	
 	/**
@@ -382,7 +388,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 				throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
 			}
 			
-			return Objects.requireNonNull(frontData[realIndex]);
+			return nonNull(frontData[realIndex]);
 		}
 		
 		realIndex = -1 - realIndex;
@@ -391,7 +397,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 		    throw new ArrayIndexOutOfBoundsException(index+" < 0");
 		}
 		
-		return Objects.requireNonNull(backData[realIndex]);
+		return nonNull(backData[realIndex]);
 	}
 	
 	/**
@@ -409,7 +415,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 			    throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
 			}
 			
-			E oldElement = Objects.requireNonNull(frontData[realIndex]);
+			E oldElement = nonNull(frontData[realIndex]);
 			
 			int elementsToMove = --frontIndex - realIndex;
 			if (elementsToMove > 0) {
@@ -424,7 +430,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 		
 		if(realIndex >= backIndex) throw new ArrayIndexOutOfBoundsException(index+" < 0");
 		
-		E oldElement = Objects.requireNonNull(backData[realIndex]);
+		E oldElement = nonNull(backData[realIndex]);
 		
 		int elementsToMove = --backIndex - realIndex;
 		if (elementsToMove > 0) {
@@ -622,6 +628,13 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 				front = true;
 			}
 		}
+
+		private E nonNull(@Nullable E result) {
+			if (result == null) {
+				throw new RuntimeException("Internal error, value that should never be null, is null");
+			}
+			return result;
+		}
 		
 		/**
 		 * Check whether or not there are more elements in this iteration.
@@ -652,9 +665,9 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 			E element;
 			
 			if (front) {
-				element = Objects.requireNonNull(shareableList.frontData[currentIndex++]);
+				element = nonNull(shareableList.frontData[currentIndex++]);
 			} else {
-				element = Objects.requireNonNull(shareableList.backData[currentIndex--]);
+				element = nonNull(shareableList.backData[currentIndex--]);
 				
 				if(currentIndex == -1){
 					front = true;
