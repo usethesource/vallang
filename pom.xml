@@ -25,7 +25,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 
-		<checkerframework.version>2.9.0</checkerframework.version>
+		<checkerframework.version>3.14.0</checkerframework.version>
 	</properties>
 
 	<build>
@@ -191,6 +191,7 @@
 				<!-- These properties will be set by the Maven Dependency plugin -->
 				<!--suppress UnresolvedMavenProperty -->
 				<annotatedJdk>${org.checkerframework:jdk8:jar}</annotatedJdk>
+				<errorProneJavac>${com.google.errorprone:javac:jar}</errorProneJavac>
 			</properties>
 
 			<build>
@@ -212,6 +213,7 @@
 						<artifactId>maven-compiler-plugin</artifactId>
 						<version>3.8.1</version>
 						<configuration>
+							<fork>true</fork>
 							<source>1.8</source>
 							<target>1.8</target>
 							<compilerArguments>
@@ -235,6 +237,8 @@
 								<!-- checker framework -->
 								<!-- coordinate of the annotated JDK, which comes from a Maven dependency -->
 								<arg>-Xbootclasspath/p:${annotatedJdk}</arg>
+								<arg>-J-Xbootclasspath/p:${errorProneJavac}</arg>
+								<!--<arg>-J-Xbootclasspath/p:${settings.localRepository}/com/google/errorprone/javac/${javac.version}/javac-${javac.version}.jar</arg>-->
 								<!-- -Awarns turns type-checking warnings into errors. -->
 								<!-- <arg>-Awarns</arg> -->
 							</compilerArgs>
@@ -253,8 +257,13 @@
 				<dependency>
 					<groupId>org.checkerframework</groupId>
 					<artifactId>jdk8</artifactId>
-					<version>${checkerframework.version}</version>
+					<version>3.3.0</version>
 					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>com.google.errorprone</groupId>
+					<artifactId>javac</artifactId>
+					<version>9+181-r4173-1</version>
 				</dependency>
 			</dependencies>
 
