@@ -214,7 +214,13 @@ public class XMLReader extends AbstractTextReader {
         }
 
         private String getSafeNodeValue(Node node) {
-            return Objects.requireNonNull(node.getNodeValue());
+            String value = node.getNodeValue();
+
+            if (value == null) {
+                throw new FactParseError("node contains null value", 0);
+            }
+
+            return value;
         }
 
         private IValue parseMap(Node node, Type expected) {
