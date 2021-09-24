@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -109,7 +110,7 @@ public class CacheFactory<T> {
 		}
 	}
 	
-	public T get(int size, Function<Integer, T> computeNew) {
+	public @NonNull T get(int size, Function<Integer, @NonNull T> computeNew) {
         SoftPool<T> reads = caches.computeIfAbsent(size, i -> new SoftPool<>());
         SoftReference<T> tracker;
         while ((tracker = reads.poll()) != null) {

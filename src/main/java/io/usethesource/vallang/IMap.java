@@ -60,15 +60,16 @@ public interface IMap extends ICollection<IMap> {
      * @return true iff there is a value mapped to this key
      */
     @EnsuresNonNullIf(expression="get(#1)", result=true)
+    @SuppressWarnings({"contracts.conditional.postcondition"})
     public boolean containsKey(IValue key);
     
     public default boolean defaultEquals(@Nullable Object other){
-        if (other == this) {
-            return true;
-        }
-        
         if (other == null) {
             return false;
+        }
+
+        if (other == this) {
+            return true;
         }
 
         if (other instanceof IMap) {

@@ -53,8 +53,7 @@ import io.usethesource.vallang.type.Type;
 	}
 	
 	@Override
-	@EnsuresNonNullIf(expression="get(#1)", result=true)
-	@SuppressWarnings({"contracts.conditional.postcondition.not.satisfied", "contracts.conditional.postcondition.true.override.invalid"})
+	@SuppressWarnings({"contracts.conditional.postcondition"})
 	public boolean containsKey(IValue key) {
 	    return content.containsKey(key);
 	}
