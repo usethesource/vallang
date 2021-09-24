@@ -22,7 +22,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<checkerframework.version>2.9.0</checkerframework.version>
+		<checkerframework.version>3.14.0</checkerframework.version>
 	</properties>
 
 	<build>
@@ -185,12 +185,6 @@
 			<id>checker-framework
 			</id> <!-- Slower but safer profile used to look for errors before pushing to SCM -->
 
-			<properties>
-				<!-- These properties will be set by the Maven Dependency plugin -->
-				<!--suppress UnresolvedMavenProperty -->
-				<annotatedJdk>${org.checkerframework:jdk8:jar}</annotatedJdk>
-			</properties>
-
 			<build>
 				<plugins>
 					<plugin>
@@ -210,6 +204,7 @@
 						<artifactId>maven-compiler-plugin</artifactId>
 						<version>3.8.1</version>
                                                 <configuration>
+                                                        <fork>true</fork>
                                                         <release>11</release>
 							<compilerArguments>
 								<Xmaxerrs>1000</Xmaxerrs>
@@ -228,13 +223,6 @@
 									org.checkerframework.checker.nullness.NullnessChecker
 								</annotationProcessor>
 							</annotationProcessors>
-							<compilerArgs>
-								<!-- checker framework -->
-								<!-- coordinate of the annotated JDK, which comes from a Maven dependency -->
-								<arg>-Xbootclasspath/p:${annotatedJdk}</arg>
-								<!-- -Awarns turns type-checking warnings into errors. -->
-								<!-- <arg>-Awarns</arg> -->
-							</compilerArgs>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -250,7 +238,7 @@
 				<dependency>
 					<groupId>org.checkerframework</groupId>
 					<artifactId>jdk8</artifactId>
-					<version>${checkerframework.version}</version>
+					<version>3.3.0</version>
 					<scope>provided</scope>
 				</dependency>
 			</dependencies>
