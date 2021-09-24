@@ -22,7 +22,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<checkerframework.version>3.14.0</checkerframework.version>
+		<checkerframework.version>3.18.0</checkerframework.version>
 	</properties>
 
 	<build>

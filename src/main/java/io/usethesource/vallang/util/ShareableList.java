@@ -12,7 +12,6 @@ package io.usethesource.vallang.util;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -629,7 +628,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 			}
 		}
 
-		private E nonNull(@Nullable E result) {
+		private @NonNull E nonNull(@Nullable E result) {
 			if (result == null) {
 				throw new RuntimeException("Internal error, value that should never be null, is null");
 			}
