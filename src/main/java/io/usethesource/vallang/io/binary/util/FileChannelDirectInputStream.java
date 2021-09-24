@@ -62,7 +62,10 @@ public class FileChannelDirectInputStream extends ByteBufferInputStream {
             cleaner.setAccessible(true);
             Method clean = Class.forName("sun.misc.Cleaner").getMethod("clean");
             clean.setAccessible(true);
-            clean.invoke(Objects.requireNonNull(cleaner.invoke(cb)));
+            Object param = cleaner.invoke(cb);
+            if (param != null) {
+                clean.invoke(param);   
+            }
         } catch(Exception ex) { }
         cb = null;
     }
