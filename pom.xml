@@ -22,9 +22,6 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.compiler.source>1.8</maven.compiler.source>
-
 		<checkerframework.version>2.9.0</checkerframework.version>
 	</properties>
 
@@ -48,6 +45,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
+                    <release>11</release>
                     <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
                 </configuration>
             </plugin>
@@ -153,7 +151,7 @@
 	<dependency>
 		<groupId>io.usethesource</groupId>
 		<artifactId>capsule</artifactId>
-			<version>0.6.3</version>
+			<version>0.7.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -211,9 +209,8 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
 						<version>3.8.1</version>
-						<configuration>
-							<source>1.8</source>
-							<target>1.8</target>
+                                                <configuration>
+                                                        <release>11</release>
 							<compilerArguments>
 								<Xmaxerrs>1000</Xmaxerrs>
 								<Xmaxwarns>1000</Xmaxwarns>
@@ -260,5 +257,4 @@
 
 		</profile>
 	</profiles>
-
 </project>
