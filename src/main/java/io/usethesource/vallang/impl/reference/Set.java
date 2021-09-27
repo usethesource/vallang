@@ -68,6 +68,9 @@ import io.usethesource.vallang.type.Type;
 
 	@Override
 	public boolean equals(@Nullable Object other) {
+		if (other == null) {
+			return false;
+		}
 		return defaultEquals(other);
 	}
 	

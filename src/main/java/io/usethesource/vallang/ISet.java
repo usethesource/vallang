@@ -14,6 +14,7 @@ package io.usethesource.vallang;
 
 import java.util.Iterator;
 
+import org.checkerframework.checker.interning.qual.EqualsMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -230,6 +231,7 @@ public interface ISet extends ICollection<ISet> {
         return hash;
     }
     
+    @EqualsMethod
     public default boolean defaultEquals(@Nullable Object that) {
         if (that == this) {
             return true;

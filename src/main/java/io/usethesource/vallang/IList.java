@@ -15,6 +15,7 @@ package io.usethesource.vallang;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.checkerframework.checker.interning.qual.EqualsMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -400,6 +401,7 @@ public interface IList extends ICollection<IList> {
         return true;
     }
 
+    @EqualsMethod
     public default boolean defaultEquals(@Nullable Object other) {
         if (other == this) {
             return true;

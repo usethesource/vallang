@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.interning.qual.EqualsMethod;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -63,6 +64,7 @@ public interface IMap extends ICollection<IMap> {
     @SuppressWarnings({"contracts.conditional.postcondition"})
     public boolean containsKey(IValue key);
     
+    @EqualsMethod
     public default boolean defaultEquals(@Nullable Object other){
         if (other == null) {
             return false;
