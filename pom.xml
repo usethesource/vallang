@@ -111,6 +111,7 @@
 						-ea
 						-Dvallang.test.seed=${buildNumber}
 						-Dvallang.random.partialDateTime=true
+						-Dvallang.random.zoneOffsets=true
 					</argLine>
 				</configuration>
 			</plugin>

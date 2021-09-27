@@ -230,6 +230,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private static long currentTotalOffset() {
+        // subjectief?
         return OffsetDateTime.now().getOffset().getTotalSeconds();
     }
 

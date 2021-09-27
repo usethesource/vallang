@@ -77,6 +77,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
 	        int maxDepth, int maxBreadth) {
 		boolean partialDateTime = "true".equals(System.getProperty("vallang.random.partialDateTime"));
+		boolean zoneOffsets = "true".equals(System.getProperty("vallang.random.zoneOffsets"));
 		
         try {
 			if (partialDateTime && random.nextDouble() > 0.8) {
@@ -104,7 +105,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 				Instant.now().getEpochSecond() + TimeUnit.DAYS.toSeconds(700)
 				), 0
 			);
-			if (random.nextDouble() > 0.5) {
+			if (!zoneOffsets || random.nextDouble() > 0.5) {
 				return vf.datetime(result.toEpochMilli());
 			}
 			ZoneOffset off = ZoneOffset.ofTotalSeconds((int)between(random, ChronoField.OFFSET_SECONDS));
