@@ -47,7 +47,7 @@ public class WindowCacheFactory {
         public int howLongAgo(Object obj) { return -1; }
     };
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked","type.argument"})
     public <T> TrackLastRead<T> getTrackLastRead(int size) {
         if (size == 0) {
             return (TrackLastRead<T>) disabledReadWindow;
