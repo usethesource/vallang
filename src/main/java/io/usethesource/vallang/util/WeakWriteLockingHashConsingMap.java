@@ -199,7 +199,7 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
             super.start();
         }
 
-        @SuppressWarnings("initialization")
+        @SuppressWarnings("argument")
         public void register(@UnknownInitialization WeakWriteLockingHashConsingMap<?> cache) {
             caches.add(new WeakReference<>(cache));
         }

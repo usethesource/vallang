@@ -163,7 +163,7 @@ public class CacheFactory<T> {
             super.start();
         }
 
-        @SuppressWarnings("initialization") // passed in reference might not be completly initialized
+        @SuppressWarnings("argument") // passed in reference might not be completly initialized
         public void register(@UnknownInitialization CacheFactory<?> cache) {
             caches.add(new WeakReference<>(cache));
         }

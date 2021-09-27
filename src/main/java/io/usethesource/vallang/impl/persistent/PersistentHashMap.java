@@ -114,7 +114,7 @@ public final class PersistentHashMap implements IMap {
 
 	@Override
 	@EnsuresNonNullIf(expression="get(#1)", result=true)
-    @SuppressWarnings({"contracts.conditional.postcondition.not.satisfied", "contracts.conditional.postcondition.true.override.invalid"}) // that's impossible to prove for the Checker Framework
+    @SuppressWarnings({"contracts.conditional.postcondition"}) // that's impossible to prove for the Checker Framework
 	public boolean containsKey(IValue key) {
 		return content.containsKey(key);
 	}
