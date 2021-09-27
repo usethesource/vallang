@@ -76,9 +76,10 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	@Override
 	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
 	        int maxDepth, int maxBreadth) {
+		boolean partialDateTime = "true".equals(System.getProperty("vallang.random.partialDateTime"));
 		
         try {
-			if (random.nextDouble() > 0.8) {
+			if (partialDateTime && random.nextDouble() > 0.8) {
 				LocalTime result = LocalTime.ofSecondOfDay(between(random, ChronoField.SECOND_OF_DAY));
 				return vf.time(
 					result.getHour(), 
@@ -87,7 +88,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 					(int) TimeUnit.MILLISECONDS.convert(result.getNano(), TimeUnit.NANOSECONDS)
 				);
 			}
-			if (random.nextDouble() > 0.8) {
+			if (partialDateTime && random.nextDouble() > 0.8) {
 				LocalDate result = LocalDate.ofEpochDay(between(random, 
 					LocalDate.of(0,1, 1).toEpochDay(),
 					LocalDate.of(9999,1, 1).toEpochDay()

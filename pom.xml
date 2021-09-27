@@ -110,6 +110,7 @@
 						-Xmx2G
 						-ea
 						-Dvallang.test.seed=${buildNumber}
+						-Dvallang.random.partialDateTime=true
 					</argLine>
 				</configuration>
 			</plugin>
