@@ -12,9 +12,14 @@
 */ 
 package io.usethesource.vallang.util;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
+import javax.management.RuntimeErrorException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
@@ -30,6 +35,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 */
 public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implements HashConsingMap<T> {
     private final Map<T,WeakReference<T>> data;
+    private final Object writeLock;
     
     
     public WeakWriteLockingHashConsingMap() {
@@ -38,6 +44,13 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
     
     public WeakWriteLockingHashConsingMap(int size) {
         data = new WeakHashMap<>(size);
+        try {
+            writeLock = MethodHandles.privateLookupIn(WeakHashMap.class, MethodHandles.lookup())
+                .findVarHandle(WeakHashMap.class, "queue", ReferenceQueue.class)
+                .get(data);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Cannot locate internal writelock", e);
+        }
     }
     
     
@@ -57,7 +70,7 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
         WeakReference<T> value = new WeakReference<>(key);
         // we race against the garbage collector clearing weakreferences, not other threads trying to update the value
         while (true) {
-            synchronized (this) {
+            synchronized (writeLock) {
                 result = data.merge(key, value, (oldValue, newValue) -> oldValue.get() == null ? newValue : oldValue);
             }
             if (result == value) {
