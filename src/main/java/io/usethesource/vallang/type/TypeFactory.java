@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -59,7 +60,7 @@ public class TypeFactory {
 	/**
 	 * Caches all types to implement canonicalization
 	 */
-	private final HashConsingMap<Type> fCache = new WeakWriteLockingHashConsingMap<>(8*1024);
+	private final HashConsingMap<Type> fCache = new WeakWriteLockingHashConsingMap<>(8*1024, (int)TimeUnit.MINUTES.toSeconds(30));
     private @Nullable TypeValues typeValues;
     
 	private static class InstanceHolder {

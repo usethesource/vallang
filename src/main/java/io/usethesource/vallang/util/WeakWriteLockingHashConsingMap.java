@@ -123,7 +123,7 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
     
     
     public WeakWriteLockingHashConsingMap() {
-        this(16, TimeUnit.MINUTES.toSeconds(30);
+        this(16, (int)TimeUnit.MINUTES.toSeconds(30));
     }
     
     public WeakWriteLockingHashConsingMap(int size, int demoteAfterSeconds) {
