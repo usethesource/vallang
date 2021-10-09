@@ -43,7 +43,7 @@ public class WeakHashConsingMapTest {
             int[] collisions = new int[] { 1, 4 };
             return Arrays.stream(threads).boxed().<Arguments>flatMap(thr -> 
                      Arrays.stream(collisions).boxed().<Arguments>flatMap(col -> 
-                        Stream.of(Arguments.of(thr, col, new WeakWriteLockingHashConsingMap<FixedHashEquals>()))
+                        Stream.of(Arguments.of(thr, col, new WeakWriteLockingHashConsingMap<FixedHashEquals>(16, 2)))
                      )
                    );
         }
@@ -162,14 +162,20 @@ public class WeakHashConsingMapTest {
             assertSame(o, target.get(o));
         }
 
+
+        var oldObject = new WeakReference<>(objects[0]);
+        // clone a new value
         FixedHashEquals a = (FixedHashEquals) objects[0].clone();
         // loose  them
         Arrays.fill(objects, null);
         objects = null;
         System.gc();
-        // wait for GC and reference queue to finish
-        Thread.sleep(1200);
-
+        Thread.sleep(2100);
+        while (oldObject.get() != null) {
+            // wait for the object to get cleared
+            System.gc();
+            Thread.sleep(100);
+        }
 
         // check if the clone won't return the old reference
         assertSame(a, target.get(a));
