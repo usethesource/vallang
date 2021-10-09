@@ -14,11 +14,11 @@ package io.usethesource.vallang.util;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
+import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -40,6 +40,7 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
     */
     private static class WeakReferenceWrap<T extends @NonNull Object> extends WeakReference<T> {
         private final int hash;
+        private volatile boolean promote = false;
         
         public WeakReferenceWrap(int hash, T referent, ReferenceQueue<? super T> q) {
             super(referent, q);
@@ -56,7 +57,7 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
             if (obj instanceof WeakReferenceWrap) {
                 WeakReferenceWrap<?> wrappedObj = (WeakReferenceWrap<?>) obj;
                 if (wrappedObj.hash == hash) {
-                    Object self = get();
+                    Object self = super.get();
                     if (self == null) {
                         return false;
                     }
@@ -99,66 +100,112 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
             return false;
 }
     }
+
+    private static final class Usage<T extends @NonNull Object> {
+        private final T value;
+        private volatile int lastUsed;
+
+        public Usage(T value) {
+            this.value = value;
+            lastUsed = SecondsTicker.current();
+        }
+        
+        public void use() {
+            lastUsed = SecondsTicker.current();
+        }
+
+    }
     
-    
-    private final Map<WeakReferenceWrap<T>,WeakReferenceWrap<T>> data;
+    private final int demoteAfter;
+    private final Map<T, Usage<T>> hotEntries;
+    private final Map<WeakReferenceWrap<T>,WeakReferenceWrap<T>> coldEntries;
     private final ReferenceQueue<T> cleared = new ReferenceQueue<>();
     
     
     public WeakWriteLockingHashConsingMap() {
-        this(16);
+        this(16, TimeUnit.MINUTES.toSeconds(30);
     }
     
-    public WeakWriteLockingHashConsingMap(int size) {
-        data = new HashMap<>(size);
-        Cleanup.Instance.register(this);
+    public WeakWriteLockingHashConsingMap(int size, int demoteAfterSeconds) {
+        hotEntries = new ConcurrentHashMap<>(size);
+        coldEntries = new ConcurrentHashMap<>(size);
+        this.demoteAfter = demoteAfterSeconds;
+        Maintenance.Instance.register(this);
     }
     
     
     @Override
     public T get(T key) {
-        // first we try to get the value without building a soft reference
-        LookupWrapper<T> keyLookup = new LookupWrapper<>(key.hashCode(), key);
+        var hot = hotEntries.get(key);
+        if (hot != null) {
+            hot.use();
+            return hot.value;
+        }
+        // else check cold storage and mark it for promotion
+        var keyLookup = new LookupWrapper<>(key.hashCode(), key);
         @SuppressWarnings("unlikely-arg-type")
-        WeakReferenceWrap<T> result = data.get(keyLookup);
-        if (result != null) {
-            T actualResult = result.get();
+        var cold = coldEntries.get(keyLookup);
+        if (cold != null) {
+            T actualResult = cold.get();
             if (actualResult != null) {
-                // the returned entry was not cleared yet
+                cold.promote = true;
                 return actualResult;
             }
         }
-        // now that we know that we most likely have to insert a new mapping, we acquire a write lock
-        synchronized (this) {
-            WeakReferenceWrap<T> keyPut = new WeakReferenceWrap<>(keyLookup.hash, key, cleared);
-            // we race against the garbage collector clearing weakreferences, not other threads
-            while (true) {
-                result = data.merge(keyPut, keyPut, (oldValue, newValue) -> oldValue.get() == null ? newValue : oldValue);
-                if (result == keyPut) {
-                    // a regular put
-                    return key;
+        // it's not in hot or cold storage
+        // so we try to add it to hot storage if it's not there yet
+        var raceLost = hotEntries.putIfAbsent(key, new Usage<>(key));
+        if (raceLost == null) {
+            return key;
+        }
+        else {
+            raceLost.use();
+            return raceLost.value;
+        }
+    }
+
+    private void demote() {
+        var threshold = SecondsTicker.current() - demoteAfter;
+        var hotValues = this.hotEntries.values().iterator();
+        while (hotValues.hasNext()) {
+            var hotValue = hotValues.next();
+            if (hotValue.lastUsed < threshold) {
+                // migrate it to cold storage
+                var entry = new WeakReferenceWrap<>(hotValue.value.hashCode(), hotValue.value, cleared);
+                coldEntries.put(entry, entry);
+                hotValues.remove();
+            }
+        }
+    }
+
+    private void promote() {
+        var coldKeys = this.coldEntries.keySet().iterator();
+        while (coldKeys.hasNext()) {
+            var coldKey = coldKeys.next();
+            if (coldKey.promote) {
+                var actualValue = coldKey.get();
+                if (actualValue != null) {
+                    var shouldNotBeThere = hotEntries.putIfAbsent(actualValue, new Usage<>(actualValue));
+                    assert shouldNotBeThere == null;
+                    coldKeys.remove();
                 }
                 else {
-                    // it was already in there (we lost the race for a write lock to another thread that wanted to insert the same object)
-                    T actualResult = result.get();
-                    if (actualResult != null) {
-                        // value was already in there, and also still held a reference (which is true for most cases, as the condition for the merge checked the reference)
-                        keyPut.clear(); // avoid getting a cleared reference in the queue
-                        return actualResult;
-                    }
+                    coldKey.promote = false; // we lost the reference
                 }
             }
         }
     }
     
-    private void cleanup() {
+    private void cleanupAndMoves() {
+        demote();
+        promote();
         // do a cheap poll
         WeakReferenceWrap<? extends @NonNull Object> c = (WeakReferenceWrap<? extends @NonNull Object>) cleared.poll();
         if (c != null) {
             // acquire a write lock only when it's needed
-            synchronized (this) {
+            synchronized (cleared) {
                 while (c != null) {
-                    data.remove(c);
+                    coldEntries.remove(c);
                     c = (WeakReferenceWrap<? extends @NonNull Object>) cleared.poll();
                 }
             }
@@ -166,13 +213,13 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
     }
 
     /**
-     * Cleanup singleton that wraps {@linkplain CleanupThread}
+     * Cleanup singleton that wraps {@linkplain MaintenanceThread}
      */
-    private static enum Cleanup {
+    private static enum Maintenance {
         Instance;
-        private final CleanupThread thread;
-        private Cleanup() {
-            thread = new CleanupThread();
+        private final MaintenanceThread thread;
+        private Maintenance() {
+            thread = new MaintenanceThread();
             thread.start();
         }
         public void register(@UnknownInitialization WeakWriteLockingHashConsingMap<?> cache) {
@@ -186,16 +233,16 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
     * 
     * This way, a get is never blocked for a long time, just to cleanup some old references.
     */
-    private static class CleanupThread extends Thread {
+    private static class MaintenanceThread extends Thread {
         private final ConcurrentLinkedQueue<WeakReference<WeakWriteLockingHashConsingMap<?>>> caches = new ConcurrentLinkedQueue<>();
         
-        private CleanupThread() { 
+        private MaintenanceThread() { 
         }
 
         @Override
         public synchronized void start() {
             setDaemon(true);
-            setName("Cleanup Thread for " + WeakWriteLockingHashConsingMap.class.getName());
+            setName("Maintenance Thread for " + WeakWriteLockingHashConsingMap.class.getName());
             super.start();
         }
 
@@ -220,7 +267,7 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
                             it.remove();
                         }
                         else {
-                            cur.cleanup();
+                            cur.cleanupAndMoves();
                         }
                     }
                 }
