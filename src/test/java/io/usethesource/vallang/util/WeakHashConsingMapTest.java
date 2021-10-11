@@ -43,7 +43,7 @@ public class WeakHashConsingMapTest {
             int[] collisions = new int[] { 1, 4 };
             return Arrays.stream(threads).boxed().<Arguments>flatMap(thr -> 
                      Arrays.stream(collisions).boxed().<Arguments>flatMap(col -> 
-                        Stream.of(Arguments.of(thr, col, new WeakWriteLockingHashConsingMap<FixedHashEquals>(16, 2)))
+                        Stream.of(Arguments.of(thr, col, new WeakWriteLockingHashConsingMap<FixedHashEquals>(16, 1)))
                      )
                    );
         }

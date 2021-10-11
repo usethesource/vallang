@@ -40,7 +40,7 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
     */
     private static class WeakReferenceWrap<T extends @NonNull Object> extends WeakReference<T> {
         private final int hash;
-        private volatile boolean promote = false;
+        private volatile boolean promoted = false;
         
         public WeakReferenceWrap(int hash, T referent, ReferenceQueue<? super T> q) {
             super(referent, q);
@@ -136,25 +136,18 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
     
     @Override
     public T get(T key) {
-        var hot = hotEntries.get(key);
+        Usage<T> hot = hotEntries.get(key);
         if (hot != null) {
             hot.use();
             return hot.value;
         }
-        // else check cold storage and mark it for promotion
-        var keyLookup = new LookupWrapper<>(key.hashCode(), key);
-        @SuppressWarnings("unlikely-arg-type")
-        var cold = coldEntries.get(keyLookup);
-        if (cold != null) {
-            T actualResult = cold.get();
-            if (actualResult != null) {
-                cold.promote = true;
-                return actualResult;
-            }
+        T promoted = promoteFromColdStorage(key);
+        if (promoted != null) {
+            return promoted;
         }
         // it's not in hot or cold storage
         // so we try to add it to hot storage if it's not there yet
-        var raceLost = hotEntries.putIfAbsent(key, new Usage<>(key));
+        Usage<T> raceLost = hotEntries.putIfAbsent(key, new Usage<>(key));
         if (raceLost == null) {
             return key;
         }
@@ -162,6 +155,25 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
             raceLost.use();
             return raceLost.value;
         }
+    }
+
+    private @Nullable T promoteFromColdStorage(T key) {
+        // else check cold storage and promote it
+        var keyLookup = new LookupWrapper<>(key.hashCode(), key);
+        @SuppressWarnings("unlikely-arg-type")
+        var cold = coldEntries.get(keyLookup);
+        if (cold != null) {
+            T actualResult = cold.get();
+            if (actualResult != null) {
+                // we promote it back to the hot entries, and accept that some other thread might have
+                // also done this, no problem in that case
+                hotEntries.put(actualResult, new Usage<>(actualResult));
+                // doesn't matter if we lose the race here, we should have gotten the same value
+                cold.promoted = true;
+                return actualResult;
+            }
+        }
+        return null;
     }
 
     private void demote() {
@@ -178,27 +190,18 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
         }
     }
 
-    private void promote() {
+    private void cleanPromoted() {
         var coldKeys = this.coldEntries.keySet().iterator();
         while (coldKeys.hasNext()) {
-            var coldKey = coldKeys.next();
-            if (coldKey.promote) {
-                var actualValue = coldKey.get();
-                if (actualValue != null) {
-                    var shouldNotBeThere = hotEntries.putIfAbsent(actualValue, new Usage<>(actualValue));
-                    assert shouldNotBeThere == null;
-                    coldKeys.remove();
-                }
-                else {
-                    coldKey.promote = false; // we lost the reference
-                }
+            if (coldKeys.next().promoted) {
+                coldKeys.remove();
             }
         }
     }
     
     private void cleanupAndMoves() {
         demote();
-        promote();
+        cleanPromoted();
         // do a cheap poll
         WeakReferenceWrap<? extends @NonNull Object> c = (WeakReferenceWrap<? extends @NonNull Object>) cleared.poll();
         if (c != null) {
@@ -255,7 +258,14 @@ public class WeakWriteLockingHashConsingMap<T extends @NonNull Object> implement
         public void run() {
             while (true) {
                 try {
-                    Thread.sleep(1000);
+                    var minSleep = TimeUnit.MINUTES.toMillis(1);
+                    for (var c: caches) {
+                        var m = c.get();
+                        if (m != null) {
+                            minSleep = Math.min(minSleep, m.demoteAfter);
+                        }
+                    }
+                    Thread.sleep(minSleep);
                 } catch (InterruptedException e) {
                     return;
                 }
