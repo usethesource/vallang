@@ -37,11 +37,11 @@ jobs:
         run: mvn -B clean test
 
       - name: Publish Test Report
+        uses: EnricoMi/publish-unit-test-result-action/composite@v1
         if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
-        uses: scacap/action-surefire-report@v1
         with:
-          check_name: "Test Report (${{ matrix.os }})"
-  
+          files: target/surefire-reports/**/*.xml
+
   checker-framework:
     runs-on: ubuntu-latest
     steps:
