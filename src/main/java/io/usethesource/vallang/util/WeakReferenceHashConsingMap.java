@@ -38,9 +38,9 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
     private static class WeakReferenceWrap<T extends @NonNull Object> extends WeakReference<T> {
         private final int hash;
         
-        public WeakReferenceWrap(int hash, T referent) {
+        public WeakReferenceWrap(T referent) {
             super(referent);
-            this.hash = hash;
+            this.hash = referent.hashCode();
         }
         
         @Override
@@ -99,12 +99,10 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         if (hot != null) {
             return hot;
         }
-        var cold = coldEntries.get(new WeakReferenceWrap<>(key.hashCode(), key), WeakReferenceWrap::get);
-        if (cold == key) {
-            // it wasn't in cold, so we just added it
-            // we are adding it to the hot entries list as well
-            hotEntries.put(key, key);
-        }
+        var cold = coldEntries.get(new WeakReferenceWrap<>(key), v -> key);
+        // after this, either we just put it in cold, or we got an old version back from
+        // cold, so we are gonna put it back in the hot entries
+        hotEntries.put(cold, cold);
         return cold;
     }
 
