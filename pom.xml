@@ -22,7 +22,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<checkerframework.version>3.18.0</checkerframework.version>
+		<checkerframework.version>3.19.0</checkerframework.version>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
@@ -143,13 +143,13 @@
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-engine</artifactId>
-		<version>5.8.1</version>
+		<version>5.8.2</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-params</artifactId>
-		<version>5.8.1</version>
+		<version>5.8.2</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
