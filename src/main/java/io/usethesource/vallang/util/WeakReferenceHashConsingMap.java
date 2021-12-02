@@ -51,13 +51,13 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         @Override
         public boolean equals(@Nullable Object obj) {
             if (obj instanceof WeakReferenceWrap) {
-                WeakReferenceWrap<?> wrappedObj = (WeakReferenceWrap<?>) obj;
+                var wrappedObj = (WeakReferenceWrap<?>) obj;
                 if (wrappedObj.hash == hash) {
-                    Object self = super.get();
+                    var self = super.get();
                     if (self == null) {
                         return false;
                     }
-                    Object other = wrappedObj.get();
+                    var other = wrappedObj.get();
                     return other != null && self.equals(other);
                 }
             }
