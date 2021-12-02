@@ -89,6 +89,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         coldEntries = Caffeine.newBuilder()
             .weakValues()
             .initialCapacity(size)
+            .scheduler(Scheduler.systemScheduler())
             .build();
     }
     
