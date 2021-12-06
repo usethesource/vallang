@@ -78,7 +78,14 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         }
     }
     
+    /** 
+     *   We keep the most recently used entries in a strong cache for quick access
+     */
     private final Cache<T, T> hotEntries;
+    /** 
+     * All entries are also stored in a WeakReference, this helps with clearing memory
+     * if entries are not referenced anymore
+     */
     private final Cache<WeakReferenceWrap<T>, T> coldEntries;
     
     
