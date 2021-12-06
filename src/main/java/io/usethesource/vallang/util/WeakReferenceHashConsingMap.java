@@ -63,6 +63,19 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
             }
             return false;
         }
+
+        /**
+         * To avoid allocating another object just to define the compute function
+         * We add special cased get function that can be used only during the compute
+         * of the Cache::get call.
+         */
+        private T lookupGet() {
+            T result = super.get();
+            if (result == null) {
+                throw new RuntimeException("You should only use this during a lookup, when you know there is still a hard reference");
+            }
+            return result;
+        }
     }
     
     private final Cache<T, T> hotEntries;
@@ -100,9 +113,11 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         if (hot != null) {
             return hot;
         }
-        var cold = coldEntries.get(new WeakReferenceWrap<>(key), v -> key);
+        T cold = coldEntries.get(new WeakReferenceWrap<>(key), WeakReferenceWrap::lookupGet);
         // after this, either we just put it in cold, or we got an old version back from
         // cold, so we are gonna put it back in the hot entries
+        // note: the possible race between multiple puts is no problem, because
+        // the coldEntries get will have made sure it will be of the same instance
         hotEntries.put(cold, cold);
         return cold;
     }
