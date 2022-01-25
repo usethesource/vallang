@@ -374,21 +374,20 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
     @Override
     public Type instantiate(Map<Type, Type> bindings) {
-        if (bindings.isEmpty()) {
+        if (bindings.isEmpty() || !isParameterized()) {
             return this;
         }
 
-        Type[] params = new Type[0];
-        if (isParameterized()) {
-            params = new Type[fParameters.getArity()];
-            int i = 0;
-            for (Type p : fParameters) {
-                params[i++] = p.instantiate(bindings);
-            }
-        }
-
         TypeStore store = new TypeStore();
-        store.declareAbstractDataType(this);
+
+        // TODO: find out why we had this call
+        // store.declareAbstractDataType(this);
+
+        // Here it is important _not_ to reuse TupleType.instantiate, since
+        // that has a normalizing feature to `void` if one of the parameters
+        // reduced to `void`. The type parameters of an ADT
+        // can be void and still the ADT type can have values,
+        Type params = instantiateTuple((TupleType) fParameters, bindings);
 
         return TypeFactory.getInstance().abstractDataType(store, fName, params);
     }

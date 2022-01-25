@@ -664,6 +664,20 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return isSubtypeOf(type.getAliased());
   }
   
+  /**
+   * Instantiate a tuple but do not reduce to void like TupleType.instantiate would
+   * if one of the parameters was substituted by void. This is needed for other types
+   * which use TupleType as an array of Types (i.e. for type parameters, fields and keyword fields)
+   */
+  protected Type instantiateTuple(TupleType t, Map<Type, Type> bindings) {
+      Type[] fChildren = new Type[t.getArity()];
+      for (int i = t.fFieldTypes.length - 1; i >= 0; i--) {
+          fChildren[i] = t.getFieldType(i).instantiate(bindings);
+      }
+
+      return TypeFactory.getInstance().getFromCache(new TupleType(fChildren));
+  }
+
   abstract protected boolean isSubtypeOfReal(Type type);
   abstract protected boolean isSubtypeOfInteger(Type type);
   abstract protected boolean isSubtypeOfRational(Type type);

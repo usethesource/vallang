@@ -12,6 +12,7 @@
 
 package io.usethesource.vallang.basic;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -51,8 +52,15 @@ public final class TypeFactorySmokeTest {
 
     @ParameterizedTest
     @ArgumentsSource(ValueProvider.class)
-    public void testGetTypeByDescriptor() {
-        // TODO: needs to be tested, after we've implemented it
+    public void testParametrizedAbstractDatatypeArityInvariant(TypeStore store) {
+        Type param = ft.parameterType("T");
+        Type adt = ft.abstractDataType(store, "Test", ft.tupleType(param));
+        Map<Type,Type> bindings = new HashMap<>();
+        bindings.put(param, ft.voidType());
+        Type instant = adt.instantiate(bindings);
+
+        assertTrue(instant.isParameterized());
+        assertFalse(instant.getTypeParameters().isBottom());
     }
 
     @ParameterizedTest
