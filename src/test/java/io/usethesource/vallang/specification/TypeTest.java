@@ -349,7 +349,7 @@ public class TypeTest {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testMatchAndInstantiate(TypeFactory ft) {
+    public void testMatchAndInstantiate(TypeFactory ft, TypeStore store) {
         Type X = ft.parameterType("X");
         Map<Type, Type> bindings = new HashMap<>();
 
@@ -390,8 +390,15 @@ public class TypeTest {
             fail("instantiate failed");
         }
 
+        bindings.clear();
+        Type adtX = ft.abstractDataType(store, "A", X);
+        bindings.put(X, ft.voidType());
+        assertTrue(adtX.instantiate(bindings).isSubtypeOf(adtX));
+        
+        bindings.put(X, ft.integerType());
+        assertTrue(adtX.instantiate(bindings).isSubtypeOf(adtX));
     }
-
+  
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testAlias(TypeFactory ft) {
         Type alias = ft.aliasType(new TypeStore(), "myValue", ft.valueType());

@@ -418,19 +418,6 @@ public class FunctionType extends DefaultSubtypeOfValue {
 		return TF.functionType(returnType.instantiate(bindings), instantiateTuple(argumentTypes, bindings), keywordParameters != null ? instantiateTuple(keywordParameters, bindings) : TypeFactory.getInstance().tupleEmpty());
     }
     
-    /**
-     * Instantiate a tuple but do not reduce to void like TupleType.instantiate would
-     * if one of the parameters was substituted by void
-     */
-    private Type instantiateTuple(TupleType t, Map<Type, Type> bindings) {
-        Type[] fChildren = new Type[t.getArity()];
-        for (int i = t.fFieldTypes.length - 1; i >= 0; i--) {
-            fChildren[i] = t.getFieldType(i).instantiate(bindings);
-        }
-
-        return TypeFactory.getInstance().getFromCache(new TupleType(fChildren));
-    }
-	
 	@Override
 	public boolean isOpen() {
 		return returnType.isOpen() || argumentTypes.isOpen();
