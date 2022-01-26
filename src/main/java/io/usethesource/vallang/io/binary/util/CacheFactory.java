@@ -18,12 +18,12 @@ import java.lang.ref.WeakReference;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -132,67 +132,40 @@ public class CacheFactory<T> {
 	
 	
     /**
-     * Cleanup singleton that wraps {@linkplain CleanupThread}
+     * Cleanup singleton
      */
     private static enum Cleanup {
         Instance;
 
-        private final CleanupThread thread;
-        private Cleanup() {
-            thread = new CleanupThread();
-            thread.start();
-        }
-        public void register(@UnknownInitialization CacheFactory<?> cache) {
-            thread.register(cache);
-        }
-
-    }
-
-    /**
-    * A special thread that tries to cleanup the containers once every second
-    * 
-    * This way, a get is never blocked for a long time, just to cleanup some old references.
-    */
-    private static class CleanupThread extends Thread {
         private final ConcurrentLinkedQueue<WeakReference<CacheFactory<?>>> caches = new ConcurrentLinkedQueue<>();
-
-        @Override
-        public synchronized void start() {
-            setDaemon(true);
-            setName("Cleanup Thread for " + CacheFactory.class.getName());
-            super.start();
+        private Cleanup() {
+            run();
         }
-
-        @SuppressWarnings("argument") // passed in reference might not be completly initialized
         public void register(@UnknownInitialization CacheFactory<?> cache) {
             caches.add(new WeakReference<>(cache));
         }
-        
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.interrupted();
-                }
-                try {
-                    Iterator<WeakReference<CacheFactory<?>>> it = caches.iterator();
-                    while (it.hasNext()) {
-                        CacheFactory<?> cur = it.next().get();
-                        if (cur == null) {
-                            it.remove();
-                        }
-                        else {
-                            cur.cleanup();
-                        }
+
+        void run() {
+            CompletableFuture
+                .delayedExecutor(1, TimeUnit.SECONDS)
+                .execute(this::run);
+            try {
+                Iterator<WeakReference<CacheFactory<?>>> it = caches.iterator();
+                while (it.hasNext()) {
+                    CacheFactory<?> cur = it.next().get();
+                    if (cur == null) {
+                        it.remove();
+                    }
+                    else {
+                        cur.cleanup();
                     }
                 }
-                catch (Throwable e) {
-                    System.err.println("Cleanup thread failed with: " + e.getMessage());
-                    e.printStackTrace(System.err);
-                }
+            }
+            catch (Throwable e) {
+                System.err.println("Cleanup thread failed with: " + e.getMessage());
+                e.printStackTrace(System.err);
             }
         }
+
     }
 }
