@@ -12,6 +12,7 @@
  */ 
 package io.usethesource.vallang.util;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,27 +24,16 @@ public class SecondsTicker {
 
     private static volatile int tick = 0;
     
+    private static void doTick() {
+        CompletableFuture
+            .delayedExecutor(1, TimeUnit.SECONDS)
+            .execute(SecondsTicker::doTick);
+        tick++;
+    }
+
     static {
-        Thread t = new Thread(() -> {
-            try {
-                final long tickRate = TimeUnit.SECONDS.toNanos(1);
-                long nextTick = System.nanoTime() + tickRate;
-                while (true) {
-                    // sleep in "small" increments towards the next tick to avoid thread starvation skewing the ticks too much
-                    while (System.nanoTime() < nextTick) {
-                        TimeUnit.MILLISECONDS.sleep(100);
-                    }
-                    nextTick += tickRate;
-                    tick++; // safe enough, since we are the only thread writing to the field
-                }
-            }
-            catch (InterruptedException e) {
-                return;
-            }
-        });
-        t.setName("Vallang SecondsTicker");
-        t.setDaemon(true);
-        t.start();
+        // start the ticker
+        doTick();
     }
     
     /**
