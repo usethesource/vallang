@@ -389,7 +389,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         // can be void and still the ADT type can have values,
         Type params = instantiateTuple((TupleType) fParameters, bindings);
 
-        return TypeFactory.getInstance().abstractDataType(store, fName, params);
+        return TypeFactory.getInstance().abstractDataTypeFromTuple(store, fName, params);
     }
 
     @Override
