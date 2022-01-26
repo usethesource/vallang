@@ -10,6 +10,7 @@ import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,6 +26,7 @@ import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 public class TypeTest {
 
@@ -349,7 +351,7 @@ public class TypeTest {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testMatchAndInstantiate(TypeFactory ft) {
+    public void testMatchAndInstantiate(TypeFactory ft, TypeStore store) {
         Type X = ft.parameterType("X");
         Map<Type, Type> bindings = new HashMap<>();
 
@@ -390,8 +392,15 @@ public class TypeTest {
             fail("instantiate failed");
         }
 
+        bindings.clear();
+        Type adtX = ft.abstractDataType(store, "A", X);
+        bindings.put(X, ft.voidType());
+        assertTrue(adtX.instantiate(bindings).isSubtypeOf(adtX));
+        
+        bindings.put(X, ft.integerType());
+        assertTrue(adtX.instantiate(bindings).isSubtypeOf(adtX));
     }
-
+  
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testAlias(TypeFactory ft) {
         Type alias = ft.aliasType(new TypeStore(), "myValue", ft.valueType());
