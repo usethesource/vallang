@@ -10,7 +10,6 @@ import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +25,6 @@ import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 public class TypeTest {
 
