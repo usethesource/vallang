@@ -61,8 +61,8 @@ public class FileChannelDirectInputStream extends ByteBufferInputStream {
 
     // see https://stackoverflow.com/a/19447758/11098
     static {
-        final AtomicReference<@Nullable MethodHandle> cleaner = new AtomicReference<>(null);
-        final AtomicReference<@Nullable Object> unsafe = new AtomicReference<>(null);
+        final AtomicReference<@Nullable MethodHandle> cleaner = new AtomicReference<>();
+        final AtomicReference<@Nullable Object> unsafe = new AtomicReference<>();
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             Class<?> unsafeClass;
             try {
@@ -86,9 +86,12 @@ public class FileChannelDirectInputStream extends ByteBufferInputStream {
                     unsafeClass, "invokeCleaner",
                     MethodType.methodType(void.class, ByteBuffer.class)));
                 
+
                 Field theUnsafeField = unsafeClass.getDeclaredField("theUnsafe");
                 theUnsafeField.setAccessible(true);
-                unsafe.set(theUnsafeField.get(null));
+                @SuppressWarnings("nullness") // CF marks .get as not accepting null, since the api is
+                Object unsafeValue = theUnsafeField.get(null);
+                unsafe.set(unsafeValue);
                 return null;
             }
             catch (NoSuchMethodException | IllegalAccessException | NoSuchFieldException e) {
