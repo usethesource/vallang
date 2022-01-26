@@ -18,12 +18,12 @@ import java.lang.ref.WeakReference;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -87,7 +87,7 @@ public class CacheFactory<T> {
 	public CacheFactory(int expireAfter, TimeUnit unit, Function<T, T> clearer) {
 	    this.expireNanos = unit.toNanos(expireAfter);
 		this.cleaner = clearer;
-		Cleanup.Instance.register(this);
+		registerInstance(this);
 	}
 
 	/**
@@ -130,69 +130,39 @@ public class CacheFactory<T> {
 	    }
 	}
 	
-	
-    /**
-     * Cleanup singleton that wraps {@linkplain CleanupThread}
-     */
-    private static enum Cleanup {
-        Instance;
 
-        private final CleanupThread thread;
-        private Cleanup() {
-            thread = new CleanupThread();
-            thread.start();
-        }
-        public void register(@UnknownInitialization CacheFactory<?> cache) {
-            thread.register(cache);
-        }
+    private static final ConcurrentLinkedQueue<WeakReference<CacheFactory<?>>> CLEANUP_CACHES = new ConcurrentLinkedQueue<>();
 
+
+    @SuppressWarnings("argument") // passed in reference might not be completly initialized
+    private static void registerInstance(@UnknownInitialization CacheFactory<?> cache) {
+        CLEANUP_CACHES.add(new WeakReference<>(cache));
     }
 
-    /**
-    * A special thread that tries to cleanup the containers once every second
-    * 
-    * This way, a get is never blocked for a long time, just to cleanup some old references.
-    */
-    private static class CleanupThread extends Thread {
-        private final ConcurrentLinkedQueue<WeakReference<CacheFactory<?>>> caches = new ConcurrentLinkedQueue<>();
+    static {
+        cleanupRunner(); // start the scheduler
+    }
 
-        @Override
-        public synchronized void start() {
-            setDaemon(true);
-            setName("Cleanup Thread for " + CacheFactory.class.getName());
-            super.start();
-        }
-
-        @SuppressWarnings("argument") // passed in reference might not be completly initialized
-        public void register(@UnknownInitialization CacheFactory<?> cache) {
-            caches.add(new WeakReference<>(cache));
-        }
-        
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.interrupted();
+    private static void cleanupRunner() {
+        CompletableFuture
+            .delayedExecutor(1, TimeUnit.SECONDS)
+            .execute(CacheFactory::cleanupRunner);
+        try {
+            Iterator<WeakReference<CacheFactory<?>>> it = CLEANUP_CACHES.iterator();
+            while (it.hasNext()) {
+                CacheFactory<?> cur = it.next().get();
+                if (cur == null) {
+                    it.remove();
                 }
-                try {
-                    Iterator<WeakReference<CacheFactory<?>>> it = caches.iterator();
-                    while (it.hasNext()) {
-                        CacheFactory<?> cur = it.next().get();
-                        if (cur == null) {
-                            it.remove();
-                        }
-                        else {
-                            cur.cleanup();
-                        }
-                    }
-                }
-                catch (Throwable e) {
-                    System.err.println("Cleanup thread failed with: " + e.getMessage());
-                    e.printStackTrace(System.err);
+                else {
+                    cur.cleanup();
                 }
             }
         }
+        catch (Throwable e) {
+            System.err.println("Cleanup thread failed with: " + e.getMessage());
+            e.printStackTrace(System.err);
+        }
+
     }
 }
