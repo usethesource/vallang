@@ -458,7 +458,7 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
         IValue[] elems = new IValue[getArity()];
         
         for (int i = 0; i < elems.length; i++) {
-            assert !getFieldType(i).isBottom();
+            assert !getFieldType(i).isBottom() : "field " + i + " has illegal type void";
             elems[i] = getFieldType(i).randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
         }
         

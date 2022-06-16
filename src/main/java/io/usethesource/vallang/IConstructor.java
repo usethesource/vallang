@@ -126,10 +126,10 @@ public interface IConstructor extends INode {
     }
 	
 	static boolean assertTypeCorrectConstructorApplication(Type cons, IValue[] children) {
-        assert cons.getArity() == children.length;
+        assert cons.getArity() == children.length : cons + " has arity " + cons.getArity() + " while " + children.length + " arguments are provided.";
         
         for (int i = 0; i < cons.getArity(); i++) {
-            assert children[i].getType().isSubtypeOf(cons.getFieldType(i));
+            assert children[i].getType().isSubtypeOf(cons.getFieldType(i)) : "expected argument of type " + cons.getFieldType(i) + " but got " + children[i].getType();
         }
         
         return true;
