@@ -129,7 +129,7 @@ public interface IConstructor extends INode {
         assert cons.getArity() == children.length : cons + " has arity " + cons.getArity() + " while " + children.length + " arguments are provided.";
         
         for (int i = 0; i < cons.getArity(); i++) {
-            assert children[i].getType().isSubtypeOf(cons.getFieldType(i)) : "expected argument of type " + cons.getFieldType(i) + " but got " + children[i].getType();
+            assert children[i].getType().isSubtypeOf(cons.getFieldType(i)) : "Constructing " + cons + ", expected argument of type " + cons.getFieldType(i) + " but got " + children[i].getType();
         }
         
         return true;
