@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -67,6 +68,21 @@ public class IoSmokeTest extends BooleanStoreProvider {
 
             assertEquals(result, cons);
         }
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testParametrizedDataType(IValueFactory vf, TypeFactory tf, TypeStore store) throws FactTypeUseException, IOException {
+        Type T = tf.parameterType("T");
+        Type MaybeT = tf.abstractDataType(store, "Maybe", T);
+        Type just = tf.constructor(store, MaybeT, "just", T, "t");
+        Type MaybeInt = MaybeT.instantiate(Map.of(T, tf.integerType()));
+        Type B = tf.abstractDataType(store, "B");
+        Type f = tf.constructor(store, B, "f", MaybeInt);
+
+        StandardTextReader reader = new StandardTextReader();
+
+        IValue s = reader.read(vf, store, B, new StringReader("f(just(1))"));
+        assertEquals(vf.constructor(f, vf.constructor(just, vf.integer(1))), s);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
