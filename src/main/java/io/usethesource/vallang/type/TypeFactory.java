@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -61,7 +61,7 @@ public class TypeFactory {
 	 * Caches all types to implement canonicalization
 	 */
 	private final HashConsingMap<Type> fCache = new WeakReferenceHashConsingMap<>(8*1024, (int)TimeUnit.MINUTES.toSeconds(30));
-    private @Nullable TypeValues typeValues;
+    private volatile @MonotonicNonNull TypeValues typeValues; // lazy initialize
     
 	private static class InstanceHolder {
 		public static final TypeFactory sInstance = new TypeFactory();
@@ -1146,11 +1146,17 @@ public class TypeFactory {
 	}
 
 	private TypeValues cachedTypeValues() {
-		if (typeValues == null) {
-			typeValues = getInstance().new TypeValues();
-			typeValues.initialize();
+		var result = typeValues;
+		if (result == null) {
+			synchronized(this) {
+				result = typeValues;
+				if (result == null) {
+					result = getInstance().new TypeValues();
+					result.initialize();
+					typeValues = result;
+				}
+			}
 		}
-		
-		return typeValues;
+		return result;
 	}
 }
