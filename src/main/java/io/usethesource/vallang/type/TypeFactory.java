@@ -1059,7 +1059,11 @@ public class TypeFactory {
 					}
 
 					Class<?> clazz = checkValidClassLoader(Thread.currentThread().getContextClassLoader()).loadClass(name);
-					Object instance = clazz.getConstructors()[0].newInstance();
+					var cons = clazz.getConstructors();
+					if (cons.length == 0) {
+						throw new IllegalArgumentException("WARNING: could not load type info " + name + " because it has no public constructor");
+					}
+					Object instance = cons[0].newInstance();
 
 					if (instance instanceof TypeReifier) {
 						registerTypeInfo((TypeReifier) instance);
