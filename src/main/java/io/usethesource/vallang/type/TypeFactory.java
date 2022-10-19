@@ -1153,8 +1153,12 @@ public class TypeFactory {
 			synchronized(this) {
 				result = typeValues;
 				if (result == null) {
-					result = getInstance().new TypeValues();
-					typeValues = result;
+					result = new TypeValues();
+					// we assign the field before initialize, since initialize depends on the typeValues store being there already.
+					// side-affect is that during this init, outside calls to the type-factory could come in (on a different thread)
+					// and they might have a partially initialized TypeValues store.
+					// the only way to solve this is to remove this dynamic initialization
+					typeValues = result; 
 					result.initialize();
 				}
 			}
