@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -939,7 +940,7 @@ public class TypeFactory {
 		private final Type Symbol = abstractDataType(symbolStore, "Symbol");
 		private final Type Symbol_Label = constructor(symbolStore, Symbol, "label", stringType(), "name", Symbol, "symbol");
 	
-		private final Map<Type, TypeReifier> symbolConstructorTypes = new HashMap<>();
+		private final Map<Type, TypeReifier> symbolConstructorTypes = new ConcurrentHashMap<>();
 		
 		private TypeValues() { 	}
 		
