@@ -17,6 +17,7 @@ package io.usethesource.vallang.type;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.Collections;
@@ -1057,7 +1058,7 @@ public class TypeFactory {
 					}
 
 					Class<?> clazz = checkValidClassLoader(Thread.currentThread().getContextClassLoader()).loadClass(name);
-					Object instance = clazz.newInstance();
+					Object instance = clazz.getConstructors()[0].newInstance();
 
 					if (instance instanceof TypeReifier) {
 						registerTypeInfo((TypeReifier) instance);
@@ -1066,13 +1067,13 @@ public class TypeFactory {
 						throw new IllegalArgumentException("WARNING: could not load type info " + name + " because it does not implement TypeFactory.TypeInfo");
 					}
 				}
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | SecurityException | IOException e) {
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | SecurityException | IOException | InvocationTargetException e) {
 				throw new IllegalArgumentException("WARNING: could not load type info " + nextElement + " due to " + e.getMessage());
 			}
 		}
 	
 	    private void registerTypeInfo(TypeReifier instance) {
-			instance.getSymbolConstructorTypes().stream().forEach(x -> symbolConstructorTypes.put(x, instance));
+			instance.getSymbolConstructorTypes().forEach(x -> symbolConstructorTypes.put(x, instance));
 		}
 	
 		private String[] readConfigFile(URL nextElement) throws IOException {
@@ -1152,8 +1153,8 @@ public class TypeFactory {
 				result = typeValues;
 				if (result == null) {
 					result = getInstance().new TypeValues();
-					result.initialize();
 					typeValues = result;
+					result.initialize();
 				}
 			}
 		}
