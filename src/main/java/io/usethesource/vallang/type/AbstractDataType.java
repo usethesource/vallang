@@ -109,6 +109,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
             }
             else {
                 adt = TF.abstractDataTypeFromTuple(store, name, params);
+
+                // chances are that the params have already been instantiated,
+                // but the grammar contains uninstantiated definitions.
+                // we have to find the uninstantiated symbol in the grammar now
+                // to be able to create the constructors properly.
             }
 
             // explore the rest of the definition and add it to the store
