@@ -29,6 +29,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be used to
@@ -59,7 +60,12 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 		fParameters = parameters;
 	}
 	
-	public static class Info implements TypeFactory.TypeReifier {
+	public static class Info extends TypeFactory.TypeReifier {
+
+		public Info(TypeValues symbols) {
+			super(symbols);
+		}
+
 		@Override
 		public Type getSymbolConstructorType() {
 			return symbols().typeSymbolConstructor("alias", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters", symbols().symbolADT(), "aliased");
@@ -110,8 +116,8 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	}
 
 	@Override
-	public TypeFactory.TypeReifier getTypeReifier() {
-		return new Info();
+	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+		return new Info(symbols);
 	}
 
 	@Override

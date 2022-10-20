@@ -24,7 +24,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
-
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -43,7 +43,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         return InstanceKeeper.sInstance;
     }
 
-    public static class Info implements TypeFactory.TypeReifier {
+    public static class Info extends TypeFactory.TypeReifier {
+        public Info(TypeValues symbols) {
+            super(symbols);
+        }
+
         @Override
         public Type getSymbolConstructorType() {
             return symbols().typeSymbolConstructor("void");
@@ -532,8 +536,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    public TypeFactory.TypeReifier getTypeReifier() {
-        return new Info();
+    public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
     }
 
     @Override

@@ -31,6 +31,7 @@ import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
  * A AbstractDataType is an algebraic sort. A sort is produced by
@@ -48,7 +49,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         fParameters = parameters;
     }
 
-    public static class Info implements TypeReifier {
+    public static class Info extends TypeReifier {
+        public Info(TypeValues symbols) {
+            super(symbols);
+        }
+
         @Override
         public Type getSymbolConstructorType() {
             return symbols().typeSymbolConstructor("adt", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters");
@@ -118,7 +123,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 
             // explore the rest of the definition and add it to the store
             for (IConstructor t : grammar.apply(symbol)) {
-                ((ConstructorType.Info) t.getConstructorType().getTypeReifier()).fromProduction(t, store, grammar);
+                ((ConstructorType.Info) t.getConstructorType().getTypeReifier(symbols())).fromProduction(t, store, grammar);
             }
 
             return adt;
@@ -152,13 +157,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
             } while (store.lookupAbstractDataType(adtName) != null);
 
             if (rnd.nextBoolean()) {
-                Type param1 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
+                Type param1 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd.withTypeParameters());
                 if (rnd.nextBoolean()) {
                     // first declare the open type:
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1));
                 }
                 else {
-                    Type param2 = new ParameterType.Info().randomInstance(next, store, rnd.withTypeParameters());
+                    Type param2 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd.withTypeParameters());
 
                     // first declare the open type
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1, param2));
@@ -181,8 +186,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
     }
 
     @Override
-    public TypeReifier getTypeReifier() {
-        return new Info();
+    public TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
     }
 
     @Override

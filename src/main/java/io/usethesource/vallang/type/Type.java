@@ -28,6 +28,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
  * This class is the abstract implementation for all types. Types are ordered in
@@ -51,7 +52,7 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
   
-  public abstract TypeFactory.TypeReifier getTypeReifier();
+  protected abstract TypeFactory.TypeReifier getTypeReifier(TypeValues values);
   
   /**
    * Retrieve the type of elements in a set or a relation.
@@ -246,7 +247,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return a value to uniquely represent this type.
    */
   public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  return getTypeReifier().toSymbol(this, vf, store, grammar, done);
+	  return getTypeReifier(TF.cachedTypeValues()).toSymbol(this, vf, store, grammar, done);
   }
 
   /**
@@ -258,7 +259,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param done a working set to store data-types which have been explored already to avoid infinite recursion
    */
   public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  getTypeReifier().asProductions(this, vf, store, grammar, done);
+	  getTypeReifier(TF.cachedTypeValues()).asProductions(this, vf, store, grammar, done);
   }
 
   

@@ -17,6 +17,7 @@ package io.usethesource.vallang.type;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.Collections;
@@ -28,10 +29,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -61,7 +63,7 @@ public class TypeFactory {
 	 * Caches all types to implement canonicalization
 	 */
 	private final HashConsingMap<Type> fCache = new WeakReferenceHashConsingMap<>(8*1024, (int)TimeUnit.MINUTES.toSeconds(30));
-    private @Nullable TypeValues typeValues;
+    private volatile @MonotonicNonNull TypeValues typeValues; // lazy initialize
     
 	private static class InstanceHolder {
 		public static final TypeFactory sInstance = new TypeFactory();
@@ -802,49 +804,55 @@ public class TypeFactory {
 		return true;
 	}
 
-	public static interface TypeReifier {
-		default TypeValues symbols() {
-			return tf().cachedTypeValues();
+	public abstract static class TypeReifier {
+		private final TypeValues cachedSymbols;
+
+		public TypeReifier(TypeValues symbols) {
+			this.cachedSymbols = symbols;
+		}
+
+		public TypeValues symbols() {
+			return cachedSymbols;
 		}
 		
-		default TypeFactory tf() {
+		public TypeFactory tf() {
 			return TypeFactory.getInstance();
 		}
 		
 		
-		default Set<Type> getSymbolConstructorTypes() {
+		public Set<Type> getSymbolConstructorTypes() {
 			return Collections.singleton(getSymbolConstructorType());
 		}
 		
-		Type getSymbolConstructorType();
+		public abstract Type getSymbolConstructorType();
 		
-		default boolean isRecursive() {
+		public boolean isRecursive() {
 		    return false;
 		}
 		
-		Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd);
+		public abstract Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd);
 		
-		default IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			// this will work for all nullary type symbols with only one constructor type
 			return vf.constructor(getSymbolConstructorType());
 		}
 		
-		default void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			// normally nothing
 		}
 		
-		Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar);
+		public abstract Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar);
 
-        default String randomLabel(RandomTypesConfig rnd) {
+        public String randomLabel(RandomTypesConfig rnd) {
             return "x" + new BigInteger(32, rnd.getRandom()).toString(32);
         }
         
-        default Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-            return new TupleType.Info().randomInstance(next, store, rnd);
+        public Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            return new TupleType.Info(cachedSymbols).randomInstance(next, store, rnd);
         }
         
-        default Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
-            return new TupleType.Info().randomInstance(next, rnd, arity);
+        public Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
+            return new TupleType.Info(cachedSymbols).randomInstance(next, rnd, arity);
         }
 	}
 
@@ -938,7 +946,7 @@ public class TypeFactory {
 		private final Type Symbol = abstractDataType(symbolStore, "Symbol");
 		private final Type Symbol_Label = constructor(symbolStore, Symbol, "label", stringType(), "name", Symbol, "symbol");
 	
-		private final Map<Type, TypeReifier> symbolConstructorTypes = new HashMap<>();
+		private final Map<Type, TypeReifier> symbolConstructorTypes = new ConcurrentHashMap<>();
 		
 		private TypeValues() { 	}
 		
@@ -1057,7 +1065,7 @@ public class TypeFactory {
 					}
 
 					Class<?> clazz = checkValidClassLoader(Thread.currentThread().getContextClassLoader()).loadClass(name);
-					Object instance = clazz.newInstance();
+					Object instance = clazz.getConstructor(TypeValues.class).newInstance(this);
 
 					if (instance instanceof TypeReifier) {
 						registerTypeInfo((TypeReifier) instance);
@@ -1066,13 +1074,13 @@ public class TypeFactory {
 						throw new IllegalArgumentException("WARNING: could not load type info " + name + " because it does not implement TypeFactory.TypeInfo");
 					}
 				}
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | SecurityException | IOException e) {
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | SecurityException | IOException | InvocationTargetException | NoSuchMethodException e) {
 				throw new IllegalArgumentException("WARNING: could not load type info " + nextElement + " due to " + e.getMessage());
 			}
 		}
 	
 	    private void registerTypeInfo(TypeReifier instance) {
-			instance.getSymbolConstructorTypes().stream().forEach(x -> symbolConstructorTypes.put(x, instance));
+			instance.getSymbolConstructorTypes().forEach(x -> symbolConstructorTypes.put(x, instance));
 		}
 	
 		private String[] readConfigFile(URL nextElement) throws IOException {
@@ -1145,12 +1153,18 @@ public class TypeFactory {
 		return cachedTypeValues().fromSymbol(symbol, new TypeStore(), x -> Collections.emptySet());
 	}
 
-	private TypeValues cachedTypeValues() {
-		if (typeValues == null) {
-			typeValues = getInstance().new TypeValues();
-			typeValues.initialize();
+	public TypeValues cachedTypeValues() {
+		var result = typeValues;
+		if (result == null) {
+			synchronized(this) {
+				result = typeValues;
+				if (result == null) {
+					result = new TypeValues();
+					result.initialize();
+					typeValues = result; 
+				}
+			}
 		}
-		
-		return typeValues;
+		return result;
 	}
 }

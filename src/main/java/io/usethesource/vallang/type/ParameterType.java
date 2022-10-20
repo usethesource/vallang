@@ -28,6 +28,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 
 
@@ -50,7 +51,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		fBound = TypeFactory.getInstance().valueType();
 	}
 
-	public static class Info implements TypeReifier {
+	public static class Info extends TypeReifier {
+		public Info(TypeValues symbols) {
+			super(symbols);
+		}
+
 		@Override
 		public Type getSymbolConstructorType() {
 			return symbols().typeSymbolConstructor("parameter", tf().stringType() , "name", symbols().symbolADT(), "bound");
@@ -84,8 +89,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
-	public TypeReifier getTypeReifier() {
-		return new Info();
+	public TypeReifier getTypeReifier(TypeValues symbols) {
+		return new Info(symbols);
 	}
 
 	@Override

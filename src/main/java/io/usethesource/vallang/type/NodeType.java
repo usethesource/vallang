@@ -27,6 +27,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.random.util.RandomUtil;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
  * A type for values that are nodes. All INode have the type NodeType, and all
@@ -41,7 +42,11 @@ class NodeType extends DefaultSubtypeOfValue {
 		return InstanceKeeper.sInstance;
 	}
 
-	public static class Info implements TypeReifier {
+	public static class Info extends TypeReifier {
+		public Info(TypeValues symbols) {
+			super(symbols);
+		}
+
 		@Override
 		public Type getSymbolConstructorType() {
 			return symbols().typeSymbolConstructor("node");
@@ -60,8 +65,8 @@ class NodeType extends DefaultSubtypeOfValue {
 	}
 
 	@Override
-	public TypeReifier getTypeReifier() {
-		return new Info();
+	public TypeReifier getTypeReifier(TypeValues symbols) {
+		return new Info(symbols);
 	}
 
 

@@ -24,6 +24,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
  * A type for values that are either ints or reals
@@ -37,7 +38,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 		return InstanceKeeper.sInstance;
 	}
 
-	public static class Info implements TypeFactory.TypeReifier {
+	public static class Info extends TypeFactory.TypeReifier {
+		public Info(TypeValues symbols) {
+			super(symbols);
+		}
+
 		@Override
 		public Type getSymbolConstructorType() {
 			return symbols().typeSymbolConstructor("num");
@@ -56,8 +61,8 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 	}
 
 	@Override
-	public TypeFactory.TypeReifier getTypeReifier() {
-		return new Info();
+	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+		return new Info(symbols);
 	}
 	
 	@Override
