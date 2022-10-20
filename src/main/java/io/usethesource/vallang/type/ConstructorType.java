@@ -28,6 +28,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
  * A tree type is a type of tree node, defined by its name, the types of
@@ -57,7 +58,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		fADT = adt;
 	}
 
-	public static class Info implements TypeReifier {
+	public static class Info extends TypeReifier {
+		public Info(TypeValues symbols) {
+			super(symbols);
+		}
+
 		@Override
 		public Type getSymbolConstructorType() {
 			return symbols().typeSymbolConstructor("cons", symbols().symbolADT(), "adt", tf().stringType(), "name", tf().listType(symbols().symbolADT()), "parameters");
@@ -164,13 +169,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             // constructors should not be random types of values (a value never has a constructor type) 
-            return new AbstractDataType.Info().randomInstance(next, store, rnd);
+            return new AbstractDataType.Info(symbols()).randomInstance(next, store, rnd);
         }
 	}
 
 	@Override
-    public TypeReifier getTypeReifier() {
-    	return new Info();
+    public TypeReifier getTypeReifier(TypeValues symbols) {
+    	return new Info(symbols);
     }
 	
 	@Override

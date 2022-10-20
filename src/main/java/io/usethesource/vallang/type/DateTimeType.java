@@ -28,6 +28,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
  * @author mhills
@@ -42,7 +43,11 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 		return InstanceKeeper.sInstance;
 	}
 
-	public static class Info implements TypeReifier {
+	public static class Info extends TypeReifier {
+		public Info(TypeValues symbols) {
+			super(symbols);
+		}
+
 		@Override
 		public Type getSymbolConstructorType() {
 			return symbols().typeSymbolConstructor("datetime");
@@ -61,8 +66,8 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	}
 
 	@Override
-	public TypeReifier getTypeReifier() {
-		return new Info();
+	public TypeReifier getTypeReifier(TypeValues symbols) {
+		return new Info(symbols);
 	}
 
 	private static long between(Random r, ChronoField chrono) {

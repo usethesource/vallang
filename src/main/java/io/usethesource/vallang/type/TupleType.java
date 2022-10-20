@@ -30,6 +30,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /*package*/ class TupleType extends DefaultSubtypeOfValue {
     final Type[] fFieldTypes; // protected access for the benefit of inner classes
@@ -42,7 +43,11 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
         fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended up being a bottleneck
     }
 
-    public static class Info implements TypeFactory.TypeReifier {
+    public static class Info extends TypeFactory.TypeReifier {
+        public Info(TypeValues symbols) {
+            super(symbols);
+        }
+
         @Override
         public Type getSymbolConstructorType() {
             return symbols().typeSymbolConstructor("tuple", TF.listType(symbols().symbolADT()), "symbols");
@@ -112,8 +117,8 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
     }
 
     @Override
-    public TypeFactory.TypeReifier getTypeReifier() {
-        return new Info();
+    public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
     }
 
     @Override

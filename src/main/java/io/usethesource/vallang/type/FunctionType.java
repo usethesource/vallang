@@ -35,6 +35,7 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
  * Function types are here to prepare for the coming of `IFunction extends IValue` to vallang.
@@ -57,8 +58,12 @@ public class FunctionType extends DefaultSubtypeOfValue {
 		this.keywordParameters = keywordParameters == null ? null : (keywordParameters.getArity() == 0 ? null : keywordParameters);
 	}
 	
-	public static class Reifier implements TypeReifier {
-	    @Override
+	public static class Reifier extends TypeReifier {
+	    public Reifier(TypeValues symbols) {
+			super(symbols);
+		}
+
+		@Override
 	    public Type getSymbolConstructorType() {
 	        throw new UnsupportedOperationException();
 	    }
@@ -142,8 +147,8 @@ public class FunctionType extends DefaultSubtypeOfValue {
 	}
 	
 	@Override
-	public TypeReifier getTypeReifier() {
-	    return new Reifier();
+	public TypeReifier getTypeReifier(TypeValues symbols) {
+	    return new Reifier(symbols);
 	}
 	
 	@Override

@@ -25,7 +25,7 @@ import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
-
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class IntegerType extends NumberType {
@@ -37,8 +37,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         return InstanceKeeper.sInstance;
     }
     
-    public static class Info implements TypeFactory.TypeReifier {
-		@Override
+    public static class Info extends TypeFactory.TypeReifier {
+		public Info(TypeValues symbols) {
+            super(symbols);
+        }
+
+        @Override
 		public Type getSymbolConstructorType() {
 			return symbols().typeSymbolConstructor("int");
 		}
@@ -61,8 +65,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-	public TypeFactory.TypeReifier getTypeReifier() {
-		return new Info();
+	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+		return new Info(symbols);
 	}
     
     /**

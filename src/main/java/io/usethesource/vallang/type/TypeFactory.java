@@ -804,49 +804,55 @@ public class TypeFactory {
 		return true;
 	}
 
-	public static interface TypeReifier {
-		default TypeValues symbols() {
-			return tf().cachedTypeValues();
+	public abstract static class TypeReifier {
+		private final TypeValues cachedSymbols;
+
+		public TypeReifier(TypeValues symbols) {
+			this.cachedSymbols = symbols;
+		}
+
+		public TypeValues symbols() {
+			return cachedSymbols;
 		}
 		
-		default TypeFactory tf() {
+		public TypeFactory tf() {
 			return TypeFactory.getInstance();
 		}
 		
 		
-		default Set<Type> getSymbolConstructorTypes() {
+		public Set<Type> getSymbolConstructorTypes() {
 			return Collections.singleton(getSymbolConstructorType());
 		}
 		
-		Type getSymbolConstructorType();
+		public abstract Type getSymbolConstructorType();
 		
-		default boolean isRecursive() {
+		public boolean isRecursive() {
 		    return false;
 		}
 		
-		Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd);
+		public abstract Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd);
 		
-		default IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			// this will work for all nullary type symbols with only one constructor type
 			return vf.constructor(getSymbolConstructorType());
 		}
 		
-		default void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 			// normally nothing
 		}
 		
-		Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar);
+		public abstract Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar);
 
-        default String randomLabel(RandomTypesConfig rnd) {
+        public String randomLabel(RandomTypesConfig rnd) {
             return "x" + new BigInteger(32, rnd.getRandom()).toString(32);
         }
         
-        default Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-            return new TupleType.Info().randomInstance(next, store, rnd);
+        public Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            return new TupleType.Info(cachedSymbols).randomInstance(next, store, rnd);
         }
         
-        default Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
-            return new TupleType.Info().randomInstance(next, rnd, arity);
+        public Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
+            return new TupleType.Info(cachedSymbols).randomInstance(next, rnd, arity);
         }
 	}
 
@@ -1059,11 +1065,7 @@ public class TypeFactory {
 					}
 
 					Class<?> clazz = checkValidClassLoader(Thread.currentThread().getContextClassLoader()).loadClass(name);
-					var cons = clazz.getConstructors();
-					if (cons.length == 0) {
-						throw new IllegalArgumentException("WARNING: could not load type info " + name + " because it has no public constructor");
-					}
-					Object instance = cons[0].newInstance();
+					Object instance = clazz.getConstructor(TypeValues.class).newInstance(this);
 
 					if (instance instanceof TypeReifier) {
 						registerTypeInfo((TypeReifier) instance);
@@ -1072,7 +1074,7 @@ public class TypeFactory {
 						throw new IllegalArgumentException("WARNING: could not load type info " + name + " because it does not implement TypeFactory.TypeInfo");
 					}
 				}
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | SecurityException | IOException | InvocationTargetException e) {
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | SecurityException | IOException | InvocationTargetException | NoSuchMethodException e) {
 				throw new IllegalArgumentException("WARNING: could not load type info " + nextElement + " due to " + e.getMessage());
 			}
 		}
@@ -1151,19 +1153,15 @@ public class TypeFactory {
 		return cachedTypeValues().fromSymbol(symbol, new TypeStore(), x -> Collections.emptySet());
 	}
 
-	private TypeValues cachedTypeValues() {
+	public TypeValues cachedTypeValues() {
 		var result = typeValues;
 		if (result == null) {
 			synchronized(this) {
 				result = typeValues;
 				if (result == null) {
 					result = new TypeValues();
-					// we assign the field before initialize, since initialize depends on the typeValues store being there already.
-					// side-affect is that during this init, outside calls to the type-factory could come in (on a different thread)
-					// and they might have a partially initialized TypeValues store.
-					// the only way to solve this is to remove this dynamic initialization
-					typeValues = result; 
 					result.initialize();
+					typeValues = result; 
 				}
 			}
 		}

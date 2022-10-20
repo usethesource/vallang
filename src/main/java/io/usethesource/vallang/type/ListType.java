@@ -32,6 +32,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /*package*/ class ListType extends DefaultSubtypeOfValue {
 	protected final Type fEltType;
@@ -40,7 +41,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 		fEltType = eltType;
 	}
 
-	public static class Info implements TypeReifier {
+	public static class Info extends TypeReifier {
+
+		public Info(TypeValues symbols) {
+			super(symbols);
+		}
 
 		@Override
 		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
@@ -98,8 +103,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 	}
 
 	@Override
-	public TypeReifier getTypeReifier() {
-		return new Info();
+	public TypeReifier getTypeReifier(TypeValues symbols) {
+		return new Info(symbols);
 	}
 	
 	@Override
