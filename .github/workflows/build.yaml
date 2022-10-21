@@ -25,13 +25,8 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 11
-
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          distribution: 'temurin'
+          cache: 'maven'
       
       - name: test
         run: mvn -B clean test
@@ -67,13 +62,8 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 11
-
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-checker-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2-checker
+          distribution: 'temurin'
+          cache: 'maven'
 
       - name: Verify using checker-framework
         run: mvn -B clean compile -P checker-framework
@@ -86,17 +76,13 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
           languages: java
-
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
 
       - name: Compile
         run: mvn -B clean compile
@@ -113,13 +99,8 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 11
-
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          distribution: 'temurin'
+          cache: 'maven'
 
       - name: Attach artifact
         id: build-artifact
