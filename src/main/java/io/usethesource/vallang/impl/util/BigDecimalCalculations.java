@@ -115,9 +115,9 @@ public class BigDecimalCalculations {
         // (two successive approximations are within the tolerance).
         do {
             // x^i
-            power = power.multiply(x).multiply(x).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
+            power = power.multiply(x).multiply(x).setScale(sp1, RoundingMode.HALF_EVEN);
             // (x^i)/(i!)
-            term = power.divide(fac, sp1,BigDecimal.ROUND_HALF_EVEN);
+            term = power.divide(fac, sp1,RoundingMode.HALF_EVEN);
             // result = result +- (x^i)/(i!)
             result = addFlag ? result.add(term) : result.subtract(term);
             
@@ -169,9 +169,9 @@ public class BigDecimalCalculations {
         // (two successive approximations are within the tolerance).
         do {
             // x^i
-            power = power.multiply(x).multiply(x).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
+            power = power.multiply(x).multiply(x).setScale(sp1, RoundingMode.HALF_EVEN);
             // (x^i)/(i!)
-            term = power.divide(fac, sp1, BigDecimal.ROUND_HALF_EVEN);
+            term = power.divide(fac, sp1, RoundingMode.HALF_EVEN);
             // result = result +- (x^i)/(i!)
             result = addFlag ? result.add(term) : result.subtract(term);
             
@@ -232,7 +232,7 @@ public class BigDecimalCalculations {
 			if (negativeExponent) {
 				return BigDecimal.ONE.divide(x, mc);
 			}
-			return x.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+			return x.setScale(scale, RoundingMode.HALF_EVEN);
 		}
 		
 		BigDecimal result = BigDecimal.valueOf(1);
@@ -304,7 +304,7 @@ public class BigDecimalCalculations {
 		BigInteger indexm1 = index.subtract(BigInteger.ONE);
 
 		// The initial approximation is x/index.
-		x = x.divide(i, scale, BigDecimal.ROUND_HALF_EVEN);
+		x = x.divide(i, scale, RoundingMode.HALF_EVEN);
 
 		// Loop until the approximations converge
 		// (two successive approximations are equal after rounding).
@@ -323,7 +323,7 @@ public class BigDecimalCalculations {
 				x = BigDecimal.ZERO.setScale(sp1);
 			}
 			else {
-				x = numerator.divide(denominator, sp1, BigDecimal.ROUND_DOWN);
+				x = numerator.divide(denominator, sp1, RoundingMode.DOWN);
 			}
 
 		} while (x.subtract(xPrev).abs().compareTo(tolerance) > 0);
@@ -354,7 +354,7 @@ public class BigDecimalCalculations {
 		}
 		
 		// Compute the whole part of x.
-		BigDecimal xWhole = x.setScale(0, BigDecimal.ROUND_DOWN);
+		BigDecimal xWhole = x.setScale(0, RoundingMode.DOWN);
 
 		BigDecimal result;
 		
@@ -368,7 +368,7 @@ public class BigDecimalCalculations {
 	
 			// z = 1 + fraction/whole
 			BigDecimal z = BigDecimal.valueOf(1).add(
-					xFraction.divide(xWhole, scale, BigDecimal.ROUND_HALF_EVEN));
+					xFraction.divide(xWhole, scale, RoundingMode.HALF_EVEN));
 	
 			// t = e^z
 			BigDecimal t = expTaylor(z, scale);
@@ -404,11 +404,11 @@ public class BigDecimalCalculations {
 		int i = 2;
 		do {
 			// x^i
-			xPower = xPower.multiply(x).setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+			xPower = xPower.multiply(x).setScale(scale, RoundingMode.HALF_EVEN);
 			// i!
 			factorial = factorial.multiply(BigDecimal.valueOf(i));
 			// x^i/i!
-			BigDecimal term = xPower.divide(factorial, scale, BigDecimal.ROUND_HALF_EVEN);
+			BigDecimal term = xPower.divide(factorial, scale, RoundingMode.HALF_EVEN);
 			// sum = sum + x^i/i!
 			sumPrev = sum;
 			sum = sum.add(term);
@@ -446,7 +446,7 @@ public class BigDecimalCalculations {
 			BigDecimal lnRoot = lnNewton(root, scale);
 			// magnitude*ln(x^(1/magnitude))
 			return BigDecimal.valueOf(magnitude).multiply(lnRoot)
-					.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+					.setScale(scale, RoundingMode.HALF_EVEN);
 		}
 	}
 
@@ -470,13 +470,13 @@ public class BigDecimalCalculations {
 			if (eToX.compareTo(BigDecimal.ZERO) == 0) {
 				break;
 			}
-			term = eToX.subtract(n).divide(eToX, sp1, BigDecimal.ROUND_DOWN);
+			term = eToX.subtract(n).divide(eToX, sp1, RoundingMode.DOWN);
 			// x - (e^x - n)/e^x
 			x = x.subtract(term);
 
 		} while (term.compareTo(tolerance) > 0);
 
-		return x.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+		return x.setScale(scale, RoundingMode.HALF_EVEN);
 	}
 
 	/**

@@ -415,12 +415,12 @@ import io.usethesource.vallang.type.TypeFactory;
 	public static IReal pi(int precision) {
 		if (precision < 0 || precision > 1000)
 			throw new IllegalArgumentException("PI max precision is 1000");
-		return newReal(BigDecimalCalculations.PI.setScale(precision, BigDecimal.ROUND_HALF_EVEN));
+		return newReal(BigDecimalCalculations.PI.setScale(precision, RoundingMode.HALF_EVEN));
 	}
 	
 	public static IReal e(int precision) {
 		if (precision < 0 || precision > 1000)
 			throw new IllegalArgumentException("E max precision is 1000");
-		return newReal(BigDecimalCalculations.E.setScale(precision, BigDecimal.ROUND_HALF_EVEN));
+		return newReal(BigDecimalCalculations.E.setScale(precision, RoundingMode.HALF_EVEN));
 	}	
 }
