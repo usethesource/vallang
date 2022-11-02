@@ -2,14 +2,10 @@ package io.usethesource.vallang.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Interner;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.type.Type;
@@ -19,7 +15,6 @@ import io.usethesource.vallang.type.TypeFactory;
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
  */
 /*package*/ class SourceLocationURIValues {
-    private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
     private static final Pattern doubleSlashes = Pattern.compile("//+");
     
     static ISourceLocation newURI(@Nullable String scheme, @Nullable String authority, @Nullable String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException  {
@@ -32,7 +27,7 @@ import io.usethesource.vallang.type.TypeFactory;
             else if (!path.startsWith("/")) {
                 path = "/" + path;
             }
-            if (path != null && path.contains("//")) {
+            if (path != null) {
                 // normalize double or longer slashes
                 path = doubleSlashes.matcher(path).replaceAll("/");
                 if (path.equals("/")) {
@@ -45,7 +40,7 @@ import io.usethesource.vallang.type.TypeFactory;
         if (scheme == null || scheme.equals("")) {
             throw new URISyntaxException("null or empty", "scheme cannot be empty or null");
         }
-        if (INTERNED_SCHEMES.getIfPresent(scheme) == null  && !schemePattern.matcher(scheme).matches()) {
+        if (!validScheme(scheme)) {
             throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
         }
         if (authority == null) {
@@ -96,6 +91,31 @@ import io.usethesource.vallang.type.TypeFactory;
         return new SourceLocationURIValues.FragmentQueryPathAuthorityURI(scheme, authority, path, query, fragment);
     }
 
+	// since this is called a lot, instead of a regex we just use a simple char loop
+	// RFC3986:
+	// scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+	private static boolean validScheme(@Nullable String s) {
+		if (s == null || s.isEmpty()) {
+			return false;
+		}
+		char current = s.charAt(0);
+		if (('A' <= current && current <= 'Z') || ('a' <= current && current <= 'z')) {
+			for (int i = 1; i < s.length(); i++) {
+				current = s.charAt(i);
+				if (current < '+' || current > 'z' // anything outside this, is not valid
+				   || current == ',' || current == '/' // these two chars between + and 0 that aren't valid 
+				   || ('9' < current && current < 'A') // chars between 9 and A are invalid
+				   || ('Z' < current && current < 'a') // chars between Z and a are invalid
+				) {
+					return false;
+				}
+			}
+			return true;
+
+		}
+		return false;
+	}
+
 
     private static @Nullable String nullifyIfEmpty(@Nullable String str) {
         if (str == null || str.isEmpty()) {
@@ -104,21 +124,13 @@ import io.usethesource.vallang.type.TypeFactory;
         return str;
     }
 
-    private static final LoadingCache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build(s -> s);
-
-	private static String safeGetFromCache(LoadingCache<String, String> cache, String key) {
-		String result = cache.get(key);
-		if (result == null) {
-			throw new RuntimeException("Automatic loading cache failed, should not happen, key: " + key);
-		}
-		return result;
-	}
+    private static final Interner<String> INTERNED_SCHEMES = Interner.newStrongInterner();
 
     private static class BaseURI implements ISourceLocation {
 		protected final String scheme;
 		
 		public BaseURI(String scheme)  {
-			this.scheme = safeGetFromCache(INTERNED_SCHEMES, scheme);
+			this.scheme = INTERNED_SCHEMES.intern(scheme);
 		}
 		
 
@@ -316,14 +328,14 @@ import io.usethesource.vallang.type.TypeFactory;
 		return squareBracketClose.matcher(authority).replaceAll("\0\0\uFFF1\0\0");
 	}
 
-	private static final LoadingCache<String, String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
+	private static final Interner<String> INTERNED_AUTHORIES = Interner.newStrongInterner();
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
 		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
 
-			this.authority = safeGetFromCache(INTERNED_AUTHORIES, authority);
+			this.authority = INTERNED_AUTHORIES.intern(authority);
 		}
 		
 		@Override

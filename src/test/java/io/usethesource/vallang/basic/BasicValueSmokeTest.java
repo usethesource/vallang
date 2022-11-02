@@ -1,8 +1,10 @@
 package io.usethesource.vallang.basic;
 
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -105,6 +107,15 @@ public final class BasicValueSmokeTest {
     } catch (URISyntaxException e) {
         fail(e.getMessage());
     }
+  }
+
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testSourceLocations(IValueFactory vf) {
+    assertThrows(URISyntaxException.class, () -> vf.sourceLocation(null, null, null), "empty scheme");
+    assertThrows(URISyntaxException.class, () -> vf.sourceLocation("", null, null), "empty scheme");
+    assertDoesNotThrow(() -> vf.sourceLocation("valid+sch.em-e", null, null), "valid scheme");
+    assertThrows(URISyntaxException.class, () -> vf.sourceLocation("invalid?scheme", null, null), "invalid scheme");
+    assertThrows(URISyntaxException.class, () -> vf.sourceLocation("🍝", null, null), "invalid scheme");
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
