@@ -36,16 +36,16 @@ public class ConcurrentTests {
                     Type Boolean = tf.abstractDataType(ts, "Boolean");
 
                     Type Name = tf.abstractDataType(ts, "Name");
-                    Type True = tf.constructor(ts, Boolean, "true");
-                    Type False = tf.constructor(ts, Boolean, "false");
-                    Type And = tf.constructor(ts, Boolean, "and", Boolean, Boolean);
-                    Type Or = tf.constructor(ts, Boolean, "or", tf.listType(Boolean));
-                    Type Not = tf.constructor(ts, Boolean, "not", Boolean);
-                    Type TwoTups = tf.constructor(ts, Boolean, "twotups", tf.tupleType(Boolean, Boolean),
+                    tf.constructor(ts, Boolean, "true");
+                    tf.constructor(ts, Boolean, "false");
+                    tf.constructor(ts, Boolean, "and", Boolean, Boolean);
+                    tf.constructor(ts, Boolean, "or", tf.listType(Boolean));
+                    tf.constructor(ts, Boolean, "not", Boolean);
+                    tf.constructor(ts, Boolean, "twotups", tf.tupleType(Boolean, Boolean),
                         tf.tupleType(Boolean, Boolean));
-                    Type NameNode = tf.constructor(ts, Name, "name", tf.stringType());
-                    Type Friends = tf.constructor(ts, Boolean, "friends", tf.listType(Name));
-                    Type Couples = tf.constructor(ts, Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
+                    tf.constructor(ts, Name, "name", tf.stringType());
+                    tf.constructor(ts, Boolean, "friends", tf.listType(Name));
+                    tf.constructor(ts, Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
                     ts.declareKeywordParameter(Name, "moreName", Name);
                     ts.declareKeywordParameter(Name, "listName", tf.listType(Name));
                     ts.declareKeywordParameter(Name, "anyValue", tf.valueType());

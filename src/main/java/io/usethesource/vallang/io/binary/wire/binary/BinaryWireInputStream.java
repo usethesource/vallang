@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Objects;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 

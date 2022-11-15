@@ -14,7 +14,6 @@ package io.usethesource.vallang.io;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
