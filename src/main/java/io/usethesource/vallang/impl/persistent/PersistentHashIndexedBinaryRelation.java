@@ -483,22 +483,6 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       throw new IllegalStateException("Binary relation patterns exhausted.");
   }
 
-  @Override
-  @Deprecated
-  public ISet projectByFieldNames(String... fieldNames) {
-      final Type fieldTypeType = getType().getFieldTypes();
-
-      if (!fieldTypeType.hasFieldNames()) {
-          throw new IllegalOperationException("select with field names",
-                  getType());
-      }
-
-      final int[] fieldIndices =
-              Stream.of(fieldNames).mapToInt(fieldTypeType::getFieldIndex).toArray();
-
-      return project(fieldIndices);
-  }
-
   /**
    * Flattening Set[Tuple[Tuple[K, V]], _] to Multimap[K, V].
    *

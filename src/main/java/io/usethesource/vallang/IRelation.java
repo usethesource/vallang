@@ -142,34 +142,6 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
 
         return w.done();
     }
-
-    /**
-     * Reduces an n-ary relation to fewer columns, given by the fields to select.
-     * @param fields to select from the relation by name
-     * @return a new relation with only the columns selected by the field names
-     * 
-     * TODO: this method will dissappear when field names will no longer be recorded 
-     * the vallang library. This is necessary to be able to provide canonical types
-     * and use reference equality for type equality; a major factor in CPU performance.
-     */
-    @Deprecated
-    public default C projectByFieldNames(String... fields) {
-        C collection = asContainer();
-        int[] indexes = new int[fields.length];
-        int i = 0;
-
-        if (!collection.getType().getFieldTypes().hasFieldNames()) {
-            throw new IllegalOperationException("project with field names", collection.getType());
-        }
-
-        for (String field : fields) {
-            indexes[i++] = collection.getType().getFieldTypes().getFieldIndex(field);
-        }
-
-        return project(indexes);
-    }
-
-    
     
     /**
      * Compute the carrier set of an n-ary relation.
