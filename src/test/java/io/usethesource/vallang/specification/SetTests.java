@@ -14,6 +14,7 @@ import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
 
 public class SetTests {
@@ -34,12 +35,12 @@ public class SetTests {
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void removal( @ExpectedType("set[int]") ISet set, IInteger i) {
+    public void removal(Random rnd, IValueFactory vf, @ExpectedType("set[int]") ISet set) {
         if (set.isEmpty()) {
             return;
         }
-        
-        IValue elem = StreamSupport.stream(set.spliterator(), false).skip(Math.abs(i.intValue() % set.size())).findFirst().get();
+        int index = rnd.nextInt(set.size());
+        IValue elem = set.stream().skip(index).findFirst().get();
         ISet smaller = set.delete(elem);
         assertEquals(smaller.size() + 1, set.size());
         assertTrue(!smaller.contains(elem));
@@ -51,7 +52,8 @@ public class SetTests {
             return;
         }
         
-        IValue elem = StreamSupport.stream(set.spliterator(), false).skip(rnd.nextInt(set.size())).findFirst().get();
+        int index = rnd.nextInt(set.size());
+        IValue elem = set.stream().skip(index).findFirst().get();
         ISet smaller = set.delete(elem);
         assertEquals(smaller.size() + 1, set.size());
         assertTrue(!smaller.contains(elem));
