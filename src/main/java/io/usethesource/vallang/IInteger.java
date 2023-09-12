@@ -102,26 +102,24 @@ public interface IInteger extends INumber {
     public byte[] getTwosComplementRepresentation();
     
     /**
-     * Converts this IInteger to an int. Only the lower
-     * 32 bits are used so the resulting int may be
-     * smaller and the sign may change too.
+     * Converts this IInteger to an int. If it
+     * does not fit an ArithmeticException is thrown.
      * 
      * Use doubleValue() instead, if you are not sure if the
      * result will fit in an int.
      * 
      */
-    public int intValue();
+    public int intValue() throws ArithmeticException;
     
     /**
      * Converts this IInteger to a long.  
-     * Only the lower 64 bits are used, so the resulting long may be 
-     * smaller and the sign may change too.
+     * If it does not fit an ArithmeticException is thrown.
      *
      * Use doubleValue() instead, if you are not sure if the
      * result will fit in a long.
      * 
      */
-    public long longValue();
+    public long longValue() throws ArithmeticException;
     
     /**
      * Converts this IInteger to a double.  

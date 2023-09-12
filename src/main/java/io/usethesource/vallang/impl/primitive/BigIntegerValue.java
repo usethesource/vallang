@@ -56,13 +56,13 @@ import io.usethesource.vallang.type.TypeFactory;
 	}
 
 	@Override
-	public int intValue(){
-		return value.intValue();
+	public int intValue() throws ArithmeticException {
+		return value.intValueExact();
 	}
 
 	@Override
-	public long longValue(){
-		return value.longValue();
+	public long longValue() throws ArithmeticException {
+		return value.longValueExact();
 	}
 
 	@Override

@@ -62,6 +62,8 @@ public interface IRational extends INumber {
 
     /**
      * @return a double that approximates this IRational
+     * If the number does not fit, plus or minus infinity may be returned.
+     * Also the number that does fit may loose precision.
      */
     public double doubleValue();
 

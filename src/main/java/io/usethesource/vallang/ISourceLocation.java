@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007 IBM Corporation, 2023 NWO-I Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Jurgen Vinju (Jurgen.Vinju@cwi.nl) - extensions and maintenance
 *******************************************************************************/
 
 package io.usethesource.vallang;
@@ -134,6 +134,30 @@ public interface ISourceLocation extends IValue {
      * @return the source location without any offset & length information.
      */
     public ISourceLocation top();
+
+    public String getFileName();
+
+    public boolean hasFileName();
+
+    public ISourceLocation changeScheme(String newScheme);
+
+    public ISourceLocation changeAuthority(String newAuthority);
+
+    public ISourceLocation changePath(String newPath);
+
+    public ISourceLocation changeFile(String newFile);
+
+    public ISourceLocation changeExtension(String newExtension);
+
+    public ISourceLocation changeFragment(String newFragment);
+
+    public ISourceLocation changeQuery(String newQuery);
+
+    public ISourceLocation changeFileName(String newFileName);
+
+    public ISourceLocation makeChildLocation(String childPath);
+
+    public ISourceLocation getParentLocation();
     
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
