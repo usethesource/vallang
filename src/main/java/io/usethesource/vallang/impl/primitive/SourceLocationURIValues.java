@@ -361,7 +361,6 @@ import io.usethesource.vallang.type.TypeFactory;
 		public int hashCode() {
 			return scheme.hashCode() + authority.hashCode();
 		}
-		
 		@Override
 		public boolean equals(@Nullable Object obj) {
 		    if (obj == null) {
@@ -501,7 +500,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-		public URI getURI() {
+public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", "/", query, null);
 				return new URI(result.toASCIIString());
@@ -599,7 +598,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		
 		@Override
 		@SuppressWarnings("nullness") // CF doesn't have a model for URI
-		public URI getURI() {
+public URI getURI() {
 			try {
 				URI result = new URI(scheme, "", path, query, null);
 				return new URI(result.toASCIIString());
