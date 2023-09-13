@@ -14,6 +14,16 @@ env:
 
 
 jobs:
+  event_file:
+    name: "Event File (for test results)"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        name: Event File
+        path: ${{ github.event_path }}
+
   test:
     strategy:
       matrix:
@@ -35,24 +45,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: Unit Test Results
+          name: Unit Test Results (${{ matrix.python-version }})
           path: target/surefire-reports/**/*.xml
-   
-  publish-test-results:
-    name: "Publish Unit Tests Results"
-    needs: test
-    runs-on: ubuntu-latest
-    if: success() || failure()
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        with:
-          junit_files: artifacts/**/*.xml
         
   checker-framework:
     runs-on: ubuntu-latest
