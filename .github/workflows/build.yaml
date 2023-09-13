@@ -45,7 +45,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: Unit Test Results (${{ matrix.python-version }})
+          name: Unit Test Results (${{ matrix.os }})
           path: target/surefire-reports/**/*.xml
         
   checker-framework:
