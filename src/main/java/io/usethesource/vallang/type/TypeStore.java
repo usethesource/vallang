@@ -55,7 +55,7 @@ public class TypeStore {
 	 * (they play a role in the Rascal bootstrap procedure)
 	 */
 	static private final java.util.List<String> IGNORE_OVERLOADING_CHECKS = Arrays.asList(
-			new String[] {"AType", "Grammar", "RuntimeException"});
+			new String[] {"AType", "Grammar", "RuntimeException", "ModuleStatus"});
 
 	/**
 	 * A type store that is initially empty and imports the given TypeStores.
