@@ -48,6 +48,7 @@ import io.usethesource.vallang.exceptions.IllegalFieldTypeException;
 import io.usethesource.vallang.exceptions.IllegalIdentifierException;
 import io.usethesource.vallang.exceptions.NullTypeException;
 import io.usethesource.vallang.util.HashConsingMap;
+import io.usethesource.vallang.util.WeakReferenceHashConsingBuffer;
 import io.usethesource.vallang.util.WeakReferenceHashConsingMap;
 
 /**
@@ -62,7 +63,7 @@ public class TypeFactory {
 	/**
 	 * Caches all types to implement canonicalization
 	 */
-	private final HashConsingMap<Type> fCache = new WeakReferenceHashConsingMap<>(8*1024, (int)TimeUnit.MINUTES.toSeconds(30));
+	private final HashConsingMap<Type> fCache = new WeakReferenceHashConsingBuffer<>(32*1024);
     private volatile @MonotonicNonNull TypeValues typeValues; // lazy initialize
     
 	private static class InstanceHolder {
