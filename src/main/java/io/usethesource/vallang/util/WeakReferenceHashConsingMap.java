@@ -82,6 +82,31 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
             lastUsed = SecondsTicker.current();
         }
     }
+
+    private static class LookupKey<T extends @NonNull Object> {
+        private final T value;
+        private final int hash;
+
+        LookupKey(T value, int hash) {
+            this.value = value;
+            this.hash = hash;
+        }
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (obj instanceof WeakReferenceWrap<?>) {
+                var actual = (WeakReferenceWrap<?>)obj;
+                return actual.hash == hash && value.equals(actual.get());
+            }
+            return false;
+        }
+
+    }
+
     
     /** 
      * We keep the most recently used entries in a simple open addressing map for quick access
@@ -103,7 +128,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
      * if entries are not referenced anymore
      */
 	private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
-    private final Map<WeakReferenceWrap<T>, WeakReferenceWrap<T>> coldEntries;
+    private final Map<Object, WeakReferenceWrap<T>> coldEntries;
     
     
     public WeakReferenceHashConsingMap() {
@@ -145,7 +170,6 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
                     }
                 }
             }
-            System.err.println("Clearing up:" + toCleanup.size());
             toCleanup.forEach(coldEntries::remove);
         } finally {
             CompletableFuture
@@ -174,11 +198,18 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
             return hotEntry.value;
         }
 
-        T result = null;
-        while (result == null) {
+        // fast path, it' already in cold, 
+        // we avoid making a new weak reference just for search
+        var fastGet = coldEntries.get(new LookupKey<>(key, hash));
+        T result = fastGet == null ? null : fastGet.get();
+        if (result == null) {
+            // we create a weak reference once
+            // and try to win putting it in
             var keyWrapped = new WeakReferenceWrap<>(key, hash, queue);
-            var winRace = coldEntries.putIfAbsent(keyWrapped, keyWrapped);
-            result = winRace == null ? key : winRace.get();
+            while (result == null) {
+                var winRace = coldEntries.putIfAbsent(keyWrapped, keyWrapped);
+                result = winRace == null ? key : winRace.get();
+            }
         }
         // after this, either we just put it in cold, or we got an old version back from
         // cold, so we are gonna put it back in the hot entries
