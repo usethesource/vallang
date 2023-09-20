@@ -443,7 +443,7 @@ public interface IValueFactory {
 
 	/**
 	 * Get a set writer of which the element type will be the least upper bound
-	 * of the element types
+	 * of the element types. ISetWriter instances are stream of IValue collectors.
 	 * 
 	 * @return a set writer
 	 */
@@ -461,7 +461,7 @@ public interface IValueFactory {
 
 	/**
 	 * Get a list writer of which the element type will be the least upper bound
-	 * of the element types
+	 * of the element types. IListWriter instances are stream of IValue collectors.
 	 * 
 	 * @return a list writer
 	 */
@@ -478,7 +478,8 @@ public interface IValueFactory {
 
 	/**
 	 * Get a map writer of which the key and value types will be the least upper
-	 * bound of the keys and values that are put in.
+	 * bound of the keys and values that are put in. IMapWriter instances are
+	 * stream collectors; the stream must be made of binary ITuple instances.
 	 * 
 	 * @return a list writer
 	 */

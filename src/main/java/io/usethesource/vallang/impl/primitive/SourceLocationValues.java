@@ -269,6 +269,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		public int getOffset() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
+		
 	}
 	
 	private static class IntIntIntIntIntInt extends Complete {

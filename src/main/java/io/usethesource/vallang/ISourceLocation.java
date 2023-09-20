@@ -13,6 +13,7 @@
 package io.usethesource.vallang;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -139,23 +140,23 @@ public interface ISourceLocation extends IValue {
 
     public boolean hasFileName();
 
-    public ISourceLocation changeScheme(String newScheme);
+    public ISourceLocation changeScheme(String newScheme) throws URISyntaxException;
 
-    public ISourceLocation changeAuthority(String newAuthority);
+    public ISourceLocation changeAuthority(String newAuthority) throws URISyntaxException;
 
-    public ISourceLocation changePath(String newPath);
+    public ISourceLocation changePath(String newPath) throws URISyntaxException;
 
-    public ISourceLocation changeFile(String newFile);
+    public ISourceLocation changeFile(String newFile) throws URISyntaxException;
 
-    public ISourceLocation changeExtension(String newExtension);
+    public ISourceLocation changeExtension(String newExtension) throws URISyntaxException;
 
-    public ISourceLocation changeFragment(String newFragment);
+    public ISourceLocation changeFragment(String newFragment) throws URISyntaxException;
 
-    public ISourceLocation changeQuery(String newQuery);
+    public ISourceLocation changeQuery(String newQuery) throws URISyntaxException;
 
-    public ISourceLocation changeFileName(String newFileName);
+    public ISourceLocation changeFileName(String newFileName) throws URISyntaxException;
 
-    public ISourceLocation makeChildLocation(String childPath);
+    public ISourceLocation makeChildLocation(String childPath) throws URISyntaxException;
 
     public ISourceLocation getParentLocation();
     

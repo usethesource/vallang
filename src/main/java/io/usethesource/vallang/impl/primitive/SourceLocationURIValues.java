@@ -273,10 +273,69 @@ import io.usethesource.vallang.type.TypeFactory;
 		    return false;
 		}
 
-
 		@Override
 		public ISourceLocation top() {
 		    return this;
+		}
+
+		@Override
+		public ISourceLocation changeAuthority(String authority) throws URISyntaxException {
+			return newURI(scheme, authority, null, null, null);
+		}
+
+		@Override
+		public ISourceLocation changeScheme(String scheme) throws URISyntaxException {
+			return newURI(scheme, null, null, null, null);
+		}
+
+		@Override
+		public ISourceLocation changeFragment(String fragment) throws URISyntaxException {
+			return newURI(scheme, null, null, null, fragment);
+		}
+
+		@Override
+		public ISourceLocation changeQuery(String fragment) throws URISyntaxException {
+			return newURI(scheme, null, null, null, fragment);
+		}
+
+		@Override
+		public ISourceLocation getParentLocation() {
+			return this;
+		}
+
+		@Override
+		public boolean hasFileName() {
+			return false;
+		}
+
+		@Override
+		public ISourceLocation changeExtension(String ext) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String getFileName() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public ISourceLocation changeFileName(String file) throws URISyntaxException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public ISourceLocation changeFile(String file) throws URISyntaxException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public ISourceLocation changePath(String path) throws URISyntaxException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public ISourceLocation makeChildLocation(String path) throws URISyntaxException {
+			return newURI(scheme, null, path, null, null);
 		}
 	}
 	
