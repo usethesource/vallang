@@ -151,7 +151,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
     }
     
     
-    private static <@Nullable T extends Object> void cleanup(int demoteAfterSeconds, HotEntry<T>[] hotEntries, Map<Object, WeakReferenceWrap<T>> coldEntries,
+    private static <T extends @NonNull Object> void cleanup(int demoteAfterSeconds, @Nullable HotEntry<T>[] hotEntries, Map<Object, WeakReferenceWrap<T>> coldEntries,
 		ReferenceQueue<T> queue) {
         try {
             final int now = SecondsTicker.current();
