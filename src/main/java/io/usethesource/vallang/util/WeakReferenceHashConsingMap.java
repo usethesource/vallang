@@ -12,12 +12,15 @@
 */ 
 package io.usethesource.vallang.util;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.Scheduler;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -35,12 +38,12 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
     * So that we can use them as keys in Caffeine.
     * Caffeine doesn't support weakKeys with regular equality contract.
     */
-    private static class WeakReferenceWrap<T extends @NonNull Object> extends WeakReference<T> {
+    private static class WeakReferenceWrap<T extends @NonNull Object> extends WeakReference<T>  {
         private final int hash;
         
-        public WeakReferenceWrap(T referent) {
-            super(referent);
-            this.hash = referent.hashCode();
+        public WeakReferenceWrap(T referent, int hash, ReferenceQueue<? super T> cleared) {
+            super(referent, cleared);
+            this.hash = hash;
         }
         
         @Override
@@ -50,7 +53,10 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         
         @Override
         public boolean equals(@Nullable Object obj) {
-            if (obj instanceof WeakReferenceWrap) {
+            if (obj == this) {
+                return true;
+            }
+            if (obj instanceof WeakReferenceWrap<?>) {
                 WeakReferenceWrap<?> wrappedObj = (WeakReferenceWrap<?>) obj;
                 if (wrappedObj.hash == hash) {
                     Object self = super.get();
@@ -64,56 +70,153 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
             return false;
         }
     }
+
+    private static class HotEntry<T extends @NonNull Object> {
+        private final T value;
+        private final int hash;
+        private volatile int lastUsed;
+
+        HotEntry(T value, int hash) {
+            this.value = value;
+            this.hash = hash;
+            lastUsed = SecondsTicker.current();
+        }
+    }
+
+    private static class LookupKey<T extends @NonNull Object> {
+        private final T value;
+        private final int hash;
+
+        LookupKey(T value, int hash) {
+            this.value = value;
+            this.hash = hash;
+        }
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (obj instanceof WeakReferenceWrap<?>) {
+                var actual = (WeakReferenceWrap<?>)obj;
+                return actual.hash == hash && value.equals(actual.get());
+            }
+            return false;
+        }
+
+    }
+
     
     /** 
-     *   We keep the most recently used entries in a strong cache for quick access
+     * We keep the most recently used entries in a simple open addressing map for quick access
+     * In case of hash collisions, the entry is overwritten, which doesn't matter too much
+     * The cleanup happens in a side thread.
+     * 
+     * Note that even though everything is using atomic operations, 
+     * threads can have different views on the contents of the hotEntries array.
+     * This is not a problem, as it acts like a thread local LRU in that case.
+     * 
+     * The coldEntries is the only map that should keep the state consistent across threads.
      */
-    private final Cache<T, T> hotEntries;
+    private final HotEntry<T>[] hotEntries;
+    private final int mask;
+    private final int expireAfter;
+
     /** 
      * All entries are also stored in a WeakReference, this helps with clearing memory
      * if entries are not referenced anymore
      */
-    private final Cache<WeakReferenceWrap<T>, T> coldEntries;
+	private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
+    private final Map<Object, WeakReferenceWrap<T>> coldEntries;
     
     
     public WeakReferenceHashConsingMap() {
         this(16, (int)TimeUnit.MINUTES.toSeconds(30));
     }
 
-    private static long simulateNanoTicks() {
-        return TimeUnit.SECONDS.toNanos(SecondsTicker.current());
-
-    }
-    
     public WeakReferenceHashConsingMap(int size, int demoteAfterSeconds) {
-        hotEntries = Caffeine.newBuilder()
-            .ticker(WeakReferenceHashConsingMap::simulateNanoTicks)
-            .expireAfterAccess(Duration.ofSeconds(demoteAfterSeconds))
-            .scheduler(Scheduler.systemScheduler())
-            .initialCapacity(size)
-            .build();
+        if (size <= 0) {
+            throw new IllegalArgumentException("Size should be a positive number");
+        }
+        // size should be a power of two
+        size = Integer.highestOneBit(size - 1) << 1;
+        hotEntries = new HotEntry[size]; 
+        this.mask = size - 1;
+        this.expireAfter = demoteAfterSeconds;
 
-        coldEntries = Caffeine.newBuilder()
-            .weakValues()
-            .initialCapacity(size)
-            .scheduler(Scheduler.systemScheduler())
-            .build();
+        coldEntries = new ConcurrentHashMap<>(size);
+        
+        cleanup(demoteAfterSeconds, hotEntries, coldEntries, queue);
     }
     
     
+    private static <T extends @NonNull Object> void cleanup(int demoteAfterSeconds, @Nullable HotEntry<T>[] hotEntries, Map<Object, WeakReferenceWrap<T>> coldEntries,
+		ReferenceQueue<T> queue) {
+        try {
+            final int now = SecondsTicker.current();
+            for (int i = 0; i < hotEntries.length; i++) {
+                var entry = hotEntries[i];
+                if (entry != null && (now - entry.lastUsed >= demoteAfterSeconds)) {
+                    hotEntries[i] = null;
+                }
+            }
+            List<WeakReferenceWrap<?>> toCleanup = new ArrayList<>();
+            synchronized(queue) {
+                Reference<?> cleared;
+                while ((cleared = queue.poll()) != null) {
+                    if (cleared instanceof WeakReferenceWrap<?>) {
+                        toCleanup.add((WeakReferenceWrap<?>) cleared);
+                    }
+                }
+            }
+            toCleanup.forEach(coldEntries::remove);
+        } finally {
+            CompletableFuture
+                .delayedExecutor(Math.max(1, demoteAfterSeconds / 10), TimeUnit.SECONDS)
+                .execute(() -> cleanup(demoteAfterSeconds, hotEntries, coldEntries, queue));
+        }
+    }
+
+    private static int improve(int hash) {
+        // base on XXH32_avalanche from xxHash (BSD2 license, Yann Collet)
+        hash ^= hash >>> 15;
+        hash *= 0x85EBCA77;
+        hash ^= hash >>> 13;
+        hash *= 0xC2B2AE3D;
+        return hash ^ (hash >>> 16);
+    }
+
     @Override
     public T get(T key) {
-        T hot = hotEntries.getIfPresent(key);
-        if (hot != null) {
-            return hot;
+        final int hash = key.hashCode();
+        final int hotIndex = improve(hash) & mask;
+        final var hotEntries = this.hotEntries;
+        var hotEntry = hotEntries[hotIndex];
+        if (hotEntry != null && hotEntry.hash == hash && hotEntry.value.equals(key)) {
+            hotEntry.lastUsed = SecondsTicker.current();
+            return hotEntry.value;
         }
-        T cold = coldEntries.get(new WeakReferenceWrap<>(key), k -> key);
+
+        // fast path, it' already in cold, 
+        // we avoid making a new weak reference just for search
+        var fastGet = coldEntries.get(new LookupKey<>(key, hash));
+        T result = fastGet == null ? null : fastGet.get();
+        if (result == null) {
+            // we create a weak reference once
+            // and try to win putting it in
+            var keyWrapped = new WeakReferenceWrap<>(key, hash, queue);
+            while (result == null) {
+                var winRace = coldEntries.putIfAbsent(keyWrapped, keyWrapped);
+                result = winRace == null ? key : winRace.get();
+            }
+        }
         // after this, either we just put it in cold, or we got an old version back from
         // cold, so we are gonna put it back in the hot entries
         // note: the possible race between multiple puts is no problem, because
         // the coldEntries get will have made sure it will be of the same instance
-        hotEntries.put(cold, cold);
-        return cold;
+        hotEntries[hotIndex] = new HotEntry<>(result, hash);
+        return result;
     }
 
 }

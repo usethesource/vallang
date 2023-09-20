@@ -62,7 +62,7 @@ public class TypeFactory {
 	/**
 	 * Caches all types to implement canonicalization
 	 */
-	private final HashConsingMap<Type> fCache = new WeakReferenceHashConsingMap<>(8*1024, (int)TimeUnit.MINUTES.toSeconds(30));
+	private final HashConsingMap<Type> fCache = new WeakReferenceHashConsingMap<>(32*1024, (int)TimeUnit.MINUTES.toSeconds(30));
     private volatile @MonotonicNonNull TypeValues typeValues; // lazy initialize
     
 	private static class InstanceHolder {
