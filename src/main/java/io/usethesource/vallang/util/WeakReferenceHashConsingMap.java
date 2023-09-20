@@ -12,15 +12,15 @@
 */ 
 package io.usethesource.vallang.util;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.Interner;
-import com.github.benmanes.caffeine.cache.Scheduler;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -41,8 +41,8 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
     private static class WeakReferenceWrap<T extends @NonNull Object> extends WeakReference<T>  {
         private final int hash;
         
-        public WeakReferenceWrap(T referent, int hash) {
-            super(referent);
+        public WeakReferenceWrap(T referent, int hash, ReferenceQueue<? super T> cleared) {
+            super(referent, cleared);
             this.hash = hash;
         }
         
@@ -53,6 +53,9 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         
         @Override
         public boolean equals(@Nullable Object obj) {
+            if (obj == this) {
+                return true;
+            }
             if (obj instanceof WeakReferenceWrap<?>) {
                 WeakReferenceWrap<?> wrappedObj = (WeakReferenceWrap<?>) obj;
                 if (wrappedObj.hash == hash) {
@@ -99,7 +102,8 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
      * All entries are also stored in a WeakReference, this helps with clearing memory
      * if entries are not referenced anymore
      */
-    private final Cache<WeakReferenceWrap<T>, T> coldEntries;
+	private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
+    private final Map<WeakReferenceWrap<T>, WeakReferenceWrap<T>> coldEntries;
     
     
     public WeakReferenceHashConsingMap() {
@@ -116,12 +120,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         this.mask = size - 1;
         this.expireAfter = demoteAfterSeconds;
 
-        coldEntries = Caffeine.newBuilder()
-            .weakValues()
-            .initialCapacity(size)
-            .executor(ForkJoinPool.commonPool())
-            .scheduler(Scheduler.systemScheduler())
-            .build();
+        coldEntries = new ConcurrentHashMap<>(size);
         
         cleanup();
     }
@@ -137,6 +136,17 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
                     hotEntries[i] = null;
                 }
             }
+            List<WeakReferenceWrap<?>> toCleanup = new ArrayList<>();
+            synchronized(queue) {
+                Reference<?> cleared;
+                while ((cleared = queue.poll()) != null) {
+                    if (cleared instanceof WeakReferenceWrap<?>) {
+                        toCleanup.add((WeakReferenceWrap<?>) cleared);
+                    }
+                }
+            }
+            System.err.println("Clearing up:" + toCleanup.size());
+            toCleanup.forEach(coldEntries::remove);
         } finally {
             CompletableFuture
                 .delayedExecutor(Math.max(1, this.expireAfter / 10), TimeUnit.SECONDS)
@@ -164,13 +174,18 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
             return hotEntry.value;
         }
 
-        var cold = coldEntries.get(new WeakReferenceWrap<>(key, hash), k -> key);
+        T result = null;
+        while (result == null) {
+            var keyWrapped = new WeakReferenceWrap<>(key, hash, queue);
+            var winRace = coldEntries.putIfAbsent(keyWrapped, keyWrapped);
+            result = winRace == null ? key : winRace.get();
+        }
         // after this, either we just put it in cold, or we got an old version back from
         // cold, so we are gonna put it back in the hot entries
         // note: the possible race between multiple puts is no problem, because
         // the coldEntries get will have made sure it will be of the same instance
-        hotEntries[hotIndex] = new HotEntry<>(cold, hash);
-        return cold;
+        hotEntries[hotIndex] = new HotEntry<>(result, hash);
+        return result;
     }
 
 }
