@@ -147,17 +147,17 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
 
         coldEntries = new ConcurrentHashMap<>(size);
         
-        cleanup();
+        cleanup(demoteAfterSeconds, hotEntries, coldEntries, queue);
     }
     
     
-    private void cleanup() {
+    private static <@Nullable T extends Object> void cleanup(int demoteAfterSeconds, HotEntry<T>[] hotEntries, Map<Object, WeakReferenceWrap<T>> coldEntries,
+		ReferenceQueue<T> queue) {
         try {
             final int now = SecondsTicker.current();
-            final var hotEntries = this.hotEntries;
             for (int i = 0; i < hotEntries.length; i++) {
                 var entry = hotEntries[i];
-                if (entry != null && (now - entry.lastUsed >= this.expireAfter)) {
+                if (entry != null && (now - entry.lastUsed >= demoteAfterSeconds)) {
                     hotEntries[i] = null;
                 }
             }
@@ -173,8 +173,8 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
             toCleanup.forEach(coldEntries::remove);
         } finally {
             CompletableFuture
-                .delayedExecutor(Math.max(1, this.expireAfter / 10), TimeUnit.SECONDS)
-                .execute(this::cleanup);
+                .delayedExecutor(Math.max(1, demoteAfterSeconds / 10), TimeUnit.SECONDS)
+                .execute(() -> cleanup(demoteAfterSeconds, hotEntries, coldEntries, queue));
         }
     }
 
