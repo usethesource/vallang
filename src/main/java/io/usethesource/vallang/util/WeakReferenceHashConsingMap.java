@@ -179,7 +179,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
     }
 
     private static int improve(int hash) {
-        // xxhash avalanching phase
+        // base on XXH32_avalanche from xxHash (BSD2 license, Yann Collet)
         hash ^= hash >>> 15;
         hash *= 0x85EBCA77;
         hash ^= hash >>> 13;
