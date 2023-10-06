@@ -11,6 +11,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
@@ -44,6 +53,31 @@ public class IValueTests {
         assertTrue(!val1.equals(val2) || val1.hashCode() == val2.hashCode());
     }
     
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintContract(IValue val1, IValue val2) {
+        if (val1.equals(val2)) {
+            assertEquals(val1.getPatternMatchFingerprint(), val2.getPatternMatchFingerprint(), "" + val1.toString() + " and " + val2.toString() + " are equal but do not have the same fingerprint?");
+        }
+        assertTrue(!val1.equals(val2) || val1.getPatternMatchFingerprint() == val2.getPatternMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStability(IInteger integer, IString string, IReal real, IRational rational, IList list, ISet set, IMap map, ITuple tuple, IConstructor constructor, INode node) {
+        // if we really want to change these codes, we should be aware that we are breaking all previously compiled and released Rascal code.
+
+        assertEquals(integer.hashCode(), integer.getPatternMatchFingerprint());
+        assertEquals(string.hashCode(), string.getPatternMatchFingerprint());
+        assertEquals(real.hashCode(), real.getPatternMatchFingerprint());
+        assertEquals(rational.hashCode(), rational.getPatternMatchFingerprint());
+        assertEquals("list".hashCode(), list.getPatternMatchFingerprint());
+        assertEquals("set".hashCode(), set.getPatternMatchFingerprint());
+        assertEquals("map".hashCode(), map.getPatternMatchFingerprint());
+        assertEquals("tuple".hashCode() << 2 + tuple.arity(), tuple.getPatternMatchFingerprint());        
+        assertEquals(constructor.getName().hashCode() << 2 + constructor.arity(), constructor.getPatternMatchFingerprint());        
+        assertEquals(node.getName().hashCode() << 2 + node.arity(), node.getPatternMatchFingerprint());        
+    }
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
     public void testWysiwyg(IValueFactory vf, TypeStore store, IValue val) throws FactTypeUseException, IOException {
         StandardTextReader reader = new StandardTextReader();
