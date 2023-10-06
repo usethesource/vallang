@@ -19,6 +19,7 @@ import java.util.PrimitiveIterator.OfInt;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IString extends IValue, Iterable<Integer> {
+
 	/**
 	 * @return the Java string that this string represents
 	 */

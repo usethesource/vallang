@@ -22,6 +22,12 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IList extends ICollection<IList> {
+    
+    @Override
+    default int getPatternMatchFingerprint() {
+        return 3322014; // "list".hashCode()
+    }
+
     /**
      * @return the number of elements in the list
      */

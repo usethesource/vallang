@@ -30,6 +30,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  * it recursively.
  */
 public interface INode extends IValue, Iterable<IValue> {
+
+	@Override
+	default int getPatternMatchFingerprint() {
+		return getName().hashCode() << 2 + arity();
+	}
+	
 	/**
 	 * Get a child
 	 * @param i the zero based index of the child

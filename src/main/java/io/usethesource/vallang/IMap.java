@@ -26,6 +26,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IMap extends ICollection<IMap> {
 
+    @Override
+    default int getPatternMatchFingerprint() {
+        return 107868; // "map".hashCode()
+    }
+
     /**
      * Adds a new entry to the map, mapping the key to value. If the
      * key existed before, the old value will be lost.

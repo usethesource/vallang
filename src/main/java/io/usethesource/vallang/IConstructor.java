@@ -25,6 +25,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  */
 public interface IConstructor extends INode {
 
+	@Override
+	default int getPatternMatchFingerprint() {
+		return getName().hashCode() << 2 + arity();
+
+		// TODO: this would distinguish more constructors based on incomparable argument types:
+		// return getUninstantiatedConstructorType().hashCode();
+	}
+
 	/**
 	 * @return the specific ConstructorType of this constructor
 	 */
