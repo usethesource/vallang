@@ -27,7 +27,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public interface IMap extends ICollection<IMap> {
 
     @Override
-    default int getPatternMatchFingerprint() {
+    default int getMatchFingerprint() {
         return 107868; // "map".hashCode()
     }
 

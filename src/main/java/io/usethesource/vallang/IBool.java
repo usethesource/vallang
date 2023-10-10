@@ -13,6 +13,16 @@ package io.usethesource.vallang;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IBool extends IValue {
+	@Override
+    default int getMatchFingerprint() {
+        if (getValue()) {
+            return 3569038; /* "true".hashCode() */
+        }
+        else {
+            return 97196323; /* "false".hashCode() */
+        }
+    }
+
 	boolean getValue();
 	String getStringRepresentation();
 	IBool and(IBool other);

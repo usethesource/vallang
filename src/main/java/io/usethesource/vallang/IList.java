@@ -24,7 +24,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public interface IList extends ICollection<IList> {
     
     @Override
-    default int getPatternMatchFingerprint() {
+    default int getMatchFingerprint() {
         return 3322014; // "list".hashCode()
     }
 

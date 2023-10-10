@@ -22,7 +22,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public interface ISet extends ICollection<ISet> {
 	
     @Override
-    default int getPatternMatchFingerprint() {
+    default int getMatchFingerprint() {
         return 113762; // "set".hashCode()
     }
 

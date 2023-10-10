@@ -17,7 +17,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface ITuple extends Iterable<IValue>, IValue {
     @Override
-    default int getPatternMatchFingerprint() {
+    default int getMatchFingerprint() {
         return 442900256 /* "tuple".hashCode() << 2 */ + arity();
     }
 

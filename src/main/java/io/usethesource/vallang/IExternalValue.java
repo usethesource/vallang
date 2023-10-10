@@ -42,7 +42,7 @@ public interface IExternalValue extends IValue {
      * instead of returning `IValue.hashCode()` automatically.
      */
     @Override
-    int getPatternMatchFingerprint();
+    int getMatchFingerprint();
 
 	/**
 	 * @return an ExternalType

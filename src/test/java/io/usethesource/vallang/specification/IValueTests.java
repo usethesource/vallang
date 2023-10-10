@@ -2,6 +2,7 @@ package io.usethesource.vallang.specification;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
@@ -57,25 +59,110 @@ public class IValueTests {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintContract(IValue val1, IValue val2) {
         if (val1.equals(val2)) {
-            assertEquals(val1.getPatternMatchFingerprint(), val2.getPatternMatchFingerprint(), "" + val1.toString() + " and " + val2.toString() + " are equal but do not have the same fingerprint?");
+            assertEquals(val1.getMatchFingerprint(), val2.getMatchFingerprint(), "" + val1.toString() + " and " + val2.toString() + " are equal but do not have the same fingerprint?");
         }
-        assertTrue(!val1.equals(val2) || val1.getPatternMatchFingerprint() == val2.getPatternMatchFingerprint());
+        assertTrue(!val1.equals(val2) || val1.getMatchFingerprint() == val2.getMatchFingerprint());
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testFingerprintStability(IInteger integer, IString string, IReal real, IRational rational, IList list, ISet set, IMap map, ITuple tuple, IConstructor constructor, INode node) {
-        // if we really want to change these codes, we should be aware that we are breaking all previously compiled and released Rascal code.
+    public void testDefaultFingerprintContracts(IValue val1) {
+        assertEquals(val1.getDefaultMatchFingerprint(), 0);
 
-        assertEquals(integer.hashCode(), integer.getPatternMatchFingerprint());
-        assertEquals(string.hashCode(), string.getPatternMatchFingerprint());
-        assertEquals(real.hashCode(), real.getPatternMatchFingerprint());
-        assertEquals(rational.hashCode(), rational.getPatternMatchFingerprint());
-        assertEquals("list".hashCode(), list.getPatternMatchFingerprint());
-        assertEquals("set".hashCode(), set.getPatternMatchFingerprint());
-        assertEquals("map".hashCode(), map.getPatternMatchFingerprint());
-        assertEquals("tuple".hashCode() << 2 + tuple.arity(), tuple.getPatternMatchFingerprint());        
-        assertEquals(constructor.getName().hashCode() << 2 + constructor.arity(), constructor.getPatternMatchFingerprint());        
-        assertEquals(node.getName().hashCode() << 2 + node.arity(), node.getPatternMatchFingerprint());        
+        if (val1.getMatchFingerprint() == 0) {
+            System.err.println(val1 + " has a 0 fingerprint?");
+        }
+        assertNotEquals(val1.getDefaultMatchFingerprint(), val1.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityIntegersDoNotChangeTheTest(IValueFactory vf, IInteger integer) {
+        assertEquals(integer.equals(vf.integer(0)) ? "int".hashCode() : integer.hashCode(), integer.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityStringDoNotChangeTheTest(IString string) {
+        assertEquals(string.length() == 0 ? "str".hashCode() : string.hashCode(), string.getMatchFingerprint());  
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityRealDoNotChangeTheTest(IReal real) {
+        assertEquals(real.hashCode() == 0 ? "real".hashCode() : real.hashCode(), real.getMatchFingerprint());
+    }
+
+     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityRationalDoNotChangeTheTest(IRational rational) {
+        assertEquals(rational.hashCode(), rational.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityListDoNotChangeTheTest(IList list) {
+        assertEquals("list".hashCode(), list.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintAllListsTheSameDoNotChangeTheTest(IList list1, IList list2) {
+        assertEquals(list1.getMatchFingerprint(), list2.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilitySetDoNotChangeTheTest(ISet set) {
+        assertEquals("set".hashCode(), set.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintAllSetsTheSameDoNotChangeTheTest(ISet set1, ISet set2) {
+        assertEquals(set1.getMatchFingerprint(), set2.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityMapDoNotChangeTheTest(IMap map) {
+        assertEquals("map".hashCode(), map.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintAllMapsTheSameDoNotChangeTheTest(IMap map1, IMap map2) {
+        assertEquals(map1.getMatchFingerprint(), map2.getMatchFingerprint());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityTupleDoNotChangeTheTest(ITuple tuple) {
+        assertEquals("tuple".hashCode() << 2 + tuple.arity(), tuple.getMatchFingerprint());        
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintEqualArityTuplesTheSameDoNotChangeTheTest(ITuple tuple1, ITuple tuple2) {
+        if (tuple1.arity() == tuple2.arity()) {
+            assertEquals(tuple1.getMatchFingerprint(), tuple2.getMatchFingerprint());
+        }
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityNodeDoNotChangeTheTest(ISourceLocation node) {       
+        assertEquals(node.hashCode(), node.getMatchFingerprint());     
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityNodeDoNotChangeTheTest(INode node) {       
+        assertEquals(node.hashCode() == 0 ? "node".hashCode() << 2 + node.arity() : node.hashCode() << 2 + node.arity(), node.getMatchFingerprint());     
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintEqualArityNodesTheSameDoNotChangeTheTest(INode node1, INode node2) {
+        if (node1.arity() == node2.arity()) {
+            assertEquals(node1.getMatchFingerprint(), node2.getMatchFingerprint());
+        }
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityRationalDoNotChangeTheTest(IConstructor constructor) {
+        assertEquals(constructor.getName().hashCode() << 2 + constructor.arity(), constructor.getMatchFingerprint());        
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintEqualArityConstructorsTheSameDoNotChangeTheTest(IConstructor node1, IConstructor node2) {
+        if (node1.arity() == node2.arity()) {
+            assertEquals(node1.getMatchFingerprint(), node2.getMatchFingerprint());
+        }
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) 
