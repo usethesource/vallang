@@ -121,7 +121,6 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
      */
     private final HotEntry<T>[] hotEntries;
     private final int mask;
-    private final int expireAfter;
 
     /** 
      * All entries are also stored in a WeakReference, this helps with clearing memory
@@ -143,7 +142,6 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         size = Integer.highestOneBit(size - 1) << 1;
         hotEntries = new HotEntry[size]; 
         this.mask = size - 1;
-        this.expireAfter = demoteAfterSeconds;
 
         coldEntries = new ConcurrentHashMap<>(size);
         
