@@ -66,12 +66,8 @@ public class IValueTests {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testDefaultFingerprintContracts(IValue val1) {
-        assertEquals(val1.getDefaultMatchFingerprint(), 0);
-
-        if (val1.getMatchFingerprint() == 0) {
-            System.err.println(val1 + " has a 0 fingerprint?");
-        }
-        assertNotEquals(val1.getDefaultMatchFingerprint(), val1.getMatchFingerprint());
+        assertEquals(IValue.getDefaultMatchFingerprint(), 0);
+        assertNotEquals(IValue.getDefaultMatchFingerprint(), val1.getMatchFingerprint());
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)

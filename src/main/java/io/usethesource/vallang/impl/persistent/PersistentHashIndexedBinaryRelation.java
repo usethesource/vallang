@@ -38,7 +38,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 

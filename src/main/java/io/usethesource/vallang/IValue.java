@@ -53,7 +53,7 @@ public interface IValue {
      *    * is guaranteed to be constant
      *    * is guaranteed to be the same for every IValue
      */
-    default int getDefaultMatchFingerprint() {
+    static int getDefaultMatchFingerprint() {
         return 0;
     }
 
