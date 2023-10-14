@@ -73,11 +73,19 @@ public class IValueTests {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityIntegersDoNotChangeTheTest(IValueFactory vf, IInteger integer) {
         assertEquals(integer.equals(vf.integer(0)) ? "int".hashCode() : integer.hashCode(), integer.getMatchFingerprint());
+
+        // this should stay or we have to make sure that the fingerprint works like that again
+        // if it changes
+        if (integer.less(vf.integer(Integer.MAX_VALUE)).getValue()) {
+            assertEquals(integer.intValue(), integer.hashCode());
+        }
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityStringDoNotChangeTheTest(IString string) {
         assertEquals(string.length() == 0 ? "str".hashCode() : string.hashCode(), string.getMatchFingerprint());  
+
+        
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -122,7 +130,7 @@ public class IValueTests {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityTupleDoNotChangeTheTest(ITuple tuple) {
-        assertEquals("tuple".hashCode() << 2 + tuple.arity(), tuple.getMatchFingerprint());        
+        assertEquals(("tuple".hashCode() << 2) + tuple.arity(), tuple.getMatchFingerprint());        
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -139,12 +147,12 @@ public class IValueTests {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityNodeDoNotChangeTheTest(INode node) {       
-        assertEquals(node.hashCode() == 0 ? "node".hashCode() << 2 + node.arity() : node.hashCode() << 2 + node.arity(), node.getMatchFingerprint());     
+        assertEquals(node.hashCode() == 0 ? ("node".hashCode() << 2) + node.arity() : (node.getName().hashCode() << 2) + node.arity(), node.getMatchFingerprint());     
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintEqualArityNodesTheSameDoNotChangeTheTest(INode node1, INode node2) {
-        if (node1.arity() == node2.arity()) {
+        if (node1.arity() == node2.arity() && node1.getName().equals(node2.getName())) {
             assertEquals(node1.getMatchFingerprint(), node2.getMatchFingerprint());
         }
     }
