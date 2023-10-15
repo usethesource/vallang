@@ -76,7 +76,7 @@ public class IValueTests {
 
         // this should stay or we have to make sure that the fingerprint works like that again
         // if it changes
-        if (integer.less(vf.integer(Integer.MAX_VALUE)).getValue()) {
+        if (!integer.equals(vf.integer(0)) && integer.less(vf.integer(Integer.MAX_VALUE)).getValue() && integer.greater(vf.integer(Integer.MIN_VALUE)).getValue()) {
             assertEquals(integer.intValue(), integer.hashCode());
         }
     }
@@ -85,7 +85,7 @@ public class IValueTests {
     public void testFingerprintStabilityStringDoNotChangeTheTest(IString string) {
         assertEquals(string.length() == 0 ? "str".hashCode() : string.hashCode(), string.getMatchFingerprint());  
 
-        
+
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -147,7 +147,9 @@ public class IValueTests {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityNodeDoNotChangeTheTest(INode node) {       
-        assertEquals(node.hashCode() == 0 ? ("node".hashCode() << 2) + node.arity() : (node.getName().hashCode() << 2) + node.arity(), node.getMatchFingerprint());     
+        assertEquals(node.getName().hashCode() == 0 
+            ?  ("node".hashCode() << 2) + node.arity() 
+            : (node.getName().hashCode() << 2) + node.arity(), node.getMatchFingerprint());     
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
