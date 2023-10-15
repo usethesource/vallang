@@ -519,6 +519,7 @@ import io.usethesource.vallang.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public int hashCode(){
 		int h = value ^ 0x85ebca6b;
 		// based on the final Avalanching phase of MurmurHash2

@@ -77,7 +77,14 @@ public class IValueTests {
         // this should stay or we have to make sure that the fingerprint works like that again
         // if it changes
         if (!integer.equals(vf.integer(0)) && integer.less(vf.integer(Integer.MAX_VALUE)).getValue() && integer.greater(vf.integer(Integer.MIN_VALUE)).getValue()) {
-            assertEquals(integer.intValue(), integer.hashCode());
+            // copied the implementation of IntegerValue.hashCode here
+            // because this is now officially a contract.
+            int hash = integer.intValue() ^ 0x85ebca6b;
+		    hash ^= hash >>> 13;
+		    hash *= 0x5bd1e995;
+		    hash ^= hash >>> 15;
+
+            assertEquals(hash, integer.getMatchFingerprint());
         }
     }
 
