@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.PrimitiveIterator.OfInt;
+import java.util.function.IntConsumer;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -92,7 +94,24 @@ public class IValueTests {
     public void testFingerprintStabilityStringDoNotChangeTheTest(IString string) {
         assertEquals(string.length() == 0 ? "str".hashCode() : string.hashCode(), string.getMatchFingerprint());  
 
+        // we copied the generic hashCode implementation here, to check the contract.
+        int h = 0;
+        OfInt it = string.iterator();
 
+        while (it.hasNext()) {
+            int c = it.nextInt();
+
+            if (!Character.isBmpCodePoint(c)) {
+                h = 31 * h + Character.highSurrogate(c);
+                h = 31 * h + Character.lowSurrogate(c);
+            } else {
+                h = 31 * h + ((char) c);
+            }
+        }
+
+        if (string.length() != 0) {
+            assertEquals(h, string.getMatchFingerprint());
+        }
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
