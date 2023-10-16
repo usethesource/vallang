@@ -121,13 +121,12 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
      */
     private final HotEntry<T>[] hotEntries;
     private final int mask;
-    private final int expireAfter;
 
     /** 
      * All entries are also stored in a WeakReference, this helps with clearing memory
      * if entries are not referenced anymore
      */
-	private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
+	private final ReferenceQueue<T> queue = new ReferenceQueue<>();
     private final Map<Object, WeakReferenceWrap<T>> coldEntries;
     
     
@@ -135,6 +134,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         this(16, (int)TimeUnit.MINUTES.toSeconds(30));
     }
 
+    @SuppressWarnings({"unchecked"})
     public WeakReferenceHashConsingMap(int size, int demoteAfterSeconds) {
         if (size <= 0) {
             throw new IllegalArgumentException("Size should be a positive number");
@@ -143,7 +143,6 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         size = Integer.highestOneBit(size - 1) << 1;
         hotEntries = new HotEntry[size]; 
         this.mask = size - 1;
-        this.expireAfter = demoteAfterSeconds;
 
         coldEntries = new ConcurrentHashMap<>(size);
         
@@ -179,7 +178,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
     }
 
     private static int improve(int hash) {
-        // base on XXH32_avalanche from xxHash (BSD2 license, Yann Collet)
+        // based on XXH32_avalanche from xxHash (BSD2 license, Yann Collet)
         hash ^= hash >>> 15;
         hash *= 0x85EBCA77;
         hash ^= hash >>> 13;
