@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.PrimitiveIterator.OfInt;
 import java.util.function.IntConsumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -175,7 +177,7 @@ public class IValueTests {
     public void testFingerprintStabilityNodeDoNotChangeTheTest(INode node) {       
         assertEquals(node.getName().hashCode() == 0 
             ?  ("node".hashCode() << 2) + node.arity() 
-            : (node.getName().hashCode() << 2) + node.arity(), node.getMatchFingerprint());     
+            : node.getName().hashCode() + 131 * node.arity(), node.getMatchFingerprint());     
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -186,8 +188,16 @@ public class IValueTests {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testFingerprintStabilityRationalDoNotChangeTheTest(IConstructor constructor) {
-        assertEquals(constructor.getName().hashCode() << 2 + constructor.arity(), constructor.getMatchFingerprint());        
+    public void testFingerprintStabilityNodesMatchConstructorsDoNotChangeTheTest(IValueFactory vf, IConstructor constructor) {       
+        assertEquals(
+            constructor.getMatchFingerprint(),
+            vf.node(constructor.getName(), StreamSupport.stream(constructor.getChildren().spliterator(), false).toArray(IValue[]::new)).getMatchFingerprint()
+        );
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testFingerprintStabilityConstructorDoNotChangeTheTest(IConstructor constructor) {
+        assertEquals(constructor.getName().hashCode() + 131 * constructor.arity(), constructor.getMatchFingerprint());        
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
