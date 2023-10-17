@@ -35,7 +35,11 @@ public interface INode extends IValue, Iterable<IValue> {
 	default int getMatchFingerprint() {
 		int hash = getName().hashCode();
 
-		return hash == 0 ? 13547528 /* "node".hashCode() << 2*/ + arity() : hash + 131 * arity(); 
+		if (hash == 0) {
+			hash = 13547528 /* "node".hashCode() << 2*/;
+		}
+		
+		return hash + 131 * arity();
 	}
 	
 	/**

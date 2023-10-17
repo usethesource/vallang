@@ -19,7 +19,7 @@ public interface IReal extends INumber {
     @Override
     default int getMatchFingerprint() {
         int hash = hashCode();
-        return hash == 0 ? 3496350 /* real.hashCode() */ : hash;
+        return hash == 0 ? 3496350 /* "real".hashCode() */ : hash;
     }
 
 	/**
