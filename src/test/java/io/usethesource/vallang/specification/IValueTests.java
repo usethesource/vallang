@@ -202,7 +202,7 @@ public class IValueTests {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintEqualArityConstructorsTheSameDoNotChangeTheTest(IConstructor node1, IConstructor node2) {
-        if (node1.arity() == node2.arity()) {
+        if (node1.arity() == node2.arity() && node1.getName().equals(node2.getName())) {
             assertEquals(node1.getMatchFingerprint(), node2.getMatchFingerprint());
         }
     }
