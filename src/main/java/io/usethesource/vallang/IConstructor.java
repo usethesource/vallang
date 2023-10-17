@@ -27,10 +27,7 @@ public interface IConstructor extends INode {
 
 	@Override
 	default int getMatchFingerprint() {
-		return getName().hashCode() << 2 + arity();
-
-		// TODO: this would distinguish more constructors based on incomparable argument types:
-		// return getUninstantiatedConstructorType().hashCode();
+		return getName().hashCode() + 131 * arity();
 	}
 
 	/**
