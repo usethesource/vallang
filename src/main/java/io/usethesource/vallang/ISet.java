@@ -21,6 +21,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface ISet extends ICollection<ISet> {
 	
+    @Override
+    default int getMatchFingerprint() {
+        return 113762; // "set".hashCode()
+    }
+
     /**
      * Add an element to the set. 
      * @param element

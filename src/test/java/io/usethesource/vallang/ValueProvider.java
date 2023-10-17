@@ -337,8 +337,26 @@ public class ValueProvider implements ArgumentsProvider {
      * @return an instance assignable to `cl`
      */
     private IValue generateValue(IValueFactory vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType expected, int depth, int width) {
-        Type expectedType = expected != null ? readType(ts, expected) : types.getOrDefault(cl, (x, n) -> tf.valueType()).apply(ts, expected);
+        Type expectedType = tf.voidType();
+
         
+        // this should terminate through random selection.
+        // only tuple types with nested void arguments can reduce to void.
+        int i = 0;
+        while (expectedType.isBottom() && i++ < 1000) {
+            if (expected != null) {
+                expectedType = readType(ts, expected);
+                break;
+            }
+            else {
+                expectedType = types
+                    .getOrDefault(cl, (x, n) -> tf.valueType())
+                    .apply(ts, expected);         
+            }
+        }
+    
+        assert !expectedType.isBottom() : cl + " generated void type?";
+
         if (previous != null && rnd.nextInt(4) == 0 && previous.getType().isSubtypeOf(expectedType)) {
             return rnd.nextBoolean() ? previous : reinstantiate(vf, ts, previous);
         }

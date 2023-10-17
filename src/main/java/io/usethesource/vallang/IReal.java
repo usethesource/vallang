@@ -16,6 +16,12 @@ package io.usethesource.vallang;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IReal extends INumber {
+    @Override
+    default int getMatchFingerprint() {
+        int hash = hashCode();
+        return hash == 0 ? 3496350 /* real.hashCode() */ : hash;
+    }
+
 	/**
 	 * @return this + other;
 	 */

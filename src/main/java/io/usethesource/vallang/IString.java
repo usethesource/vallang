@@ -19,6 +19,17 @@ import java.util.PrimitiveIterator.OfInt;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IString extends IValue, Iterable<Integer> {
+
+    @Override
+    default int getMatchFingerprint() {
+        if (length() == 0) {
+            return 114225; /* "str".hashCode() */
+        }
+        else {
+            return hashCode();
+        }
+    }
+
 	/**
 	 * @return the Java string that this string represents
 	 */

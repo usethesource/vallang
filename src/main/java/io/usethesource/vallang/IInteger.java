@@ -15,6 +15,16 @@ package io.usethesource.vallang;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IInteger extends INumber {
+    @Override
+    default int getMatchFingerprint() {
+        if (signum() == 0) {
+            return 104431; /* "int".hashCode() */
+        }
+        else {
+            return hashCode();
+        }
+    }
+
 	/**
 	 * @return this + other;
 	 */

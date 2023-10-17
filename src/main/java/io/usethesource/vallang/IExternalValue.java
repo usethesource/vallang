@@ -37,6 +37,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  * Note that NORMAL USE OF THE PDB DOES NOT REQUIRE IMPLEMENTING THIS INTERFACE
  */
 public interface IExternalValue extends IValue {
+    /** 
+     * External values must re-think their pattern match fingerprint,
+     * instead of returning `IValue.hashCode()` automatically.
+     */
+    @Override
+    int getMatchFingerprint();
 
 	/**
 	 * @return an ExternalType
