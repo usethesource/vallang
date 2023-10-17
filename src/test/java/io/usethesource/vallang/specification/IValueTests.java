@@ -176,7 +176,7 @@ public class IValueTests {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityNodeDoNotChangeTheTest(INode node) {       
         assertEquals(node.getName().hashCode() == 0 
-            ?  ("node".hashCode() << 2) + node.arity() 
+            ?  ("node".hashCode() << 2) + 131 * node.arity() 
             : node.getName().hashCode() + 131 * node.arity(), node.getMatchFingerprint());     
     }
 
