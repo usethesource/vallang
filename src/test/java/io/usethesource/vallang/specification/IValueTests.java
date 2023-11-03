@@ -8,8 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.PrimitiveIterator.OfInt;
-import java.util.function.IntConsumer;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -158,7 +156,7 @@ public class IValueTests {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityTupleDoNotChangeTheTest(ITuple tuple) {
-        assertEquals(("tuple".hashCode() << 2) + tuple.arity(), tuple.getMatchFingerprint());        
+        assertEquals("tuple".hashCode() + tuple.arity(), tuple.getMatchFingerprint());        
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -176,7 +174,7 @@ public class IValueTests {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityNodeDoNotChangeTheTest(INode node) {       
         assertEquals(node.getName().hashCode() == 0 
-            ?  ("node".hashCode() << 2) + 131 * node.arity() 
+            ?  "node".hashCode() + 131 * node.arity() 
             : node.getName().hashCode() + 131 * node.arity(), node.getMatchFingerprint());     
     }
 

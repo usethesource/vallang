@@ -36,7 +36,7 @@ public interface INode extends IValue, Iterable<IValue> {
 		int hash = getName().hashCode();
 
 		if (hash == 0) {
-			hash = 13547528 /* "node".hashCode() << 2*/;
+			hash = 3386882 /* "node".hashCode() */;
 		}
 		
 		return hash + 131 * arity();
