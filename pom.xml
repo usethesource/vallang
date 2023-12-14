@@ -187,15 +187,38 @@
         <profiles>
             <profile>
                 <id>checker-framework</id>
-                <activation>
-                    <jdk>[9,)</jdk>
-                </activation>
                 <build>
                     <plugins>
+                        <plugin>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>3.11.0</version>
+                            <configuration>
+                                <fork>true</fork> <!-- Must fork or else JVM arguments are ignored. -->
+                                <annotationProcessorPaths>
+                                    <path>
+                                        <groupId>org.checkerframework</groupId>
+                                        <artifactId>checker</artifactId>
+                                        <version>${checkerframework.version}</version>
+                                    </path>
+                                </annotationProcessorPaths>
+                                <annotationProcessors>
+                                    <!-- Add all the checkers you want to enable here -->
+                                    <annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
+                                </annotationProcessors>
+                                <compilerArgs>
+                                    <arg>-Xmaxerrs</arg>
+                                    <arg>10000</arg>
+                                    <arg>-Xmaxwarns</arg>
+                                    <arg>10000</arg>
+                                </compilerArgs>
+                            </configuration>
+                        </plugin>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-compiler-plugin</artifactId>
                             <configuration>
+                                <release>17</release>
+                                <compilerArgument>-parameters</compilerArgument>
                                 <compilerArgs combine.children="append">
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
@@ -211,14 +234,6 @@
                         </plugin>
                     </plugins>
                 </build>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.checkerframework</groupId>
-                        <artifactId>checker</artifactId>
-                        <version>${checkerframework.version}</version>
-                        <scope>provided</scope>
-                    </dependency>
-                </dependencies>
             </profile>
         </profiles>
     </project>
