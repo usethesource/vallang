@@ -22,9 +22,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<checkerframework.version>3.40.0</checkerframework.version>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<checkerframework.version>3.41.0</checkerframework.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<build>
@@ -47,7 +47,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>11</release>
+                    <release>17</release>
                     <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
                 </configuration>
             </plugin>
@@ -176,7 +176,7 @@
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
 			<version>3.1.1</version>
-		</dependency>
+                    </dependency>
 		<dependency>
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
@@ -184,69 +184,56 @@
 		</dependency>
 	</dependencies>
 
-	<profiles>
-		<profile> <!-- run with: mvn clean compile -P checker-framework -->
-			<id>checker-framework
-			</id> <!-- Slower but safer profile used to look for errors before pushing to SCM -->
-
-			<build>
-				<plugins>
-					<plugin>
-						<!-- This plugin will set properties values using dependency information -->
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<executions>
-							<execution>
-								<goals>
-									<goal>properties</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.11.0</version>
-                                                <configuration>
-                                                        <fork>true</fork>
-                                                        <release>11</release>
-							<compilerArguments>
-								<Xmaxerrs>1000</Xmaxerrs>
-								<Xmaxwarns>1000</Xmaxwarns>
-							</compilerArguments>
-							<annotationProcessorPaths>
-								<path>
-									<groupId>org.checkerframework</groupId>
-									<artifactId>checker</artifactId>
-									<version>${checkerframework.version}</version>
-								</path>
-							</annotationProcessorPaths>
-							<annotationProcessors>
-								<!-- Add all the checkers you want to enable here -->
-								<annotationProcessor>
-									org.checkerframework.checker.nullness.NullnessChecker
-								</annotationProcessor>
-							</annotationProcessors>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-
-			<dependencies>
-				<dependency>
-					<groupId>org.checkerframework</groupId>
-					<artifactId>checker</artifactId>
-					<version>${checkerframework.version}</version>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.checkerframework</groupId>
-					<artifactId>jdk8</artifactId>
-					<version>3.3.0</version>
-					<scope>provided</scope>
-				</dependency>
-			</dependencies>
-
-		</profile>
-	</profiles>
-</project>
+        <profiles>
+            <profile>
+                <id>checker-framework</id>
+                <build>
+                    <plugins>
+                        <plugin>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>3.11.0</version>
+                            <configuration>
+                                <fork>true</fork> <!-- Must fork or else JVM arguments are ignored. -->
+                                <annotationProcessorPaths>
+                                    <path>
+                                        <groupId>org.checkerframework</groupId>
+                                        <artifactId>checker</artifactId>
+                                        <version>${checkerframework.version}</version>
+                                    </path>
+                                </annotationProcessorPaths>
+                                <annotationProcessors>
+                                    <!-- Add all the checkers you want to enable here -->
+                                    <annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
+                                </annotationProcessors>
+                                <compilerArgs>
+                                    <arg>-Xmaxerrs</arg>
+                                    <arg>10000</arg>
+                                    <arg>-Xmaxwarns</arg>
+                                    <arg>10000</arg>
+                                </compilerArgs>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <configuration>
+                                <release>17</release>
+                                <compilerArgument>-parameters</compilerArgument>
+                                <compilerArgs combine.children="append">
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                                    <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                                </compilerArgs>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </build>
+            </profile>
+        </profiles>
+    </project>
