@@ -305,35 +305,27 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		return changed;
 	}
 
+	@Override
 	public Object[] toArray(){
-		Object[] values = new Object[load];
+		throw new UnsupportedOperationException();
+
+		// Object[] values = new Object[load];
 		
-		Iterator<IValue> valuesIterator = iterator();
-		int i = 0;
-		while(valuesIterator.hasNext()){
-			values[i++] = valuesIterator.next();
-		}
+		// Iterator<IValue> valuesIterator = iterator();
+		// int i = 0;
+		// while(valuesIterator.hasNext()){
+		// 	values[i++] = valuesIterator.next();
+		// }
 		
-		return values;
+		// return values;
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> T[] toArray(T[] array){
-		if(array.length < load) return (T[]) toArray();
-		
-		Iterator<IValue> valuesIterator = iterator();
-		int i = 0;
-		while(valuesIterator.hasNext()){
-			array[i++] = (T) valuesIterator.next();
-		}
-		
-		for(; i < load; i++){
-			array[i] = null;
-		}
-		
-		return array;
-	}
+	@Override
+	public <T> @Nullable T[] toArray(T[] array) {
+		throw new UnsupportedOperationException();
+	} 
 	
+	@Override
 	public String toString(){
 		StringBuilder buffer = new StringBuilder();
 		
@@ -434,9 +426,9 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		public final int hash;
 		public final V value;
 		
-		public final Entry<V> next;
+		public final @Nullable Entry<V> next;
 		
-		public Entry(int hash, V value, Entry<V> next){
+		public Entry(int hash, V value, @Nullable Entry<V> next){
 			super();
 			
 			this.hash = hash;
@@ -459,7 +451,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	private static class SetIterator implements Iterator<IValue>{
 		private final @Nullable Entry<IValue>[] data;
 		
-		private @Nullable Entry<IValue> current;
+		private @Nullable Entry<@Nullable IValue> current;
 		private int index;
 		
 		public SetIterator(Entry<IValue>[] entries) {
@@ -468,12 +460,12 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 			data = entries;
 
 			index = data.length - 1;
-			current = new Entry<>(0, null, data[index]);
-			locateNext(data, current);
+			current = null;
+			locateNext(data);
 		}
 		
-		private void locateNext(@UnknownInitialization SetIterator this, @Nullable Entry<IValue>[] data, Entry<IValue> nonNullCurrent) {
-			Entry<IValue> next = nonNullCurrent.next;
+		private void locateNext(@UnknownInitialization SetIterator this, @Nullable Entry<IValue>[] data) {
+			Entry<IValue> next = current != null ? current.next : null;
 
 			if (next != null) {
 				this.current = next;
@@ -506,7 +498,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 			}
 			
 			IValue value = current.value;
-			locateNext(data, current);
+			locateNext(data);
 			
 			return value;
 		}
