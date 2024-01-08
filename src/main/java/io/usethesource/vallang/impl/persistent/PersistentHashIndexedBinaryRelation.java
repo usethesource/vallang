@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Michael Steindorfer Michael.Steindorfer@cwi.nl CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
@@ -16,6 +16,8 @@ import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
 import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -38,8 +40,11 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
+import io.usethesource.vallang.util.RotatingQueue;
 
 /**
  * Implements both ISet and IRelation, by indexing on the first column
@@ -539,4 +544,116 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   public ISet empty() {
       return ISet.super.empty();
   }
+
+  @Override
+  public ISet closure() {
+    IWriter<ISet> resultWriter = writer();
+    resultWriter.insertAll(this);
+    resultWriter.insertAll(computeClosureDelta());
+    return resultWriter.done();
+  }
+   
+  @Override
+  public ISet closureStar() {
+    // calculate
+    java.util.Set<IValue> closureDelta = computeClosureDelta();
+
+    IWriter<ISet> resultWriter = writer();
+    resultWriter.insertAll(this);
+    resultWriter.insertAll(closureDelta);
+    
+    for (IValue element : carrier()) {
+      resultWriter.insertTuple(element, element);
+    }
+
+    return resultWriter.done();
+  }
+
+  private java.util.Set<IValue> computeClosureDelta() {
+    IValueFactory vf = ValueFactory.getInstance();
+    RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
+    RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
+
+    Map<IValue, RotatingQueue<IValue>> interestingLeftSides = new HashMap<>();
+    Map<IValue, java.util.Set<IValue>> potentialRightSides = new HashMap<>();
+
+    // Index
+    for (IValue val : this) {
+      ITuple tuple = (ITuple) val;
+      IValue key = tuple.get(0);
+      IValue value = tuple.get(1);
+      RotatingQueue<IValue> leftValues = interestingLeftSides.get(key);
+      java.util.Set<IValue> rightValues;
+
+      if (leftValues != null) {
+        rightValues = potentialRightSides.get(key);
+      } else {
+        leftValues = new RotatingQueue<>();
+        iLeftKeys.put(key);
+        iLefts.put(leftValues);
+        interestingLeftSides.put(key, leftValues);
+
+        rightValues = new HashSet<>();
+        potentialRightSides.put(key, rightValues);
+      }
+
+      leftValues.put(value);
+      if (rightValues == null) {
+        rightValues = new HashSet<>();
+      }
+
+      rightValues.add(value);
+    }
+
+    int size = potentialRightSides.size();
+    int nextSize = 0;
+
+    // Compute
+    final java.util.Set<IValue> newTuples = new HashSet<>();
+    do {
+      Map<IValue, java.util.Set<IValue>> rightSides = potentialRightSides;
+      potentialRightSides = new HashMap<>();
+
+      for (; size > 0; size--) {
+        IValue leftKey = iLeftKeys.get();
+        RotatingQueue<IValue> leftValues = iLefts.get();
+        RotatingQueue<IValue> interestingLeftValues = null;
+
+        assert leftKey != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
+        assert leftValues != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
+
+        IValue rightKey;
+        while ((rightKey = leftValues.get()) != null) {
+          java.util.Set<IValue> rightValues = rightSides.get(rightKey);
+          if (rightValues != null) {
+            Iterator<IValue> rightValuesIterator = rightValues.iterator();
+            while (rightValuesIterator.hasNext()) {
+              IValue rightValue = rightValuesIterator.next();
+              if (newTuples.add(vf.tuple(leftKey, rightValue))) {
+                if (interestingLeftValues == null) {
+                  nextSize++;
+
+                  iLeftKeys.put(leftKey);
+                  interestingLeftValues = new RotatingQueue<>();
+                  iLefts.put(interestingLeftValues);
+                }
+                interestingLeftValues.put(rightValue);
+
+                java.util.Set<IValue> potentialRightValues = potentialRightSides.get(rightKey);
+                if (potentialRightValues == null) {
+                  potentialRightValues = new HashSet<>();
+                  potentialRightSides.put(rightKey, potentialRightValues);
+                }
+                potentialRightValues.add(rightValue);
+              }
+            }
+          }
+        }
+      }
+      size = nextSize;
+      nextSize = 0;
+    } while (size > 0);
+
+    return newTuples;
+  }   
 }
