@@ -95,18 +95,18 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 		threshold = tableSize;
 		
 		Entry<IValue>[] oldData = data;
-		for(int i = oldData.length - 1; i >= 0; i--){
+		for (int i = oldData.length - 1; i >= 0; i--) {
 			Entry<IValue> entry = oldData[i];
 			
-			if(entry != null){
+			if (entry != null) {
 				// Determine the last unchanged entry chain.
 				Entry<IValue> lastUnchangedEntryChain = entry;
 				int newLastUnchangedEntryChainIndex = entry.hash & hashMask;
 				
 				Entry<IValue> e = entry.next;
-				while(e != null){
+				while (e != null) {
 					int newIndex = e.hash & hashMask;
-					if(newIndex != newLastUnchangedEntryChainIndex){
+					if (newIndex != newLastUnchangedEntryChainIndex) {
 						lastUnchangedEntryChain = e;
 						newLastUnchangedEntryChainIndex = newIndex;
 					}
@@ -117,7 +117,7 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 				newData[newLastUnchangedEntryChainIndex] = lastUnchangedEntryChain;
 				
 				// Reconstruct the other entries (if necessary).
-				while(entry != lastUnchangedEntryChain){
+				while (entry != lastUnchangedEntryChain && entry != null) {
 					int hash = entry.hash;
 					int position = hash & hashMask;
 					newData[position] = new Entry<>(hash, entry.value, newData[position]);
