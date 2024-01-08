@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValue;
@@ -456,44 +457,45 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	}
 	
 	private static class SetIterator implements Iterator<IValue>{
-		private final Entry<IValue>@Nullable[] data;
+		private final @Nullable Entry<IValue>[] data;
 		
 		private @Nullable Entry<IValue> current;
 		private int index;
 		
-		public SetIterator(Entry<IValue>[] entries){
+		public SetIterator(Entry<IValue>[] entries) {
 			super();
 			
 			data = entries;
 
 			index = data.length - 1;
 			current = new Entry<>(0, null, data[index]);
-			locateNext();
+			locateNext(data, current);
 		}
 		
-		private void locateNext(@UnknownInitialization SetIterator this) {
-			Entry<IValue> next = current.next;
-			if(next != null){
-				current = next;
+		private void locateNext(@UnknownInitialization SetIterator this, @Nullable Entry<IValue>[] data, Entry<IValue> nonNullCurrent) {
+			Entry<IValue> next = nonNullCurrent.next;
+
+			if (next != null) {
+				this.current = next;
 				return;
 			}
 			
-			for(int i = index - 1; i >= 0 ; i--){
-				Entry<IValue> entry = data[i];
-				if(entry != null){
-					current = entry;
-					index = i;
+			for (int i = this.index - 1; i >= 0 ; i--) {
+				@Nullable Entry<IValue> entry = data[i];
+				if (entry != null) {
+					this.current = entry;
+					this.index = i;
 					return;
 				}
 			}
 			
-			current = null;
-			index = 0;
+			this.current = null;
+			this.index = 0;
 		}
 		
 		@EnsuresNonNullIf(expression="this.current", result=true)
 		@Override
-		public boolean hasNext(){
+		public boolean hasNext(@UnknownInitialization SetIterator this) {
 			return (current != null);
 		}
 		
@@ -504,7 +506,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 			}
 			
 			IValue value = current.value;
-			locateNext();
+			locateNext(data, current);
 			
 			return value;
 		}
