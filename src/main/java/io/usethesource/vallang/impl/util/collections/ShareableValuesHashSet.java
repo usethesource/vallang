@@ -20,6 +20,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.impl.persistent.ValueFactory;
 
 /**
  * A specialized version of the ShareableSet, specifically meant for storing values.
@@ -345,7 +346,7 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 			data = entries;
 
 			index = data.length - 1;
-			current = new Entry<>(0, null, data[index]);
+			current = new Entry<>(0, ValueFactory.getInstance().bool(true) /* dummy */, data[index]);
 			locateNext(data);
 		}
 		
