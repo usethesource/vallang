@@ -174,10 +174,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 		if (o.getClass() == getClass()) {
 			Tuple otherTuple = (Tuple) o;
 
-			if (getType() != otherTuple.getType()) {
-			    return false;
+			// checking for the type will dynamically allocate memory
+			// because tuple types are computed lazily.
+			// so we skip this "fast failure" check
+			// if (getType() != otherTuple.getType()) { return false; }
 			    
-			}
 			
 			IValue[] otherElements = otherTuple.elements;
 			int nrOfElements = elements.length;
