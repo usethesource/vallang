@@ -422,7 +422,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		return false;
 	}
 	
-	private static class Entry<V>{
+	private static class Entry<V extends @NonNull Object>{
 		public final int hash;
 		public final V value;
 		
@@ -451,7 +451,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	private static class SetIterator implements Iterator<IValue>{
 		private final @Nullable Entry<IValue>[] data;
 		
-		private @Nullable Entry<@Nullable IValue> current;
+		private @Nullable Entry<IValue> current;
 		private int index;
 		
 		public SetIterator(Entry<IValue>[] entries) {
@@ -497,7 +497,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 				throw new NoSuchElementException("There are no more elements in this iteration");
 			}
 			
-			IValue value = current.value;
+			@NonNull IValue value = current.value;
 			locateNext(data);
 			
 			return value;
