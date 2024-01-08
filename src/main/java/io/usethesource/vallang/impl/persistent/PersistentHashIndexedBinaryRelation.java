@@ -42,6 +42,7 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWriter;
+import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 import io.usethesource.vallang.util.RotatingQueue;
@@ -593,13 +594,13 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
         iLefts.put(leftValues);
         interestingLeftSides.put(key, leftValues);
 
-        rightValues = new HashSet<>();
+        rightValues = new ShareableValuesHashSet();
         potentialRightSides.put(key, rightValues);
       }
 
       leftValues.put(value);
       if (rightValues == null) {
-        rightValues = new HashSet<>();
+        rightValues = new ShareableValuesHashSet();
       }
 
       rightValues.add(value);
@@ -609,7 +610,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     int nextSize = 0;
 
     // Compute
-    final java.util.Set<IValue> newTuples = new HashSet<>();
+    final java.util.Set<IValue> newTuples = new ShareableValuesHashSet();
     do {
       Map<IValue, java.util.Set<IValue>> rightSides = potentialRightSides;
       potentialRightSides = new HashMap<>();
