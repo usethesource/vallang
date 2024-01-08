@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -162,8 +163,13 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 	 *            The value to insert.
 	 * @return Returns true if this set didn't contain the given value yet; false if it did.
 	 */
+	@Override
 	public boolean add(V value){
 		ensureCapacity();
+
+		if (value == null) {
+			throw new NullPointerException();
+		}
 		
 		int hash = value.hashCode();
 		int position = hash & hashMask;

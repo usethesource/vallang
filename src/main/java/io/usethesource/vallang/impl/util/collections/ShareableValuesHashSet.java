@@ -15,6 +15,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValue;
@@ -454,9 +456,9 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	}
 	
 	private static class SetIterator implements Iterator<IValue>{
-		private final Entry<IValue>[] data;
+		private final Entry<IValue>@Nullable[] data;
 		
-		private Entry<IValue> current;
+		private @Nullable Entry<IValue> current;
 		private int index;
 		
 		public SetIterator(Entry<IValue>[] entries){
@@ -469,7 +471,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 			locateNext();
 		}
 		
-		private void locateNext(){
+		private void locateNext(@UnknownInitialization SetIterator this) {
 			Entry<IValue> next = current.next;
 			if(next != null){
 				current = next;
@@ -489,12 +491,17 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 			index = 0;
 		}
 		
+		@EnsuresNonNullIf(expression="this.current", result=true)
+		@Override
 		public boolean hasNext(){
 			return (current != null);
 		}
 		
+		@Override
 		public IValue next(){
-			if(!hasNext()) throw new NoSuchElementException("There are no more elements in this iteration");
+			if (!hasNext()) {
+				throw new NoSuchElementException("There are no more elements in this iteration");
+			}
 			
 			IValue value = current.value;
 			locateNext();
@@ -502,7 +509,8 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 			return value;
 		}
 		
-		public void remove(){
+		@Override
+		public void remove() {
 			throw new UnsupportedOperationException("This iterator doesn't support removal.");
 		}
 	}
