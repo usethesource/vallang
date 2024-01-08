@@ -345,7 +345,7 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 			data = entries;
 
 			index = data.length - 1;
-			current = null;
+			current = new Entry<>(0, null, data[index]);
 			locateNext(data);
 		}
 		
