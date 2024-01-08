@@ -32,7 +32,7 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 	private int modSize;
 	private int hashMask;
 	
-	private Entry<IValue>[] data;
+	private @Nullable Entry<IValue>[] data;
 	
 	private int threshold;
 	
@@ -187,15 +187,16 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 		int position = hash & hashMask;
 		
 		Entry<IValue> currentStartEntry = data[position];
-		if(currentStartEntry != null){
+
+		if (currentStartEntry != null) {
 			Entry<IValue> entry = currentStartEntry;
-			do{
-				if(hash == entry.hash && entry.value.equals(value)){
+			do {
+				if (hash == entry.hash && entry.value.equals(value)) {
 					Entry<IValue> e = data[position];
 					
 					data[position] = entry.next;
 					// Reconstruct the other entries (if necessary).
-					while(e != entry){
+					while (e != entry && e != null) {
 						data[position] = new Entry<>(e.hash, e.value, data[position]);
 						
 						e = e.next;
@@ -209,7 +210,7 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 				}
 				
 				entry = entry.next;
-			}while(entry != null);
+			} while(entry != null);
 		}
 		
 		return false;
@@ -338,7 +339,7 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 		private @Nullable Entry<IValue> current;
 		private int index;
 		
-		public SetIterator(Entry<IValue>[] entries) {
+		public SetIterator(@Nullable Entry<IValue>[] entries) {
 			super();
 			
 			data = entries;
