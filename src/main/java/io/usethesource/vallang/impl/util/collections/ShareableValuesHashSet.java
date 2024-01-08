@@ -94,7 +94,7 @@ public final class ShareableValuesHashSet implements Iterable<IValue>{
 
 		threshold = tableSize;
 		
-		Entry<IValue>[] oldData = data;
+		@Nullable Entry<IValue>[] oldData = data;
 		for (int i = oldData.length - 1; i >= 0; i--) {
 			Entry<IValue> entry = oldData[i];
 			
