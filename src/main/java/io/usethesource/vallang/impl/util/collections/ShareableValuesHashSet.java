@@ -7,28 +7,26 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Jurgen Vinju   - CF annotation, maintenance and removal of unused methods
 *******************************************************************************/
 package io.usethesource.vallang.impl.util.collections;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
-
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.persistent.ValueFactory;
 
 /**
  * A specialized version of the ShareableSet, specifically meant for storing values.
  * 
  * @author Arnold Lankamp
  */
-public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValue>{
+public final class ShareableValuesHashSet implements Iterable<IValue>{
 	private final static int INITIAL_LOG_SIZE = 4;
 
 	private int modSize;
@@ -138,10 +136,6 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		}
 	}
 	
-	public boolean addTuple(IValue... fields) {
-	    return add(ValueFactory.getInstance().tuple(fields));
-	}
-	
 	public boolean add(IValue value){
 		ensureCapacity();
 		
@@ -185,31 +179,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		
 		return false;
 	}
-	
-	public boolean containsMatch(Object object){
-        IValue value = (IValue) object;
-        
-        int hash = value.hashCode();
-        int position = hash & hashMask;
-        
-        Entry<IValue> entry = data[position];
-        while(entry != null){
-            if(hash == entry.hash && value.match(entry.value)) {
-                return true;
-            }
-            
-            entry = entry.next;
-        }
-        
-        for (Entry<IValue> e : data) {
-            if (e != null && value.match(e.value)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-	
+		
 	public boolean remove(Object object){
 		IValue value = (IValue) object;
 		
@@ -267,63 +237,6 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		
 		return changed;
 	}
-
-	public boolean containsAll(Collection<?> collection){
-		Iterator<?> collectionIterator = collection.iterator();
-		while(collectionIterator.hasNext()){
-			if(!contains(collectionIterator.next())) return false;
-		}
-		
-		return true;
-	}
-
-	public boolean retainAll(Collection<?> collection){
-		boolean changed = false;
-		
-		Iterator<IValue> valuesIterator = iterator();
-		while(valuesIterator.hasNext()){
-			IValue value = valuesIterator.next();
-			if(!collection.contains(value)){
-				remove(value);
-				
-				changed = true;
-			}
-		}
-		
-		return changed;
-	}
-	
-	public boolean removeAll(Collection<?> collection){
-		boolean changed = false;
-		
-		Iterator<?> collectionIterator = collection.iterator();
-		while(collectionIterator.hasNext()){
-			Object value = collectionIterator.next();
-			changed |= remove(value);
-		}
-		
-		return changed;
-	}
-
-	@Override
-	public Object[] toArray(){
-		throw new UnsupportedOperationException();
-
-		// Object[] values = new Object[load];
-		
-		// Iterator<IValue> valuesIterator = iterator();
-		// int i = 0;
-		// while(valuesIterator.hasNext()){
-		// 	values[i++] = valuesIterator.next();
-		// }
-		
-		// return values;
-	}
-
-	@Override
-	public <T> @Nullable T[] toArray(T[] array) {
-		throw new UnsupportedOperationException();
-	} 
 	
 	@Override
 	public String toString(){
@@ -355,35 +268,6 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	public int hashCode(){
 		return currentHashCode;
 	}
-	
-	public boolean isEqual(ShareableValuesHashSet other){
-		if(other == null) return false;
-		
-		if(other.currentHashCode != currentHashCode) return false;
-		if(other.size() != size()) return false;
-		
-		if(isEmpty()) return true; // No need to check if the sets are empty.
-		
-		Iterator<IValue> otherIterator = other.iterator();
-		while(otherIterator.hasNext()){
-			if(!contains(otherIterator.next())) return false;
-		}
-		return true;
-	}
-	
-	public boolean match(ShareableValuesHashSet other){
-        if(other == null) return false;
-        
-        if(other.size() != size()) return false;
-        
-        if(isEmpty()) return true; // No need to check if the sets are empty.
-        
-        Iterator<IValue> otherIterator = other.iterator();
-        while(otherIterator.hasNext()){
-            if(!containsMatch(otherIterator.next())) return false;
-        }
-        return true;
-    }
 	
 	private boolean containsTruelyEqual(IValue value){
 		int hash = value.hashCode();

@@ -17,7 +17,6 @@ import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTw
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -557,7 +556,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   @Override
   public ISet closureStar() {
     // calculate
-    java.util.Set<IValue> closureDelta = computeClosureDelta();
+    ShareableValuesHashSet closureDelta = computeClosureDelta();
 
     IWriter<ISet> resultWriter = writer();
     resultWriter.insertAll(this);
@@ -570,13 +569,13 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     return resultWriter.done();
   }
 
-  private java.util.Set<IValue> computeClosureDelta() {
+  private ShareableValuesHashSet computeClosureDelta() {
     IValueFactory vf = ValueFactory.getInstance();
     RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
     RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
 
     Map<IValue, RotatingQueue<IValue>> interestingLeftSides = new HashMap<>();
-    Map<IValue, java.util.Set<IValue>> potentialRightSides = new HashMap<>();
+    Map<IValue, ShareableValuesHashSet> potentialRightSides = new HashMap<>();
 
     // Index
     for (IValue val : this) {
@@ -584,7 +583,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       IValue key = tuple.get(0);
       IValue value = tuple.get(1);
       RotatingQueue<IValue> leftValues = interestingLeftSides.get(key);
-      java.util.Set<IValue> rightValues;
+      ShareableValuesHashSet rightValues;
 
       if (leftValues != null) {
         rightValues = potentialRightSides.get(key);
@@ -610,9 +609,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     int nextSize = 0;
 
     // Compute
-    final java.util.Set<IValue> newTuples = new ShareableValuesHashSet();
+    final ShareableValuesHashSet newTuples = new ShareableValuesHashSet();
     do {
-      Map<IValue, java.util.Set<IValue>> rightSides = potentialRightSides;
+      Map<IValue, ShareableValuesHashSet> rightSides = potentialRightSides;
       potentialRightSides = new HashMap<>();
 
       for (; size > 0; size--) {
@@ -625,7 +624,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
         IValue rightKey;
         while ((rightKey = leftValues.get()) != null) {
-          java.util.Set<IValue> rightValues = rightSides.get(rightKey);
+          ShareableValuesHashSet rightValues = rightSides.get(rightKey);
           if (rightValues != null) {
             Iterator<IValue> rightValuesIterator = rightValues.iterator();
             while (rightValuesIterator.hasNext()) {
@@ -640,9 +639,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
                 }
                 interestingLeftValues.put(rightValue);
 
-                java.util.Set<IValue> potentialRightValues = potentialRightSides.get(rightKey);
+                ShareableValuesHashSet potentialRightValues = potentialRightSides.get(rightKey);
                 if (potentialRightValues == null) {
-                  potentialRightValues = new HashSet<>();
+                  potentialRightValues = new ShareableValuesHashSet();
                   potentialRightSides.put(rightKey, potentialRightValues);
                 }
                 potentialRightValues.add(rightValue);
