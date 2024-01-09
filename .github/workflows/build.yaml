@@ -15,6 +15,7 @@ env:
 
 jobs:
   event_file:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     name: "Event File (for test results)"
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +26,7 @@ jobs:
         path: ${{ github.event_path }}
 
   test:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -49,6 +51,7 @@ jobs:
           path: target/surefire-reports/**/*.xml
         
   checker-framework:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +66,7 @@ jobs:
         run: mvn -B clean compile -P checker-framework
 
   deploy:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     needs: [checker-framework, test]
     runs-on: ubuntu-latest
     steps:
