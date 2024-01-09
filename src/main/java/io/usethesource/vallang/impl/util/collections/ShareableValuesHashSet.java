@@ -7,14 +7,16 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Jurgen Vinju   - CF annotation, maintenance and removal of unused methods
 *******************************************************************************/
 package io.usethesource.vallang.impl.util.collections;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
-
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValue;
@@ -25,13 +27,13 @@ import io.usethesource.vallang.impl.persistent.ValueFactory;
  * 
  * @author Arnold Lankamp
  */
-public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValue>{
+public final class ShareableValuesHashSet implements Iterable<IValue>{
 	private final static int INITIAL_LOG_SIZE = 4;
 
 	private int modSize;
 	private int hashMask;
 	
-	private Entry<IValue>[] data;
+	private @Nullable Entry<IValue>[] data;
 	
 	private int threshold;
 	
@@ -93,19 +95,19 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 
 		threshold = tableSize;
 		
-		Entry<IValue>[] oldData = data;
-		for(int i = oldData.length - 1; i >= 0; i--){
+		@Nullable Entry<IValue>[] oldData = data;
+		for (int i = oldData.length - 1; i >= 0; i--) {
 			Entry<IValue> entry = oldData[i];
 			
-			if(entry != null){
+			if (entry != null) {
 				// Determine the last unchanged entry chain.
 				Entry<IValue> lastUnchangedEntryChain = entry;
 				int newLastUnchangedEntryChainIndex = entry.hash & hashMask;
 				
 				Entry<IValue> e = entry.next;
-				while(e != null){
+				while (e != null) {
 					int newIndex = e.hash & hashMask;
-					if(newIndex != newLastUnchangedEntryChainIndex){
+					if (newIndex != newLastUnchangedEntryChainIndex) {
 						lastUnchangedEntryChain = e;
 						newLastUnchangedEntryChainIndex = newIndex;
 					}
@@ -116,7 +118,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 				newData[newLastUnchangedEntryChainIndex] = lastUnchangedEntryChain;
 				
 				// Reconstruct the other entries (if necessary).
-				while(entry != lastUnchangedEntryChain){
+				while (entry != lastUnchangedEntryChain && entry != null) {
 					int hash = entry.hash;
 					int position = hash & hashMask;
 					newData[position] = new Entry<>(hash, entry.value, newData[position]);
@@ -133,10 +135,6 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		if(load > threshold){
 			rehash();
 		}
-	}
-	
-	public boolean addTuple(IValue... fields) {
-	    return add(ValueFactory.getInstance().tuple(fields));
 	}
 	
 	public boolean add(IValue value){
@@ -182,31 +180,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		
 		return false;
 	}
-	
-	public boolean containsMatch(Object object){
-        IValue value = (IValue) object;
-        
-        int hash = value.hashCode();
-        int position = hash & hashMask;
-        
-        Entry<IValue> entry = data[position];
-        while(entry != null){
-            if(hash == entry.hash && value.match(entry.value)) {
-                return true;
-            }
-            
-            entry = entry.next;
-        }
-        
-        for (Entry<IValue> e : data) {
-            if (e != null && value.match(e.value)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-	
+		
 	public boolean remove(Object object){
 		IValue value = (IValue) object;
 		
@@ -214,15 +188,16 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		int position = hash & hashMask;
 		
 		Entry<IValue> currentStartEntry = data[position];
-		if(currentStartEntry != null){
+
+		if (currentStartEntry != null) {
 			Entry<IValue> entry = currentStartEntry;
-			do{
-				if(hash == entry.hash && entry.value.equals(value)){
+			do {
+				if (hash == entry.hash && entry.value.equals(value)) {
 					Entry<IValue> e = data[position];
 					
 					data[position] = entry.next;
 					// Reconstruct the other entries (if necessary).
-					while(e != entry){
+					while (e != entry && e != null) {
 						data[position] = new Entry<>(e.hash, e.value, data[position]);
 						
 						e = e.next;
@@ -236,7 +211,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 				}
 				
 				entry = entry.next;
-			}while(entry != null);
+			} while(entry != null);
 		}
 		
 		return false;
@@ -264,73 +239,8 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		
 		return changed;
 	}
-
-	public boolean containsAll(Collection<?> collection){
-		Iterator<?> collectionIterator = collection.iterator();
-		while(collectionIterator.hasNext()){
-			if(!contains(collectionIterator.next())) return false;
-		}
-		
-		return true;
-	}
-
-	public boolean retainAll(Collection<?> collection){
-		boolean changed = false;
-		
-		Iterator<IValue> valuesIterator = iterator();
-		while(valuesIterator.hasNext()){
-			IValue value = valuesIterator.next();
-			if(!collection.contains(value)){
-				remove(value);
-				
-				changed = true;
-			}
-		}
-		
-		return changed;
-	}
 	
-	public boolean removeAll(Collection<?> collection){
-		boolean changed = false;
-		
-		Iterator<?> collectionIterator = collection.iterator();
-		while(collectionIterator.hasNext()){
-			Object value = collectionIterator.next();
-			changed |= remove(value);
-		}
-		
-		return changed;
-	}
-
-	public Object[] toArray(){
-		Object[] values = new Object[load];
-		
-		Iterator<IValue> valuesIterator = iterator();
-		int i = 0;
-		while(valuesIterator.hasNext()){
-			values[i++] = valuesIterator.next();
-		}
-		
-		return values;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> T[] toArray(T[] array){
-		if(array.length < load) return (T[]) toArray();
-		
-		Iterator<IValue> valuesIterator = iterator();
-		int i = 0;
-		while(valuesIterator.hasNext()){
-			array[i++] = (T) valuesIterator.next();
-		}
-		
-		for(; i < load; i++){
-			array[i] = null;
-		}
-		
-		return array;
-	}
-	
+	@Override
 	public String toString(){
 		StringBuilder buffer = new StringBuilder();
 		
@@ -360,35 +270,6 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	public int hashCode(){
 		return currentHashCode;
 	}
-	
-	public boolean isEqual(ShareableValuesHashSet other){
-		if(other == null) return false;
-		
-		if(other.currentHashCode != currentHashCode) return false;
-		if(other.size() != size()) return false;
-		
-		if(isEmpty()) return true; // No need to check if the sets are empty.
-		
-		Iterator<IValue> otherIterator = other.iterator();
-		while(otherIterator.hasNext()){
-			if(!contains(otherIterator.next())) return false;
-		}
-		return true;
-	}
-	
-	public boolean match(ShareableValuesHashSet other){
-        if(other == null) return false;
-        
-        if(other.size() != size()) return false;
-        
-        if(isEmpty()) return true; // No need to check if the sets are empty.
-        
-        Iterator<IValue> otherIterator = other.iterator();
-        while(otherIterator.hasNext()){
-            if(!containsMatch(otherIterator.next())) return false;
-        }
-        return true;
-    }
 	
 	private boolean containsTruelyEqual(IValue value){
 		int hash = value.hashCode();
@@ -427,13 +308,13 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		return false;
 	}
 	
-	private static class Entry<V>{
+	private static class Entry<V extends @NonNull Object>{
 		public final int hash;
 		public final V value;
 		
-		public final Entry<V> next;
+		public final @Nullable Entry<V> next;
 		
-		public Entry(int hash, V value, Entry<V> next){
+		public Entry(int hash, V value, @Nullable Entry<V> next){
 			super();
 			
 			this.hash = hash;
@@ -454,55 +335,62 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	}
 	
 	private static class SetIterator implements Iterator<IValue>{
-		private final Entry<IValue>[] data;
+		private final @Nullable Entry<IValue>[] data;
 		
-		private Entry<IValue> current;
+		private @Nullable Entry<IValue> current;
 		private int index;
 		
-		public SetIterator(Entry<IValue>[] entries){
+		public SetIterator(@Nullable Entry<IValue>[] entries) {
 			super();
 			
 			data = entries;
 
 			index = data.length - 1;
-			current = new Entry<>(0, null, data[index]);
-			locateNext();
+			current = new Entry<>(0, ValueFactory.getInstance().bool(true) /* dummy */, data[index]);
+			locateNext(data);
 		}
 		
-		private void locateNext(){
-			Entry<IValue> next = current.next;
-			if(next != null){
-				current = next;
+		private void locateNext(@UnknownInitialization SetIterator this, @Nullable Entry<IValue>[] data) {
+			Entry<IValue> next = current != null ? current.next : null;
+
+			if (next != null) {
+				this.current = next;
 				return;
 			}
 			
-			for(int i = index - 1; i >= 0 ; i--){
-				Entry<IValue> entry = data[i];
-				if(entry != null){
-					current = entry;
-					index = i;
+			for (int i = this.index - 1; i >= 0 ; i--) {
+				@Nullable Entry<IValue> entry = data[i];
+				if (entry != null) {
+					this.current = entry;
+					this.index = i;
 					return;
 				}
 			}
 			
-			current = null;
-			index = 0;
+			this.current = null;
+			this.index = 0;
 		}
 		
-		public boolean hasNext(){
+		@EnsuresNonNullIf(expression="this.current", result=true)
+		@Override
+		public boolean hasNext(@UnknownInitialization SetIterator this) {
 			return (current != null);
 		}
 		
+		@Override
 		public IValue next(){
-			if(!hasNext()) throw new NoSuchElementException("There are no more elements in this iteration");
+			if (!hasNext()) {
+				throw new NoSuchElementException("There are no more elements in this iteration");
+			}
 			
-			IValue value = current.value;
-			locateNext();
+			@NonNull IValue value = current.value;
+			locateNext(data);
 			
 			return value;
 		}
 		
-		public void remove(){
+		@Override
+		public void remove() {
 			throw new UnsupportedOperationException("This iterator doesn't support removal.");
 		}
 	}
