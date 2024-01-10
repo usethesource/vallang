@@ -620,6 +620,11 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
   @Override
   public ISet closureStar() {
+    Type tupleType = getElementType();
+    assert tupleType.getArity() == 2;
+    Type keyType = tupleType.getFieldType(0);
+    Type valueType = tupleType.getFieldType(0);
+
     // calculate
     var result = computeClosure(content);
 
@@ -628,8 +633,19 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       result.__insert(carrier.getValue(), carrier.getValue());
     }
 
-    final AbstractTypeBag keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
-    final AbstractTypeBag valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+    final AbstractTypeBag keyTypeBag;
+    final AbstractTypeBag valTypeBag;
+
+    if (keyType == valueType && isConcreteValueType(keyType)) {
+      // this means no other types can be introduced other than the originals,
+      // so iteration is no longer necessary to construct the new type bag
+      keyTypeBag = AbstractTypeBag.of(keyType, result.size());
+      valTypeBag = AbstractTypeBag.of(valueType, result.size());
+    }
+    else {
+      keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
+      valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+    }  
 
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
@@ -656,23 +672,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
         }
       }
 
-      // Iterator<Void> it = todo.tupleIterator((k,v) -> {
-      //   // putting the side-effects here, make sure we do not have
-      //   // to allocate intermediate entries or tuples
-      //   if (result.__insert(k, v)) {
-      //     nextTodo.__insert(v, k);
-      //   }
-
-      //   return null;
-      // });
-
-      // // it.next() has side-effects on result and nextTodo.
-      // while (it.hasNext()) {
-      //   it.next();
-      // }
-
       todo = nextTodo;
     }
+    
     return result;
   }
 
