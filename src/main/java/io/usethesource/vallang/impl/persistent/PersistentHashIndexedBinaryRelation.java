@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -78,11 +79,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       final AbstractTypeBag valTypeBag, final SetMultimap.Immutable<IValue, IValue> content) {
 
-    AbstractTypeBag expectedKeyTypeBag = content.entrySet().stream().map(Map.Entry::getKey)
-        .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
 
-    AbstractTypeBag expectedValTypeBag = content.entrySet().stream().map(Map.Entry::getValue)
-        .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+    final AbstractTypeBag expectedKeyTypeBag = calcTypeBag(content, Map.Entry::getKey);
+    final AbstractTypeBag expectedValTypeBag = calcTypeBag(content, Map.Entry::getValue);
 
     boolean keyTypesEqual = expectedKeyTypeBag.equals(keyTypeBag);
     boolean valTypesEqual = expectedValTypeBag.equals(valTypeBag);
@@ -436,11 +435,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
       final SetMultimap.Immutable<IValue, IValue> data = xz.freeze();
 
-      final AbstractTypeBag keyTypeBag = data.entrySet().stream().map(Map.Entry::getKey)
-              .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
-
-      final AbstractTypeBag valTypeBag = data.entrySet().stream().map(Map.Entry::getValue)
-              .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+    
+    final AbstractTypeBag keyTypeBag = calcTypeBag(data, Map.Entry::getKey);
+    final AbstractTypeBag valTypeBag = calcTypeBag(data, Map.Entry::getValue);
 
       return PersistentSetFactory.from(keyTypeBag, valTypeBag, data);
   }
@@ -537,17 +534,19 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       return ISet.super.empty();
   }
 
+  private static AbstractTypeBag calcTypeBag(SetMultimap<IValue, IValue> contents, Function<Map.Entry<IValue, IValue>, IValue> mapper) {
+    return contents.entrySet().stream().map(mapper)
+      .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+  }
+
   @Override
   public ISet closure() {
     var result = computeClosure(content);
 
     // TODO: see if we can inline the bag calculation, it might however 
     // cost a lot more TypeBag allocations
-    final AbstractTypeBag keyTypeBag = result.entrySet().stream().map(Map.Entry::getKey)
-            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
-
-    final AbstractTypeBag valTypeBag = result.entrySet().stream().map(Map.Entry::getValue)
-            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+    final AbstractTypeBag keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
+    final AbstractTypeBag valTypeBag = calcTypeBag(result, Map.Entry::getValue);
 
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
@@ -560,12 +559,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     for (IValue carrier: result.keySet()) {
       result.__insert(carrier, carrier);
     }
-    
-    final AbstractTypeBag keyTypeBag = result.entrySet().stream().map(Map.Entry::getKey)
-            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
 
-    final AbstractTypeBag valTypeBag = result.entrySet().stream().map(Map.Entry::getValue)
-            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+    final AbstractTypeBag keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
+    final AbstractTypeBag valTypeBag = calcTypeBag(result, Map.Entry::getValue);
 
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
