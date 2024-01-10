@@ -543,36 +543,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   }
 
   @Override
-/**
-  * we want to compute the closure of R, which in essence is a composition on itself.
-  * until nothing changes:
-  * 
-  * solve(R) {
-  *    R = R o R;
-  * }
-  * 
-  * The algorithm below realizes the following things:
-  * 
-  * - Instead of recomputing the compose for the whole of R, we only have to
-  *   compose for the newly added edges (called todo in the algorithm).
-  * - Since the LHS of `R o R` will be using the range of R as a lookup in R
-  *   we store the todo in inverse.
-  * 
-  * In essence the algorithm becomes:
-  * 
-  * result = R;
-  * todo = invert(R);
-  * 
-  * while (todo != {}) {
-  *  composed = fastCompose(todo, R);
-  *  newEdges = composed - result;
-  *  todo = invert(newEdges);
-  *  result += newEdges;
-  * }
-  * 
-  * fastCompose(todo, R) = { l * R[r] | <r, l> <- todo};
-  * 
-  */
+  
   public ISet closure() {
     Type tupleType = getElementType();
     assert tupleType.getArity() == 2;
@@ -651,6 +622,36 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   }
 
   private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content) {
+    /*
+    * we want to compute the closure of R, which in essence is a composition on itself.
+    * until nothing changes:
+    * 
+    * solve(R) {
+    *    R = R o R;
+    * }
+    * 
+    * The algorithm below realizes the following things:
+    * 
+    * - Instead of recomputing the compose for the whole of R, we only have to
+    *   compose for the newly added edges (called todo in the algorithm).
+    * - Since the LHS of `R o R` will be using the range of R as a lookup in R
+    *   we store the todo in inverse.
+    * 
+    * In essence the algorithm becomes:
+    * 
+    * result = R;
+    * todo = invert(R);
+    * 
+    * while (todo != {}) {
+    *  composed = fastCompose(todo, R);
+    *  newEdges = composed - result;
+    *  todo = invert(newEdges);
+    *  result += newEdges;
+    * }
+    * 
+    * fastCompose(todo, R) = { l * R[r] | <r, l> <- todo};
+    * 
+    */
     final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
 
     SetMultimap<IValue, IValue> todo = content.inverseMap();
