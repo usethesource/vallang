@@ -549,7 +549,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     Type valueType = tupleType.getFieldType(0);
     
     if (!keyType.comparable(valueType)) {
-      // if someone tries, this we have a very quick answer
+      // if someone tries, then we have a very quick answer
       return this;
     }
 
