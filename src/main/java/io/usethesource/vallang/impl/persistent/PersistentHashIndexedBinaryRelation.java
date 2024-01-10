@@ -571,7 +571,6 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   * 
   */
   public ISet closure() {
-
     Type tupleType = getElementType();
     assert tupleType.getArity() == 2;
     Type keyType = tupleType.getFieldType(0);
@@ -584,8 +583,17 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
     var result = computeClosure(content);
 
-    final AbstractTypeBag keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
-    final AbstractTypeBag valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+    final AbstractTypeBag keyTypeBag;
+    final AbstractTypeBag valTypeBag;
+
+    if (keyType == valueType && (keyType.isInteger() || keyType.isReal() || keyType.isRational() || keyType.isString() || keyType.isSourceLocation())) {
+      keyTypeBag = AbstractTypeBag.of(keyType, result.size());
+      valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+    }
+    else {
+      keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
+      valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+    }  
 
     // Some theory here in comments, with _no code_ as a result. This prevents type bag calculation
     // that is linear in the size of the resulting set.
