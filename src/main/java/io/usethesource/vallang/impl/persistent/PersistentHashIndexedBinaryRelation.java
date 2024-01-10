@@ -543,10 +543,28 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   public ISet closure() {
     var result = computeClosure(content);
 
-    // TODO: see if we can inline the bag calculation, it might however 
-    // cost a lot more TypeBag allocations
-    final AbstractTypeBag keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
-    final AbstractTypeBag valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+    Type tupleType = getElementType();
+    assert tupleType.getArity() == 2;
+    Type keyType = tupleType.getFieldType(0);
+    Type valueType = tupleType.getFieldType(0);
+    
+    if (!keyType.comparable(valueType)) {
+      // if someone tries, this we have a very quick answer
+      return this;
+    }
+
+    final AbstractTypeBag keyTypeBag = AbstractTypeBag.of(tupleType.getFieldType(0));
+    final AbstractTypeBag valTypeBag = AbstractTypeBag.of(tupleType.getFieldType(1));
+
+    // Some theory here in comments, with _no code_ as a result. This prevents type bag calculation
+    // that is linear in the size of the resulting set.
+    //
+    // 1. If the type is symmetric (rel[x,x]), then obviously it can not change due to 
+    //    transitive closure.
+    // 2. If the type is not symmetric or even comparable, like `rel[int,str]` see above. Closure is a no-op then.
+    // 3. If the type is not symmetric but comparable, say `rel[int, num]`, then no new
+    //    tuples can arise that are not tuple[int,int]. Hence the new type of the closure will
+    //    be `lub(rel[int,int], rel[int, num]) == rel[int, num]` again. Same for `rel[num,int]`.
 
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
