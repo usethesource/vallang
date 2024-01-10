@@ -14,6 +14,8 @@ package io.usethesource.vallang.impl.persistent;
 import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
 import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
 import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
+import static io.usethesource.vallang.impl.persistent.ValueCollectors.toList;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,6 +39,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.util.AbstractTypeBag;
 
 /**
@@ -586,26 +589,33 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     final AbstractTypeBag keyTypeBag;
     final AbstractTypeBag valTypeBag;
 
-    if (keyType == valueType && (keyType.isInteger() || keyType.isReal() || keyType.isRational() || keyType.isString() || keyType.isSourceLocation())) {
+    if (keyType == valueType && isConcreteValueType(keyType)) {
+      // this means no other types can be introduced other than the originals,
+      // so iteration is no longer necessary to construct the new type bag
       keyTypeBag = AbstractTypeBag.of(keyType, result.size());
-      valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+      valTypeBag = AbstractTypeBag.of(valueType, result.size());
     }
     else {
       keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
       valTypeBag = calcTypeBag(result, Map.Entry::getValue);
     }  
 
-    // Some theory here in comments, with _no code_ as a result. This prevents type bag calculation
-    // that is linear in the size of the resulting set.
-    //
-    // 1. If the type is symmetric (`rel[x,x]`), then obviously it can not change due to 
-    //    transitive closure.
-    // 2. If the type is not symmetric or even comparable, like `rel[int,str]` see above. Closure is a no-op then.
-    // 3. If the type is not symmetric but comparable, say `rel[int, num]`, then no new
-    //    tuples can arise that are not tuple[int,int]. Hence the new type of the closure will
-    //    be `lub(rel[int,int], rel[int, num]) == rel[int, num]` again. Same for `rel[num,int]`.
-
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
+  }
+
+  private boolean isConcreteValueType(Type keyType) {
+    if (keyType.isList() || keyType.isSet() || keyType.isMap()) {
+      return false; 
+    }
+    
+    if (keyType.isAbstractData() && keyType.isParameterized()) {
+      return false; // could have abstract type parameters that can be different for different tuples
+    }
+
+    Type voidType = TypeFactory.getInstance().voidType();
+
+    // this is a quick check for int, real, rat, loc, str (not num, not node, etc)
+    return keyType.glb(voidType) == voidType;
   }
 
   @Override
