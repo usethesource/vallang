@@ -14,9 +14,7 @@ package io.usethesource.vallang.impl.persistent;
 import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
 import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
 import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
-
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -24,10 +22,8 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.SetMultimap;
@@ -39,12 +35,8 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWriter;
-import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
-import io.usethesource.vallang.util.RotatingQueue;
 
 /**
  * Implements both ISet and IRelation, by indexing on the first column
@@ -547,113 +539,61 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
   @Override
   public ISet closure() {
-    IWriter<ISet> resultWriter = writer();
-    resultWriter.insertAll(this);
-    resultWriter.insertAll(computeClosureDelta());
-    return resultWriter.done();
+    var result = computeClosure(content);
+
+    // TODO: see if we can inline the bag calculation, it might however 
+    // cost a lot more TypeBag allocations
+    final AbstractTypeBag keyTypeBag = result.entrySet().stream().map(Map.Entry::getKey)
+            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+
+    final AbstractTypeBag valTypeBag = result.entrySet().stream().map(Map.Entry::getValue)
+            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+
+    return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
-   
+
   @Override
   public ISet closureStar() {
     // calculate
-    ShareableValuesHashSet closureDelta = computeClosureDelta();
+    var result = computeClosure(content);
 
-    IWriter<ISet> resultWriter = writer();
-    resultWriter.insertAll(this);
-    resultWriter.insertAll(closureDelta);
-    
-    for (IValue element : carrier()) {
-      resultWriter.insertTuple(element, element);
+    for (IValue carrier: result.keySet()) {
+      result.__insert(carrier, carrier);
     }
+    
+    final AbstractTypeBag keyTypeBag = result.entrySet().stream().map(Map.Entry::getKey)
+            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
 
-    return resultWriter.done();
+    final AbstractTypeBag valTypeBag = result.entrySet().stream().map(Map.Entry::getValue)
+            .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+
+    return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
 
-  private ShareableValuesHashSet computeClosureDelta() {
-    IValueFactory vf = ValueFactory.getInstance();
-    RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
-    RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
+  private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content) {
+    final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
 
-    Map<IValue, RotatingQueue<IValue>> interestingLeftSides = new HashMap<>();
-    Map<IValue, ShareableValuesHashSet> potentialRightSides = new HashMap<>();
+    SetMultimap<IValue, IValue> todo = content.inverseMap();
+    while (!todo.isEmpty()) {
+      final SetMultimap.Transient<IValue,IValue> nextTodo = PersistentTrieSetMultimap.transientOf(Object::equals);
 
-    // Index
-    for (IValue val : this) {
-      ITuple tuple = (ITuple) val;
-      IValue key = tuple.get(0);
-      IValue value = tuple.get(1);
-      RotatingQueue<IValue> leftValues = interestingLeftSides.get(key);
-      ShareableValuesHashSet rightValues;
-
-      if (leftValues != null) {
-        rightValues = potentialRightSides.get(key);
-      } else {
-        leftValues = new RotatingQueue<>();
-        iLeftKeys.put(key);
-        iLefts.put(leftValues);
-        interestingLeftSides.put(key, leftValues);
-
-        rightValues = new ShareableValuesHashSet();
-        potentialRightSides.put(key, rightValues);
-      }
-
-      leftValues.put(value);
-      if (rightValues == null) {
-        rightValues = new ShareableValuesHashSet();
-      }
-
-      rightValues.add(value);
-    }
-
-    int size = potentialRightSides.size();
-    int nextSize = 0;
-
-    // Compute
-    final ShareableValuesHashSet newTuples = new ShareableValuesHashSet();
-    do {
-      Map<IValue, ShareableValuesHashSet> rightSides = potentialRightSides;
-      potentialRightSides = new HashMap<>();
-
-      for (; size > 0; size--) {
-        IValue leftKey = iLeftKeys.get();
-        RotatingQueue<IValue> leftValues = iLefts.get();
-        RotatingQueue<IValue> interestingLeftValues = null;
-
-        assert leftKey != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
-        assert leftValues != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
-
-        IValue rightKey;
-        while ((rightKey = leftValues.get()) != null) {
-          ShareableValuesHashSet rightValues = rightSides.get(rightKey);
-          if (rightValues != null) {
-            Iterator<IValue> rightValuesIterator = rightValues.iterator();
-            while (rightValuesIterator.hasNext()) {
-              IValue rightValue = rightValuesIterator.next();
-              if (newTuples.add(vf.tuple(leftKey, rightValue))) {
-                if (interestingLeftValues == null) {
-                  nextSize++;
-
-                  iLeftKeys.put(leftKey);
-                  interestingLeftValues = new RotatingQueue<>();
-                  iLefts.put(interestingLeftValues);
-                }
-                interestingLeftValues.put(rightValue);
-
-                ShareableValuesHashSet potentialRightValues = potentialRightSides.get(rightKey);
-                if (potentialRightValues == null) {
-                  potentialRightValues = new ShareableValuesHashSet();
-                  potentialRightSides.put(rightKey, potentialRightValues);
-                }
-                potentialRightValues.add(rightValue);
+      // a pity we don't have a iterator over <IValue, Set<IValue>>
+      // not sure if the nativeIterator would be good for that
+      for (IValue lhs : todo.keySet()) {
+        Immutable<IValue> values = content.get(lhs);
+        if (!values.isEmpty()) {
+          for (IValue key : todo.get(lhs)) {
+            for (IValue val: values) {
+              if (result.__insert(key, val)) {
+                nextTodo.__insert(val, key);
               }
             }
           }
         }
       }
-      size = nextSize;
-      nextSize = 0;
-    } while (size > 0);
+      todo = nextTodo;
+    }
+    return result;
+  }
 
-    return newTuples;
-  }   
 }
