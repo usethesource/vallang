@@ -540,7 +540,38 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   }
 
   @Override
+/**
+  * we want to compute the closure of R, which in essence is a composition on itself.
+  * until nothing changes:
+  * 
+  * solve(R) {
+  *    R = R o R;
+  * }
+  * 
+  * The algorithm below realizes the following things:
+  * 
+  * - Instead of recomputing the compose for the whole of R, we only have to
+  *   compose for the newly added edges (called todo in the algorithm).
+  * - Since the LHS of `R o R` will be using the range of R as a lookup in R
+  *   we store the todo in inverse.
+  * 
+  * In essence the algorithm becomes:
+  * 
+  * result = R;
+  * todo = invert(R);
+  * 
+  * while (todo != {}) {
+  *  composed = fastCompose(todo, R);
+  *  newEdges = composed - result;
+  *  todo = invert(newEdges);
+  *  result += newEdges;
+  * }
+  * 
+  * fastCompose(todo, R) = { l * R[r] | <r, l> <- todo};
+  * 
+  */
   public ISet closure() {
+
     Type tupleType = getElementType();
     assert tupleType.getArity() == 2;
     Type keyType = tupleType.getFieldType(0);
@@ -553,8 +584,8 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
     var result = computeClosure(content);
 
-    final AbstractTypeBag keyTypeBag = AbstractTypeBag.of(tupleType.getFieldType(0));
-    final AbstractTypeBag valTypeBag = AbstractTypeBag.of(tupleType.getFieldType(1));
+    final AbstractTypeBag keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
+    final AbstractTypeBag valTypeBag = calcTypeBag(result, Map.Entry::getValue);
 
     // Some theory here in comments, with _no code_ as a result. This prevents type bag calculation
     // that is linear in the size of the resulting set.
@@ -606,6 +637,22 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
           }
         }
       }
+
+      // Iterator<Void> it = todo.tupleIterator((k,v) -> {
+      //   // putting the side-effects here, make sure we do not have
+      //   // to allocate intermediate entries or tuples
+      //   if (result.__insert(k, v)) {
+      //     nextTodo.__insert(v, k);
+      //   }
+
+      //   return null;
+      // });
+
+      // // it.next() has side-effects on result and nextTodo.
+      // while (it.hasNext()) {
+      //   it.next();
+      // }
+
       todo = nextTodo;
     }
     return result;
