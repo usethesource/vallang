@@ -541,8 +541,6 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
   @Override
   public ISet closure() {
-    var result = computeClosure(content);
-
     Type tupleType = getElementType();
     assert tupleType.getArity() == 2;
     Type keyType = tupleType.getFieldType(0);
@@ -553,13 +551,15 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       return this;
     }
 
+    var result = computeClosure(content);
+
     final AbstractTypeBag keyTypeBag = AbstractTypeBag.of(tupleType.getFieldType(0));
     final AbstractTypeBag valTypeBag = AbstractTypeBag.of(tupleType.getFieldType(1));
 
     // Some theory here in comments, with _no code_ as a result. This prevents type bag calculation
     // that is linear in the size of the resulting set.
     //
-    // 1. If the type is symmetric (rel[x,x]), then obviously it can not change due to 
+    // 1. If the type is symmetric (`rel[x,x]`), then obviously it can not change due to 
     //    transitive closure.
     // 2. If the type is not symmetric or even comparable, like `rel[int,str]` see above. Closure is a no-op then.
     // 3. If the type is not symmetric but comparable, say `rel[int, num]`, then no new
