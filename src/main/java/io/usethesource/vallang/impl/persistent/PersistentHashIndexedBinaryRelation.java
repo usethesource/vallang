@@ -556,8 +556,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     // calculate
     var result = computeClosure(content);
 
-    for (IValue carrier: result.keySet()) {
-      result.__insert(carrier, carrier);
+    for (var carrier: content.entrySet()) {
+      result.__insert(carrier.getKey(), carrier.getKey());
+      result.__insert(carrier.getValue(), carrier.getValue());
     }
 
     final AbstractTypeBag keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
