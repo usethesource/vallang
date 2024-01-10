@@ -564,7 +564,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       // this means no other types can be introduced other than the originals,
       // so iteration is no longer necessary to construct the new type bag
       keyTypeBag = AbstractTypeBag.of(keyType, result.size());
-      valTypeBag = AbstractTypeBag.of(valueType, result.size());
+      valTypeBag = keyTypeBag;
     }
     else {
       keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
@@ -611,7 +611,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       // this means no other types can be introduced other than the originals,
       // so iteration is no longer necessary to construct the new type bag
       keyTypeBag = AbstractTypeBag.of(keyType, result.size());
-      valTypeBag = AbstractTypeBag.of(valueType, result.size());
+      valTypeBag = keyTypeBag;
     }
     else {
       keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
