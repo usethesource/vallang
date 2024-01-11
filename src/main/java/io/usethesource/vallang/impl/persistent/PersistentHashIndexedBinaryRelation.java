@@ -15,8 +15,9 @@ import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BIN
 import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
 import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
 import static io.usethesource.vallang.impl.persistent.ValueCollectors.toList;
-
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -30,6 +31,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.SetMultimap;
+import io.usethesource.capsule.Map.Transient;
+import io.usethesource.capsule.core.PersistentTrieMap;
+import io.usethesource.capsule.core.PersistentTrieSet;
 import io.usethesource.capsule.core.PersistentTrieSetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
@@ -622,6 +626,20 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   }
 
   private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content) {
+    // TODO: consider switching between the modes during the job (if we can detect it correctly)
+    if (isDeep(content)) {
+      return computeClosureDepthFirst(content);
+    }
+    return computeClosureBreathFirst(content);
+  }
+
+  private static boolean isDeep(io.usethesource.capsule.SetMultimap.Immutable<IValue, IValue> content) {
+    // TODO: improve heuristic
+    return content.size() > 12;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static SetMultimap.Transient<IValue, IValue> computeClosureBreathFirst(final SetMultimap.Immutable<IValue, IValue> content) {
     /*
     * we want to compute the closure of R, which in essence is a composition on itself.
     * until nothing changes:
@@ -658,17 +676,23 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     while (!todo.isEmpty()) {
       final SetMultimap.Transient<IValue,IValue> nextTodo = PersistentTrieSetMultimap.transientOf(Object::equals);
 
-      // a pity we don't have a iterator over <IValue, Set<IValue>>
-      // not sure if the nativeIterator would be good for that
-      for (IValue lhs : todo.keySet()) {
+      var todoIt = todo.nativeEntryIterator();
+      while (todoIt.hasNext()) {
+        var next = todoIt.next();
+        IValue lhs = next.getKey();
         Immutable<IValue> values = content.get(lhs);
         if (!values.isEmpty()) {
-          for (IValue key : todo.get(lhs)) {
-            for (IValue val: values) {
-              if (result.__insert(key, val)) {
-                nextTodo.__insert(val, key);
-              }
+          Object keys = next.getValue();
+          if (keys instanceof IValue) {
+            singleCompose(result, nextTodo, values, (IValue)keys);
+          }
+          else if (keys instanceof Set) {
+            for (IValue key : (Set<IValue>)keys) {
+              singleCompose(result, nextTodo, values, key);
             }
+          }
+          else {
+            throw new IllegalArgumentException("Unexpected map entry");
           }
         }
       }
@@ -679,4 +703,48 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     return result;
   }
 
+  private static void singleCompose(final SetMultimap.Transient<IValue, IValue> result,
+    final SetMultimap.Transient<IValue, IValue> nextTodo, Immutable<IValue> values, IValue key) {
+    for (IValue val: values) {
+      if (result.__insert(key, val)) {
+        nextTodo.__insert(val, key);
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static SetMultimap.Transient<IValue, IValue> computeClosureDepthFirst(final SetMultimap.Immutable<IValue, IValue> content) {
+    final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
+    var todo = new ArrayDeque<IValue>();
+    var done = new HashSet<IValue>(); // keep track of LHS we already did, so we don't have to go into the depth of them anymore
+    var mainIt = content.nativeEntryIterator();
+    while (mainIt.hasNext()) {
+      final var focus = mainIt.next();
+      final IValue lhs = focus.getKey();
+      final Object values =focus.getValue();
+
+      todo.clear();
+      if (values instanceof IValue) {
+        todo.push((IValue)values);
+      }
+      else if (values instanceof Set) {
+        todo.addAll((Set<IValue>)values);
+      }
+      else {
+        throw new IllegalArgumentException("Unexpected map entry");
+      }
+      // we mark ourselves as done before we did it, 
+      // so we don't do the <a,a> that causes an extra round
+      done.add(lhs); 
+      IValue rhs;
+      while ((rhs = todo.poll()) != null) {
+        for (IValue composed : result.get(rhs)) {
+          if (result.__insert(lhs, composed) && !done.contains(composed)) {
+            todo.push(composed);
+          }
+        }
+      }
+    }
+    return result;
+  }
 }
