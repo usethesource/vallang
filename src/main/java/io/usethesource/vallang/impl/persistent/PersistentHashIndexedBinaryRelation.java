@@ -543,7 +543,6 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   }
 
   @Override
-  
   public ISet closure() {
     Type tupleType = getElementType();
     assert tupleType.getArity() == 2;
