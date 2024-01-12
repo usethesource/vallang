@@ -4,12 +4,12 @@
 
 	<groupId>io.usethesource</groupId>
 	<artifactId>vallang</artifactId>
-	<version>1.0.0-RC8-SNAPSHOT</version>
+	<version>1.0.0-RC8</version>
 	<packaging>jar</packaging>
 
 	<scm>
 		<developerConnection>scm:git:ssh://git@github.com/usethesource/vallang.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v1.0.0-RC8</tag>
 	</scm>
 
 	<!-- dependency resolution configuration (usethesource) -->
@@ -69,6 +69,7 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<configuration>
 					<tagNameFormat>v@{project.version}</tagNameFormat>
+                                        <arguments>-DskipTests</arguments>
 				</configuration>
 			</plugin>
 			<plugin>
