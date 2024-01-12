@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
@@ -55,7 +56,71 @@ public class IRelationTests {
         assertEquals(src.asRelation().closure().intersect(src), src);
     }
     
-    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void deepClosure(IValueFactory vf) {
+        IValue prev = vf.integer(0);
+        var rBuilder = vf.setWriter();
+        for (int i=1; i < 100; i++) {
+            IValue next = vf.integer(i);
+            rBuilder.appendTuple(prev, next);
+            prev = next;
+        }
+        var r = rBuilder.done().asRelation();
+
+        assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void broadClosure(IValueFactory vf) {
+        IValue prev = vf.integer(0);
+        var rBuilder = vf.setWriter();
+        for (int i=1; i < 100; i++) {
+            IValue next = vf.integer(i);
+            if (i % 5 != 0) {
+                rBuilder.appendTuple(prev, next);
+            }
+            prev = next;
+        }
+        var r = rBuilder.done().asRelation();
+
+        assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void severalDeep(IValueFactory vf) {
+        IValue prev = vf.integer(0);
+        var rBuilder = vf.setWriter();
+        for (int i=1; i < 100; i++) {
+            IValue next = vf.integer(i);
+            if (i % 50 != 0) {
+                rBuilder.appendTuple(prev, next);
+            }
+            prev = next;
+        }
+        // now let's add some side paths
+        prev = vf.integer(10);
+        for (int i=11; i < 100; i+=2) {
+            IValue next = vf.integer(i);
+            if (i % 50 != 0) {
+                rBuilder.appendTuple(prev, next);
+            }
+            prev = next;
+        }
+        var r = rBuilder.done().asRelation();
+
+        assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
+    }
+
+    private ISet slowClosure(IValueFactory vf, IRelation<ISet> r) {
+        var prev = vf.set();
+        ISet result = r.asContainer();
+        while (!prev.equals(result)) {
+            prev = result;
+            result = result.union( r.compose(result.asRelation()));
+        }
+        return result;
+    }
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void carrierForTriples(@ExpectedType("rel[int,int,int]") ISet src) {
         ISet carrier = src.asRelation().carrier();

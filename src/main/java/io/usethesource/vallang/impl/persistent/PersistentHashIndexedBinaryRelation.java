@@ -14,20 +14,19 @@ package io.usethesource.vallang.impl.persistent;
 import static io.usethesource.vallang.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
 import static io.usethesource.vallang.impl.persistent.SetWriter.asInstanceOf;
 import static io.usethesource.vallang.impl.persistent.SetWriter.isTupleOfArityTwo;
-
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.SetMultimap;
@@ -39,12 +38,9 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWriter;
-import io.usethesource.vallang.impl.util.collections.ShareableValuesHashSet;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.util.AbstractTypeBag;
-import io.usethesource.vallang.util.RotatingQueue;
 
 /**
  * Implements both ISet and IRelation, by indexing on the first column
@@ -86,11 +82,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       final AbstractTypeBag valTypeBag, final SetMultimap.Immutable<IValue, IValue> content) {
 
-    AbstractTypeBag expectedKeyTypeBag = content.entrySet().stream().map(Map.Entry::getKey)
-        .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
 
-    AbstractTypeBag expectedValTypeBag = content.entrySet().stream().map(Map.Entry::getValue)
-        .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+    final AbstractTypeBag expectedKeyTypeBag = calcTypeBag(content, Map.Entry::getKey);
+    final AbstractTypeBag expectedValTypeBag = calcTypeBag(content, Map.Entry::getValue);
 
     boolean keyTypesEqual = expectedKeyTypeBag.equals(keyTypeBag);
     boolean valTypesEqual = expectedValTypeBag.equals(valTypeBag);
@@ -444,11 +438,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
       final SetMultimap.Immutable<IValue, IValue> data = xz.freeze();
 
-      final AbstractTypeBag keyTypeBag = data.entrySet().stream().map(Map.Entry::getKey)
-              .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
-
-      final AbstractTypeBag valTypeBag = data.entrySet().stream().map(Map.Entry::getValue)
-              .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+    
+    final AbstractTypeBag keyTypeBag = calcTypeBag(data, Map.Entry::getKey);
+    final AbstractTypeBag valTypeBag = calcTypeBag(data, Map.Entry::getValue);
 
       return PersistentSetFactory.from(keyTypeBag, valTypeBag, data);
   }
@@ -545,115 +537,204 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       return ISet.super.empty();
   }
 
+  private static AbstractTypeBag calcTypeBag(SetMultimap<IValue, IValue> contents, Function<Map.Entry<IValue, IValue>, IValue> mapper) {
+    return contents.entrySet().stream().map(mapper)
+      .map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+  }
+
   @Override
   public ISet closure() {
-    IWriter<ISet> resultWriter = writer();
-    resultWriter.insertAll(this);
-    resultWriter.insertAll(computeClosureDelta());
-    return resultWriter.done();
+    Type tupleType = getElementType();
+    assert tupleType.getArity() == 2;
+    Type keyType = tupleType.getFieldType(0);
+    Type valueType = tupleType.getFieldType(0);
+    
+    if (!keyType.comparable(valueType)) {
+      // if someone tries, then we have a very quick answer
+      return this;
+    }
+
+    var result = computeClosure(content);
+
+    final AbstractTypeBag keyTypeBag;
+    final AbstractTypeBag valTypeBag;
+
+    if (keyType == valueType && isConcreteValueType(keyType)) {
+      // this means no other types can be introduced other than the originals,
+      // so iteration is no longer necessary to construct the new type bag
+      keyTypeBag = AbstractTypeBag.of(keyType, result.size());
+      valTypeBag = keyTypeBag;
+    }
+    else {
+      keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
+      valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+    }  
+
+    return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
-   
+
+  private boolean isConcreteValueType(Type keyType) {
+    if (keyType.isList() || keyType.isSet() || keyType.isMap()) {
+      return false; 
+    }
+    
+    if (keyType.isAbstractData() && keyType.isParameterized()) {
+      return false; // could have abstract type parameters that can be different for different tuples
+    }
+
+    Type voidType = TypeFactory.getInstance().voidType();
+
+    // this is a quick check for int, real, rat, loc, str (not num, not node, etc)
+    return keyType.glb(voidType) == voidType;
+  }
+
   @Override
   public ISet closureStar() {
-    // calculate
-    ShareableValuesHashSet closureDelta = computeClosureDelta();
+    Type tupleType = getElementType();
+    assert tupleType.getArity() == 2;
+    Type keyType = tupleType.getFieldType(0);
+    Type valueType = tupleType.getFieldType(0);
 
-    IWriter<ISet> resultWriter = writer();
-    resultWriter.insertAll(this);
-    resultWriter.insertAll(closureDelta);
-    
-    for (IValue element : carrier()) {
-      resultWriter.insertTuple(element, element);
+    var result = computeClosure(content);
+
+    for (var carrier: content.entrySet()) {
+      result.__insert(carrier.getKey(), carrier.getKey());
+      result.__insert(carrier.getValue(), carrier.getValue());
     }
 
-    return resultWriter.done();
+    final AbstractTypeBag keyTypeBag;
+    final AbstractTypeBag valTypeBag;
+
+    if (keyType == valueType && isConcreteValueType(keyType)) {
+      // this means no other types can be introduced other than the originals,
+      // so iteration is no longer necessary to construct the new type bag
+      keyTypeBag = AbstractTypeBag.of(keyType, result.size());
+      valTypeBag = keyTypeBag;
+    }
+    else {
+      keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
+      valTypeBag = calcTypeBag(result, Map.Entry::getValue);
+    }  
+
+    return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
 
-  private ShareableValuesHashSet computeClosureDelta() {
-    IValueFactory vf = ValueFactory.getInstance();
-    RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
-    RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
+  private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content) {
+    return content.size() > 256 
+      ? computeClosureDepthFirst(content)
+      : computeClosureBreadthFirst(content)
+      ;
+  }
+    
+  @SuppressWarnings("unchecked")
+  private static SetMultimap.Transient<IValue, IValue> computeClosureDepthFirst(final SetMultimap.Immutable<IValue, IValue> content) {
+    final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
+    var todo = new ArrayDeque<IValue>();
+    var done = new HashSet<IValue>(); // keep track of LHS we already did, so we don't have to go into the depth of them anymore
+    var mainIt = content.nativeEntryIterator();
+    while (mainIt.hasNext()) {
+      final var focus = mainIt.next();
+      final IValue lhs = focus.getKey();
+      final Object values =focus.getValue();
 
-    Map<IValue, RotatingQueue<IValue>> interestingLeftSides = new HashMap<>();
-    Map<IValue, ShareableValuesHashSet> potentialRightSides = new HashMap<>();
-
-    // Index
-    for (IValue val : this) {
-      ITuple tuple = (ITuple) val;
-      IValue key = tuple.get(0);
-      IValue value = tuple.get(1);
-      RotatingQueue<IValue> leftValues = interestingLeftSides.get(key);
-      ShareableValuesHashSet rightValues;
-
-      if (leftValues != null) {
-        rightValues = potentialRightSides.get(key);
-      } else {
-        leftValues = new RotatingQueue<>();
-        iLeftKeys.put(key);
-        iLefts.put(leftValues);
-        interestingLeftSides.put(key, leftValues);
-
-        rightValues = new ShareableValuesHashSet();
-        potentialRightSides.put(key, rightValues);
+      todo.clear();
+      if (values instanceof IValue) {
+        todo.push((IValue)values);
       }
-
-      leftValues.put(value);
-      if (rightValues == null) {
-        rightValues = new ShareableValuesHashSet();
+      else if (values instanceof Set) {
+        todo.addAll((Set<IValue>)values);
       }
-
-      rightValues.add(value);
-    }
-
-    int size = potentialRightSides.size();
-    int nextSize = 0;
-
-    // Compute
-    final ShareableValuesHashSet newTuples = new ShareableValuesHashSet();
-    do {
-      Map<IValue, ShareableValuesHashSet> rightSides = potentialRightSides;
-      potentialRightSides = new HashMap<>();
-
-      for (; size > 0; size--) {
-        IValue leftKey = iLeftKeys.get();
-        RotatingQueue<IValue> leftValues = iLefts.get();
-        RotatingQueue<IValue> interestingLeftValues = null;
-
-        assert leftKey != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
-        assert leftValues != null : "@AssumeAssertion(nullness) this only happens at the end of the queue";
-
-        IValue rightKey;
-        while ((rightKey = leftValues.get()) != null) {
-          ShareableValuesHashSet rightValues = rightSides.get(rightKey);
-          if (rightValues != null) {
-            Iterator<IValue> rightValuesIterator = rightValues.iterator();
-            while (rightValuesIterator.hasNext()) {
-              IValue rightValue = rightValuesIterator.next();
-              if (newTuples.add(vf.tuple(leftKey, rightValue))) {
-                if (interestingLeftValues == null) {
-                  nextSize++;
-
-                  iLeftKeys.put(leftKey);
-                  interestingLeftValues = new RotatingQueue<>();
-                  iLefts.put(interestingLeftValues);
-                }
-                interestingLeftValues.put(rightValue);
-
-                ShareableValuesHashSet potentialRightValues = potentialRightSides.get(rightKey);
-                if (potentialRightValues == null) {
-                  potentialRightValues = new ShareableValuesHashSet();
-                  potentialRightSides.put(rightKey, potentialRightValues);
-                }
-                potentialRightValues.add(rightValue);
-              }
-            }
+      else {
+        throw new IllegalArgumentException("Unexpected map entry");
+      }
+      // we mark ourselves as done before we did it, 
+      // so we don't do the <a,a> that causes an extra round
+      done.add(lhs); 
+      IValue rhs;
+      while ((rhs = todo.poll()) != null) {
+        boolean rhsDone = done.contains(rhs);
+        for (IValue composed : result.get(rhs)) {
+          if (result.__insert(lhs, composed) && !rhsDone) {
+            todo.push(composed);
           }
         }
       }
-      size = nextSize;
-      nextSize = 0;
-    } while (size > 0);
+    }
+    return result;
+  }
 
-    return newTuples;
-  }   
+  @SuppressWarnings("unchecked")
+  private static SetMultimap.Transient<IValue, IValue> computeClosureBreadthFirst(final SetMultimap.Immutable<IValue, IValue> content) {
+    /*
+    * we want to compute the closure of R, which in essence is a composition on itself.
+    * until nothing changes:
+    * 
+    * solve(R) {
+    *    R = R o R;
+    * }
+    * 
+    * The algorithm below realizes the following things:
+    * 
+    * - Instead of recomputing the compose for the whole of R, we only have to
+    *   compose for the newly added edges (called todo in the algorithm).
+    * - Since the LHS of `R o R` will be using the range of R as a lookup in R
+    *   we store the todo in inverse.
+    * 
+    * In essence the algorithm becomes:
+    * 
+    * result = R;
+    * todo = invert(R);
+    * 
+    * while (todo != {}) {
+    *  composed = fastCompose(todo, R);
+    *  newEdges = composed - result;
+    *  todo = invert(newEdges);
+    *  result += newEdges;
+    * }
+    * 
+    * fastCompose(todo, R) = { l * R[r] | <r, l> <- todo};
+    * 
+    */
+    final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
+
+    SetMultimap<IValue, IValue> todo = content.inverseMap();
+    while (!todo.isEmpty()) {
+      final SetMultimap.Transient<IValue,IValue> nextTodo = PersistentTrieSetMultimap.transientOf(Object::equals);
+
+      var todoIt = todo.nativeEntryIterator();
+      while (todoIt.hasNext()) {
+        var next = todoIt.next();
+        IValue lhs = next.getKey();
+        Immutable<IValue> values = content.get(lhs);
+        if (!values.isEmpty()) {
+          Object keys = next.getValue();
+          if (keys instanceof IValue) {
+            singleCompose(result, nextTodo, values, (IValue)keys);
+          }
+          else if (keys instanceof Set) {
+            for (IValue key : (Set<IValue>)keys) {
+              singleCompose(result, nextTodo, values, key);
+            }
+          }
+          else {
+            throw new IllegalArgumentException("Unexpected map entry");
+          }
+        }
+      }
+
+      todo = nextTodo;
+    }
+    
+    return result;
+  }
+
+  private static void singleCompose(final SetMultimap.Transient<IValue, IValue> result,
+    final SetMultimap.Transient<IValue, IValue> nextTodo, Immutable<IValue> values, IValue key) {
+    for (IValue val: values) {
+      if (result.__insert(key, val)) {
+        nextTodo.__insert(val, key);
+      }
+    }
+  }
+
 }

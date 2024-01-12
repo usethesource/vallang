@@ -33,6 +33,8 @@ import io.usethesource.vallang.type.TypeFactory;
  */
 public abstract class AbstractTypeBag implements Cloneable {
 
+    public abstract AbstractTypeBag increase(Type t, int count);
+
     public abstract AbstractTypeBag increase(Type t);
 
     public abstract AbstractTypeBag decrease(Type t);
@@ -45,6 +47,10 @@ public abstract class AbstractTypeBag implements Cloneable {
 
     public static AbstractTypeBag of(Type... ts) {
         return TypeBag.of(ts);
+    }
+
+    public static AbstractTypeBag of(Type type, int count) {
+        return TypeBag.of(type, count);
     }
 
     public abstract int size();
@@ -76,13 +82,18 @@ public abstract class AbstractTypeBag implements Cloneable {
             return result;
         }
 
+        public static final AbstractTypeBag of(Type t, int count) {
+            return new TypeBag(Map.Immutable.of())
+                .increase(t, count);
+        }
+
         @Override
-        public AbstractTypeBag increase(Type t) {
+        public AbstractTypeBag increase(Type t, int count) {
             final Integer oldCount = countMap.get(t);
             final Map.Immutable<Type, Integer> newCountMap;
 
             if (oldCount == null) {
-                newCountMap = countMap.__put(t, 1);
+                newCountMap = countMap.__put(t, count);
 
                 if (cachedLub == null) {
                     return new TypeBag(newCountMap);
@@ -92,9 +103,14 @@ public abstract class AbstractTypeBag implements Cloneable {
                     return new TypeBag(newCountMap, newCachedLub);
                 }
             } else {
-                newCountMap = countMap.__put(t, oldCount + 1);
+                newCountMap = countMap.__put(t, oldCount + count);
                 return new TypeBag(newCountMap);
             }
+        }
+
+        @Override
+        public AbstractTypeBag increase(Type t) {
+            return increase(t, 1);
         }
 
         @Override
