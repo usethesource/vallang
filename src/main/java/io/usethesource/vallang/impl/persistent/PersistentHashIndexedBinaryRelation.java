@@ -574,18 +574,15 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   }
 
   private boolean isConcreteValueType(Type keyType) {
-    if (keyType.isList() || keyType.isSet() || keyType.isMap()) {
-      return false; 
-    }
-    
-    if (keyType.isAbstractData() && keyType.isParameterized()) {
-      return false; // could have abstract type parameters that can be different for different tuples
-    }
-
-    Type voidType = TypeFactory.getInstance().voidType();
-
-    // this is a quick check for int, real, rat, loc, str (not num, not node, etc)
-    return keyType.glb(voidType) == voidType;
+    return keyType.isSourceLocation()
+      || keyType.isInteger()
+      || keyType.isRational()
+      || keyType.isReal()
+      || keyType.isDateTime()
+      || (keyType.isAbstractData() && !keyType.isParameterized())
+      || keyType.isString()
+      || keyType.isBool()
+      ;
   }
 
   @Override
