@@ -555,7 +555,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       return this;
     }
 
-    var result = computeClosure(content);
+    var result = computeClosureDepthFirst(content);
 
     final AbstractTypeBag keyTypeBag;
     final AbstractTypeBag valTypeBag;
@@ -597,7 +597,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     Type valueType = tupleType.getFieldType(0);
 
     // calculate
-    var result = computeClosure(content);
+    var result = computeClosureDepthFirst(content);
 
     for (var carrier: content.entrySet()) {
       result.__insert(carrier.getKey(), carrier.getKey());
@@ -619,93 +619,6 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     }  
 
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
-  }
-
-  private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content) {
-    // TODO: consider switching between the modes during the job (if we can detect it correctly)
-    if (isDeep(content)) {
-      return computeClosureDepthFirst(content);
-    }
-    return computeClosureBreathFirst(content);
-  }
-
-  private static boolean isDeep(io.usethesource.capsule.SetMultimap.Immutable<IValue, IValue> content) {
-    // TODO: improve heuristic
-    return content.size() > 12;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static SetMultimap.Transient<IValue, IValue> computeClosureBreathFirst(final SetMultimap.Immutable<IValue, IValue> content) {
-    /*
-    * we want to compute the closure of R, which in essence is a composition on itself.
-    * until nothing changes:
-    * 
-    * solve(R) {
-    *    R = R o R;
-    * }
-    * 
-    * The algorithm below realizes the following things:
-    * 
-    * - Instead of recomputing the compose for the whole of R, we only have to
-    *   compose for the newly added edges (called todo in the algorithm).
-    * - Since the LHS of `R o R` will be using the range of R as a lookup in R
-    *   we store the todo in inverse.
-    * 
-    * In essence the algorithm becomes:
-    * 
-    * result = R;
-    * todo = invert(R);
-    * 
-    * while (todo != {}) {
-    *  composed = fastCompose(todo, R);
-    *  newEdges = composed - result;
-    *  todo = invert(newEdges);
-    *  result += newEdges;
-    * }
-    * 
-    * fastCompose(todo, R) = { l * R[r] | <r, l> <- todo};
-    * 
-    */
-    final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
-
-    SetMultimap<IValue, IValue> todo = content.inverseMap();
-    while (!todo.isEmpty()) {
-      final SetMultimap.Transient<IValue,IValue> nextTodo = PersistentTrieSetMultimap.transientOf(Object::equals);
-
-      var todoIt = todo.nativeEntryIterator();
-      while (todoIt.hasNext()) {
-        var next = todoIt.next();
-        IValue lhs = next.getKey();
-        Immutable<IValue> values = content.get(lhs);
-        if (!values.isEmpty()) {
-          Object keys = next.getValue();
-          if (keys instanceof IValue) {
-            singleCompose(result, nextTodo, values, (IValue)keys);
-          }
-          else if (keys instanceof Set) {
-            for (IValue key : (Set<IValue>)keys) {
-              singleCompose(result, nextTodo, values, key);
-            }
-          }
-          else {
-            throw new IllegalArgumentException("Unexpected map entry");
-          }
-        }
-      }
-
-      todo = nextTodo;
-    }
-    
-    return result;
-  }
-
-  private static void singleCompose(final SetMultimap.Transient<IValue, IValue> result,
-    final SetMultimap.Transient<IValue, IValue> nextTodo, Immutable<IValue> values, IValue key) {
-    for (IValue val: values) {
-      if (result.__insert(key, val)) {
-        nextTodo.__insert(val, key);
-      }
-    }
   }
 
   @SuppressWarnings("unchecked")
@@ -730,13 +643,12 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
         throw new IllegalArgumentException("Unexpected map entry");
       }
       // we mark ourselves as done before we did it, 
-      // so we don't do the <a,a> that causes an useless round
+      // so we don't do the <a,a> that causes an extra round
       done.add(lhs); 
       IValue rhs;
       while ((rhs = todo.poll()) != null) {
-        boolean rhsFull = done.contains(rhs);
         for (IValue composed : result.get(rhs)) {
-          if (result.__insert(lhs, composed) && !rhsFull) {
+          if (result.__insert(lhs, composed) && !done.contains(composed)) {
             todo.push(composed);
           }
         }
