@@ -70,6 +70,47 @@ public class IRelationTests {
         assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
     }
 
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void broadClosure(IValueFactory vf) {
+        IValue prev = vf.integer(0);
+        var rBuilder = vf.setWriter();
+        for (int i=1; i < 100; i++) {
+            IValue next = vf.integer(i);
+            if (i % 5 != 0) {
+                rBuilder.appendTuple(prev, next);
+            }
+            prev = next;
+        }
+        var r = rBuilder.done().asRelation();
+
+        assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void severalDeep(IValueFactory vf) {
+        IValue prev = vf.integer(0);
+        var rBuilder = vf.setWriter();
+        for (int i=1; i < 100; i++) {
+            IValue next = vf.integer(i);
+            if (i % 50 != 0) {
+                rBuilder.appendTuple(prev, next);
+            }
+            prev = next;
+        }
+        // now let's add some side paths
+        prev = vf.integer(10);
+        for (int i=11; i < 100; i+=2) {
+            IValue next = vf.integer(i);
+            if (i % 50 != 0) {
+                rBuilder.appendTuple(prev, next);
+            }
+            prev = next;
+        }
+        var r = rBuilder.done().asRelation();
+
+        assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
+    }
+
     private ISet slowClosure(IValueFactory vf, IRelation<ISet> r) {
         var prev = vf.set();
         ISet result = r.asContainer();
