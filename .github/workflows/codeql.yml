@@ -21,6 +21,7 @@ on:
 
 jobs:
   analyze:
+  if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     name: Analyze
     
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
