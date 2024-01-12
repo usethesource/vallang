@@ -81,9 +81,10 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
 
     /**
      * @return the transitive non-reflexive closure of a binary relation
+     * @param forceDepthFirst chooses the DFS algorithm over the BFS algorithm even though the size is small
      * @throws UnsupportedOperationException when the receiver is not a binary relation
      */
-    public default C closure() {
+    public default C closure(boolean forceDepthFirst) {
         if (!isBinary()) {
             throw new UnsupportedOperationException("relation is not binary");
         }
@@ -101,15 +102,16 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
 
     /**
      * @return the transitive reflexive closure of a binary relation
+     * @param forceDepthFirst chooses the DFS algorithm over the BFS algorithm even though the size is small
      * @throws UnsupportedOperationException when the receiver is not a binary relation
      */
-    public default C closureStar() {
+    public default C closureStar(boolean forceDepthFirst) {
         IWriter<C> w = writer();
 
         for (IValue val : carrier()) {
             w.appendTuple(val, val);
         }
-        w.appendAll(closure());
+        w.appendAll(closure(forceDepthFirst));
 
         return w.done();
     }

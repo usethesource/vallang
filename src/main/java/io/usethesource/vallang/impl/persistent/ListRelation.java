@@ -21,7 +21,7 @@ public class ListRelation implements IRelation<IList> {
     }
     
     @Override
-    public IList closure() {
+    public IList closure(boolean forceDepthFirst) {
         // will throw exception if not binary and reflexive
         list.getType().closure();
 
@@ -50,7 +50,7 @@ public class ListRelation implements IRelation<IList> {
     }
 
     @Override
-    public IList closureStar() {
+    public IList closureStar(boolean forceDepthFirst) {
         list.getType().closure();
         // an exception will have been thrown if the type is not acceptable
 
@@ -60,7 +60,7 @@ public class ListRelation implements IRelation<IList> {
             reflex.insertTuple(e, e);
         }
 
-        return closure().concat(reflex.done());
+        return closure(forceDepthFirst).concat(reflex.done());
     }
 
 }

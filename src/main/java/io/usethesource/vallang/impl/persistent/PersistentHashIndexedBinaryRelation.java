@@ -543,7 +543,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   }
 
   @Override
-  public ISet closure() {
+  public ISet closure(boolean forceDepthFirst) {
     Type tupleType = getElementType();
     assert tupleType.getArity() == 2;
     Type keyType = tupleType.getFieldType(0);
@@ -554,7 +554,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       return this;
     }
 
-    var result = computeClosure(content);
+    var result = computeClosure(content, forceDepthFirst);
 
     final AbstractTypeBag keyTypeBag;
     final AbstractTypeBag valTypeBag;
@@ -589,13 +589,13 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
   }
 
   @Override
-  public ISet closureStar() {
+  public ISet closureStar(boolean forceDepthFirst) {
     Type tupleType = getElementType();
     assert tupleType.getArity() == 2;
     Type keyType = tupleType.getFieldType(0);
     Type valueType = tupleType.getFieldType(0);
 
-    var result = computeClosure(content);
+    var result = computeClosure(content, forceDepthFirst);
 
     for (var carrier: content.entrySet()) {
       result.__insert(carrier.getKey(), carrier.getKey());
@@ -619,8 +619,8 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
 
-  private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content) {
-    return content.size() > 256 
+  private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content, boolean forceDepthFirst) {
+    return forceDepthFirst || content.size() > 256 
       ? computeClosureDepthFirst(content)
       : computeClosureBreadthFirst(content)
       ;

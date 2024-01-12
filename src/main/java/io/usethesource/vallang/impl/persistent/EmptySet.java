@@ -151,12 +151,12 @@ public final class EmptySet implements ISet {
         }
         
         @Override
-        public ISet closure() {
+        public ISet closure(boolean forceDepthFirst) {
             return EmptySet.this;
         }
         
         @Override
-        public ISet closureStar() {
+        public ISet closureStar(boolean forceDepthFirst) {
             return EmptySet.this;
         }
           
