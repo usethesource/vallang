@@ -734,12 +734,13 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
         throw new IllegalArgumentException("Unexpected map entry");
       }
       // we mark ourselves as done before we did it, 
-      // so we don't do the <a,a> that causes an extra round
+      // so we don't do the <a,a> that causes an useless round
       done.add(lhs); 
       IValue rhs;
       while ((rhs = todo.poll()) != null) {
+        boolean rhsFull = done.contains(rhs);
         for (IValue composed : result.get(rhs)) {
-          if (result.__insert(lhs, composed) && !done.contains(composed)) {
+          if (result.__insert(lhs, composed) && !rhsFull) {
             todo.push(composed);
           }
         }
