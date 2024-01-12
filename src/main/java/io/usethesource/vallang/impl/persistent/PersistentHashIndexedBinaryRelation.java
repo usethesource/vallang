@@ -647,8 +647,9 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       done.add(lhs); 
       IValue rhs;
       while ((rhs = todo.poll()) != null) {
+        boolean rhsDone = done.contains(rhs);
         for (IValue composed : result.get(rhs)) {
-          if (result.__insert(lhs, composed) && !done.contains(composed)) {
+          if (result.__insert(lhs, composed) && !rhsDone) {
             todo.push(composed);
           }
         }
