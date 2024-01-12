@@ -554,7 +554,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       return this;
     }
 
-    var result = computeClosureDepthFirst(content);
+    var result = computeClosure(content);
 
     final AbstractTypeBag keyTypeBag;
     final AbstractTypeBag valTypeBag;
@@ -595,8 +595,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     Type keyType = tupleType.getFieldType(0);
     Type valueType = tupleType.getFieldType(0);
 
-    // calculate
-    var result = computeClosureDepthFirst(content);
+    var result = computeClosure(content);
 
     for (var carrier: content.entrySet()) {
       result.__insert(carrier.getKey(), carrier.getKey());
@@ -620,6 +619,13 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
 
+  private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content) {
+    return content.size() > 256 
+      ? computeClosureDepthFirst(content)
+      : computeClosureBreadthFirst(content)
+      ;
+  }
+    
   @SuppressWarnings("unchecked")
   private static SetMultimap.Transient<IValue, IValue> computeClosureDepthFirst(final SetMultimap.Immutable<IValue, IValue> content) {
     final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
@@ -656,4 +662,79 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     }
     return result;
   }
+
+  @SuppressWarnings("unchecked")
+  private static SetMultimap.Transient<IValue, IValue> computeClosureBreadthFirst(final SetMultimap.Immutable<IValue, IValue> content) {
+    /*
+    * we want to compute the closure of R, which in essence is a composition on itself.
+    * until nothing changes:
+    * 
+    * solve(R) {
+    *    R = R o R;
+    * }
+    * 
+    * The algorithm below realizes the following things:
+    * 
+    * - Instead of recomputing the compose for the whole of R, we only have to
+    *   compose for the newly added edges (called todo in the algorithm).
+    * - Since the LHS of `R o R` will be using the range of R as a lookup in R
+    *   we store the todo in inverse.
+    * 
+    * In essence the algorithm becomes:
+    * 
+    * result = R;
+    * todo = invert(R);
+    * 
+    * while (todo != {}) {
+    *  composed = fastCompose(todo, R);
+    *  newEdges = composed - result;
+    *  todo = invert(newEdges);
+    *  result += newEdges;
+    * }
+    * 
+    * fastCompose(todo, R) = { l * R[r] | <r, l> <- todo};
+    * 
+    */
+    final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
+
+    SetMultimap<IValue, IValue> todo = content.inverseMap();
+    while (!todo.isEmpty()) {
+      final SetMultimap.Transient<IValue,IValue> nextTodo = PersistentTrieSetMultimap.transientOf(Object::equals);
+
+      var todoIt = todo.nativeEntryIterator();
+      while (todoIt.hasNext()) {
+        var next = todoIt.next();
+        IValue lhs = next.getKey();
+        Immutable<IValue> values = content.get(lhs);
+        if (!values.isEmpty()) {
+          Object keys = next.getValue();
+          if (keys instanceof IValue) {
+            singleCompose(result, nextTodo, values, (IValue)keys);
+          }
+          else if (keys instanceof Set) {
+            for (IValue key : (Set<IValue>)keys) {
+              singleCompose(result, nextTodo, values, key);
+            }
+          }
+          else {
+            throw new IllegalArgumentException("Unexpected map entry");
+          }
+        }
+      }
+
+      todo = nextTodo;
+    }
+    
+    return result;
+  }
+
+  private static void singleCompose(final SetMultimap.Transient<IValue, IValue> result,
+    final SetMultimap.Transient<IValue, IValue> nextTodo, Immutable<IValue> values, IValue key) {
+    for (IValue val: values) {
+      if (result.__insert(key, val)) {
+        nextTodo.__insert(val, key);
+      }
+    }
+  }
+
 }
