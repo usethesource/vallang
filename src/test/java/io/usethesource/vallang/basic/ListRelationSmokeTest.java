@@ -19,6 +19,7 @@ import java.util.Iterator;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ITuple;
@@ -182,9 +183,9 @@ public class ListRelationSmokeTest {
   }
 
 //  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-  public void xtestClosure(IValueFactory vf) {
+  public void xtestClosure(IValueFactory vf, IBool forceDepthFirst) {
     try {
-      if (!integerListRelation(vf).asRelation().closure().equals(integerListRelation(vf))) {
+      if (!integerListRelation(vf).asRelation().closure(forceDepthFirst.getValue()).equals(integerListRelation(vf))) {
         fail("closure adds extra tuples?");
       }
     } catch (FactTypeUseException e) {
@@ -195,7 +196,7 @@ public class ListRelationSmokeTest {
       ITuple t1 = vf.tuple(integers(vf)[0], integers(vf)[1]);
       IList rel = vf.list(t1);
 
-      rel.asRelation().closure();
+      rel.asRelation().closure(forceDepthFirst.getValue());
     } catch (FactTypeUseException e) {
       fail("reflexivity with subtyping is allowed");
     }
@@ -209,7 +210,7 @@ public class ListRelationSmokeTest {
       ITuple t6 = vf.tuple(integers(vf)[0], integers(vf)[3]);
 
       IList test = vf.list(t1, t2, t3);
-      IList closed = test.asRelation().closure();
+      IList closed = test.asRelation().closure(forceDepthFirst.getValue());
 
       if (closed.asRelation().arity() != test.asRelation().arity()) {
         fail("closure should produce relations of same arity");

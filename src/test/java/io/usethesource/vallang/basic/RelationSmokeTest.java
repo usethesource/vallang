@@ -20,6 +20,7 @@ import java.util.Iterator;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
@@ -183,9 +184,9 @@ public final class RelationSmokeTest {
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-  public void testClosure(IValueFactory vf) {
+  public void testClosure(IValueFactory vf, IBool forceDepthFirst) {
     try {
-      if (!integerRelation(vf).asRelation().closure().equals(integerRelation(vf))) {
+      if (!integerRelation(vf).asRelation().closure(forceDepthFirst.getValue()).equals(integerRelation(vf))) {
         fail("closure adds extra tuples?");
       }
     } catch (FactTypeUseException e) {
@@ -194,7 +195,7 @@ public final class RelationSmokeTest {
 
     try {
       ISet rel = vf.set();
-      rel.asRelation().closure();
+      rel.asRelation().closure(forceDepthFirst.getValue());
     } catch (FactTypeUseException e) {
       fail("reflexivity with subtyping is allowed");
     }
@@ -208,7 +209,7 @@ public final class RelationSmokeTest {
       ITuple t6 = vf.tuple(integers(vf)[0], integers(vf)[3]);
 
       ISet test = vf.set(t1, t2, t3);
-      ISet closed = test.asRelation().closure();
+      ISet closed = test.asRelation().closure(forceDepthFirst.getValue());
 
       if (closed.asRelation().arity() != test.asRelation().arity()) {
         fail("closure should produce relations of same arity");

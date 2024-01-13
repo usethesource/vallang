@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import io.usethesource.vallang.ExpectedType;
 import io.usethesource.vallang.GivenValue;
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
@@ -42,22 +43,22 @@ public class IRelationTests {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void transReflexiveClosure(
         @GivenValue("{<1,2>, <2,3>, <3,4>}") ISet src, 
-        @GivenValue("{<1,2>, <2,3>, <3,4>, <1, 3>, <2, 4>, <1, 4>, <1, 1>, <2, 2>, <3, 3>, <4, 4>}") ISet result) {
-        assertEquals(src.asRelation().closureStar(), result);
+        @GivenValue("{<1,2>, <2,3>, <3,4>, <1, 3>, <2, 4>, <1, 4>, <1, 1>, <2, 2>, <3, 3>, <4, 4>}") ISet result, IBool forceDepthFirst) {
+        assertEquals(src.asRelation().closureStar(forceDepthFirst.getValue()), result);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void transClosure(@ExpectedType("rel[int,int]") ISet src) {
-        assertEquals(src.asRelation().closure().intersect(src), src);
+    public void transClosure(@ExpectedType("rel[int,int]") ISet src, IBool forceDepthFirst) {
+        assertEquals(src.asRelation().closure(forceDepthFirst.getValue()).intersect(src), src);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void transClosureLocs(@ExpectedType("rel[loc,loc]") ISet src) {
-        assertEquals(src.asRelation().closure().intersect(src), src);
+    public void transClosureLocs(@ExpectedType("rel[loc,loc]") ISet src, IBool forceDepthFirst) {
+        assertEquals(src.asRelation().closure(forceDepthFirst.getValue()).intersect(src), src);
     }
     
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void deepClosure(IValueFactory vf) {
+    public void deepClosure(IValueFactory vf, IBool forceDepthFirst) {
         IValue prev = vf.integer(0);
         var rBuilder = vf.setWriter();
         for (int i=1; i < 100; i++) {
@@ -67,11 +68,11 @@ public class IRelationTests {
         }
         var r = rBuilder.done().asRelation();
 
-        assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
+        assertEquals(slowClosure(vf, r),r.closure(forceDepthFirst.getValue()),() -> "Failed with input: " + r.toString());
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void broadClosure(IValueFactory vf) {
+    public void broadClosure(IValueFactory vf, IBool forceDepthFirst) {
         IValue prev = vf.integer(0);
         var rBuilder = vf.setWriter();
         for (int i=1; i < 100; i++) {
@@ -83,11 +84,11 @@ public class IRelationTests {
         }
         var r = rBuilder.done().asRelation();
 
-        assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
+        assertEquals(slowClosure(vf, r),r.closure(forceDepthFirst.getValue()),() -> "Failed with input: " + r.toString());
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void severalDeep(IValueFactory vf) {
+    public void severalDeep(IValueFactory vf, IBool forceDepthFirst) {
         IValue prev = vf.integer(0);
         var rBuilder = vf.setWriter();
         for (int i=1; i < 100; i++) {
@@ -108,7 +109,7 @@ public class IRelationTests {
         }
         var r = rBuilder.done().asRelation();
 
-        assertEquals(slowClosure(vf, r),r.closure(),() -> "Failed with input: " + r.toString());
+        assertEquals(slowClosure(vf, r),r.closure(forceDepthFirst.getValue()),() -> "Failed with input: " + r.toString());
     }
 
     private ISet slowClosure(IValueFactory vf, IRelation<ISet> r) {
