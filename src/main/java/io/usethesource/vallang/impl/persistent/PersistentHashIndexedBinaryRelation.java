@@ -634,7 +634,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       final IValue lhs = focus.getKey();
       final Object values =focus.getValue();
 
-      todo.clear();
+      assert todo.isEmpty();
       if (values instanceof IValue) {
         todo.push((IValue)values);
       }
