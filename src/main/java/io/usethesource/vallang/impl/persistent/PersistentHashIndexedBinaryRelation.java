@@ -644,11 +644,12 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       else {
         throw new IllegalArgumentException("Unexpected map entry");
       }
-      // we mark ourselves as done before we did it, 
-      // so we don't do the <a,a> that causes an extra round
-      done.add(lhs); 
       IValue rhs;
       while ((rhs = todo.poll()) != null) {
+        if (rhs.equals(lhs)) {
+          // no need to handle <a,a>
+          continue;
+        }
         boolean rhsDone = done.contains(rhs);
         for (IValue composed : result.get(rhs)) {
           if (result.__insert(lhs, composed) && !rhsDone) {
@@ -656,6 +657,10 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
           }
         }
       }
+      // `lhs` is now completly calculated, so if we come across it, you don't 
+      // have to go into depth for it anymore, the range of lhs is already the
+      // transitive closure
+      done.add(lhs); 
     }
     return result;
   }
