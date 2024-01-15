@@ -183,6 +183,22 @@ public final class RelationSmokeTest {
   }
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+  public void testClosureFailureOnIrreflexiveRelation(IValueFactory vf) {
+    // rascal>{<"",{}>}+
+    // java.lang.AssertionError
+    // (internal error)
+    //         at $shell$(|main://$shell$|)
+    // java.lang.AssertionError
+    //         at io.usethesource.vallang.impl.persistent.PersistentHashIndexedBinaryRelation.<init>(PersistentHashIndexedBinaryRelation.java:74)
+    //         at io.usethesource.vallang.impl.persistent.PersistentSetFactory.from(PersistentSetFactory.java:67)
+    //         at io.usethesource.vallang.impl.persistent.PersistentHashIndexedBinaryRelation.closure(PersistentHashIndexedBinaryRelation.java:573)
+    ISet input = vf.set(vf.tuple(vf.string(""), vf.set()));
+
+    assertTrue(input.asRelation().closure().equals(input));
+  }
+  
+
+  @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testClosure(IValueFactory vf) {
     try {
       if (!integerRelation(vf).asRelation().closure().equals(integerRelation(vf))) {
