@@ -644,9 +644,15 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       else {
         throw new IllegalArgumentException("Unexpected map entry");
       }
+      // to avoid recalculating `lhs` next time we see it, we mark it as done.
+      // so that the next time we come across if on the rhs, we know the range is
+      // already the transitive closure.
+      // We add it before we've done it, just to avoid scheduling
+      // <a,a> when it occurs during the depth scan for lhs.
+      done.add(lhs); 
       IValue rhs;
       while ((rhs = todo.poll()) != null) {
-        if (rhs.equals(lhs)) {
+        if (lhs == rhs) {
           // no need to handle <a,a>
           continue;
         }
@@ -657,10 +663,6 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
           }
         }
       }
-      // `lhs` is now completly calculated, so if we come across it, you don't 
-      // have to go into depth for it anymore, the range of lhs is already the
-      // transitive closure
-      done.add(lhs); 
     }
     return result;
   }
