@@ -590,7 +590,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     Type tupleType = getElementType();
     assert tupleType.getArity() == 2;
     Type keyType = tupleType.getFieldType(0);
-    Type valueType = tupleType.getFieldType(0);
+    Type valueType = tupleType.getFieldType(1);
 
     var result = computeClosure(content);
 
