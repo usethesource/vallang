@@ -634,7 +634,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       final IValue lhs = focus.getKey();
       final Object values =focus.getValue();
 
-      todo.clear();
+      assert todo.isEmpty();
       if (values instanceof IValue) {
         todo.push((IValue)values);
       }
@@ -644,11 +644,18 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       else {
         throw new IllegalArgumentException("Unexpected map entry");
       }
-      // we mark ourselves as done before we did it, 
-      // so we don't do the <a,a> that causes an extra round
+      // to avoid recalculating `lhs` next time we see it, we mark it as done.
+      // so that the next time we come across if on the rhs, we know the range is
+      // already the transitive closure.
+      // We add it before we've done it, just to avoid scheduling
+      // <a,a> when it occurs during the depth scan for lhs.
       done.add(lhs); 
       IValue rhs;
       while ((rhs = todo.poll()) != null) {
+        if (lhs == rhs) {
+          // no need to handle <a,a>
+          continue;
+        }
         boolean rhsDone = done.contains(rhs);
         for (IValue composed : result.get(rhs)) {
           if (result.__insert(lhs, composed) && !rhsDone) {
