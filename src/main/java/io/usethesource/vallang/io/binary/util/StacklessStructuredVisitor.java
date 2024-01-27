@@ -15,8 +15,9 @@ package io.usethesource.vallang.io.binary.util;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Map.Entry;
-
+import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.capsule.Map;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -40,40 +41,83 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public class StacklessStructuredVisitor {
 
     public static <E extends Throwable> void accept(IValue root, StructuredIValueVisitor<E> visit) throws E {
-        Deque<NextStep<E>> workList = new ArrayDeque<>();
-        workList.push(new NextStep<>(root, StacklessStructuredVisitor::visitValue));
+        Deque<VisitStep<E>> workList = new ArrayDeque<>();
+        workList.push(new SingleIValueStep<>(root, StacklessStructuredVisitor::visitValue));
         while (!workList.isEmpty()) {
-            NextStep<E> current =  workList.pop();
-            current.next.accept(current.val, workList, visit);
+            VisitStep<E> current = workList.peek();
+            assert current != null: "no concurrent modification to the worklist, so a peek after an !isEmpty should never return null";
+            // note, CF doesn't know this, so we have to still check against null in this case
+            if (current != null && current.hasSteps()) {
+                current.step(workList, visit);
+            }
+            else {
+                workList.pop();
+            }
         }
     }
 
     @FunctionalInterface
     private interface NextStepConsumer<E extends Throwable> {
-        void accept(IValue current, Deque<NextStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E;
+        void accept(IValue current, Deque<VisitStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E;
+    }
+
+    private static abstract class VisitStep<E extends Throwable> {
+        final NextStepConsumer<E> next;
+        VisitStep(NextStepConsumer<E> next) {
+            this.next = next;
+        }
+        abstract boolean hasSteps();
+        abstract void step(Deque<VisitStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E;
     }
     
-    private final static class NextStep<E extends Throwable> {
+    private static final class SingleIValueStep<E extends Throwable> extends VisitStep<E> {
         final IValue val;
-        final NextStepConsumer<E> next;
-        public NextStep(IValue val, NextStepConsumer<E> next) {
+        boolean completed = false;
+        public SingleIValueStep(IValue val, NextStepConsumer<E> next) {
+            super(next);
             this.val = val;
-            this.next = next;
+        }
+
+        @Override
+        boolean hasSteps() {
+            return !completed;
+        }
+
+        @Override
+        void step(Deque<VisitStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E {
+            next.accept(val, worklist, visit);
+            completed = true;
+        }
+    }
+
+    private static final class IteratingSteps<E extends Throwable> extends VisitStep<E> {
+        final Iterator<IValue> values;
+        public IteratingSteps(Iterator<IValue> values, NextStepConsumer<E> next) {
+            super(next);
+            this.values = values;
+        }
+
+        @Override
+        boolean hasSteps() {
+            return values.hasNext();
+        }
+
+        @Override
+        void step(Deque<VisitStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E {
+            next.accept(values.next(), worklist, visit);
         }
     }
     
-    private static <E extends Throwable> void visitValue(IValue current, Deque<NextStep<E>> workList, StructuredIValueVisitor<E> visit) throws E {
+    private static <E extends Throwable> void visitValue(IValue current, Deque<VisitStep<E>> workList, StructuredIValueVisitor<E> visit) throws E {
         current.accept(new IValueVisitor<Void, E>() {
 
             @Override
             public Void visitList(IList lst) throws E {
                 if (visit.enterList(lst, lst.length())) {
-                    workList.push(new NextStep<>(lst, (l, w, v) -> {
+                    workList.push(new SingleIValueStep<>(lst, (l, w, v) -> {
                         v.leaveList(l);
                     }));
-                    for (int i = lst.length() - 1; i >= 0; i--) {
-                        workList.push(new NextStep<>(lst.get(i), StacklessStructuredVisitor::visitValue));
-                    }
+                    workList.push(new IteratingSteps<>(lst.iterator(), StacklessStructuredVisitor::visitValue));
                 }
                 return null;
             }
@@ -82,12 +126,10 @@ public class StacklessStructuredVisitor {
             @Override
             public Void visitSet(ISet set) throws E {
                 if (visit.enterSet(set, set.size())) {
-                    workList.push(new NextStep<>(set, (l, w, v) -> {
+                    workList.push(new SingleIValueStep<>(set, (l, w, v) -> {
                         v.leaveSet(l);
                     }));
-                    for (IValue v: set) {
-                        workList.push(new NextStep<>(v, StacklessStructuredVisitor::visitValue));
-                    }
+                    workList.push(new IteratingSteps<>(set.iterator(), StacklessStructuredVisitor::visitValue));
                 }
                 return null;
             }
@@ -95,14 +137,38 @@ public class StacklessStructuredVisitor {
             @Override
             public Void visitMap(IMap map) throws E {
                 if (visit.enterMap(map, map.size())) {
-                    workList.push(new NextStep<>(map, (l, w, v) -> {
+                    workList.push(new SingleIValueStep<>(map, (l, w, v) -> {
                         v.leaveMap(l);
                     }));
+
+
+                    // we have to iterate, key,value pairs at a time
+                    workList.push(new IteratingSteps<>(new Iterator<IValue>() {
+                        Iterator<Entry<IValue, IValue>> entries = map.entryIterator();
+                        @Nullable Entry<IValue, IValue> currentEntry = null;
+                        @Override
+                        public boolean hasNext() {
+                            return currentEntry != null || entries.hasNext();
+                        }
+
+                        @Override
+                        public IValue next() {
+                            Entry<IValue, IValue> entry = currentEntry;
+                            if (entry != null) {
+                                currentEntry = null;
+                                // we already did the key, so now return the value
+                                return entry.getValue();
+                            }
+                            else if (entries.hasNext()) {
+                                entry = currentEntry = entries.next();
+                                return entry.getKey();
+                            }
+                            else {
+                                throw new NoSuchElementException();
+                            }
+                        }
+                    }, StacklessStructuredVisitor::visitValue));
                     
-                    for (Entry<IValue,IValue> entry : (Iterable<Entry<IValue,IValue>>) () -> map.entryIterator()) {
-                        workList.push(new NextStep<>(entry.getValue(), StacklessStructuredVisitor::visitValue));
-                        workList.push(new NextStep<>(entry.getKey(), StacklessStructuredVisitor::visitValue));
-                    }
                 }
                 return null;
             }
@@ -110,12 +176,11 @@ public class StacklessStructuredVisitor {
             @Override
             public Void visitTuple(ITuple tuple) throws E {
                 if (visit.enterTuple(tuple, tuple.arity())) {
-                    workList.push(new NextStep<>(tuple, (l, w, v) -> {
+                    workList.push(new SingleIValueStep<>(tuple, (l, w, v) -> {
                         v.leaveTuple(l);
                     }));
-                    for (int i = tuple.arity() - 1; i >= 0; i--) {
-                        workList.push(new NextStep<>(tuple.get(i), StacklessStructuredVisitor::visitValue));
-                    }
+
+                    workList.push(new IteratingSteps<>(tuple.iterator(), StacklessStructuredVisitor::visitValue));
                 }
                 return null;
             }
@@ -124,7 +189,7 @@ public class StacklessStructuredVisitor {
             public Void visitNode(INode node) throws E {
                 // WARNING, cloned to visitConstructor, fix bugs there as well!
                 if (visit.enterNode(node, node.arity())) {
-                    workList.push(new NextStep<>(node, (l, w, v) -> {
+                    workList.push(new SingleIValueStep<>(node, (l, w, v) -> {
                         v.leaveNode(l);
                     }));
                     if(node.mayHaveKeywordParameters()){
@@ -134,23 +199,22 @@ public class StacklessStructuredVisitor {
                             @SuppressWarnings("unchecked")
                             AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(withKW);
                             pushKWPairs(node, nodeKw.internalGetParameters());
-                            workList.push(new NextStep<>(node, (l, w, v) -> {
+                            workList.push(new SingleIValueStep<>(node, (l, w, v) -> {
                                 v.enterNodeKeywordParameters();
                             }));
                         }
 
                     } 
+
+                    workList.push(new IteratingSteps<>(node.iterator(), StacklessStructuredVisitor::visitValue));
                     
-                    for(int i = node.arity() - 1; i >= 0; i--){
-                        workList.push(new NextStep<>(node.get(i), StacklessStructuredVisitor::visitValue));
-                    }
                 }
                 return null;
             }
 
 
             private void pushKWPairs(IValue root, Map.Immutable<String, IValue> namedValues) {
-                workList.push(new NextStep<>(root, (l,w,v) -> {
+                workList.push(new SingleIValueStep<>(root, (l,w,v) -> {
                     v.leaveNamedValue();
                 }));
 
@@ -159,12 +223,12 @@ public class StacklessStructuredVisitor {
                 Iterator<Entry<String, IValue>> entryIterator = namedValues.entryIterator();
                 while (entryIterator.hasNext()) {
                     Entry<String, IValue> param = entryIterator.next();
-                    workList.push(new NextStep<>(param.getValue(), StacklessStructuredVisitor::visitValue));
+                    workList.push(new SingleIValueStep<>(param.getValue(), StacklessStructuredVisitor::visitValue));
                     i--;
                     names[i] = param.getKey();
                 }
                 assert i == 0;
-                workList.push(new NextStep<>(root, (l,w,v) -> {
+                workList.push(new SingleIValueStep<>(root, (l,w,v) -> {
                     v.enterNamedValues(names, names.length);
                 }));
             }
@@ -173,7 +237,7 @@ public class StacklessStructuredVisitor {
             public Void visitConstructor(IConstructor constr) throws E {
                 // WARNING, cloned from visitNode, fix bugs there as well!
                 if (visit.enterConstructor(constr, constr.arity())) {
-                    workList.push(new NextStep<>(constr, (l, w, v) -> {
+                    workList.push(new SingleIValueStep<>(constr, (l, w, v) -> {
                         v.leaveConstructor(l);
                     }));
                     if(constr.mayHaveKeywordParameters()){
@@ -183,16 +247,14 @@ public class StacklessStructuredVisitor {
                             @SuppressWarnings("unchecked")
                             AbstractDefaultWithKeywordParameters<IConstructor> constrKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(withKW);
                             pushKWPairs(constr, constrKw.internalGetParameters());
-                            workList.push(new NextStep<>(constr, (l, w, v) -> {
+                            workList.push(new SingleIValueStep<>(constr, (l, w, v) -> {
                                 v.enterConstructorKeywordParameters();
                             }));
                         }
 
                     } 
-                    
-                    for(int i = constr.arity() - 1; i >= 0; i--){
-                        workList.push(new NextStep<>(constr.get(i), StacklessStructuredVisitor::visitValue));
-                    }
+
+                    workList.push(new IteratingSteps<>(constr.iterator(), StacklessStructuredVisitor::visitValue));
                 }
                 return null;
             }
@@ -244,4 +306,5 @@ public class StacklessStructuredVisitor {
             }
         });
     }
+
 }
