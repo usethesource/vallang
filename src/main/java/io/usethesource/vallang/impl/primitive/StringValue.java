@@ -1203,7 +1203,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 }
             };
         }
-        
+    
         /**
          * Static helper function for the iterator() method.
          *
