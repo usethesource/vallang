@@ -75,13 +75,8 @@ public class ReferenceStructuredIValueVisitor {
             @Override
             public Void visitSet(ISet o) throws E {
                 if (visit.enterSet(o, o.size())) {
-                    List<IValue> reversedSet = new ArrayList<>();
-                    for (IValue v:  o) {
-                        reversedSet.add(v);
-                    }
-                    ListIterator<IValue> li = reversedSet.listIterator(reversedSet.size());
-                    while (li.hasPrevious()) {
-                        li.previous().accept(this);
+                    for (IValue v: o) {
+                        v.accept(this);
                     }
                     visit.leaveSet(o);
                 }
@@ -91,15 +86,11 @@ public class ReferenceStructuredIValueVisitor {
             @Override
             public Void visitMap(IMap o) throws E {
                 if (visit.enterMap(o, o.size())) {
-                    List<IValue> reversedMap = new ArrayList<>();
-                    for (IValue v:  o) {
-                        reversedMap.add(v);
-                    }
-                    ListIterator<IValue> li = reversedMap.listIterator(reversedMap.size());
-                    while (li.hasPrevious()) {
-                        IValue k = li.previous();
-                        k.accept(this);
-                        o.get(k).accept(this);
+                    var entries = o.entryIterator();
+                    while (entries.hasNext()) {
+                        var entry = entries.next();
+                        entry.getKey().accept(this);
+                        entry.getValue().accept(this);
                     }
                     visit.leaveMap(o);
                 }
