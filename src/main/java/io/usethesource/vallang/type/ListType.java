@@ -286,12 +286,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 	}
 
 	@Override
-	public boolean match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeUseException {
+	public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
 		if (!super.match(matched, bindings)) {
 			return false;
 		}
-		else if (matched.isList() || matched.isBottom()) {
+		else if (matched.isList() || (matched.isAliased() && matched.getAliased().isList()) || matched.isBottom()) {
 			return getElementType().match(matched.getElementType(), bindings);
 		}
 

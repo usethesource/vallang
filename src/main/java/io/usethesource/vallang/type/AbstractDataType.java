@@ -428,7 +428,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             return false;
         }
 
-        if (matched.isAbstractData() || matched.isBottom()) {
+        if (matched.isAbstractData() || (matched.isAliased() && matched.getAliased().isAbstractData()) || matched.isBottom()) {
             return getTypeParameters().match(matched.getTypeParameters(), bindings);
         }
 
