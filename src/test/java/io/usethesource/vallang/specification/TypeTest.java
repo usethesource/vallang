@@ -10,6 +10,7 @@ import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -168,13 +169,27 @@ public class TypeTest {
         Type T = ft.parameterType("T");
         // DiGraph[&T] = rel[&T from ,&T to]
         @SuppressWarnings("deprecation")
-        Type DiGraph = ft.aliasType(ts, "DiGraph", ft.relType(T, "from", T, "to"), T);
+        Type relType = ft.relType(T, "from", T, "to");
+        Type DiGraph = ft.aliasType(ts, "DiGraph", relType, T);
         Type IntInstance = ft.relType(ft.integerType(), ft.integerType());
         Type ValueInstance = ft.relType(ft.valueType(), ft.valueType());
 
-       // after instantiation rel[int,int] is a sub-type of rel[&T, &T]
+       // after instantiation rel[int,int] is a sub-type of rel[&T, &T], and vice versa, and also reflectively
         assertTrue(IntInstance.isSubtypeOf(DiGraph));
-        
+        assertTrue(DiGraph.isSubtypeOf(IntInstance));
+        assertTrue(DiGraph.isSubtypeOf(DiGraph));
+
+        // vice versa: the aliased type can be matched using the alias type
+        Map<Type, Type> bindings = new HashMap<>();
+        assertTrue(DiGraph.match(IntInstance, bindings));
+        assertTrue(bindings.get(T) == ft.integerType());
+
+        // and the alias type can be matched by the aliased type (not we reuse the bindings from the previous assert)
+        Type instanceDiGraph = DiGraph.instantiate(bindings);
+        bindings = new HashMap<>(); // reset the bindings
+        assertTrue(relType.match(instanceDiGraph, bindings));
+        assertTrue(bindings.get(T) == ft.integerType());
+
         // before instantiation, the parameterized type rel[&T, &T] 
         // could be instantiated later by rel[int, int]
         assertTrue(DiGraph.isSubtypeOf(IntInstance));
@@ -182,7 +197,7 @@ public class TypeTest {
         // the generic graph is also always a sub-type of the most general instantiation
         assertTrue(DiGraph.isSubtypeOf(ValueInstance));
 
-        Map<Type, Type> bindings = new HashMap<>();
+        bindings = new HashMap<>();
         DiGraph.match(IntInstance, bindings);
         assertTrue(bindings.get(T) == ft.integerType());
 
