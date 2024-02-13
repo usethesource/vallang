@@ -244,7 +244,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
           return false;
         }
 
-        if (matched.isMap() || matched.isBottom()) {
+        if (matched.isMap() || (matched.isAliased() && matched.getAliased().isMap()) ||  matched.isBottom()) {
 				  return getKeyType().match(matched.getKeyType(), bindings)
           && getValueType().match(matched.getValueType(), bindings);
         }
