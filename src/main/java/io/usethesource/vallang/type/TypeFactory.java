@@ -228,7 +228,7 @@ public class TypeFactory {
 	 * @return a tuple type or `void` in case one of the field types was void
 	 */
 	public Type tupleType(Type... fieldTypes) {
-		assert !anyNull((Object[]) fieldTypes) : "tuple field types should not be null";
+		assert !anyNull(fieldTypes) : "tuple field types should not be null";
 		
 		// tuple values with elements of type void (like tuple[void,void]) 
 		// can not exist, so the type that represents that empty set of values is `void`,
@@ -310,8 +310,8 @@ public class TypeFactory {
 	 */
   @Deprecated
   public Type tupleType(Type[] types, String[] labels) {
-    assert !anyNull((Object[]) types) : "tuples types should not contain nulls";
-    assert !anyNull((Object[]) labels): "label types should not contain nulls";
+    assert !anyNull(types) : "tuples types should not contain nulls";
+    assert !anyNull(labels): "label types should not contain nulls";
     assert types.length == labels.length;
     
     if (types.length == 0) {
@@ -338,7 +338,7 @@ public class TypeFactory {
 	 * @return a tuple type
 	 */
 	public Type tupleType(IValue... elements) {
-		assert !anyNull((Object[]) elements) : "tuple type elements should not contain any nulls";
+		assert !anyNull(elements) : "tuple type elements should not contain any nulls";
 		int N = elements.length;
 		Type[] fieldTypes = new Type[N];
 		for (int i = N - 1; i >= 0; i--) {
@@ -374,10 +374,10 @@ public class TypeFactory {
 	 * Construct a function type with labeled parameter and keyword field types
 	 */
 	public Type functionType(Type returnType, Type[] argumentTypes, String[] argumentLabels, Type[] keywordParameterTypes, String[] keywordParameterLabels) {
-		assert !anyNull((Object[]) argumentTypes) : "argument types should not be null";
-		assert !anyNull((Object[]) argumentLabels) : "argument labels should not contain nulls";
-		assert !anyNull((Object[]) keywordParameterTypes) : "keyword parameter types should not contain nulls";
-    	assert !anyNull((Object[]) keywordParameterLabels) : "keyword parameter types should not contain nulls";
+		assert !anyNull(argumentTypes) : "argument types should not be null";
+		assert !anyNull(argumentLabels) : "argument labels should not contain nulls";
+		assert !anyNull(keywordParameterTypes) : "keyword parameter types should not contain nulls";
+    	assert !anyNull(keywordParameterLabels) : "keyword parameter types should not contain nulls";
 		return getFromCache(new FunctionType(returnType, 
 			(TupleType) getFromCache(new TupleTypeWithFieldNames(argumentTypes, argumentLabels)), 
 			(TupleType) getFromCache(new TupleTypeWithFieldNames(keywordParameterTypes, keywordParameterLabels))
@@ -388,8 +388,8 @@ public class TypeFactory {
 	 * Construct a function type with unlabeled parameter and keyword field types
 	 */
 	public Type functionType(Type returnType, Type[] argumentTypes, Type[] keywordParameterTypes) {
-		assert !anyNull((Object[]) argumentTypes) : "argument types should not be null";
-		assert !anyNull((Object[]) keywordParameterTypes) : "keyword parameter types should not contain nulls";
+		assert !anyNull(argumentTypes) : "argument types should not be null";
+		assert !anyNull(keywordParameterTypes) : "keyword parameter types should not contain nulls";
 		return getFromCache(new FunctionType(returnType, 
 			(TupleType) getFromCache(new TupleType(argumentTypes)), 
 			(TupleType) getFromCache(new TupleType(keywordParameterTypes))
@@ -427,7 +427,7 @@ public class TypeFactory {
 	 * @return a relation type
 	 */
 	public Type relType(Type... fieldTypes) {
-		assert !anyNull((Object[]) fieldTypes) : "rel types should not contain nulls";
+		assert !anyNull(fieldTypes) : "rel types should not contain nulls";
 		return setType(tupleType(fieldTypes));
 	}
 
@@ -451,7 +451,7 @@ public class TypeFactory {
 	 * @return a list relation type
 	 */
 	public Type lrelType(Type... fieldTypes) {
-		assert !anyNull((Object[]) fieldTypes) : "lrel types should not contain nulls";
+		assert !anyNull(fieldTypes) : "lrel types should not contain nulls";
 		return listType(tupleType(fieldTypes));
 	}
 
@@ -490,7 +490,7 @@ public class TypeFactory {
 		assert !isNull(store) : "alias store should not be null";
 		assert !isNull(name) : "alias name should not be null";
 		assert !isNull(aliased) : "alias aliased should not be null";
-		assert !anyNull((Object[]) parameters): "alias parameters should not be null";
+		assert !anyNull(parameters): "alias parameters should not be null";
 
 		Type paramType;
 		if (parameters.length == 0) {
@@ -544,7 +544,7 @@ public class TypeFactory {
 	public Type abstractDataType(TypeStore store, String name, Type... parameters) throws FactTypeDeclarationException {
 		assert !isNull(store) : "adt store should not be null";
 		assert !isNull(name) : "adt name should not be null";
-		assert !anyNull((Object[]) parameters) : "adt parameters should not contain a null";
+		assert !anyNull(parameters) : "adt parameters should not contain a null";
 
 		Type paramType = voidType();
 		if (parameters.length != 0) {
@@ -779,7 +779,7 @@ public class TypeFactory {
 		return getFromCache(new ParameterType(name));
 	}
 
-	private boolean anyNull(@Nullable Object... os) {
+	private boolean anyNull(@Nullable Object[] os) {
 		for (@Nullable Object o: os) {
 			if (isNull(o)) {
 				return true;
