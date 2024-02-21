@@ -26,12 +26,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
-
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipParameters;
-import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
+import java.util.zip.GZIPOutputStream;
+import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZInputStream;
-
+import org.tukaani.xz.XZOutputStream;
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
 import com.github.luben.zstd.util.Native;
@@ -54,12 +52,16 @@ import io.usethesource.vallang.io.binary.util.DirectZstdInputStream;
     public static OutputStream wrapStream(OutputStream rawStream, int algorithm, int level) throws IOException {
         switch (algorithm) {
             case Header.Compression.GZIP: {
-                GzipParameters params = new GzipParameters();
-                params.setCompressionLevel(level);
-                return new GzipCompressorOutputStream(rawStream, params);
+                var result = new GZIPOutputStream(rawStream) {
+                    public void setLevel(int level) {
+                        def.setLevel(level);
+                    }
+                };
+                result.setLevel(level);
+                return result;
             }
             case Header.Compression.XZ: {
-                return new XZCompressorOutputStream(rawStream, level);
+                return new XZOutputStream(rawStream, new LZMA2Options(level));
             }
             case Header.Compression.ZSTD: {
                 return new ZstdOutputStream(rawStream, level);
