@@ -42,6 +42,7 @@ import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
+import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
@@ -53,6 +54,16 @@ import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.ValueStreams;
 
 public final class BinaryIoSmokeTest extends BooleanStoreProvider {
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testSingleValueIO(IValueFactory vf, TypeStore ts) throws IOException {
+        ioRoundTrip(vf, ts, vf.integer(1));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testSingleValue2IO(IValueFactory vf, TypeStore ts) throws IOException {
+        ioRoundTrip(vf, ts, vf.string("a"));
+    }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testSmallBinaryIO(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
@@ -203,9 +214,22 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
+    private final CompressionRate[] RATES_TO_TESTS = {CompressionRate.Normal, CompressionRate.Extreme, CompressionRate.None, CompressionRate.NoSharing};
+    
     private void ioRoundTrip(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
+        for (var rate: RATES_TO_TESTS) {
+            try {
+                ioRoundTrip(vf, ts, value, rate);
+            }
+            catch (Throwable e) {
+                throw new RuntimeException("Error with "+ rate + " compression", e);
+            }
+        }
+    }
+
+    private void ioRoundTrip(IValueFactory vf, TypeStore ts, IValue value, IValueOutputStream.CompressionRate compression) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        try (IValueOutputStream w = new IValueOutputStream(buffer, vf, IValueOutputStream.CompressionRate.Normal)) {
+        try (IValueOutputStream w = new IValueOutputStream(buffer, vf, compression)) {
             w.write(value);
         }
         try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, () -> ts)) {
@@ -239,10 +263,20 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
 
     private void ioRoundTripFile(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
+        for (var rate: RATES_TO_TESTS) {
+            try {
+                ioRoundTripFile(vf, ts, value, rate);
+            }
+            catch (Throwable e) {
+                throw new RuntimeException("Error with "+ rate + " compression", e);
+            }
+        }
+    }
+    private void ioRoundTripFile(IValueFactory vf, TypeStore ts, IValue value, IValueOutputStream.CompressionRate compression) throws IOException {
         long fileSize = 0;
         File target = File.createTempFile("valllang-test-file", "something");
         target.deleteOnExit();
-        try (IValueOutputStream w = new IValueOutputStream(FileChannel.open(target.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE), vf, IValueOutputStream.CompressionRate.Normal)) {
+        try (IValueOutputStream w = new IValueOutputStream(FileChannel.open(target.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE), vf, compression)) {
             w.write(value);
         }
         fileSize = Files.size(target.toPath());
@@ -261,10 +295,20 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
 
     private void ioRoundTripFile2(IValueFactory vf, TypeStore ts, IValue value) throws FileNotFoundException, IOException {
+        for (var rate: RATES_TO_TESTS) {
+            try {
+                ioRoundTripFile2(vf, ts, value, rate);
+            }
+            catch (Throwable e) {
+                throw new RuntimeException("Error with "+ rate + " compression", e);
+            }
+        }
+    }
+    private void ioRoundTripFile2(IValueFactory vf, TypeStore ts, IValue value, IValueOutputStream.CompressionRate compression) throws FileNotFoundException, IOException {
         long fileSize = 0;
         File target = File.createTempFile("valllang-test-file", "something");
         target.deleteOnExit();
-        try (IValueOutputStream w = new IValueOutputStream(new FileOutputStream(target), vf, IValueOutputStream.CompressionRate.Normal)) {
+        try (IValueOutputStream w = new IValueOutputStream(new FileOutputStream(target), vf, compression)) {
             w.write(value);
         }
         fileSize = Files.size(target.toPath());
