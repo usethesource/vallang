@@ -31,10 +31,20 @@ public abstract class ByteBufferOutputStream extends OutputStream {
         if (closed) {
             throw new IOException("Stream closed");
         }
+
         target.flip();
         if (target.hasRemaining()) {
             target = flush(target);
+            if (!target.hasRemaining()) {
+                throw new IOException("flush implementation didn't correctly provide a new buffer to write to: " + target);
+            }
         }
+        else {
+            // the buffer was empty, so flush was called on an already flushed stream
+            // so we'll reset the buffer to make sure we don't continue with empty buffer
+            target.clear();
+        }
+        assert target.hasRemaining(): "after a flush, we should have a buffer with some room. (it was: " + target + ")";
     }
     
     @Override
