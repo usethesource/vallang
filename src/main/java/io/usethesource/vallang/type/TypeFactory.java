@@ -175,7 +175,7 @@ public class TypeFactory {
 	 * @return an object equal to externalType but possibly older
 	 */
 	public Type externalType(Type externalType) {
-		checkNull(externalType);
+		assert !isNull(externalType) : "external type cannot be null";
 		return getFromCache(externalType);
 	}
 
@@ -228,7 +228,7 @@ public class TypeFactory {
 	 * @return a tuple type or `void` in case one of the field types was void
 	 */
 	public Type tupleType(Type... fieldTypes) {
-		checkNull((Object[]) fieldTypes);
+		assert !anyNull(fieldTypes) : "tuple field types should not be null";
 		
 		// tuple values with elements of type void (like tuple[void,void]) 
 		// can not exist, so the type that represents that empty set of values is `void`,
@@ -310,8 +310,8 @@ public class TypeFactory {
 	 */
   @Deprecated
   public Type tupleType(Type[] types, String[] labels) {
-    checkNull((Object[]) types);
-    checkNull((Object[]) labels);
+    assert !anyNull(types) : "tuples types should not contain nulls";
+    assert !anyNull(labels): "label types should not contain nulls";
     assert types.length == labels.length;
     
     if (types.length == 0) {
@@ -338,7 +338,7 @@ public class TypeFactory {
 	 * @return a tuple type
 	 */
 	public Type tupleType(IValue... elements) {
-		checkNull((Object[]) elements);
+		assert !anyNull(elements) : "tuple type elements should not contain any nulls";
 		int N = elements.length;
 		Type[] fieldTypes = new Type[N];
 		for (int i = N - 1; i >= 0; i--) {
@@ -374,10 +374,10 @@ public class TypeFactory {
 	 * Construct a function type with labeled parameter and keyword field types
 	 */
 	public Type functionType(Type returnType, Type[] argumentTypes, String[] argumentLabels, Type[] keywordParameterTypes, String[] keywordParameterLabels) {
-		checkNull((Object[]) argumentTypes);
-		checkNull((Object[]) argumentLabels);
-		checkNull((Object[]) keywordParameterTypes);
-    	checkNull((Object[]) keywordParameterLabels);
+		assert !anyNull(argumentTypes) : "argument types should not be null";
+		assert !anyNull(argumentLabels) : "argument labels should not contain nulls";
+		assert !anyNull(keywordParameterTypes) : "keyword parameter types should not contain nulls";
+    	assert !anyNull(keywordParameterLabels) : "keyword parameter types should not contain nulls";
 		return getFromCache(new FunctionType(returnType, 
 			(TupleType) getFromCache(new TupleTypeWithFieldNames(argumentTypes, argumentLabels)), 
 			(TupleType) getFromCache(new TupleTypeWithFieldNames(keywordParameterTypes, keywordParameterLabels))
@@ -388,8 +388,8 @@ public class TypeFactory {
 	 * Construct a function type with unlabeled parameter and keyword field types
 	 */
 	public Type functionType(Type returnType, Type[] argumentTypes, Type[] keywordParameterTypes) {
-		checkNull((Object[]) argumentTypes);
-		checkNull((Object[]) keywordParameterTypes);
+		assert !anyNull(argumentTypes) : "argument types should not be null";
+		assert !anyNull(keywordParameterTypes) : "keyword parameter types should not contain nulls";
 		return getFromCache(new FunctionType(returnType, 
 			(TupleType) getFromCache(new TupleType(argumentTypes)), 
 			(TupleType) getFromCache(new TupleType(keywordParameterTypes))
@@ -404,17 +404,17 @@ public class TypeFactory {
 	 * @return a set type
 	 */
 	public Type setType(Type eltType) {
-		checkNull(eltType);
+		assert !isNull(eltType) : "set type should not be null";
 		return getFromCache(new SetType(eltType));
 	}
 
 	public Type relTypeFromTuple(Type tupleType) {
-		checkNull(tupleType);
+		assert !isNull(tupleType) : "rel type should not be null";
 		return setType(tupleType);
 	}
 
 	public Type lrelTypeFromTuple(Type tupleType) {
-		checkNull(tupleType);
+		assert !isNull(tupleType) : "lrel type should not be null";
 		
 		return listType(tupleType);
 	}
@@ -427,7 +427,7 @@ public class TypeFactory {
 	 * @return a relation type
 	 */
 	public Type relType(Type... fieldTypes) {
-		checkNull((Object[]) fieldTypes);
+		assert !anyNull(fieldTypes) : "rel types should not contain nulls";
 		return setType(tupleType(fieldTypes));
 	}
 
@@ -451,7 +451,7 @@ public class TypeFactory {
 	 * @return a list relation type
 	 */
 	public Type lrelType(Type... fieldTypes) {
-		checkNull((Object[]) fieldTypes);
+		assert !anyNull(fieldTypes) : "lrel types should not contain nulls";
 		return listType(tupleType(fieldTypes));
 	}
 
@@ -487,8 +487,10 @@ public class TypeFactory {
 	 */
 	public Type aliasType(TypeStore store, String name, Type aliased, Type... parameters)
 			throws FactTypeDeclarationException {
-		checkNull(store, name, aliased);
-		checkNull((Object[]) parameters);
+		assert !isNull(store) : "alias store should not be null";
+		assert !isNull(name) : "alias name should not be null";
+		assert !isNull(aliased) : "alias aliased should not be null";
+		assert !anyNull(parameters): "alias parameters should not be null";
 
 		Type paramType;
 		if (parameters.length == 0) {
@@ -502,10 +504,10 @@ public class TypeFactory {
 
 	public Type aliasTypeFromTuple(TypeStore store, String name, Type aliased, Type params)
 			throws FactTypeDeclarationException {
-		checkNull(store);
-		checkNull(name);
-		checkNull(aliased);
-		checkNull(params);
+		assert !isNull(store) : "alias store should not be null";
+		assert !isNull(name) : "alias name should not be null";
+		assert !isNull(aliased) : "alias aliased should not be null";
+		assert !isNull(params): "alias params should not be null";
 
 		if (!isIdentifier(name)) {
 			throw new IllegalIdentifierException(name);
@@ -540,8 +542,9 @@ public class TypeFactory {
 	 * @throws IllegalIdentifierException
 	 */
 	public Type abstractDataType(TypeStore store, String name, Type... parameters) throws FactTypeDeclarationException {
-		checkNull(store, name);
-		checkNull((Object[]) parameters);
+		assert !isNull(store) : "adt store should not be null";
+		assert !isNull(name) : "adt name should not be null";
+		assert !anyNull(parameters) : "adt parameters should not contain a null";
 
 		Type paramType = voidType();
 		if (parameters.length != 0) {
@@ -552,7 +555,9 @@ public class TypeFactory {
 	}
 
 	public Type abstractDataTypeFromTuple(TypeStore store, String name, Type params) throws FactTypeDeclarationException {
-		checkNull(store, name, params);
+		assert !isNull(store) : "adt store should not be null";
+		assert !isNull(name) : "adt name should not be null";
+		assert !isNull(params): "adt params should not be null";
 
 		if (!isIdentifier(name)) {
 			throw new IllegalIdentifierException(name);
@@ -589,7 +594,10 @@ public class TypeFactory {
 	 *           RedeclaredFieldNameException, RedeclaredConstructorException
 	 */
 	public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType) throws FactTypeDeclarationException {
-		checkNull(store, adt, name, tupleType);
+		assert !isNull(store) : "constructor store should not be null";
+		assert !isNull(adt): "constructor adt should not be null";
+		assert !isNull(name) : "constructor name should not be null";
+		assert !isNull(tupleType) : "constructor type should not be null";
 
 		if (!isIdentifier(name)) {
 			throw new IllegalIdentifierException(name);
@@ -658,7 +666,7 @@ public class TypeFactory {
 	 * @return a list type
 	 */
 	public Type listType(Type elementType) {
-		checkNull(elementType);
+		assert !isNull(elementType) : "list type should not be null";
 		return getFromCache(new ListType(elementType));
 	}
 
@@ -672,12 +680,13 @@ public class TypeFactory {
 	 * @return a map type
 	 */
 	public Type mapType(Type key, Type value) {
-		checkNull(key, value);
+		assert !isNull(key) : "map key type should not be null";
+		assert !isNull(value) : "map key type should not be null";
 		return getFromCache(new MapType(key, value));
 	}
 
 	public Type mapTypeFromTuple(Type fields) {
-		checkNull(fields);
+		assert !isNull(fields) : "map tuple type should not be null";
 		
 		if (fields.isBottom()) {
             return mapType(voidType(), voidType());
@@ -697,7 +706,8 @@ public class TypeFactory {
 	}
 
 	public Type mapType(Type key, String keyLabel, Type value, String valueLabel) {
-		checkNull(key, value);
+		assert !isNull(key) : "map key type should not be null";
+		assert !isNull(value) : "map key type should not be null";
 		if ((keyLabel != null && valueLabel == null) || (valueLabel != null && keyLabel == null)) {
 			throw new IllegalArgumentException("Key and value labels must both be non-null or null: " + keyLabel + ", "
 					+ valueLabel);
@@ -715,7 +725,8 @@ public class TypeFactory {
 	 * @return a parameter type
 	 */
 	public Type parameterType(String name, Type bound) {
-		checkNull(name, bound);
+		assert !isNull(name) : "parameter name should not be null";
+		assert !isNull(bound) : "parameter type should not be null";
 		return getFromCache(new ParameterType(name, bound));
 	}
 
@@ -764,15 +775,21 @@ public class TypeFactory {
 	 * @return a parameter type
 	 */
 	public Type parameterType(String name) {
-		checkNull(name);
+		assert !isNull(name) : "parameter name should not be null";
 		return getFromCache(new ParameterType(name));
 	}
 
-	private void checkNull(Object... os) {
-		for (int i = os.length - 1; i >= 0; i--) {
-			if (os[i] == null)
-				throw new NullTypeException();
+	private boolean anyNull(@Nullable Object[] os) {
+		for (@Nullable Object o: os) {
+			if (isNull(o)) {
+				return true;
+			}
 		}
+		return false;
+	}
+
+	private boolean isNull(@Nullable Object os) {
+		return Objects.isNull(os);
 	}
 
 	/**
@@ -783,7 +800,7 @@ public class TypeFactory {
 	 * @return true if the string is a valid identifier
 	 */
 	public boolean isIdentifier(String str) {
-		checkNull(str);
+		assert !isNull(str) : "str should not be null";
 
 		int len = str.length();
 		if (len == 0) {
