@@ -10,6 +10,7 @@
  *******************************************************************************/
 package io.usethesource.vallang.basic;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
@@ -18,12 +19,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
-
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -69,6 +73,29 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     public void testSmallBinaryIO(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
         ioRoundTrip(vf, ts, value);
     }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    void testReadReferenceSerializedFile(IValueFactory vf, TypeStore ts) throws IOException {
+        try (var files = new ZipInputStream(this.getClass().getResourceAsStream("/io/reference-serialized-binary-values.zip"))) {
+            ZipEntry current;
+            while ((current = files.getNextEntry()) != null) {
+                try (var read = new IValueInputStream(new FilterInputStream(files) {
+                    public void close() throws IOException {
+                        // we have to redirect the close to the entry close, not the global close
+                        files.closeEntry();
+                    };
+                }, vf, () -> ts)) {
+                    assertNotNull(read.read());
+                }
+                catch (Throwable e) {
+                    fail("Failed for " + current.getName(), e);
+                }
+
+            }
+        }
+    }
+
+
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testRegression40(IValueFactory vf, TypeStore store, 
