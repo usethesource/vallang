@@ -12,7 +12,6 @@ package io.usethesource.vallang.basic;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,10 +26,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-
 import io.usethesource.vallang.ArgumentsMaxDepth;
 import io.usethesource.vallang.ArgumentsMaxWidth;
 import io.usethesource.vallang.ExpectedType;
@@ -190,7 +187,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             ValueStreams.bottomupbf(val).forEach(v -> {
                 try {
                     ioRoundTrip(vf, ts, v);
-                } catch (IOException error) {
+                } catch (Throwable error) {
                     fail(error);
                 }
             });
@@ -249,7 +246,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 ioRoundTrip(vf, ts, value, rate);
             }
             catch (Throwable e) {
-                throw new RuntimeException("Error with "+ rate + " compression", e);
+                fail("Error with "+ rate + " compression", e);
             }
         }
     }
@@ -295,7 +292,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 ioRoundTripFile(vf, ts, value, rate);
             }
             catch (Throwable e) {
-                throw new RuntimeException("Error with "+ rate + " compression", e);
+                fail("Error with "+ rate + " compression", e);
             }
         }
     }
@@ -327,7 +324,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 ioRoundTripFile2(vf, ts, value, rate);
             }
             catch (Throwable e) {
-                throw new RuntimeException("Error with "+ rate + " compression", e);
+                fail("Error with "+ rate + " compression", e);
             }
         }
     }
