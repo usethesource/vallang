@@ -36,7 +36,6 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         this(stream, stringSharingWindowSize, 8*1024);
     }
     public BinaryWireOutputStream(OutputStream stream, int stringSharingWindowSize, int bufferSize) throws IOException {
-        assert stringSharingWindowSize > 0;
         if (stream instanceof BufferedOutputStream || stream instanceof ByteBufferOutputStream) {
             __stream = stream;
         }

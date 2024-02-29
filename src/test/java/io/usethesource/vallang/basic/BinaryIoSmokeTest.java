@@ -10,23 +10,24 @@
  *******************************************************************************/
 package io.usethesource.vallang.basic;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
-
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-
 import io.usethesource.vallang.ArgumentsMaxDepth;
 import io.usethesource.vallang.ArgumentsMaxWidth;
 import io.usethesource.vallang.ExpectedType;
@@ -42,6 +43,7 @@ import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
+import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
@@ -55,9 +57,42 @@ import io.usethesource.vallang.visitors.ValueStreams;
 public final class BinaryIoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testSingleValueIO(IValueFactory vf, TypeStore ts) throws IOException {
+        ioRoundTrip(vf, ts, vf.integer(1));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testSingleValue2IO(IValueFactory vf, TypeStore ts) throws IOException {
+        ioRoundTrip(vf, ts, vf.string("a"));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testSmallBinaryIO(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
         ioRoundTrip(vf, ts, value);
     }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    void testReadReferenceSerializedFile(IValueFactory vf, TypeStore ts) throws IOException {
+        try (var files = new ZipInputStream(this.getClass().getResourceAsStream("/io/reference-serialized-binary-values.zip"))) {
+            ZipEntry current;
+            while ((current = files.getNextEntry()) != null) {
+                try (var read = new IValueInputStream(new FilterInputStream(files) {
+                    public void close() throws IOException {
+                        // we have to redirect the close to the entry close, not the global close
+                        files.closeEntry();
+                    };
+                }, vf, () -> ts)) {
+                    assertNotNull(read.read());
+                }
+                catch (Throwable e) {
+                    fail("Failed for " + current.getName(), e);
+                }
+
+            }
+        }
+    }
+
+
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testRegression40(IValueFactory vf, TypeStore store, 
@@ -152,7 +187,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             ValueStreams.bottomupbf(val).forEach(v -> {
                 try {
                     ioRoundTrip(vf, ts, v);
-                } catch (IOException error) {
+                } catch (Throwable error) {
                     fail(error);
                 }
             });
@@ -203,9 +238,22 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
+    private final CompressionRate[] RATES_TO_TESTS = {CompressionRate.Normal, CompressionRate.Extreme, CompressionRate.None, CompressionRate.NoSharing};
+    
     private void ioRoundTrip(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
+        for (var rate: RATES_TO_TESTS) {
+            try {
+                ioRoundTrip(vf, ts, value, rate);
+            }
+            catch (Throwable e) {
+                fail("Error with "+ rate + " compression", e);
+            }
+        }
+    }
+
+    private void ioRoundTrip(IValueFactory vf, TypeStore ts, IValue value, IValueOutputStream.CompressionRate compression) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        try (IValueOutputStream w = new IValueOutputStream(buffer, vf, IValueOutputStream.CompressionRate.Normal)) {
+        try (IValueOutputStream w = new IValueOutputStream(buffer, vf, compression)) {
             w.write(value);
         }
         try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, () -> ts)) {
@@ -239,10 +287,20 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
 
     private void ioRoundTripFile(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
+        for (var rate: RATES_TO_TESTS) {
+            try {
+                ioRoundTripFile(vf, ts, value, rate);
+            }
+            catch (Throwable e) {
+                fail("Error with "+ rate + " compression", e);
+            }
+        }
+    }
+    private void ioRoundTripFile(IValueFactory vf, TypeStore ts, IValue value, IValueOutputStream.CompressionRate compression) throws IOException {
         long fileSize = 0;
         File target = File.createTempFile("valllang-test-file", "something");
         target.deleteOnExit();
-        try (IValueOutputStream w = new IValueOutputStream(FileChannel.open(target.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE), vf, IValueOutputStream.CompressionRate.Normal)) {
+        try (IValueOutputStream w = new IValueOutputStream(FileChannel.open(target.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE), vf, compression)) {
             w.write(value);
         }
         fileSize = Files.size(target.toPath());
@@ -261,10 +319,20 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
 
     private void ioRoundTripFile2(IValueFactory vf, TypeStore ts, IValue value) throws FileNotFoundException, IOException {
+        for (var rate: RATES_TO_TESTS) {
+            try {
+                ioRoundTripFile2(vf, ts, value, rate);
+            }
+            catch (Throwable e) {
+                fail("Error with "+ rate + " compression", e);
+            }
+        }
+    }
+    private void ioRoundTripFile2(IValueFactory vf, TypeStore ts, IValue value, IValueOutputStream.CompressionRate compression) throws FileNotFoundException, IOException {
         long fileSize = 0;
         File target = File.createTempFile("valllang-test-file", "something");
         target.deleteOnExit();
-        try (IValueOutputStream w = new IValueOutputStream(new FileOutputStream(target), vf, IValueOutputStream.CompressionRate.Normal)) {
+        try (IValueOutputStream w = new IValueOutputStream(new FileOutputStream(target), vf, compression)) {
             w.write(value);
         }
         fileSize = Files.size(target.toPath());
