@@ -83,7 +83,7 @@ jobs:
         uses: SWAT-engineering/maven-full-artifacts-action@v1
 
       - name: Prepare Draft Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
