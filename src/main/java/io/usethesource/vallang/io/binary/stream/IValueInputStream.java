@@ -16,6 +16,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -48,6 +49,9 @@ public class IValueInputStream implements Closeable {
         int read = 0;
         while (read < currentHeader.length) {
             read += in.read(currentHeader, read, currentHeader.length - read);
+        }
+        if (!Arrays.equals(currentHeader, Header.MAIN)) {
+            throw new IOException("Incorrect file header, are you sure this is a valid file containing a serialized value?");
         }
 
         int compression = in.read();

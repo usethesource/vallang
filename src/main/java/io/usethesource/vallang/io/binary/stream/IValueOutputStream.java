@@ -55,7 +55,7 @@ public class IValueOutputStream implements Closeable {
         Light(Header.Compression.ZSTD, 1),
         Normal(Header.Compression.ZSTD, 5),
         Strong(Header.Compression.ZSTD, 13),
-        Extreme(Header.Compression.XZ, 6),
+        Extreme(Header.Compression.ZSTD, 19),
         XML(Compression.NONE, 0)
         ;
 
