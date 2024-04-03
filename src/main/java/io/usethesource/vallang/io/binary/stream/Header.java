@@ -17,8 +17,8 @@ package io.usethesource.vallang.io.binary.stream;
     public static final class Compression {
         public static final byte NONE = 0;
         public static final byte GZIP = 1;
-        /** Not used anymore, it was never used, and we're cutting down on dependencies */
-        public static final byte XZ = 2;
+        /** Never officially available, but still reserved */
+        public static final byte UNSUPPORTED_XZ = 2;
         public static final byte ZSTD = 3;
     }
 

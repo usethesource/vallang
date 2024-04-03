@@ -57,8 +57,8 @@ import io.usethesource.vallang.io.binary.util.DirectZstdInputStream;
                 result.setLevel(level);
                 return result;
             }
-            case Header.Compression.XZ: {
-                throw new IOException("XZ compression is not supported anymore, please use an older version of rascal/vallang to open the file and store it with a different level of compression");
+            case Header.Compression.UNSUPPORTED_XZ: {
+                throw new UnsupportedOperationException("XZ compression is not supported anymore, please use an older version of rascal/vallang to open the file and store it with a different level of compression");
             }
             case Header.Compression.ZSTD: {
                 return new ZstdOutputStream(rawStream, level);
@@ -74,8 +74,8 @@ import io.usethesource.vallang.io.binary.util.DirectZstdInputStream;
                 return raw;
             case Header.Compression.GZIP:
                 return new GZIPInputStream(raw);
-            case Header.Compression.XZ:
-                throw new IOException("XZ compression is not supported anymore, please use an older version of rascal/vallang to open the file and store it with a different level of compression");
+            case Header.Compression.UNSUPPORTED_XZ:
+                throw new UnsupportedOperationException("XZ compression is not supported anymore, please use an older version of rascal/vallang to open the file and store it with a different level of compression");
             case Header.Compression.ZSTD:
                 if (Compressor.zstdAvailable()) {
                     if (raw instanceof ByteBufferInputStream && ((ByteBufferInputStream)raw).getByteBuffer().isDirect()) {

@@ -51,7 +51,7 @@ public class IValueInputStream implements Closeable {
             read += in.read(currentHeader, read, currentHeader.length - read);
         }
         if (!Arrays.equals(currentHeader, Header.MAIN)) {
-            throw new IOException("Incorrect file header, are you sure this is a valid file containing a serialized value?");
+            throw new IOException("Incorrect file header, expected: [" + toHex(Header.MAIN) + "] but found: [" + toHex(currentHeader) + "]");
         }
 
         int compression = in.read();
@@ -59,6 +59,15 @@ public class IValueInputStream implements Closeable {
         reader = new BinaryWireInputStream(in);
     }
     
+
+    private static String toHex(byte[] main) {
+        String result = "";
+        for (byte b : main) {
+            result += String.format("%#04x ", b);
+        }
+        return result.trim();
+    }
+
 
     public IValueInputStream(FileChannel channel, IValueFactory vf, Supplier<TypeStore> typeStoreSupplier) throws IOException {
         this(new FileChannelDirectInputStream(channel), vf, typeStoreSupplier);
