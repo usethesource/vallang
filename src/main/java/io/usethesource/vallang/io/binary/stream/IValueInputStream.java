@@ -16,6 +16,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -49,12 +50,24 @@ public class IValueInputStream implements Closeable {
         while (read < currentHeader.length) {
             read += in.read(currentHeader, read, currentHeader.length - read);
         }
+        if (!Arrays.equals(currentHeader, Header.MAIN)) {
+            throw new IOException("Incorrect file header, expected: [" + toHex(Header.MAIN) + "] but found: [" + toHex(currentHeader) + "]");
+        }
 
         int compression = in.read();
         in = Compressor.wrapStream(in, compression);
         reader = new BinaryWireInputStream(in);
     }
     
+
+    private static String toHex(byte[] main) {
+        String result = "";
+        for (byte b : main) {
+            result += String.format("%#04x ", b);
+        }
+        return result.trim();
+    }
+
 
     public IValueInputStream(FileChannel channel, IValueFactory vf, Supplier<TypeStore> typeStoreSupplier) throws IOException {
         this(new FileChannelDirectInputStream(channel), vf, typeStoreSupplier);

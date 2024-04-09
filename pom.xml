@@ -154,11 +154,6 @@
 			<version>0.7.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.tukaani</groupId>
-			<artifactId>xz</artifactId>
-			<version>1.9</version>
-		</dependency>
-		<dependency>
 			<groupId>com.github.luben</groupId>
 			<artifactId>zstd-jni</artifactId>
 			<version>1.5.6-1</version>
