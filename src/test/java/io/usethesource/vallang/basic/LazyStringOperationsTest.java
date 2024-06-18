@@ -194,7 +194,7 @@ public final class LazyStringOperationsTest {
 
 	@ParameterizedTest @ArgumentsSource(ValueProvider.class)
 	public void neverRunOutOfStack(IValueFactory vf) {
-		int outofStack = 30000;
+		int outofStack = 100000;
 
 		// first we have to know for sure that we would run out of stack with @see
 		// outOfStack iterations:

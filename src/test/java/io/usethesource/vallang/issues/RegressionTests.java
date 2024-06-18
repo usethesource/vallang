@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,8 +16,10 @@ import io.usethesource.vallang.GivenValue;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -60,5 +64,18 @@ public class RegressionTests {
 
        assertFalse(cons1.equals(cons2));
     }
-    
+ 
+    private IString readString(IValueFactory valueFactory, TypeStore typeStore, String s) throws IOException {
+        Reader reader = new StringReader(s);
+        StandardTextReader textReader = new StandardTextReader();
+        return (IString) textReader.read(valueFactory, typeStore, TypeFactory.getInstance().stringType(), reader);
+        
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    void escapeNormalCharacters(IValueFactory valueFactory, TypeStore typeStore) throws IOException {
+        IString s = readString(valueFactory, typeStore, "\"\\$\"");
+        assertEquals("$", s.getValue());
+    }
+
 }

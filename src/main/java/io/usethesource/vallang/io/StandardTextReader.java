@@ -742,7 +742,7 @@ public class StandardTextReader extends AbstractTextReader {
                         if (current == -1) {
                             throw new FactParseError("End of input before finding end of String", stream.offset);
                         }
-                        builder.append(current);
+                        builder.append((char)current);
                     }
                     current = stream.read();
                 }
