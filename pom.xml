@@ -7,6 +7,16 @@
 	<version>1.0.0-RC13-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
+    <licenses>
+        <license>
+            <name>BSD-2-Clause</name>
+            <url>https://opensource.org/license/BSD-2-Clause</url>
+            <distribution>repo</distribution>
+            <!-- we cannot define multiple licenses in this maven block, as it would mean the user can choose either of the licenses -->
+            <comments>Note, some older files are still licensed under Eclipse v1</comments>
+        </license>
+    </licenses>
+
 	<scm>
 		<developerConnection>scm:git:ssh://git@github.com/usethesource/vallang.git</developerConnection>
 		<tag>HEAD</tag>
