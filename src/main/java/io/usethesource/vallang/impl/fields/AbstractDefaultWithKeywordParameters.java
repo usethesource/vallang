@@ -66,7 +66,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
-	public IValue getParameter(String label) {
+	public @Nullable IValue getParameter(String label) {
 		return parameters.get(label);
 	}
 
@@ -139,7 +139,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
 		// TODO: there should be a faster way for this
 		for (String key : parameters.keySet()) {
-			if (!getParameter(key).equals(o.getParameter(key))) {
+			if (!parameters.get(key).equals(o.getParameter(key))) {
 				return false;
 			}
 		}

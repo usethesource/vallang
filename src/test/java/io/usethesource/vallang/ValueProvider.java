@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -259,15 +260,16 @@ public class ValueProvider implements ArgumentsProvider {
      * @param cls       the class type of the parameter to generate an input for
      * @return a random object which is assignable to cls
      */
-    private Object argument(IValueFactory vf, TypeStore ts, Class<?> cls, ExpectedType expected, GivenValue givenValue, TypeConfig typeConfig, int depth, int width)  {
+    private Object argument(IValueFactory vf, TypeStore ts, Class<?> cls, @Nullable ExpectedType expected, GivenValue givenValue, TypeConfig typeConfig, int depth, int width)  {
         if (givenValue != null) {
             try {
                 if (expected != null) {
-                    return new StandardTextReader().read(vf, ts, readType(ts, expected), new StringReader(givenValue.value()));
+                    Type type = readType(ts, expected);
+                    if (type != null) {
+                        return new StandardTextReader().read(vf, ts, type, new StringReader(givenValue.value()));
+                    }
                 }
-                else {
-                    return new StandardTextReader().read(vf, new StringReader(givenValue.value()));
-                }
+                return new StandardTextReader().read(vf, new StringReader(givenValue.value()));
             } catch (FactTypeUseException | IOException e) {
                 System.err.println("[WARNING] failed to parse given value: " + givenValue.value());
             }
@@ -281,12 +283,13 @@ public class ValueProvider implements ArgumentsProvider {
         }
         else if (cls.isAssignableFrom(Type.class)) {
             if (expected != null) {
-                return readType(ts, expected);
+                Type result = readType(ts, expected);
+                if (result != null) {
+                    return result;
+                }
             }
-            else {
-                RandomTypesConfig rtc = configureRandomTypes(typeConfig, depth);
-                return TypeFactory.getInstance().randomType(ts, rtc);
-            }
+            RandomTypesConfig rtc = configureRandomTypes(typeConfig, depth);
+            return TypeFactory.getInstance().randomType(ts, rtc);
         }
         else if (cls.isAssignableFrom(TypeFactory.class)) {
             return TypeFactory.getInstance();
@@ -336,7 +339,7 @@ public class ValueProvider implements ArgumentsProvider {
      * @param noAnnotations 
      * @return an instance assignable to `cl`
      */
-    private IValue generateValue(IValueFactory vf, TypeStore ts, Class<? extends IValue> cl, ExpectedType expected, int depth, int width) {
+    private IValue generateValue(IValueFactory vf, TypeStore ts, Class<? extends IValue> cl, @Nullable ExpectedType expected, int depth, int width) {
         Type expectedType = tf.voidType();
 
         
@@ -345,8 +348,14 @@ public class ValueProvider implements ArgumentsProvider {
         int i = 0;
         while (expectedType.isBottom() && i++ < 1000) {
             if (expected != null) {
-                expectedType = readType(ts, expected);
-                break;
+                Type read = readType(ts, expected);
+                if (read == null) {
+                    expected = null;
+                }
+                else {
+                    expectedType = read;
+                    break;
+                }
             }
             else {
                 expectedType = types
@@ -364,7 +373,7 @@ public class ValueProvider implements ArgumentsProvider {
         return (previous = expectedType.randomValue(rnd, vf, ts, new HashMap<>(), depth, width));
     }
 
-    private static Type readType(TypeStore ts, ExpectedType expected) {
+    private static @Nullable Type readType(TypeStore ts, ExpectedType expected) {
         try {
             return tf.fromString(ts, new StringReader(expected.value()));
         } catch (IOException e) {

@@ -14,7 +14,7 @@ package io.usethesource.vallang;
 
 import java.util.Map;
 import java.util.Set;
-
+import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 public interface IWithKeywordParameters<T extends IValue> {
@@ -25,7 +25,7 @@ public interface IWithKeywordParameters<T extends IValue> {
 	 * @param label identifies the parameter
 	 * @return a value if the parameter has a value on this node or null otherwise
 	 */
-	public IValue getParameter(String label);
+	public @Nullable IValue getParameter(String label);
 	
 	/**
 	 * Set the value of an parameter
