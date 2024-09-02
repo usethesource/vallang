@@ -66,7 +66,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
-	public IValue getParameter(String label) {
+	public @Nullable IValue getParameter(String label) {
 		return parameters.get(label);
 	}
 
