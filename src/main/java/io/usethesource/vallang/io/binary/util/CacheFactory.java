@@ -134,7 +134,7 @@ public class CacheFactory<T> {
     private static final ConcurrentLinkedQueue<WeakReference<CacheFactory<?>>> CLEANUP_CACHES = new ConcurrentLinkedQueue<>();
 
 
-    @SuppressWarnings("argument") // passed in reference might not be completly initialized
+    @SuppressWarnings({"argument", "arguments"}) // passed in reference might not be completly initialized
     private static void registerInstance(@UnknownInitialization CacheFactory<?> cache) {
         CLEANUP_CACHES.add(new WeakReference<>(cache));
     }
