@@ -1,0 +1,11 @@
+# Run this command to always ignore formatting commits in `git blame`
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# replaced tabs with spaces
+8efd5a7227658bbcc5b46ba647d15edf42dc0302
+
+# removed trailing whitespace
+63917fec5f518cd66ebbf56903d5167ac1c815ab
+
+# normalize indentation
+4ca06f1346d13d6e275d891de918cc6bae85c3d8
