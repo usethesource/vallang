@@ -73,10 +73,10 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     @Override
     public String getFieldName(int i) {
         switch (i) {
-        case 0: return fKeyLabel;
-        case 1: return fValueLabel;
-        default:
-            throw new IndexOutOfBoundsException();
+            case 0: return fKeyLabel;
+            case 1: return fValueLabel;
+            default:
+                throw new IndexOutOfBoundsException();
         }
 
     }

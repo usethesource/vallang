@@ -311,18 +311,18 @@ public class ValueProvider implements ArgumentsProvider {
         if (typeConfig != null) {
             for (TypeConfig.Option p : typeConfig.value()) {
                 switch (p) {
-                case ALIASES:
-                    tc = tc.withAliases();
-                    break;
-                case TUPLE_FIELDNAMES:
-                    tc = tc.withTupleFieldNames();
-                    break;
-                case TYPE_PARAMETERS:
-                    tc = tc.withTypeParameters();
-                    break;
-                case ALL:
-                    tc = tc.withAliases().withTupleFieldNames().withTypeParameters();
-                    break;
+                    case ALIASES:
+                        tc = tc.withAliases();
+                        break;
+                    case TUPLE_FIELDNAMES:
+                        tc = tc.withTupleFieldNames();
+                        break;
+                    case TYPE_PARAMETERS:
+                        tc = tc.withTypeParameters();
+                        break;
+                    case ALL:
+                        tc = tc.withAliases().withTupleFieldNames().withTypeParameters();
+                        break;
                 }
             }
         }

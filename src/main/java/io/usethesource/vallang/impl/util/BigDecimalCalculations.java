@@ -79,8 +79,7 @@ public class BigDecimalCalculations {
      *      scale the desired scale of the result
      * @return the result value
      */
-    public static BigDecimal sin(BigDecimal x, int scale)
-    {
+    public static BigDecimal sin(BigDecimal x, int scale) {
         if (x.signum() == 0)
             return BigDecimal.ZERO;
         if (x.abs().compareTo(sincosNormalizePoint) >= 0 ) {
@@ -98,8 +97,7 @@ public class BigDecimalCalculations {
     }
 
     // code based on arctanTaylor by Ronald Mak
-    private static BigDecimal sinTaylor(BigDecimal x, int scale)
-    {
+    private static BigDecimal sinTaylor(BigDecimal x, int scale) {
         int     sp1     = scale + 1;
         int     i       = 3;
         boolean addFlag = false;
@@ -137,8 +135,7 @@ public class BigDecimalCalculations {
      * @param scale the desired scale of the result
      * @return the result value
      */
-    public static BigDecimal cos(BigDecimal x, int scale)
-    {
+    public static BigDecimal cos(BigDecimal x, int scale) {
         if (x.signum() == 0)
             return BigDecimal.ONE;
         if (x.abs().compareTo(sincosNormalizePoint) >= 0 ) {
@@ -152,8 +149,7 @@ public class BigDecimalCalculations {
 
     // code based on arctanTaylor by Ronald Mak
     // same as sin but without the x starting point and +1 in faculty
-    private static BigDecimal cosTaylor(BigDecimal x, int scale)
-    {
+    private static BigDecimal cosTaylor(BigDecimal x, int scale) {
         int     sp1     = scale + 1;
         int     i       = 2;
         boolean addFlag = false;

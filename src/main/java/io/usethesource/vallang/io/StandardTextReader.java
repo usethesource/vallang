@@ -141,29 +141,29 @@ public class StandardTextReader extends AbstractTextReader {
             }
             else {
                 switch (current) {
-                case START_OF_STRING:
-                    result = readString(expected);
-                    break;
-                case START_OF_LIST:
-                    result = readList(expected);
-                    break;
-                case START_OF_SET:
-                    result = readSet(expected);
-                    break;
-                case START_OF_TUPLE:
-                    result = readTuple(expected);
-                    break;
-                case START_OF_MAP:
-                    result = readMap(expected);
-                    break;
-                case START_OF_LOC:
-                    result = readLocation(expected);
-                    break;
-                case START_OF_DATETIME:
-                    result = readDateTime(expected);
-                    break;
-                default:
-                    throw unexpectedException();
+                    case START_OF_STRING:
+                        result = readString(expected);
+                        break;
+                    case START_OF_LIST:
+                        result = readList(expected);
+                        break;
+                    case START_OF_SET:
+                        result = readSet(expected);
+                        break;
+                    case START_OF_TUPLE:
+                        result = readTuple(expected);
+                        break;
+                    case START_OF_MAP:
+                        result = readMap(expected);
+                        break;
+                    case START_OF_LOC:
+                        result = readLocation(expected);
+                        break;
+                    case START_OF_DATETIME:
+                        result = readDateTime(expected);
+                        break;
+                    default:
+                        throw unexpectedException();
                 }
             }
 
@@ -330,10 +330,8 @@ public class StandardTextReader extends AbstractTextReader {
 
         private void checkMoreThanOnce(String input, char needle) {
             boolean first = true;
-            for (int i=0; i < input.length(); i++)
-            {
-                if (input.charAt(i) == needle)
-                {
+            for (int i=0; i < input.length(); i++) {
+                if (input.charAt(i) == needle) {
                     if (first) {
                         first = false;
                     }
@@ -682,70 +680,70 @@ public class StandardTextReader extends AbstractTextReader {
                 if (current == '\\') {
                     current = stream.read();
                     switch (current) {
-                    case 'n':
-                        builder.append('\n');
-                        break;
-                    case 't':
-                        builder.append('\t');
-                        break;
-                    case 'r':
-                        builder.append('\r');
-                        break;
-                    case 'f':
-                        builder.append('\f');
-                        break;
-                    case 'b':
-                        builder.append('\b');
-                        break;
-                    case '\"':
-                        builder.append('\"');
-                        break;
-                    case '>':
-                        builder.append('>');
-                        break;
-                    case '<':
-                        builder.append('<');
-                        break;
-                    case '\'':
-                        builder.append('\'');
-                        break;
-                    case '\\':
-                        builder.append('\\');
-                        break;
-                    case 'a':
-                        StringBuilder a = new StringBuilder();
-                        a.append((char)stream.read());
-                        a.append((char)stream.read());
-                        builder.append((char) Integer.parseInt(a.toString(), 16));
-                        break;
-                    case 'u':
-                        StringBuilder u = new StringBuilder();
-                        u.append((char) stream.read());
-                        u.append((char)stream.read());
-                        u.append((char)stream.read());
-                        u.append((char)stream.read());
-                        builder.append((char) Integer.parseInt(u.toString(), 16));
-                        break;
-                    case 'U':
-                        StringBuilder U = new StringBuilder();
-                        U.append((char)stream.read());
-                        U.append((char)stream.read());
-                        U.append((char)stream.read());
-                        U.append((char)stream.read());
-                        U.append((char)stream.read());
-                        U.append((char)stream.read());
-                        int cp = Integer.parseInt(U.toString(), 16);
+                        case 'n':
+                            builder.append('\n');
+                            break;
+                        case 't':
+                            builder.append('\t');
+                            break;
+                        case 'r':
+                            builder.append('\r');
+                            break;
+                        case 'f':
+                            builder.append('\f');
+                            break;
+                        case 'b':
+                            builder.append('\b');
+                            break;
+                        case '\"':
+                            builder.append('\"');
+                            break;
+                        case '>':
+                            builder.append('>');
+                            break;
+                        case '<':
+                            builder.append('<');
+                            break;
+                        case '\'':
+                            builder.append('\'');
+                            break;
+                        case '\\':
+                            builder.append('\\');
+                            break;
+                        case 'a':
+                            StringBuilder a = new StringBuilder();
+                            a.append((char)stream.read());
+                            a.append((char)stream.read());
+                            builder.append((char) Integer.parseInt(a.toString(), 16));
+                            break;
+                        case 'u':
+                            StringBuilder u = new StringBuilder();
+                            u.append((char) stream.read());
+                            u.append((char)stream.read());
+                            u.append((char)stream.read());
+                            u.append((char)stream.read());
+                            builder.append((char) Integer.parseInt(u.toString(), 16));
+                            break;
+                        case 'U':
+                            StringBuilder U = new StringBuilder();
+                            U.append((char)stream.read());
+                            U.append((char)stream.read());
+                            U.append((char)stream.read());
+                            U.append((char)stream.read());
+                            U.append((char)stream.read());
+                            U.append((char)stream.read());
+                            int cp = Integer.parseInt(U.toString(), 16);
 
-                        if (!Character.isValidCodePoint(cp)) {
-                            throw new FactParseError(U + " is not a valid 24 bit Unicode character", stream.getOffset());
-                        }
-                        builder.appendCodePoint(cp);
-                        break;
-                    default:
-                        if (current == -1) {
-                            throw new FactParseError("End of input before finding end of String", stream.offset);
-                        }
-                        builder.append((char)current);
+                            if (!Character.isValidCodePoint(cp)) {
+                                throw new FactParseError(U + " is not a valid 24 bit Unicode character", stream.getOffset());
+                            }
+                            builder.appendCodePoint(cp);
+                            break;
+                        default:
+                            if (current == -1) {
+                                throw new FactParseError("End of input before finding end of String", stream.offset);
+                            }
+                            builder.append((char)current);
                     }
                     current = stream.read();
                 }

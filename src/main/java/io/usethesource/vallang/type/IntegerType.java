@@ -30,7 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class IntegerType extends NumberType {
     private static final class InstanceKeeper {
-      public final static IntegerType sInstance= new IntegerType();
+        public final static IntegerType sInstance= new IntegerType();
     }
 
     public static IntegerType getInstance() {

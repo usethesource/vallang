@@ -49,12 +49,12 @@ public abstract class ExternalType extends DefaultSubtypeOfValue {
 
     @Override
     public final Type lub(Type other) {
-      return other.lubWithExternal(this);
+        return other.lubWithExternal(this);
     }
 
     @Override
     public final Type glb(Type type) {
-      return type.glbWithExternal(this);
+        return type.glbWithExternal(this);
     }
 
     @Override
@@ -64,7 +64,7 @@ public abstract class ExternalType extends DefaultSubtypeOfValue {
 
     @Override
     protected /*final*/ boolean isSupertypeOf(Type type) {
-      return type.isSubtypeOfExternal(this);
+        return type.isSubtypeOfExternal(this);
     }
 
     @Override

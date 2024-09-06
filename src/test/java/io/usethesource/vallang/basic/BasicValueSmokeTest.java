@@ -527,7 +527,7 @@ public final class BasicValueSmokeTest {
     public void testDateTimeLongConversionWithTimezone(IValueFactory vf) {
         IDateTime dt = vf.datetime(2014, 10, 13, 10, 7, 50, 1, 7, 0);
         assertEqual(dt,
-        vf.datetime(dt.getInstant(), dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
+            vf.datetime(dt.getInstant(), dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)

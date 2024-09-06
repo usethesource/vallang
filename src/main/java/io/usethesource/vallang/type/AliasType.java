@@ -744,7 +744,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     protected boolean intersectsWithVoid(Type type) {
-       return fAliased.intersectsWithVoid(type);
+        return fAliased.intersectsWithVoid(type);
     }
 
     @Override

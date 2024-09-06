@@ -336,10 +336,10 @@ import io.usethesource.vallang.type.TypeFactory;
         return (IRational) other.multiply(this);
     }
 
-     @Override
-     public IReal multiply(IReal other) {
-            return (IReal) other.multiply(this);
-     }
+    @Override
+    public IReal multiply(IReal other) {
+        return (IReal) other.multiply(this);
+    }
 
     @Override
     public IInteger divide(IInteger other) {

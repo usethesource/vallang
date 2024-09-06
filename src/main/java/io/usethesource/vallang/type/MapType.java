@@ -42,10 +42,10 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     public static class Info extends TypeFactory.TypeReifier {
         public Info(TypeValues symbols) {
-        super(symbols);
-      }
+            super(symbols);
+        }
 
-    @Override
+        @Override
         public Type getSymbolConstructorType() {
             return symbols().typeSymbolConstructor("map", symbols().symbolADT(), "from", symbols().symbolADT(), "to");
         }
@@ -135,10 +135,10 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     @Override
     public Type getFieldType(int i) {
         switch (i) {
-        case 0: return fKeyType;
-        case 1: return fValueType;
-        default:
-            throw new IndexOutOfBoundsException();
+            case 0: return fKeyType;
+            case 1: return fValueType;
+            default:
+                throw new IndexOutOfBoundsException();
         }
     }
 

@@ -42,27 +42,27 @@ public class TypeReader {
             String id = readIdentifier();
 
             switch (id) {
-            case "int" : return types.integerType();
-            case "real" : return types.realType();
-            case "rat" : return types.rationalType();
-            case "num" : return types.numberType();
-            case "bool" : return types.boolType();
-            case "node" : return types.nodeType();
-            case "void" : return types.voidType();
-            case "value" : return types.valueType();
-            case "loc" : return types.sourceLocationType();
-            case "str" : return types.stringType();
-            case "datetime" : return types.dateTimeType();
+                case "int" : return types.integerType();
+                case "real" : return types.realType();
+                case "rat" : return types.rationalType();
+                case "num" : return types.numberType();
+                case "bool" : return types.boolType();
+                case "node" : return types.nodeType();
+                case "void" : return types.voidType();
+                case "value" : return types.valueType();
+                case "loc" : return types.sourceLocationType();
+                case "str" : return types.stringType();
+                case "datetime" : return types.dateTimeType();
             }
 
             if (current == START_OF_ARGUMENTS) {
                 switch (id) {
-                case "list" : return readComposite((t) -> types.listType(t.get(0)));
-                case "set" : return readComposite((t) -> types.setType(t.get(0)));
-                case "map" : return readComposite((t) -> types.mapType(t.get(0), t.get(1)));
-                case "tuple" : return readComposite((t) -> types.tupleType(t.toArray(new Type[0])));
-                case "rel" : return readComposite((t) -> types.relType(t.toArray(new Type[0])));
-                case "lrel" : return readComposite((t) -> types.lrelType(t.toArray(new Type[0])));
+                    case "list" : return readComposite((t) -> types.listType(t.get(0)));
+                    case "set" : return readComposite((t) -> types.setType(t.get(0)));
+                    case "map" : return readComposite((t) -> types.mapType(t.get(0), t.get(1)));
+                    case "tuple" : return readComposite((t) -> types.tupleType(t.toArray(new Type[0])));
+                    case "rel" : return readComposite((t) -> types.relType(t.toArray(new Type[0])));
+                    case "lrel" : return readComposite((t) -> types.lrelType(t.toArray(new Type[0])));
                 }
 
                 Type adt = store.lookupAbstractDataType(id);

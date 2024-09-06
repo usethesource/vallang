@@ -32,7 +32,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
     private static final class InstanceKeeper {
-      public final static SourceLocationType sInstance= new SourceLocationType();
+        public final static SourceLocationType sInstance= new SourceLocationType();
     }
 
     public static SourceLocationType getInstance() {

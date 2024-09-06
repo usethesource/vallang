@@ -201,7 +201,7 @@ public class INumberTests {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testClosure(INumber a, INumber b) {
         if (a.signum() == 0 && b.signum() == 0)
-        a.signum();
+            a.signum();
         if (a.getType().equivalent(b.getType())) {
             assertEqual(a.getType(), a.add(b).getType());
             assertEqual(a.getType(), a.multiply(b).getType());

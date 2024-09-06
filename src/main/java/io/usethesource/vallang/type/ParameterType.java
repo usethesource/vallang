@@ -166,7 +166,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
      * possible extensions of the vallang type system.
      */
     protected boolean intersectsWithExternal(Type type) {
-       return getBound().intersects(type);
+        return getBound().intersects(type);
     }
     /**
      * Read this as "could be instantiated as a super-type of"
