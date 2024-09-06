@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+          "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+          "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<module name="Checker">
+   <!-- this checker only defines the things we really do not want, not all the warnings that checkstyle would also allow -->
+  <module name="SuppressWarningsFilter"/>
+  <property name="charset" value="UTF-8"/>
+  <property name="severity" value="error"/>
+  <property name="fileExtensions" value="java, properties, rsc, xml"/>
+
+  <!-- allow suppression of errors for certain files -->
+  <module name="SuppressionFilter">
+    <property name="file" value="checkstyle-suppressions.xml" />
+    <property name="optional" value="true"/>
+  </module>
+
+
+  <!-- Whitespace -->
+  <module name="FileTabCharacter"> <!-- no tabs -->
+    <property name="eachLine" value="true"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="[^\s]\s+$"/> <!-- we only care about statements with trailing whitespace, empty lines with some whitespace we're not gointg to be picky about -->
+
+    <property name="message" value="Remove trailing whitespace" />
+    <property name="fileExtensions" value="xml, java, rsc"/>
+  </module>
+
+  <!-- java style things -->
+  <module name="TreeWalker">
+    <module name="OuterTypeFilename"/> <!-- make sure the name of the file is the same as the class -->
+    <module name="AvoidEscapedUnicodeCharacters">
+      <!-- avoid escapes of unicode chars where we can just write the unicode char in a string -->
+      <property name="allowEscapesForControlCharacters" value="true"/>
+      <property name="allowByTailComment" value="true"/>
+      <property name="allowNonPrintableEscapes" value="true"/>
+    </module>
+    <module name="NeedBraces"> <!-- make sure that {} are always required, also for single line statements -->
+      <property name="tokens" value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
+    </module>
+    <module name="OneStatementPerLine"/>
+    <module name="FallThrough"/> <!-- can be relieved by explicitly adding a comment that mentions fall[s]?through-->
+    <module name="ModifierOrder"/>
+    <module name="NoFinalizer"/>
+
+    <module name="Indentation"> <!-- make sure indents happen at a predictable pattern-->
+      <property name="basicOffset" value="4"/>
+      <property name="braceAdjustment" value="4"/>
+      <property name="caseIndent" value="4"/>
+      <property name="throwsIndent" value="4"/>
+      <property name="lineWrappingIndentation" value="4"/>
+      <property name="arrayInitIndent" value="4"/>
+    </module>
+
+  </module>
+
+</module>
