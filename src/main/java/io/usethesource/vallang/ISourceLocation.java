@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007 IBM Corporation, 2023 NWO-I Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,12 +7,13 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Jurgen Vinju (Jurgen.Vinju@cwi.nl) - extensions and maintenance
 *******************************************************************************/
 
 package io.usethesource.vallang;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -134,6 +135,30 @@ public interface ISourceLocation extends IValue {
      * @return the source location without any offset & length information.
      */
     public ISourceLocation top();
+
+    public String getFileName();
+
+    public boolean hasFileName();
+
+    public ISourceLocation changeScheme(String newScheme) throws URISyntaxException;
+
+    public ISourceLocation changeAuthority(String newAuthority) throws URISyntaxException;
+
+    public ISourceLocation changePath(String newPath) throws URISyntaxException;
+
+    public ISourceLocation changeFile(String newFile) throws URISyntaxException;
+
+    public ISourceLocation changeExtension(String newExtension) throws URISyntaxException;
+
+    public ISourceLocation changeFragment(String newFragment) throws URISyntaxException;
+
+    public ISourceLocation changeQuery(String newQuery) throws URISyntaxException;
+
+    public ISourceLocation changeFileName(String newFileName) throws URISyntaxException;
+
+    public ISourceLocation makeChildLocation(String childPath) throws URISyntaxException;
+
+    public ISourceLocation getParentLocation();
     
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
