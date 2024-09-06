@@ -29,19 +29,19 @@ import io.usethesource.vallang.type.Type;
 
 public class ValueFactory extends AbstractPrimitiveValueFactory {
 
-	protected ValueFactory() {
-		super();
-	}
+    protected ValueFactory() {
+        super();
+    }
 
-	private static class InstanceKeeper {
-		public final static ValueFactory instance = new ValueFactory();
-	}
+    private static class InstanceKeeper {
+        public final static ValueFactory instance = new ValueFactory();
+    }
 
-	public static ValueFactory getInstance() {
-		return InstanceKeeper.instance;
-	}
+    public static ValueFactory getInstance() {
+        return InstanceKeeper.instance;
+    }
 
-	@Override
+    @Override
     public IListWriter listWriter() {
         return new ListWriter();
     }
@@ -50,8 +50,8 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     
     @Override
     public IList list(IValue... elements){
-	    if (elements.length == 0) {
-	        return EMPTY_LIST;
+        if (elements.length == 0) {
+            return EMPTY_LIST;
         }
         IListWriter listWriter = listWriter();
         listWriter.append(elements);
@@ -109,18 +109,18 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         return Tuple.newTuple(args.clone());
     }
 
-	@Override
-	public ISetWriter setWriter() {
-		return new SetWriter((a,b) -> tuple(a,b));
-	}
+    @Override
+    public ISetWriter setWriter() {
+        return new SetWriter((a,b) -> tuple(a,b));
+    }
 
-	@Override
-	public IMapWriter mapWriter() {
-		return new MapWriter();
-	}
+    @Override
+    public IMapWriter mapWriter() {
+        return new MapWriter();
+    }
 
-	@Override
-	public String toString() {
-		return "VALLANG_PERSISTENT_FACTORY";
-	}
+    @Override
+    public String toString() {
+        return "VALLANG_PERSISTENT_FACTORY";
+    }
 }

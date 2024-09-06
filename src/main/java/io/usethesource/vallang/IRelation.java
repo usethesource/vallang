@@ -24,7 +24,7 @@ import io.usethesource.vallang.type.Type;
  *
  * @param <C> a collection value type like ISet or IList
  */
-public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {	
+public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> { 
 
     @Override
     default Iterator<IValue> iterator() {

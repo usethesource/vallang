@@ -222,7 +222,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return true iff this type has a keyword field named fieldName
    */
   public boolean hasKeywordField(String fieldName, TypeStore store) {
-	  throw new IllegalOperationException("hasKeywordField", this);
+      throw new IllegalOperationException("hasKeywordField", this);
   }
 
   /**
@@ -247,7 +247,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return a value to uniquely represent this type.
    */
   public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  return getTypeReifier(TF.cachedTypeValues()).toSymbol(this, vf, store, grammar, done);
+      return getTypeReifier(TF.cachedTypeValues()).toSymbol(this, vf, store, grammar, done);
   }
 
   /**
@@ -259,7 +259,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param done a working set to store data-types which have been explored already to avoid infinite recursion
    */
   public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  getTypeReifier(TF.cachedTypeValues()).asProductions(this, vf, store, grammar, done);
+      getTypeReifier(TF.cachedTypeValues()).asProductions(this, vf, store, grammar, done);
   }
 
   
@@ -375,12 +375,12 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return false;
   }
 
-	public @Nullable Type getKeywordParameterType(String label) {
+    public @Nullable Type getKeywordParameterType(String label) {
     throw new IllegalOperationException("getKeywordParameterType", this);
-	}
-	
-	public boolean hasKeywordParameter(String label) {
-	  throw new IllegalOperationException("hasKeywordParameter", this);
+    }
+    
+    public boolean hasKeywordParameter(String label) {
+      throw new IllegalOperationException("hasKeywordParameter", this);
   }
   
   public String getKeyLabel() {
@@ -511,7 +511,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public  boolean isNode() {
-	  return false;
+      return false;
   }
   
   public boolean isAbstractData() {
@@ -519,11 +519,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public  boolean isConstructor() {
-	  return false;
+      return false;
   }
   
   public  boolean isString() {
-	  return false;
+      return false;
   }
   
   public  boolean isSourceLocation() {
@@ -531,11 +531,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public  boolean isDateTime() {
-	  return false;
+      return false;
   }
   
   public  boolean isTuple() {
-	  return false;
+      return false;
   }
   
   public boolean isFunction() {

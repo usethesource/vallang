@@ -101,21 +101,21 @@ public class StacklessStructuredVisitorTest {
         }
     }
 
-	private static class CollectAll implements StructuredIValueVisitor<RuntimeException> {
-	    
-	    public List<Object> result = new ArrayList<>();
+    private static class CollectAll implements StructuredIValueVisitor<RuntimeException> {
+        
+        public List<Object> result = new ArrayList<>();
 
-	    @Override
-	    public void enterNamedValues(String[] names, int numberOfNestedValues) {
-	        result.add(Arrays.toString(names));
-	        result.add(numberOfNestedValues);
-	    }
-	    
-	    @Override
-	    public void leaveNamedValue() {
+        @Override
+        public void enterNamedValues(String[] names, int numberOfNestedValues) {
+            result.add(Arrays.toString(names));
+            result.add(numberOfNestedValues);
+        }
+        
+        @Override
+        public void leaveNamedValue() {
             result.add("leave");
-	    }
-	    
+        }
+        
         @Override
         public boolean enterConstructor(IConstructor cons, int children) throws RuntimeException {
             result.add(cons);
@@ -233,15 +233,15 @@ public class StacklessStructuredVisitorTest {
         public void visitDateTime(IDateTime o) throws RuntimeException {
             result.add(o);
         }
-	}
-	
-	private static class CollectAllSkipping extends CollectAll {
-	    @Override
-	    public boolean enterList(IList lst, int children) throws RuntimeException {
-	        super.enterList(lst, children);
-	        return false;
-	    }
-	}
+    }
+    
+    private static class CollectAllSkipping extends CollectAll {
+        @Override
+        public boolean enterList(IList lst, int children) throws RuntimeException {
+            super.enterList(lst, children);
+            return false;
+        }
+    }
 
     private void testVisitStructure(IValue val) {
         CollectAll expected = new CollectAll();

@@ -31,200 +31,200 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 
 public final class PersistentHashMap implements IMap {
 
-	private @MonotonicNonNull Type cachedMapType;
-	private final AbstractTypeBag keyTypeBag;
-	private final AbstractTypeBag valTypeBag;
-	private final Map.Immutable<@NonNull IValue, @NonNull IValue> content;
-	
-	/* 
-	 * Passing an pre-calulated map type is only allowed from inside this class.
-	 */
-	protected PersistentHashMap(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag, Map.Immutable<@NonNull IValue, @NonNull IValue> content) {
-		this.keyTypeBag = keyTypeBag;
-		this.valTypeBag = valTypeBag;
-		this.content = content;
-		assert content.size() == keyTypeBag.sum();
-	}
-	
-	@Override
-	public String toString() {
-	    return defaultToString();
-	}
-	
-	@Override
-	public Type getType() {
-		if (cachedMapType == null) {
-			cachedMapType = TF.mapType(keyTypeBag.lub(), valTypeBag.lub());
-		}
-		
-		return cachedMapType;		
-	}
+    private @MonotonicNonNull Type cachedMapType;
+    private final AbstractTypeBag keyTypeBag;
+    private final AbstractTypeBag valTypeBag;
+    private final Map.Immutable<@NonNull IValue, @NonNull IValue> content;
+    
+    /* 
+     * Passing an pre-calulated map type is only allowed from inside this class.
+     */
+    protected PersistentHashMap(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag, Map.Immutable<@NonNull IValue, @NonNull IValue> content) {
+        this.keyTypeBag = keyTypeBag;
+        this.valTypeBag = valTypeBag;
+        this.content = content;
+        assert content.size() == keyTypeBag.sum();
+    }
+    
+    @Override
+    public String toString() {
+        return defaultToString();
+    }
+    
+    @Override
+    public Type getType() {
+        if (cachedMapType == null) {
+            cachedMapType = TF.mapType(keyTypeBag.lub(), valTypeBag.lub());
+        }
+        
+        return cachedMapType;       
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return content.isEmpty();
-	}
+    @Override
+    public boolean isEmpty() {
+        return content.isEmpty();
+    }
 
-	@Override
-	public IMap put(IValue key, IValue value) {
-		final Map.Immutable<IValue,IValue> contentNew =
-				content.__put(key, value);
-		
-		if (content == contentNew)
-			return this;
+    @Override
+    public IMap put(IValue key, IValue value) {
+        final Map.Immutable<IValue,IValue> contentNew =
+                content.__put(key, value);
+        
+        if (content == contentNew)
+            return this;
 
-		final AbstractTypeBag keyBagNew;
-		final AbstractTypeBag valBagNew;
+        final AbstractTypeBag keyBagNew;
+        final AbstractTypeBag valBagNew;
 
-		if (content.size() == contentNew.size()) {
-			// value replaced
-			final IValue replaced = content.get(key);
-			keyBagNew = keyTypeBag;
-			valBagNew = valTypeBag.decrease(replaced.getType()).increase(value.getType());
-		} else {
-			// pair added
-			keyBagNew = keyTypeBag.increase(key.getType());			
-			valBagNew = valTypeBag.increase(value.getType());
-		}
-		
-		return new PersistentHashMap(keyBagNew, valBagNew, contentNew);
-	}
-	
-	@Override
-	public IMap removeKey(IValue key) {
-	    final Map.Immutable<IValue, IValue> newContent = content.__remove(key);
-		
-	    if (newContent == content) {
-	        return this;
-	    }
-		
-	    // this only happens if something has actually been removed:
-	    final IValue removedValue = content.get(key);
-	    final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
-	    final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
-		
-	    assert !newContent.isEmpty() || (newKeyBag.lub().isBottom() && newValBag.lub().isBottom());
-	    return new PersistentHashMap(newKeyBag, newValBag, newContent);
-	}	
-	
-	@Override
-	public int size() {
-		return content.size();
-	}
+        if (content.size() == contentNew.size()) {
+            // value replaced
+            final IValue replaced = content.get(key);
+            keyBagNew = keyTypeBag;
+            valBagNew = valTypeBag.decrease(replaced.getType()).increase(value.getType());
+        } else {
+            // pair added
+            keyBagNew = keyTypeBag.increase(key.getType());         
+            valBagNew = valTypeBag.increase(value.getType());
+        }
+        
+        return new PersistentHashMap(keyBagNew, valBagNew, contentNew);
+    }
+    
+    @Override
+    public IMap removeKey(IValue key) {
+        final Map.Immutable<IValue, IValue> newContent = content.__remove(key);
+        
+        if (newContent == content) {
+            return this;
+        }
+        
+        // this only happens if something has actually been removed:
+        final IValue removedValue = content.get(key);
+        final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
+        final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
+        
+        assert !newContent.isEmpty() || (newKeyBag.lub().isBottom() && newValBag.lub().isBottom());
+        return new PersistentHashMap(newKeyBag, newValBag, newContent);
+    }   
+    
+    @Override
+    public int size() {
+        return content.size();
+    }
 
-	@Override
-	@EnsuresNonNullIf(expression="get(#1)", result=true)
+    @Override
+    @EnsuresNonNullIf(expression="get(#1)", result=true)
     @SuppressWarnings({"contracts.conditional.postcondition"}) // that's impossible to prove for the Checker Framework
-	public boolean containsKey(IValue key) {
-		return content.containsKey(key);
-	}
+    public boolean containsKey(IValue key) {
+        return content.containsKey(key);
+    }
 
-	@Override
-	public boolean containsValue(IValue value) {
-		return content.containsValue(value);
-	}
-	
-	@Override
-	public IValue get(IValue key) {
-		return content.get(key);
-	}
+    @Override
+    public boolean containsValue(IValue value) {
+        return content.containsValue(value);
+    }
+    
+    @Override
+    public IValue get(IValue key) {
+        return content.get(key);
+    }
 
-	@Override
-	public int hashCode() {
-		return content.hashCode();
-	}
-	
-	@Override
-	public boolean equals(@Nullable Object other) {
-		if (other == this) {
-			return true;
-		}
-		
-		if (other == null) {
-			return false;
-		}
-		
-	
-		
-		if (other instanceof PersistentHashMap) {
-			PersistentHashMap that = (PersistentHashMap) other;
+    @Override
+    public int hashCode() {
+        return content.hashCode();
+    }
+    
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (other == this) {
+            return true;
+        }
+        
+        if (other == null) {
+            return false;
+        }
+        
+    
+        
+        if (other instanceof PersistentHashMap) {
+            PersistentHashMap that = (PersistentHashMap) other;
 
-			if (this.getType() != that.getType())
-				return false;
+            if (this.getType() != that.getType())
+                return false;
 
-			if (this.size() != that.size())
-				return false;
+            if (this.size() != that.size())
+                return false;
 
-			return content.equals(that.content);
-		}
-		
-		if (other instanceof IMap) {
-			return defaultEquals(other);	
-		}
-		
-		return false;
-	}
-	
-	@Override
-	public Iterator<IValue> iterator() {
-		return content.keyIterator();
-	}
-	
-	@Override
-	public Iterator<IValue> valueIterator() {
-		return content.valueIterator();
-	}
+            return content.equals(that.content);
+        }
+        
+        if (other instanceof IMap) {
+            return defaultEquals(other);    
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public Iterator<IValue> iterator() {
+        return content.keyIterator();
+    }
+    
+    @Override
+    public Iterator<IValue> valueIterator() {
+        return content.valueIterator();
+    }
 
-	@Override
-	public Iterator<Entry<IValue, IValue>> entryIterator() {
-		return content.entryIterator();
-	}
+    @Override
+    public Iterator<Entry<IValue, IValue>> entryIterator() {
+        return content.entryIterator();
+    }
 
-	@Override
-	public IMap join(IMap other) {
-		if (other instanceof PersistentHashMap) {
-			PersistentHashMap that = (PersistentHashMap) other;
+    @Override
+    public IMap join(IMap other) {
+        if (other instanceof PersistentHashMap) {
+            PersistentHashMap that = (PersistentHashMap) other;
 
-			final Map.Transient<IValue, IValue> transientContent = content.asTransient();
+            final Map.Transient<IValue, IValue> transientContent = content.asTransient();
 
-			boolean isModified = false;
-			int previousSize = size();
+            boolean isModified = false;
+            int previousSize = size();
 
-			AbstractTypeBag keyBagNew = keyTypeBag;
-			AbstractTypeBag valBagNew = valTypeBag;
+            AbstractTypeBag keyBagNew = keyTypeBag;
+            AbstractTypeBag valBagNew = valTypeBag;
 
-			for (Iterator<Entry<IValue, IValue>> it = that.entryIterator(); it.hasNext();) {
-				Entry<IValue, IValue> tuple = it.next();
-				IValue key = tuple.getKey();
-				IValue value = tuple.getValue();
+            for (Iterator<Entry<IValue, IValue>> it = that.entryIterator(); it.hasNext();) {
+                Entry<IValue, IValue> tuple = it.next();
+                IValue key = tuple.getKey();
+                IValue value = tuple.getValue();
 
-				final IValue replaced = transientContent.__put(key, value);
+                final IValue replaced = transientContent.__put(key, value);
 
-				if (replaced != null) {
-					// value replaced
-					valBagNew = valBagNew.decrease(replaced.getType()).increase(value.getType());
+                if (replaced != null) {
+                    // value replaced
+                    valBagNew = valBagNew.decrease(replaced.getType()).increase(value.getType());
 
-					isModified = true;
-				} else if (previousSize != transientContent.size()) {
-					// pair added
-					keyBagNew = keyBagNew.increase(key.getType());
-					valBagNew = valBagNew.increase(value.getType());
+                    isModified = true;
+                } else if (previousSize != transientContent.size()) {
+                    // pair added
+                    keyBagNew = keyBagNew.increase(key.getType());
+                    valBagNew = valBagNew.increase(value.getType());
 
-					isModified = true;
-					previousSize++;
-				}
-			}
+                    isModified = true;
+                    previousSize++;
+                }
+            }
 
-			if (isModified) {
-				return new PersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
-			} else {
-				return this;
-			}
-		} else {
-			return IMap.super.join(other);
-		}
-	}
-	
+            if (isModified) {
+                return new PersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
+            } else {
+                return this;
+            }
+        } else {
+            return IMap.super.join(other);
+        }
+    }
+    
     @Override
     public Type getElementType() {
         return keyTypeBag.lub();

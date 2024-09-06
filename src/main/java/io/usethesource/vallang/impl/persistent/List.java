@@ -503,7 +503,7 @@ class SubList implements IList {
     @Override
     public IList reverse() {
         ListWriter w = new ListWriter();
-        for(int i = offset + length - 1; i >= offset; i--){	
+        for(int i = offset + length - 1; i >= offset; i--){ 
             w.append(base.get(i));
         }
         return w.done();

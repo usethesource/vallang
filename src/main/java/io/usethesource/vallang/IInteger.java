@@ -25,9 +25,9 @@ public interface IInteger extends INumber {
         }
     }
 
-	/**
-	 * @return this + other;
-	 */
+    /**
+     * @return this + other;
+     */
     @Override
     public IInteger add(IInteger other);
     
@@ -156,9 +156,9 @@ public interface IInteger extends INumber {
      */
     @Override
     public IInteger abs();
-	
-	@Override
-	public default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-	    return v.visitInteger(this);
-	}
+    
+    @Override
+    public default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitInteger(this);
+    }
 }

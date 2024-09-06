@@ -429,12 +429,12 @@ public class StandardTextReader extends AbstractTextReader {
          * Read in a single character from the input stream and append it to the
          * given buffer only if it is numeric.
          *  
-         * @param buf	The buffer to which the read character should be appended
+         * @param buf   The buffer to which the read character should be appended
          * 
-         * @return		True if the input character was numeric [0-9] and was appended,
-         * 				false otherwise.
+         * @return      True if the input character was numeric [0-9] and was appended,
+         *              false otherwise.
          * 
-         * @throws IOException	when an error is encountered reading the input stream
+         * @throws IOException  when an error is encountered reading the input stream
          */
         private boolean readAndAppendIfNumeric(StringBuilder buf) throws IOException {
             current = stream.read();
@@ -452,8 +452,8 @@ public class StandardTextReader extends AbstractTextReader {
          * 
          * @return A DateParts object with year, month, and day filled in.
          * 
-         * @throws IOException	when an error is encountered reading the input stream
-         * @throws FactParseError	when the correct characters are not found while lexing
+         * @throws IOException  when an error is encountered reading the input stream
+         * @throws FactParseError   when the correct characters are not found while lexing
          *                          the date
          */
         private DateParts readDate(char firstChar) throws IOException, FactParseError {
@@ -469,7 +469,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a '-'
-            current = stream.read();		
+            current = stream.read();        
             if ('-' != current) {
                 throw new FactParseError("Error reading date, expected '-', found: " + current, stream.offset);
             }
@@ -483,7 +483,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a '-'
-            current = stream.read();		
+            current = stream.read();        
             if ('-' != current) {
                 throw new FactParseError("Error reading date, expected '-', found: " + current, stream.offset);
             }
@@ -511,8 +511,8 @@ public class StandardTextReader extends AbstractTextReader {
          * @return A TimeParts objects with hours, minutes, seconds, milliseconds,
          *         and timezone information filled in.
          *         
-         * @throws IOException	when an error is encountered reading the input stream
-         * @throws FactParseError	when the correct characters are not found while lexing
+         * @throws IOException  when an error is encountered reading the input stream
+         * @throws FactParseError   when the correct characters are not found while lexing
          *                          the time
          */
         private TimeParts readTime() throws IOException, FactParseError {
@@ -527,7 +527,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a ':'
-            current = stream.read();	
+            current = stream.read();    
             if (':' != current) {
                 throw new FactParseError("Error reading time, expected ':', found: " + current, stream.offset);
             }
@@ -541,7 +541,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a ':'
-            current = stream.read();		
+            current = stream.read();        
             if (':' != current) {
                 throw new FactParseError("Error reading time, expected ':', found: " + current, stream.offset);
             }
@@ -555,7 +555,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a '.'
-            current = stream.read();		
+            current = stream.read();        
             if ('.' != current) {
                 throw new FactParseError("Error reading time, expected '.', found: " + current, stream.offset);
             }
@@ -569,7 +569,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be '+' or '-'
-            current = stream.read();		
+            current = stream.read();        
             if (! ('+' == current || '-' == current)) {
                 throw new FactParseError("Error reading time, expected '+' or '-', found: " + current, stream.offset);
             }
@@ -641,7 +641,7 @@ public class StandardTextReader extends AbstractTextReader {
             if (isDate) {
                 assert dateParts != null : "@AssumeAssertion(nullness)";
 
-                return factory.date(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay());				
+                return factory.date(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay());             
             } else { 
                 if (isTime) {
                     assert timeParts != null : "@AssumeAssertion(nullness)";

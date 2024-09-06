@@ -31,7 +31,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
-	private static final class InstanceKeeper {
+    private static final class InstanceKeeper {
       public final static SourceLocationType sInstance= new SourceLocationType();
     }
 
@@ -41,31 +41,31 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     public static class Info extends TypeFactory.TypeReifier {
 
-		public Info(TypeValues symbols) {
+        public Info(TypeValues symbols) {
             super(symbols);
         }
 
         @Override
-		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("loc");
-		}
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("loc");
+        }
 
-		@Override
-		public Type fromSymbol(IConstructor symbol, TypeStore store,
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store,
                            Function<IConstructor, Set<IConstructor>> grammar) {
-			return getInstance();
-		}
-		
-		@Override
+            return getInstance();
+        }
+        
+        @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().sourceLocationType();
         }
-	}
+    }
     
     @Override
-	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
-		return new Info(symbols);
-	}
+    public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
+    }
     
     /**
      * Should never need to be called; there should be only one instance of IntegerType
@@ -87,7 +87,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     
     @Override
     public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-    	return visitor.visitSourceLocation(this);
+        return visitor.visitSourceLocation(this);
     }
 
     @Override

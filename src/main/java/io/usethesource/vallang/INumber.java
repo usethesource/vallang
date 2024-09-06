@@ -11,27 +11,27 @@
 package io.usethesource.vallang;
 
 public abstract interface INumber extends IValue {
-	/**
-	 * Returns an integer if both arguments are integer, and a real otherwise
-	 * @return this + other
-	 */
+    /**
+     * Returns an integer if both arguments are integer, and a real otherwise
+     * @return this + other
+     */
     public INumber add(INumber other);
     
     /**
-	 * @return this + other
-	 */
+     * @return this + other
+     */
     public IReal   add(IReal other);
     
     /**
-	 * Returns an integer if both arguments are integer, and a real otherwise
-	 * @return this + other
-	 */
+     * Returns an integer if both arguments are integer, and a real otherwise
+     * @return this + other
+     */
     public INumber add(IInteger other);
 
     /**
-	 * Returns a rational if both arguments are rationals or integers, and a real otherwise
-	 * @return this + other
-	 */
+     * Returns a rational if both arguments are rationals or integers, and a real otherwise
+     * @return this + other
+     */
     public INumber add(IRational other);
 
     /**
@@ -230,8 +230,8 @@ public abstract interface INumber extends IValue {
      * @return absolute value of this number
      */
     public INumber abs();
-	
-	/**
+    
+    /**
      * Compares two numbers
      * @param other
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger

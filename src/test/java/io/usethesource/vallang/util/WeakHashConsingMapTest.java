@@ -121,8 +121,8 @@ public class WeakHashConsingMapTest {
         System.gc();
         Thread.sleep(1100); // wait for the GC to finish and the cleanup to have been run
         while (ref.get() != null) {
-        	System.gc();
-        	Thread.sleep(100); // wait for the GC to finish and the cleanup to have been run
+            System.gc();
+            Thread.sleep(100); // wait for the GC to finish and the cleanup to have been run
         }
 
         // a new reference, the target should not have kept the old reference
@@ -319,7 +319,7 @@ public class WeakHashConsingMapTest {
             final List<FixedHashEquals> mySlice = objects.subList(i*chunkSize, (i + 1) * chunkSize);
 
             new Thread(() -> {
-            	boolean awaitQuerySend = false;
+                boolean awaitQuerySend = false;
                 try {
                     startRunning.await();
                     for (FixedHashEquals o : mySlice) {
@@ -340,12 +340,12 @@ public class WeakHashConsingMapTest {
                 } catch (InterruptedException | BrokenBarrierException e) {
                 }
                 finally {
-                	if (!awaitQuerySend) {
-                		try {
-							startQuerying.await();
-						} catch (InterruptedException | BrokenBarrierException e) {
-						}
-                	}
+                    if (!awaitQuerySend) {
+                        try {
+                            startQuerying.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                        }
+                    }
                     doneRunning.release();
                 }
             }).start();
@@ -379,7 +379,7 @@ public class WeakHashConsingMapTest {
 
 
         for (FixedHashEquals o : objects) {
-        	assertSame(o, target.get(o));
+            assertSame(o, target.get(o));
         }
 
         objects.clear();
@@ -387,7 +387,7 @@ public class WeakHashConsingMapTest {
         Thread.sleep(1100);
 
         for (FixedHashEquals o : toKeep) {
-        	assertSame(o, target.get(o.clone()));
+            assertSame(o, target.get(o.clone()));
         }
     }
 
@@ -420,7 +420,7 @@ public class WeakHashConsingMapTest {
         for (int i = 0; i < threads; i++) {
             List<FixedHashEquals> mySlice = objects.subList(i*chunkSize, (i + 1) * chunkSize);
             new Thread(() -> {
-            	boolean awaitQuerySend = false;
+                boolean awaitQuerySend = false;
                 try {
                     startRunning.await();
                     for (FixedHashEquals o : mySlice) {
@@ -442,12 +442,12 @@ public class WeakHashConsingMapTest {
                 } catch (InterruptedException | BrokenBarrierException e) {
                 }
                 finally {
-                	if (!awaitQuerySend) {
-                		try {
-							startQuerying.await();
-						} catch (InterruptedException | BrokenBarrierException e) {
-						}
-                	}
+                    if (!awaitQuerySend) {
+                        try {
+                            startQuerying.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                        }
+                    }
                     doneRunning.release();
                 }
             }).start();

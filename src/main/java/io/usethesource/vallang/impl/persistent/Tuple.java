@@ -23,178 +23,178 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /*package*/ class Tuple implements ITuple{
-	protected static final TypeFactory typeFactory = TypeFactory.getInstance();
-	private @MonotonicNonNull Type cachedTupleType;
-	protected final IValue[] elements;
+    protected static final TypeFactory typeFactory = TypeFactory.getInstance();
+    private @MonotonicNonNull Type cachedTupleType;
+    protected final IValue[] elements;
 
-	private static final ITuple EMPTY_TUPLE = new Tuple();
+    private static final ITuple EMPTY_TUPLE = new Tuple();
 
-	public static ITuple newTuple(IValue... elements) {
-		if (elements.length == 0) {
-			return EMPTY_TUPLE;
-		}
-		return new Tuple(elements);
-	}
+    public static ITuple newTuple(IValue... elements) {
+        if (elements.length == 0) {
+            return EMPTY_TUPLE;
+        }
+        return new Tuple(elements);
+    }
 
-	private Tuple(IValue... elements) {
-		super();
-		
-		this.elements = elements;
-	}
+    private Tuple(IValue... elements) {
+        super();
+        
+        this.elements = elements;
+    }
 
-	@Override
-	public Type getType() {
-		if (cachedTupleType == null) {
-			cachedTupleType = TypeFactory.getInstance().tupleType(elements);
-		}
-		
-		return cachedTupleType;
-	}
+    @Override
+    public Type getType() {
+        if (cachedTupleType == null) {
+            cachedTupleType = TypeFactory.getInstance().tupleType(elements);
+        }
+        
+        return cachedTupleType;
+    }
 
-	@Override
-	public int arity() {
-		return elements.length;
-	}
+    @Override
+    public int arity() {
+        return elements.length;
+    }
 
-	@Override
-	public IValue get(int i) {
-		return elements[i];
-	}
+    @Override
+    public IValue get(int i) {
+        return elements[i];
+    }
 
-	@Override
-	public IValue get(String label) {
-		return elements[getType().getFieldIndex(label)];
-	}
+    @Override
+    public IValue get(String label) {
+        return elements[getType().getFieldIndex(label)];
+    }
 
-	@Override
-	public Iterator<IValue> iterator() {
-		return new TupleIterator(this);
-	}
+    @Override
+    public Iterator<IValue> iterator() {
+        return new TupleIterator(this);
+    }
 
-	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return v.visitTuple(this);
-	}
+    @Override
+    public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitTuple(this);
+    }
 
-	@Override
-	public ITuple set(int index, IValue arg) {
-		int nrOfElements = elements.length;
-		IValue[] newElements = new IValue[nrOfElements];
-		Type[] elementTypes = new Type[nrOfElements];
-		for (int i = nrOfElements - 1; i >= 0; i--) {
-			IValue element = elements[i];
-			newElements[i] = element;
-			elementTypes[i] = element.getType();
-		}
+    @Override
+    public ITuple set(int index, IValue arg) {
+        int nrOfElements = elements.length;
+        IValue[] newElements = new IValue[nrOfElements];
+        Type[] elementTypes = new Type[nrOfElements];
+        for (int i = nrOfElements - 1; i >= 0; i--) {
+            IValue element = elements[i];
+            newElements[i] = element;
+            elementTypes[i] = element.getType();
+        }
 
-		newElements[index] = arg;
-		elementTypes[index] = arg.getType();
+        newElements[index] = arg;
+        elementTypes[index] = arg.getType();
 
-		return new Tuple(newElements);
-	}
+        return new Tuple(newElements);
+    }
 
-	@Override
-	public ITuple set(String label, IValue arg) {
-		int nrOfElements = elements.length;
-		IValue[] newElements = new IValue[nrOfElements];
-		Type[] elementTypes = new Type[nrOfElements];
-		for (int i = nrOfElements - 1; i >= 0; i--) {
-			IValue element = elements[i];
-			newElements[i] = element;
-			elementTypes[i] = element.getType();
-		}
+    @Override
+    public ITuple set(String label, IValue arg) {
+        int nrOfElements = elements.length;
+        IValue[] newElements = new IValue[nrOfElements];
+        Type[] elementTypes = new Type[nrOfElements];
+        for (int i = nrOfElements - 1; i >= 0; i--) {
+            IValue element = elements[i];
+            newElements[i] = element;
+            elementTypes[i] = element.getType();
+        }
 
-		newElements[getType().getFieldIndex(label)] = arg;
-		elementTypes[getType().getFieldIndex(label)] = arg.getType();
+        newElements[getType().getFieldIndex(label)] = arg;
+        elementTypes[getType().getFieldIndex(label)] = arg.getType();
 
-		return new Tuple(newElements);
-	}
+        return new Tuple(newElements);
+    }
 
-	@Override
-	public IValue select(int... indexes) {
-		if (indexes.length == 1)
-			return get(indexes[0]);
+    @Override
+    public IValue select(int... indexes) {
+        if (indexes.length == 1)
+            return get(indexes[0]);
 
-		int nrOfElements = indexes.length;
-		IValue[] elements = new IValue[nrOfElements];
-		Type[] elementTypes = new Type[nrOfElements];
-		for (int i = nrOfElements - 1; i >= 0; i--) {
-			IValue element = get(indexes[i]);
-			elements[i] = element;
-			elementTypes[i] = element.getType();
-		}
+        int nrOfElements = indexes.length;
+        IValue[] elements = new IValue[nrOfElements];
+        Type[] elementTypes = new Type[nrOfElements];
+        for (int i = nrOfElements - 1; i >= 0; i--) {
+            IValue element = get(indexes[i]);
+            elements[i] = element;
+            elementTypes[i] = element.getType();
+        }
 
-		return new Tuple(elements);
-	}
+        return new Tuple(elements);
+    }
 
-	@Override
-	public IValue selectByFieldNames(String... fields) {
-		if (fields.length == 1)
-			return get(fields[0]);
+    @Override
+    public IValue selectByFieldNames(String... fields) {
+        if (fields.length == 1)
+            return get(fields[0]);
 
-		int nrOfElements = fields.length;
-		IValue[] elements = new IValue[nrOfElements];
-		Type[] elementTypes = new Type[nrOfElements];
-		for (int i = nrOfElements - 1; i >= 0; i--) {
-			IValue element = get(fields[i]);
-			elements[i] = element;
-			elementTypes[i] = element.getType();
-		}
+        int nrOfElements = fields.length;
+        IValue[] elements = new IValue[nrOfElements];
+        Type[] elementTypes = new Type[nrOfElements];
+        for (int i = nrOfElements - 1; i >= 0; i--) {
+            IValue element = get(fields[i]);
+            elements[i] = element;
+            elementTypes[i] = element.getType();
+        }
 
-		return new Tuple(elements);
-	}
+        return new Tuple(elements);
+    }
 
-	@Override
-	public String toString() {
-	    return defaultToString();
-	}
-	
-	@Override
-	public int hashCode() {
-		int hash = 1331;
+    @Override
+    public String toString() {
+        return defaultToString();
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 1331;
 
-		for (int i = elements.length - 1; i >= 0; i--) {
-			hash -= (hash << 19) + (hash >>> 8);
-			hash ^= elements[i].hashCode();
-		}
+        for (int i = elements.length - 1; i >= 0; i--) {
+            hash -= (hash << 19) + (hash >>> 8);
+            hash ^= elements[i].hashCode();
+        }
 
-		return hash - (hash << 7);
-	}
+        return hash - (hash << 7);
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o) {
-		if (o == this) {
-			return true;
-		}
-		
-		if (o == null) {
-			return false;
-		}
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (o == this) {
+            return true;
+        }
+        
+        if (o == null) {
+            return false;
+        }
 
-		if (o.getClass() == getClass()) {
-			Tuple otherTuple = (Tuple) o;
+        if (o.getClass() == getClass()) {
+            Tuple otherTuple = (Tuple) o;
 
-			// checking for the type will dynamically allocate memory
-			// because tuple types are computed lazily.
-			// so we skip this "fast failure" check
-			// if (getType() != otherTuple.getType()) { return false; }
-			    
-			
-			IValue[] otherElements = otherTuple.elements;
-			int nrOfElements = elements.length;
-			if (otherElements.length == nrOfElements) {
-				for (int i = nrOfElements - 1; i >= 0; i--) {
-					if (!otherElements[i].equals(elements[i]))
-						return false;
-				}
-				return true;
-			}
-		}
+            // checking for the type will dynamically allocate memory
+            // because tuple types are computed lazily.
+            // so we skip this "fast failure" check
+            // if (getType() != otherTuple.getType()) { return false; }
+                
+            
+            IValue[] otherElements = otherTuple.elements;
+            int nrOfElements = elements.length;
+            if (otherElements.length == nrOfElements) {
+                for (int i = nrOfElements - 1; i >= 0; i--) {
+                    if (!otherElements[i].equals(elements[i]))
+                        return false;
+                }
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
+    @Override
     public boolean match(IValue value) {
         if (value == this) {
             return true;
@@ -223,33 +223,33 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         return false;
     }
-	
-	private static class TupleIterator implements Iterator<IValue> {
-		private final IValue[] elements;
-		private int index = 0;
+    
+    private static class TupleIterator implements Iterator<IValue> {
+        private final IValue[] elements;
+        private int index = 0;
 
-		public TupleIterator(Tuple tuple) {
-			super();
+        public TupleIterator(Tuple tuple) {
+            super();
 
-			elements = tuple.elements;
-		}
+            elements = tuple.elements;
+        }
 
-		@Override
-		public boolean hasNext() {
-			return index < elements.length;
-		}
+        @Override
+        public boolean hasNext() {
+            return index < elements.length;
+        }
 
-		@Override
-		public IValue next() {
-			if (!hasNext())
-				throw new NoSuchElementException("No more elements in this iteration.");
+        @Override
+        public IValue next() {
+            if (!hasNext())
+                throw new NoSuchElementException("No more elements in this iteration.");
 
-			return elements[index++];
-		}
+            return elements[index++];
+        }
 
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException("This iterator doesn't support removal.");
-		}
-	}
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("This iterator doesn't support removal.");
+        }
+    }
 }

@@ -19,112 +19,112 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ abstract class BoolValue implements IBool {
-	/*package*/ final static BoolValue TRUE = new BoolValue() {
-		@Override
-		public boolean getValue() {
-			return true;
-		}
+    /*package*/ final static BoolValue TRUE = new BoolValue() {
+        @Override
+        public boolean getValue() {
+            return true;
+        }
 
-		public int hashCode() {
-			return 1;
-		}
+        public int hashCode() {
+            return 1;
+        }
 
-		@Override
-		public IBool not() {
-			return FALSE;
-		}
+        @Override
+        public IBool not() {
+            return FALSE;
+        }
 
-		@Override
-		public IBool and(IBool other) {
-			return other;
-		}
+        @Override
+        public IBool and(IBool other) {
+            return other;
+        }
 
-		@Override
-		public IBool or(IBool other) {
-			return this;
-		}
+        @Override
+        public IBool or(IBool other) {
+            return this;
+        }
 
-		@Override
-		public IBool xor(IBool other) {
-			return other == this ? FALSE : TRUE;
-		}
+        @Override
+        public IBool xor(IBool other) {
+            return other == this ? FALSE : TRUE;
+        }
 
-		@Override
-		public IBool implies(IBool other) {
-			return other;
-		}
-	
-	};
-	
-	/*package*/ final static BoolValue FALSE = new BoolValue() {
-		@Override
-		public boolean getValue() {
-			return false;
-		}
+        @Override
+        public IBool implies(IBool other) {
+            return other;
+        }
+    
+    };
+    
+    /*package*/ final static BoolValue FALSE = new BoolValue() {
+        @Override
+        public boolean getValue() {
+            return false;
+        }
 
-		@Override
-		public IBool not() {
-			return TRUE;
-		}
+        @Override
+        public IBool not() {
+            return TRUE;
+        }
 
-		@Override
-		public IBool and(IBool other) {
-			return this;
-		}
+        @Override
+        public IBool and(IBool other) {
+            return this;
+        }
 
-		@Override
-		public IBool or(IBool other) {
-			return other;
-		}
+        @Override
+        public IBool or(IBool other) {
+            return other;
+        }
 
-		@Override
-		public IBool xor(IBool other) {
-			return other;
-		}
+        @Override
+        public IBool xor(IBool other) {
+            return other;
+        }
 
-		@Override
-		public IBool implies(IBool other) {
-			return TRUE;
-		}
+        @Override
+        public IBool implies(IBool other) {
+            return TRUE;
+        }
 
-		public int hashCode() {
-			return 2;
-		}
-	};
-	private final static Type BOOL_TYPE = TypeFactory.getInstance().boolType();
+        public int hashCode() {
+            return 2;
+        }
+    };
+    private final static Type BOOL_TYPE = TypeFactory.getInstance().boolType();
 
-	private BoolValue() {
-		super();
-	}
+    private BoolValue() {
+        super();
+    }
 
-	/*package*/ static BoolValue getBoolValue(boolean bool) {
-		return bool ? TRUE : FALSE;
-	}
+    /*package*/ static BoolValue getBoolValue(boolean bool) {
+        return bool ? TRUE : FALSE;
+    }
 
-	public abstract int hashCode();
+    public abstract int hashCode();
 
     @Override
     public String toString() {
         return defaultToString();
     }
     
-	public boolean equals(@Nullable Object o) {
-		return this == o;
-	}
+    public boolean equals(@Nullable Object o) {
+        return this == o;
+    }
 
-	@Override
-	public Type getType() {
-		return BOOL_TYPE;
-	}
+    @Override
+    public Type getType() {
+        return BOOL_TYPE;
+    }
 
-	@Override
-	public IBool equivalent(IBool other) {
-		return other == this ? TRUE : this;
-	}
+    @Override
+    public IBool equivalent(IBool other) {
+        return other == this ? TRUE : this;
+    }
 
-	@Override
-	public String getStringRepresentation() {
-		return toString();
-	}
+    @Override
+    public String getStringRepresentation() {
+        return toString();
+    }
 
 }

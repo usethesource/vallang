@@ -14,9 +14,9 @@ package io.usethesource.vallang;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IRational extends INumber {
-	/**
-	 * @return this + other;
-	 */
+    /**
+     * @return this + other;
+     */
     @Override
     public IRational add(IRational other);
     
@@ -139,7 +139,7 @@ public interface IRational extends INumber {
      */
     @Override
     public IRational abs();
-	
+    
     /**
      * @return this number rounded down to the nearest integer number that is
      * less than this number.

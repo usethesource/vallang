@@ -26,60 +26,60 @@ import io.usethesource.vallang.IValueFactory;
  * Note that NORMAL USE OF THE VALUES LIBRARY DOES NOT REQUIRE EXTENDING THIS CLASS
  */
 public abstract class ExternalType extends DefaultSubtypeOfValue {
-	
-	/**
-	 * Provide the type of the values produced by {@link IExternalValue}.encodeAsConstructor()
-	 */
-	public abstract Type asAbstractDataType();
-		
-	@Override
-	public Type getTypeParameters() {
-		return TypeFactory.getInstance().voidType();
-	}
-	
-	@Override
-	public boolean isExternalType() {
-		return true;
-	}
+    
+    /**
+     * Provide the type of the values produced by {@link IExternalValue}.encodeAsConstructor()
+     */
+    public abstract Type asAbstractDataType();
+        
+    @Override
+    public Type getTypeParameters() {
+        return TypeFactory.getInstance().voidType();
+    }
+    
+    @Override
+    public boolean isExternalType() {
+        return true;
+    }
 
-	@Override
-	public final <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-		return visitor.visitExternal(this);
-	}
-	
-	@Override
-	public final Type lub(Type other) {
-	  return other.lubWithExternal(this);    
-	}
-	
-	@Override
-	public final Type glb(Type type) {
-	  return type.glbWithExternal(this);
-	}
-	
-	@Override
-	public boolean intersects(Type other) {
-	    return other.intersectsWithExternal(this);
-	}
-	
-	@Override
-	protected /*final*/ boolean isSupertypeOf(Type type) {
-	  return type.isSubtypeOfExternal(this);
-	}
-	
-	@Override
-	abstract protected Type lubWithExternal(Type type);
-	
-	@Override
-	abstract protected boolean intersectsWithExternal(Type type);
-	
-	@Override
+    @Override
+    public final <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
+        return visitor.visitExternal(this);
+    }
+    
+    @Override
+    public final Type lub(Type other) {
+      return other.lubWithExternal(this);    
+    }
+    
+    @Override
+    public final Type glb(Type type) {
+      return type.glbWithExternal(this);
+    }
+    
+    @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithExternal(this);
+    }
+    
+    @Override
+    protected /*final*/ boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfExternal(this);
+    }
+    
+    @Override
+    abstract protected Type lubWithExternal(Type type);
+    
+    @Override
+    abstract protected boolean intersectsWithExternal(Type type);
+    
+    @Override
     abstract protected Type glbWithExternal(Type type);
   
-	
-	@Override
-	abstract protected boolean isSubtypeOfExternal(Type type);
-	
-	@Override
-	abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth);
+    
+    @Override
+    abstract protected boolean isSubtypeOfExternal(Type type);
+    
+    @Override
+    abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth);
 }

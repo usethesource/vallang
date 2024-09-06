@@ -44,13 +44,13 @@ public interface IExternalValue extends IValue {
     @Override
     int getMatchFingerprint();
 
-	/**
-	 * @return an ExternalType
-	 */
-	@Override
-	Type getType();
-	
-	public default IConstructor encodeAsConstructor() {
+    /**
+     * @return an ExternalType
+     */
+    @Override
+    Type getType();
+    
+    public default IConstructor encodeAsConstructor() {
         return new IConstructor() {
             @Override
             public Type getConstructorType() {
@@ -160,8 +160,8 @@ public interface IExternalValue extends IValue {
         };      
     }
     
-	@Override
-	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-	    return v.visitExternal(this);
-	}
+    @Override
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitExternal(this);
+    }
 }

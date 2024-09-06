@@ -82,9 +82,9 @@ public class IValueTests {
             // copied the implementation of IntegerValue.hashCode here
             // because this is now officially a contract.
             int hash = integer.intValue() ^ 0x85ebca6b;
-		    hash ^= hash >>> 13;
-		    hash *= 0x5bd1e995;
-		    hash ^= hash >>> 15;
+            hash ^= hash >>> 13;
+            hash *= 0x5bd1e995;
+            hash ^= hash >>> 15;
 
             assertEquals(hash, integer.getMatchFingerprint());
         }

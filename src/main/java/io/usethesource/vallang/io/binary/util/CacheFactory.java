@@ -34,15 +34,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  */
 public class CacheFactory<T> {
-	
-	
-	// or when more memory is needed.
-	private static final class LastUsedTracker<T> extends SoftReference<T> {
+    
+    
+    // or when more memory is needed.
+    private static final class LastUsedTracker<T> extends SoftReference<T> {
         private final long lastUsed;
 
         public LastUsedTracker(T obj, ReferenceQueue<T> queue) {
             super(obj, queue);
-	        this.lastUsed = System.nanoTime();
+            this.lastUsed = System.nanoTime();
         } 
         
         public boolean clearIfOlderThan(long timeStamp) {
@@ -52,20 +52,20 @@ public class CacheFactory<T> {
             }
             return false;
         }
-	}
-	
-	private static final class SoftPool<T> {
-	    private final Deque<LastUsedTracker<T>> dequeue = new ConcurrentLinkedDeque<>();
-	    private final ReferenceQueue<T> references = new ReferenceQueue<>();
-	    
-	    public void performHouseKeeping() {
-	        synchronized (references) {
-	            Object cleared;
-	            while ((cleared = references.poll()) != null) {
-	                dequeue.removeLastOccurrence(cleared);
-	            }
+    }
+    
+    private static final class SoftPool<T> {
+        private final Deque<LastUsedTracker<T>> dequeue = new ConcurrentLinkedDeque<>();
+        private final ReferenceQueue<T> references = new ReferenceQueue<>();
+        
+        public void performHouseKeeping() {
+            synchronized (references) {
+                Object cleared;
+                while ((cleared = references.poll()) != null) {
+                    dequeue.removeLastOccurrence(cleared);
+                }
             }
-	    }
+        }
 
         public @Nullable SoftReference<T> poll() {
             return dequeue.poll();
@@ -78,58 +78,58 @@ public class CacheFactory<T> {
         public Iterator<LastUsedTracker<T>> descendingIterator() {
             return dequeue.descendingIterator();
         }
-	}
+    }
 
-	private final Map<Integer, SoftPool<T>> caches = new ConcurrentHashMap<>();
-	private final Function<T, T> cleaner;
-	private final long expireNanos;
+    private final Map<Integer, SoftPool<T>> caches = new ConcurrentHashMap<>();
+    private final Function<T, T> cleaner;
+    private final long expireNanos;
 
-	public CacheFactory(int expireAfter, TimeUnit unit, Function<T, T> clearer) {
-	    this.expireNanos = unit.toNanos(expireAfter);
-		this.cleaner = clearer;
-		registerInstance(this);
-	}
+    public CacheFactory(int expireAfter, TimeUnit unit, Function<T, T> clearer) {
+        this.expireNanos = unit.toNanos(expireAfter);
+        this.cleaner = clearer;
+        registerInstance(this);
+    }
 
-	/**
-	 * Private internal function, to be called from the cleanup thread
-	 */
-	private void cleanup() {
-		long cleanBefore = System.nanoTime() - expireNanos;
-		for (SoftPool<T> v : caches.values()) {
-			Iterator<LastUsedTracker<T>> it = v.descendingIterator();
-			while (it.hasNext()) {
-				LastUsedTracker<T> current = it.next();
-				if (current.clearIfOlderThan(cleanBefore)) {
-					it.remove();
-				}
-				else {
-					break; // end of the chain of outdated stuff reached
-				}
-			}
-			v.performHouseKeeping();
-		}
-	}
-	
-	public @NonNull T get(int size, Function<Integer, @NonNull T> computeNew) {
+    /**
+     * Private internal function, to be called from the cleanup thread
+     */
+    private void cleanup() {
+        long cleanBefore = System.nanoTime() - expireNanos;
+        for (SoftPool<T> v : caches.values()) {
+            Iterator<LastUsedTracker<T>> it = v.descendingIterator();
+            while (it.hasNext()) {
+                LastUsedTracker<T> current = it.next();
+                if (current.clearIfOlderThan(cleanBefore)) {
+                    it.remove();
+                }
+                else {
+                    break; // end of the chain of outdated stuff reached
+                }
+            }
+            v.performHouseKeeping();
+        }
+    }
+    
+    public @NonNull T get(int size, Function<Integer, @NonNull T> computeNew) {
         SoftPool<T> reads = caches.computeIfAbsent(size, i -> new SoftPool<>());
         SoftReference<T> tracker;
         while ((tracker = reads.poll()) != null) {
             T result = tracker.get();
             if (result != null) {
-            	return result;
+                return result;
             }
         }
         return computeNew.apply(size);
-	}
-	
-	public void put(int size, T returned) {
-	    if (returned != null) {
-	    	returned = cleaner.apply(returned);
+    }
+    
+    public void put(int size, T returned) {
+        if (returned != null) {
+            returned = cleaner.apply(returned);
             SoftPool<T> entries = caches.computeIfAbsent(size, i -> new SoftPool<>());
             entries.push(returned);
-	    }
-	}
-	
+        }
+    }
+    
 
     private static final ConcurrentLinkedQueue<WeakReference<CacheFactory<?>>> CLEANUP_CACHES = new ConcurrentLinkedQueue<>();
 

@@ -62,7 +62,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
     
     @Override
-	public void insert(IValue... elems) throws FactTypeUseException {
+    public void insert(IValue... elems) throws FactTypeUseException {
         checkMutation();
 
         for (IValue elem : elems) {
@@ -71,7 +71,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-	public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException {
+    public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException {
         checkMutation();
 
         for (IValue v : collection) {
@@ -80,7 +80,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-	public ISet done() {
+    public ISet done() {
         if (constructedSet == null) {
             constructedSet = new Set(eltType, setContent);
         }

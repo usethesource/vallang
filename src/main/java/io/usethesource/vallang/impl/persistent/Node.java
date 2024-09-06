@@ -24,130 +24,130 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ class Node implements INode {
-	protected static final Type NODE_TYPE = TF.nodeType();
-	protected static final Type VALUE_TYPE = TypeFactory.getInstance().valueType();
-	
-	protected final String name;
-	protected final IValue[] children;
+    protected static final Type NODE_TYPE = TF.nodeType();
+    protected static final Type VALUE_TYPE = TypeFactory.getInstance().valueType();
+    
+    protected final String name;
+    protected final IValue[] children;
 
-	/*package*/ static INode newNode(String name, IValue[] children) {
-		return new Node(name, children);
-	}
-	
-	Node(String name, IValue[] children) {
-		super();
-		
-		this.name = name.intern();
-		this.children = children;
-	}
+    /*package*/ static INode newNode(String name, IValue[] children) {
+        return new Node(name, children);
+    }
+    
+    Node(String name, IValue[] children) {
+        super();
+        
+        this.name = name.intern();
+        this.children = children;
+    }
 
-	/*package*/ static INode newNode(String name, IList children) {
-		return new Node(name, children);
-	}
-	
-	private Node(String name, IList children) {
-		super();
-		IValue[] childArray = new IValue[children.length()];
-		this.name = name.intern();
-		for(int i = 0; i < childArray.length; i++){
-			childArray[i] = children.get(i);
-		}
-		this.children = childArray;
-	}
-	
-	@Override
-	public String toString() {
-	    return defaultToString();
-	}
-	
-	@Override
-	public Type getType(){
-		return NODE_TYPE;
-	}
-	
-	@Override
-	public int arity(){
-		return children.length;
-	}
+    /*package*/ static INode newNode(String name, IList children) {
+        return new Node(name, children);
+    }
+    
+    private Node(String name, IList children) {
+        super();
+        IValue[] childArray = new IValue[children.length()];
+        this.name = name.intern();
+        for(int i = 0; i < childArray.length; i++){
+            childArray[i] = children.get(i);
+        }
+        this.children = childArray;
+    }
+    
+    @Override
+    public String toString() {
+        return defaultToString();
+    }
+    
+    @Override
+    public Type getType(){
+        return NODE_TYPE;
+    }
+    
+    @Override
+    public int arity(){
+        return children.length;
+    }
 
-	@Override
+    @Override
     public INode setChildren(IValue[] childArray) {
         return new Node(name, childArray);
     }
-	
-	@Override
-	public IValue get(int i){
-		return children[i];
-	}
-	
-	@Override
-	public String getName(){
-		return name;
-	}
-	
-	@Override
-	public Iterator<IValue> iterator(){
-		return ArrayIterator.of(children);
-	}
-	
-	@Override
-	public Iterable<IValue> getChildren(){
-		return this;
-	}
+    
+    @Override
+    public IValue get(int i){
+        return children[i];
+    }
+    
+    @Override
+    public String getName(){
+        return name;
+    }
+    
+    @Override
+    public Iterator<IValue> iterator(){
+        return ArrayIterator.of(children);
+    }
+    
+    @Override
+    public Iterable<IValue> getChildren(){
+        return this;
+    }
 
-	@Override
-	public INode set(int i, IValue arg){
-		IValue[] newChildren = children.clone();
-		newChildren[i] = arg;
-		
-		return newNode(name, newChildren);
-	}
-	
-	@Override
-	public int hashCode() {
-		int hash = name.hashCode();
-		
-		for(int i = children.length - 1; i >= 0; i--){
-			hash = (hash << 23) + (hash >> 5);
-			hash ^= children[i].hashCode();
-		}
-		return hash;
-	}
+    @Override
+    public INode set(int i, IValue arg){
+        IValue[] newChildren = children.clone();
+        newChildren[i] = arg;
+        
+        return newNode(name, newChildren);
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = name.hashCode();
+        
+        for(int i = children.length - 1; i >= 0; i--){
+            hash = (hash << 23) + (hash >> 5);
+            hash ^= children[i].hashCode();
+        }
+        return hash;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o){
-		if (o == this) {
-		  return true;
-		}
-		
-		if (o == null) {
-		  return false;
-		}
-		
-		if (o.getClass() != getClass()) {
-		  return false;
-		}
-		
-		Node other = (Node) o;
+    @Override
+    public boolean equals(@Nullable Object o){
+        if (o == this) {
+          return true;
+        }
+        
+        if (o == null) {
+          return false;
+        }
+        
+        if (o.getClass() != getClass()) {
+          return false;
+        }
+        
+        Node other = (Node) o;
 
-		// Yes '!=' works here, since it has been interned.
-		if (name != other.name) {
-		  return false; 
-		}
+        // Yes '!=' works here, since it has been interned.
+        if (name != other.name) {
+          return false; 
+        }
 
-		IValue[] otherChildren = other.children;
-		int nrOfChildren = children.length;
+        IValue[] otherChildren = other.children;
+        int nrOfChildren = children.length;
 
-		if (otherChildren.length != nrOfChildren) {
-		  return false;
-		}
+        if (otherChildren.length != nrOfChildren) {
+          return false;
+        }
 
-		for (int i = nrOfChildren - 1; i >= 0; i--) {
-		  if (!otherChildren[i].equals(children[i])) {
-		    return false;
-		  }
-		}
+        for (int i = nrOfChildren - 1; i >= 0; i--) {
+          if (!otherChildren[i].equals(children[i])) {
+            return false;
+          }
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

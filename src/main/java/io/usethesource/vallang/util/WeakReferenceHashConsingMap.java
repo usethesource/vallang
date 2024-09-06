@@ -126,7 +126,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
      * All entries are also stored in a WeakReference, this helps with clearing memory
      * if entries are not referenced anymore
      */
-	private final ReferenceQueue<T> queue = new ReferenceQueue<>();
+    private final ReferenceQueue<T> queue = new ReferenceQueue<>();
     private final Map<Object, WeakReferenceWrap<T>> coldEntries;
     
     
@@ -151,7 +151,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
     
     
     private static <T extends @NonNull Object> void cleanup(int demoteAfterSeconds, @Nullable HotEntry<T>[] hotEntries, Map<Object, WeakReferenceWrap<T>> coldEntries,
-		ReferenceQueue<T> queue) {
+        ReferenceQueue<T> queue) {
         try {
             final int now = SecondsTicker.current();
             for (int i = 0; i < hotEntries.length; i++) {

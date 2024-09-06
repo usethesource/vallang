@@ -32,68 +32,68 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 /*package*/ class Map implements IMap {
-	final Type type;
-	final java.util.Map<IValue, IValue> content;
+    final Type type;
+    final java.util.Map<IValue, IValue> content;
 
-	/*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content) {
-		super();
-		this.content = content;
-		this.type = candidateMapType;
-	}
+    /*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content) {
+        super();
+        this.content = content;
+        this.type = candidateMapType;
+    }
 
-	@Override
-	public Type getType() {
-		return type;
-	}
+    @Override
+    public Type getType() {
+        return type;
+    }
 
-	@Override
-	public int size() {
-		return content.size();
-	}
-	
-	@Override
-	@SuppressWarnings({"contracts.conditional.postcondition"})
-	public boolean containsKey(IValue key) {
-	    return content.containsKey(key);
-	}
-	
-	@Override
-	public IMap removeKey(IValue key) {
-	    IMapWriter w = writer();
-	    for (Entry<IValue,IValue> cursor :(Iterable<Entry<IValue,IValue>>) this::entryIterator) {
-	        if (!cursor.getKey().equals(key)) {
-	            w.put(cursor.getKey(), cursor.getValue());
-	        }
-	    }
-	    
-	    return w.done();
-	}
+    @Override
+    public int size() {
+        return content.size();
+    }
+    
+    @Override
+    @SuppressWarnings({"contracts.conditional.postcondition"})
+    public boolean containsKey(IValue key) {
+        return content.containsKey(key);
+    }
+    
+    @Override
+    public IMap removeKey(IValue key) {
+        IMapWriter w = writer();
+        for (Entry<IValue,IValue> cursor :(Iterable<Entry<IValue,IValue>>) this::entryIterator) {
+            if (!cursor.getKey().equals(key)) {
+                w.put(cursor.getKey(), cursor.getValue());
+            }
+        }
+        
+        return w.done();
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return content.isEmpty();
-	}
+    @Override
+    public boolean isEmpty() {
+        return content.isEmpty();
+    }
 
-	@Override
-	@Pure
-	public @Nullable IValue get(IValue key) {
-	    return content.get(key);
-	}
+    @Override
+    @Pure
+    public @Nullable IValue get(IValue key) {
+        return content.get(key);
+    }
 
-	@Override
-	public Iterator<IValue> iterator() {
-	    return content.keySet().iterator();
-	}
+    @Override
+    public Iterator<IValue> iterator() {
+        return content.keySet().iterator();
+    }
 
-	@Override
-	public Iterator<IValue> valueIterator() {
-		return content.values().iterator();
-	}
+    @Override
+    public Iterator<IValue> valueIterator() {
+        return content.values().iterator();
+    }
 
-	@Override
-	public Iterator<Entry<IValue, IValue>> entryIterator() {
-	    return content.entrySet().iterator();
-	}
+    @Override
+    public Iterator<Entry<IValue, IValue>> entryIterator() {
+        return content.entrySet().iterator();
+    }
 
     @Override
     public Type getElementType() {
@@ -128,9 +128,9 @@ import io.usethesource.vallang.type.Type;
     
     @Override
     public boolean equals(@Nullable Object obj) {
-		if (obj == null) {
-			return false;
-		}
+        if (obj == null) {
+            return false;
+        }
         return defaultEquals(obj);
     }
     

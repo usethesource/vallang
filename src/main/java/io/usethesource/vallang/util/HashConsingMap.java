@@ -17,12 +17,12 @@ package io.usethesource.vallang.util;
  * @author Davy Landman
  */
 public interface HashConsingMap<T> {
-	/**
-	 * Lookup the hash-consed value for this key (using the hash-code-equals contract for equality).
-	 * 
-	 * The containers will take care of multi-threading concerns.
-	 * @param key key to lookup, will either be inserted and returned, or an older reference that is {@link #equals()} to this instance.
-	 * @return a non-null reference to something that is equal to key
-	 */
+    /**
+     * Lookup the hash-consed value for this key (using the hash-code-equals contract for equality).
+     * 
+     * The containers will take care of multi-threading concerns.
+     * @param key key to lookup, will either be inserted and returned, or an older reference that is {@link #equals()} to this instance.
+     * @return a non-null reference to something that is equal to key
+     */
     T get(T key);
 }

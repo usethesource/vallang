@@ -24,19 +24,19 @@ import io.usethesource.vallang.type.TypeStore;
  * back to IValues.
  */
 public interface IValueTextWriter {
-	/**
-	 * Serialize a value using the given writer
-	 * @param value  the value to serialize
-	 * @param writer the writer to output character to
-	 * @throws IOException in case the writer does
-	 */
-	 void write(IValue value, Writer writer) throws IOException;
-	 
-	 /**
-	  * Serialize a value using the given writer
-	  * @param value  the value to serialize
-	  * @param writer the writer to output character to
-	  * @throws IOException in case the writer does
-	  */
-	 void write(IValue value, Writer writer, TypeStore typeStore) throws IOException;
+    /**
+     * Serialize a value using the given writer
+     * @param value  the value to serialize
+     * @param writer the writer to output character to
+     * @throws IOException in case the writer does
+     */
+     void write(IValue value, Writer writer) throws IOException;
+     
+     /**
+      * Serialize a value using the given writer
+      * @param value  the value to serialize
+      * @param writer the writer to output character to
+      * @throws IOException in case the writer does
+      */
+     void write(IValue value, Writer writer, TypeStore typeStore) throws IOException;
 }

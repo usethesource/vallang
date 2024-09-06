@@ -31,72 +31,72 @@ import io.usethesource.vallang.IValueFactory;
  *
  */
 public class BottomUpVisitor<T, E extends Throwable> extends VisitorAdapter<T, E> {
-	protected IValueFactory fFactory;
+    protected IValueFactory fFactory;
 
-	public BottomUpVisitor(IValueVisitor<T, E> visitor, IValueFactory factory) {
-		super(visitor);
-		this.fFactory = factory;
-	}
-	
-	@Override
-	public T visitNode(INode o) throws E {
-		for (int i = 0; i < o.arity(); i++) {
-			o.get(i).accept(this);
-		}
-		
-		return fVisitor.visitNode(o);
-	}
-	
-	public T visitConstructor(IConstructor o) throws E {
-		for (int i = 0; i < o.arity(); i++) {
-			o.get(i).accept(this);
-		}
-		
-		return fVisitor.visitConstructor(o);
-	}
-	
-	@Override
-	public T visitList(IList o) throws E {
-		IListWriter w = fFactory.listWriter();
-		for (IValue elem : o) {
-			elem.accept(this);
-		}
-		
-		return fVisitor.visitList(w.done());
-	}
-	
-	@Override
-	public T visitSet(ISet o) throws E {
-		ISetWriter w = fFactory.setWriter();
-		for (IValue elem : o) {
-			elem.accept(this);
-		}
-		
-		return fVisitor.visitSet(w.done());
-	}
-	
-	@Override
-	public T visitMap(IMap o) throws E {
-		IMapWriter w = fFactory.mapWriter();
+    public BottomUpVisitor(IValueVisitor<T, E> visitor, IValueFactory factory) {
+        super(visitor);
+        this.fFactory = factory;
+    }
+    
+    @Override
+    public T visitNode(INode o) throws E {
+        for (int i = 0; i < o.arity(); i++) {
+            o.get(i).accept(this);
+        }
+        
+        return fVisitor.visitNode(o);
+    }
+    
+    public T visitConstructor(IConstructor o) throws E {
+        for (int i = 0; i < o.arity(); i++) {
+            o.get(i).accept(this);
+        }
+        
+        return fVisitor.visitConstructor(o);
+    }
+    
+    @Override
+    public T visitList(IList o) throws E {
+        IListWriter w = fFactory.listWriter();
+        for (IValue elem : o) {
+            elem.accept(this);
+        }
+        
+        return fVisitor.visitList(w.done());
+    }
+    
+    @Override
+    public T visitSet(ISet o) throws E {
+        ISetWriter w = fFactory.setWriter();
+        for (IValue elem : o) {
+            elem.accept(this);
+        }
+        
+        return fVisitor.visitSet(w.done());
+    }
+    
+    @Override
+    public T visitMap(IMap o) throws E {
+        IMapWriter w = fFactory.mapWriter();
 
-		for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> o.entryIterator()) {
-		    entry.getKey().accept(this);
-		    entry.getValue().accept(this);
-		}
-		
-		return fVisitor.visitMap(w.done());
-	}
+        for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> o.entryIterator()) {
+            entry.getKey().accept(this);
+            entry.getValue().accept(this);
+        }
+        
+        return fVisitor.visitMap(w.done());
+    }
 
-	@Override
-	public T visitTuple(ITuple o) throws E {
-		for (int i = 0; i < o.arity(); i++) {
-			o.get(i).accept(this);
-		}
-		
-		return fVisitor.visitTuple(o);
-	}
+    @Override
+    public T visitTuple(ITuple o) throws E {
+        for (int i = 0; i < o.arity(); i++) {
+            o.get(i).accept(this);
+        }
+        
+        return fVisitor.visitTuple(o);
+    }
 
-	public T visitExternal(IExternalValue externalValue) throws E {
-		return fVisitor.visitExternal(externalValue);
-	}
+    public T visitExternal(IExternalValue externalValue) throws E {
+        return fVisitor.visitExternal(externalValue);
+    }
 }

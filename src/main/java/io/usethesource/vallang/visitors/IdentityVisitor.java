@@ -33,72 +33,72 @@ import io.usethesource.vallang.IValue;
  */
 public abstract class IdentityVisitor<E extends Throwable> implements IValueVisitor<IValue, E> {
     @Override
-	public IValue visitReal(IReal o)  throws E{
-		return o;
-	}
+    public IValue visitReal(IReal o)  throws E{
+        return o;
+    }
 
     @Override
-	public IValue visitInteger(IInteger o)  throws E{
-		return o;
-	}
+    public IValue visitInteger(IInteger o)  throws E{
+        return o;
+    }
 
     @Override
-	public IValue visitRational(IRational o)  throws E{
-		return o;
-	}
+    public IValue visitRational(IRational o)  throws E{
+        return o;
+    }
 
     @Override
-	public IValue visitList(IList o)  throws E{
-		return o;
-	}
+    public IValue visitList(IList o)  throws E{
+        return o;
+    }
 
     @Override
-	public IValue visitMap(IMap o)  throws E{
-		return o;
-	}
+    public IValue visitMap(IMap o)  throws E{
+        return o;
+    }
 
     @Override
-	public IValue visitSet(ISet o)  throws E{
-		return o;
-	}
+    public IValue visitSet(ISet o)  throws E{
+        return o;
+    }
 
     @Override
-	public IValue visitSourceLocation(ISourceLocation o)  throws E{
-		return o;
-	}
+    public IValue visitSourceLocation(ISourceLocation o)  throws E{
+        return o;
+    }
 
     @Override
-	public IValue visitString(IString o)  throws E{
-		return o;
-	}
+    public IValue visitString(IString o)  throws E{
+        return o;
+    }
 
     @Override
-	public IValue visitNode(INode o)  throws E{
-		return o;
-	}
-	
+    public IValue visitNode(INode o)  throws E{
+        return o;
+    }
+    
     @Override
-	public IValue visitConstructor(IConstructor o) throws E {
-		return o;
-	}
+    public IValue visitConstructor(IConstructor o) throws E {
+        return o;
+    }
 
     @Override
-	public IValue visitTuple(ITuple o)  throws E{
-		return o;
-	}
-	
+    public IValue visitTuple(ITuple o)  throws E{
+        return o;
+    }
+    
     @Override
-	public IValue visitBoolean(IBool o) throws E {
-		return o;
-	}
-	
+    public IValue visitBoolean(IBool o) throws E {
+        return o;
+    }
+    
     @Override
-	public IValue visitExternal(IExternalValue o) throws E {
-		return o;
-	}
-	
+    public IValue visitExternal(IExternalValue o) throws E {
+        return o;
+    }
+    
     @Override
-	public IValue visitDateTime(IDateTime o) throws E {
-		return o;
-	}
+    public IValue visitDateTime(IDateTime o) throws E {
+        return o;
+    }
 }

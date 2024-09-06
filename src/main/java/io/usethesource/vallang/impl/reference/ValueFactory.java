@@ -34,124 +34,124 @@ import io.usethesource.vallang.type.Type;
  * not necessarily very efficient manner.
  */
 public class ValueFactory extends AbstractPrimitiveValueFactory {
-	private static final ValueFactory sInstance = new ValueFactory();
-	public static ValueFactory getInstance() {
-		return sInstance;
-	}
+    private static final ValueFactory sInstance = new ValueFactory();
+    public static ValueFactory getInstance() {
+        return sInstance;
+    }
 
-	protected ValueFactory() {
-		super();
-	}
+    protected ValueFactory() {
+        super();
+    }
 
-	protected static void checkNull(Object... args) {
-		for (Object a : args) {
-			Objects.requireNonNull(a);
-		}
-	}
+    protected static void checkNull(Object... args) {
+        for (Object a : args) {
+            Objects.requireNonNull(a);
+        }
+    }
 
-	protected static void checkNull(java.util.Map<Object, Object> args) {
-		for (java.util.Map.Entry<Object, Object> entry : args.entrySet()) {
-			if (entry == null || entry.getKey() == null || entry.getValue() == null) {
-				throw new NullPointerException();
-			}
-		}
-	}
+    protected static void checkNull(java.util.Map<Object, Object> args) {
+        for (java.util.Map.Entry<Object, Object> entry : args.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                throw new NullPointerException();
+            }
+        }
+    }
 
-	@Override
-	public ISetWriter setWriter() {
-		return new SetWriter();
-	}
+    @Override
+    public ISetWriter setWriter() {
+        return new SetWriter();
+    }
 
-	@Override
-	public ISet set(IValue... elems) throws FactTypeUseException {
-		checkNull((Object[]) elems);
-		
-		ISetWriter sw = setWriter();
-		sw.insert(elems);
-		return sw.done();
-	}
+    @Override
+    public ISet set(IValue... elems) throws FactTypeUseException {
+        checkNull((Object[]) elems);
+        
+        ISetWriter sw = setWriter();
+        sw.insert(elems);
+        return sw.done();
+    }
 
-	@Override
-	public IListWriter listWriter() {
-		return new ListWriter();
-	}
+    @Override
+    public IListWriter listWriter() {
+        return new ListWriter();
+    }
 
-	@Override
-	public IList list(IValue... rest) {
-		checkNull((Object[]) rest);
-		IListWriter lw =  listWriter();
-		lw.append(rest);
-		return lw.done();
-	}
+    @Override
+    public IList list(IValue... rest) {
+        checkNull((Object[]) rest);
+        IListWriter lw =  listWriter();
+        lw.append(rest);
+        return lw.done();
+    }
 
-	@Override
-	public ITuple tuple() {
-		return new Tuple(new IValue[0]);
-	}
+    @Override
+    public ITuple tuple() {
+        return new Tuple(new IValue[0]);
+    }
 
-	@Override
-	public ITuple tuple(IValue... args) {
-		checkNull((Object[]) args);
+    @Override
+    public ITuple tuple(IValue... args) {
+        checkNull((Object[]) args);
 
-		return new Tuple(args.clone());
-	}
+        return new Tuple(args.clone());
+    }
 
-	@Override
-	public INode node(String name) {
-		checkNull(name);
-		return new Node(name);
-	}
-	
-	@Override
-	public INode node(String name, IValue... children) {
-		checkNull(name);
-		checkNull((Object[]) children);
-		return new Node(name, children);
-	}
-	
-	@Override
-	public INode node(String name,  IValue[] children, java.util.Map<String, IValue> keyArgValues)
-			throws FactTypeUseException {
-		checkNull(name);
-		checkNull((Object[]) children);
-//		checkNull(keyArgValues); // fails; are null values allowed?
-		
-		return new Node(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
-	}
-		
-	@Override
-	public IConstructor constructor(Type constructorType, IValue... children) {
-		checkNull(constructorType);
-		checkNull((Object[]) children);
-		assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
-		return new Constructor(constructorType, children);
-	}
-	
-	@Override
-	public IConstructor constructor(Type constructorType,  IValue[] children, java.util.Map<String,IValue> kwParams) {
-	    checkNull(constructorType);
-	    checkNull(kwParams);
-	    checkNull((Object[]) children);
-	    assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
-	    
-	    return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
-	}
-	
-	@Override
-	public IConstructor constructor(Type constructorType) {
-		checkNull(constructorType);
-		assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, new IValue[0]);
-		return new Constructor(constructorType);
-	}
+    @Override
+    public INode node(String name) {
+        checkNull(name);
+        return new Node(name);
+    }
+    
+    @Override
+    public INode node(String name, IValue... children) {
+        checkNull(name);
+        checkNull((Object[]) children);
+        return new Node(name, children);
+    }
+    
+    @Override
+    public INode node(String name,  IValue[] children, java.util.Map<String, IValue> keyArgValues)
+            throws FactTypeUseException {
+        checkNull(name);
+        checkNull((Object[]) children);
+//      checkNull(keyArgValues); // fails; are null values allowed?
+        
+        return new Node(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
+    }
+        
+    @Override
+    public IConstructor constructor(Type constructorType, IValue... children) {
+        checkNull(constructorType);
+        checkNull((Object[]) children);
+        assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
+        return new Constructor(constructorType, children);
+    }
+    
+    @Override
+    public IConstructor constructor(Type constructorType,  IValue[] children, java.util.Map<String,IValue> kwParams) {
+        checkNull(constructorType);
+        checkNull(kwParams);
+        checkNull((Object[]) children);
+        assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
+        
+        return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
+    }
+    
+    @Override
+    public IConstructor constructor(Type constructorType) {
+        checkNull(constructorType);
+        assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, new IValue[0]);
+        return new Constructor(constructorType);
+    }
 
-	@Override
-	public IMapWriter mapWriter() {
-		return new MapWriter();
-	}
+    @Override
+    public IMapWriter mapWriter() {
+        return new MapWriter();
+    }
 
-	@Override
-	public String toString() {
-		return "VALLANG_REFERENCE_FACTORY";
-	}
-	
+    @Override
+    public String toString() {
+        return "VALLANG_REFERENCE_FACTORY";
+    }
+    
 }

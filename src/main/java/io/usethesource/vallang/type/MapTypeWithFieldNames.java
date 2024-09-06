@@ -26,75 +26,75 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     
     /*package*/ MapTypeWithFieldNames(Type keyType, String keyLabel, Type valueType, String valueLabel) {
         super(keyType, valueType);
-    	fKeyLabel = keyLabel;
-    	fValueLabel = valueLabel;
+        fKeyLabel = keyLabel;
+        fValueLabel = valueLabel;
     }
     
-	@Override
-	public String getValueLabel() {
-		return fValueLabel;
-	}
-	
-	@Override
-	public String getKeyLabel() {
-	    return fKeyLabel;
-	}
-	 
+    @Override
+    public String getValueLabel() {
+        return fValueLabel;
+    }
+    
+    @Override
+    public String getKeyLabel() {
+        return fKeyLabel;
+    }
+     
     @Override
     public boolean hasFieldNames() {
-    	return true;
+        return true;
     }
     
     @Override
     public Type getFieldType(String fieldName) throws FactTypeUseException {
-    	if (fKeyLabel.equals(fieldName)) {
-    		return fKeyType;
-    	}
-    	
-    	if (fValueLabel.equals(fieldName)) {
-    		return fValueType;
-    	}
-    	
-    	throw new UndeclaredFieldException(this, fieldName);
+        if (fKeyLabel.equals(fieldName)) {
+            return fKeyType;
+        }
+        
+        if (fValueLabel.equals(fieldName)) {
+            return fValueType;
+        }
+        
+        throw new UndeclaredFieldException(this, fieldName);
     }
     
     @Override
     public boolean hasField(String fieldName) {
-    	if (fieldName.equals(fKeyLabel)) {
-    		return true;
-    	}
-    	else if (fieldName.equals(fValueLabel)) {
-    		return true;
-    	}
-    	
-    	return false;
+        if (fieldName.equals(fKeyLabel)) {
+            return true;
+        }
+        else if (fieldName.equals(fValueLabel)) {
+            return true;
+        }
+        
+        return false;
     }
     
     @Override
     public String getFieldName(int i) {
-    	switch (i) {
-    	case 0: return fKeyLabel;
-    	case 1: return fValueLabel;
-    	default:
-    		throw new IndexOutOfBoundsException();
-    	}
+        switch (i) {
+        case 0: return fKeyLabel;
+        case 1: return fValueLabel;
+        default:
+            throw new IndexOutOfBoundsException();
+        }
 
     }
     
     @Override
     public Type select(String... names) {
-    	return TypeFactory.getInstance().setType(getFieldTypes().select(names));
+        return TypeFactory.getInstance().setType(getFieldTypes().select(names));
     }
     
     @Override
     public int getFieldIndex(String fieldName) {
-    	if (fKeyLabel.equals(fieldName)) {
-    		return 0;
-    	}
-    	if (fValueLabel.equals(fieldName)) {
-    		return 1;
-    	}
-    	throw new UndeclaredFieldException(this, fieldName);
+        if (fKeyLabel.equals(fieldName)) {
+            return 0;
+        }
+        if (fValueLabel.equals(fieldName)) {
+            return 1;
+        }
+        throw new UndeclaredFieldException(this, fieldName);
     }
     
     @SuppressWarnings("deprecation")
@@ -132,14 +132,14 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
     @Override
     public String toString() {
-    	return "map["  
-    	+ fKeyType + " " + fKeyLabel + ", " 
-    	+ fValueType + " " + fValueLabel  
-    	+ "]";
+        return "map["  
+        + fKeyType + " " + fKeyLabel + ", " 
+        + fValueType + " " + fValueLabel  
+        + "]";
     }
     
-	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
-	    return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), fKeyLabel, getValueType().instantiate(bindings), fValueLabel);
-	}
+    @Override
+    public Type instantiate(Map<Type, Type> bindings) {
+        return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), fKeyLabel, getValueType().instantiate(bindings), fValueLabel);
+    }
 }

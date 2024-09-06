@@ -19,11 +19,11 @@ import java.math.BigInteger;
  * @author Arnold Lankamp
  */
 public interface ICanBecomeABigInteger{
-	
-	/**
-	 * Returns the big integer.
-	 * 
-	 * @return The big integer.
-	 */
-	BigInteger toBigInteger();
+    
+    /**
+     * Returns the big integer.
+     * 
+     * @return The big integer.
+     */
+    BigInteger toBigInteger();
 }

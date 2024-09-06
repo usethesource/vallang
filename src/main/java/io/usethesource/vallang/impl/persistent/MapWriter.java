@@ -29,102 +29,102 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 
 final class MapWriter implements IMapWriter {
 
-	private AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
-	private AbstractTypeBag valTypeBag = AbstractTypeBag.of();
-	private final Map.Transient<IValue, IValue> mapContent = Map.Transient.of();
+    private AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
+    private AbstractTypeBag valTypeBag = AbstractTypeBag.of();
+    private final Map.Transient<IValue, IValue> mapContent = Map.Transient.of();
 
-	private @MonotonicNonNull IMap constructedMap;
-
-	@Override
-	public void put(IValue key, IValue value) {
-		checkMutation();
-
-		final Type keyType = key.getType();
-		final Type valType = value.getType();
-
-		int oldSize = mapContent.size();
-		
-		final IValue replaced = mapContent.__put(key, value);
-
-		if (oldSize == mapContent.size() && replaced == null) {
-		    // update nothing because they key/value pair was already there
-		}
-		else if (replaced != null) {
-		    // only update the val since the key was already there
-		    valTypeBag = valTypeBag.decrease(replaced.getType()).increase(valType);
-		} 
-		else {
-		    // add the new entry for both bags since its entirely new
-		    keyTypeBag = keyTypeBag.increase(keyType); 
-		    valTypeBag = valTypeBag.increase(valType);
-		}
-
-		assert mapContent.size() == keyTypeBag.sum();
-	}
+    private @MonotonicNonNull IMap constructedMap;
 
     @Override
-	public void putAll(IMap map) {
-		putAll(map.entryIterator());
-	}
+    public void put(IValue key, IValue value) {
+        checkMutation();
 
-	@Override
-	public void putAll(java.util.Map<IValue, IValue> map) {
-		putAll(map.entrySet().iterator());
-	}
+        final Type keyType = key.getType();
+        final Type valType = value.getType();
 
-	private void putAll(Iterator<Entry<IValue, IValue>> entryIterator) {
-		checkMutation();
+        int oldSize = mapContent.size();
+        
+        final IValue replaced = mapContent.__put(key, value);
 
-		while (entryIterator.hasNext()) {
-			Entry<IValue, IValue> entry = entryIterator.next();
-			IValue key = entry.getKey();
-			IValue value = entry.getValue();
+        if (oldSize == mapContent.size() && replaced == null) {
+            // update nothing because they key/value pair was already there
+        }
+        else if (replaced != null) {
+            // only update the val since the key was already there
+            valTypeBag = valTypeBag.decrease(replaced.getType()).increase(valType);
+        } 
+        else {
+            // add the new entry for both bags since its entirely new
+            keyTypeBag = keyTypeBag.increase(keyType); 
+            valTypeBag = valTypeBag.increase(valType);
+        }
 
-			this.put(key, value);
-		}
-	}
+        assert mapContent.size() == keyTypeBag.sum();
+    }
 
-	@Override
-	public void insert(IValue... values) {
-		insertAll(Arrays.asList(values));
-	}
+    @Override
+    public void putAll(IMap map) {
+        putAll(map.entryIterator());
+    }
 
-	@Override
-	public void insertAll(Iterable<? extends IValue> collection) {
-		checkMutation();
+    @Override
+    public void putAll(java.util.Map<IValue, IValue> map) {
+        putAll(map.entrySet().iterator());
+    }
 
-		Iterator<? extends IValue> collectionIterator = collection.iterator();
-		while (collectionIterator.hasNext()) {
-			final Object item = collectionIterator.next();
+    private void putAll(Iterator<Entry<IValue, IValue>> entryIterator) {
+        checkMutation();
 
-			if (!(item instanceof ITuple)) {
-				throw new IllegalArgumentException("Argument must be of ITuple type.");
-			}
+        while (entryIterator.hasNext()) {
+            Entry<IValue, IValue> entry = entryIterator.next();
+            IValue key = entry.getKey();
+            IValue value = entry.getValue();
 
-			final ITuple tuple = (ITuple) item;
+            this.put(key, value);
+        }
+    }
 
-			if (tuple.arity() != 2) {
-				throw new IllegalArgumentException("Tuple must have an arity of 2.");
-			}
+    @Override
+    public void insert(IValue... values) {
+        insertAll(Arrays.asList(values));
+    }
 
-			put(tuple.get(0), tuple.get(1));
-		}
-	}
+    @Override
+    public void insertAll(Iterable<? extends IValue> collection) {
+        checkMutation();
 
-	protected void checkMutation() {
-		if (constructedMap != null) {
-			throw new UnsupportedOperationException("Mutation of a finalized map is not supported.");
-		}
-	}
+        Iterator<? extends IValue> collectionIterator = collection.iterator();
+        while (collectionIterator.hasNext()) {
+            final Object item = collectionIterator.next();
 
-	@Override
-	public IMap done() {
-		if (constructedMap == null) {
-			constructedMap = new PersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
-		}
+            if (!(item instanceof ITuple)) {
+                throw new IllegalArgumentException("Argument must be of ITuple type.");
+            }
 
-		return constructedMap;
-	}
+            final ITuple tuple = (ITuple) item;
+
+            if (tuple.arity() != 2) {
+                throw new IllegalArgumentException("Tuple must have an arity of 2.");
+            }
+
+            put(tuple.get(0), tuple.get(1));
+        }
+    }
+
+    protected void checkMutation() {
+        if (constructedMap != null) {
+            throw new UnsupportedOperationException("Mutation of a finalized map is not supported.");
+        }
+    }
+
+    @Override
+    public IMap done() {
+        if (constructedMap == null) {
+            constructedMap = new PersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
+        }
+
+        return constructedMap;
+    }
 
     @Override
     public void insertTuple(IValue... fields) {

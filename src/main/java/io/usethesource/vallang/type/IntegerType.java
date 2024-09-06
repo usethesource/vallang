@@ -29,7 +29,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class IntegerType extends NumberType {
-	private static final class InstanceKeeper {
+    private static final class InstanceKeeper {
       public final static IntegerType sInstance= new IntegerType();
     }
     
@@ -38,26 +38,26 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
     
     public static class Info extends TypeFactory.TypeReifier {
-		public Info(TypeValues symbols) {
+        public Info(TypeValues symbols) {
             super(symbols);
         }
 
         @Override
-		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("int");
-		}
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("int");
+        }
 
-		@Override
-		public Type fromSymbol(IConstructor symbol, TypeStore store,
-				Function<IConstructor, Set<IConstructor>> grammar) {
-			return getInstance();
-		}
-		
-		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-		    return tf().integerType();
-		}
-	}
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store,
+                Function<IConstructor, Set<IConstructor>> grammar) {
+            return getInstance();
+        }
+        
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            return tf().integerType();
+        }
+    }
     
     @Override
     public boolean isInteger() {
@@ -65,9 +65,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
-		return new Info(symbols);
-	}
+    public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
+    }
     
     /**
      * Should never need to be called; there should be only one instance of IntegerType
@@ -89,7 +89,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     
     @Override
     public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-    	return visitor.visitInteger(this);
+        return visitor.visitInteger(this);
     }
     
     @Override
@@ -109,7 +109,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     
     @Override
     protected boolean isSubtypeOfInteger(Type type) {
-    	return true;
+        return true;
     }
     
     @Override

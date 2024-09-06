@@ -101,86 +101,86 @@ package io.usethesource.vallang.type;
         return false;
     }
     
-	@Override 
-	public abstract Type glb(Type type);
+    @Override 
+    public abstract Type glb(Type type);
 
-	@Override
-	protected Type glbWithValue(Type type) {
-		return this; // such that sub-classes do not have to override
-	}
+    @Override
+    protected Type glbWithValue(Type type) {
+        return this; // such that sub-classes do not have to override
+    }
 
-	protected Type glbWithReal(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithReal(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithInteger(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithInteger(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithRational(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithRational(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithList(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithList(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithMap(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithMap(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithNumber(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithNumber(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithRelation(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithRelation(Type type) {
+        return VoidType.getInstance();
+    }
 
 
-	protected Type glbWithSet(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithSet(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithSourceLocation(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithSourceLocation(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithString(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithString(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithNode(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithNode(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithConstructor(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithConstructor(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithAbstractData(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithAbstractData(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithTuple(Type type) {
-		return VoidType.getInstance();
+    protected Type glbWithTuple(Type type) {
+        return VoidType.getInstance();
     }
     
     protected Type glbWithFunction(Type type) {
-		return VoidType.getInstance();
-	}
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithVoid(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithVoid(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithBool(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithBool(Type type) {
+        return VoidType.getInstance();
+    }
 
-	protected Type glbWithDateTime(Type type) {
-		return VoidType.getInstance();
-	}
+    protected Type glbWithDateTime(Type type) {
+        return VoidType.getInstance();
+    }
 
 
 }

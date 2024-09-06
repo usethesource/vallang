@@ -27,11 +27,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  * of tools, such as editors, to easily jump to source locations. 
  */
 public interface ISourceLocation extends IValue {
-	/**
-	 * The {@link #top() top} method is preferred.
-	 * @return exact url where the source is located. The particular encoding of
-	 * the URL is not specified.
-	 */
+    /**
+     * The {@link #top() top} method is preferred.
+     * @return exact url where the source is located. The particular encoding of
+     * the URL is not specified.
+     */
     public URI getURI();
 
     /**
@@ -42,42 +42,42 @@ public interface ISourceLocation extends IValue {
     /**
      * @return the authority of the URI or "" if it does not exist
      */
-	public String getAuthority();
-	
-	/**
-	 * @return the path of the URI or "" if it does not exist
-	 */
-	public String getPath();
-	
-	/**
-	 * @return the fragment of the URI or "" if it does not exist
-	 */
-	public String getFragment();
-	
-	/**
-	 * @return the query part of the URI or "" if it does not exist
-	 */
-	public String getQuery();
-	
-	/**
-	 * @return true iff the URI has an authority part
-	 */
-	public boolean hasAuthority();
-	
-	/**
+    public String getAuthority();
+    
+    /**
+     * @return the path of the URI or "" if it does not exist
+     */
+    public String getPath();
+    
+    /**
+     * @return the fragment of the URI or "" if it does not exist
+     */
+    public String getFragment();
+    
+    /**
+     * @return the query part of the URI or "" if it does not exist
+     */
+    public String getQuery();
+    
+    /**
+     * @return true iff the URI has an authority part
+     */
+    public boolean hasAuthority();
+    
+    /**
      * @return true iff the URI has an path part
      */
-	public boolean hasPath();
-	
-	/**
+    public boolean hasPath();
+    
+    /**
      * @return true iff the URI has an fragment part
      */
-	public boolean hasFragment();
-	
-	/**
+    public boolean hasFragment();
+    
+    /**
      * @return true iff the URI has a query part
      */
-	public boolean hasQuery();
+    public boolean hasQuery();
     
     
     /**

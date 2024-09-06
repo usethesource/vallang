@@ -278,13 +278,13 @@ public interface IMap extends ICollection<IMap> {
     }
     
     /**
-	 * Checks if the <code>other</code> map is defined for every key that is
-	 * present in the receiver object.
-	 * 
-	 * @param other
-	 * @return true iff all for every key of the receiver there exists an entry
-	 *         in the other map.
-	 */
+     * Checks if the <code>other</code> map is defined for every key that is
+     * present in the receiver object.
+     * 
+     * @param other
+     * @return true iff all for every key of the receiver there exists an entry
+     *         in the other map.
+     */
     public default boolean isSubMap(IMap other) {
         for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
             IValue key = entry.getKey();

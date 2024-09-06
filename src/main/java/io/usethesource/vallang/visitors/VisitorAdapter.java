@@ -30,79 +30,79 @@ import io.usethesource.vallang.ITuple;
  *
  */
 public abstract class VisitorAdapter<T, E extends Throwable> implements IValueVisitor<T,E> {
-	protected IValueVisitor<T,E> fVisitor;
+    protected IValueVisitor<T,E> fVisitor;
 
-	public VisitorAdapter(IValueVisitor<T,E> visitor) {
-		this.fVisitor = visitor;
-	}
+    public VisitorAdapter(IValueVisitor<T,E> visitor) {
+        this.fVisitor = visitor;
+    }
 
-	@Override
-	public T visitReal(IReal o) throws E {
-		return fVisitor.visitReal(o);
-	}
+    @Override
+    public T visitReal(IReal o) throws E {
+        return fVisitor.visitReal(o);
+    }
 
-	@Override
-	public T visitInteger(IInteger o) throws E {
-		return fVisitor.visitInteger(o);
-	}
+    @Override
+    public T visitInteger(IInteger o) throws E {
+        return fVisitor.visitInteger(o);
+    }
 
-	@Override
-	public T visitRational(IRational o) throws E {
-		return fVisitor.visitRational(o);
-	}
+    @Override
+    public T visitRational(IRational o) throws E {
+        return fVisitor.visitRational(o);
+    }
 
-	@Override
-	public T visitList(IList o) throws E {
-		return fVisitor.visitList(o);
-	}
+    @Override
+    public T visitList(IList o) throws E {
+        return fVisitor.visitList(o);
+    }
 
-	@Override
-	public T visitMap(IMap o) throws E {
-		return fVisitor.visitMap(o);
-	}
+    @Override
+    public T visitMap(IMap o) throws E {
+        return fVisitor.visitMap(o);
+    }
 
-	@Override
-	public T visitSet(ISet o) throws E {
-		return fVisitor.visitSet(o);
-	}
+    @Override
+    public T visitSet(ISet o) throws E {
+        return fVisitor.visitSet(o);
+    }
 
-	@Override
-	public T visitSourceLocation(ISourceLocation o) throws E {
-		return fVisitor.visitSourceLocation(o);
-	}
+    @Override
+    public T visitSourceLocation(ISourceLocation o) throws E {
+        return fVisitor.visitSourceLocation(o);
+    }
 
-	@Override
-	public T visitString(IString o) throws E {
-		return fVisitor.visitString(o);
-	}
+    @Override
+    public T visitString(IString o) throws E {
+        return fVisitor.visitString(o);
+    }
 
-	@Override
-	public T visitNode(INode o) throws E {
-		return fVisitor.visitNode(o);
-	}
+    @Override
+    public T visitNode(INode o) throws E {
+        return fVisitor.visitNode(o);
+    }
 
-	@Override
-	public T visitConstructor(IConstructor o) throws E {
-		return fVisitor.visitConstructor(o);
-	}
-	
-	@Override
-	public T visitTuple(ITuple o) throws E {
-		return fVisitor.visitTuple(o);
-	}
-	
-	@Override
-	public T visitBoolean(IBool o) throws E {
-		return fVisitor.visitBoolean(o);
-	}
-	
-	@Override
-	public T visitDateTime(IDateTime o) throws E {
-		return fVisitor.visitDateTime(o);
-	}
-	
-	@Override
-	public T visitExternal(IExternalValue externalValue) throws E {
-	  return fVisitor.visitExternal(externalValue);
-	}
+    @Override
+    public T visitConstructor(IConstructor o) throws E {
+        return fVisitor.visitConstructor(o);
+    }
+    
+    @Override
+    public T visitTuple(ITuple o) throws E {
+        return fVisitor.visitTuple(o);
+    }
+    
+    @Override
+    public T visitBoolean(IBool o) throws E {
+        return fVisitor.visitBoolean(o);
+    }
+    
+    @Override
+    public T visitDateTime(IDateTime o) throws E {
+        return fVisitor.visitDateTime(o);
+    }
+    
+    @Override
+    public T visitExternal(IExternalValue externalValue) throws E {
+      return fVisitor.visitExternal(externalValue);
+    }
 }

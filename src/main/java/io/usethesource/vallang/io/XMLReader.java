@@ -286,7 +286,7 @@ public class XMLReader extends AbstractTextReader {
                 IValue[] elements = new IValue[fields.getArity()];
 
                 for (int j = 0; i < children.getLength() && j < fields.getArity(); j++) {
-                    elements[j] = parse(children.item(i++), fields.getFieldType(j));	
+                    elements[j] = parse(children.item(i++), fields.getFieldType(j));    
                 }
 
                 @SuppressWarnings("nullness")
@@ -316,7 +316,7 @@ public class XMLReader extends AbstractTextReader {
                     IValue[] elements = new IValue[tuple.getArity()];
 
                     for (int j = 0; i < children.getLength() && j < tuple.getArity(); j++) {
-                        elements[j] = parse(children.item(i++), tuple.getFieldType(j));	
+                        elements[j] = parse(children.item(i++), tuple.getFieldType(j)); 
                     }
 
                     @SuppressWarnings("nullness")
@@ -347,7 +347,7 @@ public class XMLReader extends AbstractTextReader {
                     IValue[] elements = new IValue[tuple.getArity()];
 
                     for (int j = 0; i < children.getLength() && j < tuple.getArity(); j++) {
-                        elements[j] = parse(children.item(i++), tuple.getFieldType(j));	
+                        elements[j] = parse(children.item(i++), tuple.getFieldType(j)); 
                     }
 
                     @SuppressWarnings("nullness")

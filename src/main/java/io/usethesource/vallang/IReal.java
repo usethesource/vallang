@@ -22,9 +22,9 @@ public interface IReal extends INumber {
         return hash == 0 ? 3496350 /* "real".hashCode() */ : hash;
     }
 
-	/**
-	 * @return this + other;
-	 */
+    /**
+     * @return this + other;
+     */
     @Override
     public IReal add(IReal other);
     
@@ -150,65 +150,65 @@ public interface IReal extends INumber {
     @Override
     public IReal abs();
 
-	/**
-	 * @return log<sub>base</sub>(this)
-	 */
+    /**
+     * @return log<sub>base</sub>(this)
+     */
     public IReal log(IInteger base, int precision);
-	
-	/**
-	 * @return log<sub>base</sub>(this)
-	 */
-	public IReal log(IReal base, int precision);
-	
-	/**
-	 * @return natural log of this
-	 */
-	public IReal ln(int precision);
-	
-	/**
-	 * @return square root of this
-	 */
-	public IReal sqrt(int precision);
-	
-	/**
-	 * @return n-th root of this
-	 */
-	public IReal nroot(IInteger n, int precision);
-	
-	/**
-	 * @return e<sup>this</sup>
-	 */
-	public IReal exp(int precision);
-	
-	/**
-	 * @return this<sup>power</sup>
-	 */
-	public IReal pow(IInteger power);
+    
+    /**
+     * @return log<sub>base</sub>(this)
+     */
+    public IReal log(IReal base, int precision);
+    
+    /**
+     * @return natural log of this
+     */
+    public IReal ln(int precision);
+    
+    /**
+     * @return square root of this
+     */
+    public IReal sqrt(int precision);
+    
+    /**
+     * @return n-th root of this
+     */
+    public IReal nroot(IInteger n, int precision);
+    
+    /**
+     * @return e<sup>this</sup>
+     */
+    public IReal exp(int precision);
+    
+    /**
+     * @return this<sup>power</sup>
+     */
+    public IReal pow(IInteger power);
 
-	/**
-	 * @return this<sup>power<sup> but for non natural numbers 
-	 */
-	public IReal pow(IReal power, int precision);
-	
-	/**
-	 * @return tan(this)
-	 */
-	public IReal tan(int precision);
-	
-	/**
-	 * @return sin(this)
-	 */
-	public IReal sin(int precision);
-	
-	/**
-	 * @return cos(this)
-	 */
-	
-	public IReal cos(int precision);
-	
-	@Override
-	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-	    return v.visitReal(this);
-	}
+    /**
+     * @return this<sup>power<sup> but for non natural numbers 
+     */
+    public IReal pow(IReal power, int precision);
+    
+    /**
+     * @return tan(this)
+     */
+    public IReal tan(int precision);
+    
+    /**
+     * @return sin(this)
+     */
+    public IReal sin(int precision);
+    
+    /**
+     * @return cos(this)
+     */
+    
+    public IReal cos(int precision);
+    
+    @Override
+    default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+        return v.visitReal(this);
+    }
 
 }

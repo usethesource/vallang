@@ -20,7 +20,7 @@ public class DirectByteBufferCache {
 
     
     private static ByteBuffer clear(ByteBuffer b) {
-    	b.clear();
+        b.clear();
         return b;
     }
     
@@ -33,9 +33,9 @@ public class DirectByteBufferCache {
     }
     
     public void put(ByteBuffer returned) {
-    	if (returned.capacity() > (8*1024)) {
-    		buffers.put(returned.capacity(), returned);
-    	}
+        if (returned.capacity() > (8*1024)) {
+            buffers.put(returned.capacity(), returned);
+        }
     }
 
     public ByteBuffer getExact(int size) {

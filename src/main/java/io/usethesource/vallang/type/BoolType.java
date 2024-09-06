@@ -26,115 +26,115 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class BoolType extends DefaultSubtypeOfValue {
-	private final static class InstanceKeeper {
-		public final static BoolType sInstance = new BoolType();
-	}
+    private final static class InstanceKeeper {
+        public final static BoolType sInstance = new BoolType();
+    }
 
-	public static BoolType getInstance() {
-		return InstanceKeeper.sInstance;
-	}
+    public static BoolType getInstance() {
+        return InstanceKeeper.sInstance;
+    }
 
-	public static class Info extends TypeFactory.TypeReifier {
-		public Info(TypeValues symbols) {
-			super(symbols);
-		}
+    public static class Info extends TypeFactory.TypeReifier {
+        public Info(TypeValues symbols) {
+            super(symbols);
+        }
 
-		@Override
-		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("bool");
-		}
+        @Override
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("bool");
+        }
 
-		@Override
-		public Type fromSymbol(IConstructor symbol, TypeStore store,
-				Function<IConstructor, Set<IConstructor>> grammar) {
-			return getInstance();
-		}
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store,
+                Function<IConstructor, Set<IConstructor>> grammar) {
+            return getInstance();
+        }
 
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().boolType();
         }
-	}
+    }
 
-	@Override
-	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-	        int maxDepth, int maxBreadth) {
-	    return vf.bool(random.nextBoolean());
-	}
-	
-	@Override
-	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
-		return new Info(symbols);
-	}
-	
-	/**
-	 * Should never need to be called; there should be only one instance of
-	 * IntegerType
-	 */
-	@Override
-	public boolean equals(@Nullable Object obj) {
+    @Override
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+            int maxDepth, int maxBreadth) {
+        return vf.bool(random.nextBoolean());
+    }
+    
+    @Override
+    public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
+    }
+    
+    /**
+     * Should never need to be called; there should be only one instance of
+     * IntegerType
+     */
+    @Override
+    public boolean equals(@Nullable Object obj) {
     return obj == BoolType.getInstance();
 }
 
-	@Override
-	public int hashCode() {
-		return 84121;
-	}
+    @Override
+    public int hashCode() {
+        return 84121;
+    }
 
-	@Override
-	public String toString() {
-		return "bool";
-	}
+    @Override
+    public String toString() {
+        return "bool";
+    }
 
-	@Override
-	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-		return visitor.visitBool(this);
-	}
+    @Override
+    public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
+        return visitor.visitBool(this);
+    }
 
-	@Override
-	public boolean intersects(Type other) {
-	    return other.intersectsWithBool(this);
-	}
-	
-	@Override
-	protected boolean isSupertypeOf(Type type) {
-		return type.isSubtypeOfBool(this);
-	}
+    @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithBool(this);
+    }
+    
+    @Override
+    protected boolean isSupertypeOf(Type type) {
+        return type.isSubtypeOfBool(this);
+    }
 
-	@Override
-	public Type lub(Type other) {
-		return other.lubWithBool(this);
-	}
+    @Override
+    public Type lub(Type other) {
+        return other.lubWithBool(this);
+    }
 
-	@Override
-	protected boolean isSubtypeOfBool(Type type) {
-		return true;
-	}
+    @Override
+    protected boolean isSubtypeOfBool(Type type) {
+        return true;
+    }
 
-	
-	@Override
-	protected Type lubWithBool(Type type) {
-		return this;
-	}
+    
+    @Override
+    protected Type lubWithBool(Type type) {
+        return this;
+    }
 
-	@Override
-	public Type glb(Type type) {
-		return type.glbWithBool(this);
-	}
-	
+    @Override
+    public Type glb(Type type) {
+        return type.glbWithBool(this);
+    }
+    
 
-	@Override
-	protected boolean intersectsWithBool(Type type) {
-	    return true;
-	}
+    @Override
+    protected boolean intersectsWithBool(Type type) {
+        return true;
+    }
 
-	@Override
-	protected Type glbWithBool(Type type) {
-		return this;
-	}
-	
-	@Override
-	public boolean isBool() {
-	    return true;
-	}
+    @Override
+    protected Type glbWithBool(Type type) {
+        return this;
+    }
+    
+    @Override
+    public boolean isBool() {
+        return true;
+    }
 }

@@ -29,161 +29,161 @@ import io.usethesource.vallang.IWithKeywordParameters;
  * @param <T> the interface over which this parameter wrapper closes
  */
 public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> implements IWithKeywordParameters<T> {
-	protected final T content;
-	protected final io.usethesource.capsule.Map.Immutable<String, IValue> parameters;
+    protected final T content;
+    protected final io.usethesource.capsule.Map.Immutable<String, IValue> parameters;
 
-	/**
-	 * Creates an {@link IWithKeywordParameters} view on {@link #content} with already
-	 * provided {@link #parameters}.
-	 * 
-	 * @param content
-	 *            is the wrapped object that supports keywod fields
-	 * @param parameters
-	 *            is the map of fields associated to {@link #content}
-	 */
-	public AbstractDefaultWithKeywordParameters(T content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
-		this.content = content;
-		this.parameters = parameters;
-	}
+    /**
+     * Creates an {@link IWithKeywordParameters} view on {@link #content} with already
+     * provided {@link #parameters}.
+     * 
+     * @param content
+     *            is the wrapped object that supports keywod fields
+     * @param parameters
+     *            is the map of fields associated to {@link #content}
+     */
+    public AbstractDefaultWithKeywordParameters(T content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
+        this.content = content;
+        this.parameters = parameters;
+    }
 
-	/**
-	 * Wraps {@link #content} with other parameters. This methods is mandatory
-	 * because of PDB's immutable value nature: Once parameters are modified, a
-	 * new immutable view is returned.
-	 * 
-	 * @param content
-	 *            is the wrapped object that supports keyword fields
-	 * @param annotations
-	 *            is the map of fields associated to {@link #content}
-	 * @return a new representations of {@link #content} with associated
-	 *         {@link #parameters}
-	 */
-	protected abstract T wrap(final T content, final io.usethesource.capsule.Map.Immutable<String, IValue> parameters);
+    /**
+     * Wraps {@link #content} with other parameters. This methods is mandatory
+     * because of PDB's immutable value nature: Once parameters are modified, a
+     * new immutable view is returned.
+     * 
+     * @param content
+     *            is the wrapped object that supports keyword fields
+     * @param annotations
+     *            is the map of fields associated to {@link #content}
+     * @return a new representations of {@link #content} with associated
+     *         {@link #parameters}
+     */
+    protected abstract T wrap(final T content, final io.usethesource.capsule.Map.Immutable<String, IValue> parameters);
 
-	@Override
-	public String toString() {
-		return content.toString();
-	}
+    @Override
+    public String toString() {
+        return content.toString();
+    }
 
-	@Override
-	public @Nullable IValue getParameter(String label) {
-		return parameters.get(label);
-	}
+    @Override
+    public @Nullable IValue getParameter(String label) {
+        return parameters.get(label);
+    }
 
-	@Override
-	public T setParameter(String label, IValue newValue) {
-		return wrap(content, parameters.__put(label, newValue));
-	}
-	
-	@Override
-	public T unsetParameter(String label) {
-		io.usethesource.capsule.Map.Immutable<String, IValue> removed = parameters.__remove(label);
-		
-		if (removed.isEmpty()) {
-			return content;
-		}
-		return wrap(content, removed);
-	}
-	
-	@Override
-	public T unsetAll() {
-		return content;
-	}
+    @Override
+    public T setParameter(String label, IValue newValue) {
+        return wrap(content, parameters.__put(label, newValue));
+    }
+    
+    @Override
+    public T unsetParameter(String label) {
+        io.usethesource.capsule.Map.Immutable<String, IValue> removed = parameters.__remove(label);
+        
+        if (removed.isEmpty()) {
+            return content;
+        }
+        return wrap(content, removed);
+    }
+    
+    @Override
+    public T unsetAll() {
+        return content;
+    }
 
-	@Override
-	@Pure
-	public boolean hasParameter(String label) {
-		return parameters.containsKey(label);
-	}
+    @Override
+    @Pure
+    public boolean hasParameter(String label) {
+        return parameters.containsKey(label);
+    }
 
-	@Override
-	public boolean hasParameters() {
-		return !parameters.isEmpty();
-	}
+    @Override
+    public boolean hasParameters() {
+        return !parameters.isEmpty();
+    }
 
-	@Override
-	@Pure
-	public Set<String> getParameterNames() {
-		return Collections.unmodifiableSet(parameters.keySet());
-	}
+    @Override
+    @Pure
+    public Set<String> getParameterNames() {
+        return Collections.unmodifiableSet(parameters.keySet());
+    }
 
-	@Override
-	public Map<String,IValue> getParameters() {
-		return Collections.unmodifiableMap(parameters);
-	}
+    @Override
+    public Map<String,IValue> getParameters() {
+        return Collections.unmodifiableMap(parameters);
+    }
 
-	@Override
-	public int hashCode() {
-	    return 91 + content.hashCode() * 13 + 101 * parameters.hashCode(); 
-	}
-	
-	@Override
-	public boolean equals(@Nullable Object other) {
-	    if (other == null) {
-	        return false;
-	    }
-	    
-		if (!getClass().equals(other.getClass())) {
-			return false;
-		}
+    @Override
+    public int hashCode() {
+        return 91 + content.hashCode() * 13 + 101 * parameters.hashCode(); 
+    }
+    
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (other == null) {
+            return false;
+        }
+        
+        if (!getClass().equals(other.getClass())) {
+            return false;
+        }
 
-		AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
+        AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
 
-		if (!content.equals(o.content)) {
-			return false;
-		}
+        if (!content.equals(o.content)) {
+            return false;
+        }
 
-		if (parameters.size() != o.parameters.size()) {
-			return false;
-		}
+        if (parameters.size() != o.parameters.size()) {
+            return false;
+        }
 
-		// TODO: there should be a faster way for this
-		for (String key : parameters.keySet()) {
-			if (!parameters.get(key).equals(o.getParameter(key))) {
-				return false;
-			}
-		}
+        // TODO: there should be a faster way for this
+        for (String key : parameters.keySet()) {
+            if (!parameters.get(key).equals(o.getParameter(key))) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public <U extends IWithKeywordParameters<? extends IValue>> boolean equalParameters(U other) {
-		if (!(other instanceof AbstractDefaultWithKeywordParameters<?>)) {
-			return false;
-		}
+    @Override
+    public <U extends IWithKeywordParameters<? extends IValue>> boolean equalParameters(U other) {
+        if (!(other instanceof AbstractDefaultWithKeywordParameters<?>)) {
+            return false;
+        }
 
-		AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
+        AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
 
-		if (parameters.size() != o.parameters.size()) {
-			return false;
-		}
+        if (parameters.size() != o.parameters.size()) {
+            return false;
+        }
 
-		for (String key : parameters.keySet()) {
-			IValue parameter = getParameter(key);
-			if (parameter == null && o.getParameter(key) != null) {
-				return false;
-			}
-			else if (parameter != null && !parameter.equals(o.getParameter(key))) {
-				return false;
-			}
-		}
+        for (String key : parameters.keySet()) {
+            IValue parameter = getParameter(key);
+            if (parameter == null && o.getParameter(key) != null) {
+                return false;
+            }
+            else if (parameter != null && !parameter.equals(o.getParameter(key))) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public T setParameters(Map<String, IValue> params) {
-		if (params.isEmpty()) {
-			return content;
-		}
-		return wrap(content, AbstractSpecialisedImmutableMap.mapOf(params));
-	}
-	
-	/**
-	 * This method is only to be used by internal methods, such as testing and fast iterators
-	 */
-	public io.usethesource.capsule.Map.Immutable<String, IValue> internalGetParameters() {
-	    return parameters;
-	}
+    @Override
+    public T setParameters(Map<String, IValue> params) {
+        if (params.isEmpty()) {
+            return content;
+        }
+        return wrap(content, AbstractSpecialisedImmutableMap.mapOf(params));
+    }
+    
+    /**
+     * This method is only to be used by internal methods, such as testing and fast iterators
+     */
+    public io.usethesource.capsule.Map.Immutable<String, IValue> internalGetParameters() {
+        return parameters;
+    }
 }

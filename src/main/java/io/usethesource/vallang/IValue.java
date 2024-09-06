@@ -24,9 +24,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public interface IValue {
     public static final TypeFactory TF = TypeFactory.getInstance();
     
-	/** 
-	 * @return the {@link Type} of a value
-	 */
+    /** 
+     * @return the {@link Type} of a value
+     */
     public Type getType();
 
     /**

@@ -30,9 +30,9 @@ public interface IString extends IValue, Iterable<Integer> {
         }
     }
 
-	/**
-	 * @return the Java string that this string represents
-	 */
+    /**
+     * @return the Java string that this string represents
+     */
     public String getValue();
     
     /**
@@ -87,8 +87,8 @@ public interface IString extends IValue, Iterable<Integer> {
      * - support for the case begin > end
      * @param first  inclusive index of first element
      * @param second index of second element
-     * @param end	 exclusive end index
-     * @param repl	the replacement string
+     * @param end    exclusive end index
+     * @param repl  the replacement string
      * @param start the inclusive  start index
      * @return
      */

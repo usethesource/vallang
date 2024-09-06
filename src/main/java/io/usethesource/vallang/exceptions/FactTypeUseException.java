@@ -16,10 +16,10 @@ public abstract class FactTypeUseException extends RuntimeException {
     private static final long serialVersionUID= 2135696551442574010L;
 
     public FactTypeUseException(String message) {
-    	super(message);
+        super(message);
     }
     
     public FactTypeUseException(String reason, Throwable cause) {
-    	super(reason, cause);
+        super(reason, cause);
     }
 }

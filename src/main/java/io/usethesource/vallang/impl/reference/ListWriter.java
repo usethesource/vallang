@@ -84,7 +84,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-	public void insert(IValue[] elems, int start, int length) throws FactTypeUseException{
+    public void insert(IValue[] elems, int start, int length) throws FactTypeUseException{
         checkMutation();
         checkBounds(elems, start, length);
 
@@ -95,19 +95,19 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-	public IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
+    public IValue replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
         checkMutation();
         updateType(elem);
         return listContent.set(index, elem);
     }
 
     @Override
-	public void insert(IValue... elems) throws FactTypeUseException{
+    public void insert(IValue... elems) throws FactTypeUseException{
         insert(elems, 0, elems.length);
     }
 
     @Override
-	public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException{
+    public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException{
         checkMutation();
         checkBounds(elems, start, length);
 
@@ -118,7 +118,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-	public void insertAt(int index, IValue... elems) throws FactTypeUseException{
+    public void insertAt(int index, IValue... elems) throws FactTypeUseException{
         insertAt(index,  elems, 0, 0);
     }
 
@@ -129,7 +129,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-	public void append(IValue... elems) throws FactTypeUseException{
+    public void append(IValue... elems) throws FactTypeUseException{
         checkMutation();
 
         for(IValue elem : elems){
@@ -144,7 +144,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-	public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
+    public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
         checkMutation();
 
         for(IValue v : collection){
@@ -157,7 +157,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
     
     @Override
-	public IList done() {
+    public IList done() {
         if (constructedList == null) {
             constructedList = new List(eltType, listContent);
         }
@@ -177,7 +177,7 @@ import io.usethesource.vallang.type.TypeFactory;
     
     @Override
     public int length() {
-    	return listContent.size();
+        return listContent.size();
     }
 
     @Override

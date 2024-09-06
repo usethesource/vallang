@@ -36,90 +36,90 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     protected final Type fValueType;
     
     /*package*/ MapType(Type keyType, Type valueType) {
-    	fKeyType= keyType;
-    	fValueType = valueType;
+        fKeyType= keyType;
+        fValueType = valueType;
     }
     
     public static class Info extends TypeFactory.TypeReifier {
-		public Info(TypeValues symbols) {
+        public Info(TypeValues symbols) {
         super(symbols);
       }
 
     @Override
-		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("map", symbols().symbolADT(), "from", symbols().symbolADT(), "to");
-		}
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("map", symbols().symbolADT(), "from", symbols().symbolADT(), "to");
+        }
 
-		@Override
-		public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
-			IConstructor from = (IConstructor) symbol.get("from");
-			IConstructor to = (IConstructor) symbol.get("to");
-			String fromLabel = null;
-			String toLabel = null;
-			
-			if (symbols().isLabel(from)) {
-				fromLabel = symbols().getLabel(from);
-				from = (IConstructor) from.get("symbol");
-			}
-			if (symbols().isLabel(to)) {
-				toLabel = symbols().getLabel(to);
-				to = (IConstructor) to.get("symbol");
-			}
-			if (fromLabel != null && toLabel != null) {
-				return tf().mapType(symbols().fromSymbol(from, store, grammar), fromLabel, symbols().fromSymbol(to, store, grammar), toLabel);
-			}
-			else {
-				return tf().mapType(symbols().fromSymbol(from, store, grammar), symbols().fromSymbol(to, store, grammar));
-			}
-		}
-		
-		@Override
-		public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+            IConstructor from = (IConstructor) symbol.get("from");
+            IConstructor to = (IConstructor) symbol.get("to");
+            String fromLabel = null;
+            String toLabel = null;
+            
+            if (symbols().isLabel(from)) {
+                fromLabel = symbols().getLabel(from);
+                from = (IConstructor) from.get("symbol");
+            }
+            if (symbols().isLabel(to)) {
+                toLabel = symbols().getLabel(to);
+                to = (IConstructor) to.get("symbol");
+            }
+            if (fromLabel != null && toLabel != null) {
+                return tf().mapType(symbols().fromSymbol(from, store, grammar), fromLabel, symbols().fromSymbol(to, store, grammar), toLabel);
+            }
+            else {
+                return tf().mapType(symbols().fromSymbol(from, store, grammar), symbols().fromSymbol(to, store, grammar));
+            }
+        }
+        
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                                  Set<IConstructor> done) {
-			if (type.hasFieldNames()) {
-				return vf.constructor(getSymbolConstructorType(), symbols().labelSymbol(vf, type.getKeyType().asSymbol(vf, store, grammar, done), type.getKeyLabel()),  symbols().labelSymbol(vf, type.getValueType().asSymbol(vf, store, grammar, done), type.getValueLabel()));
-			}
-			else {
-				return vf.constructor(getSymbolConstructorType(), type.getKeyType().asSymbol(vf, store, grammar, done), type.getValueType().asSymbol(vf, store, grammar, done));
-			}
-		}
-		
-		@Override
+            if (type.hasFieldNames()) {
+                return vf.constructor(getSymbolConstructorType(), symbols().labelSymbol(vf, type.getKeyType().asSymbol(vf, store, grammar, done), type.getKeyLabel()),  symbols().labelSymbol(vf, type.getValueType().asSymbol(vf, store, grammar, done), type.getValueLabel()));
+            }
+            else {
+                return vf.constructor(getSymbolConstructorType(), type.getKeyType().asSymbol(vf, store, grammar, done), type.getValueType().asSymbol(vf, store, grammar, done));
+            }
+        }
+        
+        @Override
         public boolean isRecursive() {
             return false;
         }
-		
-		@Override
-		public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
-				Set<IConstructor> done) {
-			type.getKeyType().asProductions(vf, store, grammar, done);
-	    	type.getValueType().asProductions(vf, store, grammar, done);
-		}
+        
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            type.getKeyType().asProductions(vf, store, grammar, done);
+            type.getValueType().asProductions(vf, store, grammar, done);
+        }
 
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().mapType(next.get(), next.get());
         }
-	}
+    }
 
-	@Override
-	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
-		return new Info(symbols);
-	}
-	
-	@Override
-    public Type getKeyType() {
-    	return fKeyType;
+    @Override
+    public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
     }
     
-	@Override
-	public int getArity() {
-		return 2;
-	}
-	
+    @Override
+    public Type getKeyType() {
+        return fKeyType;
+    }
+    
+    @Override
+    public int getArity() {
+        return 2;
+    }
+    
     @Override
     public Type getValueType() {
-    	return fValueType;
+        return fValueType;
     }
 
     @Override
@@ -129,22 +129,22 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
   
     @Override
     public boolean hasFieldNames() {
-    	return false;
+        return false;
     }
     
     @Override
     public Type getFieldType(int i) {
-    	switch (i) {
-    	case 0: return fKeyType;
-    	case 1: return fValueType;
-    	default:
-    		throw new IndexOutOfBoundsException();
-    	}
+        switch (i) {
+        case 0: return fKeyType;
+        case 1: return fValueType;
+        default:
+            throw new IndexOutOfBoundsException();
+        }
     }
     
     @Override
     public Type select(int... fields) {
-    	return TypeFactory.getInstance().setType(getFieldTypes().select(fields));
+        return TypeFactory.getInstance().setType(getFieldTypes().select(fields));
     }
     
     @Override
@@ -183,7 +183,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     public String toString() {
-    	return "map[" + fKeyType + ", " + fValueType + "]";
+        return "map[" + fKeyType + ", " + fValueType + "]";
     }
     
     @Override
@@ -238,29 +238,29 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
       return fKeyType.isOpen() || fValueType.isOpen();
     }
     
-	@Override
-	public boolean match(Type matched, Map<Type, Type> bindings)throws FactTypeUseException {
+    @Override
+    public boolean match(Type matched, Map<Type, Type> bindings)throws FactTypeUseException {
         if (!super.match(matched, bindings)) {
           return false;
         }
 
         if (matched.isMap() || (matched.isAliased() && matched.getAliased().isMap()) ||  matched.isBottom()) {
-				  return getKeyType().match(matched.getKeyType(), bindings)
+                  return getKeyType().match(matched.getKeyType(), bindings)
           && getValueType().match(matched.getValueType(), bindings);
         }
 
         return true;
-	}
-	
-	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
-	    return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
-	}
-	
-	@Override
-	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-	        int maxDepth, int maxWidth) {
-	    IMapWriter result = vf.mapWriter();
+    }
+    
+    @Override
+    public Type instantiate(Map<Type, Type> bindings) {
+        return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
+    }
+    
+    @Override
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+            int maxDepth, int maxWidth) {
+        IMapWriter result = vf.mapWriter();
         if (maxDepth > 0 && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth));
             
@@ -277,5 +277,5 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         match(done.getType(), typeParameters);
         
         return done;
-	}
+    }
 }

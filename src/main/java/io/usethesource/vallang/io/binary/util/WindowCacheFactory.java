@@ -22,13 +22,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  *
  */
 public class WindowCacheFactory {
-	static private class InstanceHolder {
-		static final WindowCacheFactory sInstance = new WindowCacheFactory();
-	}
-	
-	public static WindowCacheFactory getInstance() {
-		return InstanceHolder.sInstance;
-	}
+    static private class InstanceHolder {
+        static final WindowCacheFactory sInstance = new WindowCacheFactory();
+    }
+    
+    public static WindowCacheFactory getInstance() {
+        return InstanceHolder.sInstance;
+    }
 
     private final CacheFactory<TrackLastRead<Object>> lastReads = new CacheFactory<>(60, TimeUnit.SECONDS, WindowCacheFactory::clear);
     private final CacheFactory<TrackLastWritten<Object>> lastWrittenReference = new CacheFactory<>(60, TimeUnit.SECONDS, WindowCacheFactory::clear);
@@ -93,8 +93,8 @@ public class WindowCacheFactory {
     private <T extends @NonNull Object> void doReturn(CacheFactory<T> target, T returned) {
         if (returned instanceof ClearableWindow) {
             int windowSize = ((ClearableWindow) returned).size();
-			if (windowSize >= 1000) {
-            	target.put(windowSize, returned);
+            if (windowSize >= 1000) {
+                target.put(windowSize, returned);
             }
         }
     }
