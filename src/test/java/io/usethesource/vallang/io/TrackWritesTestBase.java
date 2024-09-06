@@ -27,7 +27,7 @@ public abstract class TrackWritesTestBase {
         w.write(b);
         assertEquals(1, w.howLongAgo(a));
     }
-    
+
     @Test
     public void canFindObjectAtEdge() {
         Object a = new Object();
@@ -56,7 +56,7 @@ public abstract class TrackWritesTestBase {
         assertEquals(1, w.howLongAgo(c));
         assertEquals(0, w.howLongAgo(d));
     }
-    
+
     @Test
     public void dropsMany() {
         Object a = new Object();
@@ -76,7 +76,7 @@ public abstract class TrackWritesTestBase {
         assertEquals(1, w.howLongAgo(c));
         assertEquals(0, w.howLongAgo(d));
     }
-    
+
     @Test
     public void randomTest() {
         Object[] elements = new Object[1000];;

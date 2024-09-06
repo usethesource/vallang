@@ -31,7 +31,7 @@ public interface IBool extends IValue {
     IBool not();
     IBool implies(IBool other);
     IBool equivalent(IBool other);
-    
+
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitBoolean(this);

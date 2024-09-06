@@ -24,19 +24,19 @@ import io.usethesource.vallang.type.Type;
  *
  * @param <C> a collection value type like ISet or IList
  */
-public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> { 
+public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
 
     @Override
     default Iterator<IValue> iterator() {
         return asContainer().iterator();
     }
-    
+
     /**
      * Relational composition works only on binary relations. It matches the second column
-     * of the receiver with the first column of the given relation. 
-     * TODO: generalize to n-ary. Implementing classes should specialize 
+     * of the receiver with the first column of the given relation.
+     * TODO: generalize to n-ary. Implementing classes should specialize
      * this generic implementation for more efficiency.
-     * 
+     *
      * @param that is the given relation
      * @return a new binary relation with first column of the accepting relation and the second column
      *        of the given relation, containing only tuples where the last column of the receiver
@@ -75,9 +75,9 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
                 }
             }
         }
-        
+
         return w.done();
-    }   
+    }
 
     /**
      * @return the transitive non-reflexive closure of a binary relation
@@ -87,15 +87,15 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
         if (!isBinary()) {
             throw new UnsupportedOperationException("relation is not binary");
         }
-        
+
         C next = this.asContainer();
         IRelation<C> result;
-        
+
         do {
             result = next.asRelation();
             next = result.compose(result).union(next);
         } while (!next.equals(result.asContainer()));
-        
+
         return next;
     }
 
@@ -127,7 +127,7 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
     default C empty() {
         return asContainer().empty();
     }
-    
+
     /**
      * Reduces an n-ary relation to fewer columns, given by the fields to select.
      * @param fields to select from the relation, index starts at 0
@@ -142,7 +142,7 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
 
         return w.done();
     }
-    
+
     /**
      * Compute the carrier set of an n-ary relation.
      * @return a container with all the elements of all tuples in the relation.
@@ -186,9 +186,9 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
 
     /**
      * Lookup the values by the first column in the relation
-     * @return a set of the second elements of all tuples where the first column is 
+     * @return a set of the second elements of all tuples where the first column is
      *         equal to the given key, without the first column.
-     *         
+     *
      * TODO: generalize to producing n-ary tuples.
      */
     public default C index(IValue key) {
@@ -228,14 +228,14 @@ public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
      * @return the original container this IRelation<C> is wrapping.
      */
     public C asContainer();
-    
+
     /**
-     * @return a fresh writer for the kind of container this IRelation is wrapping 
+     * @return a fresh writer for the kind of container this IRelation is wrapping
      */
     public default IWriter<C> writer() {
         return asContainer().writer();
     }
-    
+
     /**
      * @return the element type of the container this IRelation is wrapping
      */

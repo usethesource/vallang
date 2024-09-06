@@ -33,7 +33,7 @@ public class TypeTest {
     public void randomTypeGeneratorTestIfTypeStoreContainsGeneratedTypes(TypeStore store, Type t) {
         assertTrue(t.isAbstractData() ? store.lookupAbstractDataType(t.getName()) != null : true);
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void isomorphicStringTest(TypeFactory tf, TypeStore store, Type t) throws IOException {
         // no support for parameter types, aliases and tuple field names yet
@@ -45,13 +45,13 @@ public class TypeTest {
         if (t.equals(u)) {
             assertTrue(t == u);
         }
-        
+
         if (t == u) {
             assertTrue(t.equals(u));
             assertTrue(u.equals(t));
         }
     }
-    
+
     @SuppressWarnings("deprecation")
     public void emptyTupleNeverHasLabels(TypeFactory tf) {
         assertFalse(tf.tupleType(new Object[0]).hasFieldNames());
@@ -60,13 +60,13 @@ public class TypeTest {
         assertTrue(tf.tupleEmpty() == tf.tupleType(new Object[0]));
         assertTrue(tf.tupleEmpty() == tf.tupleType(new Type[0], new String[0]));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)
     public void covariance(TypeFactory tf, Type t, Type u) {
         if (!t.comparable(u)) {
             return;
         }
-        
+
         if (t.isSubtypeOf(u)) {
             assertTrue(tf.listType(t).isSubtypeOf(tf.listType(u)));
             assertTrue(tf.setType(t).isSubtypeOf(tf.setType(u)));
@@ -78,36 +78,36 @@ public class TypeTest {
             covariance(tf, u, t);
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void voidIsBottom(TypeFactory tf, Type t) {
         assertTrue(tf.voidType().isSubtypeOf(t));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void valueIsTop(TypeFactory tf, Type t) {
         assertTrue(t.isSubtypeOf(tf.valueType()));
     }
-    
-    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL) 
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)
     public void subtypeIsReflexive(Type t) {
         assertTrue(t.isSubtypeOf(t));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)
     public void equalsReflective(Type t) {
         assertTrue(t.equals(t));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     @TypeConfig({Option.ALIASES, Option.TUPLE_FIELDNAMES})
     public void subtypeIsTransitive(Type t, Type u, Type v) {
-        // because type parameters are variant in both directions they are excluded 
+        // because type parameters are variant in both directions they are excluded
         if (t.isSubtypeOf(u) && u.isSubtypeOf(v)) {
             assertTrue(t.isSubtypeOf(v));
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     @TypeConfig(Option.ALL)
     public void subtypeIsAntiCommutative(Type t, Type u) {
@@ -115,37 +115,37 @@ public class TypeTest {
             assertTrue(!u.isStrictSubtypeOf(t));
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void aliasInstantiationSharingIsGuaranteed(TypeFactory tf, TypeStore store, Type t) {
         Type tp = tf.parameterType("T");
         Map<Type, Type> bindings = Collections.singletonMap(tp, t);
-        
+
         Type alias = tf.aliasType(store, "A", tf.listType(tp), tp);
         assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
-        
+
         alias = tf.aliasType(store, "B", tf.setType(tp), tp);
         assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
-        
+
         alias = tf.aliasType(store, "C", tf.mapType(tp, tp), tp);
         assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void aliasInstantiationKeepsLabels(TypeFactory tf, TypeStore store, Type t, Type u) {
         Type T = tf.parameterType("T");
         Type U = tf.parameterType("U");
         Map<Type, Type> bindings = Stream.of(new AbstractMap.SimpleEntry<>(T,t), new AbstractMap.SimpleEntry<>(U,u))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        
+
         Type alias = tf.aliasType(store, "A", tf.mapType(T, "x", U, "y"), T, U);
         assertTrue(alias.instantiate(bindings) == alias.instantiate(bindings));
         assertTrue(alias.getAliased().instantiate(bindings).hasFieldNames());
-        
+
         @SuppressWarnings("deprecation")
         Type alias2 = tf.aliasType(store, "B", tf.relType(T, "x", U, "y"), T, U);
         assertTrue(alias2.instantiate(bindings) == alias2.instantiate(bindings));
-        
+
         for (Type b : bindings.values()) {
             if (b.isBottom()) {
                 return; // then the tuple type will reduce to void and we have nothing to check.
@@ -153,7 +153,7 @@ public class TypeTest {
         }
         assertTrue(alias2.getAliased().instantiate(bindings).hasFieldNames());
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testRelations(Type t) {
         if (t.isSet() && t.getElementType().isTuple() && !t.isRelation()) {
@@ -190,10 +190,10 @@ public class TypeTest {
         assertTrue(relType.match(instanceDiGraph, bindings));
         assertTrue(bindings.get(T) == ft.integerType());
 
-        // before instantiation, the parameterized type rel[&T, &T] 
+        // before instantiation, the parameterized type rel[&T, &T]
         // could be instantiated later by rel[int, int]
         assertTrue(DiGraph.isSubtypeOf(IntInstance));
-        
+
         // the generic graph is also always a sub-type of the most general instantiation
         assertTrue(DiGraph.isSubtypeOf(ValueInstance));
 
@@ -264,7 +264,7 @@ public class TypeTest {
         assertFalse(ft.relType(ft.voidType()).isSubtypeOf(ft.voidType()));
         assertFalse(ft.mapType(ft.voidType(), ft.voidType()).isSubtypeOf(ft.voidType()));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testTupleWithVoidIsVoid(TypeFactory ft) {
         assertTrue(ft.tupleType(ft.voidType()).isSubtypeOf(ft.voidType()));
@@ -333,7 +333,7 @@ public class TypeTest {
             }
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void lubWithVoid(TypeFactory tf, Type t) {
         assertTrue(tf.voidType().lub(t) == t);
@@ -409,11 +409,11 @@ public class TypeTest {
         Type adtX = ft.abstractDataType(store, "A", X);
         bindings.put(X, ft.voidType());
         assertTrue(adtX.instantiate(bindings).isSubtypeOf(adtX));
-        
+
         bindings.put(X, ft.integerType());
         assertTrue(adtX.instantiate(bindings).isSubtypeOf(adtX));
     }
-  
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testAlias(TypeFactory ft) {
         Type alias = ft.aliasType(new TypeStore(), "myValue", ft.valueType());
@@ -421,7 +421,7 @@ public class TypeTest {
         assertTrue(alias.isSubtypeOf(ft.valueType()));
         assertTrue(ft.valueType().isSubtypeOf(alias));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void allComparableTypesIntersect(Type t, Type u) {
         if (!t.isBottom() && !u.isBottom() && t.comparable(u)) {
@@ -430,7 +430,7 @@ public class TypeTest {
             }
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void intersectionIsCommutative(Type t, Type u) {
         if (t.intersects(u)) {
@@ -439,49 +439,49 @@ public class TypeTest {
             }
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void intersectionIsReflexive(Type t) {
         if (!t.isBottom() && !t.intersects(t)) {
             fail("intersection should be reflexive: " + t);
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void nothingIntersectsVoid(TypeFactory tf, Type t) {
         if (t.intersects(tf.voidType())) {
             fail("intersect with void?");
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void everythingIntersectsValue(TypeFactory tf, Type t) {
         if (!t.isBottom() && !t.intersects(tf.valueType())) {
             fail("does not intersect with value?");
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void intersectionIsNonVoidGreatestLowerBound(Type t, Type u) {
         // t /\ u != {} <==> glb(t, u) != void
-        
+
         if (t.intersects(u)) {
             if(t.glb(u).isBottom()) {
                 fail("glb should not be bottom for intersecting types:" + t + ", " + u + ": glb is " + t.glb(u));
             }
         }
-        
+
         if (!t.glb(u).isBottom()) {
             assertTrue(t.intersects(u));
         }
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void collectionTypesAlwaysIntersect(TypeFactory tf, Type t, Type u) {
         assertTrue(tf.setType(t).intersects(tf.setType(u)));
         assertTrue(tf.listType(t).intersects(tf.listType(u)));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void mapTypesAlwaysIntersect(TypeFactory tf, Type t, Type u) {
         assertTrue(tf.mapType(t, u).intersects(tf.mapType(u, t)));

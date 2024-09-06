@@ -19,7 +19,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ abstract class AbstractNumberValue implements INumber {
     private final static TypeFactory typeFactory = TypeFactory.getInstance();
-    
+
     /*package*/ AbstractNumberValue(){
         super();
     }
@@ -28,7 +28,7 @@ import io.usethesource.vallang.type.TypeFactory;
     public String toString() {
         return defaultToString();
     }
-    
+
     @Override
     public INumber add(INumber other){
         if(isIntegerType(other)){
@@ -40,10 +40,10 @@ import io.usethesource.vallang.type.TypeFactory;
         if(isRationalType(other)){
             return add(other.toRational());
         }
-        
+
         throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
     }
-    
+
     @Override
     public INumber divide(INumber other, int precision){
         if(isIntegerType(other)){
@@ -71,7 +71,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
     }
-    
+
 
   @Override
   public IBool equal(INumber other){
@@ -86,7 +86,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
     throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
   }
-  
+
     @Override
     public IBool greaterEqual(INumber other){
         if(isIntegerType(other)){
@@ -100,7 +100,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
     }
-    
+
     @Override
     public IBool less(INumber other){
         if(isIntegerType(other)){
@@ -114,7 +114,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
     }
-    
+
     @Override
     public IBool lessEqual(INumber other){
         if(isIntegerType(other)){

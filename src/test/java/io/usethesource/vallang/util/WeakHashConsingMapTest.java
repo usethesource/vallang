@@ -1,15 +1,15 @@
-/** 
+/**
  * Copyright (c) 2017, Davy Landman, SWAT.engineering
- * All rights reserved. 
- *  
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
- *  
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
- *  
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
- *  
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
- */ 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package io.usethesource.vallang.util;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -41,14 +41,14 @@ public class WeakHashConsingMapTest {
         public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
             int[] threads = new int[] { 1, 8 };
             int[] collisions = new int[] { 1, 4 };
-            return Arrays.stream(threads).boxed().<Arguments>flatMap(thr -> 
-                     Arrays.stream(collisions).boxed().<Arguments>flatMap(col -> 
+            return Arrays.stream(threads).boxed().<Arguments>flatMap(thr ->
+                     Arrays.stream(collisions).boxed().<Arguments>flatMap(col ->
                         Stream.of(Arguments.of(thr, col, new WeakReferenceHashConsingMap<FixedHashEquals>(16, 1)))
                      )
                    );
         }
     }
-    
+
     /**
      * Class that allows fine grained control on the equality contract and makes it easier to control hash collisions
      */
@@ -138,7 +138,7 @@ public class WeakHashConsingMapTest {
             objects.add(new FixedHashEquals(i, i));
         }
 
-        // store them 
+        // store them
         for (FixedHashEquals o : objects) {
             assertSame(o, target.get(o));
         }
@@ -157,7 +157,7 @@ public class WeakHashConsingMapTest {
     public void storeManyObjectsAndLooseThem(int threads, int collisions, WeakReferenceHashConsingMap<FixedHashEquals> target) throws CloneNotSupportedException, InterruptedException {
         FixedHashEquals[] objects = createTestObjects(1024*1024, collisions);
 
-        // store them 
+        // store them
         for (FixedHashEquals o : objects) {
             assertSame(o, target.get(o));
         }
@@ -186,7 +186,7 @@ public class WeakHashConsingMapTest {
     public void storeManyObjectsAndQueryThem(int threads, int collisions, WeakReferenceHashConsingMap<FixedHashEquals> target) throws InterruptedException, CloneNotSupportedException {
         FixedHashEquals[] objects = createTestObjects(1024*1024, collisions);
 
-        // store them 
+        // store them
         for (FixedHashEquals o : objects) {
             assertSame(o, target.get(o));
         }
@@ -210,7 +210,7 @@ public class WeakHashConsingMapTest {
     public void clearMostAndQueryRest(int threads, int collisions, WeakReferenceHashConsingMap<FixedHashEquals> target) throws InterruptedException, CloneNotSupportedException {
         FixedHashEquals[] objects = createTestObjects(1024*1024, collisions);
 
-        // store them 
+        // store them
         for (FixedHashEquals o : objects) {
             assertSame(o, target.get(o));
         }
@@ -227,14 +227,14 @@ public class WeakHashConsingMapTest {
         }
     }
 
-    private static class Tuple<X, Y> { 
-        public final X x; 
-        public final Y y; 
-        public Tuple(X x, Y y) { 
-            this.x = x; 
-            this.y = y; 
-        } 
-    } 
+    private static class Tuple<X, Y> {
+        public final X x;
+        public final Y y;
+        public Tuple(X x, Y y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
 
     /**
      * Test many concurrent threads putting in the same object, and getting the same one out of there
@@ -297,7 +297,7 @@ public class WeakHashConsingMapTest {
 
     /**
      * Generate enough data to trigger at least 10 resize events. Then have multiple threads all inserting every object exacty once.
-     * 
+     *
      * Then query the cache from all threads to see if they are all in there (but take a clone of the object, to make sure we are getting the one we expected, and not the one we just passed in
      */
     @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
@@ -358,7 +358,7 @@ public class WeakHashConsingMapTest {
             assertSame(first.x, first.y);
         }
     }
-    
+
     /**
      * Add a lot of data, causing multiple resizes. Then clear almost all, and see if after the cleanup of the collection has happened, if ones that were left over, still return the same value.
      */
@@ -467,8 +467,8 @@ public class WeakHashConsingMapTest {
     }
 
     /**
-     * Test the first two guarantee: for every get there is only one result, across threads. 
-     * 
+     * Test the first two guarantee: for every get there is only one result, across threads.
+     *
      * We test this by inserting clones of the same objects (in the same sequnce) from a lot of threads, and then check if only one result was returned
      */
     @ParameterizedTest @ArgumentsSource(ThreadCount_CollisionCount_TestMapProvider.class)
@@ -509,7 +509,7 @@ public class WeakHashConsingMapTest {
             else {
                 seen.put(e, e);
             }
-            
+
         }
     }
 }

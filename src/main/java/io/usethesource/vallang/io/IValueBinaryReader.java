@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) CWI 2008 
+ * Copyright (c) CWI 2008
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,15 +26,15 @@ import io.usethesource.vallang.type.TypeStore;
  * There should be a corresponding IValueWriter to serialize them again. Note
  * that IValueReaders should also <emph>validate</emph> the serialized input
  * against a {@link Type}.
- * 
+ *
  * @author jurgenv
- * 
+ *
  */
 
 public interface IValueBinaryReader {
     /**
      * Parse an IValue, validate it and build it if it can be validated.
-     * 
+     *
      * @param factory
      *            used when building the value
      * @param store
@@ -50,7 +50,7 @@ public interface IValueBinaryReader {
 
     /**
      * Parse an IValue, validate it and build it if it can be validated.
-     * 
+     *
      * @param factory
      *            used when building the value
      * @param type
@@ -61,10 +61,10 @@ public interface IValueBinaryReader {
      */
     IValue read(IValueFactory factory, Type type, InputStream stream)
             throws FactTypeUseException, IOException;
-    
+
     /**
      * Parse an IValue without validation.
-     * 
+     *
      * @param factory
      *            used when building the value
      * @param stream

@@ -49,7 +49,7 @@ public final class PersistentHashSet implements ISet {
   public String toString() {
       return defaultToString();
   }
-  
+
   private static final boolean checkDynamicType(final AbstractTypeBag elementTypeBag,
       final Set.Immutable<IValue> content) {
 
@@ -60,7 +60,7 @@ public final class PersistentHashSet implements ISet {
 
     return expectedTypesEqual;
   }
-  
+
   @Override
   public ISetWriter writer() {
       return ValueFactory.getInstance().setWriter();
@@ -71,7 +71,7 @@ public final class PersistentHashSet implements ISet {
     if (cachedSetType == null) {
         cachedSetType = TF.setType(elementTypeBag.lub());
     }
-    
+
     return cachedSetType;
   }
 
@@ -125,13 +125,13 @@ public final class PersistentHashSet implements ISet {
   public int hashCode() {
     return content.hashCode();
   }
-  
+
   @Override
   public boolean equals(@Nullable Object other) {
     if (other == this) {
       return true;
     }
-    
+
     if (other == null) {
       return false;
     }
@@ -162,7 +162,7 @@ public final class PersistentHashSet implements ISet {
     if (other == this) {
       return this;
     }
-    
+
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
 
@@ -254,7 +254,7 @@ public final class PersistentHashSet implements ISet {
     if (other == this) {
       return EmptySet.EMPTY_SET;
     }
-    
+
     if (other == null) {
       return this;
     }
@@ -290,7 +290,7 @@ public final class PersistentHashSet implements ISet {
       return ISet.super.subtract(other);
     }
   }
-  
+
   @Override
     public IRelation<ISet> asRelation() {
         return new PersistentSetRelation(this);

@@ -91,7 +91,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
     return keyTypesEqual && valTypesEqual;
   }
-  
+
   @Override
   public ISetWriter writer() {
       return ValueFactory.getInstance().setWriter();
@@ -193,7 +193,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
     return hashCode;
   }
-  
+
   @Override
   public String toString() {
       return defaultToString();
@@ -204,7 +204,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     if (other == this) {
       return true;
     }
-    
+
     if (other == null) {
       return false;
     }
@@ -438,7 +438,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
       final SetMultimap.Immutable<IValue, IValue> data = xz.freeze();
 
-    
+
     final AbstractTypeBag keyTypeBag = calcTypeBag(data, Map.Entry::getKey);
     final AbstractTypeBag valTypeBag = calcTypeBag(data, Map.Entry::getValue);
 
@@ -548,7 +548,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     assert tupleType.getArity() == 2;
     Type keyType = tupleType.getFieldType(0);
     Type valueType = tupleType.getFieldType(1);
-    
+
     if (!keyType.comparable(valueType)) {
       // if someone tries, then we have a very quick answer
       return this;
@@ -568,7 +568,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     else {
       keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
       valTypeBag = calcTypeBag(result, Map.Entry::getValue);
-    }  
+    }
 
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
@@ -611,18 +611,18 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     else {
       keyTypeBag = calcTypeBag(result, Map.Entry::getKey);
       valTypeBag = calcTypeBag(result, Map.Entry::getValue);
-    }  
+    }
 
     return PersistentSetFactory.from(keyTypeBag, valTypeBag, result.freeze());
   }
 
   private static SetMultimap.Transient<IValue, IValue> computeClosure(final SetMultimap.Immutable<IValue, IValue> content) {
-    return content.size() > 256 
+    return content.size() > 256
       ? computeClosureDepthFirst(content)
       : computeClosureBreadthFirst(content)
       ;
   }
-    
+
   @SuppressWarnings("unchecked")
   private static SetMultimap.Transient<IValue, IValue> computeClosureDepthFirst(final SetMultimap.Immutable<IValue, IValue> content) {
     final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
@@ -649,7 +649,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
       // already the transitive closure.
       // We add it before we've done it, just to avoid scheduling
       // <a,a> when it occurs during the depth scan for lhs.
-      done.add(lhs); 
+      done.add(lhs);
       IValue rhs;
       while ((rhs = todo.poll()) != null) {
         if (lhs == rhs) {
@@ -672,32 +672,32 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
     /*
     * we want to compute the closure of R, which in essence is a composition on itself.
     * until nothing changes:
-    * 
+    *
     * solve(R) {
     *    R = R o R;
     * }
-    * 
+    *
     * The algorithm below realizes the following things:
-    * 
+    *
     * - Instead of recomputing the compose for the whole of R, we only have to
     *   compose for the newly added edges (called todo in the algorithm).
     * - Since the LHS of `R o R` will be using the range of R as a lookup in R
     *   we store the todo in inverse.
-    * 
+    *
     * In essence the algorithm becomes:
-    * 
+    *
     * result = R;
     * todo = invert(R);
-    * 
+    *
     * while (todo != {}) {
     *  composed = fastCompose(todo, R);
     *  newEdges = composed - result;
     *  todo = invert(newEdges);
     *  result += newEdges;
     * }
-    * 
+    *
     * fastCompose(todo, R) = { l * R[r] | <r, l> <- todo};
-    * 
+    *
     */
     final SetMultimap.Transient<IValue, IValue> result = content.asTransient();
 
@@ -728,7 +728,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
       todo = nextTodo;
     }
-    
+
     return result;
   }
 

@@ -15,7 +15,7 @@ public class TypeReader {
     private static final char END_OF_ARGUMENTS = ']';
     private static final char COMMA_SEPARATOR = ',';
     private static final TypeFactory types = TypeFactory.getInstance();
-    
+
     private TypeStore store = new TypeStore(); // dummy guarantees non-nullness
     private NoWhiteSpaceReader stream = new NoWhiteSpaceReader(new StringReader("")); // dummy guarantees non-nullness
     private int current;
@@ -70,7 +70,7 @@ public class TypeReader {
                     return readComposite((t) -> types.abstractDataType(store, id, t.toArray(new Type[0])));
                 }
 
-                throw new TypeParseError("undeclared type " + id, new NullPointerException()); 
+                throw new TypeParseError("undeclared type " + id, new NullPointerException());
             }
             else {
                 Type adt = store.lookupAbstractDataType(id);
@@ -78,7 +78,7 @@ public class TypeReader {
                     return adt;
                 }
 
-                throw new TypeParseError("undeclared type " + id, new NullPointerException()); 
+                throw new TypeParseError("undeclared type " + id, new NullPointerException());
             }
         }
 
@@ -112,7 +112,7 @@ public class TypeReader {
             current = stream.read();
         }
 
-        while (Character.isJavaIdentifierStart(current) 
+        while (Character.isJavaIdentifierStart(current)
                 || Character.isJavaIdentifierPart(current)
                 || (escaped && current == '-')) {
             builder.append((char) current);

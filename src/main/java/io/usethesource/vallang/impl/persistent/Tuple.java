@@ -38,7 +38,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
     private Tuple(IValue... elements) {
         super();
-        
+
         this.elements = elements;
     }
 
@@ -47,7 +47,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         if (cachedTupleType == null) {
             cachedTupleType = TypeFactory.getInstance().tupleType(elements);
         }
-        
+
         return cachedTupleType;
     }
 
@@ -148,7 +148,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     public String toString() {
         return defaultToString();
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 1331;
@@ -166,7 +166,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         if (o == this) {
             return true;
         }
-        
+
         if (o == null) {
             return false;
         }
@@ -178,8 +178,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             // because tuple types are computed lazily.
             // so we skip this "fast failure" check
             // if (getType() != otherTuple.getType()) { return false; }
-                
-            
+
+
             IValue[] otherElements = otherTuple.elements;
             int nrOfElements = elements.length;
             if (otherElements.length == nrOfElements) {
@@ -223,7 +223,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         return false;
     }
-    
+
     private static class TupleIterator implements Iterator<IValue> {
         private final IValue[] elements;
         private int index = 0;

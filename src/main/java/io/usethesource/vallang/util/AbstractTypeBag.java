@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang.util;
 
@@ -40,7 +40,7 @@ public abstract class AbstractTypeBag implements Cloneable {
     public abstract AbstractTypeBag decrease(Type t);
 
     public abstract Type lub();
-    
+
     public abstract int sum();
 
     public abstract AbstractTypeBag clone();
@@ -133,14 +133,14 @@ public abstract class AbstractTypeBag implements Cloneable {
         @Override
         public int sum() {
             int total = 0;
-            
+
             for (Entry<Type, Integer> entry : countMap.entrySet()) {
                 total += entry.getValue();
             }
-            
+
             return total;
         }
-        
+
         @Override
         public Type lub() {
             if (cachedLub == null) {
@@ -178,13 +178,13 @@ public abstract class AbstractTypeBag implements Cloneable {
             if (this == o) {
                 return true;
             }
-            
+
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            
+
             TypeBag typeBag = (TypeBag) o;
-            
+
             return countMap.equals(typeBag.countMap);
         }
     }

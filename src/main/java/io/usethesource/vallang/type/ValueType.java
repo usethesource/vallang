@@ -27,15 +27,15 @@ import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /* package */class ValueType extends Type {
-    
+
     protected static class InstanceHolder {
         public static final ValueType sInstance = new ValueType();
     }
-    
+
     public static ValueType getInstance() {
         return InstanceHolder.sInstance;
     }
-    
+
     public static class Info extends TypeFactory.TypeReifier {
         public Info(TypeValues symbols) {
             super(symbols);
@@ -51,14 +51,14 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                            Function<IConstructor, Set<IConstructor>> grammar) {
             return getInstance();
         }
-        
+
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().valueType();
         }
     }
-    
-    
+
+
     @Override
     public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
@@ -96,7 +96,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public Type glb(Type type) {
         return type.glbWithValue(this);
     }
-    
+
     @Override
     public boolean intersects(Type other) {
         return other.intersectsWithValue(this);
@@ -106,7 +106,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public boolean isTop() {
         return true;
     }
-    
+
     @Override
     protected boolean isSupertypeOf(Type type) {
         return type.isSubtypeOfValue(this);
@@ -364,7 +364,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     protected Type glbWithDateTime(Type type) {
         return type;
     }
-    
+
     @Override
     protected boolean intersectsWithValue(Type type) {
         return true; // such that sub-classes do not have to override
@@ -429,7 +429,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     protected boolean intersectsWithTuple(Type type) {
         return true;
     }
-    
+
     protected boolean intersectsWithFunction(Type type) {
         return true;
     }
@@ -445,17 +445,17 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     protected boolean intersectsWithDateTime(Type type) {
         return true;
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         Type type;
         RandomTypesConfig cfg = RandomTypesConfig.defaultConfig(random).maxDepth(maxDepth).withoutRandomAbstractDatatypes();
-        
+
         do {
             type = TypeFactory.getInstance().randomType(store, cfg);
         } while (type.isBottom());
-        
+
         return type.randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
     }
 }

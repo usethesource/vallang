@@ -22,21 +22,21 @@ import io.usethesource.vallang.IValueFactory;
  * ExternalType facilitates a limited form of extensibility to the PDB's type system.
  * It can be used for example to add 'function types' to the PDB. Any such extension
  * to PDB must be a subclass of ExternalType and override isSubTypeOf() and lub().
- * <br> 
+ * <br>
  * Note that NORMAL USE OF THE VALUES LIBRARY DOES NOT REQUIRE EXTENDING THIS CLASS
  */
 public abstract class ExternalType extends DefaultSubtypeOfValue {
-    
+
     /**
      * Provide the type of the values produced by {@link IExternalValue}.encodeAsConstructor()
      */
     public abstract Type asAbstractDataType();
-        
+
     @Override
     public Type getTypeParameters() {
         return TypeFactory.getInstance().voidType();
     }
-    
+
     @Override
     public boolean isExternalType() {
         return true;
@@ -46,40 +46,40 @@ public abstract class ExternalType extends DefaultSubtypeOfValue {
     public final <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
         return visitor.visitExternal(this);
     }
-    
+
     @Override
     public final Type lub(Type other) {
-      return other.lubWithExternal(this);    
+      return other.lubWithExternal(this);
     }
-    
+
     @Override
     public final Type glb(Type type) {
       return type.glbWithExternal(this);
     }
-    
+
     @Override
     public boolean intersects(Type other) {
         return other.intersectsWithExternal(this);
     }
-    
+
     @Override
     protected /*final*/ boolean isSupertypeOf(Type type) {
       return type.isSubtypeOfExternal(this);
     }
-    
+
     @Override
     abstract protected Type lubWithExternal(Type type);
-    
+
     @Override
     abstract protected boolean intersectsWithExternal(Type type);
-    
+
     @Override
     abstract protected Type glbWithExternal(Type type);
-  
-    
+
+
     @Override
     abstract protected boolean isSubtypeOfExternal(Type type);
-    
+
     @Override
     abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth);
 }

@@ -8,7 +8,7 @@ public class IllegalIdentifierException extends FactTypeDeclarationException {
         super(id + " is not a valid identifier");
         this.id = id;
     }
-    
+
     public String getIdentifier() {
         return id;
     }

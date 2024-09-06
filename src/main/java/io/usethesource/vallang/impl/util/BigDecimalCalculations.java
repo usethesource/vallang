@@ -20,7 +20,7 @@ import java.math.RoundingMode;
 
 public class BigDecimalCalculations {
     /**
-     *  pi in 1000 decimals places 
+     *  pi in 1000 decimals places
      */
     public static final BigDecimal PI = new BigDecimal(
             "3.141592653589793238462643383279502884197169399375105820974944592307" +
@@ -38,12 +38,12 @@ public class BigDecimalCalculations {
             "08302642522308253344685035261931188171010003137838752886587533208381" +
             "42061717766914730359825349042875546873115956286388235378759375195778" +
             "18577805321712268066130019278766111959092164201988") ;
-    
+
     public static final BigDecimal halfPI = PI.divide(new BigDecimal(2));
     public static final BigDecimal twoPI = PI.multiply(new BigDecimal(2));
 
     /**
-     *  e in 1000 decimals places 
+     *  e in 1000 decimals places
      */
     public static final BigDecimal E = new BigDecimal(
             "2.718281828459045235360287471352662497757247093699959574966967627724" +
@@ -61,21 +61,21 @@ public class BigDecimalCalculations {
             "27041978623209002160990235304369941849146314093431738143640546253152" +
             "09618369088870701676839642437814059271456354906130310720851038375051" +
             "011574770417189861068739696552126715468895703503540");
-    
+
     /**
      * above 500 (/below -500) the approximation slows down more than the normalisation costs.
      * So we normalize first
      */
     private static final BigDecimal sincosNormalizePoint = BigDecimal.valueOf(500);
-    
+
     private static BigInteger maxBigDecimalPowExp = BigInteger.valueOf(999999999); // maximum exponent for BigDecimal.pow
-    
-    
+
+
     /**
      * Compute the sine of x to a given scale
-     * @param x 
+     * @param x
      *      the value of x
-     * @param 
+     * @param
      *      scale the desired scale of the result
      * @return the result value
      */
@@ -88,16 +88,16 @@ public class BigDecimalCalculations {
         }
         if (x.signum() == -1)
             return sinTaylor(x.negate(), scale).negate();
-        else 
+        else
             return sinTaylor(x, scale);
     }
-    
-    
+
+
     private static BigDecimal calculateConvergenceTolerance(int scale) {
         return BigDecimal.valueOf(5).movePointLeft(scale + 1);
     }
-    
-    // code based on arctanTaylor by Ronald Mak  
+
+    // code based on arctanTaylor by Ronald Mak
     private static BigDecimal sinTaylor(BigDecimal x, int scale)
     {
         int     sp1     = scale + 1;
@@ -120,7 +120,7 @@ public class BigDecimalCalculations {
             term = power.divide(fac, sp1,RoundingMode.HALF_EVEN);
             // result = result +- (x^i)/(i!)
             result = addFlag ? result.add(term) : result.subtract(term);
-            
+
             // state for next round
             i += 2;
             fac = fac.multiply(BigDecimal.valueOf(i - 1)).multiply(BigDecimal.valueOf(i));
@@ -130,7 +130,7 @@ public class BigDecimalCalculations {
 
         return result;
     }
-    
+
     /**
      * Compute the cosine of x to a given scale
      * @param x the value of x
@@ -146,11 +146,11 @@ public class BigDecimalCalculations {
         }
         if (x.signum() == -1)
             return cosTaylor(x.negate(), scale);
-        else 
+        else
             return cosTaylor(x, scale);
     }
-    
-    // code based on arctanTaylor by Ronald Mak 
+
+    // code based on arctanTaylor by Ronald Mak
     // same as sin but without the x starting point and +1 in faculty
     private static BigDecimal cosTaylor(BigDecimal x, int scale)
     {
@@ -174,7 +174,7 @@ public class BigDecimalCalculations {
             term = power.divide(fac, sp1, RoundingMode.HALF_EVEN);
             // result = result +- (x^i)/(i!)
             result = addFlag ? result.add(term) : result.subtract(term);
-            
+
             // prepare state for next loop
             i += 2;
             fac = fac.multiply(BigDecimal.valueOf(i -1)).multiply(BigDecimal.valueOf(i));
@@ -183,13 +183,13 @@ public class BigDecimalCalculations {
         } while (term.compareTo(tolerance) > 0);
         return result;
     }
-    
-    
+
+
     /**
      * Compute the tangent of x to a given scale, |x| < pi/2
-     * 
+     *
      * @param x
-     *      the value of x  
+     *      the value of x
      * @param scale
      *      the desired scale of the result
      * @return the result value
@@ -202,11 +202,11 @@ public class BigDecimalCalculations {
         // easiest implementation of tan (no need for Bernoulli numbers) but this is slower than the other 2
         return sin(x, scale + 1).divide(cos(x, scale + 1), scale, RoundingMode.HALF_UP);
     }
-    
-    
+
+
     /**
      * Compute x^exponent to a given scale.
-     * 
+     *
      * @param x
      *            the value x
      * @param exponent
@@ -227,52 +227,52 @@ public class BigDecimalCalculations {
         }
 
         MathContext mc = new MathContext(scale, RoundingMode.HALF_EVEN);
-        
+
         if (exponent.equals(BigInteger.ONE)) {
             if (negativeExponent) {
                 return BigDecimal.ONE.divide(x, mc);
             }
             return x.setScale(scale, RoundingMode.HALF_EVEN);
         }
-        
+
         BigDecimal result = BigDecimal.valueOf(1);
 
         if (exponent.compareTo(maxBigDecimalPowExp) >= 0) {
             BigDecimal maxExpPow = x.pow(maxBigDecimalPowExp.intValue(), mc);
             while (exponent.compareTo(maxBigDecimalPowExp) >= 0) {
                 result = result.multiply(maxExpPow);
-                exponent = exponent.subtract(maxBigDecimalPowExp);  
+                exponent = exponent.subtract(maxBigDecimalPowExp);
             }
         }
-        
+
         result = result.multiply(x.pow(exponent.intValue(), mc));
-        
+
         if (negativeExponent) {
             return BigDecimal.ONE.divide(result, mc);
         }
-        
+
         return result.setScale(scale, RoundingMode.HALF_EVEN);
-    }   
-    
+    }
+
     /**
      * The functions below this line are based on the Numerical implementations of
-     * Java Number Cruncher: The Java Programmer's Guide 
+     * Java Number Cruncher: The Java Programmer's Guide
      *    to Numerical Computing
      * by Ronald Mak
-     * 
+     *
      * He has shared the code in the book at the following page:
      * http://authors.phptr.com/mak/downloads.html
-     * 
+     *
      * And has put the source in the public domain:
-     *      "I wrote all these programs strictly as 
-     *      illustrative examples for my book. 
-     *      You're free to use the source code any 
-     *      way you like, but bear in mind that this is 
-     *      NOT fully tested, commercial-quality code. 
-     *      Neither Prentice Hall PTR nor I can be 
-     *      responsible for anything bad that may happen 
+     *      "I wrote all these programs strictly as
+     *      illustrative examples for my book.
+     *      You're free to use the source code any
+     *      way you like, but bear in mind that this is
+     *      NOT fully tested, commercial-quality code.
+     *      Neither Prentice Hall PTR nor I can be
+     *      responsible for anything bad that may happen
      *      if you use these programs."
-     * 
+     *
      * The only changes were the removal of call to Thread.yield(), switching to
      *  and formatting improvements
      */
@@ -280,7 +280,7 @@ public class BigDecimalCalculations {
     /**
      * Compute the integral root of x to a given scale, x >= 0. Use Newton's
      * algorithm.
-     * 
+     *
      * @param x
      *            the value of x
      * @param index
@@ -334,7 +334,7 @@ public class BigDecimalCalculations {
     /**
      * Compute e^x to a given scale. Break x into its whole and fraction parts
      * and compute (e^(1 + fraction/whole))^whole using Taylor's formula.
-     * 
+     *
      * @param x
      *            the value of x
      * @param scale
@@ -346,18 +346,18 @@ public class BigDecimalCalculations {
         if (x.signum() == 0) {
             return BigDecimal.valueOf(1);
         }
-        
+
         boolean isNegative = x.signum() == -1;
-        
+
         if (isNegative) {
             x = x.negate();
         }
-        
+
         // Compute the whole part of x.
         BigDecimal xWhole = x.setScale(0, RoundingMode.DOWN);
 
         BigDecimal result;
-        
+
         // If there isn't a whole part, compute and return e^x.
         if (xWhole.signum() == 0) {
             result = expTaylor(x, scale);
@@ -365,27 +365,27 @@ public class BigDecimalCalculations {
         else {
             // Compute the fraction part of x.
             BigDecimal xFraction = x.subtract(xWhole);
-    
+
             // z = 1 + fraction/whole
             BigDecimal z = BigDecimal.valueOf(1).add(
                     xFraction.divide(xWhole, scale, RoundingMode.HALF_EVEN));
-    
+
             // t = e^z
             BigDecimal t = expTaylor(z, scale);
-    
+
             result = intPower(t, xWhole.toBigInteger(), scale);
         }
-        
+
         if (isNegative) {
             return BigDecimal.ONE.divide(result, new MathContext(scale, RoundingMode.HALF_EVEN));
         }
-        
+
         return result;
     }
 
     /**
      * Compute e^x to a given scale by the Taylor series.
-     * 
+     *
      * @param x
      *            the value of x
      * @param scale
@@ -482,7 +482,7 @@ public class BigDecimalCalculations {
     /**
      * Compute the square root of x to a given scale, x >= 0. Use Newton's
      * algorithm.
-     * 
+     *
      * @param x
      *            the value of x
      * @param scale
@@ -517,7 +517,7 @@ public class BigDecimalCalculations {
 
         return new BigDecimal(ix, scale);
     }
-    
+
     public static BigDecimal pow(BigDecimal a, BigDecimal b, int scale) {
         if (a.signum() == -1) {
             throw new ArithmeticException("x < 0");
@@ -532,7 +532,7 @@ public class BigDecimalCalculations {
             return a.pow(b.intValue(), mc);
         }
         // else we have to do the more expansive route:
-        // a^b=exp(b*ln(a)) 
+        // a^b=exp(b*ln(a))
         return exp(b.multiply(ln(a, scale), mc), scale).setScale(scale - 1, RoundingMode.HALF_EVEN);
     }
 

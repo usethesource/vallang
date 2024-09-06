@@ -34,12 +34,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 /*package*/ class MapType extends DefaultSubtypeOfValue {
     protected final Type fKeyType;
     protected final Type fValueType;
-    
+
     /*package*/ MapType(Type keyType, Type valueType) {
         fKeyType= keyType;
         fValueType = valueType;
     }
-    
+
     public static class Info extends TypeFactory.TypeReifier {
         public Info(TypeValues symbols) {
         super(symbols);
@@ -56,7 +56,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             IConstructor to = (IConstructor) symbol.get("to");
             String fromLabel = null;
             String toLabel = null;
-            
+
             if (symbols().isLabel(from)) {
                 fromLabel = symbols().getLabel(from);
                 from = (IConstructor) from.get("symbol");
@@ -72,7 +72,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                 return tf().mapType(symbols().fromSymbol(from, store, grammar), symbols().fromSymbol(to, store, grammar));
             }
         }
-        
+
         @Override
         public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                                  Set<IConstructor> done) {
@@ -83,12 +83,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                 return vf.constructor(getSymbolConstructorType(), type.getKeyType().asSymbol(vf, store, grammar, done), type.getValueType().asSymbol(vf, store, grammar, done));
             }
         }
-        
+
         @Override
         public boolean isRecursive() {
             return false;
         }
-        
+
         @Override
         public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                 Set<IConstructor> done) {
@@ -106,17 +106,17 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
     }
-    
+
     @Override
     public Type getKeyType() {
         return fKeyType;
     }
-    
+
     @Override
     public int getArity() {
         return 2;
     }
-    
+
     @Override
     public Type getValueType() {
         return fValueType;
@@ -126,12 +126,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public boolean isMap() {
         return true;
     }
-  
+
     @Override
     public boolean hasFieldNames() {
         return false;
     }
-    
+
     @Override
     public Type getFieldType(int i) {
         switch (i) {
@@ -141,17 +141,17 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             throw new IndexOutOfBoundsException();
         }
     }
-    
+
     @Override
     public Type select(int... fields) {
         return TypeFactory.getInstance().setType(getFieldTypes().select(fields));
     }
-    
+
     @Override
     public Type getFieldTypes() {
         return TypeFactory.getInstance().tupleType(fKeyType, fValueType);
     }
-    
+
     @Override
     public Type carrier() {
       TypeFactory tf = TypeFactory.getInstance();
@@ -168,11 +168,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         if (obj == null) {
             return false;
         }
-        
+
         if (!obj.getClass().equals(getClass())) {
             return false;
         }
-        
+
         MapType other= (MapType) obj;
 
         // N.B.: The element type must have been created and canonicalized before any
@@ -185,7 +185,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public String toString() {
         return "map[" + fKeyType + ", " + fValueType + "]";
     }
-    
+
     @Override
     public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
       return visitor.visitMap(this);
@@ -195,49 +195,49 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public boolean intersects(Type other) {
         return other.intersectsWithMap(this);
     }
-    
+
     @Override
     protected boolean intersectsWithMap(Type type) {
         // there is always the empty map!
         return true;
     }
-    
+
     @Override
     protected boolean isSupertypeOf(Type type) {
       return type.isSubtypeOfMap(this);
     }
-    
+
     @Override
     public Type lub(Type other) {
       return other.lubWithMap(this);
     }
-    
+
     @Override
     public Type glb(Type type) {
       return type.glbWithMap(this);
     }
-    
+
     @Override
     protected boolean isSubtypeOfMap(Type type) {
       return fKeyType.isSubtypeOf(type.getKeyType())
           && fValueType.isSubtypeOf(type.getValueType());
     }
-    
+
     @Override
     protected Type lubWithMap(Type type) {
       return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().lub(type.getFieldTypes()));
     }
-    
+
     @Override
     protected Type glbWithMap(Type type) {
       return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().glb(type.getFieldTypes()));
     }
-    
+
     @Override
     public boolean isOpen() {
       return fKeyType.isOpen() || fValueType.isOpen();
     }
-    
+
     @Override
     public boolean match(Type matched, Map<Type, Type> bindings)throws FactTypeUseException {
         if (!super.match(matched, bindings)) {
@@ -251,19 +251,19 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
         return true;
     }
-    
+
     @Override
     public Type instantiate(Map<Type, Type> bindings) {
         return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         IMapWriter result = vf.mapWriter();
         if (maxDepth > 0 && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth));
-            
+
             if (!getKeyType().isBottom() && !getValueType().isBottom()) {
                 for (int i =0; i < size; i++) {
                     result.put(
@@ -272,10 +272,10 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                 }
             }
         }
-        
+
         IMap done = result.done();
         match(done.getType(), typeParameters);
-        
+
         return done;
     }
 }

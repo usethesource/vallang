@@ -79,7 +79,7 @@ import io.usethesource.vallang.type.TypeFactory;
     public String toString() {
         return defaultToString();
     }
-    
+
     @Override
     public boolean equals(@Nullable Object o) {
         if (this == o) {

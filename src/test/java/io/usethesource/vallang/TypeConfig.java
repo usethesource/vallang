@@ -14,6 +14,6 @@ public @interface TypeConfig {
         TUPLE_FIELDNAMES,
         ALL
     }
-    
+
     Option[] value();
 }

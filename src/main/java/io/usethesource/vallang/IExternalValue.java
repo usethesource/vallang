@@ -31,13 +31,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  * interfaces but do need to integrate with them.
  * <br>
  * Note that implementations of IExternalValues are obliged to have a type that subclasses
- * ExternalType and that they all implement encodeAsConstructor. 
+ * ExternalType and that they all implement encodeAsConstructor.
  * If you do not do this, (de)serialization will not work.
  * <br>
  * Note that NORMAL USE OF THE PDB DOES NOT REQUIRE IMPLEMENTING THIS INTERFACE
  */
 public interface IExternalValue extends IValue {
-    /** 
+    /**
      * External values must re-think their pattern match fingerprint,
      * instead of returning `IValue.hashCode()` automatically.
      */
@@ -49,19 +49,19 @@ public interface IExternalValue extends IValue {
      */
     @Override
     Type getType();
-    
+
     public default IConstructor encodeAsConstructor() {
         return new IConstructor() {
             @Override
             public Type getConstructorType() {
                 return TypeFactory.getInstance().constructor(new TypeStore(), getType(), getName());
             }
-            
+
             @Override
             public INode setChildren(IValue[] childArray) {
                 return this;
             }
-            
+
             @Override
             public Type getType() {
                 return TypeFactory.getInstance().valueType();
@@ -111,28 +111,28 @@ public interface IExternalValue extends IValue {
             public INode replace(int first, int second, int end, IList repl) {
                 return this;
             }
-            
+
             @Override
             public int arity() {
                 return 0;
             }
-            
+
             @Override
             public IValue get(int i) {
                 throw new IndexOutOfBoundsException(Integer.toString(i));
             }
-            
+
             @Override
             public Iterable<IValue> getChildren() {
                 return Collections.emptyList();
             }
-            
-            
+
+
             @Override
             public Iterator<IValue> iterator() {
                 return Collections.emptyIterator();
             }
-            
+
             @Override
             public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
                  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
@@ -140,7 +140,7 @@ public interface IExternalValue extends IValue {
                         protected IConstructor wrap(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
                           return new ConstructorWithKeywordParametersFacade(content, parameters);
                         }
-                        
+
                         @Override
                         public boolean hasParameters() {
                             return false;
@@ -155,11 +155,11 @@ public interface IExternalValue extends IValue {
                         public Map<String, IValue> getParameters() {
                             return Collections.unmodifiableMap(parameters);
                         }
-                 }; 
+                 };
             }
-        };      
+        };
     }
-    
+
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitExternal(this);

@@ -65,7 +65,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     @Override
     public ISet set(IValue... elems) throws FactTypeUseException {
         checkNull((Object[]) elems);
-        
+
         ISetWriter sw = setWriter();
         sw.insert(elems);
         return sw.done();
@@ -101,24 +101,24 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         checkNull(name);
         return new Node(name);
     }
-    
+
     @Override
     public INode node(String name, IValue... children) {
         checkNull(name);
         checkNull((Object[]) children);
         return new Node(name, children);
     }
-    
+
     @Override
     public INode node(String name,  IValue[] children, java.util.Map<String, IValue> keyArgValues)
             throws FactTypeUseException {
         checkNull(name);
         checkNull((Object[]) children);
 //      checkNull(keyArgValues); // fails; are null values allowed?
-        
+
         return new Node(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
     }
-        
+
     @Override
     public IConstructor constructor(Type constructorType, IValue... children) {
         checkNull(constructorType);
@@ -126,17 +126,17 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
         return new Constructor(constructorType, children);
     }
-    
+
     @Override
     public IConstructor constructor(Type constructorType,  IValue[] children, java.util.Map<String,IValue> kwParams) {
         checkNull(constructorType);
         checkNull(kwParams);
         checkNull((Object[]) children);
         assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
-        
+
         return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
     }
-    
+
     @Override
     public IConstructor constructor(Type constructorType) {
         checkNull(constructorType);
@@ -153,5 +153,5 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     public String toString() {
         return "VALLANG_REFERENCE_FACTORY";
     }
-    
+
 }

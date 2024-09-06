@@ -16,7 +16,7 @@ import io.usethesource.vallang.type.TypeFactory;
  */
 /*package*/ class SourceLocationURIValues {
     private static final Pattern doubleSlashes = Pattern.compile("//+");
-    
+
     static ISourceLocation newURI(@Nullable String scheme, @Nullable String authority, @Nullable String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException  {
         scheme = nullifyIfEmpty(scheme);
         authority = nullifyIfEmpty(authority);
@@ -103,7 +103,7 @@ import io.usethesource.vallang.type.TypeFactory;
             for (int i = 1; i < s.length(); i++) {
                 current = s.charAt(i);
                 if (current < '+' || current > 'z' // anything outside this, is not valid
-                   || current == ',' || current == '/' // these two chars between + and 0 that aren't valid 
+                   || current == ',' || current == '/' // these two chars between + and 0 that aren't valid
                    || ('9' < current && current < 'A') // chars between 9 and A are invalid
                    || ('Z' < current && current < 'a') // chars between Z and a are invalid
                 ) {
@@ -128,11 +128,11 @@ import io.usethesource.vallang.type.TypeFactory;
 
     private static class BaseURI implements ISourceLocation {
         protected final String scheme;
-        
+
         public BaseURI(String scheme)  {
             this.scheme = INTERNED_SCHEMES.intern(scheme);
         }
-        
+
 
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
@@ -143,32 +143,32 @@ import io.usethesource.vallang.type.TypeFactory;
                 throw new RuntimeException("Internal state corrupted?", e);
             }
         }
-        
+
         @Override
         public String toString() {
             return defaultToString();
         }
-        
+
         @Override
         public boolean equals(@Nullable Object obj) {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 return scheme == ((BaseURI)obj).scheme;
             }
-            
+
             return false;
         }
-        
+
         @Override
         public int hashCode() {
-            return scheme.hashCode(); 
+            return scheme.hashCode();
         }
 
         @Override
@@ -279,7 +279,7 @@ import io.usethesource.vallang.type.TypeFactory;
             return this;
         }
     }
-    
+
     private static final Pattern squareBrackets = Pattern.compile("(\\[|\\])");
 
     @SuppressWarnings("nullness") // jdk of CF doesn't have the URI class in there
@@ -290,13 +290,13 @@ import io.usethesource.vallang.type.TypeFactory;
                 return new URI(result.toASCIIString());
         } catch (URISyntaxException e) {
             if (authority != null && squareBrackets.matcher(authority).find()) {
-                // Java URI do not correctly quote the brackets inside the authority 
+                // Java URI do not correctly quote the brackets inside the authority
                 // even though RFC2732 specifies this.
                 // it has to do with the fact that the encoding/quotation is a single pass
                 // and that authority is actually ambigious, so it requires backtracking to
                 // decide which alternative of the authority part is used, and the quoting rules are
                 // slightly different.
-                // so if it fails to parse, we put some placeholder chars, which get encoded, 
+                // so if it fails to parse, we put some placeholder chars, which get encoded,
                 // we then replace the encoded values with the correct encoded values
                 // and create a new URI out of this. (to avoid double encoding)
                 authority = hideBrackets(authority);
@@ -305,7 +305,7 @@ import io.usethesource.vallang.type.TypeFactory;
             }
             throw new RuntimeException("Internal state corrupted?", e);
         }
-        
+
     }
 
     private static final Pattern squareBracketOpenPlaceholder = Pattern.compile("%00%00%EF%BF%B0%00%00");
@@ -331,13 +331,13 @@ import io.usethesource.vallang.type.TypeFactory;
     private static final Interner<String> INTERNED_AUTHORIES = Interner.newStrongInterner();
     private static class AuthorityURI extends BaseURI {
         protected final String authority;
-        
+
         public AuthorityURI(String scheme, String authority)  {
             super(scheme);
 
             this.authority = INTERNED_AUTHORIES.intern(authority);
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
@@ -366,30 +366,30 @@ import io.usethesource.vallang.type.TypeFactory;
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 AuthorityURI u = (AuthorityURI)obj;
                 return scheme == u.scheme
                     && authority == u.authority;
             }
-            
+
             return false;
         }
     }
-    
+
     private static class PathURI extends BaseURI {
         protected final String path;
         private int hash = 0; // we can cache the hash code since the 8-byte alignment leaves room for one
-        
+
         public PathURI(String scheme, String path)  {
             super(scheme);
             this.path = path;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
@@ -400,63 +400,63 @@ import io.usethesource.vallang.type.TypeFactory;
                 throw new RuntimeException("Internal state corrupted?", e);
             }
         }
-        
+
         @Override
         public boolean hasPath() {
             return true;
         }
-        
+
         @Override
         public String getPath() {
             return path;
         }
-        
+
         @Override
         public int hashCode() {
           if (hash == 0) {
             hash = scheme.hashCode() + path.hashCode();
           }
-          
+
           return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object obj) {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 PathURI u = (PathURI)obj;
                 if (hash != 0 && u.hash != 0 && hash != u.hash) {
                    return false;
                 }
-                
+
                 return scheme == u.scheme
                     && path.equals(u.path);
             }
             return false;
         }
     }
-    
+
     private static class PathAuthorityURI extends AuthorityURI {
         protected final String path;
-        
+
         public PathAuthorityURI(String scheme, String authority, String path)  {
             super(scheme, authority);
             this.path = path;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             return buildURIWithAuthority(scheme, authority, path, null, null);
         }
-        
+
         @Override
         public boolean hasPath() {
             return true;
@@ -474,30 +474,30 @@ import io.usethesource.vallang.type.TypeFactory;
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 PathAuthorityURI u = (PathAuthorityURI)obj;
                 return scheme == u.scheme
                     && authority == u.authority
                     && path.equals(u.path);
             }
-            
+
             return false;
         }
     }
-    
+
     private static class QueryURI extends BaseURI {
         protected final String query;
-        
+
         public QueryURI(String scheme, String query)  {
             super(scheme);
             this.query = query;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
 public URI getURI() {
@@ -508,7 +508,7 @@ public URI getURI() {
                 throw new RuntimeException("Internal state corrupted?", e);
             }
         }
-        
+
         @Override
         public boolean hasQuery() {
             return true;
@@ -526,11 +526,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 QueryURI u = (QueryURI)obj;
                 return scheme == u.scheme
@@ -540,21 +540,21 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class QueryAuthorityURI extends AuthorityURI {
         protected final String query;
-        
+
         public QueryAuthorityURI(String scheme, String authority, String query)  {
             super(scheme, authority);
             this.query = query;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             return buildURIWithAuthority(scheme, authority, null, query, null);
         }
-        
+
         @Override
         public boolean hasQuery() {
             return true;
@@ -572,11 +572,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 QueryAuthorityURI u = (QueryAuthorityURI)obj;
                 return scheme == u.scheme
@@ -587,15 +587,15 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class QueryPathURI extends PathURI {
         protected final String query;
-        
+
         public QueryPathURI(String scheme, String path, String query)  {
             super(scheme, path);
             this.query = query;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
 public URI getURI() {
@@ -606,7 +606,7 @@ public URI getURI() {
                 throw new RuntimeException("Internal state corrupted?", e);
             }
         }
-        
+
         @Override
         public boolean hasQuery() {
             return true;
@@ -624,11 +624,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 QueryPathURI u = (QueryPathURI)obj;
                 return scheme == u.scheme
@@ -639,21 +639,21 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class QueryPathAuthorityURI extends PathAuthorityURI {
         protected final String query;
-        
+
         public QueryPathAuthorityURI(String scheme, String authority, String path, String query)  {
             super(scheme, authority, path);
             this.query = query;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             return buildURIWithAuthority(scheme, authority, path,query,null);
         }
-        
+
         @Override
         public boolean hasQuery() {
             return true;
@@ -671,11 +671,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if(obj.getClass() == getClass()){
                 QueryPathAuthorityURI u = (QueryPathAuthorityURI)obj;
                 return scheme == u.scheme
@@ -687,15 +687,15 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class FragmentURI extends BaseURI {
         protected final String fragment;
-        
+
         public FragmentURI(String scheme, String fragment)  {
             super(scheme);
             this.fragment = fragment;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
 public URI getURI() {
@@ -706,7 +706,7 @@ public URI getURI() {
                 throw new RuntimeException("Internal state corrupted?", e);
             }
         }
-        
+
         @Override
         public boolean hasFragment() {
             return true;
@@ -724,11 +724,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 FragmentURI u = (FragmentURI)obj;
                 return scheme == u.scheme
@@ -738,21 +738,21 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class FragmentAuthorityURI extends AuthorityURI {
         protected final String fragment;
-        
+
         public FragmentAuthorityURI(String scheme, String authority, String fragment)  {
             super(scheme, authority);
             this.fragment = fragment;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             return buildURIWithAuthority(scheme, authority, null, null, fragment);
         }
-        
+
         @Override
         public boolean hasFragment() {
             return true;
@@ -770,11 +770,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 FragmentAuthorityURI u = (FragmentAuthorityURI)obj;
                 return scheme == u.scheme
@@ -785,15 +785,15 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class FragmentPathURI extends PathURI {
         protected final String fragment;
-        
+
         public FragmentPathURI(String scheme, String path, String fragment)  {
             super(scheme, path);
             this.fragment = fragment;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
 public URI getURI() {
@@ -804,7 +804,7 @@ public URI getURI() {
                 throw new RuntimeException("Internal state corrupted?", e);
             }
         }
-        
+
         @Override
         public boolean hasFragment() {
             return true;
@@ -822,11 +822,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 FragmentPathURI u = (FragmentPathURI)obj;
                 return scheme == u.scheme
@@ -837,21 +837,21 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class FragmentPathAuthorityURI extends PathAuthorityURI {
         protected final String fragment;
-        
+
         public FragmentPathAuthorityURI(String scheme, String authority, String path, String fragment)  {
             super(scheme, authority, path);
             this.fragment = fragment;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             return buildURIWithAuthority(scheme, authority, path, null, fragment);
         }
-        
+
         @Override
         public boolean hasFragment() {
             return true;
@@ -869,11 +869,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 FragmentPathAuthorityURI u = (FragmentPathAuthorityURI)obj;
                 return scheme == u.scheme
@@ -887,12 +887,12 @@ public URI getURI() {
     }
     private static class FragmentQueryURI extends QueryURI {
         protected final String fragment;
-        
+
         public FragmentQueryURI(String scheme, String query, String fragment)  {
             super(scheme, query);
             this.fragment = fragment;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
 public URI getURI() {
@@ -903,7 +903,7 @@ public URI getURI() {
                 throw new RuntimeException("Internal state corrupted?", e);
             }
         }
-        
+
         @Override
         public boolean hasFragment() {
             return true;
@@ -921,11 +921,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 FragmentQueryURI u = (FragmentQueryURI)obj;
                 return scheme == u.scheme
@@ -936,21 +936,21 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class FragmentQueryAuthorityURI extends QueryAuthorityURI {
         protected final String fragment;
-        
+
         public FragmentQueryAuthorityURI(String scheme, String authority, String query, String fragment)  {
             super(scheme, authority, query);
             this.fragment = fragment;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             return buildURIWithAuthority(scheme, authority, null, query, fragment);
         }
-        
+
         @Override
         public boolean hasFragment() {
             return true;
@@ -968,11 +968,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 FragmentQueryAuthorityURI u = (FragmentQueryAuthorityURI)obj;
                 return scheme == u.scheme
@@ -984,15 +984,15 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class FragmentQueryPathURI extends QueryPathURI {
         protected final String fragment;
-        
+
         public FragmentQueryPathURI(String scheme, String path, String query, String fragment)  {
             super(scheme, path, query);
             this.fragment = fragment;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
 public URI getURI() {
@@ -1003,7 +1003,7 @@ public URI getURI() {
                 throw new RuntimeException("Internal state corrupted?", e);
             }
         }
-        
+
         @Override
         public boolean hasFragment() {
             return true;
@@ -1021,11 +1021,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 FragmentQueryPathURI u = (FragmentQueryPathURI)obj;
                 return scheme == u.scheme
@@ -1037,21 +1037,21 @@ public URI getURI() {
             return false;
         }
     }
-    
+
     private static class FragmentQueryPathAuthorityURI extends QueryPathAuthorityURI {
         protected final String fragment;
-        
+
         public FragmentQueryPathAuthorityURI(String scheme, String authority, String path, String query, String fragment)  {
             super(scheme, authority, path, query);
             this.fragment = fragment;
         }
-        
+
         @Override
         @SuppressWarnings("nullness") // CF doesn't have a model for URI
         public URI getURI() {
             return buildURIWithAuthority(scheme, authority, path, query, fragment);
         }
-        
+
         @Override
         public boolean hasFragment() {
             return true;
@@ -1069,11 +1069,11 @@ public URI getURI() {
             if (obj == null) {
                 return false;
             }
-            
+
             if (this == obj) {
                 return true;
             }
-            
+
             if (obj.getClass() == getClass()){
                 FragmentQueryPathAuthorityURI u = (FragmentQueryPathAuthorityURI)obj;
                 return scheme == u.scheme

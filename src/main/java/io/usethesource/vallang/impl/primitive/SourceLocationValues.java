@@ -29,13 +29,13 @@ import io.usethesource.vallang.type.TypeFactory;
 /**
  * This is a container class for a number of implementations of ISourceLocation. Each implementation is extremely similar to the others.
  * except that different native types are used to store offsets, lengths, line and column indices. The goal is to use a minimum amount
- * of heap for each source location object, since at run-time there will be so many of them. We measured the effect of this on some real 
+ * of heap for each source location object, since at run-time there will be so many of them. We measured the effect of this on some real
  * applications and showed more than 50% improvement in memory usage.
  */
 /*package*/ class SourceLocationValues {
-    
-    
-    
+
+
+
     /*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length) {
         ISourceLocation root = loc.top();
         if (offset < 0) throw new IllegalArgumentException("offset should be positive");
@@ -51,7 +51,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         return new SourceLocationValues.IntInt(root, offset, length);
     }
-    
+
     /*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
         ISourceLocation root = loc.top();
         if (offset < 0) throw new IllegalArgumentException("offset should be positive");
@@ -89,8 +89,8 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         return new SourceLocationValues.IntIntIntIntIntInt(root, offset, length, beginLine, endLine, beginCol, endCol);
-    }   
-            
+    }
+
     private final static Cache<ISourceLocation,URI>  reverseLocationCache = Caffeine.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(1000)
@@ -104,7 +104,7 @@ import io.usethesource.vallang.type.TypeFactory;
             .maximumSize(1000)
             .weakKeys() // loose entries quickly, and force reference equality, such that URI's are only compared based on instance, not on contents (as their equality is case-insensitive)
             .build();
-    
+
     /*package*/ static ISourceLocation newSourceLocation(URI uri) throws URISyntaxException {
         if (uri.isOpaque()) {
             throw new UnsupportedOperationException("Opaque URI schemes are not supported; the scheme-specific part must start with a / character.");
@@ -121,13 +121,13 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         return result;
     }
-    
+
     /*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
             String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException {
         return SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
     }
 
-    
+
     private abstract static class Complete extends Incomplete {
         private Complete(ISourceLocation root) {
             super(root);
@@ -137,31 +137,31 @@ import io.usethesource.vallang.type.TypeFactory;
         public boolean hasOffsetLength() {
             return true;
         }
-        
+
         @Override
         public boolean hasLineColumn() {
             return true;
         }
     }
-    
-    
+
+
     private abstract static class Incomplete implements ISourceLocation {
         protected ISourceLocation root;
 
         public Incomplete(ISourceLocation root) {
             this.root = root;
         }
-        
+
         @Override
         public boolean hasAuthority() {
             return root.hasAuthority();
         }
-        
+
         @Override
         public boolean hasFragment() {
             return root.hasFragment();
         }
-        
+
         @Override
         public boolean hasPath() {
             return root.hasPath();
@@ -177,37 +177,37 @@ import io.usethesource.vallang.type.TypeFactory;
         public boolean hasQuery() {
             return root.hasQuery();
         }
-        
+
         @Override
         public String getAuthority() {
             return root.getAuthority();
         }
-        
+
         @Override
         public String getFragment() {
             return root.getFragment();
         }
-        
+
         @Override
         public String getPath() {
             return root.getPath();
         }
-        
+
         @Override
         public String getQuery() {
             return root.getQuery();
         }
-        
+
         @Override
         public String getScheme() {
             return root.getScheme();
         }
-        
+
         @Override
         public ISourceLocation top() {
             return root;
         }
-        
+
         @Override
         public URI getURI() {
             URI result = reverseLocationCache.get(root, u -> {
@@ -217,60 +217,60 @@ import io.usethesource.vallang.type.TypeFactory;
                     return new URI(calculated.toASCIIString());
                 } catch (URISyntaxException ignored) {
                     return calculated;
-                } 
+                }
             });
             if (result == null) {
                 throw new RuntimeException("Error translating URI");
             }
             return result;
         }
-        
+
         @Override
         public Type getType(){
             return TypeFactory.getInstance().sourceLocationType();
         }
-        
+
         @Override
         public boolean hasLineColumn() {
             return false;
         }
-        
+
         @Override
         public boolean hasOffsetLength() {
             return false;
         }
-        
+
         @Override
         public int getBeginColumn() throws UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public int getBeginLine() throws UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public int getEndColumn() throws UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public int getEndLine() throws UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public int getLength() throws UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public int getOffset() throws UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
     }
-    
+
     private static class IntIntIntIntIntInt extends Complete {
         protected final int offset;
         protected final int length;
@@ -278,10 +278,10 @@ import io.usethesource.vallang.type.TypeFactory;
         protected final int endLine;
         protected final int beginCol;
         protected final int endCol;
-        
+
         private IntIntIntIntIntInt(ISourceLocation root, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
             super(root);
-            
+
             this.offset = offset;
             this.length = length;
             this.beginLine = beginLine;
@@ -293,37 +293,37 @@ import io.usethesource.vallang.type.TypeFactory;
         public Type getType(){
             return TypeFactory.getInstance().sourceLocationType();
         }
-        
+
         @Override
         public int getBeginLine(){
             return beginLine;
         }
-        
+
         @Override
         public int getEndLine(){
             return endLine;
         }
-        
+
         @Override
         public int getBeginColumn(){
             return beginCol;
         }
-        
+
         @Override
         public int getEndColumn(){
             return endCol;
         }
-        
+
         @Override
         public int getOffset(){
             return offset;
         }
-        
+
         @Override
         public int getLength(){
             return length;
         }
-        
+
         @Override
         public int hashCode(){
             int hash = root.hashCode();
@@ -333,16 +333,16 @@ import io.usethesource.vallang.type.TypeFactory;
             hash ^= (endCol << 18);
             hash ^= (offset << 8);
             hash ^= (length << 29);
-            
+
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o){
             if (o == null) {
                 return false;
             }
-            
+
             if(o.getClass() == getClass()){
                 IntIntIntIntIntInt otherSourceLocation = (IntIntIntIntIntInt) o;
                 return (root.equals(otherSourceLocation.root)
@@ -353,11 +353,11 @@ import io.usethesource.vallang.type.TypeFactory;
                         && (offset == otherSourceLocation.offset)
                         && (length == otherSourceLocation.length));
             }
-            
+
             return false;
         }
     }
-    
+
     private static class CharCharByteByteByteByte extends Complete {
         protected final char offset;
         protected final char length;
@@ -368,7 +368,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         private CharCharByteByteByteByte(ISourceLocation root, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
             super(root);
-            
+
             this.offset = offset;
             this.length = length;
             this.beginLine = beginLine;
@@ -380,37 +380,37 @@ import io.usethesource.vallang.type.TypeFactory;
         public Type getType(){
             return TypeFactory.getInstance().sourceLocationType();
         }
-        
+
         @Override
         public int getBeginLine(){
             return beginLine;
         }
-        
+
         @Override
         public int getEndLine(){
             return endLine;
         }
-        
+
         @Override
         public int getBeginColumn(){
             return beginCol;
         }
-        
+
         @Override
         public int getEndColumn(){
             return endCol;
         }
-        
+
         @Override
         public int getOffset(){
             return offset;
         }
-        
+
         @Override
         public int getLength(){
             return length;
         }
-        
+
         @Override
         public int hashCode(){
             int hash = root.hashCode();
@@ -420,16 +420,16 @@ import io.usethesource.vallang.type.TypeFactory;
             hash ^= (endCol << 18);
             hash ^= (offset << 8);
             hash ^= (length << 29);
-            
+
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o){
             if (o == null) {
                 return false;
             }
-            
+
             if (o.getClass() == getClass()){
                 CharCharByteByteByteByte otherSourceLocation = (CharCharByteByteByteByte) o;
                 return (root.equals(otherSourceLocation.root)
@@ -440,11 +440,11 @@ import io.usethesource.vallang.type.TypeFactory;
                         && (offset == otherSourceLocation.offset)
                         && (length == otherSourceLocation.length));
             }
-            
+
             return false;
         }
     }
-    
+
     private static class CharCharCharCharCharChar extends Complete {
         protected final char offset;
         protected final char length;
@@ -452,10 +452,10 @@ import io.usethesource.vallang.type.TypeFactory;
         protected final char endLine;
         protected final char beginCol;
         protected final char endCol;
-        
+
         private CharCharCharCharCharChar(ISourceLocation root, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
             super(root);
-            
+
             this.offset = offset;
             this.length = length;
             this.beginLine = beginLine;
@@ -467,37 +467,37 @@ import io.usethesource.vallang.type.TypeFactory;
         public Type getType(){
             return TypeFactory.getInstance().sourceLocationType();
         }
-        
+
         @Override
         public int getBeginLine(){
             return beginLine;
         }
-        
+
         @Override
         public int getEndLine(){
             return endLine;
         }
-        
+
         @Override
         public int getBeginColumn(){
             return beginCol;
         }
-        
+
         @Override
         public int getEndColumn(){
             return endCol;
         }
-        
+
         @Override
         public int getOffset(){
             return offset;
         }
-        
+
         @Override
         public int getLength(){
             return length;
         }
-        
+
         @Override
         public int hashCode(){
             int hash = root.hashCode();
@@ -507,14 +507,14 @@ import io.usethesource.vallang.type.TypeFactory;
             hash ^= (endCol << 18);
             hash ^= (offset << 8);
             hash ^= (length << 29);
-            
+
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o){
             if(o == null) return false;
-            
+
             if(o.getClass() == getClass()){
                 CharCharCharCharCharChar otherSourceLocation = (CharCharCharCharCharChar) o;
                 return (root.equals(otherSourceLocation.root)
@@ -525,7 +525,7 @@ import io.usethesource.vallang.type.TypeFactory;
                         && (offset == otherSourceLocation.offset)
                         && (length == otherSourceLocation.length));
             }
-            
+
             return false;
         }
     }
@@ -537,10 +537,10 @@ import io.usethesource.vallang.type.TypeFactory;
         protected final int endLine;
         protected final byte beginCol;
         protected final byte endCol;
-        
+
         private IntIntIntIntByteByte(ISourceLocation root, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
             super(root);
-            
+
             this.offset = offset;
             this.length = length;
             this.beginLine = beginLine;
@@ -553,32 +553,32 @@ import io.usethesource.vallang.type.TypeFactory;
         public int getBeginLine(){
             return beginLine;
         }
-        
+
         @Override
         public int getEndLine(){
             return endLine;
         }
-        
+
         @Override
         public int getBeginColumn(){
             return beginCol;
         }
-        
+
         @Override
         public int getEndColumn(){
             return endCol;
         }
-        
+
         @Override
         public int getOffset(){
             return offset;
         }
-        
+
         @Override
         public int getLength(){
             return length;
         }
-        
+
         @Override
         public int hashCode(){
             int hash = root.hashCode();
@@ -588,14 +588,14 @@ import io.usethesource.vallang.type.TypeFactory;
             hash ^= (endCol << 18);
             hash ^= (offset << 8);
             hash ^= (length << 29);
-            
+
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o){
             if(o == null) return false;
-            
+
             if(o.getClass() == getClass()){
                 IntIntIntIntByteByte otherSourceLocation = (IntIntIntIntByteByte) o;
                 return (root.equals(otherSourceLocation.root)
@@ -606,7 +606,7 @@ import io.usethesource.vallang.type.TypeFactory;
                         && (offset == otherSourceLocation.offset)
                         && (length == otherSourceLocation.length));
             }
-            
+
             return false;
         }
     }
@@ -618,10 +618,10 @@ import io.usethesource.vallang.type.TypeFactory;
         protected final char endLine;
         protected final byte beginCol;
         protected final byte endCol;
-        
+
         private IntIntCharCharByteByte(ISourceLocation root, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
             super(root);
-            
+
             this.offset = offset;
             this.length = length;
             this.beginLine = beginLine;
@@ -634,32 +634,32 @@ import io.usethesource.vallang.type.TypeFactory;
         public int getBeginLine(){
             return beginLine;
         }
-        
+
         @Override
         public int getEndLine(){
             return endLine;
         }
-        
+
         @Override
         public int getBeginColumn(){
             return beginCol;
         }
-        
+
         @Override
         public int getEndColumn(){
             return endCol;
         }
-        
+
         @Override
         public int getOffset(){
             return offset;
         }
-        
+
         @Override
         public int getLength(){
             return length;
         }
-        
+
         @Override
         public int hashCode(){
             int hash = root.hashCode();
@@ -669,14 +669,14 @@ import io.usethesource.vallang.type.TypeFactory;
             hash ^= (endCol << 18);
             hash ^= (offset << 8);
             hash ^= (length << 29);
-            
+
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o){
             if(o == null) return false;
-            
+
             if(o.getClass() == getClass()){
                 IntIntCharCharByteByte otherSourceLocation = (IntIntCharCharByteByte) o;
                 return (root.equals(otherSourceLocation.root)
@@ -687,7 +687,7 @@ import io.usethesource.vallang.type.TypeFactory;
                         && (offset == otherSourceLocation.offset)
                         && (length == otherSourceLocation.length));
             }
-            
+
             return false;
         }
     }
@@ -695,49 +695,49 @@ import io.usethesource.vallang.type.TypeFactory;
     private static class ByteByte extends Incomplete {
         protected final byte offset;
         protected final byte length;
-        
+
         private ByteByte(ISourceLocation root, byte offset, byte length){
             super(root);
-            
+
             this.offset = offset;
             this.length = length;
         }
-        
+
         @Override
         public boolean hasOffsetLength() {
             return true;
         }
-        
+
         @Override
         public int getOffset(){
             return offset;
         }
-        
+
         @Override
         public int getLength(){
             return length;
         }
-        
+
         @Override
         public int hashCode(){
             int hash = root.hashCode();
             hash ^= (offset << 8);
             hash ^= (length << 29);
-            
+
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o){
             if(o == null) return false;
-            
+
             if(o.getClass() == getClass()){
                 ByteByte otherSourceLocation = (ByteByte) o;
                 return (root.equals(otherSourceLocation.root)
                         && (offset == otherSourceLocation.offset)
                         && (length == otherSourceLocation.length));
             }
-            
+
             return false;
         }
     }
@@ -745,69 +745,69 @@ import io.usethesource.vallang.type.TypeFactory;
     private static class CharChar extends Incomplete {
         protected final char offset;
         protected final char length;
-        
+
         private CharChar(ISourceLocation root, char offset, char length){
             super(root);
-            
+
             this.offset = offset;
             this.length = length;
         }
-        
+
         @Override
         public boolean hasOffsetLength() {
             return true;
         }
-        
+
         @Override
         public int getOffset(){
             return offset;
         }
-        
+
         @Override
         public int getLength(){
             return length;
         }
-        
+
         @Override
         public int hashCode(){
             int hash = root.hashCode();
             hash ^= (offset << 8);
             hash ^= (length << 29);
-            
+
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o){
             if(o == null) return false;
-            
+
             if(o.getClass() == getClass()){
                 CharChar otherSourceLocation = (CharChar) o;
                 return (root.equals(otherSourceLocation.root)
                         && (offset == otherSourceLocation.offset)
                         && (length == otherSourceLocation.length));
             }
-            
+
             return false;
         }
     }
-    
+
     private static class IntInt extends Incomplete {
         protected final int offset;
         protected final int length;
-        
+
         private IntInt(ISourceLocation root, int offset, int length){
             super(root);
-            
+
             this.offset = offset;
             this.length = length;
         }
-        
+
         @Override
         public boolean hasOffsetLength() {
             return true;
         }
-        
+
         @Override
         public boolean hasLineColumn() {
             return false;
@@ -817,32 +817,32 @@ import io.usethesource.vallang.type.TypeFactory;
         public int getOffset(){
             return offset;
         }
-        
+
         @Override
         public int getLength(){
             return length;
         }
-        
+
         @Override
         public int hashCode(){
             int hash = root.hashCode();
             hash ^= (offset << 8);
             hash ^= (length << 29);
-            
+
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o){
             if(o == null) return false;
-            
+
             if(o.getClass() == getClass()){
                 IntInt otherSourceLocation = (IntInt) o;
                 return (root.equals(otherSourceLocation.root)
                         && (offset == otherSourceLocation.offset)
                         && (length == otherSourceLocation.length));
             }
-            
+
             return false;
         }
     }

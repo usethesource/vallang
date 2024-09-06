@@ -41,8 +41,8 @@ import io.usethesource.vallang.util.AbstractTypeBag;
     }
 
     public static <T extends IValue> Collector<T, ?, IList> toList() {
-        return new DefaultCollector<>(ValueFactory.getInstance()::listWriter, (w,e) -> { w.append(e); }, 
-                unsupportedCombiner(), w -> w.done(), Collections.emptySet()); 
+        return new DefaultCollector<>(ValueFactory.getInstance()::listWriter, (w,e) -> { w.append(e); },
+                unsupportedCombiner(), w -> w.done(), Collections.emptySet());
     }
 
 

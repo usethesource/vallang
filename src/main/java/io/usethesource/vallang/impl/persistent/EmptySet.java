@@ -136,7 +136,7 @@ public final class EmptySet implements ISet {
   public boolean isSubsetOf(ISet other) {
     return true;
   }
-  
+
   @Override
   public IRelation<ISet> asRelation() {
       return new IRelation<ISet>() {
@@ -144,42 +144,42 @@ public final class EmptySet implements ISet {
         public ISet asContainer() {
             return EmptySet.this;
         }
-        
+
         @Override
         public ISet compose(IRelation<ISet> that) {
             return EmptySet.this;
         }
-        
+
         @Override
         public ISet closure() {
             return EmptySet.this;
         }
-        
+
         @Override
         public ISet closureStar() {
             return EmptySet.this;
         }
-          
+
         @Override
         public ISet carrier() {
             return EmptySet.this;
         }
-        
+
         @Override
         public ISet domain() {
             return EmptySet.this;
         }
-        
+
         @Override
         public ISet range() {
             return EmptySet.this;
         }
-        
+
         @Override
         public ISet empty() {
             return EmptySet.this;
         }
-        
+
         @Override
         public ISet index(IValue key) {
             return EmptySet.this;

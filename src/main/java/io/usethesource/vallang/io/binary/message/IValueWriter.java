@@ -1,15 +1,15 @@
-/** 
- * Copyright (c) 2016, Davy Landman, Paul Klint, Centrum Wiskunde & Informatica (CWI) 
- * All rights reserved. 
- *  
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
- *  
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
- *  
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
- *  
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
- */ 
+/**
+ * Copyright (c) 2016, Davy Landman, Paul Klint, Centrum Wiskunde & Informatica (CWI)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package io.usethesource.vallang.io.binary.message;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class IValueWriter {
      * Write an IValue to an exisiting wire stream. <br />
      * <br />
      * In most cases you want to use the {@linkplain IValueOutputStream}.
-     *  
+     *
      * @param writer the wire writer to use
      * @param vf the value factory used to rewrite external value types
      * @param size the window sizes to use
@@ -75,7 +75,7 @@ public class IValueWriter {
 
     /**
      * Write an Type to an existing wire stream.
-     *  
+     *
      * @param writer the wire writer to use
      * @param vf the value factory used to rewrite external value types
      * @param size the window sizes to use
@@ -98,7 +98,7 @@ public class IValueWriter {
             windowFactory.returnTrackLastWrittenReferenceEquality(uriCache);
         }
     }
-    
+
 
     private static void writeHeader(IWireOutputStream writer, int valueWindowSize, int typeWindowSize, int uriWindowSize) throws IOException {
         writer.startMessage(IValueIDs.Header.ID);
@@ -111,8 +111,8 @@ public class IValueWriter {
         type.accept(new ITypeVisitor<Void, IOException>() {
 
             private boolean writeFromCache(Type type) throws IOException {
-                int lastSeen = typeCache.howLongAgo(type); 
-                if (lastSeen != -1) { 
+                int lastSeen = typeCache.howLongAgo(type);
+                if (lastSeen != -1) {
                     writeSingleValueMessage(writer, IValueIDs.PreviousType.ID, IValueIDs.PreviousType.HOW_LONG_AGO, lastSeen);
                     return true;
                 }
@@ -358,13 +358,13 @@ public class IValueWriter {
             }
         });
     }
-    
+
     private static void writeSingleValueMessage(final IWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
         writer.startMessage(messageID);
         writer.writeField(fieldId, fieldValue);
         writer.endMessage();
     }
-    
+
     private static void writeSingleValueMessage(final IWireOutputStream writer, int messageID, int fieldId, String fieldValue) throws IOException {
         writer.startMessage(messageID);
         writer.writeField(fieldId, fieldValue);
@@ -559,7 +559,7 @@ public class IValueWriter {
                 writer.startMessage(IValueIDs.IntegerValue.ID);
                 if(ii. greaterEqual(MININT).getValue() && ii.lessEqual(MAXINT).getValue()){
                     writer.writeField(IValueIDs.IntegerValue.INTVALUE, ii.intValue());
-                } 
+                }
                 else {
                     writer.writeField(IValueIDs.IntegerValue.BIGVALUE, ii.getTwosComplementRepresentation());
                 }
@@ -603,7 +603,7 @@ public class IValueWriter {
                 if(loc.hasOffsetLength()){
                     writer.writeField(IValueIDs.SourceLocationValue.OFFSET, loc.getOffset());
                     writer.writeField(IValueIDs.SourceLocationValue.LENGTH, loc.getLength());
-                } 
+                }
                 if(loc.hasLineColumn()){
                     writer.writeField(IValueIDs.SourceLocationValue.BEGINLINE, loc.getBeginLine());
                     writer.writeField(IValueIDs.SourceLocationValue.ENDLINE, loc.getEndLine());
@@ -615,14 +615,14 @@ public class IValueWriter {
 
             @Override
             public void visitString(IString o) throws IOException {
-                // TODO: if `o` is a really big binary tree string this o.getValue() duplicates the memory consumption, and it can be slow because of this. 
-                // We can then optimize using the writer interface or the character iterators of IString 
+                // TODO: if `o` is a really big binary tree string this o.getValue() duplicates the memory consumption, and it can be slow because of this.
+                // We can then optimize using the writer interface or the character iterators of IString
                 writeSingleValueMessage(writer, IValueIDs.StringValue.ID, IValueIDs.StringValue.CONTENT, o.getValue());
             }
-            
+
             @Override
             public void visitRational(IRational val) throws IOException {
-                writer.startMessage(IValueIDs.RationalValue.ID); 
+                writer.startMessage(IValueIDs.RationalValue.ID);
                 writer.writeNestedField(IValueIDs.RationalValue.NUMERATOR);
                 visitInteger(val.numerator());
                 writer.writeNestedField(IValueIDs.RationalValue.DENOMINATOR);

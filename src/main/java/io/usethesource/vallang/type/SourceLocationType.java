@@ -55,18 +55,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                            Function<IConstructor, Set<IConstructor>> grammar) {
             return getInstance();
         }
-        
+
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().sourceLocationType();
         }
     }
-    
+
     @Override
     public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
     }
-    
+
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -84,7 +84,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public String toString() {
         return "loc";
     }
-    
+
     @Override
     public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
         return visitor.visitSourceLocation(this);
@@ -94,42 +94,42 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     protected boolean isSupertypeOf(Type type) {
       return type.isSubtypeOfSourceLocation(this);
     }
-    
+
     @Override
     public Type lub(Type other) {
       return other.lubWithSourceLocation(this);
     }
-    
+
     @Override
     public boolean intersects(Type other) {
         return other.intersectsWithSourceLocation(this);
     }
-    
+
     @Override
     protected boolean intersectsWithSourceLocation(Type type) {
         return true;
     }
-    
+
     @Override
     public Type glb(Type type) {
       return type.glbWithSourceLocation(this);
     }
-    
+
     @Override
     protected boolean isSubtypeOfSourceLocation(Type type) {
       return true;
     }
-    
+
     @Override
     protected Type lubWithSourceLocation(Type type) {
       return this;
     }
-    
+
     @Override
     protected Type glbWithSourceLocation(Type type) {
       return this;
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
@@ -194,7 +194,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             }
         }
     }
-    
+
     @Override
     public boolean isSourceLocation() {
         return true;

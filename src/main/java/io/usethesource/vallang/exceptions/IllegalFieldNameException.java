@@ -12,15 +12,15 @@ public class IllegalFieldNameException extends FactTypeDeclarationException {
         this.pos = pos;
         this.elem = elem;
     }
-    
+
     public Object getElement() {
         return elem;
     }
-    
+
     public int getPos() {
         return pos;
     }
-    
+
     public synchronized @Nullable ClassCastException getCause() {
         return (ClassCastException) super.getCause();
     }

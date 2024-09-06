@@ -12,7 +12,7 @@ public class BooleanStoreProvider {
 
         protected static Type Name = tf.abstractDataType(store, "Name");
         protected static Type True = tf.constructor(store, Boolean, "true");
-        
+
         protected static Type False = tf.constructor(store, Boolean, "false");
         protected static Type And = tf.constructor(store, Boolean, "and", Boolean, Boolean);
         protected static Type Or = tf.constructor(store, Boolean, "or", tf.listType(Boolean));

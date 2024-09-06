@@ -39,7 +39,7 @@ public final class SetSmokeTest {
 
         return integers;
     }
-    
+
     private IValue[] doubles(IValueFactory vf) {
         IValue[] integers = new IValue[100];
 
@@ -49,14 +49,14 @@ public final class SetSmokeTest {
 
         return integers;
     }
-    
+
   private ISet integerUniverse(IValueFactory vf) {
       ISetWriter w = vf.setWriter();
-      
+
       for (IValue i : integers(vf)) {
           w.insert(i);
       }
-      
+
       return w.done();
   }
 

@@ -9,7 +9,7 @@ public class UnsupportedTypeException extends FactTypeUseException {
         super(explanation);
         this.type = type;
     }
-    
+
     public Type getType() {
         return type;
     }

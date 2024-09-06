@@ -32,7 +32,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
 /** A concrete instance of IDateTime, representing either a date,
  *  a time, or a date with time.
- *  
+ *
  *  NOTE: We currently do not support partial dates and times; i.e.,
  *  it is not possible to represent "July 2009" or "15" (hours).
  *
@@ -50,8 +50,8 @@ import io.usethesource.vallang.type.TypeFactory;
         private final LocalDate actual;
 
         /**
-         * Construct a DateTime object representing a date. 
-         * 
+         * Construct a DateTime object representing a date.
+         *
          * @param year          The year of the date
          * @param month         The month of the date
          * @param day           The day of the date
@@ -61,7 +61,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 actual = LocalDate.of(year, month, day);
             }
             catch (DateTimeException dt) {
-                throw new InvalidDateTimeException("Cannot create date with provided values.", dt); 
+                throw new InvalidDateTimeException("Cannot create date with provided values.", dt);
             }
         }
 
@@ -249,8 +249,8 @@ import io.usethesource.vallang.type.TypeFactory;
         private final OffsetTime actual;
 
         /**
-         * Construct a DateTime object representing a time. 
-         * 
+         * Construct a DateTime object representing a time.
+         *
          * @param hour          The hour of the time
          * @param minute        The minute of the time
          * @param second        The second of the time
@@ -262,7 +262,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         /**
          * Construct a DateTime object representing a time with an explicit timezone offset.
-         * 
+         *
          * @param hour          The hour of the time
          * @param minute        The minute of the time
          * @param second        The second of the time
@@ -275,7 +275,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 actual = OffsetTime.of(hour, minute, second, (int)TimeUnit.MILLISECONDS.toNanos(millisecond), toOffset(hourOffset, minuteOffset));
             }
             catch (DateTimeException dt) {
-                throw new InvalidDateTimeException("Cannot create date with provided values.", dt); 
+                throw new InvalidDateTimeException("Cannot create date with provided values.", dt);
             }
         }
 
@@ -459,7 +459,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         /**
          * Construct a DateTime object representing a date and time.
-         *  
+         *
          * @param year          The year of the datetime
          * @param month         The month of the datetime
          * @param day           The day of the datetime
@@ -474,7 +474,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         /**
          * Construct a DateTime object representing a date and time, with an explicit timezone.
-         * 
+         *
          * @param year          The year of the datetime
          * @param month         The month of the datetime
          * @param day           The day of the datetime
@@ -490,16 +490,16 @@ import io.usethesource.vallang.type.TypeFactory;
                 actual = OffsetDateTime.of(year, month, day, hour, minute, second, (int)TimeUnit.MILLISECONDS.toNanos(millisecond), toOffset(hourOffset, minuteOffset));
             }
             catch (DateTimeException dt) {
-                throw new InvalidDateTimeException("Cannot create date with provided values.", dt); 
+                throw new InvalidDateTimeException("Cannot create date with provided values.", dt);
             }
         }
 
         /**
          * Construct a DateTime object representing the current instant on the date/time
          * scale (in milliseconds, based on the Java epoch).
-         * 
+         *
          * @param instant The millisecond instant.
-         * @param timezoneHours The hour offset for the new object's timezone 
+         * @param timezoneHours The hour offset for the new object's timezone
          * @param timezoneMinutes The minute offset for the new object's timezone
          */
         private DateTimeValue(long instant, int timezoneHours, int timezoneMinutes) {
@@ -507,7 +507,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 actual = Instant.ofEpochMilli(instant).atOffset(toOffset(timezoneHours, timezoneMinutes));
             }
             catch (DateTimeException dt) {
-                throw new InvalidDateTimeException("Cannot create date with provided values.", dt); 
+                throw new InvalidDateTimeException("Cannot create date with provided values.", dt);
             }
         }
 

@@ -50,13 +50,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                            Function<IConstructor, Set<IConstructor>> grammar) {
             return getInstance();
         }
-        
+
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().rationalType();
         }
     }
-    
+
     @Override
     public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
@@ -109,22 +109,22 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public boolean intersects(Type other) {
         return other.intersectsWithRational(this);
     }
-    
+
     @Override
     protected boolean intersectsWithRational(Type type) {
         return true;
     }
-    
+
     @Override
     protected boolean intersectsWithInteger(Type type) {
         return false;
     }
-    
+
     @Override
     protected boolean intersectsWithReal(Type type) {
         return false;
     }
-    
+
     @Override
     public Type glb(Type type) {
         return type.glbWithRational(this);
@@ -148,13 +148,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     protected Type glbWithInteger(Type type) {
         return VoidType.getInstance();
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         return vf.rational(random.nextInt(), random.nextInt() + 1);
     }
-    
+
     @Override
     public boolean isRational() {
         return true;

@@ -38,89 +38,89 @@ public final class RelationSmokeTest {
         for (int i = 0; i < integers.length; i++) {
           integers[i] = vf.integer(i);
         }
-        
+
         return integers;
     }
-    
+
     private IValue[] doubles(IValueFactory vf) {
         IValue[] doubles = new IValue[10];
 
         for (int i = 0; i < doubles.length; i++) {
           doubles[i] = vf.real(i);
         }
-        
+
         return doubles;
     }
-    
-    
+
+
     private ITuple[] integerTuples(IValueFactory vf) {
         IValue[] integers = integers(vf);
         ITuple[] integerTuples = new ITuple[integers.length * integers.length];
-        
+
         for (int i = 0; i < integers.length; i++) {
           for (int j = 0; j < integers.length; j++) {
             ITuple t = vf.tuple(integers[i], integers[j]);
             integerTuples[i * integers.length + j] = t;
           }
         }
-        
+
         return integerTuples;
     }
-    
+
     private ITuple[] doubleTuples(IValueFactory vf) {
         IValue[] integers = doubles(vf);
         ITuple[] integerTuples = new ITuple[integers.length * integers.length];
-        
+
         for (int i = 0; i < integers.length; i++) {
           for (int j = 0; j < integers.length; j++) {
             ITuple t = vf.tuple(integers[i], integers[j]);
             integerTuples[i * integers.length + j] = t;
           }
         }
-        
+
         return integerTuples;
     }
-    
+
     private ISet setOfIntegers(IValueFactory vf) {
         ISetWriter lw = vf.setWriter();
-        
+
         for (IValue i : integers(vf)) {
             lw.append(i);
         }
-        
+
         return lw.done();
     }
-    
+
     private ISet setOfDoubles(IValueFactory vf) {
         ISetWriter lw = vf.setWriter();
-        
+
         for (IValue i : doubles(vf)) {
             lw.append(i);
         }
-        
+
         return lw.done();
     }
-    
+
     private ISet integerRelation(IValueFactory vf) {
         ISetWriter lw = vf.setWriter();
-        
+
         for (IValue i : integerTuples(vf)) {
             lw.append(i);
         }
-        
+
         return lw.done();
     }
-    
+
     private ISet doubleRelation(IValueFactory vf) {
         ISetWriter lw = vf.setWriter();
-        
+
         for (IValue i : doubleTuples(vf)) {
             lw.append(i);
         }
-        
+
         return lw.done();
     }
-    
+
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testIsEmpty(IValueFactory vf) {
@@ -196,7 +196,7 @@ public final class RelationSmokeTest {
 
     assertTrue(input.asRelation().closure().equals(input));
   }
-  
+
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testClosure(IValueFactory vf) {
@@ -576,7 +576,7 @@ public final class RelationSmokeTest {
       fail("the above should be type correct");
     }
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testCarrier(IValueFactory vf, TypeFactory tf) {
     ISet carrier = integerRelation(vf).asRelation().carrier();
@@ -613,13 +613,13 @@ public final class RelationSmokeTest {
     }
 
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testIndex(IValueFactory vf) {
       testIndex(integerRelation(vf));
       testIndex(doubleRelation(vf));
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testEmptyIndex(IValueFactory vf) {
       assertTrue(integerRelation(vf).asRelation().index(vf.integer(integers(vf).length +  1)).isEmpty());

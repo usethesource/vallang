@@ -71,7 +71,7 @@ public class StandardTextWriter implements IValueTextWriter {
     public void write(IValue value, java.io.Writer stream) throws IOException {
         try {
             value.accept(new Writer(stream, indent, tabSize));
-        } 
+        }
         finally {
             stream.flush();
         }
@@ -295,7 +295,7 @@ public class StandardTextWriter implements IValueTextWriter {
                     setIterator.next().accept(this);
                 }
             }
-            untab(); 
+            untab();
             indent(indent);
             append('}');
             return o;
@@ -508,7 +508,7 @@ public class StandardTextWriter implements IValueTextWriter {
             OfInt it = o.iterator();
             while (it.hasNext()) {
                 int ch = it.nextInt();
-                
+
                 switch (ch) {
                     case '\"':
                         append('\\');

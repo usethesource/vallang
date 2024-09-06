@@ -8,7 +8,7 @@ public class IllegalOperationException extends FactTypeUseException {
     public IllegalOperationException(String op, Type lhs) {
         super("Operation " + op + " not allowed on " + lhs);
     }
-        
+
     public IllegalOperationException(String op, Type lhs, Type rhs) {
         super("Operation " +op + " not allowed on " + lhs + " and " + rhs);
     }

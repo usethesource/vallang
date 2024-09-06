@@ -34,7 +34,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be used to
  * abstract from types that have a complex structure. Since a
- * 
+ *
  * @{link Type} represents a set of values, a AliasType is defined to be an
  *        alias (because it represents the same set of values).
  *        <p>
@@ -59,7 +59,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         fAliased = aliased;
         fParameters = parameters;
     }
-    
+
     public static class Info extends TypeFactory.TypeReifier {
 
         public Info(TypeValues symbols) {
@@ -84,7 +84,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
              }
              else {
                 Type params = symbols().fromSymbols(parameters, store, grammar);
-                return params.isOpen() ? TF.aliasTypeFromTuple(store, name, aliased,  params) : aliased; 
+                return params.isOpen() ? TF.aliasTypeFromTuple(store, name, aliased,  params) : aliased;
              }
         }
 
@@ -214,11 +214,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         if (o == null) {
             return false;
         }
-        
+
         if (o == this) {
             return true;
         }
-        
+
         if (o instanceof AliasType) {
             AliasType other = (AliasType) o;
             return fName.equals(other.fName) && fAliased == other.fAliased && fParameters == other.fParameters;
@@ -290,7 +290,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public boolean isBottom() {
         return fAliased.isBottom();
     }
-    
+
     @Override
     public Type getValueType() {
         return fAliased.getValueType();
@@ -309,7 +309,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     @Override
     public boolean hasKeywordField(String fieldName, TypeStore store) {
         return fAliased.hasKeywordField(fieldName, store);
-    }   
+    }
 
     @Override
     public Type instantiate(Map<Type, Type> bindings) {
@@ -317,7 +317,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             // note how we do not declare the new alias anywhere.
             return TypeFactory.getInstance().getFromCache(new AliasType(fName, fAliased.instantiate(bindings), fParameters.instantiate(bindings)));
         }
-        
+
         // if an alias is not parametrized, then instantiation should not have an effect.
         // if it would have an effect, then the alias type would contain an unbound type parameter
         // which is a bug we assume is absent here.
@@ -655,7 +655,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public Type getAbstractDataType() {
         return fAliased.getAbstractDataType();
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxBreadth) {
@@ -731,7 +731,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     protected boolean intersectsWithTuple(Type type) {
         return fAliased.intersectsWithTuple(type);
     }
-    
+
     @Override
     protected boolean intersectsWithFunction(Type type) {
         return fAliased.intersectsWithFunction(type);

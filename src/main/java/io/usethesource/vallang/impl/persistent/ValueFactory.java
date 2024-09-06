@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
@@ -47,7 +47,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     }
 
     private static final IList EMPTY_LIST = List.newList(TypeFactory.getInstance().voidType(), new ShareableValuesList());
-    
+
     @Override
     public IList list(IValue... elements){
         if (elements.length == 0) {
@@ -55,7 +55,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         }
         IListWriter listWriter = listWriter();
         listWriter.append(elements);
-        
+
         return listWriter.done();
     }
 
@@ -68,7 +68,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         setWriter.insert(elements);
         return setWriter.done();
     }
-    
+
     @Override
     public INode node(String name) {
         return Node.newNode(name, new IValue[0]);
@@ -78,27 +78,27 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     public INode node(String name, IValue... children) {
         return Node.newNode(name, children.clone());
     }
-    
+
     @Override
     public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
         return Node.newNode(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
     }
-    
+
     @Override
     public IConstructor constructor(Type constructorType) {
         return Constructor.newConstructor(constructorType, new IValue[0]);
     }
-    
+
     @Override
     public IConstructor constructor(Type constructorType, IValue... children){
         return Constructor.newConstructor(constructorType, children.clone());
     }
-    
+
     @Override
     public IConstructor constructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams){
         return Constructor.newConstructor(constructorType, children.clone(), kwParams);
     }
-    
+
     @Override
     public ITuple tuple() {
         return Tuple.newTuple();

@@ -24,7 +24,7 @@ public class FileChannelDirectInputStream extends ByteBufferInputStream {
         this.channel = channel;
         this.small = smallFile(channel);
     }
-    
+
     private static ByteBuffer getSmallBuffer(FileChannel channel) throws IOException {
         return (ByteBuffer) DirectByteBufferCache.getInstance().get((int)channel.size()).flip();
     }
@@ -85,7 +85,7 @@ public class FileChannelDirectInputStream extends ByteBufferInputStream {
                 cleaner.set(MethodHandles.lookup().findVirtual(
                     unsafeClass, "invokeCleaner",
                     MethodType.methodType(void.class, ByteBuffer.class)));
-                
+
 
                 Field theUnsafeField = unsafeClass.getDeclaredField("theUnsafe");
                 theUnsafeField.setAccessible(true);

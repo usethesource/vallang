@@ -10,11 +10,11 @@ public class FieldLabelMismatchException extends FactTypeDeclarationException {
         this.fields = fields;
         this.labels = labels;
     }
-    
+
     public int getFields() {
         return fields;
     }
-    
+
     public int getLabels() {
         return labels;
     }

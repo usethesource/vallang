@@ -137,7 +137,7 @@ import io.usethesource.vallang.type.TypeFactory;
         if (other.equals(IntegerValue.INTEGER_ZERO)) {
             throw new ArithmeticException("/ by zero");
         }
-        
+
         return toRational(num, denom.multiply(other));
     }
 
@@ -228,7 +228,7 @@ import io.usethesource.vallang.type.TypeFactory;
         if (o == null) {
             return false;
         }
-        
+
         if (o == this) {
             return true;
         }
@@ -367,7 +367,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         return n;
     }
-    
+
     protected static IInteger intOne() {
         return IntegerValue.INTEGER_ONE;
     }

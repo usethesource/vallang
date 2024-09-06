@@ -20,7 +20,7 @@ import io.usethesource.vallang.type.Type;
 
 public class INumberTests {
     protected static final int PRECISION = 100;
-    
+
     IInteger INT_ONE(IValueFactory vf) {
         return vf.integer(1);
     }
@@ -44,27 +44,27 @@ public class INumberTests {
     IReal REAL_ZERO(IValueFactory vf) {
         return vf.real(0.0);
     }
-    
+
     /** For approximate equality of reals a ~= b:
      * this is the max allowable ratio of (a-b) to max(a,b)
      */
     IReal MAX_ERROR_RATIO(IValueFactory vf) {
       return vf.real(1e-15);
     }
-    
+
     double DOUBLE_MAX_ERROR_RATIO() {
         return 1e-10;
     }
-    
+
     // this is the max allowed difference between a and b
     IReal EPSILON(IValueFactory vf) {
         return vf.real(1e-10);
     }
-    
+
     double DOUBLE_EPSILON() {
         return 1e-10;
     }
-    
+
     protected void assertEqual(IValue l, IValue r) {
         Assertions.assertTrue(l.equals(r), "Expected " + l + " got " + r);
     }
@@ -153,7 +153,7 @@ public class INumberTests {
     public void divByZero(IValueFactory vf, INumber a) {
         Assertions.assertThrows(ArithmeticException.class, () -> a.divide(vf.integer(0), 10));
     }
-    
+
     /**
      * Relationship between compare() and the comparison functions, and between the various
      * comparisons.
@@ -213,7 +213,7 @@ public class INumberTests {
 
     /**
      * Associativity: addition and multiplication
-     * 
+     *
      * (Possibly not strictly true for reals.)
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -287,7 +287,7 @@ public class INumberTests {
 
     /**
      * Multiplication distributes over addition.
-     * 
+     *
      * (Possibly not strictly true for reals.)
      */
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)

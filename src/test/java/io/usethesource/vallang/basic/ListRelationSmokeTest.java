@@ -37,89 +37,89 @@ public class ListRelationSmokeTest {
       for (int i = 0; i < integers.length; i++) {
         integers[i] = vf.integer(i);
       }
-      
+
       return integers;
   }
-  
+
   private IValue[] doubles(IValueFactory vf) {
       IValue[] doubles = new IValue[10];
 
       for (int i = 0; i < doubles.length; i++) {
         doubles[i] = vf.real(i);
       }
-      
+
       return doubles;
   }
-  
-  
+
+
   private ITuple[] integerTuples(IValueFactory vf) {
       IValue[] integers = integers(vf);
       ITuple[] integerTuples = new ITuple[integers.length * integers.length];
-      
+
       for (int i = 0; i < integers.length; i++) {
         for (int j = 0; j < integers.length; j++) {
           ITuple t = vf.tuple(integers[i], integers[j]);
           integerTuples[i * integers.length + j] = t;
         }
       }
-      
+
       return integerTuples;
   }
-  
+
   private ITuple[] doubleTuples(IValueFactory vf) {
       IValue[] integers = doubles(vf);
       ITuple[] integerTuples = new ITuple[integers.length * integers.length];
-      
+
       for (int i = 0; i < integers.length; i++) {
         for (int j = 0; j < integers.length; j++) {
           ITuple t = vf.tuple(integers[i], integers[j]);
           integerTuples[i * integers.length + j] = t;
         }
       }
-      
+
       return integerTuples;
   }
-  
+
   private IList listOfIntegers(IValueFactory vf) {
       IListWriter lw = vf.listWriter();
-      
+
       for (IValue i : integers(vf)) {
           lw.append(i);
       }
-      
+
       return lw.done();
   }
-  
+
   private IList listOfDoubles(IValueFactory vf) {
       IListWriter lw = vf.listWriter();
-      
+
       for (IValue i : doubles(vf)) {
           lw.append(i);
       }
-      
+
       return lw.done();
   }
-  
+
   private IList integerListRelation(IValueFactory vf) {
       IListWriter lw = vf.listWriter();
-      
+
       for (IValue i : integerTuples(vf)) {
           lw.append(i);
       }
-      
+
       return lw.done();
   }
-  
+
   private IList doubleListRelation(IValueFactory vf) {
       IListWriter lw = vf.listWriter();
-      
+
       for (IValue i : doubleTuples(vf)) {
           lw.append(i);
       }
-      
+
       return lw.done();
   }
-  
+
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testIsEmpty(IValueFactory vf) {

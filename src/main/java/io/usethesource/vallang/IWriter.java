@@ -15,7 +15,7 @@ public interface IWriter<T extends ICollection<T>> extends Iterable<IValue>, Col
      * Modify this writer to insert only unique instances into the collection
      * @return
      */
-    public default IWriter<T> unique() { 
+    public default IWriter<T> unique() {
         return this;
     }
 
@@ -35,7 +35,7 @@ public interface IWriter<T extends ICollection<T>> extends Iterable<IValue>, Col
 
     /**
      * Append elements at the end.
-     * 
+     *
      * @param value array of elements to append
      * @throws FactTypeUseException when done() was called before
      */

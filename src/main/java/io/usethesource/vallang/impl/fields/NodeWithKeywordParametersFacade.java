@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.fields;
 
@@ -26,17 +26,17 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public class NodeWithKeywordParametersFacade implements INode {
     protected final INode content;
     protected final Map.Immutable<String, IValue> parameters;
-    
+
     public NodeWithKeywordParametersFacade(final INode content, final Map.Immutable<String, IValue> parameters) {
         this.content = content;
         this.parameters = parameters;
     }
-    
+
     @Override
     public Type getType() {
         return content.getType();
     }
-    
+
     @Override
     public INode setChildren(IValue[] childArray) {
         return content.setChildren(childArray).asWithKeywordParameters().setParameters(parameters);
@@ -51,7 +51,7 @@ public class NodeWithKeywordParametersFacade implements INode {
     public IValue get(int i) {
         return content.get(i);
     }
-    
+
     @Override
     public INode set(int i, IValue newChild) {
         INode newContent = content.set(i, newChild);
@@ -82,7 +82,7 @@ public class NodeWithKeywordParametersFacade implements INode {
     public Iterator<IValue> iterator() {
         return content.iterator();
     }
-    
+
     @Override
     public INode replace(int first, int second, int end, IList repl) {
         INode newContent = content.replace(first, second, end, repl);
@@ -97,13 +97,13 @@ public class NodeWithKeywordParametersFacade implements INode {
         if(o == null) {
             return false;
         }
-        
+
         if(o.getClass() == getClass()){
             NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;
-        
+
             return content.equals(other.content) && parameters.equals(other.parameters);
         }
-        
+
         return false;
     }
 
@@ -111,12 +111,12 @@ public class NodeWithKeywordParametersFacade implements INode {
     public int hashCode() {
         return 15551 + 7 * content.hashCode() + 11 * parameters.hashCode();
     }
-    
+
     @Override
     public boolean mayHaveKeywordParameters() {
       return true;
     }
-    
+
     @Override
     public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
         return new AbstractDefaultWithKeywordParameters<INode>(content, parameters) {
@@ -126,5 +126,5 @@ public class NodeWithKeywordParametersFacade implements INode {
             }
         };
     }
-    
+
 }

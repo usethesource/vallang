@@ -41,62 +41,62 @@ public final class BasicValueSmokeTest {
   public void testRationalToReal(IValueFactory vf) {
     assertTrue(vf.rational(1, 4).toReal(3).equals(vf.real(0.25)));
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testBrokenGetURI(IValueFactory vf) {
       try {
-  
+
           // PathURI
         ISourceLocation loc1 = vf.sourceLocation("UJ", "", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
         assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc1.toString());
-        
+
         // PathAuthorityURI
         ISourceLocation loc2 = vf.sourceLocation("UJ", "UK", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
         assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc2.toString());
-        
+
         // PathAuthorityURI
         ISourceLocation loc3 = vf.sourceLocation("UJ", "UK", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
         assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc3.toString());
         // QueryURI
         ISourceLocation loc4 = vf.sourceLocation("UJ", "", "", "bla=𒉻𒂮𠇯", "");
         assertEquals("|UJ:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc4.toString());
-        
+
         // QueryAuthorityURI
         ISourceLocation loc5 = vf.sourceLocation("UJ", "UK", "", "bla=𒉻𒂮𠇯", "");
         assertEquals("|UJ://UK?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc5.toString());
-        
+
         // QueryPathURI
         ISourceLocation loc6 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯", "bla=𒉻𒂮𠇯", "");
         assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc6.toString());
-        
+
         // QueryPathAuthorityURI
         ISourceLocation loc7 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯", "bla=𒉻𒂮𠇯", "");
         assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc7.toString());
-        
+
         // FragmentURI
         ISourceLocation loc8 = vf.sourceLocation("UJ", "", "","", "𒉻𒂮𠇯");
         assertEquals("|UJ:///#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc8.toString());
-        
+
         // FragmentAuthorityURI
         ISourceLocation loc9 = vf.sourceLocation("UJ", "UK", "","", "𒉻𒂮𠇯");
         assertEquals("|UJ://UK#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc9.toString());
-        
+
         // FragmentPathURI
         ISourceLocation loc10 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯","", "𒉻𒂮𠇯");
         assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc10.toString());
-        
+
         // FragmentPathAuthorityURI
         ISourceLocation loc11 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯","", "𒉻𒂮𠇯");
         assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc11.toString());
-        
+
         // FragmentQueryURI
         ISourceLocation loc12 = vf.sourceLocation("UJ", "", "","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
         assertEquals("|UJ:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc12.toString());
-        
+
         // FragmentQueryAuthorityURI
         ISourceLocation loc13 = vf.sourceLocation("UJ", "UK", "","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
         assertEquals("|UJ://UK?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc13.toString());
-        
+
         // FragmentQueryPathURI
         ISourceLocation loc14 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
         assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc14.toString());
@@ -123,11 +123,11 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("\uD83C\uDF5D").equals(vf.string("🍝")));
     assertTrue(vf.string(new String(Character.toChars(0x1F35D))).equals(vf.string("🍝")));
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class) public void testRascalIssue1192(IValueFactory vf) {
       assertTrue(vf.integer("-2147483648").subtract(vf.integer("2147483648")).equals(vf.integer("-4294967296")));
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringLength(IValueFactory vf) {
     assertTrue(vf.string("\uD83C\uDF5D").length() == 1);
@@ -155,12 +155,12 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("🍝x🍝").substring(1, 2).equals(vf.string("x")));
     assertTrue(vf.string("🍝x🍝").substring(1, 3).equals(vf.string("x🍝")));
   }
-  
+
 
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringWrite(IValueFactory vf) {
       Random rnd = new Random();
-      
+
       for (int i = 0; i < 1000; i++) {
           IString testString = vf.string(RandomUtil.string(rnd, rnd.nextInt(200)));
           StringWriter w = new StringWriter();
@@ -169,11 +169,11 @@ public final class BasicValueSmokeTest {
           } catch (IOException e) {
               fail(e.getMessage());
           }
-          
+
           assertEqual(testString, vf.string(w.toString()));
       }
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringEmptyWrite(IValueFactory vf) {
       IString testString = vf.string("");
@@ -230,9 +230,9 @@ public final class BasicValueSmokeTest {
     assertTrue(vf.string("x🍝").replace(1, 1, 1, vf.string("🍝q")).equals(vf.string("x🍝q🍝")));
     assertTrue(vf.string("🍝y🍝").replace(1, 1, 2, vf.string("🍝")).equals(vf.string("🍝🍝🍝")));
   }
-  
+
   private static final String[] commonNewlines = new String[] { "\n"};
-  
+
   private void checkIndent(IValueFactory vf, String indent, String newline, boolean indentFirstLine, String... lines) {
       StringBuilder unindented = new StringBuilder();
       StringBuilder indented = new StringBuilder();
@@ -246,7 +246,7 @@ public final class BasicValueSmokeTest {
 
           concatTree = concatTree.concat(vf.string(l));
           concatTree = concatTree.concat(vf.string(newline));
-          
+
           if (indentFirstLine || !first) {
               indented.append(indent);
           }
@@ -257,17 +257,17 @@ public final class BasicValueSmokeTest {
               indentedTwice.append("first" + indent);
               indentedTwice.append(indent);
           }
-          
+
           indentedTwice.append(l);
           indentedTwice.append(newline);
-          
+
           first = false;
       }
-      
+
       // remove empty line indentations
       String expected = indented.toString();
       String expectedTwice = indentedTwice.toString();
-      
+
       IString indentedDirect = vf.string(unindented.toString()).indent(vf.string(indent), indentFirstLine);
       IString indentedConcatTree = concatTree.indent(vf.string(indent), indentFirstLine);
 
@@ -290,7 +290,7 @@ public final class BasicValueSmokeTest {
       assertEqualCharAt(vf.string(expected), indentedDirect);
       assertEqualSubstring(vf.string(expected), indentedDirect);
       assertEqualLength(vf.string(expected), indentedDirect);
-      
+
       // retest after internal structure modifications
       assertEquals(expected, indentedDirect.getValue());
       assertEquals(expected, indentedConcatTree.getValue());
@@ -299,7 +299,7 @@ public final class BasicValueSmokeTest {
       assertSimilarIteration(indentedDirect, indentedConcatTree);
       assertEqual(indentedDirect, indentedConcatTree);
       assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
-      
+
       // basic tests showing lazy versus eager indentation should have the same semantics:
       assertEquals(expectedTwice, indentedDirectTwice.getValue());
       assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
@@ -308,7 +308,7 @@ public final class BasicValueSmokeTest {
       assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
       assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
       assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
-      
+
       // these modify internal structure as a side-effect, so after this we test the above again!
       assertEqualCharAt(vf.string(expectedTwice), indentedDirectTwice);
       assertEqualSubstring(vf.string(expectedTwice), indentedDirectTwice);
@@ -319,7 +319,7 @@ public final class BasicValueSmokeTest {
       assertEqualCharAt(indentedDirectTwice, indentedConcatTreeTwice);
       assertEqualSubstring(indentedDirectTwice, indentedConcatTreeTwice);
       assertEqualLength(indentedDirectTwice, indentedConcatTreeTwice);
-      
+
       // retest after internal structure modifications
       assertEquals(expectedTwice, indentedDirectTwice.getValue());
       assertEquals(expectedTwice, indentedConcatTreeTwice.getValue());
@@ -332,19 +332,19 @@ public final class BasicValueSmokeTest {
 
   private void assertEqualCharAt(IString one, IString two) {
       assertEquals(one, two);
-      
+
       for (int i = 0; i < one.length(); i++) {
           assertEquals(one.charAt(i), two.charAt(i));
       }
   }
-  
+
   private void assertEqualSubstring(IString one, IString two) {
       assertEqual(one, two);
-      
+
       Random rnd = new Random();
       for (int c = 0; c < 10; c++) {
           int j = rnd.nextInt(one.length());
-          
+
           if (j > 0) {
               int i = rnd.nextInt(j);
 
@@ -356,7 +356,7 @@ public final class BasicValueSmokeTest {
   private static void assertEqualLength(IString ref, IString target) {
       assertEquals(ref.length(), target.length());
   }
-  
+
   private static void assertSimilarIteration(IString ref, IString target) {
       OfInt refIterator = ref.iterator();
       OfInt targetIterator = target.iterator();
@@ -365,13 +365,13 @@ public final class BasicValueSmokeTest {
           assertTrue(targetIterator.hasNext());
           int a = refIterator.nextInt();
           int b = targetIterator.nextInt();
-          
+
           if (a != b) {
               fail("string iterators produce different values at index " + i + " (" + a + " != " + b + ")");
           }
       }
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringIndent(IValueFactory vf) {
       for (boolean firstLine : new Boolean[] { true, false}) {
@@ -393,7 +393,7 @@ public final class BasicValueSmokeTest {
           }
       }
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringIndentRandomDefault(IValueFactory vf) {
       Random rnd = new Random();
@@ -415,7 +415,7 @@ public final class BasicValueSmokeTest {
           }
       }
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testStringIndentRandomShortConcats(IValueFactory vf) {
       Random rnd = new Random();
@@ -428,7 +428,7 @@ public final class BasicValueSmokeTest {
              }
              randomLines[n] = newString;
           }
-          
+
           try {
               StringValue.setMaxFlatString(5);
               StringValue.setMaxUnbalance(5);

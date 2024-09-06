@@ -30,7 +30,7 @@ import io.usethesource.vallang.ITuple;
 /**
  * This abstract class does nothing except returning null. Extend it
  * to easily implement a visitor that visits selected types of IValues.
- * 
+ *
  */
 public abstract class NullVisitor<@Nullable T, E extends Throwable> implements IValueVisitor<T, E> {
     @Override
@@ -82,22 +82,22 @@ public abstract class NullVisitor<@Nullable T, E extends Throwable> implements I
     public T visitConstructor(IConstructor o) throws E {
         return null;
     }
-    
+
     @Override
     public T visitTuple(ITuple o)  throws E {
         return null;
     }
-    
+
     @Override
     public T visitBoolean(IBool boolValue) throws E {
         return null;
     }
-    
+
     @Override
     public T visitExternal(IExternalValue externalValue) throws E {
         return null;
     }
-    
+
     @Override
     public T visitDateTime(IDateTime o) throws E {
         return null;

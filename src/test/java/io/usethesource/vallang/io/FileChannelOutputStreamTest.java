@@ -22,7 +22,7 @@ class FileChannelOutputStreamTest {
             System.err.println(e);
         }
         targetFile = file;
-    } 
+    }
 
     private FileChannel openWriteChannel() throws IOException {
         return FileChannel.open(targetFile, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -31,7 +31,7 @@ class FileChannelOutputStreamTest {
     private FileChannel openReadChannel() throws IOException {
         return FileChannel.open(targetFile, StandardOpenOption.READ);
     }
-    
+
     @Test
     void testSimpleWrite() throws IOException {
         roundTripChannel(new byte[][]{{42}});
@@ -101,5 +101,5 @@ class FileChannelOutputStreamTest {
             }
         }
     }
-    
+
 }

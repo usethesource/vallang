@@ -58,7 +58,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
                 Function<IConstructor, Set<IConstructor>> grammar) {
             return getInstance();
         }
-        
+
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().dateTimeType();
@@ -83,19 +83,19 @@ public class DateTimeType extends DefaultSubtypeOfValue {
             int maxDepth, int maxBreadth) {
         boolean partialDateTime = "true".equals(System.getProperty("vallang.random.partialDateTime"));
         boolean zoneOffsets = "true".equals(System.getProperty("vallang.random.zoneOffsets"));
-        
+
         try {
             if (partialDateTime && random.nextDouble() > 0.8) {
                 LocalTime result = LocalTime.ofSecondOfDay(between(random, ChronoField.SECOND_OF_DAY));
                 return vf.time(
-                    result.getHour(), 
-                    result.getMinute(), 
-                    result.getSecond(), 
+                    result.getHour(),
+                    result.getMinute(),
+                    result.getSecond(),
                     (int) TimeUnit.MILLISECONDS.convert(result.getNano(), TimeUnit.NANOSECONDS)
                 );
             }
             if (partialDateTime && random.nextDouble() > 0.8) {
-                LocalDate result = LocalDate.ofEpochDay(between(random, 
+                LocalDate result = LocalDate.ofEpochDay(between(random,
                     LocalDate.of(0,1, 1).toEpochDay(),
                     LocalDate.of(9999,1, 1).toEpochDay()
                 ));
@@ -105,7 +105,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
                     result.getDayOfMonth()
                 );
             }
-            Instant result = Instant.ofEpochSecond(between(random, 
+            Instant result = Instant.ofEpochSecond(between(random,
                 -TimeUnit.DAYS.toSeconds(700),
                 Instant.now().getEpochSecond() + TimeUnit.DAYS.toSeconds(700)
                 ), 0
@@ -114,9 +114,9 @@ public class DateTimeType extends DefaultSubtypeOfValue {
                 return vf.datetime(result.toEpochMilli());
             }
             ZoneOffset off = ZoneOffset.ofTotalSeconds((int)between(random, ChronoField.OFFSET_SECONDS));
-            return vf.datetime(result.toEpochMilli(), 
-                (int)TimeUnit.HOURS.convert(off.getTotalSeconds(), TimeUnit.SECONDS), 
-                (int)TimeUnit.MINUTES.convert(off.getTotalSeconds(), TimeUnit.SECONDS) % 60 
+            return vf.datetime(result.toEpochMilli(),
+                (int)TimeUnit.HOURS.convert(off.getTotalSeconds(), TimeUnit.SECONDS),
+                (int)TimeUnit.MINUTES.convert(off.getTotalSeconds(), TimeUnit.SECONDS) % 60
             );
         } catch (DateTimeException e) {
             // this may happen if the generated random time does
@@ -127,7 +127,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
             // The chances of continued failure before we run out of stack are low.
         }
     }
-    
+
     @Override
     public boolean equals(@Nullable Object obj) {
         return obj == DateTimeType.getInstance();
@@ -137,7 +137,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
     public boolean isDateTime() {
         return true;
     }
-    
+
     @Override
     public int hashCode() {
         return 63097;
@@ -172,7 +172,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
     protected boolean isSubtypeOfDateTime(Type type) {
         return true;
     }
-    
+
     @Override
     public boolean intersects(Type other) {
         return other.intersectsWithDateTime(this);
@@ -182,7 +182,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
     protected boolean intersectsWithDateTime(Type type) {
         return true;
     }
-    
+
     @Override
     protected Type lubWithDateTime(Type type) {
         return this;

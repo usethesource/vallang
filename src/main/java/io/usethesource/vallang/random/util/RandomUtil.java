@@ -15,11 +15,11 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 
 public class RandomUtil {
-    
+
     private interface StringGen {
         public void generate(Random rand, int length, StringBuilder result);
     }
-    
+
     private static class CharRanges implements StringGen {
         private int[] start;
         private int[] stop;
@@ -29,7 +29,7 @@ public class RandomUtil {
             this.start = start;
             this.stop = stop;
         }
-        
+
         public void generate(Random rand, int length, StringBuilder result) {
             for (int c = 0; c < length; c++) {
                 int r = rand.nextInt(start.length);
@@ -40,7 +40,7 @@ public class RandomUtil {
         private int generateCodePoint(Random rand, int start, int stop) {
             int range = stop - start;
             int result = 0;
-            do 
+            do
                 result = start + rand.nextInt(range + 1);
             while (!validCodePoint(result));
             return result;
@@ -60,7 +60,7 @@ public class RandomUtil {
                 result.appendCodePoint(chars[rand.nextInt(chars.length)]);
         }
     }
-    
+
     private static class MixGenerators implements StringGen {
         private StringGen[] generators;
 
@@ -79,8 +79,8 @@ public class RandomUtil {
     }
 
     private static boolean validCodePoint(int cp) {
-        return Character.isDefined(cp) 
-            && Character.isValidCodePoint(cp) 
+        return Character.isDefined(cp)
+            && Character.isValidCodePoint(cp)
             && Character.getType(cp) != Character.UNASSIGNED
             ;
     }
@@ -116,7 +116,7 @@ public class RandomUtil {
         return new String(chars);
     }
 
-    
+
     private final static StringGen alphaOnly = new CharRanges(new int[]{'a','A'}, new int[]{'z','Z'});
     private final static StringGen numeric = new CharRanges(new int[]{'0'}, new int[]{'9'});
     private final static StringGen generalStrangeChars = new CharRanges(new int[]{0x00, 0x21,0xA1}, new int[]{0x09,0x2F,0xAC});
@@ -125,7 +125,7 @@ public class RandomUtil {
     private final static StringGen whiteSpace = new CharSets(' ','\t','\n','\t');
     private final static StringGen strangeWhiteSpace = new CharSets(0x85, 0xA0, 0x1680, 0x2000, 0x2028, 0x2029,0x205F,0x3000);
     private final static StringGen rascalEscapes = new CharSets('\"','\'','>','\\','<','@','`');
-    
+
     private final static StringGen[] generators = new StringGen[] {
         alphaOnly,
         new MixGenerators(alphaOnly, numeric),
@@ -139,7 +139,7 @@ public class RandomUtil {
         new MixGenerators(alphaOnly, numeric, rascalEscapes),
         new MixGenerators(alphaOnly, numeric, generalStrangeChars, normalUnicode, whiteSpace, rascalEscapes)
     };
-    
+
     public static boolean oneEvery(Random random, int n) {
         return random.nextInt(n) == 0;
     }
@@ -167,7 +167,7 @@ public class RandomUtil {
         numeric.generate(rand, depth, result);
         return sanitize(result.toString());
     }
-    
+
     public static String stringAllKindsOfWhitespace(Random rand, int depth) {
         StringBuilder result = new StringBuilder(depth);
         new MixGenerators(whiteSpace, strangeWhiteSpace).generate(rand, depth, result);
@@ -197,7 +197,7 @@ public class RandomUtil {
             // find the constructor that does not add depth
             Iterator<Type> it = candidates.iterator();
             while (alwaysIncreasesDepth(constructor) && it.hasNext()) {
-                constructor = it.next(); 
+                constructor = it.next();
             }
             if (alwaysIncreasesDepth(constructor)) {
                 constructor = original; // keep it random
@@ -205,7 +205,7 @@ public class RandomUtil {
         }
 
         return generateConstructor(constructor, random, vf, store, bindings, maxDepth, maxWidth);
-        
+
     }
     private static boolean alwaysIncreasesDepth(Type constructor) {
         for (int i = 0; i < constructor.getArity(); i++) {
@@ -226,7 +226,7 @@ public class RandomUtil {
         int index = 0;
         for (Type t: types) {
             if (index == nth) {
-                return t; 
+                return t;
             }
             index++;
         }
@@ -236,9 +236,9 @@ public class RandomUtil {
     private static IValue generateConstructor(Type type, Random random, IValueFactory vf, TypeStore store, Map<Type, Type> bindings, int maxDepth, int maxWidth) {
         Map<String, Type> kwParamsType = store.getKeywordParameters(type);
 
-        if (type.getArity() == 0 && kwParamsType.size() == 0) { 
+        if (type.getArity() == 0 && kwParamsType.size() == 0) {
             return vf.constructor(type);
-        } 
+        }
 
         IValue[] args = new IValue[type.getArity()];
         Type instantiatedConstructor = type.instantiate(bindings);

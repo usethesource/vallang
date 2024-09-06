@@ -28,7 +28,7 @@ public interface IMapWriter extends IWriter<IMap> {
      * @throws FactTypeUseException
      */
     void put(IValue key, IValue value);
-    
+
     /**
      * Merge an entire map into the writer. Existing keys
      * will be overwritten by the new map
@@ -36,7 +36,7 @@ public interface IMapWriter extends IWriter<IMap> {
      * @throws FactTypeUseException
      */
     void putAll(IMap map);
-    
+
     /**
      * Merge an entire java.util.Map into the writer. Existing
      * keys will be overwritten by the new map.
@@ -44,14 +44,14 @@ public interface IMapWriter extends IWriter<IMap> {
      * @throws FactTypeUseException
      */
     void putAll(Map<IValue, IValue> map);
-    
+
     /**
      * Lookup a given key into the state of the current map-to-be
      * @param key
      * @return null if no value exists with this key, otherwise the respective value.
      */
     @Nullable IValue get(IValue key);
-    
+
     /**
      * The map writer collects key/value tuples
      */

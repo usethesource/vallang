@@ -45,22 +45,22 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 
 /**
- * This IValueWriter serializes values to XML documents.  
- * It will not serialize all IValues, see <code>XMLReader</code> for limitations. 
+ * This IValueWriter serializes values to XML documents.
+ * It will not serialize all IValues, see <code>XMLReader</code> for limitations.
  */
 public class XMLWriter implements IValueTextWriter {
     private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    
+
     public void write(IValue value, java.io.Writer stream) throws IOException {
         try {
             Document doc = dbf.newDocumentBuilder().newDocument();
-            
+
             Node top = give(value, doc);
             doc.appendChild(top);
-            
+
             Transformer t = TransformerFactory.newInstance().newTransformer();
-            t.setOutputProperty(OutputKeys.INDENT, "yes");  
-            
+            t.setOutputProperty(OutputKeys.INDENT, "yes");
+
             t.transform(new DOMSource(doc), new StreamResult(stream));
         } catch (ParserConfigurationException e) {
             throw new IOException("XML configuration is invalid: " + e.getMessage());
@@ -70,17 +70,17 @@ public class XMLWriter implements IValueTextWriter {
             throw new UnsupportedTypeException("" + e.getMessage(), value.getType());
         }
     }
-    
+
     public void write(IValue value, java.io.Writer stream, TypeStore typeStore) throws IOException {
         write(value, stream);
     }
 
     private Node give(IValue value, Document doc) {
         Type type = value.getType();
-        
+
         if (type.isAbstractData()) {
             Type node = ((IConstructor) value).getConstructorType();
-            
+
             if (isListWrapper(node)) {
                 return giveList((INode) value,  doc);
             }
@@ -116,7 +116,7 @@ public class XMLWriter implements IValueTextWriter {
         throw new UnsupportedTypeException(
                 "Outermost or nested tuples, lists, sets, relations or maps are not allowed.", type);
     }
-    
+
     private boolean isListWrapper(Type nodeType) {
             return nodeType.getArity() == 1
                     && nodeType.getFieldTypes().getFieldType(0).isList();
@@ -138,7 +138,7 @@ public class XMLWriter implements IValueTextWriter {
                     && nodeType.getFieldTypes().getFieldType(0).isMap();
     }
 
-    
+
     private Node giveDouble(IReal value, Document doc) {
         return doc.createTextNode(value.toString());
     }
@@ -157,7 +157,7 @@ public class XMLWriter implements IValueTextWriter {
     private Node giveString(IString value, Document doc) {
         return doc.createTextNode(value.getValue());
     }
-    
+
     private Node giveExternal(IExternalValue value, Document doc) {
         return doc.createTextNode(value.toString());
     }
@@ -165,18 +165,18 @@ public class XMLWriter implements IValueTextWriter {
     private Node giveMap(INode node, Document doc) {
         Element treeNode = doc.createElement(node.getName());
         IMap map = (IMap) node.get(0);
-        
+
         for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue,IValue>>) () -> map.entryIterator()) {
             IValue key = entry.getKey();
             IValue value = entry.getValue();
-            
+
             if (key.getType().isTuple()) {
                 appendTupleElements(doc, treeNode, key);
             }
             else {
               treeNode.appendChild(give(key, doc));
             }
-            
+
             if (value.getType().isTuple()) {
                 appendTupleElements(doc, treeNode, value);
             }
@@ -184,13 +184,13 @@ public class XMLWriter implements IValueTextWriter {
                 treeNode.appendChild(give(value, doc));
             }
         }
-        
+
         return treeNode;
     }
 
     private void appendTupleElements(Document doc, Element treeNode, IValue tupleValue) {
         ITuple tuple = (ITuple) tupleValue;
-        
+
         for (IValue element : tuple) {
             treeNode.appendChild(give(element, doc));
         }
@@ -200,18 +200,18 @@ public class XMLWriter implements IValueTextWriter {
         Element treeNode = doc.createElement(node.getName());
         ISet relation = (ISet) node.get(0);
         assert (relation.getType().isRelation());
-         
+
         for (IValue tuple : relation) {
             appendTupleElements(doc, treeNode, tuple);
         }
 
         return treeNode;
     }
-    
+
     private Node giveSet(INode node, Document doc) {
         Element treeNode = doc.createElement(node.getName());
         ISet set = (ISet) node.get(0);
-        
+
         for (IValue elem : set) {
             if (elem.getType().isTuple()) {
               appendTupleElements(doc, treeNode, elem);
@@ -227,7 +227,7 @@ public class XMLWriter implements IValueTextWriter {
     private Node giveList(INode node, Document doc) {
         Element treeNode = doc.createElement(node.getName());
         IList list = (IList) node.get(0);
-        
+
         for (IValue elem : list) {
             if (elem.getType().isTuple()) {
                 appendTupleElements(doc, treeNode, elem);
@@ -242,7 +242,7 @@ public class XMLWriter implements IValueTextWriter {
 
     private Node giveTree(INode value,  Document doc) {
         Element treeNode = doc.createElement(value.getName());
-        
+
         for (IValue child : value) {
             if (child.getType().isTuple()) {
                 appendTupleElements(doc, treeNode, child);
@@ -251,7 +251,7 @@ public class XMLWriter implements IValueTextWriter {
               treeNode.appendChild(give(child, doc));
             }
         }
-        
+
         return treeNode;
     }
 }

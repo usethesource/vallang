@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.reference;
 
@@ -65,7 +65,7 @@ import io.usethesource.vallang.type.Type;
         if (that == null) {
             return false;
         }
-        
+
         return defaultEquals(that);
     }
 
@@ -73,7 +73,7 @@ import io.usethesource.vallang.type.Type;
     public String toString() {
         return defaultToString();
     }
-    
+
     @Override
     public IListWriter writer() {
         return new ListWriter();

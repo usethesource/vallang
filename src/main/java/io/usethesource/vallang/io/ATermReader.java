@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) INRIA-LORIA and CWI 2006-2009 
+ * Copyright (c) INRIA-LORIA and CWI 2006-2009
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -164,7 +164,7 @@ public class ATermReader extends AbstractBinaryReader {
                     if (!iterator.hasNext()) {
                         throw new UndeclaredAbstractDataTypeException(expected);
                     }
-                    node = iterator.next(); 
+                    node = iterator.next();
                 }
                 else {
                     node = expected;
@@ -186,7 +186,7 @@ public class ATermReader extends AbstractBinaryReader {
                         if(node.isConstructor())
                             result = vf.constructor(node, new IValue[0]);
                         else
-                            result = vf.node(funname, new IValue[0]); 
+                            result = vf.node(funname, new IValue[0]);
 
                     } else {
                         IValue[] list;
@@ -568,7 +568,7 @@ public class ATermReader extends AbstractBinaryReader {
                 return base.getFieldTypes();
             } else if (base.isTop()) {
                 return base;
-            } 
+            }
             else {
                 throw new IllegalOperationException("getElementType", expected);
             }

@@ -29,7 +29,7 @@ import io.usethesource.vallang.type.TypeFactory;
  * Implementation for IInteger.
  * <br /><br />
  * Integer values that fall outside the 32-bit range will be store in BigIntegerValue instead.
- * 
+ *
  * @author Arnold Lankamp
  */
 /*package*/ class IntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
@@ -42,8 +42,8 @@ import io.usethesource.vallang.type.TypeFactory;
     private final static int FIFTEEN_BITS_MASK = 0x00007fff;
     private final static int TWENTYTHREE_BITS_MASK = 0x007fffff;
 
-    private final static IInteger[] smallValues; 
-    private final static BigInteger[] smallBigIntegerValues; 
+    private final static IInteger[] smallValues;
+    private final static BigInteger[] smallBigIntegerValues;
     private final static int minSmallValue = -100;
     private final static int maxSmallValue = 100;
     public final static IInteger INTEGER_ONE;
@@ -58,7 +58,7 @@ import io.usethesource.vallang.type.TypeFactory;
         INTEGER_ONE = smallValues[1 - minSmallValue];
         INTEGER_ZERO = smallValues[0 - minSmallValue];
     }
-    
+
     protected final int value;
 
     /*
@@ -70,7 +70,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         return newInteger(value.intValue());
     }
-    
+
 
     /*package*/ static IInteger newInteger(int value) {
         if (minSmallValue <= value && value <= maxSmallValue) {
@@ -131,32 +131,32 @@ import io.usethesource.vallang.type.TypeFactory;
     public IInteger toInteger() {
         return this;
     }
-    
+
     @Override
     public Type getType(){
         return INTEGER_TYPE;
     }
-    
+
     @Override
     public int intValue(){
         return value;
     }
-    
+
     @Override
     public long longValue(){
         return value;
     }
-    
+
     @Override
     public double doubleValue(){
         return value;
     }
-    
+
     @Override
     public IReal toReal(int precision){
         return BigDecimalValue.newReal(BigDecimal.valueOf(value));
     }
-    
+
     @Override
     public byte[] getTwosComplementRepresentation(){
         if((value & SEVEN_BITS_MASK) == value){
@@ -175,7 +175,7 @@ import io.usethesource.vallang.type.TypeFactory;
             data[2] = (byte) (value & 0xff);
             return data;
         }
-        
+
         byte[] data = new byte[4];
         data[0] = (byte) ((value >> 24) & 0xff);
         data[1] = (byte) ((value >> 16) & 0xff);
@@ -183,7 +183,7 @@ import io.usethesource.vallang.type.TypeFactory;
         data[3] = (byte) (value & 0xff);
         return data;
     }
-    
+
     @Override
     public BigInteger toBigInteger(){
         if (minSmallValue <= value && value <= maxSmallValue) {
@@ -191,21 +191,21 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         return new BigInteger(getTwosComplementRepresentation());
     }
-    
+
     @Override
     public IInteger add(IInteger other){
         if(value == 0)
             return other;
-        
+
         if(other instanceof BigIntegerValue){
             return other.add(this);
         }
-        
+
         int otherIntValue = other.intValue();
 
         if(otherIntValue == 0)
             return this;
-        
+
         int result = value + otherIntValue;
         if((value < 0) && (otherIntValue < 0) && (result >= 0)){// Overflow -> positive.
             byte[] intValueData = new byte[5];
@@ -214,7 +214,7 @@ import io.usethesource.vallang.type.TypeFactory;
             intValueData[2] = (byte)((result >>> 16) & 0xff);
             intValueData[3] = (byte)((result >>> 8) & 0xff);
             intValueData[4] = (byte)(result & 0xff);
-            
+
             return IntegerValue.newInteger(new BigInteger(intValueData));
         }else if((value > 0) && (otherIntValue > 0) && (result < 0)){// Overflow -> negative.
             byte[] intValueData = new byte[5];
@@ -223,10 +223,10 @@ import io.usethesource.vallang.type.TypeFactory;
             intValueData[2] = (byte)((result >>> 16) & 0xff);
             intValueData[3] = (byte)((result >>> 8) & 0xff);
             intValueData[4] = (byte)(result & 0xff);
-            
+
             return IntegerValue.newInteger(new BigInteger(intValueData));
         }
-        
+
         return IntegerValue.newInteger(result);
     }
 
@@ -239,26 +239,26 @@ import io.usethesource.vallang.type.TypeFactory;
     public IReal add(IReal other) {
         return (IReal) other.add(this);
     }
-        
+
     @Override
     public INumber subtract(IReal other) {
         return toReal(other.precision()).subtract(other);
     }
-     
+
     @Override
     public IInteger subtract(IInteger other){
         if(value == 0)
             return other.negate();
-        
+
         if(other instanceof BigIntegerValue){
             return other.negate().subtract(this.negate());
         }
-        
+
         int otherIntValue = other.intValue();
 
         if(otherIntValue == 0)
             return this;
-        
+
         int result = value - otherIntValue;
         if((value < 0) && (otherIntValue > 0) && (result > 0)){// Overflow -> positive.
             byte[] intValueData = new byte[5];
@@ -267,7 +267,7 @@ import io.usethesource.vallang.type.TypeFactory;
             intValueData[2] = (byte)((result >>> 16) & 0xff);
             intValueData[3] = (byte)((result >>> 8) & 0xff);
             intValueData[4] = (byte)(result & 0xff);
-            
+
             return IntegerValue.newInteger(new BigInteger(intValueData));
         }else if((value > 0) && (otherIntValue < 0) && (result < 0)){// Overflow -> negative.
             byte[] intValueData = new byte[5];
@@ -276,13 +276,13 @@ import io.usethesource.vallang.type.TypeFactory;
             intValueData[2] = (byte)((result >>> 16) & 0xff);
             intValueData[3] = (byte)((result >>> 8) & 0xff);
             intValueData[4] = (byte)(result & 0xff);
-            
+
             return IntegerValue.newInteger(new BigInteger(intValueData));
         }
-        
+
         return IntegerValue.newInteger(result);
     }
-    
+
     @Override
     public IRational subtract(IRational other) {
         return toRational().subtract(other);
@@ -294,15 +294,15 @@ import io.usethesource.vallang.type.TypeFactory;
             return this;
         if(value == 1)
             return other;
-        
+
         if(other instanceof BigIntegerValue){
             return other.multiply(this);
         }
-        
+
         int otherIntValue = other.intValue();
         if(otherIntValue == 0) return other;
         if(otherIntValue == 1) return this;
-        
+
         boolean resultIsPositive = ((((value ^ otherIntValue) ^ 0x80000000) & 0x80000000) == 0x80000000);
         if(resultIsPositive){
             int div = Integer.MAX_VALUE / otherIntValue;
@@ -327,7 +327,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 }
             }
         }
-        
+
         return IntegerValue.newInteger(toBigInteger().multiply(((ICanBecomeABigInteger) other).toBigInteger()));
     }
 
@@ -340,29 +340,29 @@ import io.usethesource.vallang.type.TypeFactory;
      public IReal multiply(IReal other) {
             return (IReal) other.multiply(this);
      }
-    
+
     @Override
     public IInteger divide(IInteger other) {
         if (other.equals(INTEGER_ZERO)) {
             throw new ArithmeticException("/ by zero");
         }
-        
+
         if (value == 0) {
             return this;
         }
-        
+
         if (other instanceof BigIntegerValue){
             return IntegerValue.newInteger(toBigInteger().divide(((ICanBecomeABigInteger) other).toBigInteger()));
         }
-        
+
         int otherIntValue = other.intValue();
         if (otherIntValue == 1) {
             return this;
         }
-        
+
         return IntegerValue.newInteger(value / otherIntValue);
     }
-    
+
 
     @Override
     public IRational divide(IRational other) {
@@ -383,7 +383,7 @@ import io.usethesource.vallang.type.TypeFactory;
     public IReal divide(IReal other, int precision) {
         return toReal(precision).divide(other, precision);
     }
-    
+
     @Override
     public IInteger mod(IInteger other){
         if(other instanceof BigIntegerValue){
@@ -400,16 +400,16 @@ import io.usethesource.vallang.type.TypeFactory;
         newValue = newValue >= 0 ? newValue : newValue + otherVal;
         return IntegerValue.newInteger(newValue);
     }
-    
+
     @Override
     public IInteger remainder(IInteger other){
         if(other instanceof BigIntegerValue){
             return this;
         }
-        
+
         return IntegerValue.newInteger(value % other.intValue());
     }
-    
+
     @Override
     public IInteger negate(){
         if(value == 0)
@@ -417,7 +417,7 @@ import io.usethesource.vallang.type.TypeFactory;
         else
             return IntegerValue.newInteger((~((long) value)) + 1);
     }
-    
+
     @Override
     public IBool equal(IInteger other){
       return BoolValue.getBoolValue(compare(other) == 0);
@@ -442,12 +442,12 @@ import io.usethesource.vallang.type.TypeFactory;
     public IBool greater(IRational other) {
         return other.less(this);
     }
-     
+
     @Override
     public IBool greater(IReal other) {
         return other.less(this);
     }
-    
+
     @Override
     public IBool greaterEqual(IInteger other){
         return BoolValue.getBoolValue(compare(other) >= 0);
@@ -462,17 +462,17 @@ import io.usethesource.vallang.type.TypeFactory;
     public IBool greaterEqual(IReal other) {
       return BoolValue.getBoolValue(compare(other) >= 0);
     }
-     
+
     @Override
     public IBool less(IInteger other){
         return BoolValue.getBoolValue(compare(other) < 0);
     }
-    
+
     @Override
     public IBool less(IRational other) {
         return other.greater(this);
     }
-    
+
     @Override
     public IBool less(IReal other) {
         return other.greater(this);
@@ -482,29 +482,29 @@ import io.usethesource.vallang.type.TypeFactory;
     public IBool lessEqual(IInteger other){
         return BoolValue.getBoolValue(compare(other) <= 0);
     }
-    
+
     @Override
     public IBool lessEqual(IRational other) {
         return other.greaterEqual(this);
     }
-    
+
     @Override
     public IBool lessEqual(IReal other) {
         return other.greaterEqual(this);
     }
-     
+
     @Override
     public int compare(IInteger other){
         if(other instanceof BigIntegerValue){
             return ((~other.compare(this)) + 1);
         }
-        
+
         if(value > other.intValue()) return 1;
         if(value < other.intValue()) return -1;
-        
+
         return 0;
     }
-    
+
     @Override
     public int compare(INumber other) {
         if (isIntegerType(other)) {
@@ -518,7 +518,7 @@ import io.usethesource.vallang.type.TypeFactory;
             return toReal(((IReal) other).precision()).compare(other);
         }
     }
-    
+
     @Override
     public int hashCode(){
         int h = value ^ 0x85ebca6b;
@@ -530,7 +530,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         return h;
     }
-    
+
     public boolean equals(@Nullable Object o){
         if(o == null) {
             return false;
@@ -538,15 +538,15 @@ import io.usethesource.vallang.type.TypeFactory;
         else if(o == this) {
             return true;
         }
-        
+
         if (o.getClass() == getClass()) {
             IntegerValue otherInteger = (IntegerValue) o;
             return (value == otherInteger.value);
         }
-        
+
         return false;
     }
-    
+
     @Override
     public String getStringRepresentation(){
         return Integer.toString(value);
@@ -556,7 +556,7 @@ import io.usethesource.vallang.type.TypeFactory;
     public int signum() {
         return value < 0 ? -1 : (value == 0 ? 0 : 1);
     }
-    
+
     @Override
     public IInteger abs() {
         return newInteger(Math.abs(value));

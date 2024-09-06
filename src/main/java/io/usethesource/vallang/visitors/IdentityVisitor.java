@@ -29,7 +29,7 @@ import io.usethesource.vallang.IValue;
 /**
  * This abstract class does nothing except implementing identity. Extend it
  * to easily implement a visitor that visits selected types of IValues.
- * 
+ *
  */
 public abstract class IdentityVisitor<E extends Throwable> implements IValueVisitor<IValue, E> {
     @Override
@@ -76,7 +76,7 @@ public abstract class IdentityVisitor<E extends Throwable> implements IValueVisi
     public IValue visitNode(INode o)  throws E{
         return o;
     }
-    
+
     @Override
     public IValue visitConstructor(IConstructor o) throws E {
         return o;
@@ -86,17 +86,17 @@ public abstract class IdentityVisitor<E extends Throwable> implements IValueVisi
     public IValue visitTuple(ITuple o)  throws E{
         return o;
     }
-    
+
     @Override
     public IValue visitBoolean(IBool o) throws E {
         return o;
     }
-    
+
     @Override
     public IValue visitExternal(IExternalValue o) throws E {
         return o;
     }
-    
+
     @Override
     public IValue visitDateTime(IDateTime o) throws E {
         return o;

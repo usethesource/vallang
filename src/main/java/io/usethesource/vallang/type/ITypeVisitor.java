@@ -12,7 +12,7 @@
 package io.usethesource.vallang.type;
 
 /**
- * Visitor interface for all kinds of Types 
+ * Visitor interface for all kinds of Types
  *
  * @param <T> the result type of the visit methods
  */

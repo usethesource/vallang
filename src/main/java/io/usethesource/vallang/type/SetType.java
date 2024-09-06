@@ -48,20 +48,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         public Type getSymbolConstructorType() {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public Set<Type> getSymbolConstructorTypes() {
-            return Arrays.stream(new Type[] { 
+            return Arrays.stream(new Type[] {
                     getSetType(),
                     getRelType() // TODO: can be removed after bootstrap
             }).collect(Collectors.toSet());
         }
-        
+
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().setType(next.get());
         }
-        
+
         @Override
         public boolean isRecursive() {
             return false;
@@ -91,14 +91,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                                  Set<IConstructor> done) {
             return vf.constructor(getSetType(), type.getElementType().asSymbol(vf, store, grammar, done));
         }
-        
+
         @Override
         public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                 Set<IConstructor> done) {
             type.getElementType().asProductions(vf, store, grammar, done);
         }
     }
-    
+
 
     @Override
     public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
@@ -115,11 +115,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         return fEltType.hasFieldNames();
     }
 
-    @Override 
+    @Override
     public boolean hasField(String fieldName) {
         return fEltType.hasField(fieldName);
     }
-    
+
     @Override
     public boolean isSet() {
         return true;
@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public boolean isRelation() {
         return fEltType.isTuple() || fEltType.isBottom();
     }
-    
+
     @Override
     public int getFieldIndex(String fieldName) {
         return fEltType.getFieldIndex(fieldName);
@@ -267,13 +267,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public boolean intersects(Type other) {
         return other.intersectsWithSet(this);
     }
-    
+
     @Override
     protected boolean intersectsWithSet(Type type) {
         // there is always the empty set
         return true;
     }
-    
+
     @Override
     protected Type lubWithSet(Type type) {
         return TF.setType(fEltType.lub(type.getElementType()));
@@ -300,21 +300,21 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public Type instantiate(Map<Type, Type> bindings) {
         return TypeFactory.getInstance().setType(getElementType().instantiate(bindings));
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         ISetWriter result = vf.setWriter();
         if (maxDepth > 0 && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth));
-            
+
             if (!getElementType().isBottom()) {
                 for (int i =0; i < size; i++) {
                     result.insert(getElementType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth));
                 }
             }
         }
-        
+
         ISet done = result.done();
         match(done.getType(), typeParameters);
         return done;

@@ -46,7 +46,7 @@ import io.usethesource.vallang.type.TypeFactory;
     public Iterator<IValue> iterator() {
         return setContent.iterator();
     }
-    
+
     private void put(IValue elem) {
         updateType(elem);
         setContent.add(elem);
@@ -60,7 +60,7 @@ import io.usethesource.vallang.type.TypeFactory;
     public void insertTuple(IValue... fields) {
         insert(ValueFactory.getInstance().tuple(fields));
     }
-    
+
     @Override
     public void insert(IValue... elems) throws FactTypeUseException {
         checkMutation();
@@ -93,7 +93,7 @@ import io.usethesource.vallang.type.TypeFactory;
             throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
         }
     }
-    
+
     @Override
     public Supplier<IWriter<ISet>> supplier() {
         return () -> ValueFactory.getInstance().setWriter();

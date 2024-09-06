@@ -48,17 +48,17 @@ import io.usethesource.vallang.type.TypeFactory;
         listContent = new LinkedList<>();
         unique = false;
     }
-    
+
     private ListWriter(boolean unique) {
         this();
         this.unique = unique;
     }
-    
+
     @Override
     public IWriter<IList> unique() {
         return new ListWriter(true);
     }
-    
+
     @Override
     public Iterator<IValue> iterator() {
         return listContent.iterator();
@@ -72,14 +72,14 @@ import io.usethesource.vallang.type.TypeFactory;
         if (unique && listContent.contains(elem)) {
             return;
         }
-        
+
         eltType = eltType.lub(elem.getType());
         listContent.add(index, elem);
     }
 
     public void insert(IValue elem) throws FactTypeUseException {
         checkMutation();
-       
+
         put(0, elem);
     }
 
@@ -137,7 +137,7 @@ import io.usethesource.vallang.type.TypeFactory;
             put(listContent.size(), elem);
         }
     }
-    
+
     @Override
     public void appendTuple(IValue... fields) {
         append(new Tuple(fields));
@@ -155,7 +155,7 @@ import io.usethesource.vallang.type.TypeFactory;
     private void updateType(IValue v) {
         eltType = eltType.lub(v.getType());
     }
-    
+
     @Override
     public IList done() {
         if (constructedList == null) {
@@ -169,12 +169,12 @@ import io.usethesource.vallang.type.TypeFactory;
         if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
         if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
     }
-    
+
     @Override
     public IValue get(int i) throws IndexOutOfBoundsException {
         return listContent.get(i);
     }
-    
+
     @Override
     public int length() {
         return listContent.size();

@@ -20,14 +20,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface ISet extends ICollection<ISet> {
-    
+
     @Override
     default int getMatchFingerprint() {
         return 113762; // "set".hashCode()
     }
 
     /**
-     * Add an element to the set. 
+     * Add an element to the set.
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
@@ -58,7 +58,7 @@ public interface ISet extends ICollection<ISet> {
         }
         return w.done();
     }
-    
+
     /**
      * Computes the Cartesian product of two sets
      * @param set
@@ -76,13 +76,13 @@ public interface ISet extends ICollection<ISet> {
 
         return w.done();
     }
-    
+
     @Override
     public default boolean match(IValue other) {
         if (other == this) {
             return true;
         }
-        
+
         if (other == null) {
             return false;
         }
@@ -105,7 +105,7 @@ public interface ISet extends ICollection<ISet> {
 
         return false;
     }
-    
+
     /**
      * Compute the union of two sets. To be overridden
      * by implementations who know how to do this more efficiently.
@@ -130,7 +130,7 @@ public interface ISet extends ICollection<ISet> {
         w.insertAll(that);
         return w.done();
     }
-    
+
     /**
      * Compute the intersection of two sets. To be overridden
      * by implementations who know how to do this more efficiently.
@@ -159,7 +159,7 @@ public interface ISet extends ICollection<ISet> {
 
         return w.done();
     }
-    
+
     /**
      * Compute the difference of two sets by removing the elements of `that`
      * from the receiver. To be implemented more efficiently if possible
@@ -188,13 +188,13 @@ public interface ISet extends ICollection<ISet> {
 
         return sw.done();
     }
-    
+
     /**
      * @param element
      * @return true if this is an element of the set
      */
     public boolean contains(IValue e);
-    
+
     /**
      * @param element
      * @return true if this set contains an element that matches (IValue.match) an element in this set
@@ -207,7 +207,7 @@ public interface ISet extends ICollection<ISet> {
         }
         return false;
     }
-    
+
     /**
      * @param that other set to check for subset relation
      * @return true if all elements of this set are elements of the other.
@@ -235,13 +235,13 @@ public interface ISet extends ICollection<ISet> {
 
         return hash;
     }
-    
+
     @EqualsMethod
     public default boolean defaultEquals(@Nullable Object that) {
         if (that == this) {
             return true;
         }
-        
+
         if (that == null) {
             return false;
         }
@@ -270,23 +270,23 @@ public interface ISet extends ICollection<ISet> {
 
         return false;
     }
-    
+
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitSet(this);
     }
-    
+
     @Override
     default IRelation<ISet> asRelation() {
         if (!getType().isRelation()) {
             throw new UnsupportedOperationException(getType() + " is not a relation");
         }
-        
+
         return new IRelation<ISet>() {
             @Override
             public String toString() {
                 return ISet.this.toString();
-            }   
+            }
 
             @Override
             public ISet asContainer() {

@@ -57,15 +57,15 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                 return tf().listType(symbols().fromSymbols((IList) symbol.get("symbols"), store, grammar));
             }
         }
-        
+
         @Override
         public Type getSymbolConstructorType() {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public Set<Type> getSymbolConstructorTypes() {
-            return Arrays.stream(new Type[] { 
+            return Arrays.stream(new Type[] {
                     getListType(),
                     getRelType() // TODO: can be removed after bootstrap
             }).collect(Collectors.toSet());
@@ -78,13 +78,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         private Type getListType() {
             return symbols().typeSymbolConstructor("list", symbols().symbolADT(), "symbol");
         }
-        
+
         @Override
         public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                 Set<IConstructor> done) {
             return vf.constructor(getListType(), type.getElementType().asSymbol(vf, store, grammar, done));
         }
-        
+
         @Override
         public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                 Set<IConstructor> done) {
@@ -95,7 +95,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().listType(next.get());
         }
-        
+
         @Override
         public boolean isRecursive() {
             return false;
@@ -106,7 +106,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
     }
-    
+
     @Override
     public Type getElementType() {
         return fEltType;
@@ -121,13 +121,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public boolean isList() {
         return true;
     }
-    
+
     @Override
     public boolean isListRelation() {
         return fEltType.isTuple() || fEltType.isBottom();
     }
-    
-    @Override 
+
+    @Override
     public boolean hasField(String fieldName) {
         return fEltType.hasField(fieldName);
     }
@@ -248,19 +248,19 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public boolean intersects(Type other) {
         return other.intersectsWithList(this);
     }
-    
+
     @Override
     protected boolean intersectsWithList(Type type) {
         // there is always the empty list!
         return true;
     }
-    
+
     @Override
     protected boolean isSupertypeOf(Type type) {
         return type.isSubtypeOfList(this);
     }
 
-    @Override 
+    @Override
     protected boolean isSubtypeOfList(Type type) {
         return fEltType.isSubtypeOf(type.getElementType());
     }
@@ -301,24 +301,24 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public Type instantiate(Map<Type, Type> bindings) {
         return TypeFactory.getInstance().listType(getElementType().instantiate(bindings));
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         IListWriter result = vf.listWriter();
         if (maxDepth > 0 && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth));
-            
+
             if (!getElementType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
                 for (int i =0; i < size; i++) {
                     result.append(getElementType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth));
                 }
             }
         }
-        
+
         IList done = result.done();
         match(done.getType(), typeParameters);
-        
+
         return done;
     }
 }

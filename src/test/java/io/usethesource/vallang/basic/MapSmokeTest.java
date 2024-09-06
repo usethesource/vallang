@@ -52,7 +52,7 @@ public final class MapSmokeTest {
     private IMap[] testMaps(IValueFactory vf) {
         IMap empty = vf.mapWriter().done();
 
-        IMap[] testMaps = new IMap[] {empty, 
+        IMap[] testMaps = new IMap[] {empty,
                 empty.put(vf.string("Bergen"), vf.string("Amsterdam")),
                 empty.put(vf.string("Bergen"), vf.string("Amsterdam"))
                 .put(vf.string("Mango"), vf.string("Yummy")),

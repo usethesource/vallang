@@ -18,10 +18,10 @@ package io.usethesource.vallang.type;
     public boolean isTop() {
         return false;
     }
-    
+
     @Override
     public abstract boolean intersects(Type other);
-    
+
     protected boolean intersectsWithValue(Type type) {
         // everything intersects with value
         return true;
@@ -100,8 +100,8 @@ package io.usethesource.vallang.type;
     protected boolean intersectsWithDateTime(Type type) {
         return false;
     }
-    
-    @Override 
+
+    @Override
     public abstract Type glb(Type type);
 
     @Override
@@ -165,7 +165,7 @@ package io.usethesource.vallang.type;
     protected Type glbWithTuple(Type type) {
         return VoidType.getInstance();
     }
-    
+
     protected Type glbWithFunction(Type type) {
         return VoidType.getInstance();
     }

@@ -41,10 +41,10 @@ import io.usethesource.vallang.util.AbstractTypeBag;
 
     /*package*/ MapWriter() {
         super();
-        
+
         keyTypeBag = AbstractTypeBag.of();
         valTypeBag = AbstractTypeBag.of();
-        
+
         mapContent = new java.util.HashMap<>();
     }
 
@@ -52,37 +52,37 @@ import io.usethesource.vallang.util.AbstractTypeBag;
     public Iterator<IValue> iterator() {
         return mapContent.keySet().iterator();
     }
-    
+
     @Override
     public @Nullable IValue get(IValue key) {
         return mapContent.get(key);
     }
-    
+
     @Override
     public void insertTuple(IValue... fields) {
         if (fields.length != 2) {
             throw new IllegalArgumentException("can only insert tuples of arity 2 into a map");
         }
-        
+
         put(fields[0], fields[1]);
     }
-    
+
     private void checkMutation() {
         if (constructedMap != null) {
             throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
         }
     }
-    
+
     @Override
     public void putAll(IMap map) throws FactTypeUseException{
         checkMutation();
-        
+
         for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> map.entryIterator()) {
             updateTypes(entry.getKey(), entry.getValue());
             mapContent.put(entry.getKey(), entry.getValue());
         }
     }
-    
+
     private void updateTypes(IValue key, IValue value) {
         if (mapContent.containsKey(key)) {
             // key will be overwritten, so the corresponding value must be subtracted from the type bag too
@@ -111,7 +111,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
         updateTypes(key, value);
         mapContent.put(key, value);
     }
-    
+
     @Override
     public void insert(IValue... value) throws FactTypeUseException {
         for (IValue tuple : value) {
@@ -122,7 +122,7 @@ import io.usethesource.vallang.util.AbstractTypeBag;
             put(key, value2);
         }
     }
-    
+
     @Override
     public IMap done(){
         if (constructedMap == null) {
@@ -130,8 +130,8 @@ import io.usethesource.vallang.util.AbstractTypeBag;
         }
 
         return constructedMap;
-    }   
-    
+    }
+
     @Override
     public Supplier<IWriter<IMap>> supplier() {
         return () -> ValueFactory.getInstance().mapWriter();

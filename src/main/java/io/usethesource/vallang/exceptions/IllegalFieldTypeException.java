@@ -14,11 +14,11 @@ public class IllegalFieldTypeException extends FactTypeDeclarationException {
     public Object getElement() {
         return elem;
     }
-    
+
     public int getPos() {
         return pos;
     }
-    
+
     public synchronized Throwable getCause() {
         Throwable cause = super.getCause();
         return cause == null ? this : cause;

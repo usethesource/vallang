@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) CWI 2008 
+* Copyright (c) CWI 2008
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 
 /**
- * Untyped node representation (a container that has a limited amount of children and a name), 
+ * Untyped node representation (a container that has a limited amount of children and a name),
  * can iterate over the list of children. This data construct can be used to make trees by applying
  * it recursively.
  */
@@ -38,10 +38,10 @@ public interface INode extends IValue, Iterable<IValue> {
         if (hash == 0) {
             hash = 3386882 /* "node".hashCode() */;
         }
-        
+
         return hash + 131 * arity();
     }
-    
+
     /**
      * Get a child
      * @param i the zero based index of the child
@@ -49,10 +49,10 @@ public interface INode extends IValue, Iterable<IValue> {
      * @throws IndexOutOfBoundsException
      */
     public IValue get(int i);
-    
+
     /**
      * Change this tree to have a different child at a certain position.
-     * 
+     *
      * @param i            the zero based index of the child to be replaced
      * @param newChild     the new value for the child
      * @return an untyped tree with the new child at position i, if the receiver was untyped,
@@ -60,27 +60,27 @@ public interface INode extends IValue, Iterable<IValue> {
      * @throws IndexOutOfBoundsException
      */
     public INode set(int i, IValue newChild);
-    
+
     /**
      * @return the (fixed) number of children of this node (excluding keyword arguments)
      */
     public int arity();
-    
+
     /**
      * @return the name of this node (an identifier)
      */
     public String getName();
-    
+
     /**
      * @return an iterator over the direct children, equivalent to 'this'.
      */
     public Iterable<IValue> getChildren();
-    
+
     /**
      * @return an iterator over the direct children.
      */
     public Iterator<IValue> iterator();
-    
+
      /**
      * Replaces the value of the children first, second ... end with the elements in the list r
      * Expected:
@@ -161,10 +161,10 @@ public interface INode extends IValue, Iterable<IValue> {
 
         IValue[] childArray = new IValue[newChildren.size()];
         newChildren.toArray(childArray);
-        
+
         return setChildren(childArray);
     }
-    
+
     /**
      * Replace all children with a new array of children, keeping only
      * the name of the original node.
@@ -177,12 +177,12 @@ public interface INode extends IValue, Iterable<IValue> {
     public default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitNode(this);
     }
-    
+
     @Override
     public default boolean mayHaveKeywordParameters() {
       return true;
     }
-    
+
     @Override
     public default IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
       return new AbstractDefaultWithKeywordParameters<INode>(this, AbstractSpecialisedImmutableMap.<String, IValue>mapOf()) {
@@ -192,13 +192,13 @@ public interface INode extends IValue, Iterable<IValue> {
         }
     };
     }
-    
+
     @Override
     public default boolean match(IValue value) {
         if(value == this) {
             return true;
         }
-        
+
         if(value == null) {
             return false;
         }

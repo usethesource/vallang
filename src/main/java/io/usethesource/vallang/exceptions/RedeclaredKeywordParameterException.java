@@ -12,11 +12,11 @@ public class RedeclaredKeywordParameterException extends FactTypeDeclarationExce
         this.label = label;
         this.earlier = earlier;
     }
-    
+
     public String getLabel() {
         return label;
     }
-    
+
     public Type getEarlierType() {
         return earlier;
     }

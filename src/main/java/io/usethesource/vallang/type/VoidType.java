@@ -30,7 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /**
  * The void type represents an empty collection of values. I.e. it is a subtype
  * of all types, the bottom of the type hierarchy.
- * 
+ *
  * This type does not have any values with it naturally and can, for example, be
  * used to elegantly initialize computations that involve least upper bounds.
  */
@@ -444,7 +444,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         // void is the empty type so its intersections are always empty
         return false;
     }
-    
+
     @Override
     protected Type glbWithReal(Type type) {
         return this;
@@ -545,7 +545,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             int maxDepth, int maxWidth) {
         throw new UnsupportedOperationException("void can not be instantiated");
     }
-    
+
     @Override
     public boolean isBottom() {
         return true;

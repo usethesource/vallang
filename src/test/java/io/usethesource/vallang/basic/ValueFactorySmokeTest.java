@@ -45,11 +45,11 @@ public final class ValueFactorySmokeTest {
                   io.usethesource.vallang.impl.persistent.ValueFactory.getInstance()
                  ).map(vf -> {
                      Stream<IInteger> integers = Stream.iterate(0, i -> i + 1).map(j -> vf.integer(j)).limit(100);
-                     return Arguments.of(vf, integers.toArray(IInteger[]::new)); 
+                     return Arguments.of(vf, integers.toArray(IInteger[]::new));
                  });
       }
   }
-  
+
   @ParameterizedTest @ArgumentsSource(ValueProvider.class)
   public void testRelationNamedType(IValueFactory vf) {
     try {

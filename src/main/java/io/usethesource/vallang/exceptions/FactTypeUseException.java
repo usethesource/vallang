@@ -18,7 +18,7 @@ public abstract class FactTypeUseException extends RuntimeException {
     public FactTypeUseException(String message) {
         super(message);
     }
-    
+
     public FactTypeUseException(String reason, Throwable cause) {
         super(reason, cause);
     }

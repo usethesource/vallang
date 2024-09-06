@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) CWI 2008 
+* Copyright (c) CWI 2008
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ public interface IValueTextWriter {
      * @throws IOException in case the writer does
      */
      void write(IValue value, Writer writer) throws IOException;
-     
+
      /**
       * Serialize a value using the given writer
       * @param value  the value to serialize

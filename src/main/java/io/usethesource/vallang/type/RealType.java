@@ -36,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public static RealType getInstance() {
         return InstanceKeeper.sInstance;
     }
-    
+
     public static class Info extends TypeFactory.TypeReifier {
 
         public Info(TypeValues symbols) {
@@ -53,13 +53,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                            Function<IConstructor, Set<IConstructor>> grammar) {
             return getInstance();
         }
-        
+
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().realType();
         }
     }
-    
+
     @Override
     public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
@@ -93,7 +93,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public boolean isReal() {
         return true;
     }
-    
+
     @Override
     protected boolean isSupertypeOf(Type type) {
         return type.isSubtypeOfReal(this);
@@ -108,22 +108,22 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public boolean intersects(Type other) {
         return other.intersectsWithReal(this);
     }
-    
+
     @Override
     protected boolean intersectsWithReal(Type type) {
       return true;
     }
-    
+
     @Override
     protected boolean intersectsWithRational(Type type) {
         return false;
     }
-    
+
     @Override
     protected boolean intersectsWithInteger(Type type) {
         return false;
     }
-    
+
     @Override
     public Type glb(Type type) {
         return type.glbWithReal(this);
@@ -158,7 +158,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     protected boolean isSubtypeOfReal(Type type) {
         return true;
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {

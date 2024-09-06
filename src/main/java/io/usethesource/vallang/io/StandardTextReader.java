@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) CWI 2008 
+ * Copyright (c) CWI 2008
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,9 +49,9 @@ import io.usethesource.vallang.type.TypeStore;
 /**
  * This class implements the standard readable syntax for {@link IValue}'s.
  * Note that the parser also validates the input according to a given {@link Type}.
- * 
+ *
  * Note however that overloaded constructors for abstract data-types are <b>not</b> supported.
- * 
+ *
  * See also {@link StandardTextWriter}
  */
 public class StandardTextReader extends AbstractTextReader {
@@ -86,8 +86,8 @@ public class StandardTextReader extends AbstractTextReader {
 
         private static final char NEGATIVE_SIGN = '-';
         private static final TypeFactory types = TypeFactory.getInstance();
-        
-        private final TypeStore store; 
+
+        private final TypeStore store;
         private final NoWhiteSpaceReader stream;
         private final IValueFactory factory;
 
@@ -104,20 +104,20 @@ public class StandardTextReader extends AbstractTextReader {
         public IValue read(Type expected) throws IOException {
             current = stream.read();
             IValue result = readValue(expected);
-            
+
             if (current != -1 || this.stream.read() != -1) {
                 throw unexpectedException();
             }
-            
-            return result;   
+
+            return result;
         }
-        
+
         private IValue readValue(Type expected) throws IOException {
             IValue result = null;
 
             if (Character.isDigit(current) || current == DOUBLE_DOT || current == NEGATIVE_SIGN) {
                 result = readNumber(expected);
-            } 
+            }
             else if ((Character.isJavaIdentifierStart(current) && '$' != current)
                     || current == '\\') {
                 boolean escaped = current == '\\';
@@ -131,7 +131,7 @@ public class StandardTextReader extends AbstractTextReader {
                 }
                 else if (current == '=') {
                     return factory.string(id);
-                } 
+                }
                 else if (current == START_OF_ARGUMENTS) {
                     result = readConstructor(id, expected);
                 }
@@ -400,7 +400,7 @@ public class StandardTextReader extends AbstractTextReader {
                     throw new OverloadingNotSupportedException(expected, id);
                 }
                 else if (alternatives.size() == 0) {
-                    args = types.valueType(); 
+                    args = types.valueType();
                     // TODO: Should not it be an undeclared abstract data/constructor exception?!
                 }
                 else {
@@ -428,12 +428,12 @@ public class StandardTextReader extends AbstractTextReader {
         /**
          * Read in a single character from the input stream and append it to the
          * given buffer only if it is numeric.
-         *  
+         *
          * @param buf   The buffer to which the read character should be appended
-         * 
+         *
          * @return      True if the input character was numeric [0-9] and was appended,
          *              false otherwise.
-         * 
+         *
          * @throws IOException  when an error is encountered reading the input stream
          */
         private boolean readAndAppendIfNumeric(StringBuilder buf) throws IOException {
@@ -447,11 +447,11 @@ public class StandardTextReader extends AbstractTextReader {
         }
 
         /**
-         * Read in a date value, given as a string of the form NNNN-NN-NN, where each 
+         * Read in a date value, given as a string of the form NNNN-NN-NN, where each
          * N is a digit [0-9]. The groups are the year, month, and day of month.
-         * 
+         *
          * @return A DateParts object with year, month, and day filled in.
-         * 
+         *
          * @throws IOException  when an error is encountered reading the input stream
          * @throws FactParseError   when the correct characters are not found while lexing
          *                          the date
@@ -469,7 +469,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a '-'
-            current = stream.read();        
+            current = stream.read();
             if ('-' != current) {
                 throw new FactParseError("Error reading date, expected '-', found: " + current, stream.offset);
             }
@@ -483,7 +483,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a '-'
-            current = stream.read();        
+            current = stream.read();
             if ('-' != current) {
                 throw new FactParseError("Error reading date, expected '-', found: " + current, stream.offset);
             }
@@ -507,10 +507,10 @@ public class StandardTextReader extends AbstractTextReader {
          * Read in a time value, given as a string of the form NN:NN:NN.NNN[+-]NN:NN,
          * where each N is a digit [0-9]. The groups are the hour, minute, second,
          * millisecond, timezone hour offset, and timezone minute offset.
-         *  
+         *
          * @return A TimeParts objects with hours, minutes, seconds, milliseconds,
          *         and timezone information filled in.
-         *         
+         *
          * @throws IOException  when an error is encountered reading the input stream
          * @throws FactParseError   when the correct characters are not found while lexing
          *                          the time
@@ -527,7 +527,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a ':'
-            current = stream.read();    
+            current = stream.read();
             if (':' != current) {
                 throw new FactParseError("Error reading time, expected ':', found: " + current, stream.offset);
             }
@@ -541,7 +541,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a ':'
-            current = stream.read();        
+            current = stream.read();
             if (':' != current) {
                 throw new FactParseError("Error reading time, expected ':', found: " + current, stream.offset);
             }
@@ -555,7 +555,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be a '.'
-            current = stream.read();        
+            current = stream.read();
             if ('.' != current) {
                 throw new FactParseError("Error reading time, expected '.', found: " + current, stream.offset);
             }
@@ -569,7 +569,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             // The next character should be '+' or '-'
-            current = stream.read();        
+            current = stream.read();
             if (! ('+' == current || '-' == current)) {
                 throw new FactParseError("Error reading time, expected '+' or '-', found: " + current, stream.offset);
             }
@@ -610,8 +610,8 @@ public class StandardTextReader extends AbstractTextReader {
         private IValue readDateTime(Type expected) throws IOException, FactParseError {
             DateParts dateParts = null;
             TimeParts timeParts = null;
-            boolean isDate = false; 
-            boolean isTime = false; 
+            boolean isDate = false;
+            boolean isTime = false;
 
             // Retrieve the string to parse and pick the correct format string,
             // based on whether we are reading a time, a date, or a datetime.
@@ -641,8 +641,8 @@ public class StandardTextReader extends AbstractTextReader {
             if (isDate) {
                 assert dateParts != null : "@AssumeAssertion(nullness)";
 
-                return factory.date(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay());             
-            } else { 
+                return factory.date(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay());
+            } else {
                 if (isTime) {
                     assert timeParts != null : "@AssumeAssertion(nullness)";
 
@@ -664,7 +664,7 @@ public class StandardTextReader extends AbstractTextReader {
                 current = stream.read();
             }
 
-            while (Character.isJavaIdentifierStart(current) 
+            while (Character.isJavaIdentifierStart(current)
                     || Character.isJavaIdentifierPart(current)
                     || (escaped && current == '-')) {
                 builder.append((char) current);
@@ -780,7 +780,7 @@ public class StandardTextReader extends AbstractTextReader {
          * The reader still supports the old annotation format for bootstrapping reasons and backward compatibility
          * (for a while). The annotations are read as annotations but stored as keyword parameters. For the
          * parse tree type Tree, the `@\loc` annotation is also rewritten to the `.src` keyword field.
-         * 
+         *
          * @param expected
          * @param result
          * @return
@@ -792,11 +792,11 @@ public class StandardTextReader extends AbstractTextReader {
             while (current != ']') {
                 checkAndRead('@');
                 String key = readIdentifier();
-                
+
                 if (isLegacyParseTreeSourceAnnotation(key, result.getType())) {
                     key = "src";
                 }
-                
+
                 checkAndRead('=');
 
                 Type annoType = getAnnoType(expected, key);
@@ -987,7 +987,7 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             public String toString() {
-                return String.format("%04d", year) + "-" + String.format("%02d", month) + "-" + String.format("%02d", day); 
+                return String.format("%04d", year) + "-" + String.format("%02d", month) + "-" + String.format("%02d", day);
             }
         }
 

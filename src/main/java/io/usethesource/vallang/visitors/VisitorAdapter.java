@@ -85,22 +85,22 @@ public abstract class VisitorAdapter<T, E extends Throwable> implements IValueVi
     public T visitConstructor(IConstructor o) throws E {
         return fVisitor.visitConstructor(o);
     }
-    
+
     @Override
     public T visitTuple(ITuple o) throws E {
         return fVisitor.visitTuple(o);
     }
-    
+
     @Override
     public T visitBoolean(IBool o) throws E {
         return fVisitor.visitBoolean(o);
     }
-    
+
     @Override
     public T visitDateTime(IDateTime o) throws E {
         return fVisitor.visitDateTime(o);
     }
-    
+
     @Override
     public T visitExternal(IExternalValue externalValue) throws E {
       return fVisitor.visitExternal(externalValue);

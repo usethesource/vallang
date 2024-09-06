@@ -8,7 +8,7 @@
  * Contributors:
  *
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang;
 
@@ -21,15 +21,15 @@ public interface IWithKeywordParameters<T extends IValue> {
 
     /**
      * Get the value of a parmeter
-     * 
+     *
      * @param label identifies the parameter
      * @return a value if the parameter has a value on this node or null otherwise
      */
     public @Nullable IValue getParameter(String label);
-    
+
     /**
      * Set the value of an parameter
-     * 
+     *
      * @param label identifies the parameter
      * @param newValue the new value for the parameter
      * @return a new node where the value of the parameter is replaced (if previously present) or newly added
@@ -39,7 +39,7 @@ public interface IWithKeywordParameters<T extends IValue> {
 
     /**
      * Unset the value of an parameter
-     * 
+     *
      * @param label identifies the parameter
      * @return a new node where the value of the parameter is not present anymore
      */
@@ -47,15 +47,15 @@ public interface IWithKeywordParameters<T extends IValue> {
 
     /**
      * Unset the values of all parameters
-     * 
+     *
      * @param label identifies the parameter
      * @return a new node where the value of all keyword parameters are unset
      */
     public T unsetAll();
-    
+
     /**
      * Check whether a certain parameter is set.
-     * 
+     *
      * @param label identifies the parameter
      * @return true iff the parameter has a value on this node
      * @throws FactTypeUseException when no parameter with this label is defined for this type of node.
@@ -66,7 +66,7 @@ public interface IWithKeywordParameters<T extends IValue> {
      * Check whether any parameters are present.
      */
     public boolean hasParameters();
-    
+
     /**
      * @return a set of parameter names
      */
@@ -78,7 +78,7 @@ public interface IWithKeywordParameters<T extends IValue> {
     Map<String, IValue> getParameters();
 
     /**
-     * 
+     *
      * @param params
      * @return
      */

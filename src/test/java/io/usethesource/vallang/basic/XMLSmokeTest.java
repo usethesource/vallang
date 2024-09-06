@@ -40,7 +40,7 @@ public class XMLSmokeTest extends BooleanStoreProvider {
         StringWriter buffer = new StringWriter();
         XMLWriter testWriter = new XMLWriter();
         XMLReader testReader = new XMLReader();
-        
+
         try {
             testWriter.write(val, buffer);
             IValue result = testReader.read(vf, ts, val.getType(), new StringReader(buffer.toString()));

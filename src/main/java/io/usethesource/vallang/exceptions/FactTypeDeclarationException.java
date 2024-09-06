@@ -18,7 +18,7 @@ public abstract class FactTypeDeclarationException extends RuntimeException {
     public FactTypeDeclarationException(String message) {
         super(message);
     }
-    
+
     public FactTypeDeclarationException(String message, Throwable cause) {
         super(message, cause);
     }

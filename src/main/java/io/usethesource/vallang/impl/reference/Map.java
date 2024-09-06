@@ -50,13 +50,13 @@ import io.usethesource.vallang.type.Type;
     public int size() {
         return content.size();
     }
-    
+
     @Override
     @SuppressWarnings({"contracts.conditional.postcondition"})
     public boolean containsKey(IValue key) {
         return content.containsKey(key);
     }
-    
+
     @Override
     public IMap removeKey(IValue key) {
         IMapWriter w = writer();
@@ -65,7 +65,7 @@ import io.usethesource.vallang.type.Type;
                 w.put(cursor.getKey(), cursor.getValue());
             }
         }
-        
+
         return w.done();
     }
 
@@ -115,7 +115,7 @@ import io.usethesource.vallang.type.Type;
     public IRelation<IMap> asRelation() {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public String toString() {
         return defaultToString();
@@ -125,7 +125,7 @@ import io.usethesource.vallang.type.Type;
     public int hashCode() {
         return content.hashCode();
     }
-    
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if (obj == null) {
@@ -133,7 +133,7 @@ import io.usethesource.vallang.type.Type;
         }
         return defaultEquals(obj);
     }
-    
+
     @Override
     public Stream<IValue> stream() {
         Iterable<Entry<IValue, IValue>> it = this::entryIterator;

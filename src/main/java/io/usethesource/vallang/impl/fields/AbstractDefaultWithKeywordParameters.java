@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.fields;
 
@@ -24,7 +24,7 @@ import io.usethesource.vallang.IWithKeywordParameters;
 
 
 /**
- * A generic wrapper for an {@link IValue} that associates keyword parameters to it. 
+ * A generic wrapper for an {@link IValue} that associates keyword parameters to it.
  *
  * @param <T> the interface over which this parameter wrapper closes
  */
@@ -35,7 +35,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
     /**
      * Creates an {@link IWithKeywordParameters} view on {@link #content} with already
      * provided {@link #parameters}.
-     * 
+     *
      * @param content
      *            is the wrapped object that supports keywod fields
      * @param parameters
@@ -50,7 +50,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
      * Wraps {@link #content} with other parameters. This methods is mandatory
      * because of PDB's immutable value nature: Once parameters are modified, a
      * new immutable view is returned.
-     * 
+     *
      * @param content
      *            is the wrapped object that supports keyword fields
      * @param annotations
@@ -74,17 +74,17 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
     public T setParameter(String label, IValue newValue) {
         return wrap(content, parameters.__put(label, newValue));
     }
-    
+
     @Override
     public T unsetParameter(String label) {
         io.usethesource.capsule.Map.Immutable<String, IValue> removed = parameters.__remove(label);
-        
+
         if (removed.isEmpty()) {
             return content;
         }
         return wrap(content, removed);
     }
-    
+
     @Override
     public T unsetAll() {
         return content;
@@ -114,15 +114,15 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
     @Override
     public int hashCode() {
-        return 91 + content.hashCode() * 13 + 101 * parameters.hashCode(); 
+        return 91 + content.hashCode() * 13 + 101 * parameters.hashCode();
     }
-    
+
     @Override
     public boolean equals(@Nullable Object other) {
         if (other == null) {
             return false;
         }
-        
+
         if (!getClass().equals(other.getClass())) {
             return false;
         }
@@ -179,7 +179,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
         }
         return wrap(content, AbstractSpecialisedImmutableMap.mapOf(params));
     }
-    
+
     /**
      * This method is only to be used by internal methods, such as testing and fast iterators
      */

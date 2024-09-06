@@ -8,7 +8,7 @@ public class OverloadingNotSupportedException extends FactTypeUseException {
     public OverloadingNotSupportedException(String constructorId) {
         super("Overloading is not supported (" + constructorId + ")");
     }
-    
+
     public OverloadingNotSupportedException(Type adt, String constructorId) {
         super("Overloading is not supported (" + adt + "." + constructorId + ")");
     }

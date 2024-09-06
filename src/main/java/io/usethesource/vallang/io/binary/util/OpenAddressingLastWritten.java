@@ -1,15 +1,15 @@
-/** 
- * Copyright (c) 2016, Davy Landman, Centrum Wiskunde & Informatica (CWI) 
- * All rights reserved. 
- *  
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
- *  
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
- *  
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
- *  
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
- */ 
+/**
+ * Copyright (c) 2016, Davy Landman, Centrum Wiskunde & Informatica (CWI)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package io.usethesource.vallang.io.binary.util;
 
 import java.util.Objects;
@@ -19,7 +19,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A track last written implementation that uses linear open addressing to implement the very specific hashmap
- * 
+ *
  * This implementation is just as fast as using the IdentityHashMap, however it uses less memory on average and we can also use value equality.
  * @author Davy Landman
  */
@@ -42,7 +42,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
      * how many entries are already written
      */
     private long written;
-    
+
     /**
      * Create a n OpenAddressingLastWritten container using reference equality and identiy hashcode.
      * @param maximumEntries larger than 0 and smaller than Integer.MAX_VALUE  / 2
@@ -67,7 +67,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
             protected boolean equals(T a, T b) {
                 return a.equals(b);
             }
- 
+
             @Override
             protected int hash(T obj) {
                 return obj.hashCode();
@@ -87,7 +87,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
         }
         this.maximumEntries = maximumEntries;
         maximumSize = closestPrime(maximumEntries * 3); // load factor of max 33%
-        tableSize = Math.min(571, maximumSize); 
+        tableSize = Math.min(571, maximumSize);
         resizeAfter = Math.min(tableSize / 3, maximumEntries);
 
         keys = new Object[this.tableSize];
@@ -98,7 +98,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
         ArrayUtil.fill(oldest, -1);
         written = 0;
     }
-    
+
     //http://stackoverflow.com/a/20798440/11098
     private static boolean isPrime(int num) {
         if (num < 2) {
@@ -117,7 +117,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
         }
         return true;
     }
-    
+
     private static int closestPrime(int i) {
         if (i <= 2) {
             return 2;
@@ -143,11 +143,11 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
         }
         return -1;
     }
-    
+
     private int translateOldest(long index) {
         return (int) (index % resizeAfter);
     }
-    
+
     @SuppressWarnings("unchecked")
     private int locate(T obj) {
         int pos = (hash(obj) & 0x7FFFFFFF) % tableSize; // 0x7FFFFF to make it positive, Math.abs can fail when MAX_INT is returned
@@ -156,7 +156,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
         if (current == null) {
             return -1;
         }
-        
+
         while (!equals((T)current, obj)) {
             pos = (pos + 1) % tableSize;
             current = keys[pos];
@@ -164,7 +164,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
                 return -1;
             }
         }
-        
+
         return pos;
     }
 
@@ -172,9 +172,9 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
     protected abstract int hash(T obj);
 
     private int findSpace(int hash) {
-        int pos = (hash & 0x7FFFFFFF) % tableSize; 
+        int pos = (hash & 0x7FFFFFFF) % tableSize;
         while (keys[pos] != null) {
-            pos = (pos + 1) % tableSize; 
+            pos = (pos + 1) % tableSize;
         }
         return pos;
     }
@@ -200,7 +200,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
      * Implements the remove entry algorithm from wikipedia, which is based on Knuth's remark.
      * The simple solution would be to use thombstone values, but this quickly degrades the lookup performance to
      * O(n) since the array is now one big chain.
-     * 
+     *
      * This algorithm reconnects the chain after a hole has been made somewhere in it.
      * The biggest challenge is that the chain can actually be part of 2 seperate chains (due to clusters in the mod factor)
      * @param oldestEntry index of the entry to remove
@@ -245,7 +245,7 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
             hashes = new int[this.tableSize];
             oldest = new int[resizeAfter];
             ArrayUtil.fill(oldest, -1);
-            
+
             for (int i = 0; i < oldKeys.length; i++) {
                 Object key = oldKeys[i];
                 if (key != null) {
@@ -260,18 +260,18 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
             }
         }
     }
-    
+
     @Override
     public int size() {
         return maximumEntries;
     }
-    
+
     @Override
     public void clear() {
         ArrayUtil.fill(keys, null);
         ArrayUtil.fill(oldest, -1);
         written = 0;
-        
+
     }
 
 }

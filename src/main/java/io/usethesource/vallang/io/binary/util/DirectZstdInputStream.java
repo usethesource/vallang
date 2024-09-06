@@ -17,7 +17,7 @@ public class DirectZstdInputStream extends ByteBufferInputStream {
         this.orginalStream = originalStream;
         decompressor = new ZstdDirectBufferDecompressingStream(originalStream.getByteBuffer());
     }
-    
+
     @Override
     protected ByteBuffer refill(ByteBuffer torefill) throws IOException {
         torefill.clear();
@@ -36,7 +36,7 @@ public class DirectZstdInputStream extends ByteBufferInputStream {
         result.limit(0); // delay compression for first read
         return result;
     }
-    
+
     @Override
     public void close() throws IOException {
         if (!closed ) {

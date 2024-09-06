@@ -26,16 +26,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * class should guarantee that the values returned are immutable. For batch
  * construction of container classes there should be implementations of the
  * I{List,Set,Relation,Map}Writer interfaces.
- * 
+ *
  * @author jurgen@vinju.org
  * @author rfuhrer@watson.ibm.com
- * 
+ *
  */
 public interface IValueFactory {
 
     /**
      * Constructs an integer from the decimal representation.
-     * 
+     *
      * @param i
      *            integer as a string of decimal digits
      * @return a new integer
@@ -57,7 +57,7 @@ public interface IValueFactory {
 
     /**
      * Construct an integer from the two's complement big-endian representation
-     * 
+     *
      * @param a
      * @return a value representing the two's complement notation in a
      */
@@ -92,7 +92,7 @@ public interface IValueFactory {
 
     /**
      * Construct a real from the mathematical notation.
-     * 
+     *
      * @param s
      *            real as a string in decimal mathematical notation.
      * @return the corresponding real
@@ -102,7 +102,7 @@ public interface IValueFactory {
 
     /**
      * Construct a real from the mathematical notation.
-     * 
+     *
      * @param s
      *            real as a string in decimal mathematical notation.
      * @param p
@@ -133,7 +133,7 @@ public interface IValueFactory {
 
     /**
      * Set the global precision for reals
-     * 
+     *
      * @param p
      * @return the previous global precision
      */
@@ -161,7 +161,7 @@ public interface IValueFactory {
 
     /**
      * Build a string from an array of unicode characters.
-     * 
+     *
      * @param chars
      *            array of unicode characters
      * @throws IllegalArgumentException
@@ -171,7 +171,7 @@ public interface IValueFactory {
 
     /**
      * Build a string from a unicode character.
-     * 
+     *
      * @param ch
      *            unicode character
      * @throws IllegalArgumentException
@@ -181,7 +181,7 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location.
-     * 
+     *
      * @param uri
      *            exact uri where the source is located.
      * @param offset
@@ -209,7 +209,7 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location.
-     * 
+     *
      * @param loc
      *            where the source is located. (only the location part of the source location is used)
      * @param offset
@@ -235,7 +235,7 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location.
-     * 
+     *
      * @param uri
      *            exact uri where the source is located.
      * @param offset
@@ -243,7 +243,7 @@ public interface IValueFactory {
      *            located at the given url. Offsets start at 0 (zero).
      * @param length
      *            the character length of the location (the amount characters).
-     * 
+     *
      * @return a value representing a source location, with type
      *         SourceLocationType
      * @deprecated please use the overload with a ISourceLocation
@@ -253,7 +253,7 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location.
-     * 
+     *
      * @param loc
      *            where the source is located. (only the location part of the source location is used)
      * @param offset
@@ -261,7 +261,7 @@ public interface IValueFactory {
      *            located at the given url. Offsets start at 0 (zero).
      * @param length
      *            the character length of the location (the amount characters).
-     * 
+     *
      * @return a value representing a source location, with type
      *         SourceLocationType
      */
@@ -269,7 +269,7 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location.
-     * 
+     *
      * @param path
      *            exact (absolute) path where the source is located.
      * @param offset
@@ -295,7 +295,7 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location.
-     * 
+     *
      * @param uri
      *            exact uri where the source is located.
      * @return a value representing a source location, with type
@@ -305,9 +305,9 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location
-     * 
+     *
      * note that we assume non-encoded input
-     * 
+     *
      * @param scheme
      *            the scheme part of an source location
      * @param authority
@@ -320,9 +320,9 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location
-     * 
+     *
      * note that we assume non-encoded input
-     * 
+     *
      * @param scheme
      *            the scheme part of an source location
      * @param authority
@@ -341,7 +341,7 @@ public interface IValueFactory {
 
     /**
      * Create an exact reference to a source location.
-     * 
+     *
      * @param path
      *            exact (absolute) path where the source is located.
      * @return a value representing a source location, with type
@@ -351,14 +351,14 @@ public interface IValueFactory {
 
     /**
      * Construct the nullary tuple
-     * 
+     *
      * @return the nullary tuple
      */
     public ITuple tuple();
 
     /**
      * Construct a tuple
-     * 
+     *
      * @param args
      *            a variable length argument list or an array of IValue
      * @return a tuple with as many children as there are args
@@ -367,7 +367,7 @@ public interface IValueFactory {
 
     /**
      * Construct a nullary generic tree node
-     * 
+     *
      * @param name
      *            the name of the tree node
      * @return a new tree value
@@ -376,7 +376,7 @@ public interface IValueFactory {
 
     /**
      * Construct a node
-     * 
+     *
      * @param name
      *            the name of the node
      * @param children
@@ -387,7 +387,7 @@ public interface IValueFactory {
 
     /**
      * Construct a node with keyword arguments
-     * 
+     *
      * @param name
      *            the name of the node
      * @param keyArgValues
@@ -405,7 +405,7 @@ public interface IValueFactory {
 
     /**
      * Make a nullary constructor (a typed nullary node)
-     * 
+     *
      * @param constructor
      *            the constructor to use
      * @return a new constructor value
@@ -414,7 +414,7 @@ public interface IValueFactory {
 
     /**
      * Make a constructor value.
-     * 
+     *
      * @param constructor
      *            the constructor to use
      * @param children
@@ -428,7 +428,7 @@ public interface IValueFactory {
 
     /**
      * Make a constructor value with keyword parameters
-     * 
+     *
      * @param constructor
      *            the constructor to use
      * @param children
@@ -444,7 +444,7 @@ public interface IValueFactory {
     /**
      * Get a set writer of which the element type will be the least upper bound
      * of the element types
-     * 
+     *
      * @return a set writer
      */
     public ISetWriter setWriter();
@@ -452,7 +452,7 @@ public interface IValueFactory {
     /**
      * Construct a set with a fixed number of elements in it. If the elements
      * are compatible tuples, this will construct a relation.
-     * 
+     *
      * @param elems
      *            an array or variable argument list of values
      * @return a set containing all the elements
@@ -462,14 +462,14 @@ public interface IValueFactory {
     /**
      * Get a list writer of which the element type will be the least upper bound
      * of the element types
-     * 
+     *
      * @return a list writer
      */
     public IListWriter listWriter();
 
     /**
      * Construct a list with a fixed number of elements in it.
-     * 
+     *
      * @param elems
      *            the elements to put in the list
      * @return a list [a] of type list[a.getType()]
@@ -479,11 +479,11 @@ public interface IValueFactory {
     /**
      * Get a map writer of which the key and value types will be the least upper
      * bound of the keys and values that are put in.
-     * 
+     *
      * @return a list writer
      */
     public IMapWriter mapWriter();
-    
+
     /**
      * @return an empty map
      */
@@ -493,28 +493,28 @@ public interface IValueFactory {
 
     /**
      * Create a boolean with a certain value
-     * 
+     *
      * @return a boolean
      */
     public IBool bool(boolean value);
 
     /**
      * Create a new DateTime representing a date with the given date fields
-     * 
+     *
      * @param year
      *            the year of the date
      * @param month
      *            the month of the date
      * @param day
      *            the day of the date
-     * 
+     *
      * @return a DateTime date with the provided year, month, and day
      */
     public IDateTime date(int year, int month, int day);
 
     /**
      * Create a new DateTime representing a time with the given time fields
-     * 
+     *
      * @param hour
      *            the hour of the time
      * @param minute
@@ -523,7 +523,7 @@ public interface IValueFactory {
      *            the second of the time
      * @param millisecond
      *            the millisecond of the time
-     * 
+     *
      * @return a DateTime time with the provided hour, minute, second, and
      *         milliseconds
      */
@@ -531,7 +531,7 @@ public interface IValueFactory {
 
     /**
      * Create a new DateTime representing a time with the given time fields
-     * 
+     *
      * @param hour
      *            the hour of the time
      * @param minute
@@ -546,7 +546,7 @@ public interface IValueFactory {
      * @param minuteOffset
      *            the minute offset of the timezone for this time (can be
      *            negative if the hourOffset is 0)
-     * 
+     *
      * @return a DateTime time with the provided hour, minute, second,
      *         milliseconds, and timezone offset
      */
@@ -555,7 +555,7 @@ public interface IValueFactory {
 
     /**
      * Create a new DateTime with the given date and time fields
-     * 
+     *
      * @param year
      *            the year of the date
      * @param month
@@ -570,7 +570,7 @@ public interface IValueFactory {
      *            the second of the time
      * @param millisecond
      *            the millisecond of the time
-     * 
+     *
      * @return a DateTime with the values for year, month, etc provided in the
      *         parameters
      */
@@ -579,7 +579,7 @@ public interface IValueFactory {
 
     /**
      * Create a new DateTime with the given date and time fields
-     * 
+     *
      * @param year
      *            the year of the date
      * @param month
@@ -600,7 +600,7 @@ public interface IValueFactory {
      * @param minuteOffset
      *            the minute offset of the timezone for this time (can be
      *            negative if the hourOffset is 0)
-     * 
+     *
      * @return a DateTime with the values for year, month, etc provided in the
      *         parameters
      */
@@ -610,22 +610,22 @@ public interface IValueFactory {
 
     /**
      * Create a new DateTime representing the given instant.
-     * 
+     *
      * @param instant
      *            the instant in time, according to the Java epoch
-     * 
+     *
      * @return a DateTime set to the given instant in time
      */
     public IDateTime datetime(long instant);
 
     /**
      * Create a new DateTime representing the given instant.
-     * 
+     *
      * @param instant
      *            the instant in time, according to the Java epoch
-     * @param timezoneHours The hour offset for the new object's timezone 
+     * @param timezoneHours The hour offset for the new object's timezone
      * @param timezoneMinutes The minute offset for the new object's timezone
-     * 
+     *
      * @return a DateTime set to the given instant in time
      */
     public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes);

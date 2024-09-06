@@ -36,7 +36,7 @@ public class RegressionTest {
         assertTrue(c1WithKWParams.equals(c1Normal));
         assertTrue(c1Normal.equals(c1WithKWParams));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testRegression42_cause(IValueFactory vf, TypeStore store, @GivenValue("(\"\"():4,\"\"():3)") IValue v,  @GivenValue("(\"\"():4,\"\"():3)") IValue u) throws IOException {
         assertTrue(v.equals(u));

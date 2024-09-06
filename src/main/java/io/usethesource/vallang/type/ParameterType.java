@@ -71,10 +71,10 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             if (rnd.isWithTypeParameters()) {
                 return tf().parameterType(randomLabel(rnd));
             }
-            
+
             return next.get();
         }
-        
+
         @Override
         public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                 Set<IConstructor> done) {
@@ -97,7 +97,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public Type getTypeParameters() {
         return getBound().getTypeParameters();
     }
-    
+
     @Override
     public Type getBound() {
         return fBound;
@@ -138,7 +138,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         if (o == null) {
             return false;
         }
-        
+
         if (o instanceof ParameterType) {
             ParameterType other = (ParameterType) o;
             return fName.equals(other.fName) && fBound == other.fBound;
@@ -156,10 +156,10 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         if (other == this) {
             return true;
         }
-        
+
         return getBound().intersects(other);
     }
-    
+
     @Override
     /**
      * Type parameters are universal, extending their semantics over
@@ -177,7 +177,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             // here we assume hygenic type parameter binding
             return true;
         }
-        
+
         // if the type parameter is totally free,
         // it is bound by `value` only, then it can
         // be a supertype of anything. This is also
@@ -185,7 +185,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         if (getBound().isTop()) {
             return true;
         }
-        
+
         // otherwise, the instantiated type goes no higher than the
         // bound, so if the bound is not a supertype,
         // then the parameter can't be either:
@@ -206,92 +206,92 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         // is not comparable to the bound
         return getBound().comparable(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfBool(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfConstructor(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfDateTime(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfExternal(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfInteger(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfList(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfMap(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfNode(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfNumber(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfParameter(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfRational(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfReal(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfSet(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfSourceLocation(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfString(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfTuple(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfValue(Type type) {
         return couldBeSubtypeOf(type);
     }
-    
+
     @Override
     protected boolean isSubtypeOfVoid(Type type) {
         return couldBeSubtypeOf(type);
@@ -300,12 +300,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     protected boolean intersectsWithValue(Type type) {
        return true;
     }
-    
+
     @Override
     protected boolean intersectsWithReal(Type type) {
         return getBound().intersects(type);
     }
-    
+
     @Override
     protected boolean intersectsWithInteger(Type type) {
         return getBound().intersects(type);
@@ -386,30 +386,30 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     protected boolean intersectsWithDateTime(Type type) {
         return getBound().intersects(type);
     }
-    
+
     @Override
     public Type lub(Type type) {
         if (type == this) {
             return this;
         }
-        
+
         if (type.isSubtypeOf(getBound())) {
             return this;
         }
-        
+
         return getBound().lub(type);
     }
-    
+
     @Override
     public Type glb(Type type) {
         if (type == this) {
             return this;
         }
-        
+
         if (type.isSupertypeOf(getBound())) {
             return this;
         }
-        
+
         return getBound().glb(type);
     }
 
@@ -420,7 +420,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         Type earlier = bindings.get(this);
-        
+
         if (earlier != null) {
             // now it is time for earlier bindings to have an effect
             // on the current binding if there is recursive use of type parameters
@@ -486,22 +486,22 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         IValue val = getBound().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
-        
+
         inferBinding(typeParameters, val);
-        
+
         return val;
     }
 
     private void inferBinding(Map<Type, Type> typeParameters, IValue val) {
         Type tv = typeParameters.get(this);
-        
+
         if (tv != null) {
             tv = tv.lub(val.getType());
         }
         else {
             tv = val.getType();
         }
-        
+
         typeParameters.put(this, tv);
     }
 }

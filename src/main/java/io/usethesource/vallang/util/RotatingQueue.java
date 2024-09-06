@@ -14,7 +14,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A simple (fast) queue.
- * 
+ *
  * @author Arnold Lankamp
  *
  * @param <T> The value type.
@@ -22,13 +22,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class RotatingQueue<T>{
     private final static int DEFAULT_CAPACITY = 16;
     private final static int DEFAULT_CAPACITY_MASK = DEFAULT_CAPACITY - 1;
-    
+
     private @Nullable T[] queue;
     private int capacity;
     private int capacityMask;
     private int nextPutIndex;
     private int getIndex;
-    
+
     /**
      * Constructor.
      */
@@ -44,7 +44,7 @@ public final class RotatingQueue<T>{
             nextPutIndex = 1;
             getIndex = 0;
     }
-    
+
     private void ensureCapacity(){
             if(nextPutIndex == getIndex){
                     int size = capacity;
@@ -68,10 +68,10 @@ public final class RotatingQueue<T>{
                     queue = newQueue;
             }
     }
-    
+
     /**
      * Enqueues the given element.
-     * 
+     *
      * @param element
      *            The element to enqueue.
      */
@@ -82,19 +82,19 @@ public final class RotatingQueue<T>{
 
             nextPutIndex = (nextPutIndex + 1) & capacityMask;
     }
-    
+
     /**
      * Check if the queue contains any elements.
-     * 
+     *
      * @return True if the queue contains any elements; false otherwise.
      */
     public boolean isEmpty(){
             return (nextPutIndex == ((getIndex + 1) & capacityMask));
     }
-    
+
     /**
      * Returns and removes the next element from the queue.
-     * 
+     *
      * @return The next element from the queue; null if the queue was empty.
      */
     public @Nullable T get(){

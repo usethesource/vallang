@@ -26,17 +26,17 @@ import io.usethesource.vallang.type.TypeFactory;
 /*package*/ class Node implements INode {
     protected static final Type NODE_TYPE = TF.nodeType();
     protected static final Type VALUE_TYPE = TypeFactory.getInstance().valueType();
-    
+
     protected final String name;
     protected final IValue[] children;
 
     /*package*/ static INode newNode(String name, IValue[] children) {
         return new Node(name, children);
     }
-    
+
     Node(String name, IValue[] children) {
         super();
-        
+
         this.name = name.intern();
         this.children = children;
     }
@@ -44,7 +44,7 @@ import io.usethesource.vallang.type.TypeFactory;
     /*package*/ static INode newNode(String name, IList children) {
         return new Node(name, children);
     }
-    
+
     private Node(String name, IList children) {
         super();
         IValue[] childArray = new IValue[children.length()];
@@ -54,17 +54,17 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         this.children = childArray;
     }
-    
+
     @Override
     public String toString() {
         return defaultToString();
     }
-    
+
     @Override
     public Type getType(){
         return NODE_TYPE;
     }
-    
+
     @Override
     public int arity(){
         return children.length;
@@ -74,22 +74,22 @@ import io.usethesource.vallang.type.TypeFactory;
     public INode setChildren(IValue[] childArray) {
         return new Node(name, childArray);
     }
-    
+
     @Override
     public IValue get(int i){
         return children[i];
     }
-    
+
     @Override
     public String getName(){
         return name;
     }
-    
+
     @Override
     public Iterator<IValue> iterator(){
         return ArrayIterator.of(children);
     }
-    
+
     @Override
     public Iterable<IValue> getChildren(){
         return this;
@@ -99,14 +99,14 @@ import io.usethesource.vallang.type.TypeFactory;
     public INode set(int i, IValue arg){
         IValue[] newChildren = children.clone();
         newChildren[i] = arg;
-        
+
         return newNode(name, newChildren);
     }
-    
+
     @Override
     public int hashCode() {
         int hash = name.hashCode();
-        
+
         for(int i = children.length - 1; i >= 0; i--){
             hash = (hash << 23) + (hash >> 5);
             hash ^= children[i].hashCode();
@@ -119,20 +119,20 @@ import io.usethesource.vallang.type.TypeFactory;
         if (o == this) {
           return true;
         }
-        
+
         if (o == null) {
           return false;
         }
-        
+
         if (o.getClass() != getClass()) {
           return false;
         }
-        
+
         Node other = (Node) o;
 
         // Yes '!=' works here, since it has been interned.
         if (name != other.name) {
-          return false; 
+          return false;
         }
 
         IValue[] otherChildren = other.children;

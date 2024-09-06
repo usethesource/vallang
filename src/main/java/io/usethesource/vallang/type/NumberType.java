@@ -53,7 +53,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                            Function<IConstructor, Set<IConstructor>> grammar) {
             return getInstance();
         }
-        
+
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().numberType();
@@ -64,7 +64,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
     }
-    
+
     @Override
     public String toString() {
         return "num";
@@ -89,8 +89,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public boolean intersects(Type other) {
         return other.intersectsWithNumber(this);
     }
-    
-    
+
+
     @Override
     protected boolean intersectsWithNumber(Type type) {
         return true;
@@ -100,18 +100,18 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     protected boolean intersectsWithInteger(Type type) {
         return true;
     }
-    
+
     @Override
     protected boolean intersectsWithRational(Type type) {
         return true;
     }
-    
+
     @Override
     protected boolean intersectsWithReal(Type type) {
         return true;
     }
 
-    
+
     @Override
     protected Type lubWithNumber(Type type) {
         return type;
@@ -174,7 +174,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
         return visitor.visitNumber(this);
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
@@ -187,7 +187,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             return TypeFactory.getInstance().rationalType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
         }
     }
-    
+
     @Override
     public boolean isNumber() {
         return true;

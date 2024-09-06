@@ -14,12 +14,12 @@ public class ListRelation implements IRelation<IList> {
     public ListRelation(IList list) {
         this.list = list;
     }
-    
+
     @Override
     public IList asContainer() {
         return list;
     }
-    
+
     @Override
     public IList closure() {
         // will throw exception if not binary and reflexive
@@ -41,11 +41,11 @@ public class ListRelation implements IRelation<IList> {
                     w.append(t1);
                 }
             }
-            
+
             tmp = tmp.asContainer().concat(w.done()).asRelation();
             addedTuples.clear();
         }
-        
+
         return tmp.asContainer();
     }
 

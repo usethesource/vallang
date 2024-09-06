@@ -61,12 +61,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             int maxDepth, int maxBreadth) {
         return vf.bool(random.nextBoolean());
     }
-    
+
     @Override
     public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
     }
-    
+
     /**
      * Should never need to be called; there should be only one instance of
      * IntegerType
@@ -95,7 +95,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public boolean intersects(Type other) {
         return other.intersectsWithBool(this);
     }
-    
+
     @Override
     protected boolean isSupertypeOf(Type type) {
         return type.isSubtypeOfBool(this);
@@ -111,7 +111,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         return true;
     }
 
-    
+
     @Override
     protected Type lubWithBool(Type type) {
         return this;
@@ -121,7 +121,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public Type glb(Type type) {
         return type.glbWithBool(this);
     }
-    
+
 
     @Override
     protected boolean intersectsWithBool(Type type) {
@@ -132,7 +132,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     protected Type glbWithBool(Type type) {
         return this;
     }
-    
+
     @Override
     public boolean isBool() {
         return true;

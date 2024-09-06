@@ -43,26 +43,26 @@ public class ATermWriter implements IValueTextWriter {
     public void write(IValue value, java.io.Writer stream) throws IOException {
       value.accept(new Writer(stream));
     }
-    
+
     public void write(IValue value, java.io.Writer stream, TypeStore typeStore) throws IOException {
         write(value, stream);
     }
-    
+
     private static class Writer implements IValueVisitor<IValue, IOException> {
         private java.io.Writer stream;
 
         public Writer(java.io.Writer stream) {
             this.stream = stream;
         }
-        
+
         private void append(String string) throws IOException {
           stream.write(string);
         }
-        
+
         private void append(char c) throws IOException {
           stream.write(c);
         }
-        
+
         @Override
         public IValue visitBoolean(IBool boolValue) throws IOException {
             append(boolValue.getStringRepresentation());
@@ -98,30 +98,30 @@ public class ATermWriter implements IValueTextWriter {
             append(')');
             return o;
         }
-        
+
         @Override
         public IValue visitList(IList o) throws IOException {
             append('[');
-            
+
             Iterator<IValue> listIterator = o.iterator();
             if(listIterator.hasNext()){
                 append(listIterator.next().toString());
-                
+
                 while(listIterator.hasNext()){
                     append(',');
                     listIterator.next().accept(this);
                 }
             }
-            
+
             append(']');
-            
+
             return o;
         }
 
         @Override
         public IValue visitMap(IMap o) throws IOException {
             append('[');
-        
+
             Iterator<Entry<IValue,IValue>> mapIterator = o.entryIterator();
             if (mapIterator.hasNext()) {
                 Entry<IValue, IValue> entry = mapIterator.next();
@@ -131,7 +131,7 @@ public class ATermWriter implements IValueTextWriter {
                 append(',');
                 entry.getValue().accept(this);
                 append(')');
-                
+
                 while(mapIterator.hasNext()) {
                     entry = mapIterator.next();
                     append(',');
@@ -142,16 +142,16 @@ public class ATermWriter implements IValueTextWriter {
                     append(')');
                 }
             }
-            
+
             append(']');
-            
+
             return o;
         }
 
         @Override
         public IValue visitNode(INode o) throws IOException {
             String name = o.getName();
-            
+
             append(name);
             append('(');
 
@@ -163,7 +163,7 @@ public class ATermWriter implements IValueTextWriter {
                 }
             }
             append(')');
-            
+
             if (o.asWithKeywordParameters().hasParameters()) {
                 append("{[");
                 int i = 0;
@@ -172,31 +172,31 @@ public class ATermWriter implements IValueTextWriter {
                     append("[" + entry.getKey() + ",");
                     entry.getValue().accept(this);
                     append("]");
-                    
+
                     if (++i < kwFields.size()) {
                         append(",");
                     }
                 }
                 append("]}");
             }
-            
+
             return o;
         }
 
         @Override
         public IValue visitSet(ISet o) throws IOException {
             append('[');
-            
+
             Iterator<IValue> setIterator = o.iterator();
             if(setIterator.hasNext()){
                 setIterator.next().accept(this);
-                
+
                 while(setIterator.hasNext()){
                     append(",");
                     setIterator.next().accept(this);
                 }
             }
-            
+
             append(']');
             return o;
         }
@@ -230,19 +230,19 @@ public class ATermWriter implements IValueTextWriter {
         @Override
         public IValue visitTuple(ITuple o) throws IOException {
              append('(');
-             
+
              Iterator<IValue> it = o.iterator();
-             
+
              if (it.hasNext()) {
                  it.next().accept(this);
              }
-             
+
              while (it.hasNext()) {
                  append(',');
                  it.next().accept(this);
              }
              append(')');
-             
+
              return o;
         }
 

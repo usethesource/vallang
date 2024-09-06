@@ -26,7 +26,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     final String[] fFieldNames;
 
     /**
-     * Creates a tuple type with the given field types and names. 
+     * Creates a tuple type with the given field types and names.
      * Does not copy the arrays.
      */
     /*package*/ TupleTypeWithFieldNames(Type[] fieldTypes, String[] fieldNames) {
@@ -113,7 +113,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     /**
      * Compute a new tupleType that is the lub of t1 and t2. Precondition: t1
      * and t2 have the same arity.
-     * 
+     *
      * @param t1
      * @param t2
      * @return a TupleType which is the lub of t1 and t2, if all the names are
@@ -160,7 +160,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     /**
      * Compute a new tupletype that is the glb of t1 and t2. Precondition: t1
      * and t2 have the same arity.
-     * 
+     *
      * @param t1
      * @param t2
      * @return a TupleType which is the glb of t1 and t2, if all the names are
@@ -218,7 +218,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         if (obj == null) {
             return false;
         }
-        
+
         if (!obj.getClass().equals(getClass())) {
             return false;
         }
@@ -237,7 +237,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
             if (fFieldTypes[i] != other.fFieldTypes[i]) {
                 return false;
             }
-            
+
             if (!fFieldNames[i].equals(other.fFieldNames[i])) {
                 return false;
             }
@@ -275,7 +275,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
         return TF.valueType();
     }
-    
+
     @Override
     protected Type glbWithTuple(Type type) {
         if (getArity() == type.getArity()) {

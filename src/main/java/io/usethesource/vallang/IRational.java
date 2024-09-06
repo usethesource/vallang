@@ -19,41 +19,41 @@ public interface IRational extends INumber {
      */
     @Override
     public IRational add(IRational other);
-    
+
     /**
      * @return this - other;
      */
     @Override
     public IRational subtract(IRational other);
-    
+
     /**
      * @return this * other;
      */
     @Override
     public IRational multiply(IRational other);
-    
+
     /**
      * @return this / other;
      */
     public IRational divide(IRational other);
-    
+
     /**
      * @return this / other;
      */
     public IRational divide(IInteger other);
-    
+
     /**
      * @return this rem other, which is the remainder after dividing this by other.
      * This may be a negative number.
      */
     public IRational remainder(IRational other);
-    
+
     /**
      * @return -1 * this;
      */
     @Override
     public IRational negate();
-    
+
     /**
      * @return an IReal that approximates this IRational
      */
@@ -80,35 +80,35 @@ public interface IRational extends INumber {
      */
     @Override
     public IBool less(IRational other);
-    
+
     /**
      * @return true iff this > other
      */
     @Override
     public IBool greater(IRational other);
- 
+
     /**
      * @return true iff this <= other
      */
     @Override
     public IBool lessEqual(IRational other);
-    
+
     /**
      * @return true iff this >= other
      */
     @Override
     public IBool greaterEqual(IRational other);
-    
+
     /**
      * @return the value of the IRational represent as a string of decimal numbers in ASCII encoding.
      */
     public String getStringRepresentation();
-    
+
     /**
      * @return The rational's numerator
      */
     public IInteger numerator();
-    
+
     /**
      * @return The rational's denominator
      */
@@ -116,7 +116,7 @@ public interface IRational extends INumber {
 
     /**
      * numerator() == (toInteger() * denominator()) + remainder()
-     *  
+     *
      * @return numerator() % denominator()
      */
     public IInteger remainder();
@@ -127,7 +127,7 @@ public interface IRational extends INumber {
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
      */
     public int compare(IRational other);
-    
+
     /**
      * @return return -1, 0 or 1 iff this rational is less than, equal to or greater than zero.
      */
@@ -139,21 +139,21 @@ public interface IRational extends INumber {
      */
     @Override
     public IRational abs();
-    
+
     /**
      * @return this number rounded down to the nearest integer number that is
      * less than this number.
      */
     public IInteger floor();
-    
+
     /**
      * @return this number rounded to the nearest integer number.
      */
     public IInteger round();
-    
+
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitRational(this);
     }
-    
+
 }

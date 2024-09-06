@@ -7,12 +7,12 @@ public class FactParseError extends RuntimeException {
     public FactParseError(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
     public FactParseError(String message, int offset) {
         super(message);
         this.offset = offset;
     }
-    
+
     public FactParseError(String message, int offset, Throwable cause) {
         super(message + " at offset " + offset, cause);
         this.offset = offset;
@@ -21,8 +21,8 @@ public class FactParseError extends RuntimeException {
     public boolean hasCause() {
         return getCause() != null;
     }
-    
-    
+
+
     public boolean hasOffset() {
         return offset != -1;
     }

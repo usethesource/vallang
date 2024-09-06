@@ -35,8 +35,8 @@ public final class PersistentHashMap implements IMap {
     private final AbstractTypeBag keyTypeBag;
     private final AbstractTypeBag valTypeBag;
     private final Map.Immutable<@NonNull IValue, @NonNull IValue> content;
-    
-    /* 
+
+    /*
      * Passing an pre-calulated map type is only allowed from inside this class.
      */
     protected PersistentHashMap(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag, Map.Immutable<@NonNull IValue, @NonNull IValue> content) {
@@ -45,19 +45,19 @@ public final class PersistentHashMap implements IMap {
         this.content = content;
         assert content.size() == keyTypeBag.sum();
     }
-    
+
     @Override
     public String toString() {
         return defaultToString();
     }
-    
+
     @Override
     public Type getType() {
         if (cachedMapType == null) {
             cachedMapType = TF.mapType(keyTypeBag.lub(), valTypeBag.lub());
         }
-        
-        return cachedMapType;       
+
+        return cachedMapType;
     }
 
     @Override
@@ -69,7 +69,7 @@ public final class PersistentHashMap implements IMap {
     public IMap put(IValue key, IValue value) {
         final Map.Immutable<IValue,IValue> contentNew =
                 content.__put(key, value);
-        
+
         if (content == contentNew)
             return this;
 
@@ -83,30 +83,30 @@ public final class PersistentHashMap implements IMap {
             valBagNew = valTypeBag.decrease(replaced.getType()).increase(value.getType());
         } else {
             // pair added
-            keyBagNew = keyTypeBag.increase(key.getType());         
+            keyBagNew = keyTypeBag.increase(key.getType());
             valBagNew = valTypeBag.increase(value.getType());
         }
-        
+
         return new PersistentHashMap(keyBagNew, valBagNew, contentNew);
     }
-    
+
     @Override
     public IMap removeKey(IValue key) {
         final Map.Immutable<IValue, IValue> newContent = content.__remove(key);
-        
+
         if (newContent == content) {
             return this;
         }
-        
+
         // this only happens if something has actually been removed:
         final IValue removedValue = content.get(key);
         final AbstractTypeBag newKeyBag = keyTypeBag.decrease(key.getType());
         final AbstractTypeBag newValBag = valTypeBag.decrease(removedValue.getType());
-        
+
         assert !newContent.isEmpty() || (newKeyBag.lub().isBottom() && newValBag.lub().isBottom());
         return new PersistentHashMap(newKeyBag, newValBag, newContent);
-    }   
-    
+    }
+
     @Override
     public int size() {
         return content.size();
@@ -123,7 +123,7 @@ public final class PersistentHashMap implements IMap {
     public boolean containsValue(IValue value) {
         return content.containsValue(value);
     }
-    
+
     @Override
     public IValue get(IValue key) {
         return content.get(key);
@@ -133,19 +133,19 @@ public final class PersistentHashMap implements IMap {
     public int hashCode() {
         return content.hashCode();
     }
-    
+
     @Override
     public boolean equals(@Nullable Object other) {
         if (other == this) {
             return true;
         }
-        
+
         if (other == null) {
             return false;
         }
-        
-    
-        
+
+
+
         if (other instanceof PersistentHashMap) {
             PersistentHashMap that = (PersistentHashMap) other;
 
@@ -157,19 +157,19 @@ public final class PersistentHashMap implements IMap {
 
             return content.equals(that.content);
         }
-        
+
         if (other instanceof IMap) {
-            return defaultEquals(other);    
+            return defaultEquals(other);
         }
-        
+
         return false;
     }
-    
+
     @Override
     public Iterator<IValue> iterator() {
         return content.keyIterator();
     }
-    
+
     @Override
     public Iterator<IValue> valueIterator() {
         return content.valueIterator();
@@ -224,7 +224,7 @@ public final class PersistentHashMap implements IMap {
             return IMap.super.join(other);
         }
     }
-    
+
     @Override
     public Type getElementType() {
         return keyTypeBag.lub();
@@ -244,7 +244,7 @@ public final class PersistentHashMap implements IMap {
     public Stream<IValue> stream() {
         return StreamSupport.stream(spliterator(), false).map(key -> Tuple.newTuple(key, get(key)));
     }
-    
+
     @Override
     public IRelation<IMap> asRelation() {
         throw new UnsupportedOperationException();

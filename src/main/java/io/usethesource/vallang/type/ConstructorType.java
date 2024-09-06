@@ -33,18 +33,18 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 /**
  * A tree type is a type of tree node, defined by its name, the types of
  * its children and the type it produces. Example tree types would be:
- * 
+ *
  * Address ::= dutchAddress(Street, City, Postcode)
  * Address ::= usAddress(Street, City, State, PostalCode)
- * 
+ *
  * Here Address is the AbstractDataType, the type a tree produces. dutchAddress
  * and usAddress are the names of the node types and the other capitalized names
  * are the types of the children.
- * 
+ *
  * Children types can also be named as in:
  * Boolean ::= and(Boolean lhs, Boolean rhs)
  * Boolean ::= or(Boolean lhs, Boolean rhs)
- * 
+ *
  */
 /*package*/ final class ConstructorType extends AbstractDataType {
     private final Type fChildrenTypes;
@@ -71,7 +71,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         public Type getProductionConstructorType() {
             return symbols().typeProductionConstructor("cons", symbols().symbolADT(), "def", TF.listType(symbols().symbolADT()), "symbols", TF.listType(symbols().symbolADT()), "kwTypes", tf().setType(symbols().attrADT()), "attributes");
         }
-        
+
         @Override
         public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                 Set<IConstructor> done) {
@@ -93,7 +93,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
             return cons;
         }
-        
+
         @Override
         public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
             Type adt = symbols().fromSymbol((IConstructor) symbol.get("adt"), store, grammar);
@@ -107,7 +107,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                 // TODO this should not be necessary after standardizing cons representations
                 return fromAlternativeProduction(prod, store, grammar);
             }
-            
+
             // TODO remove double field name after bootstrap
             IConstructor adt = (IConstructor)  (prod.has("def") ? prod.get("def") : prod.get("adt"));
             String name = symbols().getLabel(adt);
@@ -123,7 +123,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
             return cons;
         }
-        
+
         private Type fromAlternativeProduction(IConstructor prod, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
             IConstructor adt = (IConstructor)  prod.get("adt");
             String name = ((IString) prod.get("name")).getValue();
@@ -160,15 +160,15 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
             grammar.insert(vf.tuple(adt, cons));
         }
-        
+
         @Override
         public boolean isRecursive() {
             return true;
         }
-        
+
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-            // constructors should not be random types of values (a value never has a constructor type) 
+            // constructors should not be random types of values (a value never has a constructor type)
             return new AbstractDataType.Info(symbols()).randomInstance(next, store, rnd);
         }
     }
@@ -177,7 +177,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public TypeReifier getTypeReifier(TypeValues symbols) {
         return new Info(symbols);
     }
-    
+
     @Override
     public Type carrier() {
         return fChildrenTypes.carrier();
@@ -185,8 +185,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     public int hashCode() {
-        return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
-                181 * fChildrenTypes.hashCode() + 
+        return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) +
+                181 * fChildrenTypes.hashCode() +
                 354767453 * fADT.hashCode();
     }
 
@@ -195,7 +195,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         if (o == null) {
             return false;
         }
-        
+
         if (o.getClass().equals(getClass())) {
             ConstructorType other = (ConstructorType) o;
 
@@ -232,17 +232,17 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         for (int i = 0; i < getArity(); i++) {
             Type argType = fChildrenTypes.getFieldType(i);
             builder.append(argType);
-            
+
             if (hasNames) {
                 builder.append(' ');
-                builder.append(fChildrenTypes.getFieldName(i)); 
+                builder.append(fChildrenTypes.getFieldName(i));
             }
-            
+
             if (i < getArity() - 1) {
                 builder.append(',');
             }
         }
-        
+
         builder.append(")");
 
         return builder.toString();
@@ -412,7 +412,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public boolean isParameterized() {
         return fADT.isParameterized();
     }
-    
+
     @Override
     public boolean isConstructor() {
         return true;

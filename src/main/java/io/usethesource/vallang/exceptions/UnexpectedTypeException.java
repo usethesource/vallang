@@ -16,7 +16,7 @@ public class UnexpectedTypeException extends FactTypeUseException {
     public boolean hasExpected() {
         return expected != null;
     }
-    
+
     public Type getExpected() {
         return expected;
     }

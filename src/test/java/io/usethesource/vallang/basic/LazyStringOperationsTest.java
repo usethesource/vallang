@@ -247,7 +247,7 @@ public final class LazyStringOperationsTest {
         for (int i = 0; i < strings.length; i++) {
             buf.append(indent);
             buf.append(strings[i]);
-            
+
             if (i != strings.length - 1 || string.charAt(string.length() - 1) == '\n') {
                 buf.append('\n');
             }

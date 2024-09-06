@@ -43,7 +43,7 @@ final class MapWriter implements IMapWriter {
         final Type valType = value.getType();
 
         int oldSize = mapContent.size();
-        
+
         final IValue replaced = mapContent.__put(key, value);
 
         if (oldSize == mapContent.size() && replaced == null) {
@@ -52,10 +52,10 @@ final class MapWriter implements IMapWriter {
         else if (replaced != null) {
             // only update the val since the key was already there
             valTypeBag = valTypeBag.decrease(replaced.getType()).increase(valType);
-        } 
+        }
         else {
             // add the new entry for both bags since its entirely new
-            keyTypeBag = keyTypeBag.increase(keyType); 
+            keyTypeBag = keyTypeBag.increase(keyType);
             valTypeBag = valTypeBag.increase(valType);
         }
 
@@ -135,7 +135,7 @@ final class MapWriter implements IMapWriter {
     public Iterator<IValue> iterator() {
         return mapContent.keyIterator();
     }
-    
+
     @Override
     public IValue get(IValue key) {
         return mapContent.get(key);

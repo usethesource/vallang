@@ -53,9 +53,9 @@ import io.usethesource.vallang.type.TypeFactory;
         public IBool implies(IBool other) {
             return other;
         }
-    
+
     };
-    
+
     /*package*/ final static BoolValue FALSE = new BoolValue() {
         @Override
         public boolean getValue() {
@@ -107,7 +107,7 @@ import io.usethesource.vallang.type.TypeFactory;
     public String toString() {
         return defaultToString();
     }
-    
+
     public boolean equals(@Nullable Object o) {
         return this == o;
     }

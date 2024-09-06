@@ -38,7 +38,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
  * Users of this API will generally use the interface of @{link Type} and
  * {@link TypeFactory}, the other classes in this package are not part of the
  * interface. To construct {@link IValue}'s, use the 'make' methods of
- * 
+ *
  * @{link Type}.
  *        <p>
  *        Technical detail: since void is a sub-type of all types and alias
@@ -51,12 +51,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
  */
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected static final TypeFactory TF = TypeFactory.getInstance();
-  
+
   protected abstract TypeFactory.TypeReifier getTypeReifier(TypeValues values);
-  
+
   /**
    * Retrieve the type of elements in a set or a relation.
-   * 
+   *
    * @return type of elements
    */
   public Type getElementType() {
@@ -65,7 +65,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Retrieve the key type of a map
-   * 
+   *
    * @return key type
    */
   public Type getKeyType() {
@@ -74,7 +74,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Retrieve the value type of a map
-   * 
+   *
    * @return value type
    */
   public Type getValueType() {
@@ -83,7 +83,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Retrieve the name of a named type, a tree node type or a parameter type.
-   * 
+   *
    * @return name of the type
    */
   public String getName() {
@@ -93,7 +93,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Retrieve the type of a field of a tuple type, a relation type or a tree
    * node type.
-   * 
+   *
    * @param i
    *          index of the field to retrieve
    * @return type of the field at index i
@@ -106,13 +106,13 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * Retrieve the type of a field of a tuple type, a relation type or a tree
    * node type.
    * <p>
-   * 
+   *
    * @param fieldName
    *          label of the field to retrieve
    * @return type of the field at index i
    * @throws FactTypeUseException
    *           when the type has no field labels (tuples and relations
-   *           optionally have field labels).          
+   *           optionally have field labels).
    */
   public Type getFieldType(String fieldName) throws FactTypeUseException {
     throw new IllegalOperationException("getFieldType", this);
@@ -121,21 +121,21 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Retrieve the field types of a tree node type or a relation, represented as
    * a tuple type.
-   * 
+   *
    * @return a tuple type representing the field types
    */
   public Type getFieldTypes() {
     throw new IllegalOperationException("getFieldTypes", this);
   }
 
-  /** 
+  /**
    * Get the return type of a function type
    */
   public Type getReturnType() {
     throw new IllegalOperationException("getReturnType", this);
   }
 
-  /** 
+  /**
    * Get the keyword parameter types of a function type
    */
   public Type getKeywordParameterTypes() {
@@ -145,7 +145,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Retrieve the field name at a certain index for a tuple type, a relation
    * type or a tree node type.
-   * 
+   *
    * @param i
    *          index of the field name to retrieve
    * @return the field name at index i
@@ -160,7 +160,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Retrieve the field name at a certain index for a tuple type, a relation
    * type or a tree node type.
-   * 
+   *
    * @param i index of the field name to retrieve
    * @return the field name at the given index, optionally.
    */
@@ -175,7 +175,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Retrieve all the field names of tuple type, a relation type or a tree node
    * type.
-   * 
+   *
    * @return the field name at index i
    * @throws FactTypeUseException
    *           when this type does not have field labels. Tuples and relations
@@ -189,7 +189,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Retrieve a field index for a certain label for a tuple type, a relation
    * type or a tree node type.
-   * 
+   *
    * @param fieldName
    *          name of the field to retrieve
    * @return the index of fieldName
@@ -215,7 +215,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public boolean hasField(String fieldName, TypeStore store) {
     return hasField(fieldName);
   }
-  
+
   /**
    * @param fieldName
    *          name of the keyword field to check for
@@ -228,19 +228,19 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Retrieve the width, a.k.a. arity, of a tuple, a relation or a tree node
    * type.
-   * 
+   *
    * @return the arity
    */
   public int getArity() {
     throw new IllegalOperationException("getArity", this);
   }
-  
+
   /**
    * Represent this type as a value of the abstract data-type "Symbol". As a side-effect
    * it will also add Production values to the grammar map, including all necessary productions
    * to build values of the receiver type, transitively.
-   * 
-   * @param  vf valuefactory to use 
+   *
+   * @param  vf valuefactory to use
    * @param store store to lookup additional necessary definitions in to store in the grammar
    * @param grammar map to store production values in as a side-effect
    * @param done a working set to store data-types which have been explored already to avoid infinite recursion
@@ -253,8 +253,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Map the given typestore to a set of production values, with only definitions
    * reachable from the receiver type
-   * 
-   * @param  vf valuefactory to use 
+   *
+   * @param  vf valuefactory to use
    * @param  store typestore which contains source definitions
    * @param done a working set to store data-types which have been explored already to avoid infinite recursion
    */
@@ -262,10 +262,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
       getTypeReifier(TF.cachedTypeValues()).asProductions(this, vf, store, grammar, done);
   }
 
-  
+
   /**
    * Compose two binary tuples or binary relation types.
-   * 
+   *
    * @param other
    * @return a new type that represent the composition
    * @throws IllegalOperationException
@@ -279,7 +279,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * For relation types rel[t_1,t_2] this will compute rel[t_3,t_3] where t_3 =
    * t_1.lub(t_2).
-   * 
+   *
    * @return rel[t_3,t_3]
    * @throws IllegalOperationException
    *           when this is not a binary relation or t_1 is not comparable to
@@ -293,7 +293,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * Computes the least upper bound of all elements of this type and returns a
    * set of this type. Works on all types that have elements/fields or children
    * such as tuples, relations, sets and constructors.
-   * 
+   *
    * @return a set[lub].
    */
   public Type carrier() {
@@ -309,7 +309,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Select fields from tuples and relation
-   * 
+   *
    * @param fields
    * @return a new tuple or relation type with the selected fields
    */
@@ -320,7 +320,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Select fields from tuples and relation
-   * 
+   *
    * @param fields
    * @return a new tuple or relation type with the selected fields
    */
@@ -330,7 +330,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * For a constructor, return the algebraic data-type it constructs
-   * 
+   *
    * @return a type
    */
   public Type getAbstractDataType() {
@@ -339,7 +339,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * For an alias type, return which type it aliases.
-   * 
+   *
    * @return a type
    */
   public Type getAliased() {
@@ -348,7 +348,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * For a parameter type, return its bound
-   * 
+   *
    * @return a type
    */
   public Type getBound() {
@@ -358,7 +358,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * For a tuple type or a relation type, determine whether the fields are
    * labelled or not.
-   * 
+   *
    * @return if the fields of a type or relation have been labelled
    */
   @Pure
@@ -367,7 +367,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
 
   /**
-   * For function types, return whether or not it has 
+   * For function types, return whether or not it has
    * keyword parameters
    */
   @Pure
@@ -378,11 +378,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     public @Nullable Type getKeywordParameterType(String label) {
     throw new IllegalOperationException("getKeywordParameterType", this);
     }
-    
+
     public boolean hasKeywordParameter(String label) {
       throw new IllegalOperationException("hasKeywordParameter", this);
   }
-  
+
   public String getKeyLabel() {
     throw new IllegalOperationException("getKeyLabel", this);
   }
@@ -392,16 +392,16 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
 
   /**
-   * Returns the smallest non-strict supertype of two types, which contains all values of 
+   * Returns the smallest non-strict supertype of two types, which contains all values of
    * the receiver as well as the argument type. Lub can be seen as `type union`, but
    * not all unions have a representation in the type lattice; so the smallest set which
    * contains the whole union must be returned (which does have a representation).
-   * 
-   * Consider for example `int.lub(str)`; the smallest union that contains both in 
+   *
+   * Consider for example `int.lub(str)`; the smallest union that contains both in
    * the vallang type lattica is `value`, even though we by-catch all other values now
    * as well. Other lubs are more tight: `tuple[int,num].lub(tuple[num,int]])` is
    * `tuple[num,num]`.
-   * 
+   *
    * @return the least upper bound type of the receiver and the argument type.
    */
   public abstract Type lub(Type type);
@@ -411,24 +411,24 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * of both types. Glb is the dual of `lub`. Glb can be seen as "type intersection", but
    * not all intersections have a representation in the vallang type lattice; so the largest
    * set which contains the intersection must be returned (which does have a representation)
-   * 
+   *
    * The glb is commonly `void` for non-comparable types, say for example
    * @param type
    * @return
    */
   public abstract Type glb(Type type);
-  
+
   /**
    * The sub-type relation. Value is the biggest type and void is the smallest.
    * Value is the top and void is the bottom of the type hierarchy.
-   * 
+   *
    * @param other
    * @return true if the receiver is a subtype of the other type
    */
   public final boolean isSubtypeOf(Type other) {
     return other == this || other.isSupertypeOf(this);
   }
-  
+
   public final boolean isStrictSubtypeOf(Type other) {
     return (!other.equivalent(this)) && other.isSupertypeOf(this);
   }
@@ -437,71 +437,71 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Return whether an ADT or an alias Type has any type parameters
-   * 
+   *
    * @return true if the type is parameterized
    */
   public boolean isParameterized() {
     return false;
   }
-  
+
   /**
-   * @return true iff the type contains any uninstantiated type parameters 
+   * @return true iff the type contains any uninstantiated type parameters
    */
   public boolean isOpen() {
     return false;
   }
-  
+
   /**
    * @return true iff the type is an alias
    */
   public boolean isAliased() {
     return false;
   }
-  
+
   public boolean isSet() {
     return false;
   }
-  
+
   public boolean isList() {
     return false;
   }
-  
+
   public boolean isMap() {
     return false;
   }
-  
+
   public boolean isBool() {
     return false;
   }
-  
+
   public boolean isRelation() {
     return false;
   }
-  
+
   public boolean isListRelation() {
     return false;
   }
-  
+
   public boolean isInteger() {
     return false;
   }
-  
+
   public boolean isReal() {
     return false;
   }
-  
+
   public boolean isRational() {
     return false;
   }
-  
+
   public  boolean isNumber() {
     return false;
   }
-  
+
   public  boolean isTop() {
     return false;
   }
-  
+
   public  boolean isBottom() {
     return false;
   }
@@ -509,35 +509,35 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public boolean isParameter() {
     return false;
   }
-  
+
   public  boolean isNode() {
       return false;
   }
-  
+
   public boolean isAbstractData() {
     return false;
   }
-  
+
   public  boolean isConstructor() {
       return false;
   }
-  
+
   public  boolean isString() {
       return false;
   }
-  
+
   public  boolean isSourceLocation() {
     return false;
   }
-  
+
   public  boolean isDateTime() {
       return false;
   }
-  
+
   public  boolean isTuple() {
       return false;
   }
-  
+
   public boolean isFunction() {
     return false;
   }
@@ -545,7 +545,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public boolean isExternalType() {
     return false;
   }
-  
+
   /**
    * @return true iff type is a tuple
    */
@@ -555,7 +555,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Compute whether this type is a subtype of the other or vice versa.
-   * 
+   *
    * @param other
    *          type to compare to
    * @return true if the types are comparable.
@@ -563,24 +563,24 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public final boolean comparable(Type other) {
     return (other == this) || isSubtypeOf(other) || other.isSubtypeOf(this);
   }
-  
+
   /**
    * Compute whether these types have a non-empty intersection.
-   * 
+   *
    * All types which are `comparable` have a non-empty intersection,
-   * but there are some more. For example `tuple[int, value]` and 
+   * but there are some more. For example `tuple[int, value]` and
    * `tuple[value,int]` intersect at `tuple[int, int]`.
-   * 
-   * If the `glb` of two types is not `void` then they have a non-empty 
+   *
+   * If the `glb` of two types is not `void` then they have a non-empty
    * intersection.
-   * 
+   *
    * Another example is `lrel[int, int]` and `list[tuple[int,int]]`;
-   * their `glb` is `list[void]` and its only element is `[]` 
+   * their `glb` is `list[void]` and its only element is `[]`
    * -the empty list- so indeed their intersection is non-empty.
-   * 
-   * Another way of explaining `t.intersects(u)` is as a fast check of: 
-   * `t.glb(u) != void` without memory allocation.  
-   * 
+   *
+   * Another way of explaining `t.intersects(u)` is as a fast check of:
+   * `t.glb(u) != void` without memory allocation.
+   *
    * @param other type to intersect with.
    * @return true iff these two types share values.
    */
@@ -588,7 +588,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Computer whether this type is equivalent to another.
-   * 
+   *
    * @param other
    *          type to compare to
    * @return true if the two types are sub-types of each-other;
@@ -600,7 +600,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * If this type has parameters and there are parameter types embedded in it,
    * instantiate will replace the parameter types using the given bindings.
-   * 
+   *
    * @param bindings
    *          a map from parameter type names to actual types.
    * @return a type with all parameter types substituted.
@@ -612,7 +612,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Construct a map of parameter type names to actual type names. The receiver
    * is a pattern that may contain parameter types.
-   * 
+   *
    * @param matched
    *          a type to matched to the receiver.
    * @throws FactTypeUseException
@@ -628,7 +628,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * For alias types and adt types return which type parameters there are.
-   * 
+   *
    * @return void if there are no type parameters, or a tuple of type parameters
    *         otherwise.
    */
@@ -638,14 +638,14 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   /**
    * Compare against another type.
-   * 
+   *
    * A type is 'less' than another if it is a subtype, 'greater' if the other is
    * a subtype, or 'equal' if both are subtypes of each other.
-   * 
+   *
    * Note: this class has a natural ordering that is inconsistent with equals.
    * equals() on types is exact equality, which may be different from
    * compareTo(o) == 0
-   * 
+   *
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
   public int compareTo(Type o) {
@@ -660,11 +660,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   protected boolean isSubtypeOfParameter(Type type) {
     return isSubtypeOf(type.getBound());
   }
-  
+
   protected final boolean isSubtypeOfAlias(Type type) {
     return isSubtypeOf(type.getAliased());
   }
-  
+
   /**
    * Instantiate a tuple but do not reduce to void like TupleType.instantiate would
    * if one of the parameters was substituted by void. This is needed for other types
@@ -698,7 +698,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected boolean isSubtypeOfBool(Type type);
   abstract protected boolean isSubtypeOfExternal(Type type);
   abstract protected boolean isSubtypeOfDateTime(Type type);
-  
+
   abstract protected boolean intersectsWithReal(Type type);
   abstract protected boolean intersectsWithInteger(Type type);
   abstract protected boolean intersectsWithRational(Type type);
@@ -721,19 +721,19 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
       return type.intersects(this);
   }
   abstract protected boolean intersectsWithDateTime(Type type);
-  
+
   protected Type lubWithAlias(Type type) {
     return lub(type.getAliased());
   }
-  
+
   protected Type lubWithParameter(Type type) {
       if (type == this) {
           return this;
       }
-      
+
       return lub(type.getBound());
   }
-  
+
   abstract protected Type lubWithReal(Type type) ;
   abstract protected Type lubWithInteger(Type type) ;
   abstract protected Type lubWithRational(Type type) ;
@@ -752,19 +752,19 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type lubWithVoid(Type type) ;
   abstract protected Type lubWithBool(Type type) ;
   abstract protected Type lubWithDateTime(Type type) ;
-  
+
   protected Type glbWithAlias(Type type) {
     return glb(type.getAliased());
   }
-  
+
   protected Type glbWithParameter(Type type) {
       if (type == this) {
           return this;
       }
-      
+
       return glb(type.getBound());
   }
-  
+
   abstract protected Type glbWithReal(Type type) ;
   abstract protected Type glbWithInteger(Type type) ;
   abstract protected Type glbWithRational(Type type) ;
@@ -783,7 +783,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type glbWithVoid(Type type) ;
   abstract protected Type glbWithBool(Type type) ;
   abstract protected Type glbWithDateTime(Type type) ;
-  
+
   /**
    * This makes sure that lubbing can be done by the external type whether
    * or not it is the initial receiver or the second parameter to lub.
@@ -792,7 +792,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     // the external type should be the receiver
     return lub(type);
   }
-  
+
   protected Type glbWithExternal(Type type) {
     // the external type should be the receiver
     return glb(type);
@@ -801,7 +801,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * Generate a random value which is guaranteed to have a type that is
    * a (non-strict) sub-type of the receiver.
-   * 
+   *
    * @param random         pass in reused Random instance for better random uniformity between calls to this method.
    * @param vf             IValueFactory to use when building values
    * @param store          TypeStore to lookup constructors and fields in

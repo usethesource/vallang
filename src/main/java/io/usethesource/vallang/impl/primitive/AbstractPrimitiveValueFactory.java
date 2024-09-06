@@ -186,7 +186,7 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
     public IDateTime datetime(long instant) {
         return DateTimeValues.newDateTime(instant);
     }
-    
+
     @Override
     public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes) {
         return DateTimeValues.newDateTime(instant, timezoneHours, timezoneMinutes);
@@ -196,10 +196,10 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
     public ISourceLocation sourceLocation(URI uri, int offset, int length) {
         return sourceLocation(sourceLocation(uri), offset, length);
     }
-    
+
     @Override
     public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length) {
-        return SourceLocationValues.newSourceLocation(loc, offset, length); 
+        return SourceLocationValues.newSourceLocation(loc, offset, length);
     }
 
     @Override
@@ -220,7 +220,7 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
     public ISourceLocation sourceLocation(URI uri) {
         try {
             return SourceLocationValues.newSourceLocation(uri);
-        } 
+        }
         catch (URISyntaxException e) {
             throw new RuntimeException("An URI should always be a correct URI", e);
         }
@@ -236,12 +236,12 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
             throw new RuntimeException("Paths should not cause a incorrect syntax exception", e);
         }
     }
-    
+
     @Override
     public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException {
         return sourceLocation(scheme, authority, path, null, null);
     }
-    
+
     @Override
     public ISourceLocation sourceLocation(String scheme, String authority,
             String path, @Nullable String query, @Nullable String fragment) throws URISyntaxException {

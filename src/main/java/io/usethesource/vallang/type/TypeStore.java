@@ -6,7 +6,7 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Jurgen Vinju  (jurgen@vinju.org)       
+*    Jurgen Vinju  (jurgen@vinju.org)
 *******************************************************************************/
 
 package io.usethesource.vallang.type;
@@ -34,8 +34,8 @@ import io.usethesource.vallang.exceptions.RedeclaredKeywordParameterException;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 
 /**
- * This class manages type declarations. It stores declarations of keyword fields, 
- * type aliases and abstract data-type constructors. 
+ * This class manages type declarations. It stores declarations of keyword fields,
+ * type aliases and abstract data-type constructors.
  * TypeStores can import others, but the imports are not transitive.
  * Cyclic imports are allowed.
  * <p>
@@ -49,7 +49,7 @@ public class TypeStore {
     private final Map<Type, Set<Type>> fConstructors = new HashMap<>();
     private final Map<Type, Map<String, Type>> fkeywordParameters = new HashMap<>();
     private final Set<TypeStore> fImports = new HashSet<>();
-    
+
     /*
      * The ADTs for which overloading checking is turned off
      * (they play a role in the Rascal bootstrap procedure)
@@ -66,7 +66,7 @@ public class TypeStore {
           fImports.add(s);
         }
     }
-    
+
     @Override
     public String toString() {
         return "TypeStore(adts=" + fADTs.size() + ",imports=" + fImports.size() + ")";
@@ -91,7 +91,7 @@ public class TypeStore {
     /**
      * Retrieves all keyword parameters declared in this TypeStore. Note that it does
      * not return the keyword parameters of imported TypeStores.
-     * 
+     *
      * @return a map of types for which keyword parameters are declared to a map of names of these
      * keyword parameters to the types of the values that give access to these keyword parameters.
      */
@@ -126,7 +126,7 @@ public class TypeStore {
     /**
      * Add other stores to the set of imported stores.
      * Note that imports are not transitive.
-     * 
+     *
      * @param stores
      */
     public void importStore(TypeStore... stores) {
@@ -140,7 +140,7 @@ public class TypeStore {
     /**
      * Removes a number of stores from the imported stores. The stores to be removed must be reference-equal to some of
      * the stores imported by the receiver.
-     * 
+     *
      * @param stores to be removed
      */
     public final void unimportStores(TypeStore... stores) {
@@ -201,7 +201,7 @@ public class TypeStore {
           if (signature2 == null || signature1 == null) {
               continue; // nothing to check
           }
-          
+
           for (Type alt : signature2) {
             Type children = alt.getFieldTypes();
             checkOverloading(signature1, alt.getName(), children);
@@ -237,10 +237,10 @@ public class TypeStore {
       return factory;
     }
 
-    /** 
-     * Declare an alias type. The alias may be parameterized to make an abstract alias. 
+    /**
+     * Declare an alias type. The alias may be parameterized to make an abstract alias.
      * Each ParameterType embedded in the aliased type should occur in the list of parameters.
-     * 
+     *
      * @param alias the alias to declare in this store
      * @throws FactTypeRedeclaredException
      */
@@ -272,7 +272,7 @@ public class TypeStore {
      * Declare a @{link AbstractDataType}, which is a kind of tree node. Each kind of tree node
      * may have different alternatives, which are ConstructorTypes. A @{link ConstructorType} is always a
      * sub-type of a AbstractDataType. A AbstractDataType is always a sub type of value.
-     * 
+     *
      * @param adt the abstract data-type to declare in this store
      * @throws FactTypeRedeclaredException
      */
@@ -310,9 +310,9 @@ public class TypeStore {
     /**
      * Declare a new constructor type. A constructor type extends an abstract data type such
      * that it represents more values.
-     * 
+     *
      * @param constructor a constructor type
-     * @throws UndeclaredAbstractDataTypeException, RedeclaredFieldNameException, RedeclaredConstructorException 
+     * @throws UndeclaredAbstractDataTypeException, RedeclaredFieldNameException, RedeclaredConstructorException
      */
     public void declareConstructor(Type constructor) throws FactTypeDeclarationException {
       synchronized (fADTs) {
@@ -328,7 +328,7 @@ public class TypeStore {
           if (signature == null) {
             throw new UndeclaredAbstractDataTypeException(adt);
           }
-          
+
           Type constructor1 = expandAliases(constructor);
           if(!constructor.equals(constructor1)){
               constructor = constructor1;
@@ -422,7 +422,7 @@ public class TypeStore {
 
     /**
      * Returns all alternative ways of constructing a certain abstract data type.
-     * 
+     *
      * @param adt
      * @return all types that construct the given type
      */
@@ -495,9 +495,9 @@ public class TypeStore {
     }
 
     /**
-     * Lookup a ConstructorType by name, across all AbstractDataTypes and for 
+     * Lookup a ConstructorType by name, across all AbstractDataTypes and for
      * a certain list of argument types.
-     * 
+     *
      * @param constructorName  the name of the ConstructorType
      * @param args a tuple type defining the arguments of the constructor
      * @return the first constructor that matches
@@ -534,7 +534,7 @@ public class TypeStore {
     /**
      * Lookup a ConstructorType by name, and in the context of a certain AbstractDataType
      * for a specific list of argument types.
-     * 
+     *
      * @param adt             the AbstractDataType context
      * @param constructorName  the name of the ConstructorType
      * @return a ConstructorType if it was declared before
@@ -554,10 +554,10 @@ public class TypeStore {
       return null;
     }
 
-    /** 
-     * Retrieve all tree node types for a given constructor name, 
-     * regardless of abstract data-type. 
-     * 
+    /**
+     * Retrieve all tree node types for a given constructor name,
+     * regardless of abstract data-type.
+     *
      * @param constructName the name of the tree node
      */
     public Set<Type> lookupConstructors(String constructorName) {
@@ -622,9 +622,9 @@ public class TypeStore {
     /**
      * Declare that certain  constructor types may have an keyword parameter with a certain
      * label. The keyword parameter with that label will have a specific type. Note that we
-     * do not store keyword parameters directly inside the constructor type because keyword 
+     * do not store keyword parameters directly inside the constructor type because keyword
      * parameter can be added externally and constructor types are final (like all other types).
-     * 
+     *
      * @param onType the constructor type of values that carry this keyword parameter
      * @param key    the label of the keyword parameter
      * @param valueType the type of values that represent the keyword parameter
@@ -635,7 +635,7 @@ public class TypeStore {
       if (!onType.isConstructor() && !onType.isAbstractData()) {
         throw new IllegalKeywordParameterDeclarationException(onType);
       }
-      
+
       onType = expandAliases(onType);
 
       synchronized (fkeywordParameters) {
@@ -654,17 +654,17 @@ public class TypeStore {
 
         if (!declaredEarlier.containsKey(key)) {
           kwParamsForType.put(key, valueType);
-        } 
+        }
         else if (!declaredEarlier.get(key).equivalent(valueType)) {
           throw new RedeclaredKeywordParameterException(key, declaredEarlier.get(key));
         }
         // otherwise its a safe re-declaration and we do nothing
       }
     }
-    
+
     // TODO: aliases are right now only expanded in declareConstructor, but this should also be done
     // in at least declareAlias, declareAnnotation and declareKeywordParameters.
-    
+
     @Deprecated
     /**
      * Aliases are deprecated. When we remove this, everything becomes faster.
@@ -673,7 +673,7 @@ public class TypeStore {
     private Type expandAliases(Type type) {
         return expandAliases1(type, new HashSet<String>());
     }
-    
+
     private Type expandAliases1 (Type type, Set<String> seen){
          return type.accept(new ITypeVisitor<Type,RuntimeException>() {
 
@@ -731,7 +731,7 @@ public class TypeStore {
             public Type visitString(Type type) throws RuntimeException {
                 return type;
             }
-        
+
             @Override
             public Type visitNode(Type type) throws RuntimeException {
                 return type;
@@ -739,9 +739,9 @@ public class TypeStore {
 
             @Override
             public Type visitConstructor(Type type) throws RuntimeException {
-                // TODO: this cache is nasty coupling with TypeFactory, but we 
+                // TODO: this cache is nasty coupling with TypeFactory, but we
                 // can not call factory.constructor directly because that would produce
-                // an infinite recursion. 
+                // an infinite recursion.
                 return factory.getFromCache(new ConstructorType(type.getName(), expandAliases1(type.getFieldTypes(), seen), type.getAbstractDataType()));
             }
 
@@ -752,7 +752,7 @@ public class TypeStore {
 
             @Override
             public Type visitFunction(Type type) throws RuntimeException {
-            // this call to getFromCache is nasty coupling with TypeFactory, but we 
+            // this call to getFromCache is nasty coupling with TypeFactory, but we
             // can not call factory.constructor directly because that would produce
             // an infinite recursion.
                 return factory.getFromCache(new FunctionType(expandAliases1(type.getReturnType(), seen), (TupleType) expandAliases1(type.getFieldTypes(), seen), (TupleType) expandAliases1(type.getKeywordParameterTypes(), seen)));
@@ -772,12 +772,12 @@ public class TypeStore {
                         AliasType alias = (AliasType) fieldType;
                         fieldType = alias.getAliased();
                     }
-                    
+
                     Type newFieldType = expandAliases1(fieldType, seen);
                     aliasFound |= newFieldType != fieldType;
                     fieldTypes[i] = newFieldType;
                 }
-                
+
                 if (aliasFound){
                     return type.hasFieldNames() ? factory.tupleType(fieldTypes, type.getFieldNames()) : factory.tupleType(fieldTypes);
                 }
@@ -815,14 +815,14 @@ public class TypeStore {
             public Type visitDateTime(Type type) throws RuntimeException {
                 return type;
             }
-             
+
          });
     }
-    
+
     /**
      * Locates all declared keyword parameters for a constructor.
-     * 
-     * @param onType 
+     *
+     * @param onType
      * @return a map of all keyword parameters declared for the onType constructor
      */
     public Map<String, Type> getKeywordParameters(Type onType) {
@@ -831,16 +831,16 @@ public class TypeStore {
       }
 
       onType = expandAliases(onType);
-      
+
       synchronized(fkeywordParameters) {
         synchronized (fImports) {
           Map<String, Type> result = new HashMap<>();
 
           Map<String, Type> local = fkeywordParameters.get(onType);
           if (local != null) {
-              result.putAll(local); 
+              result.putAll(local);
           }
-          
+
           if (onType.isConstructor()) {
               local = fkeywordParameters.get(onType.getAbstractDataType());
               if (local != null) {
@@ -856,7 +856,7 @@ public class TypeStore {
               if (here != null) {
                   result.putAll(here);
               }
-              
+
               if (onType.isConstructor()) {
                   here = s.fkeywordParameters.get(onType.getAbstractDataType());
                   if (here != null) {
@@ -871,7 +871,7 @@ public class TypeStore {
     }
 
     /**
-     * Retrieve the type of values that are declared to be valid for a certain kind of 
+     * Retrieve the type of values that are declared to be valid for a certain kind of
      * keyword parameters on certain kinds of values
      * @param onType the constructor type that this keyword parameters can be found on
      * @param key    the label of the parameter to find the corresponding type of
@@ -882,7 +882,7 @@ public class TypeStore {
         Map<String, Type> kwParamsFor = getKeywordParameters(onType);
         return kwParamsFor != null ? kwParamsFor.get(key) : null;
     }
-    
+
     public boolean hasKeywordParameters(Type onType) {
         if (!onType.isConstructor()) {
             return false;
@@ -892,14 +892,14 @@ public class TypeStore {
             synchronized (fImports) {
                 Map<String, Type> local = fkeywordParameters.get(onType);
                 if (local != null && local.size() > 0) {
-                    return true; 
+                    return true;
                 }
 
                 for (TypeStore s : fImports) {
                     if (s.fkeywordParameters == null) {
                         continue;
                     }
-                    
+
                     Map<String, Type> here = s.fkeywordParameters.get(onType);
                     if (here != null && here.size() > 0) {
                         return true;
@@ -910,12 +910,12 @@ public class TypeStore {
             }
         }
     }
-    
+
     public boolean hasKeywordParameter(Type onType, String label) {
         if (!onType.isConstructor()) {
             return false;
         }
-        
+
         onType = expandAliases(onType);
 
         synchronized(fkeywordParameters) {
@@ -924,22 +924,22 @@ public class TypeStore {
                 if (local != null && local.containsKey(label)) {
                     return true;
                 }
-                
+
                 local = fkeywordParameters.get(onType.getAbstractDataType());
                 if (local != null && local.containsKey(label)) {
                     return true;
                 }
-                
+
                 for (TypeStore s : fImports) {
                     if (s.fkeywordParameters == null) {
                         continue;
                     }
-                    
+
                     Map<String, Type> here = s.fkeywordParameters.get(onType);
                     if (here != null && here.containsKey(label)) {
                         return true;
                     }
-                    
+
                     here = s.fkeywordParameters.get(onType.getAbstractDataType());
                     if (here != null && here.containsKey(label)) {
                         return true;

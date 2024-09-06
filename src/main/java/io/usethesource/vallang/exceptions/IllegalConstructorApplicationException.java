@@ -9,5 +9,5 @@ public class IllegalConstructorApplicationException extends FactTypeUseException
         super("Constructor " + constructorType + " is not applicable to " + arguments);
     }
 
-    
+
 }

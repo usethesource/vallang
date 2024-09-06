@@ -68,7 +68,7 @@ public class Constructor extends Node implements IConstructor {
         }
 
         return fType;
-    } 
+    }
 
     public IValue get(String label) {
         return super.get(fType.getFieldIndex(label));
@@ -111,7 +111,7 @@ public class Constructor extends Node implements IConstructor {
             Constructor other = (Constructor) obj;
             return fType == other.fType && super.equals(obj);
         }
-        
+
         return false;
     }
 

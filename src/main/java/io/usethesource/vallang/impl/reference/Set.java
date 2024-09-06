@@ -40,17 +40,17 @@ import io.usethesource.vallang.type.Type;
     public Type getType() {
         return type;
     }
-    
+
     @Override
     public boolean contains(IValue e) {
         return content.contains(e);
     }
-    
+
     @Override
     public ISetWriter writer() {
         return ValueFactory.getInstance().setWriter();
     }
-    
+
     @Override
     public boolean isEmpty() {
         return content.isEmpty();
@@ -73,7 +73,7 @@ import io.usethesource.vallang.type.Type;
         }
         return defaultEquals(other);
     }
-    
+
     @Override
     public String toString() {
         return defaultToString();
