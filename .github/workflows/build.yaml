@@ -25,6 +25,30 @@ jobs:
         name: Event File
         path: ${{ github.event_path }}
 
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }} # run it on the PR, not on the merged commit, for better line numbers
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Run checkstyle and print errors
+        run: mvn -B checkstyle:checkstyle checkstyle:check
+      - name: Report build results
+        uses: gmazzo/publish-report-annotations@v1 # target latest major
+        if: ${{ !cancelled() }}
+        with:
+          testsSummary: off
+          reports: "target/checkstyle-result.xml"
+
+
+
   test:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     strategy:
@@ -39,7 +63,7 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
-      
+
       - name: test
         run: mvn -B clean test
 
@@ -49,7 +73,7 @@ jobs:
         with:
           name: Unit Test Results (${{ matrix.os }})
           path: target/surefire-reports/**/*.xml
-        
+
   checker-framework:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     runs-on: ubuntu-latest
