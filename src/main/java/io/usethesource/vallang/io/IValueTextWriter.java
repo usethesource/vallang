@@ -30,7 +30,7 @@ public interface IValueTextWriter {
      * @param writer the writer to output character to
      * @throws IOException in case the writer does
      */
-     void write(IValue value, Writer writer) throws IOException;
+    void write(IValue value, Writer writer) throws IOException;
 
      /**
       * Serialize a value using the given writer
@@ -38,5 +38,5 @@ public interface IValueTextWriter {
       * @param writer the writer to output character to
       * @throws IOException in case the writer does
       */
-     void write(IValue value, Writer writer, TypeStore typeStore) throws IOException;
+    void write(IValue value, Writer writer, TypeStore typeStore) throws IOException;
 }

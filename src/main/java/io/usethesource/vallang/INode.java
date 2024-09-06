@@ -180,17 +180,17 @@ public interface INode extends IValue, Iterable<IValue> {
 
     @Override
     public default boolean mayHaveKeywordParameters() {
-      return true;
+        return true;
     }
 
     @Override
     public default IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-      return new AbstractDefaultWithKeywordParameters<INode>(this, AbstractSpecialisedImmutableMap.<String, IValue>mapOf()) {
-        @Override
-        protected INode wrap(INode content, Map.Immutable<String, IValue> parameters) {
-          return new NodeWithKeywordParametersFacade(content, parameters);
-        }
-    };
+        return new AbstractDefaultWithKeywordParameters<INode>(this, AbstractSpecialisedImmutableMap.<String, IValue>mapOf()) {
+            @Override
+            protected INode wrap(INode content, Map.Immutable<String, IValue> parameters) {
+                return new NodeWithKeywordParametersFacade(content, parameters);
+            }
+        };
     }
 
     @Override

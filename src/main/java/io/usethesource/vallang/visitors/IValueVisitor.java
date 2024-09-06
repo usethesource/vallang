@@ -29,18 +29,18 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 
 public interface IValueVisitor<R extends @Nullable Object, E extends Throwable>  {
-   public R visitString(IString o) throws E;
-   public R visitReal(IReal o) throws E;
-   public R visitRational(IRational o) throws E;
-   public R visitList(IList o) throws E;
-   public R visitSet(ISet o) throws E;
-   public R visitSourceLocation(ISourceLocation o) throws E;
-   public R visitTuple(ITuple o) throws E;
-   public R visitNode(INode o) throws E;
-   public R visitConstructor(IConstructor o) throws E;
-   public R visitInteger(IInteger o) throws E;
-   public R visitMap(IMap o) throws E;
-   public R visitBoolean(IBool boolValue) throws E;
-   public R visitExternal(IExternalValue externalValue) throws E;
-   public R visitDateTime(IDateTime o) throws E;
+    public R visitString(IString o) throws E;
+    public R visitReal(IReal o) throws E;
+    public R visitRational(IRational o) throws E;
+    public R visitList(IList o) throws E;
+    public R visitSet(ISet o) throws E;
+    public R visitSourceLocation(ISourceLocation o) throws E;
+    public R visitTuple(ITuple o) throws E;
+    public R visitNode(INode o) throws E;
+    public R visitConstructor(IConstructor o) throws E;
+    public R visitInteger(IInteger o) throws E;
+    public R visitMap(IMap o) throws E;
+    public R visitBoolean(IBool boolValue) throws E;
+    public R visitExternal(IExternalValue externalValue) throws E;
+    public R visitDateTime(IDateTime o) throws E;
 }

@@ -214,7 +214,7 @@ public final class LazyStringOperationsTest {
                 // yes, that is what is expected
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-               fail("unexpected IO:" + e);
+                fail("unexpected IO:" + e);
             }
         } finally {
             StringValue.resetMaxFlatString();

@@ -104,4 +104,4 @@ public class IMapTests {
         assertTrue(copy.getKeyType() == tf.voidType());
         assertTrue(copy.getValueType() == tf.voidType());
     }
- }
+}

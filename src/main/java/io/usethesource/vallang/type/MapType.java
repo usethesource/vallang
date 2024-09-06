@@ -154,13 +154,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     public Type carrier() {
-      TypeFactory tf = TypeFactory.getInstance();
-      return tf.setType(fKeyType.lub(fValueType));
+        TypeFactory tf = TypeFactory.getInstance();
+        return tf.setType(fKeyType.lub(fValueType));
     }
 
     @Override
     public int hashCode() {
-      return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode();
+        return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode();
     }
 
     @Override
@@ -188,7 +188,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-      return visitor.visitMap(this);
+        return visitor.visitMap(this);
     }
 
     @Override
@@ -204,49 +204,49 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     protected boolean isSupertypeOf(Type type) {
-      return type.isSubtypeOfMap(this);
+        return type.isSubtypeOfMap(this);
     }
 
     @Override
     public Type lub(Type other) {
-      return other.lubWithMap(this);
+        return other.lubWithMap(this);
     }
 
     @Override
     public Type glb(Type type) {
-      return type.glbWithMap(this);
+        return type.glbWithMap(this);
     }
 
     @Override
     protected boolean isSubtypeOfMap(Type type) {
-      return fKeyType.isSubtypeOf(type.getKeyType())
-          && fValueType.isSubtypeOf(type.getValueType());
+        return fKeyType.isSubtypeOf(type.getKeyType())
+            && fValueType.isSubtypeOf(type.getValueType());
     }
 
     @Override
     protected Type lubWithMap(Type type) {
-      return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().lub(type.getFieldTypes()));
+        return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().lub(type.getFieldTypes()));
     }
 
     @Override
     protected Type glbWithMap(Type type) {
-      return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().glb(type.getFieldTypes()));
+        return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().glb(type.getFieldTypes()));
     }
 
     @Override
     public boolean isOpen() {
-      return fKeyType.isOpen() || fValueType.isOpen();
+        return fKeyType.isOpen() || fValueType.isOpen();
     }
 
     @Override
-    public boolean match(Type matched, Map<Type, Type> bindings)throws FactTypeUseException {
+    public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
         if (!super.match(matched, bindings)) {
-          return false;
+            return false;
         }
 
-        if (matched.isMap() || (matched.isAliased() && matched.getAliased().isMap()) ||  matched.isBottom()) {
-                  return getKeyType().match(matched.getKeyType(), bindings)
-          && getValueType().match(matched.getValueType(), bindings);
+        if (matched.isMap() || (matched.isAliased() && matched.getAliased().isMap()) || matched.isBottom()) {
+            return getKeyType().match(matched.getKeyType(), bindings)
+                && getValueType().match(matched.getValueType(), bindings);
         }
 
         return true;
@@ -254,7 +254,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     public Type instantiate(Map<Type, Type> bindings) {
-        return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
+        return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings),
+            getValueType().instantiate(bindings));
     }
 
     @Override

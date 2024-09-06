@@ -298,7 +298,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     }
     @Override
     protected boolean intersectsWithValue(Type type) {
-       return true;
+        return true;
     }
 
     @Override

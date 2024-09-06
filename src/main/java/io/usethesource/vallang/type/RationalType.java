@@ -67,8 +67,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
      */
     @Override
     public boolean equals(@Nullable Object obj) {
-    return obj == RationalType.getInstance();
-}
+        return obj == RationalType.getInstance();
+    }
 
     @Override
     public int hashCode() {

@@ -38,10 +38,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public static class Info extends TypeFactory.TypeReifier {
 
         public Info(TypeValues symbols) {
-        super(symbols);
-      }
+            super(symbols);
+        }
 
-    @Override
+        @Override
         public Type getSymbolConstructorType() {
             return symbols().typeSymbolConstructor("str");
         }
@@ -68,8 +68,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
      */
     @Override
     public boolean equals(@Nullable Object obj) {
-    return obj == StringType.getInstance();
-}
+        return obj == StringType.getInstance();
+    }
 
     @Override
     public int hashCode() {
@@ -88,17 +88,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected boolean isSupertypeOf(Type type) {
-      return type.isSubtypeOfString(this);
+        return type.isSubtypeOfString(this);
     }
 
     @Override
     public Type lub(Type other) {
-      return other.lubWithString(this);
+        return other.lubWithString(this);
     }
 
     @Override
     public Type glb(Type type) {
-      return type.glbWithString(this);
+        return type.glbWithString(this);
     }
 
     @Override
@@ -113,17 +113,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected boolean isSubtypeOfString(Type type) {
-      return true;
+        return true;
     }
 
     @Override
     protected Type lubWithString(Type type) {
-      return this;
+        return this;
     }
 
     @Override
     protected Type glbWithString(Type type) {
-      return this;
+        return this;
     }
 
     @Override

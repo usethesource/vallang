@@ -80,18 +80,18 @@ public class ValueProvider implements ArgumentsProvider {
     private static final Random rnd;
 
     static {
-       seedProperty = System.getProperty("vallang.test.seed");
-       if (seedProperty != null) {
-           System.err.println("Current random seed is computed from -Dvallang.test.seed=" + seedProperty);
-           seed = hashSeed(seedProperty);
-           rnd = new Random(seed);
-       }
-       else {
-           seed = new Random().nextLong();
-           rnd = new Random(seed);
-       }
+        seedProperty = System.getProperty("vallang.test.seed");
+        if (seedProperty != null) {
+            System.err.println("Current random seed is computed from -Dvallang.test.seed=" + seedProperty);
+            seed = hashSeed(seedProperty);
+            rnd = new Random(seed);
+        }
+        else {
+            seed = new Random().nextLong();
+            rnd = new Random(seed);
+        }
 
-       System.err.println("Current random seed is: " + seed);
+        System.err.println("Current random seed is: " + seed);
     }
 
     /**

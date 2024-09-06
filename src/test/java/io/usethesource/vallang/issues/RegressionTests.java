@@ -55,14 +55,14 @@ public class RegressionTests {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     void keywordFieldsMakeConstructorsDifferent(IValueFactory vf, TypeFactory tf, TypeStore store)  {
-       Type X = tf.abstractDataType(store, "X");
-       Type cons = tf.constructor(store, X, "x");
-       store.declareKeywordParameter(X, "name", tf.stringType());
+        Type X = tf.abstractDataType(store, "X");
+        Type cons = tf.constructor(store, X, "x");
+        store.declareKeywordParameter(X, "name", tf.stringType());
 
-       IConstructor cons1 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("paul"));
-       IConstructor cons2 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("jurgen"));
+        IConstructor cons1 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("paul"));
+        IConstructor cons2 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("jurgen"));
 
-       assertFalse(cons1.equals(cons2));
+        assertFalse(cons1.equals(cons2));
     }
 
     private IString readString(IValueFactory valueFactory, TypeStore typeStore, String s) throws IOException {

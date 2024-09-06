@@ -188,7 +188,7 @@ public class FunctionType extends DefaultSubtypeOfValue {
 
     @Override
     public <T, E extends Throwable> T accept(ITypeVisitor<T, E> visitor) throws E {
-      return visitor.visitFunction(this);
+        return visitor.visitFunction(this);
     }
 
     @Override
@@ -208,27 +208,27 @@ public class FunctionType extends DefaultSubtypeOfValue {
 
     @Override
     public @Nullable Type getKeywordParameterType(String label) {
-      return keywordParameters != null ? keywordParameters.getFieldType(label) : null;
+        return keywordParameters != null ? keywordParameters.getFieldType(label) : null;
     }
 
     @Override
     public boolean hasKeywordParameter(String label) {
-      return keywordParameters != null ? keywordParameters.hasField(label) : false;
+        return keywordParameters != null ? keywordParameters.hasField(label) : false;
     }
 
     @Override
     public boolean hasKeywordParameters() {
-      return keywordParameters != null;
+        return keywordParameters != null;
     }
 
     @Override
     protected boolean isSupertypeOf(Type type) {
-      return type.isSubtypeOfFunction(this);
+        return type.isSubtypeOfFunction(this);
     }
 
     @Override
     public Type lub(Type type) {
-      return type.lubWithFunction(this);
+        return type.lubWithFunction(this);
     }
 
     @Override
@@ -305,43 +305,43 @@ public class FunctionType extends DefaultSubtypeOfValue {
 
     @Override
     protected Type lubWithFunction(Type type) {
-      if (this == type) {
-        return this;
-      }
+        if (this == type) {
+            return this;
+        }
 
-      FunctionType f = (FunctionType) type;
+        FunctionType f = (FunctionType) type;
 
-      Type returnType = getReturnType().lub(f.getReturnType());
-      Type argumentTypes = getFieldTypes().lub(f.getFieldTypes());
+        Type returnType = getReturnType().lub(f.getReturnType());
+        Type argumentTypes = getFieldTypes().lub(f.getFieldTypes());
 
-      if (argumentTypes.isTuple() && argumentTypes.getArity() == getArity()) {
-        return TypeFactory.getInstance().functionType(returnType,
-            argumentTypes,
-            getKeywordParameterTypes() == f.getKeywordParameterTypes()
-                ? getKeywordParameterTypes()
-                : TF.tupleEmpty());
-      }
+        if (argumentTypes.isTuple() && argumentTypes.getArity() == getArity()) {
+            return TypeFactory.getInstance().functionType(returnType,
+                argumentTypes,
+                getKeywordParameterTypes() == f.getKeywordParameterTypes()
+                    ? getKeywordParameterTypes()
+                    : TF.tupleEmpty());
+        }
 
-      return TF.valueType();
+        return TF.valueType();
     }
 
     @Override
     protected Type glbWithFunction(Type type) {
-      if (this == type) {
-        return this;
-      }
+        if (this == type) {
+            return this;
+        }
 
-      FunctionType f = (FunctionType) type;
+        FunctionType f = (FunctionType) type;
 
-      Type returnType = getReturnType().glb(f.getReturnType());
-      Type argumentTypes = getFieldTypes().lub(f.getFieldTypes());
+        Type returnType = getReturnType().glb(f.getReturnType());
+        Type argumentTypes = getFieldTypes().lub(f.getFieldTypes());
 
-      if (argumentTypes.isTuple()) {
-        // TODO: figure out what glb means for keyword parameters
-        return TF.functionType(returnType, argumentTypes, TF.tupleEmpty());
-      }
+        if (argumentTypes.isTuple()) {
+            // TODO: figure out what glb means for keyword parameters
+            return TF.functionType(returnType, argumentTypes, TF.tupleEmpty());
+        }
 
-      return TF.voidType();
+        return TF.voidType();
     }
 
     @Override

@@ -114,7 +114,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 
     @Override
     public boolean mayHaveKeywordParameters() {
-      return true;
+        return true;
     }
 
     @Override

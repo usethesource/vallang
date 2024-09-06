@@ -71,8 +71,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
      */
     @Override
     public boolean equals(@Nullable Object obj) {
-    return obj == RealType.getInstance();
-}
+        return obj == RealType.getInstance();
+    }
 
     @Override
     public int hashCode() {
@@ -111,7 +111,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected boolean intersectsWithReal(Type type) {
-      return true;
+        return true;
     }
 
     @Override

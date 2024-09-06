@@ -72,8 +72,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
      */
     @Override
     public boolean equals(@Nullable Object obj) {
-    return obj == SourceLocationType.getInstance();
-}
+        return obj == SourceLocationType.getInstance();
+    }
 
     @Override
     public int hashCode() {
@@ -92,12 +92,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected boolean isSupertypeOf(Type type) {
-      return type.isSubtypeOfSourceLocation(this);
+        return type.isSubtypeOfSourceLocation(this);
     }
 
     @Override
     public Type lub(Type other) {
-      return other.lubWithSourceLocation(this);
+        return other.lubWithSourceLocation(this);
     }
 
     @Override
@@ -112,22 +112,22 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     public Type glb(Type type) {
-      return type.glbWithSourceLocation(this);
+        return type.glbWithSourceLocation(this);
     }
 
     @Override
     protected boolean isSubtypeOfSourceLocation(Type type) {
-      return true;
+        return true;
     }
 
     @Override
     protected Type lubWithSourceLocation(Type type) {
-      return this;
+        return this;
     }
 
     @Override
     protected Type glbWithSourceLocation(Type type) {
-      return this;
+        return this;
     }
 
     @Override

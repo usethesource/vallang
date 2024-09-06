@@ -419,18 +419,18 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-    public IBool equal(IInteger other){
-      return BoolValue.getBoolValue(compare(other) == 0);
+    public IBool equal(IInteger other) {
+        return BoolValue.getBoolValue(compare(other) == 0);
     }
 
     @Override
     public IBool equal(IRational other) {
-      return other.equal(this);
+        return other.equal(this);
     }
 
     @Override
     public IBool equal(IReal other) {
-      return other.equal(this);
+        return other.equal(this);
     }
 
     @Override
@@ -460,7 +460,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
     public IBool greaterEqual(IReal other) {
-      return BoolValue.getBoolValue(compare(other) >= 0);
+        return BoolValue.getBoolValue(compare(other) >= 0);
     }
 
     @Override

@@ -260,7 +260,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             IValue result = read.read();
             if (!value.equals(result)) {
                 String message = "Not equal: \n\t" + value + " : " + value.getType() + "( " + value.getClass() + ")"
-                + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
+                    + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
                 System.err.println("Test fail:");
                 System.err.println(message);
                 System.err.flush();
@@ -268,7 +268,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             }
             else if (value.getType() != result.getType()) {
                 String message = "Type's not equal:\n\t" + value.getType()
-                + "\n\t" + result.getType();
+                    + "\n\t" + result.getType();
                 System.err.println(message);
                 fail(message);
             }
@@ -277,7 +277,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 Type returnedConstructorType = ((IConstructor)result).getConstructorType();
                 if (expectedConstructorType != returnedConstructorType) {
                     String message = "Constructor Type's not equal:\n\t" + expectedConstructorType
-                            + "\n\t" + returnedConstructorType;
+                        + "\n\t" + returnedConstructorType;
                     System.err.println(message);
                     fail(message);
 
@@ -308,7 +308,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             IValue result = read.read();
             if (!value.equals(result)) {
                 String message = "Not equal: size: " + fileSize +") \n\t" + value + " : " + value.getType() + "( " + value.getClass() + ")"
-                + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
+                    + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
                 System.err.println(message);
                 fail(message);
             }
@@ -340,7 +340,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             IValue result = read.read();
             if (!value.equals(result)) {
                 String message = "Not equal: (size: " + fileSize +") \n\t" + value + " : " + value.getType()
-                + "\n\t" + result + " : " + result.getType();
+                    + "\n\t" + result + " : " + result.getType();
                 System.err.println(message);
                 fail(message);
             }

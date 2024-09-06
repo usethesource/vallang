@@ -103,9 +103,9 @@ import io.usethesource.vallang.type.TypeFactory;
             for (int i = 1; i < s.length(); i++) {
                 current = s.charAt(i);
                 if (current < '+' || current > 'z' // anything outside this, is not valid
-                   || current == ',' || current == '/' // these two chars between + and 0 that aren't valid
-                   || ('9' < current && current < 'A') // chars between 9 and A are invalid
-                   || ('Z' < current && current < 'a') // chars between Z and a are invalid
+                    || current == ',' || current == '/' // these two chars between + and 0 that aren't valid
+                    || ('9' < current && current < 'A') // chars between 9 and A are invalid
+                    || ('Z' < current && current < 'a') // chars between Z and a are invalid
                 ) {
                     return false;
                 }
@@ -286,8 +286,8 @@ import io.usethesource.vallang.type.TypeFactory;
     private static URI buildURIWithAuthority(String scheme, String authority,
             String path, String query, String fragment) {
         try {
-                URI result = new URI(scheme, authority, path, query, fragment);
-                return new URI(result.toASCIIString());
+            URI result = new URI(scheme, authority, path, query, fragment);
+            return new URI(result.toASCIIString());
         } catch (URISyntaxException e) {
             if (authority != null && squareBrackets.matcher(authority).find()) {
                 // Java URI do not correctly quote the brackets inside the authority
@@ -413,11 +413,11 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public int hashCode() {
-          if (hash == 0) {
-            hash = scheme.hashCode() + path.hashCode();
-          }
+            if (hash == 0) {
+                hash = scheme.hashCode() + path.hashCode();
+            }
 
-          return hash;
+            return hash;
         }
 
         @Override
@@ -433,7 +433,7 @@ import io.usethesource.vallang.type.TypeFactory;
             if (obj.getClass() == getClass()){
                 PathURI u = (PathURI)obj;
                 if (hash != 0 && u.hash != 0 && hash != u.hash) {
-                   return false;
+                    return false;
                 }
 
                 return scheme == u.scheme

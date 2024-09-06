@@ -73,19 +73,19 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
 
-  @Override
-  public IBool equal(INumber other){
-    if(isIntegerType(other)){
-      return equal(other.toInteger());
+    @Override
+    public IBool equal(INumber other) {
+        if (isIntegerType(other)) {
+            return equal(other.toInteger());
+        }
+        if (isRealType(other)) {
+            return equal(other.toReal(((IReal) other).precision()));
+        }
+        if (isRationalType(other)) {
+            return equal(other.toRational());
+        }
+        throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
     }
-    if(isRealType(other)){
-      return equal(other.toReal(((IReal) other).precision()));
-    }
-    if(isRationalType(other)){
-      return equal(other.toRational());
-    }
-    throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
-  }
 
     @Override
     public IBool greaterEqual(INumber other){
@@ -157,15 +157,15 @@ import io.usethesource.vallang.type.TypeFactory;
         throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
     }
 
-  protected boolean isRationalType(INumber other) {
-    return other.getType().equivalent(TypeFactory.getInstance().rationalType());
-  }
+    protected boolean isRationalType(INumber other) {
+        return other.getType().equivalent(TypeFactory.getInstance().rationalType());
+    }
 
-  protected boolean isRealType(INumber other) {
-    return other.getType().equivalent(TypeFactory.getInstance().realType());
-  }
+    protected boolean isRealType(INumber other) {
+        return other.getType().equivalent(TypeFactory.getInstance().realType());
+    }
 
-  protected boolean isIntegerType(INumber other) {
-    return other.getType().equivalent(TypeFactory.getInstance().integerType());
-  }
+    protected boolean isIntegerType(INumber other) {
+        return other.getType().equivalent(TypeFactory.getInstance().integerType());
+    }
 }

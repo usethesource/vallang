@@ -211,18 +211,18 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     @Override
-    public IBool equal(IReal other){
-      return BoolValue.getBoolValue(compare(other) == 0);
+    public IBool equal(IReal other) {
+        return BoolValue.getBoolValue(compare(other) == 0);
     }
 
     @Override
     public IBool equal(IInteger other) {
-      return equal(other.toReal(value.precision()));
+        return equal(other.toReal(value.precision()));
     }
 
     @Override
     public IBool equal(IRational other) {
-      return equal(other.toReal(value.precision()));
+        return equal(other.toReal(value.precision()));
     }
 
     @Override
@@ -333,7 +333,7 @@ import io.usethesource.vallang.type.TypeFactory;
         String decimalString = value.toString();
         sb.append(decimalString);
         if (!decimalString.matches(".*[\\.Ee].*")) {
-          sb.append(".");
+            sb.append(".");
         }
         return sb.toString();
     }

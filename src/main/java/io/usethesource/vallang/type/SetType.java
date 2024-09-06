@@ -198,7 +198,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     public boolean equals(@Nullable Object obj) {
-    if (!(obj instanceof SetType)) {
+        if (!(obj instanceof SetType)) {
             return false;
         }
         SetType other = (SetType) obj;
@@ -207,7 +207,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         // attempt to manipulate the outer type (i.e. SetType), so we can use object
         // identity here for the fEltType.
         return fEltType == other.fEltType;
-}
+    }
 
     @Override
     public String toString() {

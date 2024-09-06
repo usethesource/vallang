@@ -484,7 +484,7 @@ public interface IList extends ICollection<IList> {
 
             @Override
             public IWriter<IList> writer() {
-               return IList.this.writer();
+                return IList.this.writer();
             }
         };
     }

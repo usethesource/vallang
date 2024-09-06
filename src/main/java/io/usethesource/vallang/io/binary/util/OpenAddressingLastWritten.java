@@ -209,26 +209,26 @@ public abstract class OpenAddressingLastWritten<T extends @NonNull Object> imple
         int space = oldestEntry;
         final @Nullable Object[] keys = this.keys;
         while (true) {
-           int candidate = space;
-           Object curr = null;
-           while (true) {
-               candidate = (candidate + 1) % tableSize;
-               curr = keys[candidate];
-               if (curr == null) {
-                   keys[space] = null;
-                   return;
-               }
-               int k = (hashes[candidate] & 0x7FFFFFFF) % tableSize;
-               if (space <= candidate ? ((space >= k) || (k > candidate)) : ((space >= k) && (k > candidate))) {
-                   break;
-               }
-           }
-           keys[space] = Objects.requireNonNull(curr);
-           writtenAt[space] = writtenAt[candidate];
-           hashes[space] = hashes[candidate];
-           //assert oldest[translateOldest(writtenAt[space])] == candidate;
-           oldest[translateOldest(writtenAt[space])] = space;
-           space = candidate;
+            int candidate = space;
+            Object curr = null;
+            while (true) {
+                candidate = (candidate + 1) % tableSize;
+                curr = keys[candidate];
+                if (curr == null) {
+                    keys[space] = null;
+                    return;
+                }
+                int k = (hashes[candidate] & 0x7FFFFFFF) % tableSize;
+                if (space <= candidate ? ((space >= k) || (k > candidate)) : ((space >= k) && (k > candidate))) {
+                    break;
+                }
+            }
+            keys[space] = Objects.requireNonNull(curr);
+            writtenAt[space] = writtenAt[candidate];
+            hashes[space] = hashes[candidate];
+            //assert oldest[translateOldest(writtenAt[space])] == candidate;
+            oldest[translateOldest(writtenAt[space])] = space;
+            space = candidate;
         }
     }
 

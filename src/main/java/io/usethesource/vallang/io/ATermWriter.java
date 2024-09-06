@@ -41,7 +41,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  */
 public class ATermWriter implements IValueTextWriter {
     public void write(IValue value, java.io.Writer stream) throws IOException {
-      value.accept(new Writer(stream));
+        value.accept(new Writer(stream));
     }
 
     public void write(IValue value, java.io.Writer stream, TypeStore typeStore) throws IOException {
@@ -56,11 +56,11 @@ public class ATermWriter implements IValueTextWriter {
         }
 
         private void append(String string) throws IOException {
-          stream.write(string);
+            stream.write(string);
         }
 
         private void append(char c) throws IOException {
-          stream.write(c);
+            stream.write(c);
         }
 
         @Override
@@ -229,21 +229,21 @@ public class ATermWriter implements IValueTextWriter {
 
         @Override
         public IValue visitTuple(ITuple o) throws IOException {
-             append('(');
+            append('(');
 
-             Iterator<IValue> it = o.iterator();
+            Iterator<IValue> it = o.iterator();
 
-             if (it.hasNext()) {
-                 it.next().accept(this);
-             }
+            if (it.hasNext()) {
+                it.next().accept(this);
+            }
 
-             while (it.hasNext()) {
-                 append(',');
-                 it.next().accept(this);
-             }
-             append(')');
+            while (it.hasNext()) {
+                append(',');
+                it.next().accept(this);
+            }
+            append(')');
 
-             return o;
+            return o;
         }
 
         @Override

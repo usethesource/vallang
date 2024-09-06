@@ -308,26 +308,26 @@ public class TypeFactory {
      *          the labels of the fields (in respective order)
      * @return a tuple type
      */
-  @Deprecated
-  public Type tupleType(Type[] types, String[] labels) {
-    assert !anyNull(types) : "tuples types should not contain nulls";
-    assert !anyNull(labels): "label types should not contain nulls";
-    assert types.length == labels.length;
+    @Deprecated
+    public Type tupleType(Type[] types, String[] labels) {
+        assert !anyNull(types) : "tuples types should not contain nulls";
+        assert !anyNull(labels) : "label types should not contain nulls";
+        assert types.length == labels.length;
 
-    if (types.length == 0) {
-        return tupleEmpty();
-    }
-
-    // if one of the elements is of type void, then a tuple can never
-    // be instantiated of this type and thus void is the type to represent it:
-    for (Type elem : types) {
-        if (elem.isBottom()) {
-            return voidType();
+        if (types.length == 0) {
+            return tupleEmpty();
         }
-    }
 
-    return getFromCache(new TupleTypeWithFieldNames(types, labels));
-  }
+        // if one of the elements is of type void, then a tuple can never
+        // be instantiated of this type and thus void is the type to represent it:
+        for (Type elem : types) {
+            if (elem.isBottom()) {
+                return voidType();
+            }
+        }
+
+        return getFromCache(new TupleTypeWithFieldNames(types, labels));
+    }
 
     /**
      * Construct a tuple type.
@@ -1011,7 +1011,7 @@ public class TypeFactory {
 
             // increase the chance of recursive types
             while (rnd.nextBoolean() && !selected.isRecursive()) {
-               selected = alts[Math.max(0, rnd.nextInt(alts.length))];
+                selected = alts[Math.max(0, rnd.nextInt(alts.length))];
             }
 
             return selected.randomInstance(next, store, rnd);
@@ -1122,13 +1122,13 @@ public class TypeFactory {
          * @return the type represented by the value
          */
         public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-             TypeReifier reifier = symbolConstructorTypes.get(symbol.getConstructorType());
+            TypeReifier reifier = symbolConstructorTypes.get(symbol.getConstructorType());
 
-             if (reifier != null) {
-                 return reifier.fromSymbol(symbol, store, grammar);
-             }
+            if (reifier != null) {
+                return reifier.fromSymbol(symbol, store, grammar);
+            }
 
-             throw new IllegalArgumentException("trying to construct a type from an unsupported type symbol: " + symbol + ", with this representation: " + symbol.getConstructorType());
+            throw new IllegalArgumentException("trying to construct a type from an unsupported type symbol: " + symbol + ", with this representation: " + symbol.getConstructorType());
         }
 
         /**

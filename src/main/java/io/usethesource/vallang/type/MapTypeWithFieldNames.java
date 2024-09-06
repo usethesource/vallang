@@ -105,7 +105,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
 
     @Override
     public int hashCode() {
-      return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode() + 13 * fKeyLabel.hashCode() + 1331 * fValueLabel.hashCode();
+        return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode() + 13 * fKeyLabel.hashCode() + 1331 * fValueLabel.hashCode();
     }
 
     @Override
@@ -133,9 +133,9 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
     @Override
     public String toString() {
         return "map["
-        + fKeyType + " " + fKeyLabel + ", "
-        + fValueType + " " + fValueLabel
-        + "]";
+            + fKeyType + " " + fKeyLabel + ", "
+            + fValueType + " " + fValueLabel
+            + "]";
     }
 
     @Override

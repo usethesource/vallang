@@ -17,7 +17,7 @@ public class ListTests {
             @GivenValue("[1,2,3,4,5]") IList l1,
             @GivenValue("[5,3,1]") IList l2,
             @GivenValue("[1,3,5]") IList result
-            ) {
+    ) {
         assertEquals(l1.intersect(l2), result);
     }
 

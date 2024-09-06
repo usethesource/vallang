@@ -119,7 +119,7 @@ public class IValueTests {
         assertEquals(real.hashCode() == 0 ? "real".hashCode() : real.hashCode(), real.getMatchFingerprint());
     }
 
-     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testFingerprintStabilityRationalDoNotChangeTheTest(IRational rational) {
         assertEquals(rational.hashCode(), rational.getMatchFingerprint());
     }

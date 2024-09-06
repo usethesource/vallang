@@ -103,6 +103,6 @@ public abstract class VisitorAdapter<T, E extends Throwable> implements IValueVi
 
     @Override
     public T visitExternal(IExternalValue externalValue) throws E {
-      return fVisitor.visitExternal(externalValue);
+        return fVisitor.visitExternal(externalValue);
     }
 }

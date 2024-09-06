@@ -94,7 +94,7 @@ public class XMLWriter implements IValueTextWriter {
                 return giveMap((INode) value, doc);
             }
             else {
-              return giveTree((INode) value, doc);
+                return giveTree((INode) value, doc);
             }
         }
         else if (type.isString()) {
@@ -118,24 +118,24 @@ public class XMLWriter implements IValueTextWriter {
     }
 
     private boolean isListWrapper(Type nodeType) {
-            return nodeType.getArity() == 1
-                    && nodeType.getFieldTypes().getFieldType(0).isList();
+        return nodeType.getArity() == 1
+                && nodeType.getFieldTypes().getFieldType(0).isList();
     }
 
     private boolean isSetWrapper(Type nodeType) {
-            return nodeType.getArity() == 1
-                    && nodeType.getFieldTypes().getFieldType(0).isSet();
+        return nodeType.getArity() == 1
+                && nodeType.getFieldTypes().getFieldType(0).isSet();
     }
 
     private boolean isRelationWrapper(Type nodeType) {
-            return nodeType.getArity() == 1
-                    && nodeType.getFieldTypes().getFieldType(0)
-                            .isRelation();
+        return nodeType.getArity() == 1
+                && nodeType.getFieldTypes().getFieldType(0)
+                        .isRelation();
     }
 
     private boolean isMapWrapper(Type nodeType) {
-            return nodeType.getArity() == 1
-                    && nodeType.getFieldTypes().getFieldType(0).isMap();
+        return nodeType.getArity() == 1
+                && nodeType.getFieldTypes().getFieldType(0).isMap();
     }
 
 
@@ -174,7 +174,7 @@ public class XMLWriter implements IValueTextWriter {
                 appendTupleElements(doc, treeNode, key);
             }
             else {
-              treeNode.appendChild(give(key, doc));
+                treeNode.appendChild(give(key, doc));
             }
 
             if (value.getType().isTuple()) {
@@ -214,10 +214,10 @@ public class XMLWriter implements IValueTextWriter {
 
         for (IValue elem : set) {
             if (elem.getType().isTuple()) {
-              appendTupleElements(doc, treeNode, elem);
+                appendTupleElements(doc, treeNode, elem);
             }
             else {
-              treeNode.appendChild(give(elem, doc));
+                treeNode.appendChild(give(elem, doc));
             }
         }
 
@@ -233,7 +233,7 @@ public class XMLWriter implements IValueTextWriter {
                 appendTupleElements(doc, treeNode, elem);
             }
             else {
-              treeNode.appendChild(give(elem, doc));
+                treeNode.appendChild(give(elem, doc));
             }
         }
 
@@ -248,7 +248,7 @@ public class XMLWriter implements IValueTextWriter {
                 appendTupleElements(doc, treeNode, child);
             }
             else {
-              treeNode.appendChild(give(child, doc));
+                treeNode.appendChild(give(child, doc));
             }
         }
 

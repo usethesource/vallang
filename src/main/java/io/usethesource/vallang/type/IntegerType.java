@@ -94,17 +94,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected boolean isSupertypeOf(Type type) {
-      return type.isSubtypeOfInteger(this);
+        return type.isSubtypeOfInteger(this);
     }
 
     @Override
     public Type lub(Type other) {
-      return other.lubWithInteger(this);
+        return other.lubWithInteger(this);
     }
 
     @Override
     public Type glb(Type type) {
-      return type.glbWithInteger(this);
+        return type.glbWithInteger(this);
     }
 
     @Override
@@ -114,7 +114,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected Type lubWithInteger(Type type) {
-      return this;
+        return this;
     }
 
     @Override
@@ -139,17 +139,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     protected Type glbWithReal(Type type) {
-      return TF.voidType();
+        return TF.voidType();
     }
 
     @Override
     protected Type glbWithRational(Type type) {
-      return TF.voidType();
+        return TF.voidType();
     }
 
     @Override
     protected Type glbWithNumber(Type type) {
-      return this;
+        return this;
     }
 
     @Override

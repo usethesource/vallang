@@ -73,19 +73,19 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
         @Override
         public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
-             String name = ((IString) symbol.get("name")).getValue();
-             Type aliased = symbols().fromSymbol((IConstructor) symbol.get("aliased"), store, grammar);
-             IList parameters = (IList) symbol.get("parameters");
+            String name = ((IString) symbol.get("name")).getValue();
+            Type aliased = symbols().fromSymbol((IConstructor) symbol.get("aliased"), store, grammar);
+            IList parameters = (IList) symbol.get("parameters");
 
-             // we expand the aliases here, but only if the
-             // type parameters have been instantiated or there are none
-             if (parameters.isEmpty()) {
-                 return aliased;
-             }
-             else {
+            // we expand the aliases here, but only if the
+            // type parameters have been instantiated or there are none
+            if (parameters.isEmpty()) {
+                return aliased;
+            }
+            else {
                 Type params = symbols().fromSymbols(parameters, store, grammar);
                 return params.isOpen() ? TF.aliasTypeFromTuple(store, name, aliased,  params) : aliased;
-             }
+            }
         }
 
         @Override

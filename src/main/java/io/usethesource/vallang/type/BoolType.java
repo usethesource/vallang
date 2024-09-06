@@ -73,8 +73,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
      */
     @Override
     public boolean equals(@Nullable Object obj) {
-    return obj == BoolType.getInstance();
-}
+        return obj == BoolType.getInstance();
+    }
 
     @Override
     public int hashCode() {

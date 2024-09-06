@@ -244,7 +244,7 @@ import io.usethesource.vallang.exceptions.UndeclaredFieldException;
         }
 
         return true;
-}
+    }
 
     @Override
     public String toString() {
