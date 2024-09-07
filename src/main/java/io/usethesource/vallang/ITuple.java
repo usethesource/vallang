@@ -23,46 +23,46 @@ public interface ITuple extends Iterable<IValue>, IValue {
 
     /**
      * Retrieve the given field at the given index.
-     * 
+     *
      * @param i the index of the field, starting at 0
      * @return the value at the given label in the tuple
      * @throws IndexOutOfBoundsException
      */
     public IValue get(int i);
-    
+
     @Deprecated
     /**
      * Retrieve the given field at the given label.
-     * 
+     *
      * @param label the name of the field
      * @return the value at the given label in the tuple
-     * 
-     * TODO: this method will dissappear when field names will no longer be recorded 
+     *
+     * TODO: this method will dissappear when field names will no longer be recorded
      * the vallang library. This is necessary to be able to provide canonical types
      * and use reference equality for type equality; a major factor in CPU performance.
      */
     public IValue get(String label);
-    
+
     /**
      * Replace the given field by a new value.
-     * 
+     *
      * @param i the index of the field
      * @param arg   the new value
      * @return
      * @throws IndexOutOfBoundsException
      */
     public ITuple set(int i, IValue arg);
-    
+
     @Deprecated
     /**
      * Replace the given field by a new value.
-     * 
+     *
      * @param label the name of the field
      * @param arg   the new value
      * @return
      * @throws FactTypeUseException
-     * 
-     * TODO: this method will dissappear when field names will no longer be recorded 
+     *
+     * TODO: this method will dissappear when field names will no longer be recorded
      * the vallang library. This is necessary to be able to provide canonical types
      * and use reference equality for type equality; a major factor in CPU performance.
      */
@@ -79,19 +79,19 @@ public interface ITuple extends Iterable<IValue>, IValue {
      * @return a new tuple with only the fields selected by the fields parameter
      */
     public IValue select(int... fields) throws IndexOutOfBoundsException;
-    
+
     @Deprecated
     /**
      * Reduces an n-ary tuple to fewer fields, given by the field names to select.
      * @param fields to select from the tuple
      * @return a new tuple with only the fields selected by the fields parameter
-     * 
-     * TODO: this method will dissappear when field names will no longer be recorded 
+     *
+     * TODO: this method will dissappear when field names will no longer be recorded
      * the vallang library. This is necessary to be able to provide canonical types
      * and use reference equality for type equality; a major factor in CPU performance.
      */
     public IValue selectByFieldNames(String... fields) throws FactTypeUseException;
-    
+
     @Override
     public default boolean match(IValue o) {
         if (this == o) {
@@ -118,7 +118,7 @@ public interface ITuple extends Iterable<IValue>, IValue {
         }
         return false;
     }
-    
+
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitTuple(this);

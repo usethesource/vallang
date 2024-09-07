@@ -22,7 +22,7 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public interface IList extends ICollection<IList> {
-    
+
     @Override
     default int getMatchFingerprint() {
         return 3322014; // "list".hashCode()
@@ -35,12 +35,12 @@ public interface IList extends ICollection<IList> {
     public default int size() {
         return length();
     }
-    
+
     /**
      * Return the length of the list == size();
      */
     public int length();
-    
+
     /**
      * @return a new list with all elements in reverse order
      */
@@ -51,7 +51,7 @@ public interface IList extends ICollection<IList> {
         }
         return w.done();
     }
-    
+
     /**
      * @param rand the random generator to use for the shuffling. If the same seed is set, the same shuffling should happen.
      * @return a new list with all the elements randomly shuffled.
@@ -66,16 +66,16 @@ public interface IList extends ICollection<IList> {
         }
         return w.done();
     }
-    
+
     /**
      * @return an IListWriter for the current list implementation
      */
     @Override
     public IListWriter writer();
-    
+
     /**
      * Appends an element to the end of the list
-     * 
+     *
      * @param e the new element
      * @return a new list with the element at the end
      */
@@ -86,7 +86,7 @@ public interface IList extends ICollection<IList> {
 
         return w.done();
     }
-    
+
     /**
      * Inserts an element in front of the list
      * @param e the new element
@@ -99,11 +99,11 @@ public interface IList extends ICollection<IList> {
 
         return w.done();
     }
-    
+
     /**
      * Concatenates this list with another
      * @param o another list
-     * @return a concatenated list with the elements of the 
+     * @return a concatenated list with the elements of the
      *         receiver before the elements of o.
      */
     default IList concat(IList o) {
@@ -112,7 +112,7 @@ public interface IList extends ICollection<IList> {
         w.appendAll(o);
         return w.done();
     }
-    
+
     /**
      * Replaces the value of the ith element in the list with a new value
      * @param i index to replace a value at.
@@ -127,7 +127,7 @@ public interface IList extends ICollection<IList> {
         w.replaceAt(i, e);
         return w.done();
     }
-    
+
     /**
      * Replaces the value of the elements first, second ... end in the list with the elements in the list r
      * Expected:
@@ -210,19 +210,19 @@ public interface IList extends ICollection<IList> {
 
         return result.done();
     }
-    
+
     /**
      * Return the ith element of the list.
-     * 
+     *
      * @param i
      * @return the ith element of the list
      * @throws IndexOutOfBoundsException when i < 0 or i >= IList.length
      */
     public IValue get(int i) throws IndexOutOfBoundsException;
-    
+
     /**
      * Compute a sublist.
-     * 
+     *
      * @param offset inclusive start index of the sublist
      * @param length number of elements in the resulting list
      * @return a new list that contains this[offset] until this[offset+length-1].
@@ -231,19 +231,19 @@ public interface IList extends ICollection<IList> {
         if (offset < 0 || length < 0 || offset + length > length()) {
             throw new IndexOutOfBoundsException();
         }
-        
+
         IListWriter w = writer();
         for (int i = offset; i < offset + length; i++) {
             w.append(get(i));
         }
         return w.done();
     }
-    
+
     /**
      * @return true iff the list is non-empty
      */
     public boolean isEmpty();
-    
+
     /**
      * @param e
      * @return true iff e is an element of the list
@@ -256,7 +256,7 @@ public interface IList extends ICollection<IList> {
         }
         return false;
     }
-    
+
     /**
      * Removes the first occurrence of an element, i.e. the
      * element with the lowest index that is present in the list,
@@ -268,7 +268,7 @@ public interface IList extends ICollection<IList> {
         IListWriter w = writer();
 
         boolean deleted = false;
-        
+
         for (IValue e : this) {
             if (!deleted && e.equals(v)) {
                 deleted = true; // skip first occurrence
@@ -281,7 +281,7 @@ public interface IList extends ICollection<IList> {
 
     /**
      * Removes the element at index <code>i</code>.
-     * 
+     *
      * @param i
      * @return a new list with one element removed.
      */
@@ -290,7 +290,7 @@ public interface IList extends ICollection<IList> {
 
         int currentIndex = 0;
         boolean deleted = false;
-        
+
         for (Iterator<IValue> iterator = iterator(); iterator.hasNext(); currentIndex++) {
             IValue e = iterator.next();
 
@@ -302,10 +302,10 @@ public interface IList extends ICollection<IList> {
         }
         return w.done();
     }
-    
+
     /**
      * Carthesian product of two lists.
-     * 
+     *
      * @param l
      * @return a new list relation containing the product
      */
@@ -321,7 +321,7 @@ public interface IList extends ICollection<IList> {
 
         return w.done();
     }
-    
+
     /**
      * Intersection of two lists
      * @param l
@@ -338,7 +338,7 @@ public interface IList extends ICollection<IList> {
 
         return w.done();
     }
-    
+
     /**
      * Difference of two lists
      * @param l
@@ -355,13 +355,13 @@ public interface IList extends ICollection<IList> {
         }
         return w.done();
     }
-    
+
     @Override
     public default boolean match(IValue other) {
         if (other == this) {
             return true;
         }
-        
+
         if (other == null) {
             return false;
         }
@@ -387,7 +387,7 @@ public interface IList extends ICollection<IList> {
 
         return false;
     }
-    
+
     /**
      * @return true if this list is a sublist of list l
      */
@@ -412,7 +412,7 @@ public interface IList extends ICollection<IList> {
         if (other == this) {
             return true;
         }
-        
+
         if (other == null) {
             return false;
         }
@@ -423,7 +423,7 @@ public interface IList extends ICollection<IList> {
             if (isEmpty() && list2.isEmpty()) {
                 return true;
             }
-            
+
             if (getType() != list2.getType())
                 return false;
 
@@ -449,7 +449,7 @@ public interface IList extends ICollection<IList> {
 
         return false;
     }
-    
+
     default int defaultHashCode() {
         int hash = 0;
 
@@ -459,18 +459,18 @@ public interface IList extends ICollection<IList> {
 
         return hash;
     }
-    
+
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitList(this);
     }
-    
+
     @Override
     default IRelation<IList> asRelation() {
         if (!getType().isListRelation()) {
             throw new UnsupportedOperationException(getType() + " is not a relation");
         }
-        
+
         return new IRelation<IList>() {
             @Override
             public String toString() {
@@ -481,10 +481,10 @@ public interface IList extends ICollection<IList> {
             public IList asContainer() {
                 return IList.this;
             }
-            
+
             @Override
             public IWriter<IList> writer() {
-               return IList.this.writer();
+                return IList.this.writer();
             }
         };
     }

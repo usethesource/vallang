@@ -15,7 +15,7 @@ public class TypeReader {
     private static final char END_OF_ARGUMENTS = ']';
     private static final char COMMA_SEPARATOR = ',';
     private static final TypeFactory types = TypeFactory.getInstance();
-    
+
     private TypeStore store = new TypeStore(); // dummy guarantees non-nullness
     private NoWhiteSpaceReader stream = new NoWhiteSpaceReader(new StringReader("")); // dummy guarantees non-nullness
     private int current;
@@ -42,27 +42,27 @@ public class TypeReader {
             String id = readIdentifier();
 
             switch (id) {
-            case "int" : return types.integerType();
-            case "real" : return types.realType();
-            case "rat" : return types.rationalType();
-            case "num" : return types.numberType();
-            case "bool" : return types.boolType();
-            case "node" : return types.nodeType();
-            case "void" : return types.voidType();
-            case "value" : return types.valueType();
-            case "loc" : return types.sourceLocationType();
-            case "str" : return types.stringType();
-            case "datetime" : return types.dateTimeType();
+                case "int" : return types.integerType();
+                case "real" : return types.realType();
+                case "rat" : return types.rationalType();
+                case "num" : return types.numberType();
+                case "bool" : return types.boolType();
+                case "node" : return types.nodeType();
+                case "void" : return types.voidType();
+                case "value" : return types.valueType();
+                case "loc" : return types.sourceLocationType();
+                case "str" : return types.stringType();
+                case "datetime" : return types.dateTimeType();
             }
 
             if (current == START_OF_ARGUMENTS) {
                 switch (id) {
-                case "list" : return readComposite((t) -> types.listType(t.get(0)));
-                case "set" : return readComposite((t) -> types.setType(t.get(0)));
-                case "map" : return readComposite((t) -> types.mapType(t.get(0), t.get(1)));
-                case "tuple" : return readComposite((t) -> types.tupleType(t.toArray(new Type[0])));
-                case "rel" : return readComposite((t) -> types.relType(t.toArray(new Type[0])));
-                case "lrel" : return readComposite((t) -> types.lrelType(t.toArray(new Type[0])));
+                    case "list" : return readComposite((t) -> types.listType(t.get(0)));
+                    case "set" : return readComposite((t) -> types.setType(t.get(0)));
+                    case "map" : return readComposite((t) -> types.mapType(t.get(0), t.get(1)));
+                    case "tuple" : return readComposite((t) -> types.tupleType(t.toArray(new Type[0])));
+                    case "rel" : return readComposite((t) -> types.relType(t.toArray(new Type[0])));
+                    case "lrel" : return readComposite((t) -> types.lrelType(t.toArray(new Type[0])));
                 }
 
                 Type adt = store.lookupAbstractDataType(id);
@@ -70,7 +70,7 @@ public class TypeReader {
                     return readComposite((t) -> types.abstractDataType(store, id, t.toArray(new Type[0])));
                 }
 
-                throw new TypeParseError("undeclared type " + id, new NullPointerException()); 
+                throw new TypeParseError("undeclared type " + id, new NullPointerException());
             }
             else {
                 Type adt = store.lookupAbstractDataType(id);
@@ -78,7 +78,7 @@ public class TypeReader {
                     return adt;
                 }
 
-                throw new TypeParseError("undeclared type " + id, new NullPointerException()); 
+                throw new TypeParseError("undeclared type " + id, new NullPointerException());
             }
         }
 
@@ -112,7 +112,7 @@ public class TypeReader {
             current = stream.read();
         }
 
-        while (Character.isJavaIdentifierStart(current) 
+        while (Character.isJavaIdentifierStart(current)
                 || Character.isJavaIdentifierPart(current)
                 || (escaped && current == '-')) {
             builder.append((char) current);

@@ -16,7 +16,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class ConcurrentTests {
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void parallelRandomGenerators(IValueFactory vf) throws InterruptedException, BrokenBarrierException, TimeoutException {
         int cores = Math.max(2, Runtime.getRuntime().availableProcessors());

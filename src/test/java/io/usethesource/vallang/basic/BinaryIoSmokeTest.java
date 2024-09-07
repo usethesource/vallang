@@ -95,9 +95,9 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
 
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void testRegression40(IValueFactory vf, TypeStore store, 
-            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)") 
-            @ExpectedType("Boolean") 
+    public void testRegression40(IValueFactory vf, TypeStore store,
+            @GivenValue("twotups(<\\true(),twotups(<not(\\true()),and(\\false(),\\true())>,<twotups(<couples([]),\\true()>,<or([]),friends([])>),twotups(<or([]),or([])>,<or([]),\\true()>)>)>,<twotups(<not(\\true()),and(\\true(),\\true())>,<twotups(<couples([]),couples([])>,<\\true(),couples([])>),not(\\true())>),and(or([\\true()]),twotups(<or([]),\\true()>,<or([]),\\false()>))>)")
+            @ExpectedType("Boolean")
             IConstructor t) throws FactTypeUseException, IOException {
         ioRoundTrip(vf, store, t);
     }
@@ -106,12 +106,12 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     public void testDateTimeIO(IValueFactory vf, TypeStore ts, IDateTime value) throws IOException {
         ioRoundTrip(vf, ts, value);
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testRegression42_2(IValueFactory vf, TypeStore store, @GivenValue("(\"\"():4,\"\"():3)") IValue v) throws IOException {
         ioRoundTrip(vf, store, v);
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testSmallBinaryFileIO(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
         ioRoundTripFile(vf, ts, value);
@@ -166,7 +166,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         iopRoundTrip(vf, ts, tp);
     }
 
- 
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(12) @ArgumentsMaxWidth(6)
     public void testDeepRandomValuesIO(IValueFactory vf, TypeStore ts, IValue val) throws IOException {
         try {
@@ -175,14 +175,14 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         catch (Throwable e) {
             System.err.println("Deep random value failed, now trying to find the simplest sub-term which causes the failure...");
             // Now we've found a bug in a (probably) very, very complex value.
-            // Usually it has several megabytes of random data. 
+            // Usually it has several megabytes of random data.
 
             // We try to find a minimal sub-value which still fails somehow by
             // visiting each sub-term and running the test again on this.
             // The first sub-term to fail is reported via the AssertionFailed exception.
 
             // If only the big original term fails after all, then the BottomUp strategy
-            // will try that (its the last value of the stream) and fail again in 
+            // will try that (its the last value of the stream) and fail again in
             // the same way as above.
             ValueStreams.bottomupbf(val).forEach(v -> {
                 try {
@@ -226,7 +226,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         try (IWireOutputStream w = new BinaryWireOutputStream(buffer, 1000)) {
             IValueWriter.write(w, vf, WindowSizes.SMALL_WINDOW, tp);
         }
-        
+
         try (IWireInputStream read =
                 new BinaryWireInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {
             Type result = IValueReader.readType(read, vf, () -> ts);
@@ -239,7 +239,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
 
     private final CompressionRate[] RATES_TO_TESTS = {CompressionRate.Normal, CompressionRate.Extreme, CompressionRate.None, CompressionRate.NoSharing};
-    
+
     private void ioRoundTrip(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
         for (var rate: RATES_TO_TESTS) {
             try {
@@ -260,15 +260,15 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             IValue result = read.read();
             if (!value.equals(result)) {
                 String message = "Not equal: \n\t" + value + " : " + value.getType() + "( " + value.getClass() + ")"
-                + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
+                    + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
                 System.err.println("Test fail:");
                 System.err.println(message);
                 System.err.flush();
                 fail(message);
             }
             else if (value.getType() != result.getType()) {
-                String message = "Type's not equal:\n\t" + value.getType() 
-                + "\n\t" + result.getType();
+                String message = "Type's not equal:\n\t" + value.getType()
+                    + "\n\t" + result.getType();
                 System.err.println(message);
                 fail(message);
             }
@@ -276,8 +276,8 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
                 Type expectedConstructorType = ((IConstructor)value).getConstructorType();
                 Type returnedConstructorType = ((IConstructor)result).getConstructorType();
                 if (expectedConstructorType != returnedConstructorType) {
-                    String message = "Constructor Type's not equal:\n\t" + expectedConstructorType 
-                            + "\n\t" + returnedConstructorType;
+                    String message = "Constructor Type's not equal:\n\t" + expectedConstructorType
+                        + "\n\t" + returnedConstructorType;
                     System.err.println(message);
                     fail(message);
 
@@ -308,7 +308,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             IValue result = read.read();
             if (!value.equals(result)) {
                 String message = "Not equal: size: " + fileSize +") \n\t" + value + " : " + value.getType() + "( " + value.getClass() + ")"
-                + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
+                    + "\n\t" + result + " : " + result.getType()  + "( " + result.getClass() + ")";
                 System.err.println(message);
                 fail(message);
             }
@@ -340,7 +340,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             IValue result = read.read();
             if (!value.equals(result)) {
                 String message = "Not equal: (size: " + fileSize +") \n\t" + value + " : " + value.getType()
-                + "\n\t" + result + " : " + result.getType();
+                    + "\n\t" + result + " : " + result.getType();
                 System.err.println(message);
                 fail(message);
             }

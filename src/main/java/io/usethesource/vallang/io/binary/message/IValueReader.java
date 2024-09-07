@@ -1,15 +1,15 @@
-/** 
- * Copyright (c) 2016, Davy Landman, Paul Klint, Centrum Wiskunde & Informatica (CWI) 
- * All rights reserved. 
- *  
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
- *  
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
- *  
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
- *  
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
- */ 
+/**
+ * Copyright (c) 2016, Davy Landman, Paul Klint, Centrum Wiskunde & Informatica (CWI)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package io.usethesource.vallang.io.binary.message;
 
 import java.io.IOException;
@@ -87,7 +87,7 @@ public class IValueReader {
     }
 
     /**
-     * Read a type from the wire reader. 
+     * Read a type from the wire reader.
      */
     public static Type readType(IWireInputStream reader, IValueFactory vf, Supplier<TypeStore> typeStoreSupplier) throws IOException {
         int typeWindowSize = 0;
@@ -146,58 +146,58 @@ public class IValueReader {
     private final TrackLastRead<Type> typeWindow;
     private final TrackLastRead<IValue> valueWindow;
     private final TrackLastRead<ISourceLocation> uriWindow;
-    
+
     @SuppressWarnings("deprecation")
     private Type readType(final IWireInputStream reader) throws IOException{
         reader.next();
         switch (reader.message()) {
-            case IValueIDs.BoolType.ID:  
+            case IValueIDs.BoolType.ID:
                 reader.skipMessage(); // forward to the end
                 return tf.boolType();
 
-            case IValueIDs.DateTimeType.ID:    
+            case IValueIDs.DateTimeType.ID:
                 reader.skipMessage();
                 return tf.dateTimeType();
 
-            case IValueIDs.IntegerType.ID:     
-                reader.skipMessage(); 
+            case IValueIDs.IntegerType.ID:
+                reader.skipMessage();
                 return tf.integerType();
 
-            case IValueIDs.NodeType.ID:        
+            case IValueIDs.NodeType.ID:
                 reader.skipMessage();
                 return tf.nodeType();
 
-            case IValueIDs.NumberType.ID:  
+            case IValueIDs.NumberType.ID:
                 reader.skipMessage();
                 return tf.numberType();
 
-            case IValueIDs.RationalType.ID:     
+            case IValueIDs.RationalType.ID:
                 reader.skipMessage();
                 return tf.rationalType();
 
-            case IValueIDs.RealType.ID:        
+            case IValueIDs.RealType.ID:
                 reader.skipMessage();
                 return tf.realType();
 
-            case IValueIDs.SourceLocationType.ID:     
+            case IValueIDs.SourceLocationType.ID:
                 reader.skipMessage();
                 return tf.sourceLocationType();
 
-            case IValueIDs.StringType.ID:     
+            case IValueIDs.StringType.ID:
                 reader.skipMessage();
                 return tf.stringType();
 
-            case IValueIDs.ValueType.ID:       
+            case IValueIDs.ValueType.ID:
                 reader.skipMessage();
                 return tf.valueType();
 
-            case IValueIDs.VoidType.ID:        
+            case IValueIDs.VoidType.ID:
                 reader.skipMessage();
                 return tf.voidType();
 
                 // Composite types
 
-            case IValueIDs.ADTType.ID: {   
+            case IValueIDs.ADTType.ID: {
                 String name = "";
                 boolean backReference = false;
                 Type typeParam = VOID_TYPE;
@@ -205,10 +205,10 @@ public class IValueReader {
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                         case IValueIDs.ADTType.NAME:
-                            name = reader.getString(); 
+                            name = reader.getString();
                             break;
                         case IValueIDs.ADTType.TYPE_PARAMS:
                             typeParam = readType(reader);
@@ -223,7 +223,7 @@ public class IValueReader {
                 return returnAndStore(backReference, typeWindow, tf.abstractDataTypeFromTuple(store, name, typeParam));
             }
 
-            case IValueIDs.AliasType.ID:   {   
+            case IValueIDs.AliasType.ID:   {
                 String name = "";
                 boolean backReference = false;
                 Type typeParameters = VOID_TYPE;
@@ -232,10 +232,10 @@ public class IValueReader {
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                         case IValueIDs.AliasType.NAME:
-                            name = reader.getString(); 
+                            name = reader.getString();
                             break;
                         case IValueIDs.AliasType.ALIASED:
                             aliasedType = readType(reader);
@@ -263,10 +263,10 @@ public class IValueReader {
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                         case IValueIDs.ConstructorType.NAME:
-                            name = reader.getString(); 
+                            name = reader.getString();
                             break;
                         case IValueIDs.ConstructorType.ADT:
                             adtType = readType(reader);
@@ -285,12 +285,12 @@ public class IValueReader {
             // External
             case IValueIDs.ExternalType.ID: {
 
-                boolean backReference = false; 
+                boolean backReference = false;
                 @MonotonicNonNull IConstructor symbol = null;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                         case IValueIDs.ExternalType.SYMBOL:
                             symbol = (IConstructor) readValue(reader);
@@ -315,7 +315,7 @@ public class IValueReader {
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                         case IValueIDs.ListType.ELEMENT_TYPE:
                             elemType = readType(reader);
@@ -325,14 +325,14 @@ public class IValueReader {
                 return returnAndStore(backReference, typeWindow, tf.listType(elemType));
             }
 
-            case IValueIDs.MapType.ID: {   
+            case IValueIDs.MapType.ID: {
                 boolean backReference = false;
                 Type valType = VOID_TYPE;
                 Type keyType = VOID_TYPE;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                         case IValueIDs.MapType.KEY_TYPE:
                             keyType = readType(reader);
@@ -351,17 +351,17 @@ public class IValueReader {
                 Type bound = VOID_TYPE;
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
-                    switch (reader.field()){ 
+                    switch (reader.field()){
                         case IValueIDs.ParameterType.NAME:
                             name = reader.getString();
                             break;
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                         case IValueIDs.ParameterType.BOUND:
                             bound = readType(reader);
                             break;
-                            
+
                     }
                 }
                 assert !name.isEmpty();
@@ -375,7 +375,7 @@ public class IValueReader {
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                         case IValueIDs.SetType.ELEMENT_TYPE:
                             elemType = readType(reader);
@@ -391,7 +391,7 @@ public class IValueReader {
                 Type[] elemTypes = new Type[0];
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
-                    switch (reader.field()){ 
+                    switch (reader.field()){
                         case IValueIDs.TupleType.NAMES:
                             fieldNames = reader.getStrings();
                             break;
@@ -402,7 +402,7 @@ public class IValueReader {
                             }
                             break;
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
+                            backReference = true;
                             break;
                     }
                 }
@@ -418,7 +418,7 @@ public class IValueReader {
             case IValueIDs.PreviousType.ID: {
                 int n = -1;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
-                    switch (reader.field()){ 
+                    switch (reader.field()){
                         case IValueIDs.PreviousType.HOW_LONG_AGO:
                             n = reader.getInteger();
                             break;
@@ -492,14 +492,14 @@ public class IValueReader {
         IValue[] children = new IValue[0];
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
-                    backReference = true; 
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true;
                     break;
                 case IValueIDs.TupleValue.CHILDREN:
                     int size = reader.getRepeatedLength();
                     children = new IValue[size];
                     switch (size) {
-                        case 1: 
+                        case 1:
                             children[0] = readValue(reader);
                             break;
                         case 2:
@@ -526,8 +526,8 @@ public class IValueReader {
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
-                    backReference = true; 
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true;
                     break;
                 case IValueIDs.SetValue.ELEMENTS:
                     int size = reader.getRepeatedLength();
@@ -560,8 +560,8 @@ public class IValueReader {
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
-                    backReference = true; 
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true;
                     break;
                 case IValueIDs.ListValue.ELEMENTS:
                     int size = reader.getRepeatedLength();
@@ -596,8 +596,8 @@ public class IValueReader {
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
-                    backReference = true; 
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true;
                     break;
                 case IValueIDs.MapValue.KV_PAIRS:
                     int size = reader.getRepeatedLength();
@@ -622,33 +622,33 @@ public class IValueReader {
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
-                    backReference = true; 
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true;
                     break;
-                case IValueIDs.NodeValue.NAME: 
-                    name = reader.getString(); 
+                case IValueIDs.NodeValue.NAME:
+                    name = reader.getString();
                     break;
-                case IValueIDs.NodeValue.PARAMS: 
+                case IValueIDs.NodeValue.PARAMS:
                     children = new IValue[reader.getRepeatedLength()];
                     for (int i = 0; i < children.length; i++) {
                         children[i] = readValue(reader);
                     }
                     break;
-                case IValueIDs.NodeValue.KWPARAMS: 
+                case IValueIDs.NodeValue.KWPARAMS:
                     kwParams = readNamedValues(reader);
                     break;
-                case IValueIDs.NodeValue.ANNOS: 
+                case IValueIDs.NodeValue.ANNOS:
                     annos = readNamedValues(reader);
                     break;
             }
         }
 
         INode node = vf.node(name, children);
-        
+
         if (!annos.isEmpty()) {
             kwParams = simulateAnnotationsWithKeywordParameters(tf.nodeType(), kwParams, annos);
         }
-        
+
         if (!kwParams.isEmpty()) {
             node = node.asWithKeywordParameters().setParameters(kwParams);
         }
@@ -666,13 +666,13 @@ public class IValueReader {
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
-                    backReference = true; 
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true;
                     break;
-                case IValueIDs.ConstructorValue.TYPE: 
+                case IValueIDs.ConstructorValue.TYPE:
                     type = readType(reader);
                     break;
-                case IValueIDs.ConstructorValue.PARAMS: 
+                case IValueIDs.ConstructorValue.PARAMS:
                     children = new IValue[reader.getRepeatedLength()];
                     switch (children.length) {
                         case 1 :
@@ -695,10 +695,10 @@ public class IValueReader {
                     }
                     assert paramsAreCorrectType(children, type);
                     break;
-                case IValueIDs.ConstructorValue.KWPARAMS: 
+                case IValueIDs.ConstructorValue.KWPARAMS:
                     kwParams = readNamedValues(reader);
                     break;
-                case IValueIDs.ConstructorValue.ANNOS: 
+                case IValueIDs.ConstructorValue.ANNOS:
                     annos = readNamedValues(reader);
                     break;
             }
@@ -709,24 +709,24 @@ public class IValueReader {
         }
 
         IConstructor constr = vf.constructor(type, children);
-        
+
         if (!annos.isEmpty()) {
             kwParams = simulateAnnotationsWithKeywordParameters(constr.getType(), kwParams, annos);
         }
-        
+
         if (!kwParams.isEmpty()) {
             constr = constr.asWithKeywordParameters().setParameters(kwParams);
         }
-        
+
         return returnAndStore(backReference, valueWindow, constr);
     }
 
-    /** 
+    /**
      * For bootstrapping purposes we still support annotations in the binary reader (not in the writer).
      * Here all annotations are converted to corresponding keyword parameters and the `Tree@\loc` annotation
      * is rewritten to `Tree.src`
-     * @param receiver 
-     * 
+     * @param receiver
+     *
      * @deprecated
      * @param kwParams
      * @param annos
@@ -737,10 +737,10 @@ public class IValueReader {
         for (Entry<String,IValue> entry : (Iterable<Entry<String, IValue>>) () -> annos.entryIterator()) {
             String key = entry.getKey();
             IValue value = entry.getValue();
-            
+
             kwParams = kwParams.__put(isLegacyParseTreeLocAnnotation(key, receiver) ? "src" : key, value);
         }
-        
+
         return kwParams;
     }
 
@@ -783,11 +783,11 @@ public class IValueReader {
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
-                    backReference = true; 
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true;
                     break;
-                case IValueIDs.StringValue.CONTENT: 
-                    str = reader.getString(); 
+                case IValueIDs.StringValue.CONTENT:
+                    str = reader.getString();
                     break;
                 default:
                     reader.skipNestedField();
@@ -809,10 +809,10 @@ public class IValueReader {
                     backReference = true;
                     break;
                 case IValueIDs.RealValue.SCALE:
-                    scale = reader.getInteger(); 
+                    scale = reader.getInteger();
                     break;
                 case IValueIDs.RealValue.CONTENT:
-                    bytes = reader.getBytes(); 
+                    bytes = reader.getBytes();
                     break;
                 default:
                     reader.skipNestedField();
@@ -870,8 +870,8 @@ public class IValueReader {
                 case IValueIDs.SourceLocationValue.SCHEME: scheme = reader.getString(); break;
                 case IValueIDs.SourceLocationValue.AUTHORITY: authority = reader.getString(); break;
                 case IValueIDs.SourceLocationValue.PATH: path = reader.getString(); break;
-                case IValueIDs.SourceLocationValue.QUERY: query = reader.getString(); break;    
-                case IValueIDs.SourceLocationValue.FRAGMENT: fragment = reader.getString(); break;    
+                case IValueIDs.SourceLocationValue.QUERY: query = reader.getString(); break;
+                case IValueIDs.SourceLocationValue.FRAGMENT: fragment = reader.getString(); break;
                 case IValueIDs.SourceLocationValue.OFFSET: offset = reader.getInteger(); break;
                 case IValueIDs.SourceLocationValue.LENGTH: length = reader.getInteger(); break;
                 case IValueIDs.SourceLocationValue.BEGINLINE: beginLine = reader.getInteger(); break;
@@ -883,7 +883,7 @@ public class IValueReader {
         ISourceLocation loc;
         if (previousURI != -1) {
             loc = uriWindow.lookBack(previousURI);
-        } 
+        }
         else {
             try {
                 loc = vf.sourceLocation(scheme, authority, path, query, fragment);
@@ -979,5 +979,5 @@ public class IValueReader {
 
         return vf.bool(value);
     }
-  
+
 }

@@ -26,21 +26,21 @@ public class StreamTest {
 
         assertEquals(answer, numbers);
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void topdown(IValueFactory vf, @GivenValue(TREE) IValue v, @GivenValue(TOPDOWN) IValue answer) {
         IList numbers = ValueStreams.topdown(v).map((n) -> vf.string(((INode) n).getName())).collect(vf.listWriter());
 
         assertEquals(answer, numbers);
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void topdownBreadthFirst(IValueFactory vf, @GivenValue(TREE) IValue v, @GivenValue(TOPDOWNBREADTHFIRST) IValue answer) {
         IList numbers = ValueStreams.topdownbf(v).map((n) -> vf.string(((INode) n).getName())).collect(vf.listWriter());
 
         assertEquals(answer, numbers);
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void bottomupBreadthFirst(IValueFactory vf, @GivenValue(TREE) IValue v, @GivenValue(BOTTOMUPBREADTHFIRST) IValue answer) {
         IList numbers = ValueStreams.bottomupbf(v).map((n) -> vf.string(((INode) n).getName())).collect(vf.listWriter());

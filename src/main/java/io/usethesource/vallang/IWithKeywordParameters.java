@@ -8,7 +8,7 @@
  * Contributors:
  *
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang;
 
@@ -19,76 +19,76 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 public interface IWithKeywordParameters<T extends IValue> {
 
-	/**
-	 * Get the value of a parmeter
-	 * 
-	 * @param label identifies the parameter
-	 * @return a value if the parameter has a value on this node or null otherwise
-	 */
-	public @Nullable IValue getParameter(String label);
-	
-	/**
-	 * Set the value of an parameter
-	 * 
-	 * @param label identifies the parameter
-	 * @param newValue the new value for the parameter
-	 * @return a new node where the value of the parameter is replaced (if previously present) or newly added
-	 * @throws FactTypeUseException when the type of the new value is not comparable to the old parameter value
-	 */
-	public T setParameter(String label, IValue newValue);
+    /**
+     * Get the value of a parmeter
+     *
+     * @param label identifies the parameter
+     * @return a value if the parameter has a value on this node or null otherwise
+     */
+    public @Nullable IValue getParameter(String label);
 
-	/**
-	 * Unset the value of an parameter
-	 * 
-	 * @param label identifies the parameter
-	 * @return a new node where the value of the parameter is not present anymore
-	 */
-	public T unsetParameter(String label);
+    /**
+     * Set the value of an parameter
+     *
+     * @param label identifies the parameter
+     * @param newValue the new value for the parameter
+     * @return a new node where the value of the parameter is replaced (if previously present) or newly added
+     * @throws FactTypeUseException when the type of the new value is not comparable to the old parameter value
+     */
+    public T setParameter(String label, IValue newValue);
 
-	/**
-	 * Unset the values of all parameters
-	 * 
-	 * @param label identifies the parameter
-	 * @return a new node where the value of all keyword parameters are unset
-	 */
-	public T unsetAll();
-	
-	/**
-	 * Check whether a certain parameter is set.
-	 * 
-	 * @param label identifies the parameter
-	 * @return true iff the parameter has a value on this node
-	 * @throws FactTypeUseException when no parameter with this label is defined for this type of node.
-	 */
-	public boolean hasParameter(String label);
+    /**
+     * Unset the value of an parameter
+     *
+     * @param label identifies the parameter
+     * @return a new node where the value of the parameter is not present anymore
+     */
+    public T unsetParameter(String label);
 
-	/**
-	 * Check whether any parameters are present.
-	 */
-	public boolean hasParameters();
-	
-	/**
-	 * @return a set of parameter names
-	 */
-	public Set<String> getParameterNames();
+    /**
+     * Unset the values of all parameters
+     *
+     * @param label identifies the parameter
+     * @return a new node where the value of all keyword parameters are unset
+     */
+    public T unsetAll();
 
-	/**
-	 * @return an unmodifiable map for the keyword parameters
-	 */
-	Map<String, IValue> getParameters();
+    /**
+     * Check whether a certain parameter is set.
+     *
+     * @param label identifies the parameter
+     * @return true iff the parameter has a value on this node
+     * @throws FactTypeUseException when no parameter with this label is defined for this type of node.
+     */
+    public boolean hasParameter(String label);
 
-	/**
-	 * 
-	 * @param params
-	 * @return
-	 */
-	T setParameters(Map<String, IValue> params);
+    /**
+     * Check whether any parameters are present.
+     */
+    public boolean hasParameters();
 
-	/**
-	 * Given an arbitrary other IWithKeywordParameters, compare the values of the
-	 * parameters.
-	 * @param other
-	 * @return true iff the parameters are the same (same labels, same values)
-	 */
-	<U extends IWithKeywordParameters<? extends IValue>> boolean equalParameters(U other);
+    /**
+     * @return a set of parameter names
+     */
+    public Set<String> getParameterNames();
+
+    /**
+     * @return an unmodifiable map for the keyword parameters
+     */
+    Map<String, IValue> getParameters();
+
+    /**
+     *
+     * @param params
+     * @return
+     */
+    T setParameters(Map<String, IValue> params);
+
+    /**
+     * Given an arbitrary other IWithKeywordParameters, compare the values of the
+     * parameters.
+     * @param other
+     * @return true iff the parameters are the same (same labels, same values)
+     */
+    <U extends IWithKeywordParameters<? extends IValue>> boolean equalParameters(U other);
 }

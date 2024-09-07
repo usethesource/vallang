@@ -40,7 +40,7 @@ public abstract class TrackReadsTestBase {
         w.read(d);
         assertSame(c, w.lookBack(1));
     }
-    
+
     @Test
     public void testLargeReads() {
         Object[] elements = new Object[10000];;

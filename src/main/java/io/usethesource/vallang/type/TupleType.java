@@ -178,7 +178,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public Type closure() {
         if (getArity() == 2) {
             Type lub = fFieldTypes[0].lub(fFieldTypes[1]);
-            return TF.tupleType(lub, lub); 
+            return TF.tupleType(lub, lub);
         }
         return super.closure();
     }
@@ -186,7 +186,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     /**
      * Compute a new tupletype that is the lub of t1 and t2. Precondition: t1
      * and t2 have the same arity.
-     * 
+     *
      * @param t1
      * @param t2
      * @return a TupleType which is the lub of t1 and t2
@@ -205,7 +205,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     /**
      * Compute a new tupletype that is the glb of t1 and t2. Precondition: t1
      * and t2 have the same arity.
-     * 
+     *
      * @param t1
      * @param t2
      * @return a TupleType which is the glb of t1 and t2
@@ -220,12 +220,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
         return TypeFactory.getInstance().tupleType(fieldTypes);
     }
-    
+
     @Override
     public boolean hasFieldNames() {
         return false;
     }
-    
+
     @Override
     public boolean hasField(String fieldName) {
         return false;
@@ -249,11 +249,11 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-        
+
         if (!obj.getClass().equals(getClass())) {
             return false;
         }
@@ -330,26 +330,26 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public Type glb(Type type) {
         return type.glbWithTuple(this);
     }
-    
+
     @Override
     public boolean intersects(Type other) {
         return other.intersectsWithTuple(this);
     }
-    
+
     @Override
     protected boolean intersectsWithTuple(Type type) {
         int N = this.getArity();
-        
+
         if (N != type.getArity()) {
             return false;
         }
-        
+
         for (int i = 0; i < N; i++) {
             if (!this.getFieldType(i).intersects(type.getFieldType(i))) {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -367,10 +367,10 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
         return false;
     }
-    
+
     @Override
     protected boolean isSubtypeOfVoid(Type type) {
-        // this can happen if one of the elements is a type parameter which 
+        // this can happen if one of the elements is a type parameter which
         // might degenerate to void.
         if (isOpen()) {
             for (Type elem : this) {
@@ -457,22 +457,22 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             return TypeFactory.getInstance().tupleType(fieldTypes);
         }
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         IValue[] elems = new IValue[getArity()];
-        
+
         for (int i = 0; i < elems.length; i++) {
             assert !getFieldType(i).isBottom() : "field " + i + " has illegal type void";
             elems[i] = getFieldType(i).randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
         }
-        
+
         ITuple done = vf.tuple(elems);
         match(done.getType(), typeParameters);
-        
+
         return done;
     }
-    
+
     @Override
     public boolean isTuple() {
         return true;

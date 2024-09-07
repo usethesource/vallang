@@ -192,7 +192,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         Type oldElementType = getType().getElementType();
         Type newElementType = TypeFactory.getInstance().voidType();
-        
+
         for(IValue el : newData) {
             if (newElementType == oldElementType) {
                 // the type can only get more specific
@@ -223,7 +223,7 @@ import io.usethesource.vallang.type.TypeFactory;
         if (o == this) {
             return true;
         }
-        
+
         if (o == null) {
             return false;
         }
@@ -326,7 +326,7 @@ class SubList implements IList {
         if (o == this) {
             return true;
         }
-        
+
         if (o == null) {
             return false;
         }
@@ -340,7 +340,7 @@ class SubList implements IList {
         if (o instanceof IList) {
             return defaultEquals(o);
         }
-        
+
         return false;
     }
 
@@ -503,7 +503,7 @@ class SubList implements IList {
     @Override
     public IList reverse() {
         ListWriter w = new ListWriter();
-        for(int i = offset + length - 1; i >= offset; i--){	
+        for(int i = offset + length - 1; i >= offset; i--){
             w.append(base.get(i));
         }
         return w.done();

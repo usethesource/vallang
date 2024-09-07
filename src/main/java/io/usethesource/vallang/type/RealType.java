@@ -29,140 +29,140 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class RealType extends NumberType {
-	private final static class InstanceKeeper {
-		public final static RealType sInstance = new RealType();
-	}
+    private final static class InstanceKeeper {
+        public final static RealType sInstance = new RealType();
+    }
 
-	public static RealType getInstance() {
-		return InstanceKeeper.sInstance;
-	}
-	
-	public static class Info extends TypeFactory.TypeReifier {
+    public static RealType getInstance() {
+        return InstanceKeeper.sInstance;
+    }
 
-		public Info(TypeValues symbols) {
-			super(symbols);
-		}
+    public static class Info extends TypeFactory.TypeReifier {
 
-		@Override
-		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("real");
-		}
+        public Info(TypeValues symbols) {
+            super(symbols);
+        }
 
-		@Override
-		public Type fromSymbol(IConstructor symbol, TypeStore store,
+        @Override
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("real");
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store,
                            Function<IConstructor, Set<IConstructor>> grammar) {
-			return getInstance();
-		}
-		
-		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-		    return tf().realType();
-		}
-	}
-	
-	@Override
-	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
-		return new Info(symbols);
-	}
+            return getInstance();
+        }
 
-	/**
-	 * Should never need to be called; there should be only one instance of
-	 * IntegerType
-	 */
-	@Override
-	public boolean equals(@Nullable Object obj) {
-    return obj == RealType.getInstance();
-}
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            return tf().realType();
+        }
+    }
 
-	@Override
-	public int hashCode() {
-		return 84121;
-	}
+    @Override
+    public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
+    }
 
-	@Override
-	public String toString() {
-		return "real";
-	}
+    /**
+     * Should never need to be called; there should be only one instance of
+     * IntegerType
+     */
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return obj == RealType.getInstance();
+    }
 
-	@Override
-	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-		return visitor.visitReal(this);
-	}
+    @Override
+    public int hashCode() {
+        return 84121;
+    }
 
-	@Override
-	public boolean isReal() {
-	    return true;
-	}
-	
-	@Override
-	protected boolean isSupertypeOf(Type type) {
-		return type.isSubtypeOfReal(this);
-	}
+    @Override
+    public String toString() {
+        return "real";
+    }
 
-	@Override
-	public Type lub(Type type) {
-		return type.lubWithReal(this);
-	}
+    @Override
+    public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
+        return visitor.visitReal(this);
+    }
 
-	@Override
-	public boolean intersects(Type other) {
-	    return other.intersectsWithReal(this);
-	}
-	
-	@Override
-	protected boolean intersectsWithReal(Type type) {
-	  return true;
-	}
-	
-	@Override
-	protected boolean intersectsWithRational(Type type) {
-	    return false;
-	}
-	
-	@Override
-	protected boolean intersectsWithInteger(Type type) {
-	    return false;
-	}
-	
-	@Override
-	public Type glb(Type type) {
-		return type.glbWithReal(this);
-	}
+    @Override
+    public boolean isReal() {
+        return true;
+    }
 
-	@Override
-	protected Type lubWithReal(Type type) {
-		return this;
-	}
+    @Override
+    protected boolean isSupertypeOf(Type type) {
+        return type.isSubtypeOfReal(this);
+    }
 
-	@Override
-	protected Type glbWithReal(Type type) {
-		return this;
-	}
+    @Override
+    public Type lub(Type type) {
+        return type.lubWithReal(this);
+    }
 
-	@Override
-	protected Type glbWithNumber(Type type) {
-		return this;
-	}
+    @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithReal(this);
+    }
 
-	@Override
-	protected Type glbWithRational(Type type) {
-		return VoidType.getInstance();
-	}
+    @Override
+    protected boolean intersectsWithReal(Type type) {
+        return true;
+    }
 
-	@Override
-	protected Type glbWithInteger(Type type) {
-		return VoidType.getInstance();
-	}
+    @Override
+    protected boolean intersectsWithRational(Type type) {
+        return false;
+    }
 
-	@Override
-	protected boolean isSubtypeOfReal(Type type) {
-		return true;
-	}
-	
-	@Override
-	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-	        int maxDepth, int maxWidth) {
-	    if (RandomUtil.oneEvery(random, 5)) {
+    @Override
+    protected boolean intersectsWithInteger(Type type) {
+        return false;
+    }
+
+    @Override
+    public Type glb(Type type) {
+        return type.glbWithReal(this);
+    }
+
+    @Override
+    protected Type lubWithReal(Type type) {
+        return this;
+    }
+
+    @Override
+    protected Type glbWithReal(Type type) {
+        return this;
+    }
+
+    @Override
+    protected Type glbWithNumber(Type type) {
+        return this;
+    }
+
+    @Override
+    protected Type glbWithRational(Type type) {
+        return VoidType.getInstance();
+    }
+
+    @Override
+    protected Type glbWithInteger(Type type) {
+        return VoidType.getInstance();
+    }
+
+    @Override
+    protected boolean isSubtypeOfReal(Type type) {
+        return true;
+    }
+
+    @Override
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+            int maxDepth, int maxWidth) {
+        if (RandomUtil.oneEvery(random, 5)) {
             return vf.real(10 * random.nextDouble());
         }
         if (RandomUtil.oneEvery(random, 5)) {
@@ -182,5 +182,5 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         return vf.real(0.0);
-	}
+    }
 }

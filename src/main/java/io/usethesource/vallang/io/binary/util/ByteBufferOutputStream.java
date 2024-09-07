@@ -5,27 +5,27 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 public abstract class ByteBufferOutputStream extends OutputStream {
-    
+
     protected ByteBuffer target;
     protected boolean closed = false;
     public ByteBufferOutputStream(ByteBuffer target) {
         this.target = target;
     }
 
-    
-    
+
+
     public ByteBuffer getBuffer() {
         return target;
     }
-    
+
     /***
-     * Flush the buffer (that has been flipped already) and return the same buffer (but cleared) or a new buffer for the next round. 
+     * Flush the buffer (that has been flipped already) and return the same buffer (but cleared) or a new buffer for the next round.
      * @param toflush the flipped buffer to flush
      * @return a new or the same buffer that has room available for writing.
      * @throws IOException
      */
     protected abstract ByteBuffer flush(ByteBuffer toflush) throws IOException;
-    
+
     @Override
     public void flush() throws IOException {
         if (closed) {
@@ -46,13 +46,13 @@ public abstract class ByteBufferOutputStream extends OutputStream {
         }
         assert target.hasRemaining(): "after a flush, we should have a buffer with some room. (it was: " + target + ")";
     }
-    
+
     @Override
     public void close() throws IOException {
         if (!closed ) {
             try {
                 flush();
-            } 
+            }
             finally {
                 closed = true;
             }
@@ -90,12 +90,12 @@ public abstract class ByteBufferOutputStream extends OutputStream {
     public void write(byte[] b) throws IOException {
         write(b, 0, b.length);
     }
-    
+
     public void write(ByteBuffer buf) throws IOException {
         if (closed) {
             throw new IOException("Stream closed");
         }
-        int originalLimit = buf.limit();  
+        int originalLimit = buf.limit();
         while (buf.hasRemaining()) {
             if (!target.hasRemaining()) {
                 flush();
@@ -106,5 +106,5 @@ public abstract class ByteBufferOutputStream extends OutputStream {
             buf.limit(originalLimit);
         }
     }
-    
+
 }

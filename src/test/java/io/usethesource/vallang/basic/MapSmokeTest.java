@@ -52,7 +52,7 @@ public final class MapSmokeTest {
     private IMap[] testMaps(IValueFactory vf) {
         IMap empty = vf.mapWriter().done();
 
-        IMap[] testMaps = new IMap[] {empty, 
+        IMap[] testMaps = new IMap[] {empty,
                 empty.put(vf.string("Bergen"), vf.string("Amsterdam")),
                 empty.put(vf.string("Bergen"), vf.string("Amsterdam"))
                 .put(vf.string("Mango"), vf.string("Yummy")),
@@ -72,7 +72,7 @@ public final class MapSmokeTest {
     private StringPair[] keyValues(IValueFactory vf) {
 
         String[] strings = new String[] {"Bergen", "Amsterdam", "Frankfurt", "Helsinki", "Moscow",
-                "Rainy", "Cold", "Mango", "Banana", "Sweet", "Yummy"};
+            "Rainy", "Cold", "Mango", "Banana", "Sweet", "Yummy"};
         List<String> list1 = Arrays.asList(strings);
         List<String> list2 = Arrays.asList(strings);
         Collections.shuffle(list1);

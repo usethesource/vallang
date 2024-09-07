@@ -56,15 +56,15 @@ import io.usethesource.vallang.type.TypeStore;
  *     lists of lists, tuples of tuples, lists in tuples, sets in tuples, etc.
  *     If such nesting is needed, it is required to use a wrapping tree node.</li>
  * </ul>
- * There is no support for NamedTypes yet, only TreeSortType and ConstructorType are 
+ * There is no support for NamedTypes yet, only TreeSortType and ConstructorType are
  * allowed.
- *     
+ *
  * The limitations of this class are governed by wanting to avoid ambiguity
  * while validating XML using the pdb's type system and the inherent impedance
  * mismatch between the type system of pdb and the structure of XML.
- * 
+ *
  * Use this class to import many forms of XML data into PDB.
- * 
+ *
  */
 public class XMLReader extends AbstractTextReader {
     private static final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
@@ -90,7 +90,7 @@ public class XMLReader extends AbstractTextReader {
     private static class Parser {
         private final IValueFactory vf;
         private final TypeStore ts;
-        
+
         public Parser(IValueFactory vf, TypeStore ts) {
             this.vf = vf;
             this.ts = ts;
@@ -286,7 +286,7 @@ public class XMLReader extends AbstractTextReader {
                 IValue[] elements = new IValue[fields.getArity()];
 
                 for (int j = 0; i < children.getLength() && j < fields.getArity(); j++) {
-                    elements[j] = parse(children.item(i++), fields.getFieldType(j));	
+                    elements[j] = parse(children.item(i++), fields.getFieldType(j));
                 }
 
                 @SuppressWarnings("nullness")
@@ -316,7 +316,7 @@ public class XMLReader extends AbstractTextReader {
                     IValue[] elements = new IValue[tuple.getArity()];
 
                     for (int j = 0; i < children.getLength() && j < tuple.getArity(); j++) {
-                        elements[j] = parse(children.item(i++), tuple.getFieldType(j));	
+                        elements[j] = parse(children.item(i++), tuple.getFieldType(j));
                     }
 
                     @SuppressWarnings("nullness")
@@ -347,7 +347,7 @@ public class XMLReader extends AbstractTextReader {
                     IValue[] elements = new IValue[tuple.getArity()];
 
                     for (int j = 0; i < children.getLength() && j < tuple.getArity(); j++) {
-                        elements[j] = parse(children.item(i++), tuple.getFieldType(j));	
+                        elements[j] = parse(children.item(i++), tuple.getFieldType(j));
                     }
 
                     @SuppressWarnings("nullness")

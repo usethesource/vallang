@@ -8,7 +8,7 @@
  * Contributors:
  *
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang;
 
@@ -34,7 +34,7 @@ public interface IMap extends ICollection<IMap> {
     /**
      * Adds a new entry to the map, mapping the key to value. If the
      * key existed before, the old value will be lost.
-     * @param key   
+     * @param key
      * @param value
      * @return a copy of the map with the new key/value mapping
      */
@@ -44,10 +44,10 @@ public interface IMap extends ICollection<IMap> {
         sw.put(key, value);
         return sw.done();
     }
-    
+
     /**
      * Remove the values with the given key.
-     * 
+     *
      * @param key
      * @return a map without entries that are isEqual to the key
      */
@@ -68,7 +68,7 @@ public interface IMap extends ICollection<IMap> {
     @EnsuresNonNullIf(expression="get(#1)", result=true)
     @SuppressWarnings({"contracts.conditional.postcondition"})
     public boolean containsKey(IValue key);
-    
+
     @EqualsMethod
     public default boolean defaultEquals(@Nullable Object other){
         if (other == null) {
@@ -93,21 +93,21 @@ public interface IMap extends ICollection<IMap> {
             if (size() == map2.size()) {
 
                 outer:for (IValue k1 : map2) {
-                    
+
                     // the loop might seem weird but due to the (deprecated)
                     // semantics of node annotations we must check each element
                     // for _deep_ equality. This is a big source of inefficiency
                     // and one of the reasons why the semantics of annotations is
                     // deprecated for "keyword parameters".
-                    
+
                     for (IValue cursor : this) {
                         if (cursor.equals(k1)) {
                             // key was found, now check the value
                             IValue val2 = map2.get(k1);
-                            if (val2 != null && !val2.equals(get(k1))) { 
+                            if (val2 != null && !val2.equals(get(k1))) {
                                 return false;
                             }
-                            
+
                             continue outer;
                         }
                     }
@@ -117,9 +117,9 @@ public interface IMap extends ICollection<IMap> {
             }
         }
 
-        return false;   
+        return false;
     }
-    
+
     public default int defaultHashCode() {
         int hash = 0;
 
@@ -131,7 +131,7 @@ public interface IMap extends ICollection<IMap> {
 
         return hash;
     }
-    
+
     @Override
     public default boolean match(IValue other) {
         if (other == this) {
@@ -146,7 +146,7 @@ public interface IMap extends ICollection<IMap> {
                     IValue v1 = get(k1);
 
                     assert v1 != null : "@AssumeAssertion(nullness)";
-                    
+
                     for (Iterator<IValue> iterator = map2.iterator(); iterator.hasNext();) {
                         IValue k2 = iterator.next();
                         if (k2.match(k1)) {
@@ -164,16 +164,16 @@ public interface IMap extends ICollection<IMap> {
                     return false; // no matching key found for k1
                 }
 
-            return true;
+                return true;
             }
         }
 
         return false;
     }
-    
+
     /**
      * Determine whether a certain value exists in this map.
-     * @param value 
+     * @param value
      * @return true iff there is at least one key that maps to the given value.
      */
     public default boolean containsValue(IValue value) {
@@ -182,7 +182,7 @@ public interface IMap extends ICollection<IMap> {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -192,14 +192,14 @@ public interface IMap extends ICollection<IMap> {
     public default Type getKeyType() {
         return getType().getKeyType();
     }
-    
+
     /**
      * @return the value type for this map
      */
     public default Type getValueType() {
         return getType().getValueType();
     }
-    
+
     /**
      * Adds all key value pairs of the other map to this map (constructing a new one).
      * The values of the other map overwrite the values of this map.
@@ -212,7 +212,7 @@ public interface IMap extends ICollection<IMap> {
         sw.putAll(other);
         return sw.done();
     }
-    
+
     /**
      * Removes all key-value pairs from this map where a key exists in the other map.
      * @param other
@@ -220,16 +220,16 @@ public interface IMap extends ICollection<IMap> {
      */
     public default IMap remove(IMap other) {
         IMapWriter sw = writer();
-        
+
         for (Entry<IValue,IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
             if (!other.containsKey(entry.getKey())) {
                 sw.put(entry.getKey(), entry.getValue());
             }
         }
-        
+
         return sw.done();
     }
-    
+
     /**
      * If the value type of this map is a sub-type of the key type of the other, construct
      * a new map that represents the composition which maps keys of this map to values of
@@ -249,15 +249,15 @@ public interface IMap extends ICollection<IMap> {
 
         return w.done();
     }
-    
+
     @Override
     public IMapWriter writer();
-    
+
     /**
      * Compute the common map (intersection) between this map and another. Any key-value
      * pair that is not present in the other will not be present in the result. This
      * means that if a key exists in both maps, but with a different value, the key
-     * will not be present in the result. 
+     * will not be present in the result.
      * @param other
      * @return a new map containing the common pairs between the two maps.
      */
@@ -268,31 +268,31 @@ public interface IMap extends ICollection<IMap> {
             IValue thisKey = entry.getKey();
             IValue thisValue = entry.getValue();
             IValue otherValue = other.get(thisKey);
-            
+
             if (otherValue != null && thisValue.equals(otherValue)) {
                 sw.put(thisKey, thisValue);
             }
         }
-        
+
         return sw.done();
     }
-    
+
     /**
-	 * Checks if the <code>other</code> map is defined for every key that is
-	 * present in the receiver object.
-	 * 
-	 * @param other
-	 * @return true iff all for every key of the receiver there exists an entry
-	 *         in the other map.
-	 */
+     * Checks if the <code>other</code> map is defined for every key that is
+     * present in the receiver object.
+     *
+     * @param other
+     * @return true iff all for every key of the receiver there exists an entry
+     *         in the other map.
+     */
     public default boolean isSubMap(IMap other) {
         for (Entry<IValue, IValue> entry : (Iterable<Entry<IValue, IValue>>) () -> entryIterator()) {
             IValue key = entry.getKey();
-            
+
             if (!other.containsKey(key)) {
                 return false;
             }
-            
+
             if (!other.get(key).equals(entry.getValue())) {
                 return false;
             }
@@ -300,31 +300,31 @@ public interface IMap extends ICollection<IMap> {
 
         return true;
     }
-    
+
     /**
      * Repeated here for documentation purposes, this iterator
      * returns only the keys of the map, not its values.
-     * 
-     * @return an iterator over the keys of the map 
+     *
+     * @return an iterator over the keys of the map
      */
     @Override
     public Iterator<IValue> iterator();
-    
+
     /**
      * @return an iterator over the values of the map
      */
     public Iterator<IValue> valueIterator();
- 
+
     /**
      * @return an iterator over the keys-value pairs of the map
      */
     public Iterator<Entry<IValue, IValue>> entryIterator();
-    
+
     @Override
     default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         return v.visitMap(this);
     }
-    
+
     @Override
     /**
      * a map should stream key/value tuples

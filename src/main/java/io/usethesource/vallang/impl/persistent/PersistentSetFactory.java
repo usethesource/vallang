@@ -23,74 +23,74 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.util.AbstractTypeBag;
 
 /**
- * Smart constructors for choosing (or converting to) the most appropriate representations based on
- * dynamic types and data.
- */
+* Smart constructors for choosing (or converting to) the most appropriate representations based on
+* dynamic types and data.
+*/
 /*package*/ class PersistentSetFactory {
 
-  /**
-   * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation
-   * by recovering the precise dynamic type.
-   *
-   * @param content internal set representation of an {@link ISet}
-   * @return appropriate {@link ISet} based on data and type
-   */
-  static final ISet from(final Set.Immutable<IValue> content) {
+    /**
+    * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation
+    * by recovering the precise dynamic type.
+    *
+    * @param content internal set representation of an {@link ISet}
+    * @return appropriate {@link ISet} based on data and type
+    */
+    static final ISet from(final Set.Immutable<IValue> content) {
 
-    if (content.isEmpty()) {
-      return EmptySet.EMPTY_SET;
+        if (content.isEmpty()) {
+            return EmptySet.EMPTY_SET;
+        }
+
+        // recover precise dynamic type
+        final AbstractTypeBag elementTypeBag =
+            content.stream().map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+
+        return from(elementTypeBag, content);
     }
 
-    // recover precise dynamic type
-    final AbstractTypeBag elementTypeBag =
-        content.stream().map(IValue::getType).collect(AbstractTypeBag.toTypeBag());
+    /**
+    * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation.
+    *
+    * @param keyTypeBag precise dynamic type of first data column
+    * @param valTypeBag precise dynamic type of second data column
+    * @param content internal multi-map representation of an {@link ISet}
+    * @return appropriate {@link ISet} based on data and type
+    */
+    static final ISet from(final AbstractTypeBag keyTypeBag, final AbstractTypeBag valTypeBag,
+        final SetMultimap.Immutable<IValue, IValue> content) {
 
-    return from(elementTypeBag, content);
-  }
+        if (content.isEmpty()) {
+            return EmptySet.EMPTY_SET;
+        }
 
-  /**
-   * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation.
-   *
-   * @param keyTypeBag precise dynamic type of first data column
-   * @param valTypeBag precise dynamic type of second data column
-   * @param content internal multi-map representation of an {@link ISet}
-   * @return appropriate {@link ISet} based on data and type
-   */
-  static final ISet from(final AbstractTypeBag keyTypeBag, final AbstractTypeBag valTypeBag,
-                         final SetMultimap.Immutable<IValue, IValue> content) {
-
-    if (content.isEmpty()) {
-      return EmptySet.EMPTY_SET;
+        // keep current representation
+        return new PersistentHashIndexedBinaryRelation(keyTypeBag, valTypeBag, content);
     }
 
-    // keep current representation
-    return new PersistentHashIndexedBinaryRelation(keyTypeBag, valTypeBag, content);
-  }
+    /**
+    * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation.
+    *
+    * @param elementTypeBag precise dynamic type of elements of a collection
+    * @param content internal set representation of an {@link ISet}
+    * @return appropriate {@link ISet} based on data and type
+    */
+    static final ISet from(final AbstractTypeBag elementTypeBag,
+        final Set.Immutable<IValue> content) {
 
-  /**
-   * Creating an {@link ISet} instance from a {@link SetMultimap.Immutable} representation.
-   *
-   * @param elementTypeBag precise dynamic type of elements of a collection
-   * @param content internal set representation of an {@link ISet}
-   * @return appropriate {@link ISet} based on data and type
-   */
-  static final ISet from(final AbstractTypeBag elementTypeBag,
-      final Set.Immutable<IValue> content) {
+        final Type elementType = elementTypeBag.lub();
 
-    final Type elementType = elementTypeBag.lub();
+        if (elementType.isBottom()) {
+            return EmptySet.EMPTY_SET;
+        }
 
-    if (elementType.isBottom()) {
-      return EmptySet.EMPTY_SET;
+        if (isTupleOfArityTwo.test(elementType)) {
+            // convert to binary relation
+            return content.stream().map(asInstanceOf(ITuple.class))
+            .collect(ValueCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
+        }
+
+        // keep current representation
+        return new PersistentHashSet(elementTypeBag, content);
     }
-
-    if (isTupleOfArityTwo.test(elementType)) {
-      // convert to binary relation
-      return content.stream().map(asInstanceOf(ITuple.class))
-          .collect(ValueCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
-    }
-
-    // keep current representation
-    return new PersistentHashSet(elementTypeBag, content);
-  }
 
 }

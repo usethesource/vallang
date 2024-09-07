@@ -13,99 +13,99 @@ package io.usethesource.vallang.util;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- * A simple (fast) queue.
- * 
- * @author Arnold Lankamp
- *
- * @param <T> The value type.
- */
+* A simple (fast) queue.
+*
+* @author Arnold Lankamp
+*
+* @param <T> The value type.
+*/
 public final class RotatingQueue<T>{
-	private final static int DEFAULT_CAPACITY = 16;
-	private final static int DEFAULT_CAPACITY_MASK = DEFAULT_CAPACITY - 1;
-	
+    private final static int DEFAULT_CAPACITY = 16;
+    private final static int DEFAULT_CAPACITY_MASK = DEFAULT_CAPACITY - 1;
+
     private @Nullable T[] queue;
     private int capacity;
     private int capacityMask;
     private int nextPutIndex;
     private int getIndex;
-    
+
     /**
-     * Constructor.
-     */
+    * Constructor.
+    */
     @SuppressWarnings("unchecked")
     public RotatingQueue(){
-            super();
+        super();
 
-            capacity = DEFAULT_CAPACITY;
-            capacityMask = DEFAULT_CAPACITY_MASK;
+        capacity = DEFAULT_CAPACITY;
+        capacityMask = DEFAULT_CAPACITY_MASK;
 
-            queue = (T[]) new Object[capacity];
+        queue = (T[]) new Object[capacity];
 
-            nextPutIndex = 1;
-            getIndex = 0;
+        nextPutIndex = 1;
+        getIndex = 0;
     }
-    
+
     private void ensureCapacity(){
-            if(nextPutIndex == getIndex){
-                    int size = capacity;
-                    capacity <<= 1;
-                    capacityMask = capacity - 1;
-                    @SuppressWarnings("unchecked")
-                    T[] newQueue = (T[]) new Object[capacity];
-                    if(getIndex == 0){
-                            System.arraycopy(queue, 0, newQueue, 0, queue.length);
+        if(nextPutIndex == getIndex){
+            int size = capacity;
+            capacity <<= 1;
+            capacityMask = capacity - 1;
+            @SuppressWarnings("unchecked")
+            T[] newQueue = (T[]) new Object[capacity];
+            if(getIndex == 0){
+                System.arraycopy(queue, 0, newQueue, 0, queue.length);
 
-                            nextPutIndex = size;
-                    }else{
-                            int numElemsTillEnd = size - getIndex;
-                            System.arraycopy(queue, getIndex, newQueue, 0, numElemsTillEnd);
-                            System.arraycopy(queue, 0, newQueue, numElemsTillEnd, getIndex);
+                nextPutIndex = size;
+            }else{
+                int numElemsTillEnd = size - getIndex;
+                System.arraycopy(queue, getIndex, newQueue, 0, numElemsTillEnd);
+                System.arraycopy(queue, 0, newQueue, numElemsTillEnd, getIndex);
 
-                            getIndex = 0;
-                            nextPutIndex = size;
-                    }
-
-                    queue = newQueue;
+                getIndex = 0;
+                nextPutIndex = size;
             }
+
+            queue = newQueue;
+        }
     }
-    
+
     /**
-     * Enqueues the given element.
-     * 
-     * @param element
-     *            The element to enqueue.
-     */
+    * Enqueues the given element.
+    *
+    * @param element
+    *            The element to enqueue.
+    */
     public void put(T element){
-            ensureCapacity();
+        ensureCapacity();
 
-            queue[nextPutIndex] = element;
+        queue[nextPutIndex] = element;
 
-            nextPutIndex = (nextPutIndex + 1) & capacityMask;
+        nextPutIndex = (nextPutIndex + 1) & capacityMask;
     }
-    
+
     /**
-     * Check if the queue contains any elements.
-     * 
-     * @return True if the queue contains any elements; false otherwise.
-     */
+    * Check if the queue contains any elements.
+    *
+    * @return True if the queue contains any elements; false otherwise.
+    */
     public boolean isEmpty(){
-            return (nextPutIndex == ((getIndex + 1) & capacityMask));
+        return (nextPutIndex == ((getIndex + 1) & capacityMask));
     }
-    
+
     /**
-     * Returns and removes the next element from the queue.
-     * 
-     * @return The next element from the queue; null if the queue was empty.
-     */
+    * Returns and removes the next element from the queue.
+    *
+    * @return The next element from the queue; null if the queue was empty.
+    */
     public @Nullable T get(){
-            if(isEmpty()) {
-                return null;
-            }
+        if(isEmpty()) {
+            return null;
+        }
 
-            getIndex = (getIndex + 1) & capacityMask;
-            T element = queue[getIndex];
-            queue[getIndex] = null;
+        getIndex = (getIndex + 1) & capacityMask;
+        T element = queue[getIndex];
+        queue[getIndex] = null;
 
-            return element;
+        return element;
     }
 }

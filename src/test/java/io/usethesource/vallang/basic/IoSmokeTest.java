@@ -115,26 +115,26 @@ public class IoSmokeTest extends BooleanStoreProvider {
         IValue u = reader.read(vf, new StringReader(w.toString()));
         assertEquals(u, vf.tuple());
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testLegacyAnnotationTextReaderNode(IValueFactory vf) throws FactTypeUseException, IOException {
         String input = "\"node\"()[@anno=2]";
         StandardTextReader reader = new StandardTextReader();
         IValue s = reader.read(vf, new StringReader(input));
-        
+
         assertEquals(s.asWithKeywordParameters().getParameter("anno"), vf.integer(2));
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testLegacyAnnotationTextReaderConstructor(IValueFactory vf, TypeFactory tf, TypeStore store) throws FactTypeUseException, IOException {
         Type A = tf.abstractDataType(store, "A");
         tf.constructor(store, A, "a");
         store.declareKeywordParameter(A, "anno", tf.integerType());
-        
+
         String input = "a()[@anno=2]";
         StandardTextReader reader = new StandardTextReader();
         IValue s = reader.read(vf, store, A, new StringReader(input));
-        
+
         assertEquals(s.asWithKeywordParameters().getParameter("anno"), vf.integer(2));
     }
 }

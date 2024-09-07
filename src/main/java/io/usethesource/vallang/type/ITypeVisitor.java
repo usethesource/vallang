@@ -12,30 +12,30 @@
 package io.usethesource.vallang.type;
 
 /**
- * Visitor interface for all kinds of Types 
+ * Visitor interface for all kinds of Types
  *
  * @param <T> the result type of the visit methods
  */
 public interface ITypeVisitor<T,E extends Throwable> {
-	T visitReal(Type type) throws E;
-	T visitInteger(Type type) throws E;
-	T visitRational(Type type) throws E;
-	T visitList(Type type) throws E;
-	T visitMap(Type type) throws E;
-	T visitNumber(Type type) throws E;
-	T visitAlias(Type type) throws E;
-	T visitSet(Type type) throws E;
-	T visitSourceLocation(Type type) throws E;
-	T visitString(Type type) throws E;
-	T visitNode(Type type) throws E;
-	T visitConstructor(Type type) throws E;
-	T visitAbstractData(Type type) throws E;
-	T visitTuple(Type type) throws E;
-	T visitValue(Type type) throws E;
-	T visitVoid(Type type) throws E;
-	T visitBool(Type type) throws E;
-	T visitParameter(Type type) throws E;
-	T visitExternal(Type type) throws E;
-	T visitDateTime(Type type) throws E;
-	T visitFunction(Type type) throws E;
+    T visitReal(Type type) throws E;
+    T visitInteger(Type type) throws E;
+    T visitRational(Type type) throws E;
+    T visitList(Type type) throws E;
+    T visitMap(Type type) throws E;
+    T visitNumber(Type type) throws E;
+    T visitAlias(Type type) throws E;
+    T visitSet(Type type) throws E;
+    T visitSourceLocation(Type type) throws E;
+    T visitString(Type type) throws E;
+    T visitNode(Type type) throws E;
+    T visitConstructor(Type type) throws E;
+    T visitAbstractData(Type type) throws E;
+    T visitTuple(Type type) throws E;
+    T visitValue(Type type) throws E;
+    T visitVoid(Type type) throws E;
+    T visitBool(Type type) throws E;
+    T visitParameter(Type type) throws E;
+    T visitExternal(Type type) throws E;
+    T visitDateTime(Type type) throws E;
+    T visitFunction(Type type) throws E;
 }

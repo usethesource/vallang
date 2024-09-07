@@ -13,13 +13,13 @@
 package io.usethesource.vallang.exceptions;
 
 public abstract class FactTypeDeclarationException extends RuntimeException {
-	private static final long serialVersionUID = -2991169068626385361L;
+    private static final long serialVersionUID = -2991169068626385361L;
 
-	public FactTypeDeclarationException(String message) {
-		super(message);
-	}
-	
-	public FactTypeDeclarationException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public FactTypeDeclarationException(String message) {
+        super(message);
+    }
+
+    public FactTypeDeclarationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

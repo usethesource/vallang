@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) CWI 2008 
+ * Copyright (c) CWI 2008
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,33 +28,33 @@ import io.usethesource.vallang.type.TypeStore;
  */
 
 public interface IValueTextReader {
-	/**
-	 * Parse an IValue, validate it and build it if it can be validated.
-	 * 
-	 * @param factory used when building the value
-	 * @param store  declarations of types to use
-	 * @param type   used to validate the value
-	 * @param stream  source of bytes to parse
-	 * @return an IValue that represents the string input
-	 */
-	IValue read(IValueFactory factory, TypeStore store, Type type, Reader reader) throws FactTypeUseException, IOException;
+    /**
+     * Parse an IValue, validate it and build it if it can be validated.
+     *
+     * @param factory used when building the value
+     * @param store  declarations of types to use
+     * @param type   used to validate the value
+     * @param stream  source of bytes to parse
+     * @return an IValue that represents the string input
+     */
+    IValue read(IValueFactory factory, TypeStore store, Type type, Reader reader) throws FactTypeUseException, IOException;
 
-	/**
-	 * Parse an IValue, validate it and build it if it can be validated.
-	 * 
-	 * @param factory used when building the value
-	 * @param type used to validate the value
-	 * @param reader source of character to parse
-	 * @return an IValue that represents the string input
-	 */
-	IValue read(IValueFactory factory, Type type, Reader reader) throws FactTypeUseException, IOException;
-	
-	/**
-	 * Parse an IValue without validation.
-	 * 
-	 * @param factory used when building the value
-	 * @param reader source of characters to parse
-	 * @return an IValue that represents the string input
-	 */
-	IValue read(IValueFactory factory,  Reader reader) throws FactTypeUseException, IOException;
+    /**
+     * Parse an IValue, validate it and build it if it can be validated.
+     *
+     * @param factory used when building the value
+     * @param type used to validate the value
+     * @param reader source of character to parse
+     * @return an IValue that represents the string input
+     */
+    IValue read(IValueFactory factory, Type type, Reader reader) throws FactTypeUseException, IOException;
+
+    /**
+     * Parse an IValue without validation.
+     *
+     * @param factory used when building the value
+     * @param reader source of characters to parse
+     * @return an IValue that represents the string input
+     */
+    IValue read(IValueFactory factory,  Reader reader) throws FactTypeUseException, IOException;
 }

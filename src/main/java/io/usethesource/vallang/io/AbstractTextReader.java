@@ -11,13 +11,13 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public abstract class AbstractTextReader implements IValueTextReader {
-	public IValue read(IValueFactory factory, Type type, Reader reader)
-			throws FactTypeUseException, IOException {
-		return read(factory, new TypeStore(), type, reader);
-	}
+    public IValue read(IValueFactory factory, Type type, Reader reader)
+            throws FactTypeUseException, IOException {
+        return read(factory, new TypeStore(), type, reader);
+    }
 
-	public IValue read(IValueFactory factory, Reader reader)
-			throws FactTypeUseException, IOException {
-		return read(factory, new TypeStore(), TypeFactory.getInstance().valueType(), reader);
-	}
+    public IValue read(IValueFactory factory, Reader reader)
+            throws FactTypeUseException, IOException {
+        return read(factory, new TypeStore(), TypeFactory.getInstance().valueType(), reader);
+    }
 }

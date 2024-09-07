@@ -164,14 +164,14 @@ public class SetWriter implements ISetWriter {
             }
             else if (builder == null) {
                 // first values was not a binary tuple, so let's build a normal set
-                builder = new SetBuilder(); 
+                builder = new SetBuilder();
             }
             else if (builder instanceof MultiMapBuilder) {
                 // special case, previous values were all binary tuples, but the new value isn't
                 MultiMapBuilder oldBuilder = (MultiMapBuilder) builder;
                 builder = new SetBuilder();
                 final Builder finalSetBuilder = builder;
-                oldBuilder.map.tupleStream(constructTuple).forEach(t -> finalSetBuilder.put(t, t.getType()));        
+                oldBuilder.map.tupleStream(constructTuple).forEach(t -> finalSetBuilder.put(t, t.getType()));
             }
         }
 

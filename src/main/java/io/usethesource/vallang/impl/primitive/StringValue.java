@@ -11,7 +11,7 @@
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *   * Jurgen Vinju - balanced trees and lazy indent - CWI
  *   * Bert Lisser - balanced trees and lazy indent - CWI
- *   * Davy Landman - smart unicode implementations - CWI, SWAT.engineering 
+ *   * Davy Landman - smart unicode implementations - CWI, SWAT.engineering
  *******************************************************************************/
 package io.usethesource.vallang.impl.primitive;
 
@@ -43,22 +43,22 @@ import io.usethesource.vallang.type.TypeFactory;
 /**
  * Find here the implementations of IString, which all are (must be) sub-classes of  {@link AbstractString}
  * as an internal design invariant.
- * 
+ *
  * The challenges solved by this implementation:
  *   - cater for and optimize for the normal case of strings containing only normal ASCII characters, while
  *     still allowing all 24-bit unicode characters, see {@link FullUnicodeString} and {@link SimpleUnicodeString}
  *   - optimize string {@link IString#concat(IString)} method, in combination with {@link IString#write(Writer)} and {@link IString#iterator()},
  *     see {@link IStringTreeNode} and {@link LazyConcatString}.
- *   - optimize the {@link IString#indent(IString)} method, in combination with {@link IString#write(Writer)} and {@link IString#iterator()}, 
+ *   - optimize the {@link IString#indent(IString)} method, in combination with {@link IString#write(Writer)} and {@link IString#iterator()},
  *     see {@link IIndentableString} and {@link IndentedString}
- *   - allow non-canonical representations of the same string, in particular making sure that equals() and hashCode() works 
+ *   - allow non-canonical representations of the same string, in particular making sure that equals() and hashCode() works
  *     well across and between different representations of (accidentally) the same string, see {@link AbstractString#hashCode()},
- *     and {@link AbstractString#equals()} and their overrides. 
- *     
+ *     and {@link AbstractString#equals()} and their overrides.
+ *
  * The 'normal' case is defined by what people normally do in Rascal, i.e. using string template expanders a lot,
  * and reading and writing to text files, searching through strings. The other operations on strings are implemented,
  * but less optimally. They're traded for the optimization of {@link IString#concat(IString)} and {@link IString#indent(IString)}.
- * 
+ *
  * TODO: make a faster path for short strings (i.e. English words) which do not contain high surrogate pairs
  */
 /* package */ public class StringValue {
@@ -259,7 +259,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 }
             };
         }
-        
+
         @Override
         public IString indent(IString whitespace, boolean indentFirstLine) {
             return !indentFirstLine ? this : whitespace;
@@ -334,8 +334,8 @@ import io.usethesource.vallang.type.TypeFactory;
 
                 return StringValue.newString(buffer.toString(), hasNonBMPCodePoints() || o.hasNonBMPCodePoints(), newLineCount);
             } else {
-                // For longer strings with many newlines it's usually better to concatenate lazily 
-                // This makes concatenation in O(1) as opposed to O(n) where n is the length of the resulting string. 
+                // For longer strings with many newlines it's usually better to concatenate lazily
+                // This makes concatenation in O(1) as opposed to O(n) where n is the length of the resulting string.
                 return LazyConcatString.build(this, (AbstractString) other);
             }
         }
@@ -349,7 +349,7 @@ import io.usethesource.vallang.type.TypeFactory;
         public int hashCode() {
             return value.hashCode();
         }
-        
+
         @Override
         public boolean equals(@Nullable Object other) {
             return super.equals(other);
@@ -392,7 +392,7 @@ import io.usethesource.vallang.type.TypeFactory;
         private void skipCP(CharBuffer cbuf) {
             if (cbuf.hasRemaining()) {
                 Buffer buffer = (Buffer) cbuf; // to select the right overloaded `position` method in Java 9
-                
+
                 int cp = Character.codePointAt(cbuf, 0);
                 buffer.position(buffer.position() + Character.charCount(cp));
             }
@@ -519,7 +519,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 return;
             }
 
-            // otherwise we have to find the newline characters one-by-one. 
+            // otherwise we have to find the newline characters one-by-one.
             // this implementation tries to quickly find the next newline using indexOf, and streams
             // line by line to optimize copying the characters onto the stream in bigger blobs than 1 character.
             for (int pos = value.indexOf(NEWLINE), next = 0; ; next = pos + 1, pos = value.indexOf(NEWLINE, next)) {
@@ -636,32 +636,32 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     /**
-     * About Lazy indentation 
+     * About Lazy indentation
      * ---
-     * 
+     *
      * The next expensive operation on larger strings is indentation. The {@link #indent(IString)}
      * method should take every non-empty line of the current string and indent it with a given
      * string of whitespace characters.
-     * 
+     *
      * This operation is a bottleneck, after the concatenation bottleneck, since it requires
      * duplicating the entire input in memory if done naively, and that several times depending on the
-     * nesting depth of indentation. A typical expanded string template would require making a number 
-     * of copies in O(d * n), where d is the nesting depth and n is the length of the original string. 
-     * 
+     * nesting depth of indentation. A typical expanded string template would require making a number
+     * of copies in O(d * n), where d is the nesting depth and n is the length of the original string.
+     *
      * A lazy implementation simply remembers that indentation has to be done (in O(1)), and streams the
      * indented value on request directly to a writer (in O(1)). Since large generated strings are bound to be
-     * streamed and not further analyzed, this is beneficial for the typical use. 
-     * 
-     * However, all other operations must still work, so relatively complex "indented" versions of 
+     * streamed and not further analyzed, this is beneficial for the typical use.
+     *
+     * However, all other operations must still work, so relatively complex "indented" versions of
      * all IStringimplementations are distributed over the implementation classes of IString. These
      * operations are slower than their non-indented counterparts since they have to discover where
      * the newlines are over and over again. For example {@link #charAt(int)} goes from being in O(1)
-     * to O(n) since we have to find all exact positions of newline characters. 
-     * 
+     * to O(n) since we have to find all exact positions of newline characters.
+     *
      * Always caching these positions would have too much of a
      * memory overhead. There might be something to say for caching these values for very large
      * strings, while recomputing them on-the-fly for smaller strings, in the future.
-     * 
+     *
      */
     private interface IIndentableString extends IString {
 
@@ -669,8 +669,8 @@ import io.usethesource.vallang.type.TypeFactory;
          * The non-empty lines are the ones which would be indented. This
          * exists to be able to quickly compute the exact length of an indented string,
          * and to be able to blt buffers of single lines directly to the underlying
-         * I/O buffer. 
-         * 
+         * I/O buffer.
+         *
          * @return the number of _non-empty_ lines in a string.
          */
         int lineCount();
@@ -679,7 +679,7 @@ import io.usethesource.vallang.type.TypeFactory;
          * When concatenating indentable strings, the {@link #lineCount()} can
          * be computed exactly in O(1) by knowing if the left string does or does not
          * end in a newline:<br>
-         * 
+         *
          * Example:<br>
          * concat("#####\n", "@@@@@@") has two lines, <br>
          *    because both consituents have a single line and the left ends in a newline.<br>
@@ -694,9 +694,9 @@ import io.usethesource.vallang.type.TypeFactory;
 
         /**
          * Utility function for use in the construction of IIndentableString implementations.
-         * There are details to be handled with respect to the final line of left and the 
+         * There are details to be handled with respect to the final line of left and the
          * first line of right.
-         * 
+         *
          * @param left
          * @param right
          * @return the sum of linecounts of left and right, which depends on whether the concatenation
@@ -704,14 +704,14 @@ import io.usethesource.vallang.type.TypeFactory;
          *        a merge does not happen.
          */
         public static int concatLineCount(IIndentableString left, IIndentableString right) {
-            return left.lineCount() - (left.isNewlineTerminated() ? 0 : 1) + right.lineCount(); 
+            return left.lineCount() - (left.isNewlineTerminated() ? 0 : 1) + right.lineCount();
         }
 
         /**
          * Specialized (hopefully optimized) implementations of streaming an indented version
          * of an IString. Implementations should avoid allocating memory and try to write as many
-         * bytes as possible in one block into the writer. 
-         * 
+         * bytes as possible in one block into the writer.
+         *
          * @param w                writer to write to
          * @param whiteSpace       the whitespace to write before non-empty lines
          * @param indentFirstLine  whether or not to indent the first line
@@ -724,8 +724,8 @@ import io.usethesource.vallang.type.TypeFactory;
 
     /**
      * About balanced concat trees
-     * --- 
-     * 
+     * ---
+     *
      * Concatenation must be fast when generating large strings (for example by a
      * Rascal program which uses `+` and template expansion. With the basic
      * implementation the left-hand side of the concat would always need to be
@@ -733,14 +733,14 @@ import io.usethesource.vallang.type.TypeFactory;
      * bottleneck. The worst case execution time is in O(n^2) where n is the length
      * of the produced string. The smaller the steps taken (the more concat
      * operations) towards this length, the worse it gets.
-     * 
+     *
      * A simple solution is to build a binary tree of concatenation nodes which can
      * later be streamed in a linear fashion. That's a good solution because it is
      * an easy immutable implementation. However, the trees can become quite
      * unbalanced and therefore extremely deep (consider a number of Rascal for
      * loops in a template). The recursion required to stream such a tree would run
      * out of stack space regularly (we know from experience).
-     * 
+     *
      * So the current implementation of a lazy concat string _balances_ the tree to
      * maintain an invariant of an (almost) balanced tree. The worst case depth of
      * the tree will alway be in O(log(length)). We flatten out strings below 512
@@ -748,11 +748,11 @@ import io.usethesource.vallang.type.TypeFactory;
      * efficient. The cost we pay for balancing the tree is in O(log(length)), so
      * concat is now in O(log(length)) instead of in O(1), all to avoid the
      * StackOverflow.
-     * 
+     *
      * Note that an implementation with a destructively updated linked list would be
      * much faster, but due to immutability and lots of sharing of IStrings this is
      * not feasible.
-     * 
+     *
 
      */
     private static interface IStringTreeNode extends IString {
@@ -815,7 +815,7 @@ import io.usethesource.vallang.type.TypeFactory;
         public String toString() {
             return defaultToString();
         }
-        
+
         @Override
         public Type getType() {
             return STRING_TYPE;
@@ -828,11 +828,11 @@ import io.usethesource.vallang.type.TypeFactory;
             if (whitespace.length() == 0) {
                 return this;
             }
-            
+
             if (!indentFirstLine && lineCount() <= 1) {
                 return this;
             }
-            
+
             return new IndentedString(this, whitespace, indentFirstLine);
         }
 
@@ -842,9 +842,9 @@ import io.usethesource.vallang.type.TypeFactory;
          */
         public String getValue() {
             // the IString.length() under-estimates the size of the string if the string
-            // contains many surrogate pairs, but that does not happen a lot in 
+            // contains many surrogate pairs, but that does not happen a lot in
             // most of what we see, so we decided to go for a tight estimate for
-            // "normal" ASCII strings which contain around 10% non BMP code points. 
+            // "normal" ASCII strings which contain around 10% non BMP code points.
 
             int len = length();
 
@@ -895,7 +895,7 @@ import io.usethesource.vallang.type.TypeFactory;
             if (other == null) {
                 return false;
             }
-            
+
             if (other == this) {
                 return true;
             }
@@ -934,7 +934,7 @@ import io.usethesource.vallang.type.TypeFactory;
         /**
          * Note that we used the hashcode algorithm for java.lang.String here, which is
          * necessary because that is also used by the specialized implementations of IString,
-         * namely FullUnicodeString and its subclasses, 
+         * namely FullUnicodeString and its subclasses,
          * which must implement together with this class the hashCode/equals contract.
          */
         public int hashCode() {
@@ -1009,7 +1009,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object other) {
             return super.equals(other);
@@ -1203,12 +1203,12 @@ import io.usethesource.vallang.type.TypeFactory;
                 }
             };
         }
-    
+
         /**
          * Static helper function for the iterator() method.
          *
          * It finds the left-most leaf of the tree, and collects
-         * the path of nodes to this leaf as a side-effect in the todo 
+         * the path of nodes to this leaf as a side-effect in the todo
          * stack.
          */
         private static OfInt leftmostLeafIterator(Deque<AbstractString> todo, IStringTreeNode start) {
@@ -1224,7 +1224,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private static class IndentedString extends AbstractString {
-        private final IString indent; 
+        private final IString indent;
         private final AbstractString wrapped;
         private final boolean indentFirstLine;
         private volatile @MonotonicNonNull AbstractString flattened = null;
@@ -1247,7 +1247,7 @@ import io.usethesource.vallang.type.TypeFactory;
             if (flattened != null) {
                 return flattened.hasNonBMPCodePoints();
             }
-            
+
             return wrapped.hasNonBMPCodePoints();
         }
 
@@ -1256,11 +1256,11 @@ import io.usethesource.vallang.type.TypeFactory;
             if (other.length() == 0) {
                 return this;
             }
-            
+
             if (flattened != null) {
                 return LazyConcatString.build(flattened, (AbstractString) other);
             }
-            
+
             if (other instanceof IndentedString) {
                 IndentedString o = (IndentedString) other;
 
@@ -1282,11 +1282,11 @@ import io.usethesource.vallang.type.TypeFactory;
             if (indent.length() == 0) {
                 return this;
             }
-            
+
             if (flattened != null) {
                 return new IndentedString(flattened, indent, indentFirstLine);
             }
-            
+
             return new IndentedString(wrapped, indent.concat(this.indent), indentFirstLine);
         }
 
@@ -1309,7 +1309,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 public boolean hasNext() {
                     return content.hasNext();
                     // || !nextIndentation.isEmpty() is not needed because if we are out of content we should not indent anyway
-                    // so this makes sure that after a terminating \n no superfluous whitespace is printed before EOF. 
+                    // so this makes sure that after a terminating \n no superfluous whitespace is printed before EOF.
                 }
 
                 @Override
@@ -1322,7 +1322,7 @@ import io.usethesource.vallang.type.TypeFactory;
                     // done with indenting, so continue with the content
                     int cur = content.nextInt();
 
-                    // detect if we have to start indenting 
+                    // detect if we have to start indenting
                     if (cur == NEWLINE) {
                         nextIndentation = indent.iterator();
                     }
@@ -1353,17 +1353,17 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public IString substring(int start, int end) {
-            return applyIndentation().substring(start,end); 
+            return applyIndentation().substring(start,end);
         }
 
         @Override
         public int charAt(int index) {
-            return applyIndentation().charAt(index); 
+            return applyIndentation().charAt(index);
         }
 
         @Override
         public IString replace(int first, int second, int end, IString repl) {
-            return applyIndentation().replace(first, second, end, repl); 
+            return applyIndentation().replace(first, second, end, repl);
         }
 
         @Override
@@ -1372,7 +1372,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 flattened.write(w);
                 return;
             }
-            
+
             Deque<IString> indents = new ArrayDeque<>(10);
             indents.push(indent);
             wrapped.indentedWrite(w, indents, indentFirstLine);
@@ -1386,7 +1386,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 flattened.indentedWrite(w, whitespace, indentFirstLine);
                 return;
             }
-            
+
             // TODO: this concat on whitespace is worrying for longer files which consist of about 40% of indentation.
             // for those files this concat is particular quadratic since the strings are short and they
             // are copied over and over again.
@@ -1400,7 +1400,7 @@ import io.usethesource.vallang.type.TypeFactory;
             if (flattened != null) {
                 return flattened.length();
             }
-            
+
             // for every non-empty line an indent would be added to the total number of characters
             return wrapped.length() + (wrapped.lineCount() - (indentFirstLine?0:1)) * indent.length();
         }
@@ -1410,7 +1410,7 @@ import io.usethesource.vallang.type.TypeFactory;
             if (flattened != null) {
                 return flattened.lineCount();
             }
-            
+
             return wrapped.lineCount();
         }
 
@@ -1419,14 +1419,14 @@ import io.usethesource.vallang.type.TypeFactory;
             if (flattened != null) {
                 return flattened.isNewlineTerminated();
             }
-            
+
             return wrapped.isNewlineTerminated();
         }
     }
 
     /**
-     * This embedded class is used to fine tune parameters of the string indentation feature. 
-     * 
+     * This embedded class is used to fine tune parameters of the string indentation feature.
+     *
      * NB! make sure to run with asserts disabled.
      */
     public static class IndentationBenchmarkTool {
@@ -1435,26 +1435,26 @@ import io.usethesource.vallang.type.TypeFactory;
 
         /**
          * Comparing between lazy and eager implementations of indent, we did not observe
-         * a significant effect on the differential diagnostics while testing with real 
-         * files as opposed to this (faster) null writer. 
+         * a significant effect on the differential diagnostics while testing with real
+         * files as opposed to this (faster) null writer.
          */
         private static class NullWriter extends Writer {
             @Override
             public void write(char[] cbuf, int off, int len) throws IOException { }
 
-            
+
             @Override
             public void write(String str) throws IOException { }
-            
+
             @Override
             public void write(String str, int off, int len) throws IOException { }
-            
+
             @Override
             public void write(char[] cbuf) throws IOException {  }
-            
+
             @Override
             public void write(int c) throws IOException { }
-            
+
             @Override
             public void flush() throws IOException { }
 
@@ -1463,14 +1463,14 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         public static void main(String[] args) throws IOException {
-          
+
             long lazyTime = 0L, eagerTime = 0L;
             boolean runLazy = true, runEager =true;
 
 
 
             warmup();
-            
+
             if (runLazy) {
                 System.err.println("Benchmarking lazy implementation... press enter");
                 System.in.read();
@@ -1484,7 +1484,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 for (int i = 0; i < 100; i++) {
                     value.write(new NullWriter());
                 }
-                
+
                 long afterWrite = bean.getCurrentThreadCpuTime();
 
                 lazyTime = afterWrite - start;
@@ -1500,7 +1500,7 @@ import io.usethesource.vallang.type.TypeFactory;
             if (runEager) {
                 System.err.println("Benchmarking eager implementation... press enter");
                 System.in.read();
-                
+
                 long start = bean.getCurrentThreadCpuTime();
                 IString value = buildLargeEagerValue();
 
@@ -1510,7 +1510,7 @@ import io.usethesource.vallang.type.TypeFactory;
                 for (int i = 0; i < 100; i++) {
                     value.write(new NullWriter());
                 }
-                
+
                 long afterWrite = bean.getCurrentThreadCpuTime();
 
                 eagerTime = afterWrite - start;
@@ -1564,7 +1564,7 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         /**
-         * Generates 388650000 characters, which is around 400Mb when written to disk in UTF8, and 800Mb in memory. 
+         * Generates 388650000 characters, which is around 400Mb when written to disk in UTF8, and 800Mb in memory.
          */
         private static IString buildLargeLazyValue() {
             IString ws = vf.string("    ");

@@ -28,17 +28,17 @@ import io.usethesource.vallang.type.TypeStore;
 public class RegressionTests {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void iTupleCastExceptionsInEquals(IValueFactory vf, 
+    public void iTupleCastExceptionsInEquals(IValueFactory vf,
         @GivenValue("{<5,0>,<1330107671,7>,<0,0>}") ISet rel,
         @GivenValue("{6,-1426731573,0}") ISet set) {
-        // these calls would throw ClassCastExceptions because the 
+        // these calls would throw ClassCastExceptions because the
         // receiver or the argument was specialized as a binary relation
         // and contained tuples, while the other was not. Still a cast to
         // ITuple was performed.
-        
+
         // To trigger the bug both sets had to be of equal arity,
         // to avoid short-circuiting the equality check on that.
-        
+
         if (!rel.isEmpty() && !set.isEmpty()) {
             assertTrue(!rel.equals(set));
             assertTrue(!set.equals(rel));
@@ -52,24 +52,24 @@ public class RegressionTests {
         writer.write(loc, target);
         assertEquals(target.toString(), loc.toString());
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     void keywordFieldsMakeConstructorsDifferent(IValueFactory vf, TypeFactory tf, TypeStore store)  {
-       Type X = tf.abstractDataType(store, "X");
-       Type cons = tf.constructor(store, X, "x");
-       store.declareKeywordParameter(X, "name", tf.stringType());
-       
-       IConstructor cons1 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("paul"));
-       IConstructor cons2 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("jurgen"));
+        Type X = tf.abstractDataType(store, "X");
+        Type cons = tf.constructor(store, X, "x");
+        store.declareKeywordParameter(X, "name", tf.stringType());
 
-       assertFalse(cons1.equals(cons2));
+        IConstructor cons1 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("paul"));
+        IConstructor cons2 = vf.constructor(cons).asWithKeywordParameters().setParameter("name", vf.string("jurgen"));
+
+        assertFalse(cons1.equals(cons2));
     }
- 
+
     private IString readString(IValueFactory valueFactory, TypeStore typeStore, String s) throws IOException {
         Reader reader = new StringReader(s);
         StandardTextReader textReader = new StandardTextReader();
         return (IString) textReader.read(valueFactory, typeStore, TypeFactory.getInstance().stringType(), reader);
-        
+
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)

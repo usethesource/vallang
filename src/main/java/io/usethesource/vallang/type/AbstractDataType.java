@@ -37,7 +37,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
  * A AbstractDataType is an algebraic sort. A sort is produced by
  * constructors, @see NodeType. There can be many constructors for a single
  * sort.
- * 
+ *
  * @see ConstructorType
  */
 /* package */ class AbstractDataType extends NodeType {
@@ -139,14 +139,14 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             if (!rnd.isWithRandomAbstractDatatypes()) {
                 return next.get();
             }
-            
+
             if (rnd.nextBoolean()) {
                 Type[] adts = store.getAbstractDataTypes().toArray(new Type[0]);
 
                 if (adts.length > 0) { // otherwise we will generate a new instance down below
                     return adts[rnd.nextInt(adts.length)];
                 }
-            } 
+            }
 
             Type adt;
 
@@ -168,13 +168,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                     // first declare the open type
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1, param2));
                 }
-            } 
+            }
             else {
                 adt = tf().abstractDataType(store, adtName);
             }
 
             // should be defined by at least one nullary constructor
-            tf().constructor(store, adt, randomLabel(rnd)); 
+            tf().constructor(store, adt, randomLabel(rnd));
 
             if (rnd.nextBoolean()) {
                 // and perhaps we generate another one with it:
@@ -209,22 +209,22 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public Type glb(Type type) {
         return type.glbWithAbstractData(this);
     }
-    
+
     @Override
     public boolean intersects(Type other) {
         return other.intersectsWithAbstractData(this);
     }
-    
+
     @Override
     protected boolean intersectsWithAbstractData(Type type) {
         if (!isParameterized()) {
             return type == this;
         }
-        
+
         if (type.getName().equals(this.getName())) {
             return getTypeParameters().intersects(type.getTypeParameters());
         }
-        
+
         return false;
     }
 
@@ -442,7 +442,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         match(done.getType(), typeParameters);
         return done;
     }
-    
+
     @Override
     public boolean isAbstractData() {
         return true;

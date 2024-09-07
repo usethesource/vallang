@@ -103,7 +103,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
             return false;
         }
-        
+
         @Override
         public String toString() {
             return defaultToString();
@@ -726,7 +726,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         public int hashCode() {
             return super.hashCode();
         }
-        
+
         @Override
         public boolean equals(@Nullable Object o) {
             if (o == this) {
@@ -823,14 +823,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
     /**
      * As empty constructors are very common and are only based on a type that is already maximally shared we also maximally share the Constructor0 instances
-     * 
+     *
      * This descreases both memory footprint and allocation overhead.
      */
     private static final LoadingCache<Type, IConstructor> EMPTY_CONSTRUCTOR_SINGLETONS = Caffeine.newBuilder().build(Constructor0::new);
 
     /*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
         assert IConstructor.assertTypeCorrectConstructorApplication(constructorType, children);
-        
+
         if (constructorType.isParameterized()) {
             return new TypeParameterizedConstructorN(constructorType, children);
         }
@@ -853,7 +853,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
         return value;
     }
-    
+
     /*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
         IConstructor r = newConstructor(constructorType, children);
 

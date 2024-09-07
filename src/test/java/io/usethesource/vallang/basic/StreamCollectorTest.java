@@ -19,13 +19,13 @@ public class StreamCollectorTest {
         IList l = elems.stream().collect(vf.listWriter());
         assertEquals(l, elems);
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void setCollector(IValueFactory vf, @ExpectedType("set[int]") ISet elems) {
         ISet l = elems.stream().collect(vf.setWriter());
         assertEquals(l, elems);
     }
-    
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void mapCollector(IValueFactory vf, @ExpectedType("map[int,int]") IMap elems) {
         IMap l = elems.stream().collect(vf.mapWriter());

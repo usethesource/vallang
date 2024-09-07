@@ -16,7 +16,7 @@ public class PersistentSetRelation implements IRelation<ISet> {
     public PersistentSetRelation(ISet set) {
         this.set = set;
     }
-    
+
     @Override
     public ISet asContainer() {
         return set;

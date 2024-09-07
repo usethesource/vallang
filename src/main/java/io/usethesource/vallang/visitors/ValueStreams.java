@@ -48,7 +48,7 @@ public class ValueStreams  {
     public static Stream<IValue> topdown(IValue val) {
         return val.accept(new TopDown());
     }
-    
+
     /**
      * Breadth-first top-down traversal, left-to-right
      * @param val
@@ -56,24 +56,24 @@ public class ValueStreams  {
      */
     public static Stream<IValue> topdownbf(IValue val) {
         Deque<IValue> queue = new ArrayDeque<>();
-        
+
         queue.add(val);
-        
+
         return topdownbf(queue);
     }
-    
+
     private static Stream<IValue> topdownbf(Deque<IValue> queue) {
         if (queue.isEmpty()) {
             return Stream.empty();
         }
-        
+
         IValue val = queue.remove();
 
         val.accept(new QueueChildren(queue));
 
         return Stream.concat(Stream.of(val), topdownbf(queue));
     }
-    
+
     /**
      * Breadth-first bottom-up traversal, right-to-left
      * @param val
@@ -83,16 +83,16 @@ public class ValueStreams  {
         Deque<IValue> queue = new ArrayDeque<>();
         Deque<IValue> stack = new ArrayDeque<>();
         queue.add(val);
-        
+
         while (!queue.isEmpty()) {
             val = queue.remove();
             stack.push(val);
             val.accept(new QueueChildren(queue));
         }
-        
+
         return stack.stream();
     }
-    
+
     private static abstract class Single implements IValueVisitor<Stream<IValue>, RuntimeException> {
         @Override
         public Stream<IValue> visitNode(INode o) {
@@ -164,7 +164,7 @@ public class ValueStreams  {
             return Stream.of(o);
         }
     }
-    
+
     private static class BottomUp extends Single {
         @Override
         public Stream<IValue> visitNode(INode o) {
@@ -220,39 +220,39 @@ public class ValueStreams  {
                     StreamSupport.stream(o.getChildren().spliterator(), false).flatMap(c -> c.accept(this))
                     );
         }
-    
+
         @Override
         public Stream<IValue> visitList(IList o)  {
             return Stream.concat(Stream.of(o),
                     o.stream().flatMap(c -> c.accept(this))
                     );
         }
-    
+
         @Override
         public Stream<IValue> visitSet(ISet o)  {
             return Stream.concat(Stream.of(o),
                     o.stream().flatMap(c -> c.accept(this))
                     );
         }
-    
+
         @Override
         public Stream<IValue> visitTuple(ITuple o)  {
             return Stream.concat(Stream.of(o),
                     StreamSupport.stream(o.spliterator(), false).flatMap(c -> c.accept(this))
                     );
         }
-    
+
         @Override
         public Stream<IValue> visitConstructor(IConstructor o)  {
             return Stream.concat(Stream.of(o),
                     StreamSupport.stream(o.getChildren().spliterator(), false)
                     );
         }
-    
+
         @Override
         public Stream<IValue> visitMap(IMap o)  {
             Iterable<Entry<IValue,IValue>> it = (Iterable<Entry<IValue,IValue>>) () -> o.entryIterator();
-    
+
             return Stream.concat(Stream.of(o),
                     StreamSupport.stream(it.spliterator(), false).flatMap(e -> {
                         return Stream.of(e.getKey(), e.getValue()).flatMap(c -> c.accept(this));
@@ -263,11 +263,11 @@ public class ValueStreams  {
 
     private static class QueueChildren extends NullVisitor<Void, RuntimeException> {
         private final Deque<IValue> queue;
-        
+
         public QueueChildren(Deque<IValue> queue) {
             this.queue = queue;
         }
-        
+
         @Override
         public Void visitList(IList o) throws RuntimeException {
             o.stream().forEach((e) -> queue.add(e));
@@ -300,12 +300,12 @@ public class ValueStreams  {
         @Override
         public Void visitMap(IMap o) throws RuntimeException {
             Iterable<Entry<IValue,IValue>> it = (Iterable<Entry<IValue,IValue>>) () -> o.entryIterator();
-            
+
             StreamSupport.stream(it.spliterator(), false).forEach(e -> {
                 queue.add(e.getKey());
                 queue.add(e.getValue());
             });
-            
+
             return null;
         }
     }

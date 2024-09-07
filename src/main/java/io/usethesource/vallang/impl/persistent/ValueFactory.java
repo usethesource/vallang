@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.persistent;
 
@@ -29,33 +29,33 @@ import io.usethesource.vallang.type.Type;
 
 public class ValueFactory extends AbstractPrimitiveValueFactory {
 
-	protected ValueFactory() {
-		super();
-	}
+    protected ValueFactory() {
+        super();
+    }
 
-	private static class InstanceKeeper {
-		public final static ValueFactory instance = new ValueFactory();
-	}
+    private static class InstanceKeeper {
+        public final static ValueFactory instance = new ValueFactory();
+    }
 
-	public static ValueFactory getInstance() {
-		return InstanceKeeper.instance;
-	}
+    public static ValueFactory getInstance() {
+        return InstanceKeeper.instance;
+    }
 
-	@Override
+    @Override
     public IListWriter listWriter() {
         return new ListWriter();
     }
 
     private static final IList EMPTY_LIST = List.newList(TypeFactory.getInstance().voidType(), new ShareableValuesList());
-    
+
     @Override
     public IList list(IValue... elements){
-	    if (elements.length == 0) {
-	        return EMPTY_LIST;
+        if (elements.length == 0) {
+            return EMPTY_LIST;
         }
         IListWriter listWriter = listWriter();
         listWriter.append(elements);
-        
+
         return listWriter.done();
     }
 
@@ -68,7 +68,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         setWriter.insert(elements);
         return setWriter.done();
     }
-    
+
     @Override
     public INode node(String name) {
         return Node.newNode(name, new IValue[0]);
@@ -78,27 +78,27 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     public INode node(String name, IValue... children) {
         return Node.newNode(name, children.clone());
     }
-    
+
     @Override
     public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
         return Node.newNode(name, children.clone()).asWithKeywordParameters().setParameters(keyArgValues);
     }
-    
+
     @Override
     public IConstructor constructor(Type constructorType) {
         return Constructor.newConstructor(constructorType, new IValue[0]);
     }
-    
+
     @Override
     public IConstructor constructor(Type constructorType, IValue... children){
         return Constructor.newConstructor(constructorType, children.clone());
     }
-    
+
     @Override
     public IConstructor constructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams){
         return Constructor.newConstructor(constructorType, children.clone(), kwParams);
     }
-    
+
     @Override
     public ITuple tuple() {
         return Tuple.newTuple();
@@ -109,18 +109,18 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
         return Tuple.newTuple(args.clone());
     }
 
-	@Override
-	public ISetWriter setWriter() {
-		return new SetWriter((a,b) -> tuple(a,b));
-	}
+    @Override
+    public ISetWriter setWriter() {
+        return new SetWriter((a,b) -> tuple(a,b));
+    }
 
-	@Override
-	public IMapWriter mapWriter() {
-		return new MapWriter();
-	}
+    @Override
+    public IMapWriter mapWriter() {
+        return new MapWriter();
+    }
 
-	@Override
-	public String toString() {
-		return "VALLANG_PERSISTENT_FACTORY";
-	}
+    @Override
+    public String toString() {
+        return "VALLANG_PERSISTENT_FACTORY";
+    }
 }

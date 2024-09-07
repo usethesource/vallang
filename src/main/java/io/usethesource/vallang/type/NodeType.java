@@ -34,139 +34,139 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
  * IConstructors have NodeType as a supertype.
  */
 class NodeType extends DefaultSubtypeOfValue {
-	protected static class InstanceKeeper {
-		public final static NodeType sInstance = new NodeType();
-	}
+    protected static class InstanceKeeper {
+        public final static NodeType sInstance = new NodeType();
+    }
 
-	public static NodeType getInstance() {
-		return InstanceKeeper.sInstance;
-	}
+    public static NodeType getInstance() {
+        return InstanceKeeper.sInstance;
+    }
 
-	public static class Info extends TypeReifier {
-		public Info(TypeValues symbols) {
-			super(symbols);
-		}
+    public static class Info extends TypeReifier {
+        public Info(TypeValues symbols) {
+            super(symbols);
+        }
 
-		@Override
-		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("node");
-		}
+        @Override
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("node");
+        }
 
-		@Override
-		public Type fromSymbol(IConstructor symbol, TypeStore store,
-				Function<IConstructor, Set<IConstructor>> grammar) {
-			return getInstance();
-		}
-		
-		@Override
-		public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-		    return tf().nodeType();
-		}
-	}
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store,
+                Function<IConstructor, Set<IConstructor>> grammar) {
+            return getInstance();
+        }
 
-	@Override
-	public TypeReifier getTypeReifier(TypeValues symbols) {
-		return new Info(symbols);
-	}
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+            return tf().nodeType();
+        }
+    }
+
+    @Override
+    public TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
+    }
 
 
-	@Override
-	public String toString() {
-		return "node";
-	}
+    @Override
+    public String toString() {
+        return "node";
+    }
 
-	/**
-	 * Should never be called, NodeType is a singleton
-	 */
-	@Override
-	public boolean equals(@Nullable Object o) {
-		return o == NodeType.getInstance();
-	}
+    /**
+     * Should never be called, NodeType is a singleton
+     */
+    @Override
+    public boolean equals(@Nullable Object o) {
+        return o == NodeType.getInstance();
+    }
 
-	@Override
-	public int hashCode() {
-		return 20102;
-	}
+    @Override
+    public int hashCode() {
+        return 20102;
+    }
 
-	@Override
-	protected boolean isSupertypeOf(Type type) {
-		return type.isSubtypeOfNode(this);
-	}
+    @Override
+    protected boolean isSupertypeOf(Type type) {
+        return type.isSubtypeOfNode(this);
+    }
 
-	@Override
-	public Type lub(Type other) {
-		return other.lubWithNode(this);
-	}
+    @Override
+    public Type lub(Type other) {
+        return other.lubWithNode(this);
+    }
 
-	@Override
-	public boolean intersects(Type other) {
-	    return other.intersectsWithNode(this);
-	}
-	
-	@Override
-	protected boolean intersectsWithNode(Type type) {
-	    return true;
-	}
-	
-	@Override
-	protected boolean intersectsWithAbstractData(Type type) {
-	    return true;
-	}
-	
-	@Override
-	protected boolean intersectsWithConstructor(Type type) {
-	    return true;
-	}
-	
-	@Override
-	protected boolean isSubtypeOfNode(Type type) {
-		return true;
-	}
+    @Override
+    public boolean intersects(Type other) {
+        return other.intersectsWithNode(this);
+    }
 
-	@Override
-	protected Type lubWithAbstractData(Type type) {
-		return this;
-	}
+    @Override
+    protected boolean intersectsWithNode(Type type) {
+        return true;
+    }
 
-	@Override
-	protected Type lubWithConstructor(Type type) {
-		return this;
-	}
+    @Override
+    protected boolean intersectsWithAbstractData(Type type) {
+        return true;
+    }
 
-	@Override
-	protected Type lubWithNode(Type type) {
-		return type;
-	}
+    @Override
+    protected boolean intersectsWithConstructor(Type type) {
+        return true;
+    }
 
-	@Override
-	public Type glb(Type type) {
-		return type.glbWithNode(this);
-	}
+    @Override
+    protected boolean isSubtypeOfNode(Type type) {
+        return true;
+    }
 
-	@Override
-	protected Type glbWithNode(Type type) {
-		return this;
-	}
+    @Override
+    protected Type lubWithAbstractData(Type type) {
+        return this;
+    }
 
-	@Override
-	protected Type glbWithConstructor(Type type) {
-		return type;
-	}
+    @Override
+    protected Type lubWithConstructor(Type type) {
+        return this;
+    }
 
-	@Override
-	protected Type glbWithAbstractData(Type type) {
-		return type;
-	}
+    @Override
+    protected Type lubWithNode(Type type) {
+        return type;
+    }
 
-	@Override
-	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-		return visitor.visitNode(this);
-	}
-	
-	@Override
-	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-	        int maxDepth, int maxWidth) {
-	    String name = random.nextBoolean() ? RandomUtil.string(random, 1 + random.nextInt(5)) : RandomUtil.stringAlpha(random, random.nextInt(5));
+    @Override
+    public Type glb(Type type) {
+        return type.glbWithNode(this);
+    }
+
+    @Override
+    protected Type glbWithNode(Type type) {
+        return this;
+    }
+
+    @Override
+    protected Type glbWithConstructor(Type type) {
+        return type;
+    }
+
+    @Override
+    protected Type glbWithAbstractData(Type type) {
+        return type;
+    }
+
+    @Override
+    public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
+        return visitor.visitNode(this);
+    }
+
+    @Override
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+            int maxDepth, int maxWidth) {
+        String name = random.nextBoolean() ? RandomUtil.string(random, 1 + random.nextInt(5)) : RandomUtil.stringAlpha(random, random.nextInt(5));
 
         int arity = maxDepth <= 0 ? 0 : random.nextInt(maxDepth);
         IValue[] args = new IValue[arity];
@@ -181,7 +181,7 @@ class NodeType extends DefaultSubtypeOfValue {
                 String kwName = "";
                 while (kwName.isEmpty()) {
                     // names have to start with alpha character
-                    kwName = RandomUtil.stringAlpha(random, 3); 
+                    kwName = RandomUtil.stringAlpha(random, 3);
                 }
                 kwName += RandomUtil.stringAlphaNumeric(random, 4);
                 kwParams.put(kwName, TypeFactory.getInstance().valueType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth));
@@ -189,11 +189,11 @@ class NodeType extends DefaultSubtypeOfValue {
 
             return vf.node(name, args, kwParams);
         }
-        return vf.node(name, args); 
-	}
-	
-	@Override
-	public boolean isNode() {
-	    return true;
-	}
+        return vf.node(name, args);
+    }
+
+    @Override
+    public boolean isNode() {
+        return true;
+    }
 }

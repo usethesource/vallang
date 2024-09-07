@@ -30,7 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * of IValueFactory without having to extend them again and again using
  * inheritance. Clients extend this class and override the methods that need
  * special handling.
- * 
+ *
  * Note: this class is intended to be sub-classed. It should not be abstract
  * because we want the compiler to check that it provides a facade for the full
  * IValueFactory interface.
@@ -88,7 +88,7 @@ public /* abstract */ class AbstractValueFactoryAdapter implements IValueFactory
     public IInteger integer(String i) {
         return adapted.integer(i);
     }
-    
+
     @Override
     public IInteger integer(int i) {
         return adapted.integer(i);

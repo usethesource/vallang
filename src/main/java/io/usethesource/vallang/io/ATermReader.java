@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) INRIA-LORIA and CWI 2006-2009 
+ * Copyright (c) INRIA-LORIA and CWI 2006-2009
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,36 +90,36 @@ public class ATermReader extends AbstractBinaryReader {
 
             start = reader.getPosition();
             switch (reader.getLastChar()) {
-            case -1:
-                throw new FactParseError("premature EOF encountered.", start);
-            case '#':
-                return parseAbbrev(reader);
-            case '[':
-                result = parseList(reader, expected);
-                break;
-            case '<':
-                throw new FactParseError("Placeholders are not supported", start);
-            case '"':
-                result = parseString(reader, expected);
-                break;
-            case '(':
-                result = parseTuple(reader, expected);
-                break;
-            case '-':
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                result = parseNumber(reader, expected);
-                break;
-            default:
-                result = parseAppl(reader, expected);
+                case -1:
+                    throw new FactParseError("premature EOF encountered.", start);
+                case '#':
+                    return parseAbbrev(reader);
+                case '[':
+                    result = parseList(reader, expected);
+                    break;
+                case '<':
+                    throw new FactParseError("Placeholders are not supported", start);
+                case '"':
+                    result = parseString(reader, expected);
+                    break;
+                case '(':
+                    result = parseTuple(reader, expected);
+                    break;
+                case '-':
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    result = parseNumber(reader, expected);
+                    break;
+                default:
+                    result = parseAppl(reader, expected);
             }
 
             if (reader.getLastChar() == '{') {
@@ -164,7 +164,7 @@ public class ATermReader extends AbstractBinaryReader {
                     if (!iterator.hasNext()) {
                         throw new UndeclaredAbstractDataTypeException(expected);
                     }
-                    node = iterator.next(); 
+                    node = iterator.next();
                 }
                 else {
                     node = expected;
@@ -186,7 +186,7 @@ public class ATermReader extends AbstractBinaryReader {
                         if(node.isConstructor())
                             result = vf.constructor(node, new IValue[0]);
                         else
-                            result = vf.node(funname, new IValue[0]); 
+                            result = vf.node(funname, new IValue[0]);
 
                     } else {
                         IValue[] list;
@@ -474,42 +474,42 @@ public class ATermReader extends AbstractBinaryReader {
 
                 if (escaped) {
                     switch (lastChar) {
-                    case 'n':
-                        str.append('\n');
-                        break;
-                    case 't':
-                        str.append('\t');
-                        break;
-                    case 'b':
-                        str.append('\b');
-                        break;
-                    case 'r':
-                        str.append('\r');
-                        break;
-                    case 'f':
-                        str.append('\f');
-                        break;
-                    case '\\':
-                        str.append('\\');
-                        break;
-                    case '\'':
-                        str.append('\'');
-                        break;
-                    case '\"':
-                        str.append('\"');
-                        break;
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                        str.append(reader.readOct());
-                        break;
-                    default:
-                        str.append('\\').append((char) lastChar);
+                        case 'n':
+                            str.append('\n');
+                            break;
+                        case 't':
+                            str.append('\t');
+                            break;
+                        case 'b':
+                            str.append('\b');
+                            break;
+                        case 'r':
+                            str.append('\r');
+                            break;
+                        case 'f':
+                            str.append('\f');
+                            break;
+                        case '\\':
+                            str.append('\\');
+                            break;
+                        case '\'':
+                            str.append('\'');
+                            break;
+                        case '\"':
+                            str.append('\"');
+                            break;
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                            str.append(reader.readOct());
+                            break;
+                        default:
+                            str.append('\\').append((char) lastChar);
                     }
                 } else if (lastChar != '\"'){
                     str.append((char) lastChar);
@@ -568,7 +568,7 @@ public class ATermReader extends AbstractBinaryReader {
                 return base.getFieldTypes();
             } else if (base.isTop()) {
                 return base;
-            } 
+            }
             else {
                 throw new IllegalOperationException("getElementType", expected);
             }

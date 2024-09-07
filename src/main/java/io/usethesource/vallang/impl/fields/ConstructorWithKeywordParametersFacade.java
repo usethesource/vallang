@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package io.usethesource.vallang.impl.fields;
 
@@ -98,7 +98,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
         if (o == this) {
             return true;
         }
-        
+
         if (o == null) {
             return false;
         }
@@ -116,7 +116,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
     @Override
     public boolean match(IValue other) {
         if (other instanceof ConstructorWithKeywordParametersFacade) {
-            return content.match(((ConstructorWithKeywordParametersFacade) other).content);    
+            return content.match(((ConstructorWithKeywordParametersFacade) other).content);
         }
 
         if (other instanceof IConstructor) {
@@ -152,7 +152,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
             @Override
             @SuppressWarnings("return.type.incompatible")
             public Set<String> getParameterNames() {
-                return Collections.unmodifiableSet(parameters.keySet());		
+                return Collections.unmodifiableSet(parameters.keySet());
             }
 
             @Override

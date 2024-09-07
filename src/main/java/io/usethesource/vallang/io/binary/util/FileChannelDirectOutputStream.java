@@ -47,7 +47,7 @@ public class FileChannelDirectOutputStream extends ByteBufferOutputStream {
             buf.limit(buf.position() + target.remaining());
             target.put(buf);
             buf.limit(oldLimit);
-            
+
             flush();
             if (target.remaining() >= buf.remaining()) {
                 // now it does fit, no problem

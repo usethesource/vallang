@@ -1,15 +1,15 @@
-/** 
- * Copyright (c) 2016, Davy Landman, Centrum Wiskunde & Informatica (CWI) 
- * All rights reserved. 
- *  
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
- *  
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
- *  
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
- *  
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
- */ 
+/**
+ * Copyright (c) 2016, Davy Landman, Centrum Wiskunde & Informatica (CWI)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package io.usethesource.vallang.io.binary.wire.binary;
 
 import java.io.BufferedInputStream;
@@ -50,7 +50,7 @@ public class BinaryWireInputStream implements IWireInputStream {
     public BinaryWireInputStream(InputStream stream) throws IOException {
         this(stream, 8*1024);
     }
-        
+
     public BinaryWireInputStream(InputStream stream, int bufferSize) throws IOException {
         if (stream instanceof BufferedInputStream || stream instanceof ByteBufferInputStream) {
             __stream = stream;
@@ -58,7 +58,7 @@ public class BinaryWireInputStream implements IWireInputStream {
         else {
             this.__stream = new BufferedInputStream(stream, bufferSize);
         }
-        
+
         byte[] header = readBytes(stream, WIRE_VERSION.length);
         if (!Arrays.equals(WIRE_VERSION, header)) {
             throw new IOException("Unsupported wire format");
@@ -84,18 +84,18 @@ public class BinaryWireInputStream implements IWireInputStream {
 
     private void assertNotClosed() throws IOException {
         if (closed) {
-            throw new IOException("Stream already closed"); 
+            throw new IOException("Stream already closed");
         }
     }
 
     private byte[] readBytes(int len) throws IOException {
-        return readBytes(__stream, len);        
+        return readBytes(__stream, len);
     }
 
     private static byte[] readBytes(InputStream stream, int len) throws IOException, EOFException {
         byte[] result = new byte[len];
-        
-        int pos = 0;        
+
+        int pos = 0;
         while (pos < len) {
             int read = stream.read(result, pos, len - pos);
             if (read == -1) {
@@ -103,17 +103,17 @@ public class BinaryWireInputStream implements IWireInputStream {
             }
             pos += read;
         }
-        
+
         return result;
     }
-    
+
     /*
      * LEB128 decoding (or actually LEB32) of positive and negative integers, negative integers always use 5 bytes, positive integers are compact.
      */
     private int decodeInteger()  throws IOException {
         return decodeInteger(__stream);
     }
-    
+
     private static int decodeInteger(InputStream stream) throws IOException {
         try {
             // manually unrolling the loop was the fastest for reading, yet not for writing
@@ -216,7 +216,7 @@ public class BinaryWireInputStream implements IWireInputStream {
                         }
                         this.intValues = intValues;
                         break;
-                    case FieldKind.Repeated.STRINGS: 
+                    case FieldKind.Repeated.STRINGS:
                         String[] stringValues = new String[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
                             stringValues[i]= readNestedString();
@@ -267,7 +267,7 @@ public class BinaryWireInputStream implements IWireInputStream {
         assert current == FIELD;
         return fieldID;
     }
-    
+
     @Override
     public int getInteger() {
         assert fieldType == FieldKind.INT;
@@ -286,26 +286,26 @@ public class BinaryWireInputStream implements IWireInputStream {
         }
         return field;
     }
-    
-    
+
+
     @Override
     public byte[] getBytes() {
         assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.Repeated.BYTES;
         return nonNull(bytesValue);
     }
-    
+
     @Override
     public int getFieldType() {
         assert current == FIELD;
         return fieldType;
     }
-    
+
     @Override
     public int getRepeatedType() {
         assert current == FIELD && fieldType == FieldKind.REPEATED;
         return nestedType;
     }
-    
+
     @Override
     public int getRepeatedLength() {
         assert current == FIELD && fieldType == FieldKind.REPEATED;
@@ -317,13 +317,13 @@ public class BinaryWireInputStream implements IWireInputStream {
         assert getRepeatedType() == FieldKind.Repeated.STRINGS;
         return nonNull(stringValues);
     }
-    
+
     @Override
     public int[] getIntegers() {
         assert getRepeatedType() == FieldKind.Repeated.INTS;
         return nonNull(intValues);
     }
-    
+
     @Override
     public void skipMessage() throws IOException {
         int toSkip = 1;

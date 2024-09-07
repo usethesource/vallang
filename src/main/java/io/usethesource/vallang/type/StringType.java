@@ -27,8 +27,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class StringType extends DefaultSubtypeOfValue {
-	private static final class InstanceKeeper {
-      private final static StringType sInstance= new StringType();
+    private static final class InstanceKeeper {
+        private final static StringType sInstance= new StringType();
     }
 
     public static StringType getInstance() {
@@ -37,39 +37,39 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     public static class Info extends TypeFactory.TypeReifier {
 
-		public Info(TypeValues symbols) {
-        super(symbols);
-      }
+        public Info(TypeValues symbols) {
+            super(symbols);
+        }
 
-    @Override
-		public Type getSymbolConstructorType() {
-			return symbols().typeSymbolConstructor("str");
-		}
+        @Override
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("str");
+        }
 
-		@Override
-		public Type fromSymbol(IConstructor symbol, TypeStore store,
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store,
                            Function<IConstructor, Set<IConstructor>> grammar) {
-			return getInstance();
-		}
-		
-		@Override
+            return getInstance();
+        }
+
+        @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().stringType();
         }
-	}
-    
+    }
+
     @Override
-	public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
-		return new Info(symbols);
-	}
-    
+    public TypeFactory.TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Info(symbols);
+    }
+
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
     @Override
     public boolean equals(@Nullable Object obj) {
-    return obj == StringType.getInstance();
-}
+        return obj == StringType.getInstance();
+    }
 
     @Override
     public int hashCode() {
@@ -80,62 +80,62 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public String toString() {
         return "str";
     }
-    
+
     @Override
     public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
-    	return visitor.visitString(this);
+        return visitor.visitString(this);
     }
-    
+
     @Override
     protected boolean isSupertypeOf(Type type) {
-      return type.isSubtypeOfString(this);
+        return type.isSubtypeOfString(this);
     }
-    
+
     @Override
     public Type lub(Type other) {
-      return other.lubWithString(this);
+        return other.lubWithString(this);
     }
-    
+
     @Override
     public Type glb(Type type) {
-      return type.glbWithString(this);
+        return type.glbWithString(this);
     }
-    
+
     @Override
     public boolean intersects(Type other) {
         return other.intersectsWithString(this);
     }
-    
+
     @Override
     protected boolean intersectsWithString(Type type) {
         return true;
     }
-    
+
     @Override
     protected boolean isSubtypeOfString(Type type) {
-      return true;
+        return true;
     }
-    
+
     @Override
     protected Type lubWithString(Type type) {
-      return this;
+        return this;
     }
-    
+
     @Override
     protected Type glbWithString(Type type) {
-      return this;
+        return this;
     }
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         if (random.nextBoolean() || maxDepth <= 0) {
             return vf.string("");
         }
-        
+
         return vf.string(RandomUtil.string(random, 1 + random.nextInt(maxDepth + 3)));
     }
-    
+
     @Override
     public boolean isString() {
         return true;

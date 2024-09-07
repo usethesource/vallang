@@ -1,15 +1,15 @@
-/** 
+/**
 * Copyright (c) 2017, Davy Landman, SWAT.engineering
-* All rights reserved. 
-*  
-* Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
-*  
-* 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
-*  
-* 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
-*  
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
-*/ 
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+*
+* 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+*
+* 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 package io.usethesource.vallang.util;
 
 import java.lang.ref.Reference;
@@ -29,7 +29,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 * A Hash Consing implementation that uses weak references for old entries, to clear memory in case values are not needed anymore.
 * It is safe to use in a multi-threaded context, and will always return the same reference, even in a race between multiple threads.
 * </p>
-* 
+*
 * @author Davy Landman
 */
 public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements HashConsingMap<T> {
@@ -40,17 +40,17 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
     */
     private static class WeakReferenceWrap<T extends @NonNull Object> extends WeakReference<T>  {
         private final int hash;
-        
+
         public WeakReferenceWrap(T referent, int hash, ReferenceQueue<? super T> cleared) {
             super(referent, cleared);
             this.hash = hash;
         }
-        
+
         @Override
         public int hashCode() {
             return hash;
         }
-        
+
         @Override
         public boolean equals(@Nullable Object obj) {
             if (obj == this) {
@@ -107,29 +107,29 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
 
     }
 
-    
-    /** 
+
+    /**
      * We keep the most recently used entries in a simple open addressing map for quick access
      * In case of hash collisions, the entry is overwritten, which doesn't matter too much
      * The cleanup happens in a side thread.
-     * 
-     * Note that even though everything is using atomic operations, 
+     *
+     * Note that even though everything is using atomic operations,
      * threads can have different views on the contents of the hotEntries array.
      * This is not a problem, as it acts like a thread local LRU in that case.
-     * 
+     *
      * The coldEntries is the only map that should keep the state consistent across threads.
      */
     private final HotEntry<T>[] hotEntries;
     private final int mask;
 
-    /** 
+    /**
      * All entries are also stored in a WeakReference, this helps with clearing memory
      * if entries are not referenced anymore
      */
-	private final ReferenceQueue<T> queue = new ReferenceQueue<>();
+    private final ReferenceQueue<T> queue = new ReferenceQueue<>();
     private final Map<Object, WeakReferenceWrap<T>> coldEntries;
-    
-    
+
+
     public WeakReferenceHashConsingMap() {
         this(16, (int)TimeUnit.MINUTES.toSeconds(30));
     }
@@ -141,17 +141,17 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         }
         // size should be a power of two
         size = Integer.highestOneBit(size - 1) << 1;
-        hotEntries = new HotEntry[size]; 
+        hotEntries = new HotEntry[size];
         this.mask = size - 1;
 
         coldEntries = new ConcurrentHashMap<>(size);
-        
+
         cleanup(demoteAfterSeconds, hotEntries, coldEntries, queue);
     }
-    
-    
+
+
     private static <T extends @NonNull Object> void cleanup(int demoteAfterSeconds, @Nullable HotEntry<T>[] hotEntries, Map<Object, WeakReferenceWrap<T>> coldEntries,
-		ReferenceQueue<T> queue) {
+        ReferenceQueue<T> queue) {
         try {
             final int now = SecondsTicker.current();
             for (int i = 0; i < hotEntries.length; i++) {
@@ -197,7 +197,7 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
             return hotEntry.value;
         }
 
-        // fast path, it' already in cold, 
+        // fast path, it' already in cold,
         // we avoid making a new weak reference just for search
         var fastGet = coldEntries.get(new LookupKey<>(key, hash));
         T result = fastGet == null ? null : fastGet.get();
