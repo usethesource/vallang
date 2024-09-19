@@ -1442,7 +1442,7 @@ import io.usethesource.vallang.type.TypeFactory;
         public Reader asReader() {
             return new Reader() {
                 private final OfInt chars = iterator();
-                private char endedWithHalfSurrogate = 0;
+                private char queuedLowSurrogate = 0;
 
                 @Override
                 public int read(char[] cbuf, int off, int len) throws IOException {
@@ -1454,12 +1454,15 @@ import io.usethesource.vallang.type.TypeFactory;
                     }
 
                     int pos = off;
-                    if (endedWithHalfSurrogate != 0) {
-                        cbuf[pos++] = endedWithHalfSurrogate;
-                        endedWithHalfSurrogate = 0;
-                    }
                     int endPos = off + len;
+                    char lowSurrogate = queuedLowSurrogate;
+                    queuedLowSurrogate = 0;
                     while (pos < endPos) {
+                        if (lowSurrogate != 0) {
+                            cbuf[pos++] = lowSurrogate;
+                            lowSurrogate = 0;
+                            continue;
+                        }
                         if (!chars.hasNext()) {
                             break;
                         }
@@ -1468,23 +1471,19 @@ import io.usethesource.vallang.type.TypeFactory;
                             cbuf[pos++] = (char)nextChar;
                         } else {
                             cbuf[pos++] = Character.highSurrogate(nextChar);
-                            char lowSide = Character.lowSurrogate(nextChar);
-                            if (pos < endPos) {
-                                cbuf[pos++] = lowSide;
-                            } else {
-                                endedWithHalfSurrogate = lowSide;
-                            }
+                            lowSurrogate = Character.lowSurrogate(nextChar);
                         }
                     }
+                    queuedLowSurrogate = lowSurrogate;
                     int written = pos - off;
                     return written == 0 ? /* EOF */ -1 : written;
                 }
 
                 @Override
                 public int read() throws IOException {
-                    if (endedWithHalfSurrogate != 0) {
-                        int result = endedWithHalfSurrogate;
-                        endedWithHalfSurrogate = 0;
+                    if (queuedLowSurrogate != 0) {
+                        int result = queuedLowSurrogate;
+                        queuedLowSurrogate = 0;
                         return result;
                     }
                     if (chars.hasNext()) {
@@ -1492,7 +1491,7 @@ import io.usethesource.vallang.type.TypeFactory;
                         if (Character.isBmpCodePoint(nextChar)) {
                             return nextChar;
                         } else {
-                            endedWithHalfSurrogate = Character.lowSurrogate(nextChar);
+                            queuedLowSurrogate = Character.lowSurrogate(nextChar);
                             return Character.highSurrogate(nextChar);
                         }
                     }
