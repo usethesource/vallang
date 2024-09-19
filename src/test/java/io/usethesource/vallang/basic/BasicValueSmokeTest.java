@@ -378,12 +378,38 @@ public final class BasicValueSmokeTest {
         }
     }
 
+    private String readerSlowly(IString a) {
+        try (var r = a.asReader()) {
+            var result = new StringBuilder();
+            while (true) {
+                int oneChar = r.read();
+                if (oneChar == -1) {
+                    break;
+                }
+                result.appendCodePoint(oneChar);
+                var buf = new char[3];
+                int read = r.read(buf);
+                if (read == -1) {
+                    break;
+                }
+                result.append(buf, 0, read);
+            }
+            return result.toString();
+        } catch (IOException e) {
+            fail("IString::asReader failed", e);
+            return "";
+        }
+
+    }
+
 
     private void assertEqualWriteAndRead(IString one, IString two) {
-        assertEquals(writerToString(one), writerToString(two), "IString::write had different results");
-        assertEquals(readerToString(one), readerToString(two), "IString::asReader had different results");
         assertEquals(one.getValue(), writerToString(one), "IString::write should be the same as getValue");
         assertEquals(one.getValue(), readerToString(one), "IString::asReader should be the same as getValue");
+        assertEquals(writerToString(one), writerToString(two), "IString::write had different results");
+        assertEquals(readerToString(one), readerToString(two), "IString::asReader had different results");
+        assertEquals(one.getValue(), readerSlowly(one), "IString::asReader had different results depending on buffer size");
+        assertEquals(two.getValue(), readerSlowly(two), "IString::asReader had different results depending on buffer size");
     }
 
     private void assertEqualCharAt(IString one, IString two) {

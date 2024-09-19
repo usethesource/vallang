@@ -1459,7 +1459,7 @@ import io.usethesource.vallang.type.TypeFactory;
                         endedWithHalfSurrogate = 0;
                     }
                     int endPos = off + len;
-                    while (pos <= endPos) {
+                    while (pos < endPos) {
                         if (!chars.hasNext()) {
                             break;
                         }
@@ -1469,7 +1469,7 @@ import io.usethesource.vallang.type.TypeFactory;
                         } else {
                             cbuf[pos++] = Character.highSurrogate(nextChar);
                             char lowSide = Character.lowSurrogate(nextChar);
-                            if (pos <= endPos) {
+                            if (pos < endPos) {
                                 cbuf[pos++] = lowSide;
                             } else {
                                 endedWithHalfSurrogate = lowSide;
