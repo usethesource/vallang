@@ -65,9 +65,15 @@ public class IValueReader {
         }
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch (reader.field()) {
-                case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
-                case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
-                case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
+                case IValueIDs.Header.VALUE_WINDOW:
+                    valueWindowSize = reader.getInteger();
+                    break;
+                case IValueIDs.Header.TYPE_WINDOW:
+                    typeWindowSize = reader.getInteger();
+                    break;
+                case IValueIDs.Header.SOURCE_LOCATION_WINDOW:
+                    uriWindowSize = reader.getInteger();
+                    break;
                 case IValueIDs.Header.VALUE: {
                     IValueReader valueReader = new IValueReader(vf, typeStoreSupplier, typeWindowSize, valueWindowSize, uriWindowSize);
                     try {
@@ -98,9 +104,15 @@ public class IValueReader {
         }
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch (reader.field()) {
-                case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
-                case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
-                case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
+                case IValueIDs.Header.VALUE_WINDOW:
+                    valueWindowSize = reader.getInteger();
+                    break;
+                case IValueIDs.Header.TYPE_WINDOW:
+                    typeWindowSize = reader.getInteger();
+                    break;
+                case IValueIDs.Header.SOURCE_LOCATION_WINDOW:
+                    uriWindowSize = reader.getInteger();
+                    break;
                 case IValueIDs.Header.TYPE: {
                     IValueReader valueReader = new IValueReader(vf, typeStoreSupplier, typeWindowSize, valueWindowSize, uriWindowSize);
                     try {
@@ -866,18 +878,42 @@ public class IValueReader {
         int endColumn = -1;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
-                case IValueIDs.SourceLocationValue.PREVIOUS_URI: previousURI = reader.getInteger(); break;
-                case IValueIDs.SourceLocationValue.SCHEME: scheme = reader.getString(); break;
-                case IValueIDs.SourceLocationValue.AUTHORITY: authority = reader.getString(); break;
-                case IValueIDs.SourceLocationValue.PATH: path = reader.getString(); break;
-                case IValueIDs.SourceLocationValue.QUERY: query = reader.getString(); break;
-                case IValueIDs.SourceLocationValue.FRAGMENT: fragment = reader.getString(); break;
-                case IValueIDs.SourceLocationValue.OFFSET: offset = reader.getInteger(); break;
-                case IValueIDs.SourceLocationValue.LENGTH: length = reader.getInteger(); break;
-                case IValueIDs.SourceLocationValue.BEGINLINE: beginLine = reader.getInteger(); break;
-                case IValueIDs.SourceLocationValue.ENDLINE: endLine = reader.getInteger(); break;
-                case IValueIDs.SourceLocationValue.BEGINCOLUMN: beginColumn = reader.getInteger(); break;
-                case IValueIDs.SourceLocationValue.ENDCOLUMN: endColumn = reader.getInteger(); break;
+                case IValueIDs.SourceLocationValue.PREVIOUS_URI:
+                    previousURI = reader.getInteger();
+                    break;
+                case IValueIDs.SourceLocationValue.SCHEME:
+                    scheme = reader.getString();
+                    break;
+                case IValueIDs.SourceLocationValue.AUTHORITY:
+                    authority = reader.getString();
+                    break;
+                case IValueIDs.SourceLocationValue.PATH:
+                    path = reader.getString();
+                    break;
+                case IValueIDs.SourceLocationValue.QUERY:
+                    query = reader.getString();
+                    break;
+                case IValueIDs.SourceLocationValue.FRAGMENT:
+                    fragment = reader.getString();
+                    break;
+                case IValueIDs.SourceLocationValue.OFFSET:
+                    offset = reader.getInteger();
+                    break;
+                case IValueIDs.SourceLocationValue.LENGTH:
+                    length = reader.getInteger();
+                    break;
+                case IValueIDs.SourceLocationValue.BEGINLINE:
+                    beginLine = reader.getInteger();
+                    break;
+                case IValueIDs.SourceLocationValue.ENDLINE:
+                    endLine = reader.getInteger();
+                    break;
+                case IValueIDs.SourceLocationValue.BEGINCOLUMN:
+                    beginColumn = reader.getInteger();
+                    break;
+                case IValueIDs.SourceLocationValue.ENDCOLUMN:
+                    endColumn = reader.getInteger();
+                    break;
             }
         }
         ISourceLocation loc;
@@ -910,8 +946,12 @@ public class IValueReader {
         byte @MonotonicNonNull[] big = null;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
-                case IValueIDs.IntegerValue.INTVALUE:  small = reader.getInteger(); break;
-                case IValueIDs.IntegerValue.BIGVALUE:    big = reader.getBytes(); break;
+                case IValueIDs.IntegerValue.INTVALUE:
+                    small = reader.getInteger();
+                    break;
+                case IValueIDs.IntegerValue.BIGVALUE:
+                    big = reader.getBytes();
+                    break;
             }
         }
 
@@ -940,15 +980,33 @@ public class IValueReader {
 
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
-                case IValueIDs.DateTimeValue.YEAR: year = reader.getInteger(); break;
-                case IValueIDs.DateTimeValue.MONTH: month = reader.getInteger(); break;
-                case IValueIDs.DateTimeValue.DAY: day = reader.getInteger(); break;
-                case IValueIDs.DateTimeValue.HOUR: hour = reader.getInteger(); break;
-                case IValueIDs.DateTimeValue.MINUTE: minute = reader.getInteger(); break;
-                case IValueIDs.DateTimeValue.SECOND: second = reader.getInteger(); break;
-                case IValueIDs.DateTimeValue.MILLISECOND: millisecond = reader.getInteger(); break;
-                case IValueIDs.DateTimeValue.TZ_HOUR: timeZoneHourOffset = reader.getInteger(); break;
-                case IValueIDs.DateTimeValue.TZ_MINUTE: timeZoneMinuteOffset = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.YEAR:
+                    year = reader.getInteger();
+                    break;
+                case IValueIDs.DateTimeValue.MONTH:
+                    month = reader.getInteger();
+                    break;
+                case IValueIDs.DateTimeValue.DAY:
+                    day = reader.getInteger();
+                    break;
+                case IValueIDs.DateTimeValue.HOUR:
+                    hour = reader.getInteger();
+                    break;
+                case IValueIDs.DateTimeValue.MINUTE:
+                    minute = reader.getInteger();
+                    break;
+                case IValueIDs.DateTimeValue.SECOND:
+                    second = reader.getInteger();
+                    break;
+                case IValueIDs.DateTimeValue.MILLISECOND:
+                    millisecond = reader.getInteger();
+                    break;
+                case IValueIDs.DateTimeValue.TZ_HOUR:
+                    timeZoneHourOffset = reader.getInteger();
+                    break;
+                case IValueIDs.DateTimeValue.TZ_MINUTE:
+                    timeZoneMinuteOffset = reader.getInteger();
+                    break;
             }
         }
 

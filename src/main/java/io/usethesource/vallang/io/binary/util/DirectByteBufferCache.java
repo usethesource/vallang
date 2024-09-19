@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DirectByteBufferCache {
 
-    static private class InstanceHolder {
+    private static class InstanceHolder {
         static final DirectByteBufferCache sInstance = new DirectByteBufferCache();
     }
 

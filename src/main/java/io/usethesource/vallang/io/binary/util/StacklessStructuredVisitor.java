@@ -61,7 +61,7 @@ public class StacklessStructuredVisitor {
         void accept(IValue current, Deque<VisitStep<E>> worklist, StructuredIValueVisitor<E> visit) throws E;
     }
 
-    private static abstract class VisitStep<E extends Throwable> {
+    private abstract static class VisitStep<E extends Throwable> {
         final NextStepConsumer<E> next;
         VisitStep(NextStepConsumer<E> next) {
             this.next = next;

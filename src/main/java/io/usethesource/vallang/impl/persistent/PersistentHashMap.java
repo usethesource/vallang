@@ -70,8 +70,9 @@ public final class PersistentHashMap implements IMap {
         final Map.Immutable<IValue,IValue> contentNew =
                 content.__put(key, value);
 
-        if (content == contentNew)
+        if (content == contentNew) {
             return this;
+        }
 
         final AbstractTypeBag keyBagNew;
         final AbstractTypeBag valBagNew;
@@ -149,11 +150,13 @@ public final class PersistentHashMap implements IMap {
         if (other instanceof PersistentHashMap) {
             PersistentHashMap that = (PersistentHashMap) other;
 
-            if (this.getType() != that.getType())
+            if (this.getType() != that.getType()) {
                 return false;
+            }
 
-            if (this.size() != that.size())
+            if (this.size() != that.size()) {
                 return false;
+            }
 
             return content.equals(that.content);
         }

@@ -106,7 +106,7 @@ public class FileChannelDirectInputStream extends ByteBufferInputStream {
     }
     // from: http://stackoverflow.com/a/19447758/11098
     private static void closeDirectBuffer(@Nullable ByteBuffer cb) {
-        if (cb==null || !cb.isDirect()) return;
+        if (cb==null || !cb.isDirect()) { return; }
         if (INVOKE_CLEANER != null && THE_UNSAFE != null) {
             try {
                 INVOKE_CLEANER.invoke(THE_UNSAFE, cb);

@@ -27,7 +27,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class RationalType extends NumberType {
     private static final class InstanceKeeper {
-        public final static RationalType sInstance= new RationalType();
+        public static final RationalType sInstance= new RationalType();
     }
 
     public static RationalType getInstance() {

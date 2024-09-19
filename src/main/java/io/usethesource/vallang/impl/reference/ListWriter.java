@@ -65,7 +65,7 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private void checkMutation(){
-        if(constructedList != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
+        if(constructedList != null) { throw new UnsupportedOperationException("Mutation of a finalized list is not supported."); }
     }
 
     private void put(int index, IValue elem) {
@@ -166,8 +166,8 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private void checkBounds(IValue[] elems, int start, int length) {
-        if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
-        if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
+        if(start < 0) { throw new ArrayIndexOutOfBoundsException("start < 0"); }
+        if((start + length) > elems.length) { throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length"); }
     }
 
     @Override

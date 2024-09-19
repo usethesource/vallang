@@ -100,7 +100,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             Type[] types = new Type[arity];
 
             for (int i = 0; i < arity; i++) {
-                while ((types[i] = next.get()).isBottom()); // tuples can not have empty fields
+                while ((types[i] = next.get()).isBottom()) {} // tuples can not have empty fields
             }
 
             if (!rnd.isWithTupleFieldNames() || rnd.nextBoolean()) {

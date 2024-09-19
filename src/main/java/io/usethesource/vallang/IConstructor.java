@@ -99,8 +99,8 @@ public interface IConstructor extends INode {
 
     @Override
     default boolean match(IValue value) {
-        if(value == this) return true;
-        if(value == null) return false;
+        if(value == this) { return true; }
+        if(value == null) { return false; }
 
         if (value instanceof IConstructor){
             IConstructor otherTree = (IConstructor) value;

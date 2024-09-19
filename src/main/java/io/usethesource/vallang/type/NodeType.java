@@ -35,7 +35,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
  */
 class NodeType extends DefaultSubtypeOfValue {
     protected static class InstanceKeeper {
-        public final static NodeType sInstance = new NodeType();
+        public static final NodeType sInstance = new NodeType();
     }
 
     public static NodeType getInstance() {

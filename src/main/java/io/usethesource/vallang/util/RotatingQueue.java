@@ -20,8 +20,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 * @param <T> The value type.
 */
 public final class RotatingQueue<T>{
-    private final static int DEFAULT_CAPACITY = 16;
-    private final static int DEFAULT_CAPACITY_MASK = DEFAULT_CAPACITY - 1;
+    private static final int DEFAULT_CAPACITY = 16;
+    private static final int DEFAULT_CAPACITY_MASK = DEFAULT_CAPACITY - 1;
 
     private @Nullable T[] queue;
     private int capacity;

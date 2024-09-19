@@ -201,8 +201,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             Iterator<Type> iter = fEltType.iterator();
             while(iter.hasNext()) {
                 Type elemType = iter.next();
-                if (idx++ > 0)
+                if (idx++ > 0) {
                     sb.append(",");
+                }
                 sb.append(elemType.toString());
                 if (hasFieldNames()) {
                     sb.append(" " + fEltType.getFieldName(idx - 1));

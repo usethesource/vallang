@@ -22,7 +22,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  *
  */
 public class WindowCacheFactory {
-    static private class InstanceHolder {
+    private static class InstanceHolder {
         static final WindowCacheFactory sInstance = new WindowCacheFactory();
     }
 

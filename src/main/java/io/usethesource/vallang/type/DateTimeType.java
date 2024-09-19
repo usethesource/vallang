@@ -36,7 +36,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
  */
 public class DateTimeType extends DefaultSubtypeOfValue {
     private static final class InstanceKeeper {
-        public final static DateTimeType sInstance= new DateTimeType();
+        public static final DateTimeType sInstance= new DateTimeType();
     }
 
     public static DateTimeType getInstance() {

@@ -136,8 +136,9 @@ import io.usethesource.vallang.type.TypeFactory;
         newData.remove(index);
 
         Type newElementType = TypeFactory.getInstance().voidType();
-        for(IValue el : newData)
+        for(IValue el : newData) {
             newElementType = newElementType.lub(el.getType());
+        }
 
         return new ListWriter(newElementType, newData).done();
     }
@@ -268,9 +269,9 @@ class SubList implements IList {
 
         int end = offset + length;
 
-        if(offset < 0) throw new IndexOutOfBoundsException("Offset may not be smaller than 0.");
-        if(length < 0) throw new IndexOutOfBoundsException("Length may not be smaller than 0.");
-        if(end > base.length()) throw new IndexOutOfBoundsException("'offset + length' may not be larger than 'list.size()'");
+        if(offset < 0) { throw new IndexOutOfBoundsException("Offset may not be smaller than 0."); }
+        if(length < 0) { throw new IndexOutOfBoundsException("Length may not be smaller than 0."); }
+        if(end > base.length()) { throw new IndexOutOfBoundsException("'offset + length' may not be larger than 'list.size()'"); }
 
         Type newElementType = TypeFactory.getInstance().voidType();
         Type baseElementType = base.getElementType();

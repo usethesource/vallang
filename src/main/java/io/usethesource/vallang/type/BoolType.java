@@ -26,8 +26,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class BoolType extends DefaultSubtypeOfValue {
-    private final static class InstanceKeeper {
-        public final static BoolType sInstance = new BoolType();
+    private static final class InstanceKeeper {
+        public static final BoolType sInstance = new BoolType();
     }
 
     public static BoolType getInstance() {

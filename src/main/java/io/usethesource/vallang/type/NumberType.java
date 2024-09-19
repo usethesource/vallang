@@ -31,7 +31,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
  */
 /* package */class NumberType extends DefaultSubtypeOfValue {
     private static final class InstanceKeeper {
-        protected final static NumberType sInstance = new NumberType();
+        protected static final NumberType sInstance = new NumberType();
     }
 
     public static NumberType getInstance() {

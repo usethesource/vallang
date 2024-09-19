@@ -79,8 +79,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public boolean equals(@Nullable Object o){
-            if(o == this) return true;
-            if(o == null) return false;
+            if(o == this) { return true; }
+            if(o == null) { return false; }
 
             if(o.getClass() == getClass()){
                 AbstractConstructor otherTree = (AbstractConstructor) o;
@@ -260,18 +260,16 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public IValue get(int index) {
             switch (index) {
-            case 0: return arg1;
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return arg1;
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
         @Override
         public IConstructor set(int index, IValue newArg) {
             switch (index) {
-            case 0: return new Constructor1(constructorType, newArg);
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return new Constructor1(constructorType, newArg);
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
@@ -320,20 +318,18 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public IValue get(int index) {
             switch (index) {
-            case 0: return arg1;
-            case 1: return arg2;
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return arg1;
+                case 1: return arg2;
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
         @Override
         public IConstructor set(int index, IValue newArg) {
             switch (index) {
-            case 0: return new Constructor2(constructorType, newArg, arg2);
-            case 1: return new Constructor2(constructorType, arg1, newArg);
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return new Constructor2(constructorType, newArg, arg2);
+                case 1: return new Constructor2(constructorType, arg1, newArg);
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
@@ -361,7 +357,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                    && Objects.equals(arg2, otherTree.arg2);
+                && Objects.equals(arg2, otherTree.arg2);
         }
     }
 
@@ -385,22 +381,20 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public IValue get(int index) {
             switch (index) {
-            case 0: return arg1;
-            case 1: return arg2;
-            case 2: return arg3;
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return arg1;
+                case 1: return arg2;
+                case 2: return arg3;
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
         @Override
         public IConstructor set(int index, IValue newArg) {
             switch (index) {
-            case 0: return new Constructor3(constructorType, newArg, arg2, arg3);
-            case 1: return new Constructor3(constructorType, arg1, newArg, arg3);
-            case 2: return new Constructor3(constructorType, arg1, arg2, newArg);
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return new Constructor3(constructorType, newArg, arg2, arg3);
+                case 1: return new Constructor3(constructorType, arg1, newArg, arg3);
+                case 2: return new Constructor3(constructorType, arg1, arg2, newArg);
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
@@ -423,8 +417,8 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                    && Objects.equals(arg2, otherTree.arg2)
-                    && Objects.equals(arg3, otherTree.arg3);
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3);
         }
 
         @Override
@@ -455,24 +449,22 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public IValue get(int index) {
             switch (index) {
-            case 0: return arg1;
-            case 1: return arg2;
-            case 2: return arg3;
-            case 3: return arg4;
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return arg1;
+                case 1: return arg2;
+                case 2: return arg3;
+                case 3: return arg4;
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
         @Override
         public IConstructor set(int index, IValue newArg) {
             switch (index) {
-            case 0: return new Constructor4(constructorType, newArg, arg2, arg3, arg4);
-            case 1: return new Constructor4(constructorType, arg1, newArg, arg3, arg4);
-            case 2: return new Constructor4(constructorType, arg1, arg2, newArg, arg4);
-            case 3: return new Constructor4(constructorType, arg1, arg2, arg3, newArg);
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return new Constructor4(constructorType, newArg, arg2, arg3, arg4);
+                case 1: return new Constructor4(constructorType, arg1, newArg, arg3, arg4);
+                case 2: return new Constructor4(constructorType, arg1, arg2, newArg, arg4);
+                case 3: return new Constructor4(constructorType, arg1, arg2, arg3, newArg);
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
@@ -495,9 +487,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                    && Objects.equals(arg2, otherTree.arg2)
-                    && Objects.equals(arg3, otherTree.arg3)
-                    && Objects.equals(arg4, otherTree.arg4);
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3)
+                && Objects.equals(arg4, otherTree.arg4);
         }
 
         @Override
@@ -530,26 +522,24 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public IValue get(int index) {
             switch (index) {
-            case 0: return arg1;
-            case 1: return arg2;
-            case 2: return arg3;
-            case 3: return arg4;
-            case 4: return arg5;
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return arg1;
+                case 1: return arg2;
+                case 2: return arg3;
+                case 3: return arg4;
+                case 4: return arg5;
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
         @Override
         public IConstructor set(int index, IValue newArg) {
             switch (index) {
-            case 0: return new Constructor5(constructorType, newArg, arg2, arg3, arg4, arg5);
-            case 1: return new Constructor5(constructorType, arg1, newArg, arg3, arg4, arg5);
-            case 2: return new Constructor5(constructorType, arg1, arg2, newArg, arg4, arg5);
-            case 3: return new Constructor5(constructorType, arg1, arg2, arg3, newArg, arg5);
-            case 4: return new Constructor5(constructorType, arg1, arg2, arg3, arg4, newArg);
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return new Constructor5(constructorType, newArg, arg2, arg3, arg4, arg5);
+                case 1: return new Constructor5(constructorType, arg1, newArg, arg3, arg4, arg5);
+                case 2: return new Constructor5(constructorType, arg1, arg2, newArg, arg4, arg5);
+                case 3: return new Constructor5(constructorType, arg1, arg2, arg3, newArg, arg5);
+                case 4: return new Constructor5(constructorType, arg1, arg2, arg3, arg4, newArg);
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
@@ -572,10 +562,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                    && Objects.equals(arg2, otherTree.arg2)
-                    && Objects.equals(arg3, otherTree.arg3)
-                    && Objects.equals(arg4, otherTree.arg4)
-                    && Objects.equals(arg5, otherTree.arg5);
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3)
+                && Objects.equals(arg4, otherTree.arg4)
+                && Objects.equals(arg5, otherTree.arg5);
         }
 
         @Override
@@ -610,28 +600,26 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public IValue get(int index) {
             switch (index) {
-            case 0: return arg1;
-            case 1: return arg2;
-            case 2: return arg3;
-            case 3: return arg4;
-            case 4: return arg5;
-            case 5: return arg6;
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return arg1;
+                case 1: return arg2;
+                case 2: return arg3;
+                case 3: return arg4;
+                case 4: return arg5;
+                case 5: return arg6;
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
         @Override
         public IConstructor set(int index, IValue newArg) {
             switch (index) {
-            case 0: return new Constructor6(constructorType, newArg, arg2, arg3, arg4, arg5, arg6);
-            case 1: return new Constructor6(constructorType, arg1, newArg, arg3, arg4, arg5, arg6);
-            case 2: return new Constructor6(constructorType, arg1, arg2, newArg, arg4, arg5, arg6);
-            case 3: return new Constructor6(constructorType, arg1, arg2, arg3, newArg, arg5, arg6);
-            case 4: return new Constructor6(constructorType, arg1, arg2, arg3, arg4, newArg, arg6);
-            case 5: return new Constructor6(constructorType, arg1, arg2, arg3, arg4, arg5, newArg);
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return new Constructor6(constructorType, newArg, arg2, arg3, arg4, arg5, arg6);
+                case 1: return new Constructor6(constructorType, arg1, newArg, arg3, arg4, arg5, arg6);
+                case 2: return new Constructor6(constructorType, arg1, arg2, newArg, arg4, arg5, arg6);
+                case 3: return new Constructor6(constructorType, arg1, arg2, arg3, newArg, arg5, arg6);
+                case 4: return new Constructor6(constructorType, arg1, arg2, arg3, arg4, newArg, arg6);
+                case 5: return new Constructor6(constructorType, arg1, arg2, arg3, arg4, arg5, newArg);
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
@@ -659,11 +647,11 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                    && Objects.equals(arg2, otherTree.arg2)
-                    && Objects.equals(arg3, otherTree.arg3)
-                    && Objects.equals(arg4, otherTree.arg4)
-                    && Objects.equals(arg5, otherTree.arg5)
-                    && Objects.equals(arg6, otherTree.arg6);
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3)
+                && Objects.equals(arg4, otherTree.arg4)
+                && Objects.equals(arg5, otherTree.arg5)
+                && Objects.equals(arg6, otherTree.arg6);
         }
     }
 
@@ -695,30 +683,28 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         @Override
         public IValue get(int index) {
             switch (index) {
-            case 0: return arg1;
-            case 1: return arg2;
-            case 2: return arg3;
-            case 3: return arg4;
-            case 4: return arg5;
-            case 5: return arg6;
-            case 6: return arg7;
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return arg1;
+                case 1: return arg2;
+                case 2: return arg3;
+                case 3: return arg4;
+                case 4: return arg5;
+                case 5: return arg6;
+                case 6: return arg7;
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
         @Override
         public IConstructor set(int index, IValue newArg) {
             switch (index) {
-            case 0: return new Constructor7(constructorType, newArg, arg2, arg3, arg4, arg5, arg6, arg7);
-            case 1: return new Constructor7(constructorType, arg1, newArg, arg3, arg4, arg5, arg6, arg7);
-            case 2: return new Constructor7(constructorType, arg1, arg2, newArg, arg4, arg5, arg6, arg7);
-            case 3: return new Constructor7(constructorType, arg1, arg2, arg3, newArg, arg5, arg6, arg7);
-            case 4: return new Constructor7(constructorType, arg1, arg2, arg3, arg4, newArg, arg6, arg7);
-            case 5: return new Constructor7(constructorType, arg1, arg2, arg3, arg4, arg5, newArg, arg7);
-            case 6: return new Constructor7(constructorType, arg1, arg2, arg3, arg4, arg5, arg6, newArg);
-            default:
-                throw new IndexOutOfBoundsException();
+                case 0: return new Constructor7(constructorType, newArg, arg2, arg3, arg4, arg5, arg6, arg7);
+                case 1: return new Constructor7(constructorType, arg1, newArg, arg3, arg4, arg5, arg6, arg7);
+                case 2: return new Constructor7(constructorType, arg1, arg2, newArg, arg4, arg5, arg6, arg7);
+                case 3: return new Constructor7(constructorType, arg1, arg2, arg3, newArg, arg5, arg6, arg7);
+                case 4: return new Constructor7(constructorType, arg1, arg2, arg3, arg4, newArg, arg6, arg7);
+                case 5: return new Constructor7(constructorType, arg1, arg2, arg3, arg4, arg5, newArg, arg7);
+                case 6: return new Constructor7(constructorType, arg1, arg2, arg3, arg4, arg5, arg6, newArg);
+                default: throw new IndexOutOfBoundsException();
             }
         }
 
@@ -746,12 +732,12 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             }
 
             return Objects.equals(arg1, otherTree.arg1)
-                    && Objects.equals(arg2, otherTree.arg2)
-                    && Objects.equals(arg3, otherTree.arg3)
-                    && Objects.equals(arg4, otherTree.arg4)
-                    && Objects.equals(arg5, otherTree.arg5)
-                    && Objects.equals(arg6, otherTree.arg6)
-                    && Objects.equals(arg7, otherTree.arg7);
+                && Objects.equals(arg2, otherTree.arg2)
+                && Objects.equals(arg3, otherTree.arg3)
+                && Objects.equals(arg4, otherTree.arg4)
+                && Objects.equals(arg5, otherTree.arg5)
+                && Objects.equals(arg6, otherTree.arg6)
+                && Objects.equals(arg7, otherTree.arg7);
         }
     }
 
@@ -822,10 +808,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
     }
 
     /**
-     * As empty constructors are very common and are only based on a type that is already maximally shared we also maximally share the Constructor0 instances
-     *
-     * This descreases both memory footprint and allocation overhead.
-     */
+    * As empty constructors are very common and are only based on a type that is already maximally shared we also maximally share the Constructor0 instances
+    *
+    * This descreases both memory footprint and allocation overhead.
+    */
     private static final LoadingCache<Type, IConstructor> EMPTY_CONSTRUCTOR_SINGLETONS = Caffeine.newBuilder().build(Constructor0::new);
 
     /*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
@@ -836,15 +822,15 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         }
 
         switch (children.length) {
-        case 0: return nonNull(EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType));
-        case 1: return new Constructor1(constructorType, children[0]);
-        case 2: return new Constructor2(constructorType, children[0], children[1]);
-        case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
-        case 4: return new Constructor4(constructorType, children[0], children[1], children[2], children[3]);
-        case 5: return new Constructor5(constructorType, children[0], children[1], children[2], children[3], children[4]);
-        case 6: return new Constructor6(constructorType, children[0], children[1], children[2], children[3], children[4], children[5]);
-        case 7: return new Constructor7(constructorType, children[0], children[1], children[2], children[3], children[4], children[5], children[6]);
-        default: return new ConstructorN(constructorType, children);
+            case 0: return nonNull(EMPTY_CONSTRUCTOR_SINGLETONS.get(constructorType));
+            case 1: return new Constructor1(constructorType, children[0]);
+            case 2: return new Constructor2(constructorType, children[0], children[1]);
+            case 3: return new Constructor3(constructorType, children[0], children[1], children[2]);
+            case 4: return new Constructor4(constructorType, children[0], children[1], children[2], children[3]);
+            case 5: return new Constructor5(constructorType, children[0], children[1], children[2], children[3], children[4]);
+            case 6: return new Constructor6(constructorType, children[0], children[1], children[2], children[3], children[4], children[5]);
+            case 7: return new Constructor7(constructorType, children[0], children[1], children[2], children[3], children[4], children[5], children[6]);
+            default: return new ConstructorN(constructorType, children);
         }
     }
     private static <T> T nonNull(@Nullable T value) {

@@ -68,18 +68,18 @@ public abstract class ExternalType extends DefaultSubtypeOfValue {
     }
 
     @Override
-    abstract protected Type lubWithExternal(Type type);
+    protected abstract Type lubWithExternal(Type type);
 
     @Override
-    abstract protected boolean intersectsWithExternal(Type type);
+    protected abstract boolean intersectsWithExternal(Type type);
 
     @Override
-    abstract protected Type glbWithExternal(Type type);
+    protected abstract Type glbWithExternal(Type type);
 
 
     @Override
-    abstract protected boolean isSubtypeOfExternal(Type type);
+    protected abstract boolean isSubtypeOfExternal(Type type);
 
     @Override
-    abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth);
+    public abstract IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth);
 }

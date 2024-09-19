@@ -18,7 +18,7 @@ import io.usethesource.vallang.exceptions.UnexpectedTypeException;
 import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ abstract class AbstractNumberValue implements INumber {
-    private final static TypeFactory typeFactory = TypeFactory.getInstance();
+    private static final TypeFactory typeFactory = TypeFactory.getInstance();
 
     /*package*/ AbstractNumberValue(){
         super();

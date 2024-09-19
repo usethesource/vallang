@@ -35,7 +35,7 @@ import io.usethesource.vallang.type.TypeFactory;
  * TODO: provide specializations for smaller values, similar to IntegerValue / BigIntegerValue.
  */
 /*package*/ class BigDecimalValue extends AbstractNumberValue implements IReal {
-    private final static Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
+    private static final Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
 
     protected final BigDecimal value;
 
@@ -413,14 +413,16 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     public static IReal pi(int precision) {
-        if (precision < 0 || precision > 1000)
+        if (precision < 0 || precision > 1000) {
             throw new IllegalArgumentException("PI max precision is 1000");
+        }
         return newReal(BigDecimalCalculations.PI.setScale(precision, RoundingMode.HALF_EVEN));
     }
 
     public static IReal e(int precision) {
-        if (precision < 0 || precision > 1000)
+        if (precision < 0 || precision > 1000) {
             throw new IllegalArgumentException("E max precision is 1000");
+        }
         return newReal(BigDecimalCalculations.E.setScale(precision, RoundingMode.HALF_EVEN));
     }
 }

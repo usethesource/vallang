@@ -33,21 +33,21 @@ import io.usethesource.vallang.type.TypeFactory;
  * @author Arnold Lankamp
  */
 /*package*/ class IntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
-    private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
+    private static final Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 
-    private final static String INTEGER_MAX_STRING = "2147483647";
-    private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
+    private static final String INTEGER_MAX_STRING = "2147483647";
+    private static final String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
 
-    private final static int SEVEN_BITS_MASK = 0x0000007f;
-    private final static int FIFTEEN_BITS_MASK = 0x00007fff;
-    private final static int TWENTYTHREE_BITS_MASK = 0x007fffff;
+    private static final int SEVEN_BITS_MASK = 0x0000007f;
+    private static final int FIFTEEN_BITS_MASK = 0x00007fff;
+    private static final int TWENTYTHREE_BITS_MASK = 0x007fffff;
 
-    private final static IInteger[] smallValues;
-    private final static BigInteger[] smallBigIntegerValues;
-    private final static int minSmallValue = -100;
-    private final static int maxSmallValue = 100;
-    public final static IInteger INTEGER_ONE;
-    public final static IInteger INTEGER_ZERO;
+    private static final IInteger[] smallValues;
+    private static final BigInteger[] smallBigIntegerValues;
+    private static final int minSmallValue = -100;
+    private static final int maxSmallValue = 100;
+    public static final IInteger INTEGER_ONE;
+    public static final IInteger INTEGER_ZERO;
     static {
         smallValues = new IInteger[(maxSmallValue - minSmallValue) + 1];
         smallBigIntegerValues = new BigInteger[(maxSmallValue - minSmallValue) + 1];
@@ -194,8 +194,9 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
     public IInteger add(IInteger other){
-        if(value == 0)
+        if(value == 0) {
             return other;
+        }
 
         if(other instanceof BigIntegerValue){
             return other.add(this);
@@ -203,8 +204,9 @@ import io.usethesource.vallang.type.TypeFactory;
 
         int otherIntValue = other.intValue();
 
-        if(otherIntValue == 0)
+        if(otherIntValue == 0) {
             return this;
+        }
 
         int result = value + otherIntValue;
         if((value < 0) && (otherIntValue < 0) && (result >= 0)){// Overflow -> positive.
@@ -216,7 +218,7 @@ import io.usethesource.vallang.type.TypeFactory;
             intValueData[4] = (byte)(result & 0xff);
 
             return IntegerValue.newInteger(new BigInteger(intValueData));
-        }else if((value > 0) && (otherIntValue > 0) && (result < 0)){// Overflow -> negative.
+        } else if((value > 0) && (otherIntValue > 0) && (result < 0)){// Overflow -> negative.
             byte[] intValueData = new byte[5];
             intValueData[0] = 0;
             intValueData[1] = (byte)((result >>> 24) & 0xff);
@@ -247,8 +249,9 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
     public IInteger subtract(IInteger other){
-        if(value == 0)
+        if(value == 0) {
             return other.negate();
+        }
 
         if(other instanceof BigIntegerValue){
             return other.negate().subtract(this.negate());
@@ -256,8 +259,9 @@ import io.usethesource.vallang.type.TypeFactory;
 
         int otherIntValue = other.intValue();
 
-        if(otherIntValue == 0)
+        if(otherIntValue == 0) {
             return this;
+        }
 
         int result = value - otherIntValue;
         if((value < 0) && (otherIntValue > 0) && (result > 0)){// Overflow -> positive.
@@ -269,7 +273,7 @@ import io.usethesource.vallang.type.TypeFactory;
             intValueData[4] = (byte)(result & 0xff);
 
             return IntegerValue.newInteger(new BigInteger(intValueData));
-        }else if((value > 0) && (otherIntValue < 0) && (result < 0)){// Overflow -> negative.
+        } else if((value > 0) && (otherIntValue < 0) && (result < 0)){// Overflow -> negative.
             byte[] intValueData = new byte[5];
             intValueData[0] = 0;
             intValueData[1] = (byte)((result >>> 24) & 0xff);
@@ -290,18 +294,20 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
     public IInteger multiply(IInteger other){
-        if(value == 0)
+        if(value == 0) {
             return this;
-        if(value == 1)
+        }
+        if(value == 1) {
             return other;
+        }
 
         if(other instanceof BigIntegerValue){
             return other.multiply(this);
         }
 
         int otherIntValue = other.intValue();
-        if(otherIntValue == 0) return other;
-        if(otherIntValue == 1) return this;
+        if(otherIntValue == 0) { return other; }
+        if(otherIntValue == 1) { return this; }
 
         boolean resultIsPositive = ((((value ^ otherIntValue) ^ 0x80000000) & 0x80000000) == 0x80000000);
         if(resultIsPositive){
@@ -315,13 +321,13 @@ import io.usethesource.vallang.type.TypeFactory;
                     return IntegerValue.newInteger(value * other.intValue());
                 }
             }
-        }else{
+        } else{
             int div = Integer.MIN_VALUE / otherIntValue;
             if((value > 0)){
                 if(value <= div){
                     return IntegerValue.newInteger(value * other.intValue());
                 }
-            }else{
+            } else{
                 if(value >= div){
                     return IntegerValue.newInteger(value * other.intValue());
                 }
@@ -412,10 +418,11 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
     public IInteger negate(){
-        if(value == 0)
+        if(value == 0) {
             return this;
-        else
+        } else {
             return IntegerValue.newInteger((~((long) value)) + 1);
+        }
     }
 
     @Override
@@ -499,8 +506,8 @@ import io.usethesource.vallang.type.TypeFactory;
             return ((~other.compare(this)) + 1);
         }
 
-        if(value > other.intValue()) return 1;
-        if(value < other.intValue()) return -1;
+        if(value > other.intValue()) { return 1; }
+        if(value < other.intValue()) { return -1; }
 
         return 0;
     }

@@ -157,7 +157,7 @@ public class StandardTextWriter implements IValueTextWriter {
 
                 while(listIterator.hasNext()){
                     append(',');
-                    if (indent) indent();
+                    if (indent) { indent(); }
                     listIterator.next().accept(this);
                 }
             }
@@ -614,10 +614,11 @@ public class StandardTextWriter implements IValueTextWriter {
                 append(String.format("%02d", o.getSecondOfMinute()));
                 append(".");
                 append(String.format("%03d", o.getMillisecondsOfSecond()));
-                if (o.getTimezoneOffsetHours() < 0 || (o.getTimezoneOffsetHours() == 0 && o.getTimezoneOffsetMinutes() < 0))
+                if (o.getTimezoneOffsetHours() < 0 || (o.getTimezoneOffsetHours() == 0 && o.getTimezoneOffsetMinutes() < 0)) {
                     append("-");
-                else
+                } else {
                     append("+");
+                }
                 append(String.format("%02d", Math.abs(o.getTimezoneOffsetHours())));
                 append(":");
                 append(String.format("%02d", Math.abs(o.getTimezoneOffsetMinutes())));
@@ -636,10 +637,11 @@ public class StandardTextWriter implements IValueTextWriter {
                 append(String.format("%02d", o.getSecondOfMinute()));
                 append(".");
                 append(String.format("%03d", o.getMillisecondsOfSecond()));
-                if (o.getTimezoneOffsetHours() < 0 || (o.getTimezoneOffsetHours() == 0 && o.getTimezoneOffsetMinutes() < 0))
+                if (o.getTimezoneOffsetHours() < 0 || (o.getTimezoneOffsetHours() == 0 && o.getTimezoneOffsetMinutes() < 0)) {
                     append("-");
-                else
+                } else {
                     append("+");
+                }
                 append(String.format("%02d", Math.abs(o.getTimezoneOffsetHours())));
                 append(":");
                 append(String.format("%02d", Math.abs(o.getTimezoneOffsetMinutes())));

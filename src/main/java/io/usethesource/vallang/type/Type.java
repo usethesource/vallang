@@ -679,48 +679,48 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
         return TypeFactory.getInstance().getFromCache(new TupleType(fChildren));
     }
 
-    abstract protected boolean isSubtypeOfReal(Type type);
-    abstract protected boolean isSubtypeOfInteger(Type type);
-    abstract protected boolean isSubtypeOfRational(Type type);
-    abstract protected boolean isSubtypeOfList(Type type);
-    abstract protected boolean isSubtypeOfMap(Type type);
-    abstract protected boolean isSubtypeOfNumber(Type type);
-    abstract protected boolean isSubtypeOfSet(Type type);
-    abstract protected boolean isSubtypeOfSourceLocation(Type type);
-    abstract protected boolean isSubtypeOfString(Type type);
-    abstract protected boolean isSubtypeOfNode(Type type);
-    abstract protected boolean isSubtypeOfConstructor(Type type);
-    abstract protected boolean isSubtypeOfAbstractData(Type type);
-    abstract protected boolean isSubtypeOfTuple(Type type);
-    abstract protected boolean isSubtypeOfFunction(Type type);
-    abstract protected boolean isSubtypeOfValue(Type type);
-    abstract protected boolean isSubtypeOfVoid(Type type);
-    abstract protected boolean isSubtypeOfBool(Type type);
-    abstract protected boolean isSubtypeOfExternal(Type type);
-    abstract protected boolean isSubtypeOfDateTime(Type type);
+    protected abstract boolean isSubtypeOfReal(Type type);
+    protected abstract boolean isSubtypeOfInteger(Type type);
+    protected abstract boolean isSubtypeOfRational(Type type);
+    protected abstract boolean isSubtypeOfList(Type type);
+    protected abstract boolean isSubtypeOfMap(Type type);
+    protected abstract boolean isSubtypeOfNumber(Type type);
+    protected abstract boolean isSubtypeOfSet(Type type);
+    protected abstract boolean isSubtypeOfSourceLocation(Type type);
+    protected abstract boolean isSubtypeOfString(Type type);
+    protected abstract boolean isSubtypeOfNode(Type type);
+    protected abstract boolean isSubtypeOfConstructor(Type type);
+    protected abstract boolean isSubtypeOfAbstractData(Type type);
+    protected abstract boolean isSubtypeOfTuple(Type type);
+    protected abstract boolean isSubtypeOfFunction(Type type);
+    protected abstract boolean isSubtypeOfValue(Type type);
+    protected abstract boolean isSubtypeOfVoid(Type type);
+    protected abstract boolean isSubtypeOfBool(Type type);
+    protected abstract boolean isSubtypeOfExternal(Type type);
+    protected abstract boolean isSubtypeOfDateTime(Type type);
 
-    abstract protected boolean intersectsWithReal(Type type);
-    abstract protected boolean intersectsWithInteger(Type type);
-    abstract protected boolean intersectsWithRational(Type type);
-    abstract protected boolean intersectsWithList(Type type);
-    abstract protected boolean intersectsWithMap(Type type);
-    abstract protected boolean intersectsWithNumber(Type type);
-    abstract protected boolean intersectsWithSet(Type type);
-    abstract protected boolean intersectsWithSourceLocation(Type type);
-    abstract protected boolean intersectsWithString(Type type);
-    abstract protected boolean intersectsWithNode(Type type);
-    abstract protected boolean intersectsWithConstructor(Type type);
-    abstract protected boolean intersectsWithAbstractData(Type type);
-    abstract protected boolean intersectsWithTuple(Type type);
-    abstract protected boolean intersectsWithFunction(Type type);
-    abstract protected boolean intersectsWithValue(Type type);
-    abstract protected boolean intersectsWithVoid(Type type);
-    abstract protected boolean intersectsWithBool(Type type);
+    protected abstract boolean intersectsWithReal(Type type);
+    protected abstract boolean intersectsWithInteger(Type type);
+    protected abstract boolean intersectsWithRational(Type type);
+    protected abstract boolean intersectsWithList(Type type);
+    protected abstract boolean intersectsWithMap(Type type);
+    protected abstract boolean intersectsWithNumber(Type type);
+    protected abstract boolean intersectsWithSet(Type type);
+    protected abstract boolean intersectsWithSourceLocation(Type type);
+    protected abstract boolean intersectsWithString(Type type);
+    protected abstract boolean intersectsWithNode(Type type);
+    protected abstract boolean intersectsWithConstructor(Type type);
+    protected abstract boolean intersectsWithAbstractData(Type type);
+    protected abstract boolean intersectsWithTuple(Type type);
+    protected abstract boolean intersectsWithFunction(Type type);
+    protected abstract boolean intersectsWithValue(Type type);
+    protected abstract boolean intersectsWithVoid(Type type);
+    protected abstract boolean intersectsWithBool(Type type);
     protected boolean intersectsWithExternal(Type type) {
         // delegate to the external type always
         return type.intersects(this);
     }
-    abstract protected boolean intersectsWithDateTime(Type type);
+    protected abstract boolean intersectsWithDateTime(Type type);
 
     protected Type lubWithAlias(Type type) {
         return lub(type.getAliased());
@@ -734,24 +734,24 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
         return lub(type.getBound());
     }
 
-    abstract protected Type lubWithReal(Type type) ;
-    abstract protected Type lubWithInteger(Type type) ;
-    abstract protected Type lubWithRational(Type type) ;
-    abstract protected Type lubWithList(Type type) ;
-    abstract protected Type lubWithMap(Type type) ;
-    abstract protected Type lubWithNumber(Type type) ;
-    abstract protected Type lubWithSet(Type type) ;
-    abstract protected Type lubWithSourceLocation(Type type) ;
-    abstract protected Type lubWithString(Type type) ;
-    abstract protected Type lubWithNode(Type type) ;
-    abstract protected Type lubWithConstructor(Type type) ;
-    abstract protected Type lubWithAbstractData(Type type) ;
-    abstract protected Type lubWithTuple(Type type) ;
-    abstract protected Type lubWithFunction(Type type) ;
-    abstract protected Type lubWithValue(Type type) ;
-    abstract protected Type lubWithVoid(Type type) ;
-    abstract protected Type lubWithBool(Type type) ;
-    abstract protected Type lubWithDateTime(Type type) ;
+    protected abstract Type lubWithReal(Type type) ;
+    protected abstract Type lubWithInteger(Type type) ;
+    protected abstract Type lubWithRational(Type type) ;
+    protected abstract Type lubWithList(Type type) ;
+    protected abstract Type lubWithMap(Type type) ;
+    protected abstract Type lubWithNumber(Type type) ;
+    protected abstract Type lubWithSet(Type type) ;
+    protected abstract Type lubWithSourceLocation(Type type) ;
+    protected abstract Type lubWithString(Type type) ;
+    protected abstract Type lubWithNode(Type type) ;
+    protected abstract Type lubWithConstructor(Type type) ;
+    protected abstract Type lubWithAbstractData(Type type) ;
+    protected abstract Type lubWithTuple(Type type) ;
+    protected abstract Type lubWithFunction(Type type) ;
+    protected abstract Type lubWithValue(Type type) ;
+    protected abstract Type lubWithVoid(Type type) ;
+    protected abstract Type lubWithBool(Type type) ;
+    protected abstract Type lubWithDateTime(Type type) ;
 
     protected Type glbWithAlias(Type type) {
         return glb(type.getAliased());
@@ -765,24 +765,24 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
         return glb(type.getBound());
     }
 
-    abstract protected Type glbWithReal(Type type) ;
-    abstract protected Type glbWithInteger(Type type) ;
-    abstract protected Type glbWithRational(Type type) ;
-    abstract protected Type glbWithList(Type type) ;
-    abstract protected Type glbWithMap(Type type) ;
-    abstract protected Type glbWithNumber(Type type) ;
-    abstract protected Type glbWithSet(Type type) ;
-    abstract protected Type glbWithSourceLocation(Type type) ;
-    abstract protected Type glbWithString(Type type) ;
-    abstract protected Type glbWithNode(Type type) ;
-    abstract protected Type glbWithConstructor(Type type) ;
-    abstract protected Type glbWithAbstractData(Type type) ;
-    abstract protected Type glbWithTuple(Type type) ;
-    abstract protected Type glbWithFunction(Type type) ;
-    abstract protected Type glbWithValue(Type type) ;
-    abstract protected Type glbWithVoid(Type type) ;
-    abstract protected Type glbWithBool(Type type) ;
-    abstract protected Type glbWithDateTime(Type type) ;
+    protected abstract Type glbWithReal(Type type) ;
+    protected abstract Type glbWithInteger(Type type) ;
+    protected abstract Type glbWithRational(Type type) ;
+    protected abstract Type glbWithList(Type type) ;
+    protected abstract Type glbWithMap(Type type) ;
+    protected abstract Type glbWithNumber(Type type) ;
+    protected abstract Type glbWithSet(Type type) ;
+    protected abstract Type glbWithSourceLocation(Type type) ;
+    protected abstract Type glbWithString(Type type) ;
+    protected abstract Type glbWithNode(Type type) ;
+    protected abstract Type glbWithConstructor(Type type) ;
+    protected abstract Type glbWithAbstractData(Type type) ;
+    protected abstract Type glbWithTuple(Type type) ;
+    protected abstract Type glbWithFunction(Type type) ;
+    protected abstract Type glbWithValue(Type type) ;
+    protected abstract Type glbWithVoid(Type type) ;
+    protected abstract Type glbWithBool(Type type) ;
+    protected abstract Type glbWithDateTime(Type type) ;
 
     /**
     * This makes sure that lubbing can be done by the external type whether
@@ -810,5 +810,5 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     * @param maxWidth       how wide collections and fixed-width data-types should be (maximally)
     * @return
     */
-    abstract public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth);
+    public abstract IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth);
 }

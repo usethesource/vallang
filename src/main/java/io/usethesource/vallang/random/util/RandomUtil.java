@@ -40,9 +40,9 @@ public class RandomUtil {
         private int generateCodePoint(Random rand, int start, int stop) {
             int range = stop - start;
             int result = 0;
-            do
+            do {
                 result = start + rand.nextInt(range + 1);
-            while (!validCodePoint(result));
+            } while (!validCodePoint(result));
             return result;
         }
     }
@@ -56,8 +56,9 @@ public class RandomUtil {
 
         @Override
         public void generate(Random rand, int length, StringBuilder result) {
-            for (int c = 0; c < length; c++)
+            for (int c = 0; c < length; c++) {
                 result.appendCodePoint(chars[rand.nextInt(chars.length)]);
+            }
         }
     }
 
@@ -117,16 +118,16 @@ public class RandomUtil {
     }
 
 
-    private final static StringGen alphaOnly = new CharRanges(new int[]{'a','A'}, new int[]{'z','Z'});
-    private final static StringGen numeric = new CharRanges(new int[]{'0'}, new int[]{'9'});
-    private final static StringGen generalStrangeChars = new CharRanges(new int[]{0x00, 0x21,0xA1}, new int[]{0x09,0x2F,0xAC});
-    private final static StringGen normalUnicode = new CharRanges(new int[]{0x0100,0x3400,0xD000}, new int[]{0x0200,0x4D00,0xD700});
-    private final static StringGen strangeUnicode = new CharRanges(new int[]{0x12000, 0x20000}, new int[]{0x1247F, 0x215FF});
-    private final static StringGen whiteSpace = new CharSets(' ','\t','\n','\t');
-    private final static StringGen strangeWhiteSpace = new CharSets(0x85, 0xA0, 0x1680, 0x2000, 0x2028, 0x2029,0x205F,0x3000);
-    private final static StringGen rascalEscapes = new CharSets('\"','\'','>','\\','<','@','`');
+    private static final StringGen alphaOnly = new CharRanges(new int[]{'a','A'}, new int[]{'z','Z'});
+    private static final StringGen numeric = new CharRanges(new int[]{'0'}, new int[]{'9'});
+    private static final StringGen generalStrangeChars = new CharRanges(new int[]{0x00, 0x21,0xA1}, new int[]{0x09,0x2F,0xAC});
+    private static final StringGen normalUnicode = new CharRanges(new int[]{0x0100,0x3400,0xD000}, new int[]{0x0200,0x4D00,0xD700});
+    private static final StringGen strangeUnicode = new CharRanges(new int[]{0x12000, 0x20000}, new int[]{0x1247F, 0x215FF});
+    private static final StringGen whiteSpace = new CharSets(' ','\t','\n','\t');
+    private static final StringGen strangeWhiteSpace = new CharSets(0x85, 0xA0, 0x1680, 0x2000, 0x2028, 0x2029,0x205F,0x3000);
+    private static final StringGen rascalEscapes = new CharSets('\"','\'','>','\\','<','@','`');
 
-    private final static StringGen[] generators = new StringGen[] {
+    private static final StringGen[] generators = new StringGen[] {
         alphaOnly,
         new MixGenerators(alphaOnly, numeric),
         new MixGenerators(alphaOnly, numeric), // increase chances of normal strings

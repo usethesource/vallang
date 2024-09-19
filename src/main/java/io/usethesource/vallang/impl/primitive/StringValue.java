@@ -72,21 +72,21 @@ import io.usethesource.vallang.type.TypeFactory;
     private static int MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
 
     /** for testing purposes we can set the max flat string value */
-    static synchronized public void setMaxFlatString(int maxFlatString) {
+    public static synchronized void setMaxFlatString(int maxFlatString) {
         MAX_FLAT_STRING = maxFlatString;
     }
 
     /** for testing purposes we can set the max flat string value */
-    static synchronized public void resetMaxFlatString() {
+    public static synchronized void resetMaxFlatString() {
         MAX_FLAT_STRING = DEFAULT_MAX_FLAT_STRING;
     }
 
     /** for testing and tuning purposes we can set the max unbalance factor */
-    static synchronized public void setMaxUnbalance(int maxUnbalance) {
+    public static synchronized void setMaxUnbalance(int maxUnbalance) {
         MAX_UNBALANCE = maxUnbalance;
     }
 
-    static synchronized public void resetMaxUnbalance() {
+    public static synchronized void resetMaxUnbalance() {
         MAX_UNBALANCE = DEFAULT_MAX_UNBALANCE;
     }
 
@@ -717,7 +717,7 @@ import io.usethesource.vallang.type.TypeFactory;
          * @param indentFirstLine  whether or not to indent the first line
          * @throws IOException
          */
-        default public void indentedWrite(Writer w, Deque<IString> indentStack, boolean indentFirstLine) throws IOException {
+        public default void indentedWrite(Writer w, Deque<IString> indentStack, boolean indentFirstLine) throws IOException {
             throw new UnsupportedOperationException();
         }
     }
