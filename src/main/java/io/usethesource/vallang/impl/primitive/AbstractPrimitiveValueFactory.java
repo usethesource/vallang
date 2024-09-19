@@ -33,7 +33,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
-    private final static int DEFAULT_PRECISION = 10;
+    private static final int DEFAULT_PRECISION = 10;
     private final AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
 
     @Override
@@ -228,8 +228,9 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
     @Override
     public ISourceLocation sourceLocation(String path) {
-        if (!path.startsWith("/"))
+        if (!path.startsWith("/")) {
             path = "/" + path;
+        }
         try {
             return sourceLocation("file", "", path);
         } catch (URISyntaxException e) {

@@ -117,35 +117,35 @@ import io.usethesource.vallang.type.TypeFactory;
     @Override
     public boolean equals(@Nullable Object o){
         if (o == this) {
-          return true;
+            return true;
         }
 
         if (o == null) {
-          return false;
+            return false;
         }
 
         if (o.getClass() != getClass()) {
-          return false;
+            return false;
         }
 
         Node other = (Node) o;
 
         // Yes '!=' works here, since it has been interned.
         if (name != other.name) {
-          return false;
+            return false;
         }
 
         IValue[] otherChildren = other.children;
         int nrOfChildren = children.length;
 
         if (otherChildren.length != nrOfChildren) {
-          return false;
+            return false;
         }
 
         for (int i = nrOfChildren - 1; i >= 0; i--) {
-          if (!otherChildren[i].equals(children[i])) {
-            return false;
-          }
+            if (!otherChildren[i].equals(children[i])) {
+                return false;
+            }
         }
 
         return true;

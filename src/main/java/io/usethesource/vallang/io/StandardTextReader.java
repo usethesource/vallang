@@ -1033,10 +1033,11 @@ public class StandardTextReader extends AbstractTextReader {
             public String toString() {
                 StringBuilder sb = new StringBuilder();
                 sb.append(String.format("%02d",hour)).append(":").append(String.format("%02d",minute)).append(":").append(String.format("%02d",second)).append(".").append(String.format("%03d",millisecond));
-                if (timezoneHours < 0 || (timezoneHours == 0 && timezoneMinutes < 0))
+                if (timezoneHours < 0 || (timezoneHours == 0 && timezoneMinutes < 0)) {
                     sb.append("-");
-                else
+                } else {
                     sb.append("+");
+                }
                 sb.append(String.format("%02d",Math.abs(timezoneHours))).append(":").append(String.format("%02d",Math.abs(timezoneMinutes)));
                 return sb.toString();
             }

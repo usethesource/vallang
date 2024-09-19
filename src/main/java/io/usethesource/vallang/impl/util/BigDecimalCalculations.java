@@ -80,15 +80,17 @@ public class BigDecimalCalculations {
      * @return the result value
      */
     public static BigDecimal sin(BigDecimal x, int scale) {
-        if (x.signum() == 0)
+        if (x.signum() == 0) {
             return BigDecimal.ZERO;
+        }
         if (x.abs().compareTo(sincosNormalizePoint) >= 0 ) {
             x = x.remainder(twoPI, new MathContext(scale + 1));
         }
-        if (x.signum() == -1)
+        if (x.signum() == -1) {
             return sinTaylor(x.negate(), scale).negate();
-        else
+        } else {
             return sinTaylor(x, scale);
+        }
     }
 
 
@@ -136,15 +138,17 @@ public class BigDecimalCalculations {
      * @return the result value
      */
     public static BigDecimal cos(BigDecimal x, int scale) {
-        if (x.signum() == 0)
+        if (x.signum() == 0) {
             return BigDecimal.ONE;
+        }
         if (x.abs().compareTo(sincosNormalizePoint) >= 0 ) {
             x = x.remainder(twoPI, new MathContext(scale + 1));
         }
-        if (x.signum() == -1)
+        if (x.signum() == -1) {
             return cosTaylor(x.negate(), scale);
-        else
+        } else {
             return cosTaylor(x, scale);
+        }
     }
 
     // code based on arctanTaylor by Ronald Mak
@@ -191,10 +195,12 @@ public class BigDecimalCalculations {
      * @return the result value
      */
     public static BigDecimal tan(BigDecimal x, int scale) {
-        if (x.signum() == 0)
+        if (x.signum() == 0) {
             return BigDecimal.ZERO;
-        if (x.abs().compareTo(halfPI) > 0)
+        }
+        if (x.abs().compareTo(halfPI) > 0) {
             throw new ArithmeticException("x should be between -(pi/2) and (pi/2)");
+        }
         // easiest implementation of tan (no need for Bernoulli numbers) but this is slower than the other 2
         return sin(x, scale + 1).divide(cos(x, scale + 1), scale, RoundingMode.HALF_UP);
     }

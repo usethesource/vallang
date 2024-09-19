@@ -39,12 +39,13 @@ import io.usethesource.vallang.type.TypeFactory;
         }
         // normalize infinites
         if(denom.signum() == 0) {
-            if(num.signum() > 0)
+            if(num.signum() > 0) {
                 num = intOne();
-            else if(num.signum() < 0)
+            } else if(num.signum() < 0) {
                 num = intOne().negate();
-            else
+            } else {
                 throw new ArithmeticException("Illegal fraction 0/0");
+            }
 
         }
         else if(num.signum() == 0) {
@@ -246,10 +247,11 @@ import io.usethesource.vallang.type.TypeFactory;
         if(isIntegerType(other)) {
             IInteger div = num.divide(denom);
             IInteger rem = num.remainder(denom);
-            if(div.compare(other) != 0)
+            if(div.compare(other) != 0) {
                 return div.compare(other);
-            else
+            } else {
                 return rem.signum();
+            }
         }
         else if(isRationalType(other)){
             IRational diff = subtract((IRational)other);
@@ -331,9 +333,9 @@ import io.usethesource.vallang.type.TypeFactory;
 
     @Override
     public int hashCode() {
-        if(denom.equals(intOne()))
+        if(denom.equals(intOne())) {
             return num.hashCode();
-        else {
+        } else {
             final int prime = 31;
             int result = 1;
             result = prime * result + num.hashCode();

@@ -324,8 +324,9 @@ import io.usethesource.vallang.type.TypeFactory;
     private static final Pattern squareBracketOpen = Pattern.compile("\\[");
     private static final Pattern squareBracketClose = Pattern.compile("\\]");
     private static String hideBrackets(String authority) {
-        authority = squareBracketOpen.matcher(authority).replaceAll("\0\0\uFFF0\0\0");
-        return squareBracketClose.matcher(authority).replaceAll("\0\0\uFFF1\0\0");
+        authority = squareBracketOpen.matcher(authority).replaceAll("\0\0\uFFF0\0\0"); // special special string to be later matched
+        return squareBracketClose.matcher(authority).replaceAll("\0\0\uFFF1\0\0"); // special string that should never appear in a string
+        // TODO: use the same string literal in squareBracket.*Placeholder
     }
 
     private static final Interner<String> INTERNED_AUTHORIES = Interner.newStrongInterner();

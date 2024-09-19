@@ -112,8 +112,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
     @Override
     public IValue select(int... indexes) {
-        if (indexes.length == 1)
+        if (indexes.length == 1) {
             return get(indexes[0]);
+        }
 
         int nrOfElements = indexes.length;
         IValue[] elements = new IValue[nrOfElements];
@@ -129,8 +130,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
     @Override
     public IValue selectByFieldNames(String... fields) {
-        if (fields.length == 1)
+        if (fields.length == 1) {
             return get(fields[0]);
+        }
 
         int nrOfElements = fields.length;
         IValue[] elements = new IValue[nrOfElements];
@@ -184,8 +186,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             int nrOfElements = elements.length;
             if (otherElements.length == nrOfElements) {
                 for (int i = nrOfElements - 1; i >= 0; i--) {
-                    if (!otherElements[i].equals(elements[i]))
+                    if (!otherElements[i].equals(elements[i])) {
                         return false;
+                    }
                 }
                 return true;
             }
@@ -214,8 +217,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
             int nrOfElements = elements.length;
             if (otherElements.length == nrOfElements) {
                 for (int i = nrOfElements - 1; i >= 0; i--) {
-                    if (!otherElements[i].match(elements[i]))
+                    if (!otherElements[i].match(elements[i])) {
                         return false;
+                    }
                 }
                 return true;
             }
@@ -241,8 +245,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
         @Override
         public IValue next() {
-            if (!hasNext())
+            if (!hasNext()) {
                 throw new NoSuchElementException("No more elements in this iteration.");
+            }
 
             return elements[index++];
         }

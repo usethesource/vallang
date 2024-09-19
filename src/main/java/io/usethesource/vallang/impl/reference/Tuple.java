@@ -166,8 +166,9 @@ import io.usethesource.vallang.type.TypeFactory;
     }
 
     private IValue doSelect(Type type, int... fields) throws IndexOutOfBoundsException {
-        if (fields.length == 1)
+        if (fields.length == 1) {
             return get(fields[0]);
+        }
         IValue[] elems = new IValue[fields.length];
         Type[] elemTypes = new Type[fields.length];
         for (int i = 0; i < fields.length; i++) {

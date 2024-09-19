@@ -181,12 +181,13 @@ public class ATermReader extends AbstractBinaryReader {
                         // result = node.make(vf, ts, funname, new IValue[0]);
                         if(node.isTop()) {
                             Type constr = ts.lookupFirstConstructor(funname, tf.tupleType(new Type[0]));
-                            if(constr != null) node = constr;
+                            if(constr != null) { node = constr; }
                         }
-                        if(node.isConstructor())
+                        if(node.isConstructor()) {
                             result = vf.constructor(node, new IValue[0]);
-                        else
+                        } else {
                             result = vf.node(funname, new IValue[0]);
+                        }
 
                     } else {
                         IValue[] list;
@@ -204,12 +205,13 @@ public class ATermReader extends AbstractBinaryReader {
 
                         if(node.isTop()) {
                             Type constr = ts.lookupFirstConstructor(funname, tf.tupleType(list));
-                            if(constr != null) node = constr;
+                            if(constr != null) { node = constr; }
                         }
-                        if (node.isConstructor())
+                        if (node.isConstructor()) {
                             result = vf.constructor(node, list);
-                        else
+                        } else {
                             result = vf.node(funname, list);
+                        }
                     }
                     c = reader.readSkippingWS();
                 } else {
@@ -351,7 +353,7 @@ public class ATermReader extends AbstractBinaryReader {
             return result;
         }
 
-        static private boolean isBase64(int c) {
+        private static boolean isBase64(int c) {
             return Character.isLetterOrDigit(c) || c == '+' || c == '/';
         }
 
@@ -412,8 +414,9 @@ public class ATermReader extends AbstractBinaryReader {
                 if (reader.getLastChar() == '.') {
                     str.append('.');
                     reader.read();
-                    if (!Character.isDigit(reader.getLastChar()))
+                    if (!Character.isDigit(reader.getLastChar())) {
                         throw new FactParseError("digit expected", reader.getPosition());
+                    }
                     do {
                         str.append((char) reader.getLastChar());
                     } while (Character.isDigit(reader.read()));
@@ -425,8 +428,9 @@ public class ATermReader extends AbstractBinaryReader {
                         str.append((char) reader.getLastChar());
                         reader.read();
                     }
-                    if (!Character.isDigit(reader.getLastChar()))
+                    if (!Character.isDigit(reader.getLastChar())) {
                         throw new FactParseError("digit expected!", reader.getPosition());
+                    }
                     do {
                         str.append((char) reader.getLastChar());
                     } while (Character.isDigit(reader.read()));
@@ -470,7 +474,7 @@ public class ATermReader extends AbstractBinaryReader {
                 }
 
                 int lastChar = reader.getLastChar();
-                if(lastChar == -1) throw new IOException("Premature EOF.");
+                if(lastChar == -1) { throw new IOException("Premature EOF."); }
 
                 if (escaped) {
                     switch (lastChar) {

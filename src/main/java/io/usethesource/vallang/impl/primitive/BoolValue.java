@@ -19,7 +19,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /*package*/ abstract class BoolValue implements IBool {
-    /*package*/ final static BoolValue TRUE = new BoolValue() {
+    /*package*/ static final BoolValue TRUE = new BoolValue() {
         @Override
         public boolean getValue() {
             return true;
@@ -56,7 +56,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
     };
 
-    /*package*/ final static BoolValue FALSE = new BoolValue() {
+    /*package*/ static final BoolValue FALSE = new BoolValue() {
         @Override
         public boolean getValue() {
             return false;
@@ -91,7 +91,7 @@ import io.usethesource.vallang.type.TypeFactory;
             return 2;
         }
     };
-    private final static Type BOOL_TYPE = TypeFactory.getInstance().boolType();
+    private static final Type BOOL_TYPE = TypeFactory.getInstance().boolType();
 
     private BoolValue() {
         super();

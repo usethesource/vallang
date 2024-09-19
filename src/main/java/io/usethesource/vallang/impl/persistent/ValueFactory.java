@@ -34,7 +34,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
     }
 
     private static class InstanceKeeper {
-        public final static ValueFactory instance = new ValueFactory();
+        public static final ValueFactory instance = new ValueFactory();
     }
 
     public static ValueFactory getInstance() {

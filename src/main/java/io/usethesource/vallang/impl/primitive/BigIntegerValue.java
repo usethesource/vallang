@@ -31,16 +31,18 @@ import io.usethesource.vallang.type.TypeFactory;
  * @author Arnold Lankamp
  */
 /*package*/ class BigIntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
-    private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
+    private static final Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 
     protected final BigInteger value;
 
     /*package*/ BigIntegerValue(BigInteger value){
         super();
-        if(value.equals(BigInteger.ZERO))
+        if(value.equals(BigInteger.ZERO)) {
             value = BigInteger.ZERO;
-        if(value.equals(BigInteger.ONE))
+        }
+        if(value.equals(BigInteger.ONE)) {
             value = BigInteger.ONE;
+        }
 
         this.value = value;
     }
@@ -94,10 +96,12 @@ import io.usethesource.vallang.type.TypeFactory;
     public IInteger add(IInteger other){
         BigInteger o = ((ICanBecomeABigInteger) other).toBigInteger();
         BigInteger result = value.add(o);
-        if(result == value)
+        if(result == value) {
             return this;
-        else if(result == o)
+        }
+        else if(result == o) {
             return other;
+        }
         int length = result.bitLength();
         if(length <= 31){
             return IntegerValue.newInteger(result.intValue());
@@ -119,8 +123,9 @@ import io.usethesource.vallang.type.TypeFactory;
     @Override
     public IInteger subtract(IInteger other){
         BigInteger result = value.subtract(((ICanBecomeABigInteger) other).toBigInteger());
-        if(result == value)
+        if(result == value) {
             return this;
+        }
 
         int length = result.bitLength();
         if(length <= 31){
@@ -144,10 +149,12 @@ import io.usethesource.vallang.type.TypeFactory;
     public IInteger multiply(IInteger other){
         BigInteger o = ((ICanBecomeABigInteger) other).toBigInteger();
         BigInteger result = value.multiply(o);
-        if(result == value)
+        if(result == value) {
             return this;
-        else if(result == o)
+        }
+        else if(result == o) {
             return other;
+        }
         // The result of this operation can never fit in a 32-bit integer, so no need to check.
         return IntegerValue.newInteger(result);
     }
@@ -164,8 +171,9 @@ import io.usethesource.vallang.type.TypeFactory;
     @Override
     public IInteger divide(IInteger other){
         BigInteger result = value.divide(((ICanBecomeABigInteger) other).toBigInteger());
-        if(result == value)
+        if(result == value) {
             return this;
+        }
 
         int length = result.bitLength();
         if(length <= 31){

@@ -85,8 +85,9 @@ public final class PersistentHashSet implements ISet {
         final Set.Immutable<IValue> contentNew =
             content.__insert(value);
 
-        if (content == contentNew)
+        if (content == contentNew) {
             return this;
+        }
 
         final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
 
@@ -98,8 +99,9 @@ public final class PersistentHashSet implements ISet {
         final Set.Immutable<IValue> contentNew =
             content.__remove(value);
 
-        if (content == contentNew)
+        if (content == contentNew) {
             return this;
+        }
 
         final AbstractTypeBag bagNew = elementTypeBag.decrease(value.getType());
 

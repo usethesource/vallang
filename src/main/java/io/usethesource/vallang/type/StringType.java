@@ -28,7 +28,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class StringType extends DefaultSubtypeOfValue {
     private static final class InstanceKeeper {
-        private final static StringType sInstance= new StringType();
+        private static final StringType sInstance= new StringType();
     }
 
     public static StringType getInstance() {

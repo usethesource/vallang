@@ -424,8 +424,9 @@ public interface IList extends ICollection<IList> {
                 return true;
             }
 
-            if (getType() != list2.getType())
+            if (getType() != list2.getType()) {
                 return false;
+            }
 
             if (hashCode() != list2.hashCode()) {
                 return false;

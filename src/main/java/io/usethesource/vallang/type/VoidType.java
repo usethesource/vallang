@@ -36,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 /* package */final class VoidType extends Type {
     private static final class InstanceKeeper {
-        public final static VoidType sInstance = new VoidType();
+        public static final VoidType sInstance = new VoidType();
     }
 
     public static VoidType getInstance() {

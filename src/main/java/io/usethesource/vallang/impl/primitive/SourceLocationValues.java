@@ -38,8 +38,8 @@ import io.usethesource.vallang.type.TypeFactory;
 
     /*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length) {
         ISourceLocation root = loc.top();
-        if (offset < 0) throw new IllegalArgumentException("offset should be positive");
-        if (length < 0) throw new IllegalArgumentException("length should be positive");
+        if (offset < 0) { throw new IllegalArgumentException("offset should be positive"); }
+        if (length < 0) { throw new IllegalArgumentException("length should be positive"); }
 
         if (offset < Byte.MAX_VALUE && length < Byte.MAX_VALUE) {
             return new SourceLocationValues.ByteByte(root, (byte) offset, (byte) length);
@@ -54,15 +54,17 @@ import io.usethesource.vallang.type.TypeFactory;
 
     /*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
         ISourceLocation root = loc.top();
-        if (offset < 0) throw new IllegalArgumentException("offset should be positive");
-        if (length < 0) throw new IllegalArgumentException("length should be positive");
-        if (beginLine < 0) throw new IllegalArgumentException("beginLine should be positive");
-        if (beginCol < 0) throw new IllegalArgumentException("beginCol should be positive");
-        if (endCol < 0) throw new IllegalArgumentException("endCol should be positive");
-        if (endLine < beginLine)
+        if (offset < 0) { throw new IllegalArgumentException("offset should be positive"); }
+        if (length < 0) { throw new IllegalArgumentException("length should be positive"); }
+        if (beginLine < 0) { throw new IllegalArgumentException("beginLine should be positive"); }
+        if (beginCol < 0) { throw new IllegalArgumentException("beginCol should be positive"); }
+        if (endCol < 0) { throw new IllegalArgumentException("endCol should be positive"); }
+        if (endLine < beginLine) {
             throw new IllegalArgumentException("endLine should be larger than or equal to beginLine");
-        if (endLine == beginLine && endCol < beginCol)
+        }
+        if (endLine == beginLine && endCol < beginCol) {
             throw new IllegalArgumentException("endCol should be larger than or equal to beginCol, if on the same line");
+        }
 
         if (offset < Character.MAX_VALUE
                 && length < Character.MAX_VALUE
@@ -91,7 +93,7 @@ import io.usethesource.vallang.type.TypeFactory;
         return new SourceLocationValues.IntIntIntIntIntInt(root, offset, length, beginLine, endLine, beginCol, endCol);
     }
 
-    private final static Cache<ISourceLocation,URI>  reverseLocationCache = Caffeine.newBuilder()
+    private static final Cache<ISourceLocation,URI>  reverseLocationCache = Caffeine.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(1000)
             .build();
@@ -99,7 +101,7 @@ import io.usethesource.vallang.type.TypeFactory;
     /**
      * As the parser is always calling the URI constructor, we cache the result, as not to unpack it all the time.
      */
-    private final static Cache<URI, ISourceLocation> locationCache = Caffeine.newBuilder()
+    private static final Cache<URI, ISourceLocation> locationCache = Caffeine.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(1000)
             .weakKeys() // loose entries quickly, and force reference equality, such that URI's are only compared based on instance, not on contents (as their equality is case-insensitive)
@@ -513,7 +515,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public boolean equals(@Nullable Object o){
-            if(o == null) return false;
+            if(o == null) { return false; }
 
             if(o.getClass() == getClass()){
                 CharCharCharCharCharChar otherSourceLocation = (CharCharCharCharCharChar) o;
@@ -594,7 +596,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public boolean equals(@Nullable Object o){
-            if(o == null) return false;
+            if(o == null) { return false; }
 
             if(o.getClass() == getClass()){
                 IntIntIntIntByteByte otherSourceLocation = (IntIntIntIntByteByte) o;
@@ -675,7 +677,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public boolean equals(@Nullable Object o){
-            if(o == null) return false;
+            if(o == null) { return false; }
 
             if(o.getClass() == getClass()){
                 IntIntCharCharByteByte otherSourceLocation = (IntIntCharCharByteByte) o;
@@ -729,7 +731,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public boolean equals(@Nullable Object o){
-            if(o == null) return false;
+            if(o == null) { return false; }
 
             if(o.getClass() == getClass()){
                 ByteByte otherSourceLocation = (ByteByte) o;
@@ -779,7 +781,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public boolean equals(@Nullable Object o){
-            if(o == null) return false;
+            if(o == null) { return false; }
 
             if(o.getClass() == getClass()){
                 CharChar otherSourceLocation = (CharChar) o;
@@ -834,7 +836,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
         @Override
         public boolean equals(@Nullable Object o){
-            if(o == null) return false;
+            if(o == null) { return false; }
 
             if(o.getClass() == getClass()){
                 IntInt otherSourceLocation = (IntInt) o;

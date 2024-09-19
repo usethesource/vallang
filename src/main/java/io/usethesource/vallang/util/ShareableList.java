@@ -36,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *            The element type.
  */
 public class ShareableList<E> implements Iterable<@NonNull E>{
-    private final static int INITIAL_LOG_SIZE = 2;
+    private static final int INITIAL_LOG_SIZE = 2;
 
     private int frontCapacity;
     private @Nullable E[] frontData;
@@ -266,8 +266,8 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
      *            The number of elements from the given batch to append.
      */
     public void appendAllAt(E[] elements, int offset, int length){
-        if(offset < 0) throw new IllegalArgumentException("Offset must be > 0.");
-        if((offset + length) > elements.length) throw new IllegalArgumentException("(offset + length) must be <= elements.length.");
+        if(offset < 0) { throw new IllegalArgumentException("Offset must be > 0."); }
+        if((offset + length) > elements.length) { throw new IllegalArgumentException("(offset + length) must be <= elements.length."); }
 
         ensureFrontBulkCapacity(length);
 
@@ -316,7 +316,9 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
         if(realIndex >= 0){
             ensureFrontCapacity();
 
-            if(realIndex > frontIndex) throw new ArrayIndexOutOfBoundsException(index+" > the the current size of the list ("+size()+")");
+            if(realIndex > frontIndex) {
+                throw new ArrayIndexOutOfBoundsException(index+" > the the current size of the list ("+size()+")");
+            }
 
             int elementsToMove = frontIndex - realIndex;
             System.arraycopy(frontData, realIndex, frontData, realIndex + 1, elementsToMove);
@@ -327,7 +329,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 
             realIndex = 0 - realIndex;
 
-            if(realIndex > backIndex) throw new ArrayIndexOutOfBoundsException(index+" < 0");
+            if(realIndex > backIndex) { throw new ArrayIndexOutOfBoundsException(index+" < 0"); }
 
             int elementsToMove = backIndex - realIndex;
             System.arraycopy(backData, realIndex, backData, realIndex + 1, elementsToMove);
@@ -349,7 +351,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
     public E set(int index, E element){
         int realIndex = index - backIndex;
         if(realIndex >= 0){
-            if(realIndex >= frontIndex) throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
+            if(realIndex >= frontIndex) { throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")"); }
 
             E oldElement = frontData[realIndex];
             frontData[realIndex] = element;
@@ -358,7 +360,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 
         realIndex = -1 - realIndex;
 
-        if(realIndex >= backIndex) throw new ArrayIndexOutOfBoundsException(index+" < 0");
+        if(realIndex >= backIndex) { throw new ArrayIndexOutOfBoundsException(index+" < 0"); }
 
         E oldElement = backData[realIndex];
         backData[realIndex] = element;
@@ -427,7 +429,7 @@ public class ShareableList<E> implements Iterable<@NonNull E>{
 
         realIndex = -1 - realIndex;
 
-        if(realIndex >= backIndex) throw new ArrayIndexOutOfBoundsException(index+" < 0");
+        if(realIndex >= backIndex) { throw new ArrayIndexOutOfBoundsException(index+" < 0"); }
 
         E oldElement = nonNull(backData[realIndex]);
 

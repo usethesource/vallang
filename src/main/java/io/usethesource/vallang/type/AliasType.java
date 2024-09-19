@@ -175,8 +175,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     protected Type lubWithAlias(Type type) {
-        if (this == type)
+        if (this == type) {
             return this;
+        }
         if (getName().equals(type.getName())) {
             return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), type.getName(),
                     getAliased().lub(type.getAliased()), getTypeParameters().lub(type.getTypeParameters()));
@@ -601,8 +602,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     protected Type glbWithAlias(Type type) {
-        if (this == type)
+        if (this == type) {
             return this;
+        }
         if (getName().equals(type.getName())) {
             return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), type.getName(),
                     getAliased().glb(type.getAliased()), getTypeParameters().glb(type.getTypeParameters()));

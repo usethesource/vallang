@@ -93,7 +93,7 @@ public class ValueStreams  {
         return stack.stream();
     }
 
-    private static abstract class Single implements IValueVisitor<Stream<IValue>, RuntimeException> {
+    private abstract static class Single implements IValueVisitor<Stream<IValue>, RuntimeException> {
         @Override
         public Stream<IValue> visitNode(INode o) {
             return Stream.of(o);

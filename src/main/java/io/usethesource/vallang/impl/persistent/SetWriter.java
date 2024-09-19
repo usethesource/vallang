@@ -62,7 +62,7 @@ public class SetWriter implements ISetWriter {
         ISet done();
     }
 
-    private final static class SetBuilder implements Builder {
+    private static final class SetBuilder implements Builder {
         private final Set.Transient<IValue> set = Set.Transient.of();
         private AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
 
@@ -97,7 +97,7 @@ public class SetWriter implements ISetWriter {
         }
     }
 
-    private final static class MultiMapBuilder implements Builder {
+    private static final class MultiMapBuilder implements Builder {
         AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
         AbstractTypeBag valTypeBag = AbstractTypeBag.of();
         SetMultimap.Transient<IValue, IValue> map = SetMultimap.Transient.of();

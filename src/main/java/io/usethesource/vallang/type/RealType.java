@@ -29,8 +29,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ final class RealType extends NumberType {
-    private final static class InstanceKeeper {
-        public final static RealType sInstance = new RealType();
+    private static final class InstanceKeeper {
+        public static final RealType sInstance = new RealType();
     }
 
     public static RealType getInstance() {

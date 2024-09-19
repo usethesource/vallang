@@ -25,7 +25,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Naive implementation of an untyped tree node, using array of children.
  */
 /*package*/ class Node implements INode {
-    protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
+    protected static final Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 
     @Override
     public Type getType() {
