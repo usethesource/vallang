@@ -16,6 +16,8 @@
 package io.usethesource.vallang.impl.primitive;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
@@ -279,6 +281,11 @@ import io.usethesource.vallang.type.TypeFactory;
         public IString concat(IString other) {
             return other;
         }
+
+        @Override
+        public Reader asReader() {
+            return Reader.nullReader();
+        }
     }
 
     private static class FullUnicodeString extends AbstractString {
@@ -502,6 +509,11 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
+        public Reader asReader() {
+            return new StringReader(value);
+        }
+
+        @Override
         public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
             if (value.isEmpty()) {
                 return;
@@ -632,6 +644,11 @@ import io.usethesource.vallang.type.TypeFactory;
                     return (int) value.charAt(cur++);
                 }
             };
+        }
+
+        @Override
+        public Reader asReader() {
+            return new StringReader(value);
         }
     }
 
@@ -1147,6 +1164,47 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
+        public Reader asReader() {
+            return new Reader() {
+                private Reader currentReader = left.asReader();
+                private boolean readingRight = false;
+
+                private void continueRight() throws IOException {
+                    assert !readingRight;
+                    currentReader.close();
+                    currentReader = right.asReader();
+                    readingRight = true;
+                }
+
+
+                @Override
+                public int read(char[] cbuf, int off, int len) throws IOException {
+                    int result = currentReader.read(cbuf, off, len);
+                    if (result == -1 && !readingRight) {
+                        continueRight();
+                        return read(cbuf, off, len);
+                    }
+                    return result;
+                }
+
+                @Override
+                public int read() throws IOException {
+                    int result = currentReader.read();
+                    if (result == -1 && !readingRight) {
+                        continueRight();
+                        return read();
+                    }
+                    return result;
+                }
+
+                @Override
+                public void close() throws IOException {
+                    currentReader.close();
+                }
+            };
+        }
+
+        @Override
         public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
             left.indentedWrite(w, whitespace, indentFirstLine);
             right.indentedWrite(w, whitespace, left.isNewlineTerminated());
@@ -1378,6 +1436,72 @@ import io.usethesource.vallang.type.TypeFactory;
             wrapped.indentedWrite(w, indents, indentFirstLine);
             indents.pop();
             assert indents.isEmpty();
+        }
+
+        @Override
+        public Reader asReader() {
+            return new Reader() {
+                private final OfInt chars = iterator();
+                private char endedWithHalfSurrogate = 0;
+
+                @Override
+                public int read(char[] cbuf, int off, int len) throws IOException {
+                    if (off < 0 || len < 0 || len > (cbuf.length - off)) {
+                        throw new IndexOutOfBoundsException();
+                    }
+                    if (len == 0) {
+                        return 0;
+                    }
+
+                    int pos = off;
+                    if (endedWithHalfSurrogate != 0) {
+                        cbuf[pos++] = endedWithHalfSurrogate;
+                        endedWithHalfSurrogate = 0;
+                    }
+                    int endPos = off + len;
+                    while (pos <= endPos) {
+                        if (!chars.hasNext()) {
+                            break;
+                        }
+                        int nextChar = chars.nextInt();
+                        if (Character.isBmpCodePoint(nextChar)) {
+                            cbuf[pos++] = (char)nextChar;
+                        } else {
+                            cbuf[pos++] = Character.highSurrogate(nextChar);
+                            char lowSide = Character.lowSurrogate(nextChar);
+                            if (pos <= endPos) {
+                                cbuf[pos++] = lowSide;
+                            } else {
+                                endedWithHalfSurrogate = lowSide;
+                            }
+                        }
+                    }
+                    int written = pos - off;
+                    return written == 0 ? /* EOF */ -1 : written;
+                }
+
+                @Override
+                public int read() throws IOException {
+                    if (endedWithHalfSurrogate != 0) {
+                        int result = endedWithHalfSurrogate;
+                        endedWithHalfSurrogate = 0;
+                        return result;
+                    }
+                    if (chars.hasNext()) {
+                        int nextChar = chars.nextInt();
+                        if (Character.isBmpCodePoint(nextChar)) {
+                            return nextChar;
+                        } else {
+                            endedWithHalfSurrogate = Character.lowSurrogate(nextChar);
+                            return Character.highSurrogate(nextChar);
+                        }
+                    }
+                    return -1;
+                }
+                @Override
+                public void close() throws IOException {
+                }
+            };
         }
 
         @Override
