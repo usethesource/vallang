@@ -382,6 +382,8 @@ public final class BasicValueSmokeTest {
     private void assertEqualWriteAndRead(IString one, IString two) {
         assertEquals(writerToString(one), writerToString(two), "IString::write had different results");
         assertEquals(readerToString(one), readerToString(two), "IString::asReader had different results");
+        assertEquals(one.getValue(), writerToString(one), "IString::write should be the same as getValue");
+        assertEquals(one.getValue(), readerToString(one), "IString::asReader should be the same as getValue");
     }
 
     private void assertEqualCharAt(IString one, IString two) {
