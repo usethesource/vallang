@@ -1021,18 +1021,15 @@ import io.usethesource.vallang.type.TypeFactory;
                     if (off < 0 || len < 0 || len > cbuf.length + off) {
                         throw new IndexOutOfBoundsException();
                     }
-                    int written = 0;
-                    while (written < len) {
-                        // we try to read as much as we can from the chunks of the buffer
+                    var target = CharBuffer.wrap(cbuf, off, len);
+                    while (target.hasRemaining()) {
                         var actualBuffer = getBuffer();
                         if (!actualBuffer.hasRemaining()) {
                             break;
                         }
-                        int toRead = Math.min(len - written, actualBuffer.remaining());
-                        actualBuffer.get(cbuf, off + written, toRead);
-                        written += toRead;
+                        actualBuffer.read(target);
                     }
-                    return written == 0 ? -1 : written;
+                    return target.position() == off ? -1 : (len - target.remaining());
                 }
 
                 @Override
