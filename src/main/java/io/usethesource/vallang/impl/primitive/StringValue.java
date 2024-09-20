@@ -1005,18 +1005,34 @@ import io.usethesource.vallang.type.TypeFactory;
                 final Iterator<CharBuffer> parts = iterateParts();
                 CharBuffer currentBuffer = CharBuffer.allocate(0);
 
-                @Override
-                public int read(char[] cbuf, int off, int len) throws IOException {
+                private CharBuffer getBuffer() {
                     var actualBuffer = currentBuffer;
                     while (!actualBuffer.hasRemaining()) {
                         if (!parts.hasNext()) {
-                            return -1;
+                            return actualBuffer;
                         }
                         actualBuffer = currentBuffer = parts.next();
                     }
-                    int actualLength = Math.min(len, actualBuffer.remaining());
-                    actualBuffer.get(cbuf, off, actualLength);
-                    return actualLength;
+                    return actualBuffer;
+                }
+
+                @Override
+                public int read(char[] cbuf, int off, int len) throws IOException {
+                    if (off < 0 || len < 0 || len > cbuf.length + off) {
+                        throw new IndexOutOfBoundsException();
+                    }
+                    int written = 0;
+                    while (written < len) {
+                        // we try to read as much as we can from the chunks of the buffer
+                        var actualBuffer = getBuffer();
+                        if (!actualBuffer.hasRemaining()) {
+                            break;
+                        }
+                        int toRead = Math.min(len - written, actualBuffer.remaining());
+                        actualBuffer.get(cbuf, off + written, toRead);
+                        written += toRead;
+                    }
+                    return written == 0 ? -1 : written;
                 }
 
                 @Override
