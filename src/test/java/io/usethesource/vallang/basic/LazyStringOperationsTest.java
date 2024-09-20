@@ -231,16 +231,6 @@ public final class LazyStringOperationsTest {
                 // TODO Auto-generated catch block
                 fail("unexpected IO:" + e);
             }
-            try {
-                fromReader(v.asReader());
-                fail("this should run out of stack");
-            } catch (StackOverflowError e) {
-                // yes, that is what is expected
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                fail("unexpected IO:" + e);
-            }
-
         } finally {
             StringValue.resetMaxFlatString();
             StringValue.resetMaxUnbalance();

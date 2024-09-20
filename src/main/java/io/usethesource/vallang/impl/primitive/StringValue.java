@@ -27,15 +27,14 @@ import java.nio.CharBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
-
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
@@ -285,6 +284,11 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public Reader asReader() {
             return Reader.nullReader();
+        }
+
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            return Collections.emptyIterator();
         }
     }
 
@@ -591,6 +595,11 @@ import io.usethesource.vallang.type.TypeFactory;
                 }
             };
         }
+
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            return Collections.singleton(CharBuffer.wrap(value)).iterator();
+        }
     }
 
     /**
@@ -649,6 +658,11 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public Reader asReader() {
             return new StringReader(value);
+        }
+
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            return Collections.singleton(CharBuffer.wrap(value)).iterator();
         }
     }
 
@@ -825,6 +839,8 @@ import io.usethesource.vallang.type.TypeFactory;
         default AbstractString rotateLeftRight() {
             return (AbstractString) this;
         }
+
+        Iterator<CharBuffer> iterateParts();
     }
 
     private abstract static class AbstractString implements IString, IStringTreeNode, IIndentableString {
@@ -980,6 +996,34 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         abstract boolean hasNonBMPCodePoints();
+
+        public abstract Iterator<CharBuffer> iterateParts();
+
+        @Override
+        public Reader asReader() {
+            return new Reader() {
+                final Iterator<CharBuffer> parts = iterateParts();
+                CharBuffer currentBuffer = CharBuffer.allocate(0);
+
+                @Override
+                public int read(char[] cbuf, int off, int len) throws IOException {
+                    var actualBuffer = currentBuffer;
+                    while (!actualBuffer.hasRemaining()) {
+                        if (!parts.hasNext()) {
+                            return -1;
+                        }
+                        actualBuffer = currentBuffer = parts.next();
+                    }
+                    int actualLength = Math.min(len, actualBuffer.remaining());
+                    actualBuffer.get(cbuf, off, actualLength);
+                    return actualLength;
+                }
+
+                @Override
+                public void close() throws IOException {
+                }
+            };
+        }
     }
 
     private static class LazyConcatString extends AbstractString {
@@ -1163,46 +1207,7 @@ import io.usethesource.vallang.type.TypeFactory;
             right.write(w);
         }
 
-        @Override
-        public Reader asReader() {
-            return new Reader() {
-                private Reader currentReader = left.asReader();
-                private boolean readingRight = false;
 
-                private void continueRight() throws IOException {
-                    assert !readingRight;
-                    currentReader.close();
-                    currentReader = right.asReader();
-                    readingRight = true;
-                }
-
-
-                @Override
-                public int read(char[] cbuf, int off, int len) throws IOException {
-                    int result = currentReader.read(cbuf, off, len);
-                    if (result == -1 && !readingRight) {
-                        continueRight();
-                        return read(cbuf, off, len);
-                    }
-                    return result;
-                }
-
-                @Override
-                public int read() throws IOException {
-                    int result = currentReader.read();
-                    if (result == -1 && !readingRight) {
-                        continueRight();
-                        return read();
-                    }
-                    return result;
-                }
-
-                @Override
-                public void close() throws IOException {
-                    currentReader.close();
-                }
-            };
-        }
 
         @Override
         public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
@@ -1260,6 +1265,49 @@ import io.usethesource.vallang.type.TypeFactory;
                     return next;
                 }
             };
+        }
+
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            return new Iterator<> () {
+                final Deque<AbstractString> todo = new ArrayDeque<>(depth);
+                Iterator<CharBuffer> currentLeaf = leftmostLeafIteratorParts(todo, LazyConcatString.this);
+                @Override
+                public boolean hasNext() {
+                    return currentLeaf.hasNext(); /* || !todo.isEmpty() is unnecessary due to post-condition of nextInt() */
+                }
+                @Override
+                public CharBuffer next() {
+                    var next = currentLeaf.next();
+
+                    if (!currentLeaf.hasNext() && !todo.isEmpty()) {
+                        // now we back track to the previous node we went left from,
+                        // take the right branch and continue with its first leaf:
+                        currentLeaf = leftmostLeafIteratorParts(todo, todo.pop());
+                    }
+
+                    assert currentLeaf.hasNext() || todo.isEmpty();
+                    return next;
+                }
+            };
+        }
+
+        /**
+         * Static helper function for the iterator() method.
+         *
+         * It finds the left-most leaf of the tree, and collects
+         * the path of nodes to this leaf as a side-effect in the todo
+         * stack.
+         */
+        private static Iterator<CharBuffer> leftmostLeafIteratorParts(Deque<AbstractString> todo, IStringTreeNode start) {
+            IStringTreeNode cur = start;
+
+            while (cur.depth() > 1) {
+                todo.push(cur.right());
+                cur = cur.left();
+            }
+
+            return cur.iterateParts();
         }
 
         /**
@@ -1391,6 +1439,69 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
+        public Iterator<CharBuffer> iterateParts() {
+            if (flattened != null) {
+                return flattened.iterateParts();
+            }
+            var indentBuffer = CharBuffer.wrap(indent.getValue());
+            return new Iterator<>() {
+                final Iterator<CharBuffer> content = wrapped.iterateParts();
+                CharBuffer active = CharBuffer.allocate(0);
+                boolean indentNext = indentFirstLine;
+
+                @Override
+                public boolean hasNext() {
+                    return indentNext || content.hasNext() || active.hasRemaining();
+                }
+
+                private CharBuffer nextTillNewlineOrEndOfBuffer() {
+                    int start = active.position();
+                    int end = start + active.remaining();
+                    int cur = start;
+                    while (cur < end) {
+                        if (active.get(cur) == NEWLINE) {
+                            cur++;
+                            indentNext = true;
+                            break;
+                        }
+                        cur++;
+                    }
+                    if (cur != end) {
+                        var result = active.duplicate();
+                        result.limit(cur);
+                        active.position(cur);
+                        return result;
+                    }
+                    else {
+                        // end of the buffer
+                        var result = active;
+                        if (content.hasNext()) {
+                            active = content.next();
+                        }
+                        else {
+                            // end of the stream
+                            indentNext = false;
+                            active = CharBuffer.allocate(0);
+                        }
+                        return result;
+                    }
+                }
+
+                @Override
+                public CharBuffer next() {
+                    if (indentNext) {
+                        indentNext = false;
+                        return indentBuffer.asReadOnlyBuffer();
+                    }
+                    // okay so no indent to send
+                    // now we should give the next char-buffer till the next newline
+                    return nextTillNewlineOrEndOfBuffer();
+                }
+
+            };
+        }
+
+        @Override
         public IString reverse() {
             return applyIndentation().reverse();
         }
@@ -1436,71 +1547,6 @@ import io.usethesource.vallang.type.TypeFactory;
             wrapped.indentedWrite(w, indents, indentFirstLine);
             indents.pop();
             assert indents.isEmpty();
-        }
-
-        @Override
-        public Reader asReader() {
-            return new Reader() {
-                private final OfInt chars = iterator();
-                private char queuedLowSurrogate = 0;
-
-                @Override
-                public int read(char[] cbuf, int off, int len) throws IOException {
-                    if (off < 0 || len < 0 || len > (cbuf.length - off)) {
-                        throw new IndexOutOfBoundsException();
-                    }
-                    if (len == 0) {
-                        return 0;
-                    }
-
-                    int pos = off;
-                    int endPos = off + len;
-                    char lowSurrogate = queuedLowSurrogate;
-                    queuedLowSurrogate = 0;
-                    while (pos < endPos) {
-                        if (lowSurrogate != 0) {
-                            cbuf[pos++] = lowSurrogate;
-                            lowSurrogate = 0;
-                            continue;
-                        }
-                        if (!chars.hasNext()) {
-                            break;
-                        }
-                        int nextChar = chars.nextInt();
-                        if (Character.isBmpCodePoint(nextChar)) {
-                            cbuf[pos++] = (char)nextChar;
-                        } else {
-                            cbuf[pos++] = Character.highSurrogate(nextChar);
-                            lowSurrogate = Character.lowSurrogate(nextChar);
-                        }
-                    }
-                    queuedLowSurrogate = lowSurrogate;
-                    int written = pos - off;
-                    return written == 0 ? /* EOF */ -1 : written;
-                }
-
-                @Override
-                public int read() throws IOException {
-                    if (queuedLowSurrogate != 0) {
-                        int result = queuedLowSurrogate;
-                        queuedLowSurrogate = 0;
-                        return result;
-                    }
-                    if (chars.hasNext()) {
-                        int nextChar = chars.nextInt();
-                        if (Character.isBmpCodePoint(nextChar)) {
-                            return nextChar;
-                        } else {
-                            queuedLowSurrogate = Character.lowSurrogate(nextChar);
-                            return Character.highSurrogate(nextChar);
-                        }
-                    }
-                    return -1;
-                }
-                @Override
-                public void close() throws IOException {
-                }
-            };
         }
 
         @Override
