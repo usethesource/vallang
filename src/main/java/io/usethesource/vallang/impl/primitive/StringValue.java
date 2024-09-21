@@ -1257,7 +1257,7 @@ import io.usethesource.vallang.type.TypeFactory;
         public OfInt iterator() {
             return new OfInt() {
                 final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-                OfInt currentLeaf = leftmostLeafIterator(todo, LazyConcatString.this);
+                OfInt currentLeaf = leftmostLeaf(todo, LazyConcatString.this).iterator();
 
                 @Override
                 public boolean hasNext() {
@@ -1271,7 +1271,7 @@ import io.usethesource.vallang.type.TypeFactory;
                     if (!currentLeaf.hasNext() && !todo.isEmpty()) {
                         // now we back track to the previous node we went left from,
                         // take the right branch and continue with its first leaf:
-                        currentLeaf = leftmostLeafIterator(todo, todo.pop());
+                        currentLeaf = leftmostLeaf(todo, todo.pop()).iterator();
                     }
 
                     assert currentLeaf.hasNext() || todo.isEmpty();
@@ -1284,7 +1284,7 @@ import io.usethesource.vallang.type.TypeFactory;
         public Iterator<CharBuffer> iterateParts() {
             return new Iterator<> () {
                 final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-                Iterator<CharBuffer> currentLeaf = leftmostLeafIteratorParts(todo, LazyConcatString.this);
+                Iterator<CharBuffer> currentLeaf = leftmostLeaf(todo, LazyConcatString.this).iterateParts();
                 @Override
                 public boolean hasNext() {
                     return currentLeaf.hasNext(); /* || !todo.isEmpty() is unnecessary due to post-condition of nextInt() */
@@ -1296,7 +1296,7 @@ import io.usethesource.vallang.type.TypeFactory;
                     if (!currentLeaf.hasNext() && !todo.isEmpty()) {
                         // now we back track to the previous node we went left from,
                         // take the right branch and continue with its first leaf:
-                        currentLeaf = leftmostLeafIteratorParts(todo, todo.pop());
+                        currentLeaf = leftmostLeaf(todo, todo.pop()).iterateParts();
                     }
 
                     assert currentLeaf.hasNext() || todo.isEmpty();
@@ -1312,7 +1312,7 @@ import io.usethesource.vallang.type.TypeFactory;
          * the path of nodes to this leaf as a side-effect in the todo
          * stack.
          */
-        private static Iterator<CharBuffer> leftmostLeafIteratorParts(Deque<AbstractString> todo, IStringTreeNode start) {
+        private static IStringTreeNode leftmostLeaf(Deque<AbstractString> todo, IStringTreeNode start) {
             IStringTreeNode cur = start;
 
             while (cur.depth() > 1) {
@@ -1320,26 +1320,9 @@ import io.usethesource.vallang.type.TypeFactory;
                 cur = cur.left();
             }
 
-            return cur.iterateParts();
+            return cur;
         }
 
-        /**
-         * Static helper function for the iterator() method.
-         *
-         * It finds the left-most leaf of the tree, and collects
-         * the path of nodes to this leaf as a side-effect in the todo
-         * stack.
-         */
-        private static OfInt leftmostLeafIterator(Deque<AbstractString> todo, IStringTreeNode start) {
-            IStringTreeNode cur = start;
-
-            while (cur.depth() > 1) {
-                todo.push(cur.right());
-                cur = cur.left();
-            }
-
-            return cur.iterator();
-        }
     }
 
     private static class IndentedString extends AbstractString {
