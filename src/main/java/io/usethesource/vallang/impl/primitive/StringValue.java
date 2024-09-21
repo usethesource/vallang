@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
+import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.IString;
@@ -1256,26 +1257,16 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public OfInt iterator() {
             return new OfInt() {
-                final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-                OfInt currentLeaf = leftmostLeaf(todo, LazyConcatString.this).iterator();
+                IteratorOfIterators<OfInt> current = new IteratorOfIterators<>(leftMostIterator(), IStringTreeNode::iterator);
 
                 @Override
                 public boolean hasNext() {
-                    return currentLeaf.hasNext(); /* || !todo.isEmpty() is unnecessary due to post-condition of nextInt() */
+                    return current.hasNext();
                 }
 
                 @Override
                 public int nextInt() {
-                    int next = currentLeaf.nextInt();
-
-                    if (!currentLeaf.hasNext() && !todo.isEmpty()) {
-                        // now we back track to the previous node we went left from,
-                        // take the right branch and continue with its first leaf:
-                        currentLeaf = leftmostLeaf(todo, todo.pop()).iterator();
-                    }
-
-                    assert currentLeaf.hasNext() || todo.isEmpty();
-                    return next;
+                    return current.currentIterator().nextInt();
                 }
             };
         }
@@ -1283,24 +1274,67 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public Iterator<CharBuffer> iterateParts() {
             return new Iterator<> () {
-                final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-                Iterator<CharBuffer> currentLeaf = leftmostLeaf(todo, LazyConcatString.this).iterateParts();
+                IteratorOfIterators<Iterator<CharBuffer>> current = new IteratorOfIterators<>(leftMostIterator(), IStringTreeNode::iterateParts);
+
                 @Override
                 public boolean hasNext() {
-                    return currentLeaf.hasNext(); /* || !todo.isEmpty() is unnecessary due to post-condition of nextInt() */
+                    return current.hasNext();
                 }
+
                 @Override
                 public CharBuffer next() {
-                    var next = currentLeaf.next();
+                    return current.currentIterator().next();
+                }
+            };
+        }
 
-                    if (!currentLeaf.hasNext() && !todo.isEmpty()) {
-                        // now we back track to the previous node we went left from,
-                        // take the right branch and continue with its first leaf:
-                        currentLeaf = leftmostLeaf(todo, todo.pop()).iterateParts();
+        private static class IteratorOfIterators<T extends Iterator<?>> {
+            private final Iterator<IStringTreeNode> base;
+            private final Function<IStringTreeNode, T> nested;
+            private @Nullable T current = null;
+
+            IteratorOfIterators(Iterator<IStringTreeNode> base, Function<IStringTreeNode, T> nested) {
+                this.base = base;
+                this.nested = nested;
+            }
+
+            boolean hasNext() {
+                return base.hasNext() || (current != null && current.hasNext());
+            }
+
+            T currentIterator() {
+                if (current == null || !current.hasNext()) {
+                    current = nested.apply(base.next());
+                }
+                return current;
+            }
+
+        }
+
+        private Iterator<IStringTreeNode> leftMostIterator() {
+            return new Iterator<>() {
+                final Deque<AbstractString> todo = new ArrayDeque<>(depth);
+                IStringTreeNode nextNode = leftmostLeaf(todo, LazyConcatString.this);
+
+
+                @Override
+                public boolean hasNext() {
+                    return nextNode != null; /* || !todo.isEmpty() is unnecessary due to post-condition of next() */
+                }
+
+                @Override
+                public IStringTreeNode next() {
+                    var result = nextNode;
+                    if (result == null) {
+                        throw new NoSuchElementException();
                     }
-
-                    assert currentLeaf.hasNext() || todo.isEmpty();
-                    return next;
+                    if (todo.isEmpty()) {
+                        nextNode = null;
+                    }
+                    else {
+                        nextNode = leftmostLeaf(todo, todo.pop());
+                    }
+                    return result;
                 }
             };
         }
