@@ -1327,7 +1327,7 @@ import io.usethesource.vallang.type.TypeFactory;
             }
 
             return cur;
-            }
+        }
 
     }
 
