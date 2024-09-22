@@ -1,9 +1,12 @@
 package io.usethesource.vallang.basic;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Random;
 
@@ -91,11 +94,11 @@ public final class LazyStringOperationsTest {
             IString y = vf.string("abcdefgh");
             IString z = vf.string("abcdefgi");
 
-            assertTrue(x.hashCode() == y.hashCode());
-            assertTrue(x.equals(y));
-            assertTrue(y.equals(x));
-            assertTrue(!z.equals(x));
-            assertTrue(x.substring(0, 0).equals(vf.string("")));
+            assertEquals(x.hashCode(), y.hashCode());
+            assertEquals(x, y);
+            assertEquals(y, x);
+            assertNotEquals(z, x);
+            assertEquals(x.substring(0, 0), vf.string(""));
         } finally {
             StringValue.resetMaxFlatString();
             StringValue.resetMaxUnbalance();
@@ -192,8 +195,22 @@ public final class LazyStringOperationsTest {
                 vf.string("abcdefxygh").concat(str.substring(8)));
     }
 
+    private String fromReader(Reader r) throws IOException {
+        try {
+            var result = new StringBuilder();
+            char[] buffer = new char[8 * 1024];
+            int read = 0;
+            while ((read = r.read(buffer)) > 0) {
+                result.append(buffer, 0, read);
+            }
+            return result.toString();
+        } finally {
+            r.close();
+        }
+    }
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
-    public void neverRunOutOfStack(IValueFactory vf) {
+    public void neverRunOutOfStack(IValueFactory vf) throws IOException {
         int outofStack = 100000;
 
         // first we have to know for sure that we would run out of stack with @see
@@ -230,6 +247,8 @@ public final class LazyStringOperationsTest {
 
         try {
             new StringWriter().write(v.toString()); // do not remove this, this is the test
+            assertTrue(true);
+            fromReader(v.asReader());
             assertTrue(true);
         } catch (StackOverflowError e) {
             fail("the tree balancer should have avoided a stack overflow");

@@ -16,6 +16,8 @@
 package io.usethesource.vallang.impl.primitive;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
@@ -25,15 +27,15 @@ import java.nio.CharBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.PrimitiveIterator.OfInt;
-
+import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
@@ -279,6 +281,16 @@ import io.usethesource.vallang.type.TypeFactory;
         public IString concat(IString other) {
             return other;
         }
+
+        @Override
+        public Reader asReader() {
+            return Reader.nullReader();
+        }
+
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            return Collections.emptyIterator();
+        }
     }
 
     private static class FullUnicodeString extends AbstractString {
@@ -502,6 +514,11 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         @Override
+        public Reader asReader() {
+            return new StringReader(value);
+        }
+
+        @Override
         public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
             if (value.isEmpty()) {
                 return;
@@ -579,6 +596,11 @@ import io.usethesource.vallang.type.TypeFactory;
                 }
             };
         }
+
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            return Collections.singleton(CharBuffer.wrap(value)).iterator();
+        }
     }
 
     /**
@@ -632,6 +654,16 @@ import io.usethesource.vallang.type.TypeFactory;
                     return (int) value.charAt(cur++);
                 }
             };
+        }
+
+        @Override
+        public Reader asReader() {
+            return new StringReader(value);
+        }
+
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            return Collections.singleton(CharBuffer.wrap(value)).iterator();
         }
     }
 
@@ -808,6 +840,8 @@ import io.usethesource.vallang.type.TypeFactory;
         default AbstractString rotateLeftRight() {
             return (AbstractString) this;
         }
+
+        Iterator<CharBuffer> iterateParts();
     }
 
     private abstract static class AbstractString implements IString, IStringTreeNode, IIndentableString {
@@ -963,6 +997,47 @@ import io.usethesource.vallang.type.TypeFactory;
         }
 
         abstract boolean hasNonBMPCodePoints();
+
+        public abstract Iterator<CharBuffer> iterateParts();
+
+        @Override
+        public Reader asReader() {
+            return new Reader() {
+                final Iterator<CharBuffer> parts = iterateParts();
+                CharBuffer currentBuffer = CharBuffer.allocate(0);
+
+                private CharBuffer getBuffer() {
+                    var actualBuffer = currentBuffer;
+                    while (!actualBuffer.hasRemaining()) {
+                        if (!parts.hasNext()) {
+                            return actualBuffer;
+                        }
+                        actualBuffer = currentBuffer = parts.next();
+                    }
+                    return actualBuffer;
+                }
+
+                @Override
+                public int read(char[] cbuf, int off, int len) throws IOException {
+                    if (off < 0 || len < 0 || len > cbuf.length + off) {
+                        throw new IndexOutOfBoundsException();
+                    }
+                    var target = CharBuffer.wrap(cbuf, off, len);
+                    while (target.hasRemaining()) {
+                        var actualBuffer = getBuffer();
+                        if (!actualBuffer.hasRemaining()) {
+                            break;
+                        }
+                        actualBuffer.read(target);
+                    }
+                    return target.position() == off ? -1 : (len - target.remaining());
+                }
+
+                @Override
+                public void close() throws IOException {
+                }
+            };
+        }
     }
 
     private static class LazyConcatString extends AbstractString {
@@ -1146,6 +1221,8 @@ import io.usethesource.vallang.type.TypeFactory;
             right.write(w);
         }
 
+
+
         @Override
         public void indentedWrite(Writer w, Deque<IString> whitespace, boolean indentFirstLine) throws IOException {
             left.indentedWrite(w, whitespace, indentFirstLine);
@@ -1180,38 +1257,68 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public OfInt iterator() {
             return new OfInt() {
-                final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-                OfInt currentLeaf = leftmostLeafIterator(todo, LazyConcatString.this);
+                final InOrderIterator<OfInt> it = new InOrderIterator<>(IStringTreeNode::iterator);
 
                 @Override
                 public boolean hasNext() {
-                    return currentLeaf.hasNext(); /* || !todo.isEmpty() is unnecessary due to post-condition of nextInt() */
+                    return it.getActive().hasNext();
                 }
 
                 @Override
                 public int nextInt() {
-                    int next = currentLeaf.nextInt();
+                    return it.getActive().nextInt();
+                }
+            };
+        }
 
-                    if (!currentLeaf.hasNext() && !todo.isEmpty()) {
-                        // now we back track to the previous node we went left from,
-                        // take the right branch and continue with its first leaf:
-                        currentLeaf = leftmostLeafIterator(todo, todo.pop());
-                    }
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            return new Iterator<> () {
+                final InOrderIterator<Iterator<CharBuffer>> it = new InOrderIterator<>(IStringTreeNode::iterateParts);
 
-                    assert currentLeaf.hasNext() || todo.isEmpty();
-                    return next;
+                @Override
+                public boolean hasNext() {
+                    return it.getActive().hasNext();
+                }
+
+                @Override
+                public CharBuffer next() {
+                    return it.getActive().next();
                 }
             };
         }
 
         /**
-         * Static helper function for the iterator() method.
+         * An in order traversel of the leafs of the concat tree.
+         * We then for every leaf call the desired iterator, and replace it when the next when it's consumed
+         */
+        private class InOrderIterator<T extends Iterator<?>> {
+            private final Deque<AbstractString> todo;
+            private final Function<IStringTreeNode, T> getActualIterator;
+            private T activeIterator;
+
+            InOrderIterator( Function<IStringTreeNode, T> getActualIterator) {
+                this.getActualIterator = getActualIterator;
+                todo = new ArrayDeque<>(depth);
+                activeIterator = getActualIterator.apply(leftmostLeaf(todo, LazyConcatString.this));
+            }
+
+            T getActive() {
+                while (!activeIterator.hasNext() && !todo.isEmpty()) {
+                    activeIterator = getActualIterator.apply(leftmostLeaf(todo, todo.pop()));
+                }
+                return activeIterator;
+            }
+
+        }
+        /**
+         * helper function for the iterator() method.
          *
          * It finds the left-most leaf of the tree, and collects
          * the path of nodes to this leaf as a side-effect in the todo
          * stack.
          */
-        private static OfInt leftmostLeafIterator(Deque<AbstractString> todo, IStringTreeNode start) {
+        private static IStringTreeNode leftmostLeaf(Deque<AbstractString> todo, IStringTreeNode start) {
             IStringTreeNode cur = start;
 
             while (cur.depth() > 1) {
@@ -1219,8 +1326,9 @@ import io.usethesource.vallang.type.TypeFactory;
                 cur = cur.left();
             }
 
-            return cur.iterator();
+            return cur;
         }
+
     }
 
     private static class IndentedString extends AbstractString {
@@ -1329,6 +1437,69 @@ import io.usethesource.vallang.type.TypeFactory;
 
                     return cur;
                 }
+            };
+        }
+
+        @Override
+        public Iterator<CharBuffer> iterateParts() {
+            if (flattened != null) {
+                return flattened.iterateParts();
+            }
+            var indentBuffer = CharBuffer.wrap(indent.getValue());
+            return new Iterator<>() {
+                final Iterator<CharBuffer> content = wrapped.iterateParts();
+                CharBuffer active = CharBuffer.allocate(0);
+                boolean indentNext = indentFirstLine;
+
+                @Override
+                public boolean hasNext() {
+                    return indentNext || content.hasNext() || active.hasRemaining();
+                }
+
+                private CharBuffer nextTillNewlineOrEndOfBuffer() {
+                    int start = active.position();
+                    int end = start + active.remaining();
+                    int cur = start;
+                    while (cur < end) {
+                        if (active.get(cur) == NEWLINE) {
+                            cur++;
+                            indentNext = true;
+                            break;
+                        }
+                        cur++;
+                    }
+                    if (cur != end) {
+                        var result = active.duplicate();
+                        result.limit(cur);
+                        active.position(cur);
+                        return result;
+                    }
+                    else {
+                        // end of the buffer
+                        var result = active;
+                        if (content.hasNext()) {
+                            active = content.next();
+                        }
+                        else {
+                            // end of the stream
+                            indentNext = false;
+                            active = CharBuffer.allocate(0);
+                        }
+                        return result;
+                    }
+                }
+
+                @Override
+                public CharBuffer next() {
+                    if (indentNext) {
+                        indentNext = false;
+                        return indentBuffer.asReadOnlyBuffer();
+                    }
+                    // okay so no indent to send
+                    // now we should give the next char-buffer till the next newline
+                    return nextTillNewlineOrEndOfBuffer();
+                }
+
             };
         }
 

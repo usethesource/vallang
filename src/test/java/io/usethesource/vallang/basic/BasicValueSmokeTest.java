@@ -175,6 +175,27 @@ public final class BasicValueSmokeTest {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testStringRead(IValueFactory vf) {
+        Random rnd = new Random();
+
+        for (int i = 0; i < 1000; i++) {
+            IString testString = vf.string(RandomUtil.string(rnd, rnd.nextInt(200)));
+            var result = new StringBuilder();
+            try (var r = testString.asReader()) {
+                char[] buffer = new char[1024];
+                int read = 0;
+                while ((read = r.read(buffer)) > 0) {
+                    result.append(buffer, 0, read);
+                }
+            } catch (IOException e) {
+                fail(e.getMessage());
+            }
+
+            assertEqual(testString, vf.string(result.toString()));
+        }
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testStringEmptyWrite(IValueFactory vf) {
         IString testString = vf.string("");
         StringWriter w = new StringWriter();
@@ -284,6 +305,7 @@ public final class BasicValueSmokeTest {
         assertSimilarIteration(indentedDirect, indentedConcatTree);
         assertEqualLength(indentedDirect, indentedConcatTree);
         assertEqual(indentedDirect, indentedConcatTree);
+        assertEqualWriteAndRead(indentedDirect, indentedConcatTree);
         assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
 
         // these modify internal structure as a side-effect, so after this we test the above again!
@@ -298,6 +320,7 @@ public final class BasicValueSmokeTest {
         assertSimilarIteration(vf.string(expected), indentedConcatTree);
         assertSimilarIteration(indentedDirect, indentedConcatTree);
         assertEqual(indentedDirect, indentedConcatTree);
+        assertEqualWriteAndRead(indentedDirect, indentedConcatTree);
         assertEquals(indentedDirect.hashCode(), indentedConcatTree.hashCode());
 
         // basic tests showing lazy versus eager indentation should have the same semantics:
@@ -306,6 +329,7 @@ public final class BasicValueSmokeTest {
         assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
         assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
         assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
+        assertEqualWriteAndRead(indentedDirectTwice, indentedConcatTreeTwice);
         assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
         assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
 
@@ -326,8 +350,66 @@ public final class BasicValueSmokeTest {
         assertSimilarIteration(vf.string(expectedTwice), indentedDirectTwice);
         assertSimilarIteration(vf.string(expectedTwice), indentedConcatTreeTwice);
         assertEqual(indentedDirectTwice, indentedConcatTreeTwice);
+        assertEqualWriteAndRead(indentedDirectTwice, indentedConcatTreeTwice);
         assertSimilarIteration(indentedDirectTwice, indentedConcatTreeTwice);
         assertEquals(indentedDirectTwice.hashCode(), indentedConcatTreeTwice.hashCode());
+    }
+
+
+    private String writerToString(IString a) {
+        try {
+            var result = new StringWriter();
+            a.write(result);
+            return result.toString();
+        } catch (IOException e) {
+            fail("IString::write failed", e);
+            return "";
+        }
+    }
+
+    private String readerToString(IString a) {
+        try (var r = a.asReader()) {
+            var result = new StringWriter();
+            a.asReader().transferTo(result);
+            return result.toString();
+        } catch (IOException e) {
+            fail("IString::asReader failed", e);
+            return "";
+        }
+    }
+
+    private String readerSlowly(IString a) {
+        try (var r = a.asReader()) {
+            var result = new StringBuilder();
+            while (true) {
+                int oneChar = r.read();
+                if (oneChar == -1) {
+                    break;
+                }
+                result.appendCodePoint(oneChar);
+                var buf = new char[3];
+                int read = r.read(buf);
+                if (read == -1) {
+                    break;
+                }
+                result.append(buf, 0, read);
+            }
+            return result.toString();
+        } catch (IOException e) {
+            fail("IString::asReader failed", e);
+            return "";
+        }
+
+    }
+
+
+    private void assertEqualWriteAndRead(IString one, IString two) {
+        assertEquals(one.getValue(), writerToString(one), "IString::write should be the same as getValue");
+        assertEquals(one.getValue(), readerToString(one), "IString::asReader should be the same as getValue");
+        assertEquals(writerToString(one), writerToString(two), "IString::write had different results");
+        assertEquals(readerToString(one), readerToString(two), "IString::asReader had different results");
+        assertEquals(one.getValue(), readerSlowly(one), "IString::asReader had different results depending on buffer size");
+        assertEquals(two.getValue(), readerSlowly(two), "IString::asReader had different results depending on buffer size");
     }
 
     private void assertEqualCharAt(IString one, IString two) {

@@ -13,6 +13,7 @@
 package io.usethesource.vallang;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.PrimitiveIterator.OfInt;
 
@@ -98,6 +99,13 @@ public interface IString extends IValue, Iterable<Integer> {
      * Writes (in a streaming fashion) the content of this string to a character writer.
      */
     public void write(Writer w) throws IOException;
+
+    /**
+     * Generates a reader that can be used to stream the contents of the string
+     * Note, this will generate java characters, users are responsible for dealing with surrogate-pairs.
+     * See {@link #iterator()} for a more unicode compatible approach to iterate over the characters of an IString.
+     */
+    public Reader asReader();
 
     /**
      * Build an iterator which generates the Unicode UTF-32 codepoints of the IString one-by-one.
