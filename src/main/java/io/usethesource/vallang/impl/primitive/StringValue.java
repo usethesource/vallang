@@ -1293,12 +1293,13 @@ import io.usethesource.vallang.type.TypeFactory;
          * We then for every leaf call the desired iterator, and replace it when the next when it's consumed
          */
         private class InOrderIterator<T extends Iterator<?>> {
-            private final Deque<AbstractString> todo = new ArrayDeque<>(depth);
+            private final Deque<AbstractString> todo;
             private final Function<IStringTreeNode, T> getActualIterator;
             private T activeIterator;
 
             InOrderIterator( Function<IStringTreeNode, T> getActualIterator) {
                 this.getActualIterator = getActualIterator;
+                todo = new ArrayDeque<>(depth);
                 activeIterator = getActualIterator.apply(leftmostLeaf(todo, LazyConcatString.this));
             }
 
@@ -1309,24 +1310,24 @@ import io.usethesource.vallang.type.TypeFactory;
                 return activeIterator;
             }
 
-            /**
-             * helper function for the iterator() method.
-             *
-             * It finds the left-most leaf of the tree, and collects
-             * the path of nodes to this leaf as a side-effect in the todo
-             * stack.
-             */
-            private IStringTreeNode leftmostLeaf(Deque<AbstractString> todo, IStringTreeNode start) {
-                IStringTreeNode cur = start;
-
-                while (cur.depth() > 1) {
-                    todo.push(cur.right());
-                    cur = cur.left();
-                }
-
-                return cur;
-            }
         }
+        /**
+         * helper function for the iterator() method.
+         *
+         * It finds the left-most leaf of the tree, and collects
+         * the path of nodes to this leaf as a side-effect in the todo
+         * stack.
+         */
+        private static IStringTreeNode leftmostLeaf(Deque<AbstractString> todo, IStringTreeNode start) {
+            IStringTreeNode cur = start;
+
+            while (cur.depth() > 1) {
+                todo.push(cur.right());
+                cur = cur.left();
+            }
+
+            return cur;
+            }
 
     }
 
