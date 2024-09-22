@@ -1,5 +1,7 @@
 package io.usethesource.vallang.basic;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -92,11 +94,11 @@ public final class LazyStringOperationsTest {
             IString y = vf.string("abcdefgh");
             IString z = vf.string("abcdefgi");
 
-            assertTrue(x.hashCode() == y.hashCode());
-            assertTrue(x.equals(y));
-            assertTrue(y.equals(x));
-            assertTrue(!z.equals(x));
-            assertTrue(x.substring(0, 0).equals(vf.string("")));
+            assertEquals(x.hashCode(), y.hashCode());
+            assertEquals(x, y);
+            assertEquals(y, x);
+            assertNotEquals(z, x);
+            assertEquals(x.substring(0, 0), vf.string(""));
         } finally {
             StringValue.resetMaxFlatString();
             StringValue.resetMaxUnbalance();
