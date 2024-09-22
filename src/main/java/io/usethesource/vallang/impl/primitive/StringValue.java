@@ -1257,16 +1257,16 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public OfInt iterator() {
             return new OfInt() {
-                IteratorOfIterators<OfInt> current = new IteratorOfIterators<>(leftMostIterator(), IStringTreeNode::iterator);
+                final InOrderIterator<OfInt> it = new InOrderIterator<>(IStringTreeNode::iterator);
 
                 @Override
                 public boolean hasNext() {
-                    return current.hasNext();
+                    return it.getActive().hasNext();
                 }
 
                 @Override
                 public int nextInt() {
-                    return current.currentIterator().nextInt();
+                    return it.getActive().nextInt();
                 }
             };
         }
@@ -1274,87 +1274,58 @@ import io.usethesource.vallang.type.TypeFactory;
         @Override
         public Iterator<CharBuffer> iterateParts() {
             return new Iterator<> () {
-                IteratorOfIterators<Iterator<CharBuffer>> current = new IteratorOfIterators<>(leftMostIterator(), IStringTreeNode::iterateParts);
+                final InOrderIterator<Iterator<CharBuffer>> it = new InOrderIterator<>(IStringTreeNode::iterateParts);
 
                 @Override
                 public boolean hasNext() {
-                    return current.hasNext();
+                    return it.getActive().hasNext();
                 }
 
                 @Override
                 public CharBuffer next() {
-                    return current.currentIterator().next();
-                }
-            };
-        }
-
-        private static class IteratorOfIterators<T extends Iterator<?>> {
-            private final Iterator<IStringTreeNode> base;
-            private final Function<IStringTreeNode, T> nested;
-            private @Nullable T current = null;
-
-            IteratorOfIterators(Iterator<IStringTreeNode> base, Function<IStringTreeNode, T> nested) {
-                this.base = base;
-                this.nested = nested;
-            }
-
-            boolean hasNext() {
-                return base.hasNext() || (current != null && current.hasNext());
-            }
-
-            T currentIterator() {
-                if (current == null || !current.hasNext()) {
-                    current = nested.apply(base.next());
-                }
-                return current;
-            }
-
-        }
-
-        private Iterator<IStringTreeNode> leftMostIterator() {
-            return new Iterator<>() {
-                final Deque<AbstractString> todo = new ArrayDeque<>(depth);
-                IStringTreeNode nextNode = leftmostLeaf(todo, LazyConcatString.this);
-
-
-                @Override
-                public boolean hasNext() {
-                    return nextNode != null; /* || !todo.isEmpty() is unnecessary due to post-condition of next() */
-                }
-
-                @Override
-                public IStringTreeNode next() {
-                    var result = nextNode;
-                    if (result == null) {
-                        throw new NoSuchElementException();
-                    }
-                    if (todo.isEmpty()) {
-                        nextNode = null;
-                    }
-                    else {
-                        nextNode = leftmostLeaf(todo, todo.pop());
-                    }
-                    return result;
+                    return it.getActive().next();
                 }
             };
         }
 
         /**
-         * Static helper function for the iterator() method.
-         *
-         * It finds the left-most leaf of the tree, and collects
-         * the path of nodes to this leaf as a side-effect in the todo
-         * stack.
+         * An in order traversel of the leafs of the concat tree.
+         * We then for every leaf call the desired iterator, and replace it when the next when it's consumed
          */
-        private static IStringTreeNode leftmostLeaf(Deque<AbstractString> todo, IStringTreeNode start) {
-            IStringTreeNode cur = start;
+        private class InOrderIterator<T extends Iterator<?>> {
+            private final Deque<AbstractString> todo = new ArrayDeque<>(depth);
+            private final Function<IStringTreeNode, T> getActualIterator;
+            private T activeIterator;
 
-            while (cur.depth() > 1) {
-                todo.push(cur.right());
-                cur = cur.left();
+            InOrderIterator( Function<IStringTreeNode, T> getActualIterator) {
+                this.getActualIterator = getActualIterator;
+                activeIterator = getActualIterator.apply(leftmostLeaf(todo, LazyConcatString.this));
             }
 
-            return cur;
+            T getActive() {
+                while (!activeIterator.hasNext() && !todo.isEmpty()) {
+                    activeIterator = getActualIterator.apply(leftmostLeaf(todo, todo.pop()));
+                }
+                return activeIterator;
+            }
+
+            /**
+             * helper function for the iterator() method.
+             *
+             * It finds the left-most leaf of the tree, and collects
+             * the path of nodes to this leaf as a side-effect in the todo
+             * stack.
+             */
+            private IStringTreeNode leftmostLeaf(Deque<AbstractString> todo, IStringTreeNode start) {
+                IStringTreeNode cur = start;
+
+                while (cur.depth() > 1) {
+                    todo.push(cur.right());
+                    cur = cur.left();
+                }
+
+                return cur;
+            }
         }
 
     }
