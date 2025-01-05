@@ -4,7 +4,7 @@
 
 	<groupId>io.usethesource</groupId>
 	<artifactId>vallang</artifactId>
-	<version>1.0.0-RC14-SNAPSHOT</version>
+	<version>1.0.0-RC14</version>
 	<packaging>jar</packaging>
 
     <licenses>
@@ -19,7 +19,7 @@
 
 	<scm>
 		<developerConnection>scm:git:ssh://git@github.com/usethesource/vallang.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v1.0.0-RC14</tag>
 	</scm>
 
 	<!-- dependency resolution configuration (usethesource) -->
