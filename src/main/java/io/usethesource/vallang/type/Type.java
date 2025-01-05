@@ -650,11 +650,16 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     */
     public int compareTo(Type o) {
         if (isSubtypeOf(o)) {
-            return -1;
-        } else if (o.isSubtypeOf(this)) {
+            return o.isSubtypeOf(this)
+                ? 0
+                : -1;
+        }
+        else if (o.isSubtypeOf(this)) {
             return 1;
         }
-        return 0;
+        else {
+            return 0;
+        }
     }
 
     protected boolean isSubtypeOfParameter(Type type) {
