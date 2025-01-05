@@ -10,7 +10,6 @@ import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,6 +58,30 @@ public class TypeTest {
         assertTrue(tf.tupleEmpty() == tf.tupleType(new IValue[0]));
         assertTrue(tf.tupleEmpty() == tf.tupleType(new Object[0]));
         assertTrue(tf.tupleEmpty() == tf.tupleType(new Type[0], new String[0]));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)
+    public void compareTo(Type t, Type u) {
+        if (t.isSubtypeOf(u)) {
+            if (!t.equivalent(u)) {
+                assertTrue(t.compareTo(u) == -1);
+            }
+            else {
+                assertTrue(t.compareTo(u) == 0);
+            }
+        }
+        else if (u.isSubtypeOf(t)) {
+            if (!t.equivalent(u)) {
+                assertTrue(t.compareTo(u) == 1);
+            }
+            else {
+                assertTrue(t.compareTo(u) == 0);
+            }
+        }
+        else {
+            assertTrue(t.compareTo(u) == 0);
+            assertTrue(u.compareTo(t) == 0);
+        }
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)
