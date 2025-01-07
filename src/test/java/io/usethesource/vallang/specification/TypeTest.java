@@ -67,7 +67,7 @@ public class TypeTest {
                 assertTrue(t.compareTo(u) == -1);
             }
             else {
-                assertTrue(t.compareTo(u) == 0);
+                assertTrue(t.compareTo(u) == t.toString().compareTo(u.toString()));
             }
         }
         else if (u.isSubtypeOf(t)) {
@@ -75,12 +75,12 @@ public class TypeTest {
                 assertTrue(t.compareTo(u) == 1);
             }
             else {
-                assertTrue(t.compareTo(u) == 0);
+                assertTrue(t.compareTo(u) == t.toString().compareTo(u.toString()));
             }
         }
         else {
-            assertTrue(t.compareTo(u) == 0);
-            assertTrue(u.compareTo(t) == 0);
+            assertTrue(t.compareTo(u) == t.toString().compareTo(u.toString()));
+            assertTrue(u.compareTo(t) == u.toString().compareTo(t.toString()));
         }
     }
 

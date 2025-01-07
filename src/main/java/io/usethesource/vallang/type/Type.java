@@ -637,28 +637,37 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     }
 
     /**
-    * Compare against another type.
+    * Compare against another type, implementing a _total_ ordering for use in
+    * sorting operations. After sorting with this comparator, candidate matches
+    * are ordered by specificity (smaller types first). A total ordering is a
+    * precondition to using Arrays.sort(Comparator) and List.sort(Comparator).
     *
-    * A type is 'less' than another if it is a subtype, 'greater' if the other is
+    * First: a type is 'less' than another if it is a subtype, 'greater' if the other is
     * a subtype, or 'equal' if both are subtypes of each other.
+    * Second: If types are not comparable in terms of subtype, we sort them alphabetically
+    * by their toString() representation.
     *
     * Note: this class has a natural ordering that is inconsistent with equals.
     * equals() on types is exact equality, which may be different from
     * compareTo(o) == 0
+    * Note: subtypes can be expected to be less than supertypes, but
+    * if a type is less than another, it does not imply a sub-type relation.
     *
     * @see java.lang.Comparable#compareTo(java.lang.Object)
     */
     public int compareTo(Type o) {
         if (isSubtypeOf(o)) {
             return o.isSubtypeOf(this)
-                ? 0
+                ? toString().compareTo(o.toString())
                 : -1;
         }
         else if (o.isSubtypeOf(this)) {
+            assert !isSubtypeOf(o);
             return 1;
         }
         else {
-            return 0;
+            assert !isSubtypeOf(o) && !o.isSubtypeOf(this);
+            return toString().compareTo(o.toString());
         }
     }
 
