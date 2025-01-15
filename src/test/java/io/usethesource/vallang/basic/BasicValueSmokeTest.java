@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.nio.CharBuffer;
 import java.util.PrimitiveIterator.OfInt;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -402,14 +403,29 @@ public final class BasicValueSmokeTest {
 
     }
 
+    private String readerCharBufferToString(IString a) {
+        var buf = CharBuffer.allocate(a.length() * 2);
+        try (var r = a.asReader()) {
+            while (r.read(buf) != -1) ;
+            buf.flip();
+            return buf.toString();
+        } catch (IOException e) {
+            fail("IString::asReader failed", e);
+            return "";
+        }
+    }
+
 
     private void assertEqualWriteAndRead(IString one, IString two) {
+        assertEquals(one.length(), two.length(), "IString::length should be equal");
         assertEquals(one.getValue(), writerToString(one), "IString::write should be the same as getValue");
         assertEquals(one.getValue(), readerToString(one), "IString::asReader should be the same as getValue");
         assertEquals(writerToString(one), writerToString(two), "IString::write had different results");
         assertEquals(readerToString(one), readerToString(two), "IString::asReader had different results");
         assertEquals(one.getValue(), readerSlowly(one), "IString::asReader had different results depending on buffer size");
         assertEquals(two.getValue(), readerSlowly(two), "IString::asReader had different results depending on buffer size");
+        assertEquals(one.getValue(), readerCharBufferToString(one), "IString::asReader had different results when using char buffer read");
+        assertEquals(two.getValue(), readerCharBufferToString(two), "IString::asReader had different results when using char buffer read");
     }
 
     private void assertEqualCharAt(IString one, IString two) {
