@@ -542,6 +542,14 @@ public class StandardTextWriter implements IValueTextWriter {
                         append('\\');
                         append('t');
                         break;
+                    case '\f':
+                        append('\\');
+                        append('f');
+                        break;
+                    case '\b':
+                        append('\\');
+                        append('b');
+                        break;
                     case ' ':
                         // needed because other space chars will be escaped in the default branch
                         append(' ');
