@@ -319,6 +319,9 @@ public class ValueProvider implements ArgumentsProvider {
                     case TYPE_PARAMETERS:
                         tc = tc.withTypeParameters();
                         break;
+                    case MAP_FIELDNAMES:
+                        tc = tc.withMapFieldNames();
+                        break;
                     case ALL:
                         tc = tc.withAliases().withTupleFieldNames().withTypeParameters();
                         break;
