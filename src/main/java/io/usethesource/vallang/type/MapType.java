@@ -98,7 +98,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-            if (rnd.isWithTupleFieldNames() && rnd.getRandom().nextBoolean()) {
+            if (rnd.isWithMapFieldNames() && rnd.nextBoolean()) {
                 return tf().mapType(next.get(), randomLabel(rnd), next.get(), randomLabel(rnd));
             }
             else {
