@@ -31,8 +31,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -847,7 +845,7 @@ public class TypeFactory {
             return false;
         }
 
-        public abstract Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd);
+        public abstract Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd);
 
         public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
             // this will work for all nullary type symbols with only one constructor type
@@ -864,11 +862,11 @@ public class TypeFactory {
             return "x" + new BigInteger(32, rnd.getRandom()).toString(32);
         }
 
-        public Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomTuple(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             return new TupleType.Info(cachedSymbols).randomInstance(next, store, rnd);
         }
 
-        public Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
+        public Type randomTuple(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
             return new TupleType.Info(cachedSymbols).randomInstance(next, rnd, arity);
         }
     }
@@ -978,12 +976,12 @@ public class TypeFactory {
 
         private TypeValues() {  }
 
-        public Type randomType(TypeStore store, RandomTypesConfig rnd) {
-            Supplier<Type> next = new Supplier<Type>() {
-                int maxTries = rnd.getMaxDepth();
+        public Type randomType(TypeStore store, RandomTypesConfig config) {
+            Function<RandomTypesConfig,Type> next = new Function<RandomTypesConfig,Type>() {
+                int maxTries = config.getMaxDepth();
 
                 @Override
-                public Type get() {
+                public Type apply(RandomTypesConfig rnd) {
                     if (maxTries-- > 0) {
                         return getRandomType(this, store, rnd);
                     }
@@ -993,10 +991,10 @@ public class TypeFactory {
                 }
             };
 
-            return rnd.getMaxDepth() > 0 ? getRandomType(next, store, rnd) : getRandomNonRecursiveType(next, store, rnd);
+            return config.getMaxDepth() > 0 ? getRandomType(next, store, config) : getRandomNonRecursiveType(next, store, config);
         }
 
-        private Type getRandomNonRecursiveType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        private Type getRandomNonRecursiveType(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             Iterator<TypeReifier> it = symbolConstructorTypes.values().iterator();
             TypeReifier reifier = it.next();
 
@@ -1016,7 +1014,7 @@ public class TypeFactory {
             }
         }
 
-        private Type getRandomType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        private Type getRandomType(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             TypeReifier[] alts = symbolConstructorTypes.values().toArray(new TypeReifier[0]);
             TypeReifier selected = alts[Math.max(0, alts.length > 0 ? rnd.nextInt(alts.length) - 1 : 0)];
 

@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -55,7 +53,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().numberType();
         }
     }

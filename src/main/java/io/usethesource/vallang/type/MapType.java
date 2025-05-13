@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -97,12 +95,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             if (rnd.isWithMapFieldNames() && rnd.nextBoolean()) {
-                return tf().mapType(next.get(), randomLabel(rnd), next.get(), randomLabel(rnd));
+                return tf().mapType(next.apply(rnd), randomLabel(rnd), next.apply(rnd), randomLabel(rnd));
             }
             else {
-                return tf().mapType(next.get(), next.get());
+                return tf().mapType(next.apply(rnd), next.apply(rnd));
             }
         }
     }
