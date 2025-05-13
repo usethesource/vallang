@@ -195,6 +195,17 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testConstructorWithLabeledMapType(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
+        Type adt = tf.abstractDataType(ts, "A");
+        Type cons = tf.constructor(ts, adt, "b", tf.mapType(tf.integerType(), "x", tf.integerType(), "y"));
+
+        var map = vf.mapWriter();
+        map.put(vf.integer(1), vf.integer(2));
+
+        ioRoundTrip(vf, ts, vf.constructor(cons, map.done()));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testConstructorWithParameterized1(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
         Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
         Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");

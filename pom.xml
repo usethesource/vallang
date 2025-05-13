@@ -142,7 +142,7 @@
 						</goals>
 					</execution>
 				</executions>
-e
+
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -164,23 +164,6 @@ e
 					</execution>
 				</executions>
 			</plugin>
-            <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-                <execution>
-                    <phase>prepare-package</phase>
-                    <goals>
-                        <goal>copy-dependencies</goal>
-                    </goals>
-                    <configuration>
-                        <includeScope>provided</includeScope>
-                        <includeArtifactIds>typepal</includeArtifactIds>
-                        <includeGroupIds>org.rascalmpl</includeGroupIds>
-                        <outputDirectory>${project.build.directory}/classes/org/rascalmpl/typepal</outputDirectory>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
       <plugin> <!-- needs to be explictily envoked using mvn checkstyle:check -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
