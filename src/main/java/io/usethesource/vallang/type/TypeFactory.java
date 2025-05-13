@@ -962,7 +962,7 @@ public class TypeFactory {
             return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, withTupleFieldNames, false, withMapFieldNames);
         }
 
-        public RandomTypesConfig withoutMapFieldNames() {
+        public RandomTypesConfig withMapFieldNames() {
             return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, withTupleFieldNames, withRandomAbstractDatatypes, true);
         }
     }

@@ -158,6 +158,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
             if (rnd.nextBoolean()) {
                 Type param1 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd.withTypeParameters());
+
+                if (rnd.nextBoolean()) {
+                    // sometimes parameters which are maps will have field names themselves:
+                    rnd = rnd.withMapFieldNames();
+                }
+
                 if (rnd.nextBoolean()) {
                     // first declare the open type:
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1));
