@@ -159,10 +159,7 @@ public interface INode extends IValue, Iterable<IValue> {
             }
         }
 
-        IValue[] childArray = new IValue[newChildren.size()];
-        newChildren.toArray(childArray);
-
-        return setChildren(childArray);
+        return setChildren(newChildren.toArray(IValue[]::new));
     }
 
     /**
