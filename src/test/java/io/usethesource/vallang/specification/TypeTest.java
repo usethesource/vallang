@@ -23,7 +23,6 @@ import io.usethesource.vallang.TypeConfig;
 import io.usethesource.vallang.TypeConfig.Option;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
-import io.usethesource.vallang.exceptions.TypeParseError;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;

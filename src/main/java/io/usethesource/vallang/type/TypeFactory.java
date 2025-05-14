@@ -31,8 +31,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -87,15 +85,17 @@ public class TypeFactory {
     public Type randomADTType(TypeStore store, RandomTypesConfig config) {
         assert config.isWithRandomAbstractDatatypes();
 
-        TypeValues typeValues = cachedTypeValues();
+        synchronized (this) {
+            var tv = cachedTypeValues();
+            Type adt = null;
 
-        // TODO this is not very efficient. Temporary workaround due to visibility issues.
-        do {
-            cachedTypeValues().randomType(store, config)
-            adt = cachedTypeValues().randomType(store, config);
-        } while (!(adt instanceof AbstractDataType));
+            // TODO this is not very efficient. Temporary workaround due to visibility issues.
+            do {
+                adt = tv.randomType(store, config);
+            } while (!(adt instanceof AbstractDataType));
 
-        return adt;
+            return adt;
+        }
     }
 
     public Type randomType(TypeStore typeStore) {

@@ -157,7 +157,6 @@ public class ValueProvider implements ArgumentsProvider {
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
         Method method = context.getTestMethod().get();
 
-        tf.abstractDataType(null,"bla").randomType(null, null)
         /*
          * If only factories and typestores are arguments, we generate as many tests as we have
          * value factory implementations (2). For the IValue argument we generate 100 tests and for
