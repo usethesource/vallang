@@ -1010,14 +1010,6 @@ public class TypeFactory {
             return config.getMaxDepth() > 0 ? getRandomType(next, store, config) : getRandomNonRecursiveType(next, store, config);
         }
 
-        /**
-         * For generating random types of a specific kind, look the Reifier
-         * up per the Symbol constructor of the type kind.
-         */
-        public TypeReifier getTypeReifier(Type symbolConstructor) {
-            return symbolConstructorTypes.get(symbolConstructor);
-        }
-
         private Type getRandomNonRecursiveType(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             Iterator<TypeReifier> it = symbolConstructorTypes.values().iterator();
             TypeReifier reifier = it.next();
@@ -1029,13 +1021,10 @@ public class TypeFactory {
                 }
             }
 
-            if (reifier.isRecursive()) {
-                // TODO: I don't understand this
-                return integerType();
-            }
-            else {
-                return reifier.randomInstance(next, store, rnd);
-            }
+            assert !reifier.isRecursive()
+                :  "a recursive type could only happen here if no non-recursive types has been registered at all.";
+
+            return reifier.randomInstance(next, store, rnd);
         }
 
         private Type getRandomType(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
