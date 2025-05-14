@@ -448,12 +448,13 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         Type type;
-        RandomTypesConfig cfg = RandomTypesConfig.defaultConfig(random).maxDepth(maxDepth).withoutRandomAbstractDatatypes();
+        RandomTypesConfig cfg = RandomTypesConfig.defaultConfig(random).maxDepth(maxDepth);
 
         do {
             type = TypeFactory.getInstance().randomType(store, cfg);
         } while (type.isBottom());
 
+        // System.err.println("toplevel random type for value is :" + type);
         return type.randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
     }
 }

@@ -37,7 +37,9 @@ import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.TypeConfig;
 import io.usethesource.vallang.ValueProvider;
+import io.usethesource.vallang.TypeConfig.Option;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.binary.message.IValueReader;
 import io.usethesource.vallang.io.binary.message.IValueWriter;
@@ -193,6 +195,13 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
             });
         }
     }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(12) @ArgumentsMaxWidth(6)
+    @TypeConfig({Option.TUPLE_FIELDNAMES, Option.MAP_FIELDNAMES, Option.ALIASES})
+    public void testDeepRandomValuesWithLabelsIO(IValueFactory vf, TypeStore ts, IValue val) throws IOException {
+        testDeepRandomValuesIO(vf, ts, val);
+    }
+
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testConstructorWithLabeledMapType(IValueFactory vf, TypeFactory tf, TypeStore ts) throws IOException {
