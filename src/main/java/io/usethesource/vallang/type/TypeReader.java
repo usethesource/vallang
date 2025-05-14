@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import io.usethesource.vallang.exceptions.TypeParseError;
@@ -59,10 +60,10 @@ public class TypeReader {
                 switch (id) {
                     case "list" : return readComposite((t) -> types.listType(t.get(0)));
                     case "set" : return readComposite((t) -> types.setType(t.get(0)));
-                    case "map" : return readComposite((t) -> types.mapType(t.get(0), t.get(1)));
-                    case "tuple" : return readComposite((t) -> types.tupleType(t.toArray(new Type[0])));
-                    case "rel" : return readComposite((t) -> types.relType(t.toArray(new Type[0])));
-                    case "lrel" : return readComposite((t) -> types.lrelType(t.toArray(new Type[0])));
+                    case "map" : return readComposite((t, l) -> l.isEmpty() ? types.mapType(t.get(0), t.get(1)) : types.mapType(t.get(0), l.get(0), t.get(1), l.get(1)));
+                    case "tuple" : return readComposite((t, l) -> l.isEmpty() ? types.tupleType(t.toArray(new Type[0])) : types.tupleType(interleave(t, l)));
+                    case "rel" : return readComposite((t, l) -> l.isEmpty() ? types.relType(t.toArray(new Type[0])): types.relType(interleave(t, l)));
+                    case "lrel" : return readComposite((t, l) -> l.isEmpty() ? types.lrelType(t.toArray(new Type[0])) : types.lrelType(interleave(t, l)));
                 }
 
                 Type adt = store.lookupAbstractDataType(id);
@@ -85,6 +86,16 @@ public class TypeReader {
         throw new TypeParseError("Unexpected " + ((char) current), stream.getOffset());
     }
 
+    private static Object[] interleave(List<Type> t, List<String> l) {
+        assert t.size() == l.size();
+        var result = new Object[t.size() + l.size()];
+        for (int i = 0; i < t.size(); i++) {
+            result[i * 2] = t.get(i);
+            result[(i * 2) + 1] = l.get(i);
+        }
+        return result;
+    }
+
     private Type readTypeParameter() throws IOException {
         String name = readIdentifier();
 
@@ -100,33 +111,59 @@ public class TypeReader {
 
     private Type readComposite(Function<List<Type>,Type> wrap) throws IOException {
         ArrayList<Type> arr = new ArrayList<>();
-        readFixed(END_OF_ARGUMENTS, arr);
+        readFixed(END_OF_ARGUMENTS, arr, null);
         return wrap.apply(arr);
     }
 
+    private Type readComposite(BiFunction<List<Type>, List<String>,Type> wrap) throws IOException {
+        ArrayList<Type> arr = new ArrayList<>();
+        ArrayList<String> labels = new ArrayList<>();
+        readFixed(END_OF_ARGUMENTS, arr, labels);
+        return wrap.apply(arr, labels);
+    }
+
     private String readIdentifier() throws IOException {
+        // identifiers should not cross whitespace
+        // so we first swallow whitespace
+        if (Character.isWhitespace(current)) {
+            current = stream.read();
+        }
         StringBuilder builder = new StringBuilder();
         boolean escaped = (current == '\\');
 
+        // from now on we read raw, don't eat whitespace
         if (escaped) {
-            current = stream.read();
+            current = stream.readRaw();
         }
 
         while (Character.isJavaIdentifierStart(current)
                 || Character.isJavaIdentifierPart(current)
                 || (escaped && current == '-')) {
             builder.append((char) current);
+            current = stream.readRaw();
+        }
+
+        // if we're at the end, we swallow whitespace again
+        if (Character.isWhitespace(current)) {
             current = stream.read();
         }
 
         return builder.toString();
     }
 
-    private void readFixed(char end, List<Type> arr) throws IOException {
+    private void readFixed(char end, List<Type> arr, List<String> labels) throws IOException {
         current = stream.read();
 
         while (current != end) {
             arr.add(readType());
+
+            if (current == end) {
+                break; // no more elements, so expecting a 'end'
+            }
+
+            if (labels != null && Character.isJavaIdentifierStart(current)) {
+                labels.add(readIdentifier());
+            }
 
             if (current == end) {
                 break; // no more elements, so expecting a 'end'
@@ -166,6 +203,13 @@ public class TypeReader {
         @Override
         public int read(char[] cbuf, int off, int len) throws IOException {
             throw new UnsupportedOperationException();
+        }
+
+        // sometimes you want to read the raw value, even if it's whitespace
+        public int readRaw() throws IOException {
+            int r = wrapped.read();
+            offset++;
+            return r;
         }
 
         @Override
