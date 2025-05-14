@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -80,6 +82,20 @@ public class TypeFactory {
 
     public Type randomType(TypeStore store, RandomTypesConfig config) {
         return cachedTypeValues().randomType(store, config);
+    }
+
+    public Type randomADTType(TypeStore store, RandomTypesConfig config) {
+        assert config.isWithRandomAbstractDatatypes();
+
+        TypeValues typeValues = cachedTypeValues();
+
+        // TODO this is not very efficient. Temporary workaround due to visibility issues.
+        do {
+            cachedTypeValues().randomType(store, config)
+            adt = cachedTypeValues().randomType(store, config);
+        } while (!(adt instanceof AbstractDataType));
+
+        return adt;
     }
 
     public Type randomType(TypeStore typeStore) {
@@ -992,6 +1008,14 @@ public class TypeFactory {
             };
 
             return config.getMaxDepth() > 0 ? getRandomType(next, store, config) : getRandomNonRecursiveType(next, store, config);
+        }
+
+        /**
+         * For generating random types of a specific kind, look the Reifier
+         * up per the Symbol constructor of the type kind.
+         */
+        public TypeReifier getTypeReifier(Type symbolConstructor) {
+            return symbolConstructorTypes.get(symbolConstructor);
         }
 
         private Type getRandomNonRecursiveType(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {

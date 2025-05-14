@@ -207,8 +207,8 @@ public class RandomUtil {
         }
 
         return generateConstructor(constructor, random, vf, store, bindings, maxDepth, maxWidth);
-
     }
+
     private static boolean alwaysIncreasesDepth(Type constructor) {
         for (int i = 0; i < constructor.getArity(); i++) {
             Type argType = constructor.getFieldType(i);

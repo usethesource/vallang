@@ -198,7 +198,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) @ArgumentsMaxDepth(12) @ArgumentsMaxWidth(6)
     @TypeConfig({Option.TUPLE_FIELDNAMES, Option.MAP_FIELDNAMES, Option.ALIASES})
-    public void testDeepRandomValuesWithLabelsIO(IValueFactory vf, TypeStore ts, IValue val) throws IOException {
+    public void testDeepRandomValuesWithLabelsIO(IValueFactory vf, TypeStore ts, IConstructor val) throws IOException {
         testDeepRandomValuesIO(vf, ts, val);
     }
 
