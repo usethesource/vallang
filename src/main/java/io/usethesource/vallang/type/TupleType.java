@@ -97,6 +97,8 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         /*package*/ Type randomInstance(Function<RandomTypesConfig,Type> next, RandomTypesConfig rnd, int arity) {
             Type[] types = new Type[arity];
 
+            rnd = rnd.withMapFieldNames();
+
             for (int i = 0; i < arity; i++) {
                 while ((types[i] = next.apply(rnd)).isBottom()) {} // tuples can not have empty fields
             }
