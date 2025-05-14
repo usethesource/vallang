@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
+import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.exceptions.TypeParseError;
 
 public class TypeReader {
@@ -151,7 +151,7 @@ public class TypeReader {
         return builder.toString();
     }
 
-    private void readFixed(char end, List<Type> arr, List<String> labels) throws IOException {
+    private void readFixed(char end, List<Type> arr, @Nullable List<String> labels) throws IOException {
         current = stream.read();
 
         while (current != end) {
