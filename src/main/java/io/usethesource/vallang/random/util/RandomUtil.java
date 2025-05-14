@@ -191,7 +191,6 @@ public class RandomUtil {
         }
 
         Type constructor = pickRandom(random, candidates);
-        // System.err.println("PICKED:" + constructor);
 
         if (maxDepth <= 0) {
             Type original = constructor;
