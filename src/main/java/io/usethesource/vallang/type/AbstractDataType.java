@@ -177,7 +177,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
             if (rnd.nextBoolean()) {
                 // and perhaps we generate another one with it:
-                System.err.println("CONS: " + tf().constructorFromTuple(store, randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd.withMapFieldNames())));
+                tf().constructorFromTuple(store, randomInstance(next, store, rnd), randomLabel(rnd), randomTuple(next, store, rnd.withMapFieldNames()));
             }
 
             return adt;
