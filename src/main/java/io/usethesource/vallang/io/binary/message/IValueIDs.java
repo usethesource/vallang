@@ -271,6 +271,8 @@ public class IValueIDs {
         public static final int ID = MAP_TYPE_ID;
         public static final int KEY_TYPE = 1;
         public static final int VALUE_TYPE = 2;
+        public static final int KEY_NAME = 3;
+        public static final int VALUE_NAME = 4;
     }
 
     public static class NodeType {
