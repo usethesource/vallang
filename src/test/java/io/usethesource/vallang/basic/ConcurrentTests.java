@@ -1,6 +1,8 @@
 package io.usethesource.vallang.basic;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -50,7 +52,7 @@ public class ConcurrentTests {
                     ts.declareKeywordParameter(Name, "listName", tf.listType(Name));
                     ts.declareKeywordParameter(Name, "anyValue", tf.valueType());
                     for (int j = 0; j < 1000; j++) {
-                        tf.valueType().randomValue(r, vf, ts, null, 5, 5);
+                        tf.valueType().randomValue(r, vf, ts, new HashMap<>(), 5, 5);
                     }
                     allDone.await();
                 }

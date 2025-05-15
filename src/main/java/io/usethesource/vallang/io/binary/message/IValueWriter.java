@@ -222,7 +222,10 @@ public class IValueWriter {
                 type.getKeyType().accept(this);
                 writer.writeNestedField(IValueIDs.MapType.VALUE_TYPE);
                 type.getValueType().accept(this);
-
+                if (type.hasFieldNames()) {
+                    writer.writeField(IValueIDs.MapType.KEY_NAME, type.getKeyLabel());
+                    writer.writeField(IValueIDs.MapType.VALUE_NAME, type.getValueLabel());
+                }
                 writer.endMessage();
                 typeCache.write(type);
                 return null;

@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -53,7 +51,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().valueType();
         }
     }
@@ -450,7 +448,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         Type type;
-        RandomTypesConfig cfg = RandomTypesConfig.defaultConfig(random).maxDepth(maxDepth).withoutRandomAbstractDatatypes();
+        RandomTypesConfig cfg = RandomTypesConfig.defaultConfig(random).maxDepth(maxDepth);
 
         do {
             type = TypeFactory.getInstance().randomType(store, cfg);

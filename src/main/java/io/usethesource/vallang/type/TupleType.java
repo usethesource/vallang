@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -91,16 +89,18 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             return randomInstance(next, rnd, rnd.nextInt(rnd.getMaxDepth() + 1));
         }
 
         @SuppressWarnings("deprecation")
-        /*package*/ Type randomInstance(Supplier<Type> next, RandomTypesConfig rnd, int arity) {
+        /*package*/ Type randomInstance(Function<RandomTypesConfig,Type> next, RandomTypesConfig rnd, int arity) {
             Type[] types = new Type[arity];
 
+            rnd = rnd.withMapFieldNames();
+
             for (int i = 0; i < arity; i++) {
-                while ((types[i] = next.get()).isBottom()) {} // tuples can not have empty fields
+                while ((types[i] = next.apply(rnd)).isBottom()) {} // tuples can not have empty fields
             }
 
             if (!rnd.isWithTupleFieldNames() || rnd.nextBoolean()) {

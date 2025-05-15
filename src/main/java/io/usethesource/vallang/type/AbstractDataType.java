@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -135,9 +133,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             if (!rnd.isWithRandomAbstractDatatypes()) {
-                return next.get();
+                return next.apply(rnd);
             }
 
             if (rnd.nextBoolean()) {
@@ -158,6 +156,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
             if (rnd.nextBoolean()) {
                 Type param1 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd.withTypeParameters());
+
                 if (rnd.nextBoolean()) {
                     // first declare the open type:
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1));
@@ -436,8 +435,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-            int maxDepth, int maxWidth) {
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         IValue done = RandomUtil.randomADT(this, random, vf, store, typeParameters, maxDepth, maxWidth);
         match(done.getType(), typeParameters);
         return done;

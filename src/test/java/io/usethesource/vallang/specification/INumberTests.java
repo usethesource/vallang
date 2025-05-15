@@ -312,7 +312,6 @@ public class INumberTests {
             Assertions.assertTrue(a.lessEqual(c).getValue(), "" + a + " <= " + b + " <= " + c);
     }
 
-    @SuppressWarnings("unlikely-arg-type")
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testNoEqualInt(IInteger i) {
         assertFalse(i.toReal(PRECISION).equals(i));
@@ -321,7 +320,6 @@ public class INumberTests {
         assertTrue(i.toRational().equal(i).getValue());
     }
 
-    @SuppressWarnings("unlikely-arg-type")
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testNoEqualRat(IRational i) {
         assertFalse(i.toReal(PRECISION).equals(i));
@@ -329,7 +327,6 @@ public class INumberTests {
         assertFalse(i.toInteger().equals(i));
     }
 
-    @SuppressWarnings("unlikely-arg-type")
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testNoEqualReal(IReal i) {
         assertFalse(i.toInteger().equals(i));
