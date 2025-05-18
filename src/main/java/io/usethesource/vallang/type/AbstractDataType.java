@@ -155,14 +155,14 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
             } while (store.lookupAbstractDataType(adtName) != null);
 
             if (rnd.nextBoolean()) {
-                Type param1 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd.withTypeParameters());
+                Type param1 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd);
 
                 if (rnd.nextBoolean()) {
                     // first declare the open type:
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1));
                 }
                 else {
-                    Type param2 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd.withTypeParameters());
+                    Type param2 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd);
 
                     // first declare the open type
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1, param2));

@@ -100,7 +100,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                 return tf().mapType(next.apply(rnd), randomLabel(rnd), next.apply(rnd), randomLabel(rnd));
             }
             else {
-                return tf().mapType(next.apply(rnd.withMapFieldNames()), next.apply(rnd.withMapFieldNames()));
+                return tf().mapType(next.apply(rnd), next.apply(rnd));
             }
         }
     }

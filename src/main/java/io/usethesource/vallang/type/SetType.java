@@ -58,7 +58,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
         @Override
         public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
-            return tf().setType(next.apply(rnd.withTupleFieldNames().withMapFieldNames()));
+            return tf().setType(next.apply(rnd));
         }
 
         @Override
