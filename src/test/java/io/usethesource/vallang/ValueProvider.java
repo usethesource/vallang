@@ -198,7 +198,13 @@ public class ValueProvider implements ArgumentsProvider {
             return allADTs.stream().skip(new Random().nextInt(allADTs.size())).findFirst().get();
         }
 
-        return TypeFactory.getInstance().randomADTType(ts, rtc);
+        if (rtc.isWithRandomAbstractDatatypes()) {
+            return TypeFactory.getInstance().randomADTType(ts, rtc);
+        }
+        else {
+            // try something else instead
+            return TypeFactory.getInstance().randomADTType(ts, rtc);
+        }
     }
 
     /**
