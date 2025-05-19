@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -65,12 +66,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
             if (rnd.isWithTypeParameters()) {
                 return tf().parameterType(randomLabel(rnd));
             }
 
-            return next.apply(rnd);
+            return next.apply(store, rnd);
         }
 
         @Override

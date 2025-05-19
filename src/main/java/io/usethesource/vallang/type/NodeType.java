@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -57,7 +58,7 @@ class NodeType extends DefaultSubtypeOfValue {
         }
 
         @Override
-        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().nodeType();
         }
     }

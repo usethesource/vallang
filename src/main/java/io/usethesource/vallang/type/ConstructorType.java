@@ -13,6 +13,7 @@ package io.usethesource.vallang.type;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -165,7 +166,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
             // constructors should not be random types of values (a value never has a constructor type)
             return new AbstractDataType.Info(symbols()).randomInstance(next, store, rnd);
         }

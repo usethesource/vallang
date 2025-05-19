@@ -198,13 +198,19 @@ public class ValueProvider implements ArgumentsProvider {
             return allADTs.stream().skip(new Random().nextInt(allADTs.size())).findFirst().get();
         }
 
-        if (rtc.isWithRandomAbstractDatatypes()) {
-            return TypeFactory.getInstance().randomADTType(ts, rtc);
-        }
-        else {
-            // try something else instead
-            return TypeFactory.getInstance().randomADTType(ts, rtc);
-        }
+        // note the side-effect in the type store!
+        Type x = tf.abstractDataType(ts, "X");
+        tf.constructor(ts, x, "x");
+
+        return x;
+
+        // if (rtc.isWithRandomAbstractDatatypes()) {
+        //     return TypeFactory.getInstance().randomADTType(ts, rtc);
+        // }
+        // else {
+        //     // try something else instead
+        //     return TypeFactory.getInstance().randomADTType(ts, rtc);
+        // }
     }
 
     /**
@@ -330,7 +336,10 @@ public class ValueProvider implements ArgumentsProvider {
                         tc = tc.withMapFieldNames();
                         break;
                     case ALL:
-                        tc = tc.withAliases().withTupleFieldNames().withTypeParameters();
+                        tc = tc.withAliases()
+                            .withTupleFieldNames()
+                            .withTypeParameters()
+                            .withMapFieldNames();
                         break;
                 }
             }

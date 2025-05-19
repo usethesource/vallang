@@ -71,7 +71,7 @@ public class TypeReader {
                     return readComposite((t) -> types.abstractDataType(store, id, t.toArray(new Type[0])));
                 }
 
-                throw new TypeParseError("undeclared type " + id, new NullPointerException());
+                throw new TypeParseError("undeclared type " + id, new IllegalArgumentException());
             }
             else {
                 Type adt = store.lookupAbstractDataType(id);
@@ -79,7 +79,7 @@ public class TypeReader {
                     return adt;
                 }
 
-                throw new TypeParseError("undeclared type " + id, new NullPointerException());
+                throw new TypeParseError("undeclared type " + id, new IllegalArgumentException());
             }
         }
 
