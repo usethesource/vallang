@@ -1,6 +1,7 @@
 package io.usethesource.vallang.specification;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -36,7 +37,7 @@ public class TypeTest {
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void isomorphicStringTest(TypeFactory tf, TypeStore store, Type t) throws IOException {
         // no support for parameter types, aliases and tuple field names yet
-        assertTrue(tf.fromString(store, new StringReader(t.toString())) == t);
+        assertSame(tf.fromString(store, new StringReader(t.toString())), t);
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class) @TypeConfig(Option.ALL)

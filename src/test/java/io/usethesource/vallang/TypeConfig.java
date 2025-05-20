@@ -12,6 +12,7 @@ public @interface TypeConfig {
         TYPE_PARAMETERS,
         ALIASES,
         TUPLE_FIELDNAMES,
+        MAP_FIELDNAMES,
         ALL
     }
 

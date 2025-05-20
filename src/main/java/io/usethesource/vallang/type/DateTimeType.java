@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
@@ -60,7 +60,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().dateTimeType();
         }
     }

@@ -1022,7 +1022,12 @@ import io.usethesource.vallang.type.TypeFactory;
                     if (off < 0 || len < 0 || len > cbuf.length + off) {
                         throw new IndexOutOfBoundsException();
                     }
-                    var target = CharBuffer.wrap(cbuf, off, len);
+                    return read(CharBuffer.wrap(cbuf, off, len));
+                }
+
+                @Override
+                public int read(CharBuffer target) throws IOException {
+                    int start = target.position();
                     while (target.hasRemaining()) {
                         var actualBuffer = getBuffer();
                         if (!actualBuffer.hasRemaining()) {
@@ -1030,7 +1035,7 @@ import io.usethesource.vallang.type.TypeFactory;
                         }
                         actualBuffer.read(target);
                     }
-                    return target.position() == off ? -1 : (len - target.remaining());
+                    return target.position() == start ? -1 : target.position() - start;
                 }
 
                 @Override

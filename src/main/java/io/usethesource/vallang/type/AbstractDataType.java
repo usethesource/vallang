@@ -14,9 +14,8 @@ package io.usethesource.vallang.type;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -135,9 +134,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
             if (!rnd.isWithRandomAbstractDatatypes()) {
-                return next.get();
+                return next.apply(store, rnd);
             }
 
             if (rnd.nextBoolean()) {
@@ -156,15 +155,15 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
                 adtName = randomLabel(rnd);
             } while (store.lookupAbstractDataType(adtName) != null);
 
-            if (rnd.nextBoolean()) {
-                Type param1 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd.withTypeParameters());
+            if (rnd.isWithTypeParameters() && rnd.nextBoolean()) {
+                Type param1 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd);
+
                 if (rnd.nextBoolean()) {
                     // first declare the open type:
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1));
                 }
                 else {
-                    Type param2 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd.withTypeParameters());
-
+                    Type param2 = new ParameterType.Info(symbols()).randomInstance(next, store, rnd);
                     // first declare the open type
                     adt = tf().abstractDataTypeFromTuple(store, adtName, tf().tupleType(param1, param2));
                 }
@@ -390,9 +389,6 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
         TypeStore store = new TypeStore();
 
-        // TODO: find out why we had this call
-        // store.declareAbstractDataType(this);
-
         // Here it is important _not_ to reuse TupleType.instantiate, since
         // that has a normalizing feature to `void` if one of the parameters
         // reduced to `void`. The type parameters of an ADT
@@ -436,8 +432,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-            int maxDepth, int maxWidth) {
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         IValue done = RandomUtil.randomADT(this, random, vf, store, typeParameters, maxDepth, maxWidth);
         match(done.getType(), typeParameters);
         return done;

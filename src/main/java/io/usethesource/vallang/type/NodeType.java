@@ -16,9 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IConstructor;
@@ -59,7 +58,7 @@ class NodeType extends DefaultSubtypeOfValue {
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
             return tf().nodeType();
         }
     }
@@ -164,8 +163,7 @@ class NodeType extends DefaultSubtypeOfValue {
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-            int maxDepth, int maxWidth) {
+    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         String name = random.nextBoolean() ? RandomUtil.string(random, 1 + random.nextInt(5)) : RandomUtil.stringAlpha(random, random.nextInt(5));
 
         int arity = maxDepth <= 0 ? 0 : random.nextInt(maxDepth);

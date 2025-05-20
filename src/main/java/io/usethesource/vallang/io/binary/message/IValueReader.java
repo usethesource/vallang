@@ -341,6 +341,8 @@ public class IValueReader {
                 boolean backReference = false;
                 Type valType = VOID_TYPE;
                 Type keyType = VOID_TYPE;
+                String valName = null;
+                String keyName = null;
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
@@ -349,12 +351,25 @@ public class IValueReader {
                         case IValueIDs.MapType.KEY_TYPE:
                             keyType = readType(reader);
                             break;
+                        case IValueIDs.MapType.KEY_NAME:
+                            keyName = reader.getString();
+                            break;
                         case IValueIDs.MapType.VALUE_TYPE:
                             valType = readType(reader);
                             break;
+                        case IValueIDs.MapType.VALUE_NAME:
+                            valName = reader.getString();
+                            break;
                     }
                 }
-                return returnAndStore(backReference, typeWindow, tf.mapType(keyType, valType));
+                Type tp;
+                if (valName != null && keyName != null) {
+                    tp = tf.mapType(keyType, keyName, valType, valName);
+                }
+                else {
+                    tp = tf.mapType(keyType, valType);
+                }
+                return returnAndStore(backReference, typeWindow, tp);
             }
 
             case IValueIDs.ParameterType.ID:   {

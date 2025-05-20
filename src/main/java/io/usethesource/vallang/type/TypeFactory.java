@@ -30,9 +30,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -82,6 +81,15 @@ public class TypeFactory {
 
     public Type randomType(TypeStore store, RandomTypesConfig config) {
         return cachedTypeValues().randomType(store, config);
+    }
+
+    public Type randomADTType(TypeStore store, RandomTypesConfig config) {
+        assert config.isWithRandomAbstractDatatypes();
+
+        synchronized (this) {
+            var tv = cachedTypeValues();
+            return tv.getRandomADTType(store, config);
+        }
     }
 
     public Type randomType(TypeStore typeStore) {
@@ -847,7 +855,7 @@ public class TypeFactory {
             return false;
         }
 
-        public abstract Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd);
+        public abstract Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd);
 
         public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
             // this will work for all nullary type symbols with only one constructor type
@@ -864,12 +872,12 @@ public class TypeFactory {
             return "x" + new BigInteger(32, rnd.getRandom()).toString(32);
         }
 
-        public Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomTuple(BiFunction<TypeStore, RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             return new TupleType.Info(cachedSymbols).randomInstance(next, store, rnd);
         }
 
-        public Type randomTuple(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
-            return new TupleType.Info(cachedSymbols).randomInstance(next, rnd, arity);
+        public Type randomTuple(BiFunction<TypeStore, RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
+            return new TupleType.Info(cachedSymbols).randomInstance(next, store, rnd, arity);
         }
     }
 
@@ -879,6 +887,7 @@ public class TypeFactory {
         private final boolean withTypeParameters;
         private final boolean withAliases;
         private final boolean withTupleFieldNames;
+        private final boolean withMapFieldNames;
         private final boolean withRandomAbstractDatatypes;
 
         private RandomTypesConfig(Random random) {
@@ -887,16 +896,18 @@ public class TypeFactory {
             this.withAliases = false;
             this.withTupleFieldNames = false;
             this.withTypeParameters = false;
+            this.withMapFieldNames = false;
             this.withRandomAbstractDatatypes = true;
         }
 
-        private RandomTypesConfig(Random random, int maxDepth, boolean withTypeParameters, boolean withAliases, boolean withTupleFieldNames, boolean withRandomAbstractDatatypes) {
+        private RandomTypesConfig(Random random, int maxDepth, boolean withTypeParameters, boolean withAliases, boolean withTupleFieldNames, boolean withRandomAbstractDatatypes, boolean withMapFieldNames) {
             this.random = random;
             this.maxDepth = maxDepth;
             this.withAliases = withAliases;
             this.withTupleFieldNames = withTupleFieldNames;
             this.withTypeParameters = withTypeParameters;
             this.withRandomAbstractDatatypes = withRandomAbstractDatatypes;
+            this.withMapFieldNames = withMapFieldNames;
         }
 
         public static RandomTypesConfig defaultConfig(Random random) {
@@ -923,6 +934,10 @@ public class TypeFactory {
             return withTupleFieldNames;
         }
 
+        public boolean isWithMapFieldNames() {
+            return withMapFieldNames;
+        }
+
         public boolean isWithTypeParameters() {
             return withTypeParameters;
         }
@@ -936,23 +951,27 @@ public class TypeFactory {
         }
 
         public RandomTypesConfig maxDepth(int newMaxDepth) {
-            return new RandomTypesConfig(random, newMaxDepth, withTypeParameters, withAliases, withTupleFieldNames, withRandomAbstractDatatypes);
+            return new RandomTypesConfig(random, newMaxDepth, withTypeParameters, withAliases, withTupleFieldNames, withRandomAbstractDatatypes, withMapFieldNames);
         }
 
         public RandomTypesConfig withAliases() {
-            return new RandomTypesConfig(random, maxDepth, withTypeParameters, true, withTupleFieldNames, withRandomAbstractDatatypes);
+            return new RandomTypesConfig(random, maxDepth, withTypeParameters, true, withTupleFieldNames, withRandomAbstractDatatypes, withMapFieldNames);
         }
 
         public RandomTypesConfig withTypeParameters() {
-            return new RandomTypesConfig(random, maxDepth, true, withAliases, withTupleFieldNames, withRandomAbstractDatatypes);
+            return new RandomTypesConfig(random, maxDepth, true, withAliases, withTupleFieldNames, withRandomAbstractDatatypes, withMapFieldNames);
         }
 
         public RandomTypesConfig withTupleFieldNames() {
-            return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, true, withRandomAbstractDatatypes);
+            return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, true, withRandomAbstractDatatypes, withMapFieldNames);
         }
 
         public RandomTypesConfig withoutRandomAbstractDatatypes() {
-            return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, withTupleFieldNames, false);
+            return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, withTupleFieldNames, false, withMapFieldNames);
+        }
+
+        public RandomTypesConfig withMapFieldNames() {
+            return new RandomTypesConfig(random, maxDepth, withTypeParameters, withAliases, withTupleFieldNames, withRandomAbstractDatatypes, true);
         }
     }
 
@@ -967,12 +986,12 @@ public class TypeFactory {
 
         private TypeValues() {  }
 
-        public Type randomType(TypeStore store, RandomTypesConfig rnd) {
-            Supplier<Type> next = new Supplier<Type>() {
-                int maxTries = rnd.getMaxDepth();
+        public Type randomType(TypeStore store, RandomTypesConfig config) {
+            BiFunction<TypeStore,RandomTypesConfig,Type> next = new BiFunction<TypeStore,RandomTypesConfig,Type>() {
+                int maxTries = config.getMaxDepth();
 
                 @Override
-                public Type get() {
+                public Type apply(TypeStore store, RandomTypesConfig rnd) {
                     if (maxTries-- > 0) {
                         return getRandomType(this, store, rnd);
                     }
@@ -982,10 +1001,10 @@ public class TypeFactory {
                 }
             };
 
-            return rnd.getMaxDepth() > 0 ? getRandomType(next, store, rnd) : getRandomNonRecursiveType(next, store, rnd);
+            return config.getMaxDepth() > 0 ? getRandomType(next, store, config) : getRandomNonRecursiveType(next, store, config);
         }
 
-        private Type getRandomNonRecursiveType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        private Type getRandomNonRecursiveType(BiFunction<TypeStore,RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             Iterator<TypeReifier> it = symbolConstructorTypes.values().iterator();
             TypeReifier reifier = it.next();
 
@@ -996,16 +1015,13 @@ public class TypeFactory {
                 }
             }
 
-            if (reifier.isRecursive()) {
-                // TODO: I don't understand this
-                return integerType();
-            }
-            else {
-                return reifier.randomInstance(next, store, rnd);
-            }
+            assert !reifier.isRecursive()
+                :  "a recursive type could only happen here if no non-recursive types has been registered at all.";
+
+            return reifier.randomInstance(next, store, rnd);
         }
 
-        private Type getRandomType(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+        private Type getRandomType(BiFunction<TypeStore,RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             TypeReifier[] alts = symbolConstructorTypes.values().toArray(new TypeReifier[0]);
             TypeReifier selected = alts[Math.max(0, alts.length > 0 ? rnd.nextInt(alts.length) - 1 : 0)];
 
@@ -1015,6 +1031,30 @@ public class TypeFactory {
             }
 
             return selected.randomInstance(next, store, rnd);
+        }
+
+        public Type getRandomADTType(TypeStore store, RandomTypesConfig rnd) {
+            BiFunction<TypeStore,RandomTypesConfig,Type> next = new BiFunction<TypeStore,RandomTypesConfig,Type>() {
+                int maxTries = rnd.getMaxDepth();
+
+                @Override
+                public Type apply(TypeStore store, RandomTypesConfig rnd) {
+                    if (maxTries-- > 0) {
+                        return getRandomType(this, store, rnd);
+                    }
+                    else {
+                        return getRandomNonRecursiveType(this, store, rnd);
+                    }
+                }
+            };
+
+            return symbolConstructorTypes
+                .values()
+                .stream()
+                .filter(p -> p instanceof AbstractDataType.Info)
+                .findFirst()
+                .get()
+                .randomInstance(next, store, rnd);
         }
 
         public boolean isLabel(IConstructor symbol) {

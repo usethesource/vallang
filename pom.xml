@@ -4,7 +4,7 @@
 
 	<groupId>io.usethesource</groupId>
 	<artifactId>vallang</artifactId>
-	<version>1.0.0-RC16-SNAPSHOT</version>
+	<version>1.0.0-RC19-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
     <licenses>
@@ -19,7 +19,7 @@
 
 	<scm>
 		<developerConnection>scm:git:ssh://git@github.com/usethesource/vallang.git</developerConnection>
-		<tag>v1.0.0-RC14</tag>
+		<tag>v1.0.0-RC18</tag>
 	</scm>
 
 	<!-- dependency resolution configuration (usethesource) -->
@@ -32,7 +32,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<checkerframework.version>3.48.3</checkerframework.version>
+		<checkerframework.version>3.49.2</checkerframework.version>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
@@ -50,7 +50,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.0</version>
                 <configuration>
                     <release>11</release>
                     <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
@@ -102,7 +102,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.2</version>
+				<version>3.5.3</version>
 				<executions>
 					<execution>
 						<id>test</id>
@@ -127,7 +127,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
+				<version>0.8.13</version>
 				<executions>
 					<execution>
 						<goals>
@@ -179,13 +179,13 @@
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-engine</artifactId>
-		<version>5.11.4</version>
+		<version>5.12.2</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-params</artifactId>
-		<version>5.11.4</version>
+		<version>5.12.2</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
@@ -196,7 +196,7 @@
 		<dependency>
 			<groupId>com.github.luben</groupId>
 			<artifactId>zstd-jni</artifactId>
-			<version>1.5.6-8</version>
+			<version>1.5.7-2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
@@ -233,7 +233,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.13.0</version>
+						<version>3.14.0</version>
                                                 <configuration>
                                                         <fork>true</fork>
                                                         <release>11</release>
