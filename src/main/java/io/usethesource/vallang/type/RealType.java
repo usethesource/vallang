@@ -159,7 +159,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         if (RandomUtil.oneEvery(random, 5)) {
             return vf.real(10 * random.nextDouble());

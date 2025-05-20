@@ -56,7 +56,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxBreadth) {
         return vf.bool(random.nextBoolean());
     }

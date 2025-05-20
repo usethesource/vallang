@@ -304,15 +304,15 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-            int maxDepth, int maxWidth) {
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store,
+            Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         IListWriter result = vf.listWriter();
         if (maxDepth > 0 && random.nextBoolean()) {
             int size = Math.min(maxWidth, 1 + random.nextInt(maxDepth));
 
             if (!getElementType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
                 for (int i =0; i < size; i++) {
-                    result.append(getElementType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth));
+                    result.append(getElementType().randomValue(random, typesConfig, vf, store, typeParameters, maxDepth - 1, maxWidth));
                 }
             }
         }

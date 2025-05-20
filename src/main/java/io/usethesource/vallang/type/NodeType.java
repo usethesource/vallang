@@ -163,13 +163,13 @@ class NodeType extends DefaultSubtypeOfValue {
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         String name = random.nextBoolean() ? RandomUtil.string(random, 1 + random.nextInt(5)) : RandomUtil.stringAlpha(random, random.nextInt(5));
 
         int arity = maxDepth <= 0 ? 0 : random.nextInt(maxDepth);
         IValue[] args = new IValue[arity];
         for (int i = 0; i < arity; i++) {
-            args[i] = TypeFactory.getInstance().valueType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
+            args[i] = TypeFactory.getInstance().valueType().randomValue(random, typesConfig, vf, store, typeParameters, maxDepth - 1, maxWidth);
         }
 
         if (RandomUtil.oneEvery(random, 4) &&  maxDepth > 0) {
@@ -182,7 +182,7 @@ class NodeType extends DefaultSubtypeOfValue {
                     kwName = RandomUtil.stringAlpha(random, 3);
                 }
                 kwName += RandomUtil.stringAlphaNumeric(random, 4);
-                kwParams.put(kwName, TypeFactory.getInstance().valueType().randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth));
+                kwParams.put(kwName, TypeFactory.getInstance().valueType().randomValue(random, typesConfig, vf, store, typeParameters, maxDepth - 1, maxWidth));
             }
 
             return vf.node(name, args, kwParams);

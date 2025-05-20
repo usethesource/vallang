@@ -130,7 +130,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         try {
             String scheme = RandomUtil.stringAlpha(random, 1 + random.nextInt(Math.max(1, maxDepth)));;

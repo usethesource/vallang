@@ -487,7 +487,7 @@ public class FunctionType extends DefaultSubtypeOfValue {
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxBreadth) {
         throw new RuntimeException("randomValue on FunctionType not yet implemented");
     }

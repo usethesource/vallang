@@ -15,6 +15,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeStore;
 
 public class ConcurrentTests {
@@ -52,7 +53,7 @@ public class ConcurrentTests {
                     ts.declareKeywordParameter(Name, "listName", tf.listType(Name));
                     ts.declareKeywordParameter(Name, "anyValue", tf.valueType());
                     for (int j = 0; j < 1000; j++) {
-                        tf.valueType().randomValue(r, vf, ts, new HashMap<>(), 5, 5);
+                        tf.valueType().randomValue(r, RandomTypesConfig.defaultConfig(r), vf, ts, new HashMap<>(), 5, 5);
                     }
                     allDone.await();
                 }

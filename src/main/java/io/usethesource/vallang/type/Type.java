@@ -28,6 +28,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
 /**
@@ -824,5 +825,5 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     * @param maxWidth       how wide collections and fixed-width data-types should be (maximally)
     * @return
     */
-    public abstract IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth);
+    public abstract IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth);
 }
