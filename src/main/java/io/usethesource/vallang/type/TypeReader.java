@@ -2,7 +2,6 @@ package io.usethesource.vallang.type;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -17,30 +16,27 @@ public class TypeReader {
     private static final char COMMA_SEPARATOR = ',';
     private static final TypeFactory types = TypeFactory.getInstance();
 
-    private TypeStore store = new TypeStore(); // dummy guarantees non-nullness
-    private NoWhiteSpaceReader stream = new NoWhiteSpaceReader(new StringReader("")); // dummy guarantees non-nullness
     private int current;
 
-    public Type read(TypeStore store, Reader stream) throws IOException {
-        this.store = store;
-        this.stream = new NoWhiteSpaceReader(stream);
-
-        current = this.stream.read();
-        Type result = readType();
-        if (current != -1 || this.stream.read() != -1) {
-            unexpected();
+    public Type read(TypeStore store, Reader reader) throws IOException {
+        try (NoWhiteSpaceReader stream = new NoWhiteSpaceReader(reader)) {
+            current = stream.read();
+            Type result = readType(store, stream);
+            if (current != -1 || stream.read() != -1) {
+                unexpected(stream);
+            }
+            return result;
         }
-        return result;
     }
 
-    private Type readType() throws IOException {
+    private Type readType(TypeStore store, NoWhiteSpaceReader stream) throws IOException {
         if (current == TYPE_PARAMETER_TOKEN) {
-            checkAndRead(TYPE_PARAMETER_TOKEN);
-            return readTypeParameter();
+            checkAndRead(stream, TYPE_PARAMETER_TOKEN);
+            return readTypeParameter(store, stream);
         }
 
         if (Character.isJavaIdentifierStart(current)) {
-            String id = readIdentifier();
+            String id = readIdentifier(store, stream);
 
             switch (id) {
                 case "int" : return types.integerType();
@@ -58,17 +54,17 @@ public class TypeReader {
 
             if (current == START_OF_ARGUMENTS) {
                 switch (id) {
-                    case "list" : return readComposite((t) -> types.listType(t.get(0)));
-                    case "set" : return readComposite((t) -> types.setType(t.get(0)));
-                    case "map" : return readComposite((t, l) -> l.isEmpty() ? types.mapType(t.get(0), t.get(1)) : types.mapType(t.get(0), l.get(0), t.get(1), l.get(1)));
-                    case "tuple" : return readComposite((t, l) -> l.isEmpty() ? types.tupleType(t.toArray(new Type[0])) : types.tupleType(interleave(t, l)));
-                    case "rel" : return readComposite((t, l) -> l.isEmpty() ? types.relType(t.toArray(new Type[0])): types.relType(interleave(t, l)));
-                    case "lrel" : return readComposite((t, l) -> l.isEmpty() ? types.lrelType(t.toArray(new Type[0])) : types.lrelType(interleave(t, l)));
+                    case "list" : return readComposite(store, stream, (t) -> types.listType(t.get(0)));
+                    case "set" : return readComposite(store, stream, (t) -> types.setType(t.get(0)));
+                    case "map" : return readComposite(store, stream, (t, l) -> l.isEmpty() ? types.mapType(t.get(0), t.get(1)) : types.mapType(t.get(0), l.get(0), t.get(1), l.get(1)));
+                    case "tuple" : return readComposite(store, stream, (t, l) -> l.isEmpty() ? types.tupleType(t.toArray(new Type[0])) : types.tupleType(interleave(t, l)));
+                    case "rel" : return readComposite(store, stream, (t, l) -> l.isEmpty() ? types.relType(t.toArray(new Type[0])): types.relType(interleave(t, l)));
+                    case "lrel" : return readComposite(store, stream, (t, l) -> l.isEmpty() ? types.lrelType(t.toArray(new Type[0])) : types.lrelType(interleave(t, l)));
                 }
 
                 Type adt = store.lookupAbstractDataType(id);
                 if (adt != null) {
-                    return readComposite((t) -> types.abstractDataType(store, id, t.toArray(new Type[0])));
+                    return readComposite(store, stream, (t) -> types.abstractDataType(store, id, t.toArray(new Type[0])));
                 }
 
                 throw new TypeParseError("undeclared type " + id, new IllegalArgumentException());
@@ -96,33 +92,33 @@ public class TypeReader {
         return result;
     }
 
-    private Type readTypeParameter() throws IOException {
-        String name = readIdentifier();
+    private Type readTypeParameter(TypeStore store, NoWhiteSpaceReader stream) throws IOException {
+        String name = readIdentifier(store, stream);
 
         if (current == '<') {
-            checkAndRead('<');
-            checkAndRead(':');
+            checkAndRead(stream, '<');
+            checkAndRead(stream, ':');
 
-            return types.parameterType(name, readType());
+            return types.parameterType(name, readType(store, stream));
         }
 
         return types.parameterType(name);
     }
 
-    private Type readComposite(Function<List<Type>,Type> wrap) throws IOException {
+    private Type readComposite(TypeStore store, NoWhiteSpaceReader stream, Function<List<Type>,Type> wrap) throws IOException {
         ArrayList<Type> arr = new ArrayList<>();
-        readFixed(END_OF_ARGUMENTS, arr, null);
+        readFixed(store, stream, END_OF_ARGUMENTS, arr, null);
         return wrap.apply(arr);
     }
 
-    private Type readComposite(BiFunction<List<Type>, List<String>,Type> wrap) throws IOException {
+    private Type readComposite(TypeStore store, NoWhiteSpaceReader stream, BiFunction<List<Type>, List<String>,Type> wrap) throws IOException {
         ArrayList<Type> arr = new ArrayList<>();
         ArrayList<String> labels = new ArrayList<>();
-        readFixed(END_OF_ARGUMENTS, arr, labels);
+        readFixed(store, stream, END_OF_ARGUMENTS, arr, labels);
         return wrap.apply(arr, labels);
     }
 
-    private String readIdentifier() throws IOException {
+    private String readIdentifier(TypeStore store, NoWhiteSpaceReader stream) throws IOException {
         // identifiers should not cross whitespace
         // so we first swallow whitespace
         if (Character.isWhitespace(current)) {
@@ -151,42 +147,42 @@ public class TypeReader {
         return builder.toString();
     }
 
-    private void readFixed(char end, List<Type> arr, @Nullable List<String> labels) throws IOException {
+    private void readFixed(TypeStore store, NoWhiteSpaceReader stream, char end, List<Type> arr, @Nullable List<String> labels) throws IOException {
         current = stream.read();
 
         while (current != end) {
-            arr.add(readType());
+            arr.add(readType(store, stream));
 
             if (current == end) {
                 break; // no more elements, so expecting a 'end'
             }
 
             if (labels != null && Character.isJavaIdentifierStart(current)) {
-                labels.add(readIdentifier());
+                labels.add(readIdentifier(store, stream));
             }
 
             if (current == end) {
                 break; // no more elements, so expecting a 'end'
             }
 
-            checkAndRead(COMMA_SEPARATOR);
+            checkAndRead(stream, COMMA_SEPARATOR);
         }
 
-        checkAndRead(end);
+        checkAndRead(stream, end);
     }
 
-    private void checkAndRead(char c) throws IOException {
+    private void checkAndRead(NoWhiteSpaceReader stream, char c) throws IOException {
         if (current != c) {
-            unexpected(c);
+            unexpected(stream, c);
         }
         current = stream.read();
     }
 
-    private void unexpected(int c) {
+    private void unexpected(NoWhiteSpaceReader stream, int c) {
         throw new TypeParseError("Expected " + ((char) c) + " but got " + ((char) current), stream.getOffset());
     }
 
-    private void unexpected() {
+    private void unexpected(NoWhiteSpaceReader stream) {
         throw new TypeParseError("Unexpected " + ((char) current), stream.getOffset());
     }
 
