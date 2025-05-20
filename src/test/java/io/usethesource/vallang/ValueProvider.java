@@ -80,7 +80,7 @@ public class ValueProvider implements ArgumentsProvider {
     static {
         seedProperty = System.getProperty("vallang.test.seed");
         if (seedProperty != null) {
-            System.err.println("Current random seed is computed from -Dvallang.test.seed=" + seedProperty);
+            System.err.println("[INFO] Current random seed is computed from -Dvallang.test.seed=" + seedProperty);
             seed = hashSeed(seedProperty);
             rnd = new Random(seed);
         }
@@ -89,7 +89,7 @@ public class ValueProvider implements ArgumentsProvider {
             rnd = new Random(seed);
         }
 
-        System.err.println("Current random seed is: " + seed);
+        System.err.println("[INFO] Current random seed is: " + seed);
     }
 
     /**
@@ -199,18 +199,18 @@ public class ValueProvider implements ArgumentsProvider {
         }
 
         // note the side-effect in the type store!
-        Type x = tf.abstractDataType(ts, "X");
-        tf.constructor(ts, x, "x");
+        // Type x = tf.abstractDataType(ts, "X");
+        // tf.constructor(ts, x, "x");
 
-        return x;
+        // return x;
 
-        // if (rtc.isWithRandomAbstractDatatypes()) {
-        //     return TypeFactory.getInstance().randomADTType(ts, rtc);
-        // }
-        // else {
-        //     // try something else instead
-        //     return TypeFactory.getInstance().randomADTType(ts, rtc);
-        // }
+        if (rtc.isWithRandomAbstractDatatypes()) {
+            return TypeFactory.getInstance().randomADTType(ts, rtc);
+        }
+        else {
+            // try something else instead
+            return TypeFactory.getInstance().randomType(ts, rtc);
+        }
     }
 
     /**
@@ -412,7 +412,7 @@ public class ValueProvider implements ArgumentsProvider {
         try {
             return new StandardTextReader().read(vf, ts, val.getType(), new StringReader(val.toString()));
         } catch (FactTypeUseException | FactParseError | IOException e) {
-            System.err.println("WARNING: value reinstantation via serialization failed for ["+val+"] because + \""+e.getMessage()+"\". Reusing reference.");
+            System.err.println("[WARNING] value reinstantation via serialization failed for ["+val+"] because + \""+e.getMessage()+"\". Reusing reference.");
             return val;
         }
     }

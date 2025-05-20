@@ -83,23 +83,14 @@ public class TypeFactory {
         return cachedTypeValues().randomType(store, config);
     }
 
-    // public Type randomADTType(TypeStore store, RandomTypesConfig config) {
-    //     assert config.isWithRandomAbstractDatatypes();
+    public Type randomADTType(TypeStore store, RandomTypesConfig config) {
+        assert config.isWithRandomAbstractDatatypes();
 
-    //     synchronized (this) {
-    //         var tv = cachedTypeValues();
-    //         Type adt = null;
-
-    //         // TODO this is not very efficient. Temporary workaround due to visibility issues.
-    //         do {
-    //             // this seems wrong. There could be side-effects in the type store
-    //             // that break later contracts.
-    //             adt = tv.randomType(store, config);
-    //         } while (!(adt instanceof AbstractDataType));
-
-    //         return adt;
-    //     }
-    // }
+        synchronized (this) {
+            var tv = cachedTypeValues();
+            return tv.getRandomADTType(store, config);
+        }
+    }
 
     public Type randomType(TypeStore typeStore) {
         return cachedTypeValues().randomType(typeStore, RandomTypesConfig.defaultConfig(new Random()));
@@ -1039,10 +1030,31 @@ public class TypeFactory {
                 selected = alts[Math.max(0, rnd.nextInt(alts.length))];
             }
 
-            // if (selected.getClass().toString().contains("AbstractDataType")) {
-            //     System.err.println("generating an ADT type instance");
-            // }
             return selected.randomInstance(next, store, rnd);
+        }
+
+        public Type getRandomADTType(TypeStore store, RandomTypesConfig rnd) {
+            BiFunction<TypeStore,RandomTypesConfig,Type> next = new BiFunction<TypeStore,RandomTypesConfig,Type>() {
+                int maxTries = rnd.getMaxDepth();
+
+                @Override
+                public Type apply(TypeStore store, RandomTypesConfig rnd) {
+                    if (maxTries-- > 0) {
+                        return getRandomType(this, store, rnd);
+                    }
+                    else {
+                        return getRandomNonRecursiveType(this, store, rnd);
+                    }
+                }
+            };
+
+            return symbolConstructorTypes
+                .values()
+                .stream()
+                .filter(p -> p instanceof AbstractDataType.Info)
+                .findFirst()
+                .get()
+                .randomInstance(next, store, rnd);
         }
 
         public boolean isLabel(IConstructor symbol) {
