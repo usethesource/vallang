@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -89,18 +90,16 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
         }
 
         @Override
-        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
-            return randomInstance(next, rnd, rnd.nextInt(rnd.getMaxDepth() + 1));
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
+            return randomInstance(next, store, rnd, rnd.nextInt(rnd.getMaxDepth() + 1));
         }
 
         @SuppressWarnings("deprecation")
-        /*package*/ Type randomInstance(Function<RandomTypesConfig,Type> next, RandomTypesConfig rnd, int arity) {
+        /*package*/ Type randomInstance(BiFunction<TypeStore,RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
             Type[] types = new Type[arity];
 
-            rnd = rnd.withMapFieldNames();
-
             for (int i = 0; i < arity; i++) {
-                while ((types[i] = next.apply(rnd)).isBottom()) {} // tuples can not have empty fields
+                while ((types[i] = next.apply(store, rnd)).isBottom()) {} // tuples can not have empty fields
             }
 
             if (!rnd.isWithTupleFieldNames() || rnd.nextBoolean()) {

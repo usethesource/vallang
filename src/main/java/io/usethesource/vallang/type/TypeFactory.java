@@ -30,6 +30,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -87,14 +88,7 @@ public class TypeFactory {
 
         synchronized (this) {
             var tv = cachedTypeValues();
-            Type adt = null;
-
-            // TODO this is not very efficient. Temporary workaround due to visibility issues.
-            do {
-                adt = tv.randomType(store, config);
-            } while (!(adt instanceof AbstractDataType));
-
-            return adt;
+            return tv.getRandomADTType(store, config);
         }
     }
 
@@ -861,7 +855,7 @@ public class TypeFactory {
             return false;
         }
 
-        public abstract Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd);
+        public abstract Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd);
 
         public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
             // this will work for all nullary type symbols with only one constructor type
@@ -878,12 +872,12 @@ public class TypeFactory {
             return "x" + new BigInteger(32, rnd.getRandom()).toString(32);
         }
 
-        public Type randomTuple(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomTuple(BiFunction<TypeStore, RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             return new TupleType.Info(cachedSymbols).randomInstance(next, store, rnd);
         }
 
-        public Type randomTuple(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
-            return new TupleType.Info(cachedSymbols).randomInstance(next, rnd, arity);
+        public Type randomTuple(BiFunction<TypeStore, RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd, int arity) {
+            return new TupleType.Info(cachedSymbols).randomInstance(next, store, rnd, arity);
         }
     }
 
@@ -993,11 +987,11 @@ public class TypeFactory {
         private TypeValues() {  }
 
         public Type randomType(TypeStore store, RandomTypesConfig config) {
-            Function<RandomTypesConfig,Type> next = new Function<RandomTypesConfig,Type>() {
+            BiFunction<TypeStore,RandomTypesConfig,Type> next = new BiFunction<TypeStore,RandomTypesConfig,Type>() {
                 int maxTries = config.getMaxDepth();
 
                 @Override
-                public Type apply(RandomTypesConfig rnd) {
+                public Type apply(TypeStore store, RandomTypesConfig rnd) {
                     if (maxTries-- > 0) {
                         return getRandomType(this, store, rnd);
                     }
@@ -1010,7 +1004,7 @@ public class TypeFactory {
             return config.getMaxDepth() > 0 ? getRandomType(next, store, config) : getRandomNonRecursiveType(next, store, config);
         }
 
-        private Type getRandomNonRecursiveType(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
+        private Type getRandomNonRecursiveType(BiFunction<TypeStore,RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             Iterator<TypeReifier> it = symbolConstructorTypes.values().iterator();
             TypeReifier reifier = it.next();
 
@@ -1027,7 +1021,7 @@ public class TypeFactory {
             return reifier.randomInstance(next, store, rnd);
         }
 
-        private Type getRandomType(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
+        private Type getRandomType(BiFunction<TypeStore,RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
             TypeReifier[] alts = symbolConstructorTypes.values().toArray(new TypeReifier[0]);
             TypeReifier selected = alts[Math.max(0, alts.length > 0 ? rnd.nextInt(alts.length) - 1 : 0)];
 
@@ -1037,6 +1031,30 @@ public class TypeFactory {
             }
 
             return selected.randomInstance(next, store, rnd);
+        }
+
+        public Type getRandomADTType(TypeStore store, RandomTypesConfig rnd) {
+            BiFunction<TypeStore,RandomTypesConfig,Type> next = new BiFunction<TypeStore,RandomTypesConfig,Type>() {
+                int maxTries = rnd.getMaxDepth();
+
+                @Override
+                public Type apply(TypeStore store, RandomTypesConfig rnd) {
+                    if (maxTries-- > 0) {
+                        return getRandomType(this, store, rnd);
+                    }
+                    else {
+                        return getRandomNonRecursiveType(this, store, rnd);
+                    }
+                }
+            };
+
+            return symbolConstructorTypes
+                .values()
+                .stream()
+                .filter(p -> p instanceof AbstractDataType.Info)
+                .findFirst()
+                .get()
+                .randomInstance(next, store, rnd);
         }
 
         public boolean isLabel(IConstructor symbol) {

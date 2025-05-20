@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -93,7 +94,7 @@ public class FunctionType extends DefaultSubtypeOfValue {
         }
 
         @Override
-        public Type randomInstance(Function<RandomTypesConfig,Type> next, TypeStore store, RandomTypesConfig rnd) {
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
             // TODO: as we do not have IFunction yet in vallang, we should not generate random
             // function types either. It will lead to exceptions otherwise.
             // return TF.functionType(next.get(), (TupleType) TF.tupleType(next.get()), (TupleType) TF.tupleEmpty());
