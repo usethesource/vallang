@@ -658,9 +658,9 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxBreadth) {
-        return getAliased().randomValue(random, vf, store, typeParameters, maxDepth, maxBreadth);
+        return getAliased().randomValue(random, typesConfig, vf, store, typeParameters, maxDepth, maxBreadth);
     }
 
     @Override

@@ -303,7 +303,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         ISetWriter result = vf.setWriter();
         if (maxDepth > 0 && random.nextBoolean()) {
@@ -311,7 +311,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
             if (!getElementType().isBottom()) {
                 for (int i =0; i < size; i++) {
-                    result.insert(getElementType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth));
+                    result.insert(getElementType().randomValue(random, typesConfig, vf, store, typeParameters, maxDepth, maxWidth));
                 }
             }
         }

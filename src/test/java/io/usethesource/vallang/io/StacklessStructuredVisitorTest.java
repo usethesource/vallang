@@ -45,6 +45,7 @@ import io.usethesource.vallang.io.binary.util.StructuredIValueVisitor;
 import io.usethesource.vallang.io.reference.ReferenceStructuredIValueVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.util.RandomValues;
 
 public class StacklessStructuredVisitorTest {
@@ -87,8 +88,10 @@ public class StacklessStructuredVisitorTest {
         TypeStore ts = new TypeStore();
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random();
+        RandomTypesConfig cfg = RandomTypesConfig.defaultConfig(r);
+
         for (int i = 0; i < 10; i++) {
-            testVisitStructure(RandomValues.generate(tp, ts, vf, r, 10));
+            testVisitStructure(RandomValues.generate(tp, ts, vf, r, cfg, 10));
         }
     }
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
@@ -96,8 +99,10 @@ public class StacklessStructuredVisitorTest {
         TypeStore ts = new TypeStore();
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random();
+        RandomTypesConfig cfg = RandomTypesConfig.defaultConfig(r);
+
         for (int i = 0; i < 10; i++) {
-            testVisitStructureSkipped(RandomValues.generate(tp, ts, vf, r, 10));
+            testVisitStructureSkipped(RandomValues.generate(tp, ts, vf, r, cfg, 10));
         }
     }
 

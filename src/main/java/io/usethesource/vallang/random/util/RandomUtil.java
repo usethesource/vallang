@@ -12,6 +12,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeStore;
 
 public class RandomUtil {
@@ -175,7 +176,7 @@ public class RandomUtil {
         return sanitize(result.toString());
     }
 
-    public static IValue randomADT(Type type, Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+    public static IValue randomADT(Type type, Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
             int maxDepth, int maxWidth) {
         Type uninstantiatedADT = store.lookupAbstractDataType(type.getName());
         if (uninstantiatedADT == null) {
@@ -205,7 +206,7 @@ public class RandomUtil {
             }
         }
 
-        return generateConstructor(constructor, random, vf, store, bindings, maxDepth, maxWidth);
+        return generateConstructor(constructor, random, typesConfig, vf, store, bindings, maxDepth, maxWidth);
     }
 
     private static boolean alwaysIncreasesDepth(Type constructor) {
@@ -234,7 +235,7 @@ public class RandomUtil {
         throw new AssertionError("Dead code");
     }
 
-    private static IValue generateConstructor(Type type, Random random, IValueFactory vf, TypeStore store, Map<Type, Type> bindings, int maxDepth, int maxWidth) {
+    private static IValue generateConstructor(Type type, Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> bindings, int maxDepth, int maxWidth) {
         Map<String, Type> kwParamsType = store.getKeywordParameters(type);
 
         if (type.getArity() == 0 && kwParamsType.size() == 0) {
@@ -244,23 +245,23 @@ public class RandomUtil {
         IValue[] args = new IValue[type.getArity()];
         Type instantiatedConstructor = type.instantiate(bindings);
         for (int i = 0; i < args.length; i++) {
-            args[i] = instantiatedConstructor.getFieldType(i).randomValue(random, vf, store, bindings, maxDepth - 1, maxWidth);
+            args[i] = instantiatedConstructor.getFieldType(i).randomValue(random, typesConfig, vf, store, bindings, maxDepth - 1, maxWidth);
         }
 
         if (kwParamsType.size() > 0 && random.nextInt(3) == 0 && maxDepth > 0) {
-            return vf.constructor(type, args, generateMappedArgs(kwParamsType, random, vf, store, bindings, maxDepth - 1, maxWidth));
+            return vf.constructor(type, args, generateMappedArgs(kwParamsType, random, typesConfig, vf, store, bindings, maxDepth - 1, maxWidth));
         }
 
         return vf.constructor(type, args);
     }
 
-    private static Map<String, IValue> generateMappedArgs(Map<String, Type> types, Random random, IValueFactory vf, TypeStore store, Map<Type, Type> bindings, int maxDepth, int maxWidth) {
+    private static Map<String, IValue> generateMappedArgs(Map<String, Type> types, Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> bindings, int maxDepth, int maxWidth) {
         Map<String, IValue> result = new HashMap<>();
         for (Entry<String,Type> tp : types.entrySet()) {
             if (random.nextBoolean()) {
                 continue;
             }
-            result.put(tp.getKey(), tp.getValue().randomValue(random, vf, store, bindings, maxDepth, maxWidth));
+            result.put(tp.getKey(), tp.getValue().randomValue(random, typesConfig, vf, store, bindings, maxDepth, maxWidth));
         }
         return result;
     }

@@ -79,8 +79,8 @@ public class DateTimeType extends DefaultSubtypeOfValue {
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-            int maxDepth, int maxBreadth) {
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store,
+            Map<Type, Type> typeParameters, int maxDepth, int maxBreadth) {
         boolean partialDateTime = "true".equals(System.getProperty("vallang.random.partialDateTime"));
         boolean zoneOffsets = "true".equals(System.getProperty("vallang.random.zoneOffsets"));
 
@@ -123,7 +123,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
             // not exist due to timezone shifting or due to historical
             // calendar standardization changes
             // So, we just try again until we hit a better random date
-            return randomValue(random, vf, store, typeParameters, maxDepth, maxBreadth);
+            return randomValue(random, typesConfig, vf, store, typeParameters, maxDepth, maxBreadth);
             // The chances of continued failure before we run out of stack are low.
         }
     }

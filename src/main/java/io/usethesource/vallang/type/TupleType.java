@@ -458,12 +458,12 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         IValue[] elems = new IValue[getArity()];
 
         for (int i = 0; i < elems.length; i++) {
             assert !getFieldType(i).isBottom() : "field " + i + " has illegal type void";
-            elems[i] = getFieldType(i).randomValue(random, vf, store, typeParameters, maxDepth - 1, maxWidth);
+            elems[i] = getFieldType(i).randomValue(random, typesConfig, vf, store, typeParameters, maxDepth - 1, maxWidth);
         }
 
         ITuple done = vf.tuple(elems);

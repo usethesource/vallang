@@ -392,7 +392,7 @@ public class ValueProvider implements ArgumentsProvider {
             return rnd.nextBoolean() ? previous : reinstantiate(vf, ts, previous);
         }
 
-        return (previous = expectedType.randomValue(rnd, vf, ts, new HashMap<>(), depth, width));
+        return (previous = expectedType.randomValue(rnd, rtc, vf, ts, new HashMap<>(), depth, width));
     }
 
     private static @Nullable Type readType(TypeStore ts, ExpectedType expected) {

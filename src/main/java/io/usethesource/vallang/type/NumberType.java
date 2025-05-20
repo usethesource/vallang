@@ -175,15 +175,15 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
     }
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
-            int maxDepth, int maxWidth) {
+    public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store,
+            Map<Type, Type> typeParameters, int maxDepth, int maxWidth) {
         switch (random.nextInt(3)) {
             case 0:
-                return TypeFactory.getInstance().integerType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+                return TypeFactory.getInstance().integerType().randomValue(random, typesConfig, vf, store, typeParameters, maxDepth, maxWidth);
             case 1:
-                return TypeFactory.getInstance().realType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+                return TypeFactory.getInstance().realType().randomValue(random, typesConfig, vf, store, typeParameters, maxDepth, maxWidth);
             default:
-                return TypeFactory.getInstance().rationalType().randomValue(random, vf, store, typeParameters, maxDepth, maxWidth);
+                return TypeFactory.getInstance().rationalType().randomValue(random, typesConfig, vf, store, typeParameters, maxDepth, maxWidth);
         }
     }
 
