@@ -100,7 +100,11 @@ public class WeakReferenceHashConsingMap<T extends @NonNull Object> implements H
         public boolean equals(@Nullable Object obj) {
             if (obj instanceof WeakReferenceWrap<?>) {
                 var actual = (WeakReferenceWrap<?>)obj;
-                return actual.hash == hash && value.equals(actual.get());
+                var reference = actual.get();
+                if (reference != null) {
+                    // not garbage collected yet
+                    return actual.hash == hash && value.equals(reference);
+                }
             }
             return false;
         }
