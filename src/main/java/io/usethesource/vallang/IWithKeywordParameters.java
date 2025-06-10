@@ -25,7 +25,7 @@ public interface IWithKeywordParameters<T extends IValue> {
      * @param label identifies the parameter
      * @return a value if the parameter has a value on this node or null otherwise
      */
-    public @Nullable IValue getParameter(String label);
+    public <X extends IValue> @Nullable X getParameter(String label);
 
     /**
      * Set the value of an parameter
