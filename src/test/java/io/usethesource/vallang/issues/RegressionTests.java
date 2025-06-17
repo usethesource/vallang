@@ -17,6 +17,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
 import io.usethesource.vallang.io.StandardTextReader;
@@ -76,6 +77,20 @@ public class RegressionTests {
     void escapeNormalCharacters(IValueFactory valueFactory, TypeStore typeStore) throws IOException {
         IString s = readString(valueFactory, typeStore, "\"\\$\"");
         assertEquals("$", s.getValue());
+    }
+
+     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    void setDifferenceInThePresenceOfHashCollisions(
+        IValueFactory vf,
+        @GivenValue("{<\"990evT\",[]>,<\"\",[]>,<\"\\a00\",[]>}")
+        ISet s,
+        @GivenValue("<\"\\a00\",[]>")
+        ITuple elem) {
+
+            var lhs = s.delete(elem);
+            var rhs = s.stream().filter(p -> !p.equals(elem)).collect(vf.setWriter());
+
+            assertEquals(lhs, rhs);
     }
 
 }
