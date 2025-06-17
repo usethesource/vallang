@@ -65,9 +65,10 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
         return content.toString();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public @Nullable IValue getParameter(String label) {
-        return parameters.get(label);
+    public @Nullable <X extends IValue> X getParameter(String label) {
+        return (X) parameters.get(label);
     }
 
     @Override
