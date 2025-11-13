@@ -18,10 +18,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
@@ -380,6 +379,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
         throw new IllegalOperationException("getKeywordParameterType", this);
     }
 
+    @EnsuresNonNullIf(expression="getKeywordParameterType(#1)", result=true)
     public boolean hasKeywordParameter(String label) {
         throw new IllegalOperationException("hasKeywordParameter", this);
     }

@@ -14,6 +14,7 @@ package io.usethesource.vallang;
 
 import java.util.Map;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
@@ -60,6 +61,7 @@ public interface IWithKeywordParameters<T extends IValue> {
      * @return true iff the parameter has a value on this node
      * @throws FactTypeUseException when no parameter with this label is defined for this type of node.
      */
+    @EnsuresNonNullIf(expression="getParameter(#1)", result=true)
     public boolean hasParameter(String label);
 
     /**
