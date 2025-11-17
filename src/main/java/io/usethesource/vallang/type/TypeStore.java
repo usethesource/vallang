@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValueFactory;
@@ -879,8 +879,7 @@ public class TypeStore {
     */
     public @Nullable Type getKeywordParameterType(Type onType, String key) {
         assert onType.isConstructor() || onType.isAbstractData();
-        Map<String, Type> kwParamsFor = getKeywordParameters(onType);
-        return kwParamsFor != null ? kwParamsFor.get(key) : null;
+        return getKeywordParameters(onType).get(key);
     }
 
     public boolean hasKeywordParameters(Type onType) {
@@ -911,6 +910,8 @@ public class TypeStore {
         }
     }
 
+    @SuppressWarnings({"flowexpr.parameter.not.final", "contracts.conditional.postcondition"}) // CF has issues trusting our annotation
+    @EnsuresNonNullIf(expression="getKeywordParameterType(#1,#2)", result=true)
     public boolean hasKeywordParameter(Type onType, String label) {
         if (!onType.isConstructor()) {
             return false;

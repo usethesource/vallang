@@ -22,9 +22,8 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -212,6 +211,8 @@ public class FunctionType extends DefaultSubtypeOfValue {
     }
 
     @Override
+    @SuppressWarnings("contracts.conditional.postcondition") // CF has a bug around superclass annotations
+    @EnsuresNonNullIf(expression="getKeywordParameterType(#1)", result=true)
     public boolean hasKeywordParameter(String label) {
         return keywordParameters != null ? keywordParameters.hasField(label) : false;
     }

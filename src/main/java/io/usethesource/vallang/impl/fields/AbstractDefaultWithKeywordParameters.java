@@ -14,10 +14,9 @@ package io.usethesource.vallang.impl.fields;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
-
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -67,7 +66,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
     @SuppressWarnings("unchecked")
     @Override
-    public @Nullable <X extends IValue> X getParameter(String label) {
+    public <X extends @Nullable IValue> X getParameter(String label) {
         return (X) parameters.get(label);
     }
 
@@ -92,7 +91,8 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
     }
 
     @Override
-    @Pure
+    @SuppressWarnings("contracts.conditional.postcondition") // CF has a bug around super classes with EnsuresNonNullIf
+    @EnsuresNonNullIf(expression="getParameter(#1)", result=true)
     public boolean hasParameter(String label) {
         return parameters.containsKey(label);
     }
