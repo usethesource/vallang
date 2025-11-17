@@ -127,7 +127,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.13</version>
+				<version>0.8.14</version>
 				<executions>
 					<execution>
 						<goals>
@@ -179,13 +179,13 @@
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-engine</artifactId>
-		<version>5.14.0</version>
+		<version>5.14.1</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.junit.jupiter</groupId>
 		<artifactId>junit-jupiter-params</artifactId>
-		<version>5.14.0</version>
+		<version>5.14.1</version>
 		<scope>test</scope>
 	</dependency>
 	<dependency>
@@ -196,7 +196,7 @@
 		<dependency>
 			<groupId>com.github.luben</groupId>
 			<artifactId>zstd-jni</artifactId>
-			<version>1.5.7-5</version>
+			<version>1.5.7-6</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
