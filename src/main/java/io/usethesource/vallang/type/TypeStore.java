@@ -910,6 +910,7 @@ public class TypeStore {
         }
     }
 
+    @SuppressWarnings({"flowexpr.parameter.not.final", "contracts.conditional.postcondition"}) // CF has issues trusting our annotation
     @EnsuresNonNullIf(expression="getKeywordParameterType(#1,#2)", result=true)
     public boolean hasKeywordParameter(Type onType, String label) {
         if (!onType.isConstructor()) {
