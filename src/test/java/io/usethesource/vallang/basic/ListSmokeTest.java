@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -277,6 +278,12 @@ public final class ListSmokeTest {
         bSubList = bList.sublist(15, 5);
         oSubList = oList.sublist(15, 5);
         checkSubListEquality(fSubList, bSubList, oSubList);
+
+        // issue #333
+        var myList = vf.list(
+            vf.integer(1), vf.integer(2), vf.integer(3), vf.integer(4), vf.integer(5),
+            vf.integer(1), vf.integer(2), vf.integer(3), vf.integer(4), vf.integer(5));
+        Assertions.assertEquals(myList.sublist(0, 4), myList.sublist(5, 4));
     }
 
     private static void checkSubListEquality(IList fList, IList bList, IList oList) {

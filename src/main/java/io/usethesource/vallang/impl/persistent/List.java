@@ -335,7 +335,10 @@ class SubList implements IList {
         if (o instanceof SubList){
             SubList otherList = (SubList) o;
 
-            return base.equals(otherList.base) && offset == otherList.offset && length == otherList.length;
+            if (base.equals(otherList.base) && offset == otherList.offset && length == otherList.length) {
+                return true;
+            }
+            // else we still not need check, because sublists can be equal at different positions
         }
 
         if (o instanceof IList) {
