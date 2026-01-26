@@ -457,8 +457,8 @@ public final class RelationSmokeTest {
         ISet whole = vf.set(vf.tuple(val1, empty), vf.tuple(val2, empty), vf.tuple(val3, empty));
 
         assertTrue(whole.delete(vf.tuple(val1, empty)).equals(vf.set(vf.tuple(val2, empty), vf.tuple(val3, empty))));
-        // assertTrue(whole.delete(vf.tuple(val2, empty)).equals(vf.set(vf.tuple(val1, empty), vf.tuple(val3, empty))));
-        // assertTrue(whole.delete(vf.tuple(val3, empty)).equals(vf.set(vf.tuple(val1, empty), vf.tuple(val2, empty))));
+        assertTrue(whole.delete(vf.tuple(val2, empty)).equals(vf.set(vf.tuple(val1, empty), vf.tuple(val3, empty))));
+        assertTrue(whole.delete(vf.tuple(val3, empty)).equals(vf.set(vf.tuple(val1, empty), vf.tuple(val2, empty))));
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
