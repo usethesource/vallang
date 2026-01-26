@@ -41,7 +41,6 @@ public class MapLastWritten<T extends @NonNull Object> implements TrackLastWritt
     private final Map<IdentityWrapper<T>, Long> lookupData;
     private long written;
 
-    @SuppressWarnings("serial")
     public MapLastWritten(final int size) {
         lookupData = new LinkedHashMap<IdentityWrapper<T>, Long>(size + 1, 1.0f, false) {
             @Override

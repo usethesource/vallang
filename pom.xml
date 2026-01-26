@@ -191,7 +191,7 @@
 	<dependency>
 		<groupId>io.usethesource</groupId>
 		<artifactId>capsule</artifactId>
-			<version>0.7.1</version>
+			<version>0.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.luben</groupId>

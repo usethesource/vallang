@@ -463,16 +463,8 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
             return this;
         }
 
-        // TODO: replace by `inverse` API of subsequent capsule release
         if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1, 0))) {
-            final SetMultimap.Transient<IValue, IValue> builder =
-                PersistentTrieSetMultimap.transientOf(Object::equals);
-
-            content.entryIterator().forEachRemaining(
-                tuple -> builder.__insert(tuple.getValue(), tuple.getKey()));
-
-
-            return PersistentSetFactory.from(valTypeBag, keyTypeBag, builder.freeze());
+            return PersistentSetFactory.from(valTypeBag, keyTypeBag, content.inverseMap());
         }
 
         throw new IllegalStateException("Binary relation patterns exhausted.");
@@ -702,7 +694,7 @@ public final class PersistentHashIndexedBinaryRelation implements ISet, IRelatio
 
         SetMultimap<IValue, IValue> todo = content.inverseMap();
         while (!todo.isEmpty()) {
-            final SetMultimap.Transient<IValue,IValue> nextTodo = PersistentTrieSetMultimap.transientOf(Object::equals);
+            final SetMultimap.Transient<IValue,IValue> nextTodo = PersistentTrieSetMultimap.transientOf();
 
             var todoIt = todo.nativeEntryIterator();
             while (todoIt.hasNext()) {
