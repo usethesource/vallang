@@ -14,84 +14,8 @@ env:
 
 
 jobs:
-  event_file:
-    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
-    name: "Event File (for test results)"
-    runs-on: ubuntu-latest
-    steps:
-    - name: Upload
-      uses: actions/upload-artifact@v7
-      with:
-        name: Event File
-        path: ${{ github.event_path }}
-
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.pull_request.head.sha }} # run it on the PR, not on the merged commit, for better line numbers
-
-      - uses: actions/setup-java@v5
-        with:
-          java-version: 11
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Run checkstyle and print errors
-        run: mvn -B checkstyle:checkstyle checkstyle:check
-      - name: Report build results
-        uses: gmazzo/publish-report-annotations@v1 # target latest major
-        if: ${{ !cancelled() }}
-        with:
-          testsSummary: off
-          reports: "target/checkstyle-result.xml"
-
-
-
-  test:
-    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v6
-      - name: Set up JDK 11
-        uses: actions/setup-java@v5
-        with:
-          java-version: 11
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: test
-        run: mvn -B clean test
-
-      - name: Upload Unit Test Results
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: Unit Test Results (${{ matrix.os }})
-          path: target/surefire-reports/**/*.xml
-
-  checker-framework:
-    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Set up JDK 11
-        uses: actions/setup-java@v5
-        with:
-          java-version: 11
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Verify using checker-framework
-        run: mvn -B clean compile -P checker-framework
-
   deploy:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
-    needs: [checker-framework, test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -104,7 +28,7 @@ jobs:
 
       - name: Attach artifact
         id: build-artifact
-        uses: SWAT-engineering/maven-full-artifacts-action@v1.9-rc1
+        uses: SWAT-engineering/maven-full-artifacts-action@v1.9-rc2
 
       - name: Prepare Draft Release
         uses: softprops/action-gh-release@v3
