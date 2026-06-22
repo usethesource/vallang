@@ -28,7 +28,7 @@ jobs:
 
       - name: Attach artifact
         id: build-artifact
-        uses: SWAT-engineering/maven-full-artifacts-action@v1.9-rc4
+        uses: SWAT-engineering/maven-full-artifacts-action@v1.9-rc5
 
       - name: Prepare Draft Release
         uses: softprops/action-gh-release@v3
