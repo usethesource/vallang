@@ -49,62 +49,62 @@ public final class BasicValueSmokeTest {
 
             // PathURI
             ISourceLocation loc1 = vf.sourceLocation("UJ", "", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
-            assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc1.toString());
+            assertEquals("|uj:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc1.toString());
 
             // PathAuthorityURI
             ISourceLocation loc2 = vf.sourceLocation("UJ", "UK", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
-            assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc2.toString());
+            assertEquals("|uj://uk/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc2.toString());
 
             // PathAuthorityURI
             ISourceLocation loc3 = vf.sourceLocation("UJ", "UK", "/pkZ/T5/17152/7/𒉻𒂮𠇯");
-            assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc3.toString());
+            assertEquals("|uj://uk/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc3.toString());
             // QueryURI
             ISourceLocation loc4 = vf.sourceLocation("UJ", "", "", "bla=𒉻𒂮𠇯", "");
-            assertEquals("|UJ:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc4.toString());
+            assertEquals("|uj:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc4.toString());
 
             // QueryAuthorityURI
             ISourceLocation loc5 = vf.sourceLocation("UJ", "UK", "", "bla=𒉻𒂮𠇯", "");
-            assertEquals("|UJ://UK?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc5.toString());
+            assertEquals("|uj://uk?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc5.toString());
 
             // QueryPathURI
             ISourceLocation loc6 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯", "bla=𒉻𒂮𠇯", "");
-            assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc6.toString());
+            assertEquals("|uj:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc6.toString());
 
             // QueryPathAuthorityURI
             ISourceLocation loc7 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯", "bla=𒉻𒂮𠇯", "");
-            assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc7.toString());
+            assertEquals("|uj://uk/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc7.toString());
 
             // FragmentURI
             ISourceLocation loc8 = vf.sourceLocation("UJ", "", "","", "𒉻𒂮𠇯");
-            assertEquals("|UJ:///#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc8.toString());
+            assertEquals("|uj:///#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc8.toString());
 
             // FragmentAuthorityURI
             ISourceLocation loc9 = vf.sourceLocation("UJ", "UK", "","", "𒉻𒂮𠇯");
-            assertEquals("|UJ://UK#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc9.toString());
+            assertEquals("|uj://uk#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc9.toString());
 
             // FragmentPathURI
             ISourceLocation loc10 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯","", "𒉻𒂮𠇯");
-            assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc10.toString());
+            assertEquals("|uj:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc10.toString());
 
             // FragmentPathAuthorityURI
             ISourceLocation loc11 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯","", "𒉻𒂮𠇯");
-            assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc11.toString());
+            assertEquals("|uj://uk/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc11.toString());
 
             // FragmentQueryURI
             ISourceLocation loc12 = vf.sourceLocation("UJ", "", "","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
-            assertEquals("|UJ:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc12.toString());
+            assertEquals("|uj:///?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc12.toString());
 
             // FragmentQueryAuthorityURI
             ISourceLocation loc13 = vf.sourceLocation("UJ", "UK", "","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
-            assertEquals("|UJ://UK?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc13.toString());
+            assertEquals("|uj://uk?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc13.toString());
 
             // FragmentQueryPathURI
             ISourceLocation loc14 = vf.sourceLocation("UJ", "", "pkZ/T5/17152/7/𒉻𒂮𠇯","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
-            assertEquals("|UJ:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc14.toString());
+            assertEquals("|uj:///pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc14.toString());
 
             // FragmentQueryPathAuthorityURI
             ISourceLocation loc15 = vf.sourceLocation("UJ", "UK", "pkZ/T5/17152/7/𒉻𒂮𠇯","bla=𒉻𒂮𠇯", "𒉻𒂮𠇯");
-            assertEquals("|UJ://UK/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc15.toString());
+            assertEquals("|uj://uk/pkZ/T5/17152/7/%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF?bla=%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF#%F0%92%89%BB%F0%92%82%AE%F0%A0%87%AF|", loc15.toString());
         } catch (URISyntaxException e) {
             fail(e.getMessage());
         }
@@ -635,5 +635,14 @@ public final class BasicValueSmokeTest {
 
         ISourceLocation m = vf.sourceLocation(l, 10, 20);
         assertEquals(m.top(), l);
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testLocationNormalization(IValueFactory vf) throws URISyntaxException {
+        ISourceLocation l = vf.sourceLocation("tmp", "a", "/aBc.txt");
+        ISourceLocation l2 = vf.sourceLocation("TMP", "A", "/aBc.txt");
+        assertEquals(l, l2, "Scheme and authority should be normalized");
+        ISourceLocation l3 = vf.sourceLocation("http", "uSeR@EXAMPLE.com", "/aBc.txt");
+        assertEquals("uSeR@example.com", l3.getAuthority(), "user part should not be normalized");
     }
 }

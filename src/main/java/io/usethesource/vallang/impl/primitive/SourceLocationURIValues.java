@@ -130,7 +130,7 @@ import io.usethesource.vallang.type.TypeFactory;
         protected final String scheme;
 
         public BaseURI(String scheme)  {
-            this.scheme = INTERNED_SCHEMES.intern(scheme);
+            this.scheme = INTERNED_SCHEMES.intern(scheme.toLowerCase());
         }
 
 
@@ -333,10 +333,22 @@ import io.usethesource.vallang.type.TypeFactory;
     private static class AuthorityURI extends BaseURI {
         protected final String authority;
 
+        /**
+         * in RFC3986 it's adviced to lowercase all incoming host parts.
+         */
+        private static String normalizeHostPart(String authority) {
+            int userPartEnd = authority.indexOf('@');
+            if (userPartEnd > 0) {
+                return authority.substring(0, userPartEnd)
+                    + authority.substring(userPartEnd).toLowerCase();
+            }
+            return authority.toLowerCase();
+        }
+
         public AuthorityURI(String scheme, String authority)  {
             super(scheme);
 
-            this.authority = INTERNED_AUTHORIES.intern(authority);
+            this.authority = INTERNED_AUTHORIES.intern(normalizeHostPart(authority));
         }
 
         @Override
