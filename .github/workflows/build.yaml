@@ -91,6 +91,7 @@ jobs:
 
   deploy:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
+    environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'deployments' || '' }} 
     needs: [checker-framework, test]
     runs-on: ubuntu-latest
     steps:
