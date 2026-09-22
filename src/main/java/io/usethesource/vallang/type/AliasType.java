@@ -665,7 +665,7 @@ import io.usethesource.vallang.type.TypeFactory.TypeValues;
 
     @Override
     public boolean intersects(Type other) {
-        return false;
+        return fAliased.intersects(other);
     }
 
     @Override
