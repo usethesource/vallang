@@ -446,6 +446,42 @@ public class TypeTest {
         assertTrue(ft.valueType().isSubtypeOf(alias));
     }
 
+
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void aliasIntersectionUsesUnderlyingType(TypeFactory tf, TypeStore store) {
+        Type alias = tf.aliasType(store, "IntegerAlias", tf.integerType());
+        Type nested = tf.aliasType(store, "NestedIntegerAlias", alias);
+
+
+        assertTrue(alias.intersects(tf.integerType()));
+        assertTrue(nested.intersects(tf.integerType()));
+        assertTrue(tf.integerType().intersects(alias));
+        assertTrue(tf.integerType().intersects(nested));
+    }
+
+ 
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void aliasIntersectParametrizedType(TypeFactory tf, TypeStore store) {
+        Type parameter = tf.parameterType("T");
+        Type box = tf.aliasType(store, "Box", tf.tupleType(parameter), parameter);
+        Map<Type, Type> bindings = new HashMap<>();
+        bindings.put(parameter, tf.integerType());
+        Type intBox = box.instantiate(bindings);
+        Type actual = tf.functionType(tf.voidType(), tf.tupleType(intBox), tf.tupleEmpty());
+        Type formal = tf.functionType(tf.voidType(), tf.tupleType(box), tf.tupleEmpty());
+
+        assertTrue(intBox.intersects(box));
+        assertTrue(box.intersects(intBox));
+        assertTrue(actual.isSubtypeOf(formal));
+        assertTrue(formal.match(actual, bindings));
+
+        Type strBox = box.instantiate(Collections.singletonMap(parameter, tf.stringType()));
+        Type incompatible = tf.functionType(tf.voidType(), tf.tupleType(strBox), tf.tupleEmpty());
+        assertFalse(actual.isSubtypeOf(incompatible));
+    }
+
+
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void allComparableTypesIntersect(Type t, Type u) {
         if (!t.isBottom() && !u.isBottom() && t.comparable(u)) {
