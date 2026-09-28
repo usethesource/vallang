@@ -714,7 +714,12 @@ public class TypeStore {
                     throw new IllegalIdentifierException("Circular alias definition for: " + aliasName);
                 }
                 seen.add(aliasName);
-                return expandAliases1 (type.getAliased(), seen);
+                try{
+                    return expandAliases1 (type.getAliased(), seen);
+                }
+                finally{
+                    seen.remove(aliasName);
+                }
             }
 
             @Override
