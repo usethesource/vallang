@@ -483,6 +483,19 @@ public class TypeTest {
 
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void aliasDuplicateInsideConstructor(TypeFactory tf, TypeStore store) {
+        // The same alias used twice in one constructor should not be a cycle
+        Type pair = tf.aliasType(store, "DuplicatedAliasPair", tf.tupleType(tf.integerType(), tf.integerType()));
+        Type adt = tf.abstractDataType(store, "DuplicatedAliasData");
+        // list is used here to trigger the bug because expandAliases is only called in declareConstructor 
+        // (see TODO note in TypeStore.java)
+        Assertions.assertDoesNotThrow(
+            () -> tf.constructor(store, adt, "twice", tf.listType(pair), tf.listType(pair)),
+            "an alias occurring twice in a constructor is not a circular alias definition");
+    }
+
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void allComparableTypesIntersect(Type t, Type u) {
         if (!t.isBottom() && !u.isBottom() && t.comparable(u)) {
             if (!t.intersects(u)) {
