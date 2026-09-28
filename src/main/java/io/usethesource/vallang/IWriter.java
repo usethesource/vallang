@@ -8,9 +8,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+import org.checkerframework.checker.nullness.qual.KeyForBottom;
+
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
-public interface IWriter<T extends ICollection<T>> extends Iterable<IValue>, Collector<IValue, IWriter<T>, T> {
+public interface IWriter<@KeyForBottom T extends ICollection<T>> extends Iterable<IValue>, Collector<IValue, IWriter<T>, T> {
     /**
      * Modify this writer to insert only unique instances into the collection
      * @return
