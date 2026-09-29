@@ -13,6 +13,8 @@ package io.usethesource.vallang;
 import java.util.Iterator;
 import java.util.function.Function;
 
+import org.checkerframework.checker.nullness.qual.KeyForBottom;
+
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 
@@ -24,7 +26,7 @@ import io.usethesource.vallang.type.Type;
  *
  * @param <C> a collection value type like ISet or IList
  */
-public interface IRelation<C extends ICollection<C>> extends Iterable<IValue> {
+public interface IRelation<@KeyForBottom C extends ICollection<C>> extends Iterable<IValue> {
 
     @Override
     default Iterator<IValue> iterator() {
