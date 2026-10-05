@@ -403,7 +403,11 @@ public class StandardTextReader extends AbstractTextReader {
                 }
                 else {
                     constr = alternatives.iterator().next();
-                    args = constr.getFieldTypes();
+                    Map<Type, Type> bindings = new HashMap<>();
+                    if (!constr.getAbstractDataType().match(expected, bindings)) {
+                        throw new UnexpectedTypeException(expected, constr.getAbstractDataType());
+                    }
+                    args = constr.getFieldTypes().instantiate(bindings);
                 }
             }
 
