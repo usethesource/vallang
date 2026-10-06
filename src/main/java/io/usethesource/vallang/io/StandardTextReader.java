@@ -425,6 +425,12 @@ public class StandardTextReader extends AbstractTextReader {
                     throw new FactParseError("Constructor " + id + " expects " + constr.getArity()
                         + " arguments, but got " + result.length, stream.offset);
                 }
+                for (Map.Entry<String, IValue> keyword : kwParams.entrySet()) {
+                    Type keywordType = store.getKeywordParameterType(constr, keyword.getKey());
+                    if (keywordType != null && !keyword.getValue().getType().isSubtypeOf(keywordType)) {
+                        throw new UnexpectedTypeException(keywordType, keyword.getValue().getType());
+                    }
+                }
                 return factory.constructor(constr, result, kwParams);
             } else {
                 return factory.node(id, result, kwParams);
