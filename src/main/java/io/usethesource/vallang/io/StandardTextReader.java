@@ -124,10 +124,10 @@ public class StandardTextReader extends AbstractTextReader {
                 String id = readIdentifier();
 
                 if (!escaped && id.equals("true") && !expected.isAbstractData()) {
-                    return factory.bool(true);
+                    result = factory.bool(true);
                 }
                 else if (!escaped && id.equals("false") && !expected.isAbstractData()) {
-                    return factory.bool(false);
+                    result = factory.bool(false);
                 }
                 else if (current == '=') {
                     return factory.string(id);
@@ -421,6 +421,10 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             if (constr != null) {
+                if (result.length != constr.getArity()) {
+                    throw new FactParseError("Constructor " + id + " expects " + constr.getArity()
+                        + " arguments, but got " + result.length, stream.offset);
+                }
                 return factory.constructor(constr, result, kwParams);
             } else {
                 return factory.node(id, result, kwParams);
@@ -833,20 +837,17 @@ public class StandardTextReader extends AbstractTextReader {
 
         private void readFixed(Type expected, char end, List<@NonNull IValue> arr, Map<String,IValue> kwParams) throws IOException {
             current = stream.read();
+            Type fields = expected.isConstructor() ? expected.getFieldTypes() : expected;
 
             for (int i = 0; current != end; i++) {
-                Type exp = expected.isFixedWidth() && i < expected.getArity() ? expected.getFieldType(i) : types.valueType();
+                Type exp = fields.isFixedWidth() && i < fields.getArity() ? fields.getFieldType(i) : types.valueType();
                 IValue elem = readValue(exp);
 
                 if (current == '=') {
                     String label = ((IString) elem).getValue();
                     current = stream.read();
-                    if (expected.isConstructor() && expected.hasField(label)) {
-                        kwParams.put(label, readValue(expected.getFieldType(label)));
-                    }
-                    else {
-                        kwParams.put(label, readValue(types.valueType()));
-                    }
+                    Type keywordType = expected.isConstructor() ? store.getKeywordParameterType(expected, label) : null;
+                    kwParams.put(label, readValue(keywordType != null ? keywordType : types.valueType()));
                 }
                 else {
                     arr.add(elem);
