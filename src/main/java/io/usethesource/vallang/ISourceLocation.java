@@ -112,7 +112,7 @@ public interface ISourceLocation extends IValue {
     public int getBeginLine();
 
     /**
-     * @return the (exclusive) line where the location ends
+     * @return the (inclusive) line where the location ends
      * @throws UnsupportedOperationException
      */
     public int getEndLine();

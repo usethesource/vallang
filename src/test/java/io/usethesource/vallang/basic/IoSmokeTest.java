@@ -136,6 +136,20 @@ public class IoSmokeTest extends BooleanStoreProvider {
     }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testImbricatedParametrizedDataType(IValueFactory vf, TypeFactory tf, TypeStore store) throws FactTypeUseException, IOException {
+        Type T = tf.parameterType("T");
+        Type MaybeT = tf.abstractDataType(store, "Maybe", T);
+        Type just = tf.constructor(store, MaybeT, "just", T, "t");
+        Type MaybeInt = MaybeT.instantiate(Map.of(T, tf.integerType()));
+        Type MaybeMaybeInt = MaybeT.instantiate(Map.of(T, MaybeInt));
+
+        StandardTextReader reader = new StandardTextReader();
+
+        IValue s = reader.read(vf, store, MaybeMaybeInt, new StringReader("just(just(1))"));
+        assertEquals(vf.constructor(just, vf.constructor(just, vf.integer(1))), s);
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testStandardReader(IValueFactory vf) throws FactTypeUseException, IOException {
         StandardTextReader reader = new StandardTextReader();
 
