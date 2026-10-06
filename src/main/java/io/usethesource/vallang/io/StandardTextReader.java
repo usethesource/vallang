@@ -403,7 +403,7 @@ public class StandardTextReader extends AbstractTextReader {
                 }
                 else {
                     constr = alternatives.iterator().next();
-                    args = constr.getFieldTypes();
+                    args = constr;
                 }
             }
 
@@ -833,20 +833,17 @@ public class StandardTextReader extends AbstractTextReader {
 
         private void readFixed(Type expected, char end, List<@NonNull IValue> arr, Map<String,IValue> kwParams) throws IOException {
             current = stream.read();
+            Type fields = expected.isConstructor() ? expected.getFieldTypes() : expected;
 
             for (int i = 0; current != end; i++) {
-                Type exp = expected.isFixedWidth() && i < expected.getArity() ? expected.getFieldType(i) : types.valueType();
+                Type exp = fields.isFixedWidth() && i < fields.getArity() ? fields.getFieldType(i) : types.valueType();
                 IValue elem = readValue(exp);
 
                 if (current == '=') {
                     String label = ((IString) elem).getValue();
                     current = stream.read();
-                    if (expected.isConstructor() && expected.hasField(label)) {
-                        kwParams.put(label, readValue(expected.getFieldType(label)));
-                    }
-                    else {
-                        kwParams.put(label, readValue(types.valueType()));
-                    }
+                    Type keywordType = expected.isConstructor() ? store.getKeywordParameterType(expected, label) : null;
+                    kwParams.put(label, readValue(keywordType != null ? keywordType : types.valueType()));
                 }
                 else {
                     arr.add(elem);

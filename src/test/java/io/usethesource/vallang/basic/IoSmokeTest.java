@@ -39,6 +39,23 @@ import io.usethesource.vallang.type.TypeStore;
 public class IoSmokeTest extends BooleanStoreProvider {
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testStandardReaderKeywordTypeValidation(IValueFactory vf, TypeFactory tf, TypeStore store) throws IOException {
+        Type adt = tf.abstractDataType(store, "A");
+        Type constructor = tf.constructor(store, adt, "f", tf.integerType(), "n");
+        store.declareKeywordParameter(adt, "count", tf.integerType());
+        store.declareKeywordParameter(constructor, "localCount", tf.integerType());
+        StandardTextReader reader = new StandardTextReader();
+
+        assertThrows(UnexpectedTypeException.class,
+            () -> reader.read(vf, store, adt, new StringReader("f(1,count=\"wrong\")")));
+        assertThrows(UnexpectedTypeException.class,
+            () -> reader.read(vf, store, adt, new StringReader("f(1,localCount=\"wrong\")")));
+        assertEquals(vf.constructor(constructor, vf.integer(1)).asWithKeywordParameters()
+            .setParameters(Map.of("count", vf.integer(2), "localCount", vf.integer(3))),
+            reader.read(vf, store, adt, new StringReader("f(1,count=2,localCount=3)")));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testStandardReaderTypeValidation(IValueFactory vf, TypeFactory tf, TypeStore store) {
         Type adt = tf.abstractDataType(store, "A");
         tf.constructor(store, adt, "f", tf.integerType(), "n");
