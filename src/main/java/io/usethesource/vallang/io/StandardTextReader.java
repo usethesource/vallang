@@ -124,10 +124,10 @@ public class StandardTextReader extends AbstractTextReader {
                 String id = readIdentifier();
 
                 if (!escaped && id.equals("true") && !expected.isAbstractData()) {
-                    return factory.bool(true);
+                    result = factory.bool(true);
                 }
                 else if (!escaped && id.equals("false") && !expected.isAbstractData()) {
-                    return factory.bool(false);
+                    result = factory.bool(false);
                 }
                 else if (current == '=') {
                     return factory.string(id);
@@ -417,6 +417,10 @@ public class StandardTextReader extends AbstractTextReader {
             }
 
             if (constr != null) {
+                if (result.length != constr.getArity()) {
+                    throw new FactParseError("Constructor " + id + " expects " + constr.getArity()
+                        + " arguments, but got " + result.length, stream.offset);
+                }
                 return factory.constructor(constr, result, kwParams);
             } else {
                 return factory.node(id, result, kwParams);

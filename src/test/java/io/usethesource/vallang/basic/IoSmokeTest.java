@@ -13,6 +13,7 @@
 package io.usethesource.vallang.basic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -26,7 +27,9 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.ValueProvider;
+import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.exceptions.UnexpectedTypeException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
@@ -34,6 +37,36 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class IoSmokeTest extends BooleanStoreProvider {
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testStandardReaderTypeValidation(IValueFactory vf, TypeFactory tf, TypeStore store) {
+        Type adt = tf.abstractDataType(store, "A");
+        tf.constructor(store, adt, "f", tf.integerType(), "n");
+        StandardTextReader reader = new StandardTextReader();
+
+        assertThrows(UnexpectedTypeException.class,
+            () -> reader.read(vf, store, tf.integerType(), new StringReader("true")));
+        assertThrows(UnexpectedTypeException.class,
+            () -> reader.read(vf, store, tf.integerType(), new StringReader("false")));
+        assertThrows(UnexpectedTypeException.class,
+            () -> reader.read(vf, store, adt, new StringReader("f(true)")));
+        assertThrows(UnexpectedTypeException.class,
+            () -> reader.read(vf, store, adt, new StringReader("f(false)")));
+    }
+
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testStandardReaderConstructorArity(IValueFactory vf, TypeFactory tf, TypeStore store) throws IOException {
+        Type adt = tf.abstractDataType(store, "A");
+        Type constructor = tf.constructor(store, adt, "f", tf.integerType(), "n");
+        StandardTextReader reader = new StandardTextReader();
+
+        assertThrows(FactParseError.class,
+            () -> reader.read(vf, store, adt, new StringReader("f()")));
+        assertThrows(FactParseError.class,
+            () -> reader.read(vf, store, adt, new StringReader("f(1,2)")));
+        assertEquals(vf.constructor(constructor, vf.integer(1)),
+            reader.read(vf, store, adt, new StringReader("f(1)")));
+    }
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testToString(IValueFactory vf) throws FactTypeUseException, IOException {
