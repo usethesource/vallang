@@ -805,6 +805,13 @@ import io.usethesource.vallang.visitors.IValueVisitor;
         public Type getUninstantiatedConstructorType() {
             return uninstantiatedConstructorType;
         }
+
+        @Override
+        public IConstructor set(int index, IValue newArg) {
+            IValue[] newChildren = children.clone();
+            newChildren[index] = newArg;
+            return new TypeParameterizedConstructorN(uninstantiatedConstructorType, newChildren);
+        }
     }
 
     /**
