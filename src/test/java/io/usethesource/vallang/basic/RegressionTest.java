@@ -1,5 +1,6 @@
 package io.usethesource.vallang.basic;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -18,6 +19,25 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class RegressionTest {
+
+    
+    @ParameterizedTest @ArgumentsSource(ValueProvider.class)
+    public void testParameterizedConstructorUpdatePreservesDeclaration(IValueFactory vf, TypeFactory tf, TypeStore store) {
+        Type parameter = tf.parameterType("T");
+        Type adt = tf.abstractDataType(store, "P", parameter);
+        Type constructor = tf.constructor(store, adt, "p", parameter, "x");
+        store.declareKeywordParameter(constructor, "k", tf.integerType());
+        IConstructor original = vf.constructor(constructor, vf.integer(1)).asWithKeywordParameters()
+            .setParameter("k", vf.integer(2));
+
+        IConstructor updated = original.set("x", vf.integer(3));
+        assertEquals(constructor, updated.getUninstantiatedConstructorType());
+        assertTrue(store.hasKeywordParameter(updated.getUninstantiatedConstructorType(), "k"));
+        assertEquals(vf.integer(2), updated.asWithKeywordParameters().getParameter("k"));
+        assertEquals(vf.integer(3), updated.get("x"));
+        assertEquals(vf.integer(1), original.get("x"));
+    }
+
 
     @ParameterizedTest @ArgumentsSource(ValueProvider.class)
     public void testConstructorEquality(IValueFactory vf, TypeFactory tf) throws Exception {
