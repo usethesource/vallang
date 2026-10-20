@@ -61,14 +61,20 @@ public class TypeFactory {
     /**
      * Caches all types to implement canonicalization
      */
-    private final HashConsingMap<Type> fCache = new WeakReferenceHashConsingMap<>(32*1024, (int)TimeUnit.MINUTES.toSeconds(30));
+    private final HashConsingMap<Type> fCache;
     private volatile @MonotonicNonNull TypeValues typeValues; // lazy initialize
 
     private static class InstanceHolder {
         public static final TypeFactory sInstance = new TypeFactory();
     }
 
-    private TypeFactory() { }
+    /** cache the emtpy tuple type, as it takes up 2% of a profile of a full typechecker run */
+    private final Type cachedEmptyTuple;
+
+    private TypeFactory() {
+        this.fCache = new WeakReferenceHashConsingMap<>(32*1024, (int)TimeUnit.MINUTES.toSeconds(30));
+        this.cachedEmptyTuple = this.fCache.get(new TupleType(new Type[0]));
+    }
 
     public static TypeFactory getInstance() {
         return InstanceHolder.sInstance;
@@ -224,7 +230,7 @@ public class TypeFactory {
      * @return a reference to the unique empty tuple type.
      */
     public Type tupleEmpty() {
-        return getFromCache(new TupleType(new Type[0]));
+        return cachedEmptyTuple;
     }
 
     /**
