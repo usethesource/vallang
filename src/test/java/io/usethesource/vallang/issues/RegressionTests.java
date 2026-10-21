@@ -2,6 +2,7 @@ package io.usethesource.vallang.issues;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -78,4 +79,18 @@ public class RegressionTests {
         assertEquals("$", s.getValue());
     }
 
+    @ParameterizedTest
+    @ArgumentsSource(ValueProvider.class)
+    public void adtWithVoidTypedParameterIsNotReducedToPlain(TypeFactory tf) throws IOException {
+        var store = new TypeStore();
+        var type = tf.abstractDataType(store, "MyADT", tf.voidType());
+        var parameterType = type.getTypeParameters();
+        
+        // See https://github.com/usethesource/vallang/pull/364
+        assertNotEquals(parameterType, tf.voidType()); 
+        
+        // Cannot compare to `tf.tupleType(tf.voidType())` as that is reduced to `void`
+        assertTrue(parameterType.isTuple());
+        assertEquals(parameterType.getFieldType(0), tf.voidType());
+    }
 }

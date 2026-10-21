@@ -556,7 +556,7 @@ public class TypeFactory {
 
         Type paramType = voidType();
         if (parameters.length != 0) {
-            paramType = tupleType(parameters);
+            paramType = (TupleType) getFromCache(new TupleType(parameters));
         }
 
         return abstractDataTypeFromTuple(store, name, paramType);
