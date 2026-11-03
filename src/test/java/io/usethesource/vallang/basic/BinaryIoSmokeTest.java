@@ -258,7 +258,7 @@ public final class BinaryIoSmokeTest extends BooleanStoreProvider {
         }
     }
 
-    private final CompressionRate[] RATES_TO_TESTS = {CompressionRate.Normal, CompressionRate.Extreme, CompressionRate.None, CompressionRate.NoSharing};
+    private final CompressionRate[] RATES_TO_TESTS = {CompressionRate.Normal, CompressionRate.NormalWithSharing, CompressionRate.Extreme, CompressionRate.None, CompressionRate.NoSharing, CompressionRate.ExtremeWithSharing};
 
     private void ioRoundTrip(IValueFactory vf, TypeStore ts, IValue value) throws IOException {
         for (var rate: RATES_TO_TESTS) {

@@ -45,6 +45,8 @@ public class IValueOutputStream implements Closeable {
 
     /**
      * Compression of the serializer, balances lookback windows and compression algorithm
+     * The "WithSharing" variants create better compression results, but are not suited for
+     * deep structures such as ADT & Parse trees, where the equals is too expensive
      */
     public enum CompressionRate {
         /**
@@ -56,15 +58,23 @@ public class IValueOutputStream implements Closeable {
         Normal(Header.Compression.ZSTD, 5),
         Strong(Header.Compression.ZSTD, 13),
         Extreme(Header.Compression.ZSTD, 19),
+        NormalWithSharing(Header.Compression.ZSTD, 5, true),
+        StrongWithSharing(Header.Compression.ZSTD, 13, true),
+        ExtremeWithSharing(Header.Compression.ZSTD, 19, true),
         XML(Compression.NONE, 0)
         ;
 
         private final int compressionAlgorithm;
         private final int compressionLevel;
+        private final boolean maximalSharing;
 
         CompressionRate(int compressionAlgorithm, int compressionLevel) {
+            this(compressionAlgorithm, compressionLevel, false);
+        }
+        CompressionRate(int compressionAlgorithm, int compressionLevel, boolean maximalSharing) {
             this.compressionLevel = compressionLevel;
             this.compressionAlgorithm = compressionAlgorithm;
+            this.maximalSharing = maximalSharing;
         }
     }
 
@@ -102,7 +112,7 @@ public class IValueOutputStream implements Closeable {
         if (writer == null) {
             writer = initializeWriter(sizes);
         }
-        IValueWriter.write(writer, vf, sizes, value);
+        IValueWriter.write(writer, vf, sizes, compression.maximalSharing, value);
     }
 
 
@@ -132,7 +142,6 @@ public class IValueOutputStream implements Closeable {
         }
         return new BinaryWireOutputStream(rawStream, sizes.stringsWindow);
     }
-
 
     @Override
     public void close() throws IOException {
