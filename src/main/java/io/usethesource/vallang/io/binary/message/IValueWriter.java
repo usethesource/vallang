@@ -46,6 +46,21 @@ import io.usethesource.vallang.type.TypeStore;
  *
  */
 public class IValueWriter {
+
+    /**
+    * Write an IValue to an exisiting wire stream. <br />
+    * <br />
+    * In most cases you want to use the {@linkplain IValueOutputStream}.
+    *
+    * @param writer the wire writer to use
+    * @param vf the value factory used to rewrite external value types
+    * @param size the window sizes to use
+    * @param value the value to write   @throws IOException
+    */
+    public static void write(IWireOutputStream writer, IValueFactory vf, WindowSizes size, IValue value) throws IOException {
+        write(writer, vf, size, false, value);
+    }
+
     /**
      * Write an IValue to an exisiting wire stream. <br />
      * <br />
@@ -54,13 +69,14 @@ public class IValueWriter {
      * @param writer the wire writer to use
      * @param vf the value factory used to rewrite external value types
      * @param size the window sizes to use
+     * @param maximalSharing try to reduce output size by recognizing same values acorss the window
      * @param value the value to write   @throws IOException
      */
-    public static void write(IWireOutputStream writer, IValueFactory vf, WindowSizes size, IValue value) throws IOException {
+    public static void write(IWireOutputStream writer, IValueFactory vf, WindowSizes size, boolean maximalSharing, IValue value) throws IOException {
         final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
-        TrackLastWritten<Type> typeCache = windowFactory.getTrackLastWrittenReferenceEquality(size.typeWindow);
-        TrackLastWritten<IValue> valueCache = windowFactory.getTrackLastWrittenReferenceEquality(size.valueWindow);
-        TrackLastWritten<ISourceLocation> uriCache = windowFactory.getTrackLastWrittenReferenceEquality(size.uriWindow);
+        TrackLastWritten<Type> typeCache = windowFactory.getTrackLastWrittenReferenceEquality(size.typeWindow); // always maximally shared
+        TrackLastWritten<IValue> valueCache = maximalSharing ? windowFactory.getTrackLastWrittenObjectEquality(size.valueWindow) : windowFactory.getTrackLastWrittenReferenceEquality(size.valueWindow);
+        TrackLastWritten<ISourceLocation> uriCache = maximalSharing ? windowFactory.getTrackLastWrittenObjectEquality(size.uriWindow) : windowFactory.getTrackLastWrittenReferenceEquality(size.uriWindow);
         try {
             writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
             writer.writeNestedField(IValueIDs.Header.VALUE);
@@ -68,8 +84,14 @@ public class IValueWriter {
             writer.endMessage();
         } finally {
             windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
-            windowFactory.returnTrackLastWrittenReferenceEquality(valueCache);
-            windowFactory.returnTrackLastWrittenReferenceEquality(uriCache);
+            if (maximalSharing) {
+                windowFactory.returnTrackLastWrittenObjectEquality(valueCache);
+                windowFactory.returnTrackLastWrittenObjectEquality(uriCache);
+            }
+            else {
+                windowFactory.returnTrackLastWrittenReferenceEquality(valueCache);
+                windowFactory.returnTrackLastWrittenReferenceEquality(uriCache);
+            }
         }
     }
 
